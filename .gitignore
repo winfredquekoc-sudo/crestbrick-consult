@@ -1,1 +1,11 @@
 .vercel
+
+# Local agent/vector DBs (never commit)
+agentdb.rvf
+agentdb.rvf.lock
+ruvector.db
+*.rvf
+
+# OS / editor cruft
+.DS_Store
+*.swp
