@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /*?utm_
+Disallow: /*?fbclid=
+Disallow: /*?gclid=
+Disallow: /*?msclkid=
+
+Sitemap: https://winfredquek.com/sitemap.xml

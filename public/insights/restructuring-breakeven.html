@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Restructuring in Singapore: When the ABSD Saved Exceeds the Cost  --  Winfred Quek</title>
+  <meta name="description" content="The honest break-even math on property restructuring in Singapore. Cost modelling, post-2023 IRAS scrutiny, and when the advisor should tell you NOT to restructure. By Winfred Quek, Crestbrick." />
+  <meta property="og:title" content="Restructuring Property Singapore: The Break-even Math (2026)" />
+  <meta property="og:description" content="The worked numbers on restructuring  --  when it pays, when it doesn't, and the post-2023 IRAS scrutiny rules." />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/insights/restructuring-breakeven" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://winfredquek.com/insights/restructuring-breakeven" />
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Article",
+    "headline":"Restructuring in Singapore: When the ABSD Saved Actually Exceeds the Cost",
+    "description":"Break-even math on property restructuring in Singapore  --  cost modelling, post-2023 IRAS scrutiny, and when not to do it.",
+    "image":"https://winfredquek.com/img/og-image.jpg",
+    "author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Senior Associate District Director","identifier":"CEA R073319H"},
+    "publisher":{"@type":"Organization","name":"Crestbrick","logo":{"@type":"ImageObject","url":"https://winfredquek.com/img/og-image.jpg"}},
+    "datePublished":"2026-04-19",
+    "dateModified":"2026-04-19",
+    "wordCount":2050,
+    "mainEntityOfPage":"https://winfredquek.com/insights/restructuring-breakeven"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},
+      {"@type":"ListItem","position":2,"name":"Insights","item":"https://winfredquek.com/insights"},
+      {"@type":"ListItem","position":3,"name":"Restructuring break-even","item":"https://winfredquek.com/insights/restructuring-breakeven"}
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f1117;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .topnav a.nav-link.active::after{content:"";display:block;height:1px;background:var(--accent);margin-top:4px;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    article p{font-size:1.05rem;line-height:1.75;color:var(--ink-soft);margin-bottom:1.1em;}
+    article h2{font-family:'Fraunces',Georgia,serif;font-size:1.75rem;font-weight:600;margin:2em 0 .6em;color:var(--ink);}
+    article h3{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;margin:1.4em 0 .4em;color:var(--ink);}
+    article ul,article ol{padding-left:1.4em;color:var(--ink-soft);margin-bottom:1.1em;}
+    article ul{list-style:disc;} article ol{list-style:decimal;}
+    article ul li,article ol li{margin-bottom:.35em;}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:1em 0;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    .cta-block{background:white;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
+    .calc{background:white;border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;font-family:'Fraunces',Georgia,serif;font-size:1.05rem;color:var(--ink);margin:1em 0;}
+    .calc .line{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed var(--rule);}
+    .calc .line:last-child{border-bottom:0;padding-top:.6rem;border-top:2px solid var(--accent);font-weight:600;}
+    .warn{background:#fdf6ec;border:1px solid #e6d3a1;border-radius:10px;padding:1rem 1.25rem;color:var(--ink);margin:1.4em 0;font-size:.95rem;}
+  </style>
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/about">About</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/listings">Listings</a><a class="nav-link link-underline" href="/new-launches">New Launches</a><a class="nav-link link-underline" href="/districts">Districts</a><a class="nav-link link-underline active" href="/insights">Insights</a><a class="nav-link link-underline" href="/track-record">Track Record</a><a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/about">About</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/listings">Listings</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a>
+    </div>
+  </div>
+</header>
+
+<main>
+<article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+  <p class="section-label mb-4"><a href="/insights" class="hover:underline">← All insights</a></p>
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Restructuring · Pillar 4</p>
+  <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Restructuring in Singapore: when the ABSD saved actually exceeds the cost</h1>
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek · 10-minute read · Updated 19 April 2026</p>
+
+  <p>Restructuring  --  the process of removing one spouse from a jointly-owned property so they can buy another without triggering <a href="/absd-calculator.html" class="text-[var(--accent)] hover:underline">ABSD</a>  --  is one of the most over-sold moves in Singapore property. I've sat in meetings where an agent walks a couple through "ABSD savings of S$400,000" without once showing the S$80,000 of costs on the other side.</p>
+
+  <p>This piece is the math I'd want someone to show me. Worked example. Real numbers. Including the cases where restructuring is the wrong move  --  because my job is to tell you not to do it when the numbers don't hold.</p>
+
+  <h2>1. What restructuring actually is</h2>
+  <p>Restructuring in the Singapore context means one co-owner transfers their share of a property to the other, ending joint ownership. The transferee now owns 100%. The transferor no longer appears on title  --  which restores their ABSD-free first-property status for a new purchase.</p>
+  <p>In practice, this is a full share transfer from 50/50 joint ownership to 100/0 sole ownership. The market value of the transferred share is the consideration on which <a href="/stamp-duty-calculator.html" class="text-[var(--accent)] hover:underline">Buyer's Stamp Duty</a> is computed. There's no shortcut structure that avoids this  --  anything that looks like one usually ends up in the IRAS section below.</p>
+  <p>For HDB flats, restructuring is no longer permitted since 2016 except in very limited cases (divorce, financial hardship, demise). For private property, it remains legal when done properly.</p>
+
+  <h2>2. The three costs on the "save" side</h2>
+  <p>Every restructuring transaction has three cost buckets. Miss one and the math is wrong:</p>
+  <ol>
+    <li><strong>Buyer's Stamp Duty on the transferred share.</strong> Computed on the market value of the share transferred. Rates step up from 1% to 6% depending on value. This is the largest cost.</li>
+    <li><strong>Legal and conveyancing fees.</strong> Typically S$6,000–S$8,000 combined (both parties need separate representation for this transaction).</li>
+    <li><strong>Loan restructuring cost.</strong> The outgoing spouse's name is removed from the mortgage; the remaining spouse must re-qualify solo under <a href="/tdsr-calculator.html" class="text-[var(--accent)] hover:underline">TDSR</a>/MSR. If you're mid-lock-in, prepayment penalty may apply (typically 1.5% of outstanding).</li>
+  </ol>
+  <p>You also have the opportunity cost of capital: the transferee needs liquid funds to buy out the transferor's equity. That capital now sits in property equity instead of being available for the new purchase.</p>
+
+  <h2>3. The worked example  --  when it works</h2>
+  <p>Singapore Citizen couple, married. They co-own a condo worth S$2.4M with S$1.0M outstanding loan. They want to buy a S$2.0M investment property.</p>
+  <p>Without restructuring: ABSD on second property (SC) = 20% × S$2.0M = <strong>S$400,000</strong>.</p>
+  <p>With restructuring: Wife transfers her 50% share to husband. Husband becomes sole owner of the existing condo. Wife is now ABSD-free for a "first" purchase.</p>
+
+  <div class="calc">
+    <p class="text-xs uppercase tracking-widest mb-3" style="color:var(--accent);font-family:Inter,sans-serif;">Cost of the restructuring itself</p>
+    <div class="line"><span>Share transferred value (50% of S$2.4M)</span><span>S$1,200,000</span></div>
+    <div class="line"><span>BSD on S$1.2M transfer</span><span>~S$32,600</span></div>
+    <div class="line"><span>Legal / conveyancing (both sides)</span><span>S$7,500</span></div>
+    <div class="line"><span>Loan restructuring / repricing</span><span>S$3,000</span></div>
+    <div class="line"><span>Cash buy-out of transferor's equity (~S$700k)</span><span>Opportunity cost</span></div>
+    <div class="line"><span>Hard cost total</span><span>~S$43,100</span></div>
+  </div>
+
+  <div class="calc">
+    <p class="text-xs uppercase tracking-widest mb-3" style="color:var(--accent);font-family:Inter,sans-serif;">ABSD saved vs restructuring cost</p>
+    <div class="line"><span>ABSD avoided on new S$2.0M purchase</span><span>S$400,000</span></div>
+    <div class="line"><span>Restructuring hard cost</span><span>(S$43,100)</span></div>
+    <div class="line"><span>Net saving</span><span>S$356,900</span></div>
+  </div>
+
+  <p>On these numbers, restructuring is clearly worth it. The break-even ratio is healthy  --  ABSD saved is roughly 9× the cost of the move. That margin is why this case gets sold.</p>
+
+  <h2>4. The worked example  --  when it doesn't</h2>
+  <p>Different couple. Condo worth S$1.3M. Outstanding loan S$900k. Target second property: S$1.1M.</p>
+  <p>ABSD avoided (SC second): 20% × S$1.1M = S$220,000. Looks attractive on the surface.</p>
+
+  <div class="calc">
+    <p class="text-xs uppercase tracking-widest mb-3" style="color:var(--accent);font-family:Inter,sans-serif;">Restructuring cost on the smaller-condo case</p>
+    <div class="line"><span>Share transferred value (50% of S$1.3M)</span><span>S$650,000</span></div>
+    <div class="line"><span>BSD on S$650k transfer</span><span>~S$14,100</span></div>
+    <div class="line"><span>Legal + loan repricing</span><span>S$10,000</span></div>
+    <div class="line"><span>Hard cost total</span><span>~S$24,100</span></div>
+  </div>
+
+  <p>The ABSD-saved-to-cost ratio is still 9×. But here's what kills this case: the remaining spouse's TDSR. With S$900k outstanding solo on a S$1.3M unit plus the new S$1.1M purchase, most household incomes below S$25k/mth fail the TDSR assessment. The bank says no. The structure collapses. You've paid the BSD and legal fees to discover you can't buy the second property.</p>
+
+  <p>I've seen this exact scenario twice in the past eighteen months. Both times, the agent sold the "S$200k savings" without testing financing first. Both times, the couples came to me after the fact, out of pocket, with no path forward.</p>
+
+  <h2>5. Post-2023 IRAS scrutiny  --  why legitimate purpose matters</h2>
+  <div class="warn">
+    <strong>Important:</strong> Since April 2023, IRAS has intensified audits of ownership-restructuring arrangements it considers artificial. Where an arrangement is deemed a tax-avoidance scheme, ABSD can be clawed back with a 50% surcharge, plus interest. This isn't theoretical  --  letters have been sent.
+  </div>
+  <p>The General Anti-Avoidance Rule (Section 33A of the Stamp Duties Act) is being actively applied. The distinguishing question IRAS asks is whether the restructuring has genuine economic substance beyond avoiding ABSD on a known incoming purchase.</p>
+  <p>Restructuring of existing matrimonial property remains legal and legitimate  --  provided the restructuring has bona fide planning reasons (investment planning, estate planning, asset protection, or genuine ownership consolidation). A couple doing a round-trip transfer purely to dodge ABSD on a known incoming purchase is on far weaker ground. Work with a conveyancer who can articulate the non-tax rationale for the restructuring before you start.</p>
+
+  <h2>6. The break-even formula you should memorise</h2>
+  <p>Simple rule of thumb: restructuring becomes worth considering when the prospective ABSD on the new purchase exceeds roughly 7× the total restructuring cost  --  giving you meaningful margin after hard costs and execution risk.</p>
+  <p>Rough restructuring cost on a S$2M existing unit: S$40k–S$50k. So the new purchase needs to trigger at least ~S$280k of avoidable ABSD to make sense. At 20% SC ABSD, that's a second property of S$1.4M+.</p>
+  <p>Below that threshold, the math narrows and the execution risk (TDSR, IRAS scrutiny, valuation challenges) starts to dominate. Above it, restructuring is one of the cleanest structural moves available.</p>
+
+  <h2>7. The five questions I always ask before agreeing to restructure</h2>
+  <ol>
+    <li>Does the "freed" spouse genuinely qualify for the new purchase solo under TDSR/MSR? Pre-AIP before any transfer.</li>
+    <li>Is the existing unit's valuation defensible? Lowballing the transfer value to reduce BSD is how clients end up in IRAS letters.</li>
+    <li>What's the downstream exit? If the freed spouse sells the new purchase in 3 years and wants to buy another, we're back to square one.</li>
+    <li>Is there a genuine planning reason beyond just ABSD avoidance? Estate planning, divorce protection, investor separation  --  these strengthen the economic substance argument.</li>
+    <li>Does the couple's 10-year plan actually need a second property, or is it FOMO dressed up as strategy?</li>
+  </ol>
+
+  <h2>8. Restructuring alternatives that are sometimes better</h2>
+  <ul>
+    <li><strong>Sell the first property and size up.</strong> Removes ABSD entirely. Sometimes the right answer if the existing unit isn't the keeper you thought it was.</li>
+    <li><strong>Pay the ABSD.</strong> Heretical, but sometimes correct. If the target property has a compelling 5-year thesis and restructuring isn't clean, paying 20% ABSD on an asset that appreciates 30% over the hold still works.</li>
+    <li><strong>Buy under a family member's name legitimately.</strong> Separate ICP. Parent or adult child with clean ABSD slot. The relationship has to be genuine and the buyer needs genuine economic interest.</li>
+    <li><strong>Wait.</strong> ABSD rates have changed before and will change again. If there's no urgency, the right move might be patience.</li>
+  </ul>
+
+  <h2>9. Where restructuring sits in the 4-Pillar framework</h2>
+  <p>Restructuring lives in Pillar 4  --  Protection and Restructuring. It's a tool for reshaping the legal wrapper around your existing capital so the Progression pillar (Pillar 3) can operate without the full ABSD drag.</p>
+  <p>But  --  and this matters  --  Pillar 4 never drives the decision. Pillars 1 and 2 (Capital and Cashflow) decide whether you should buy a second property at all. Pillar 3 decides what and where. Pillar 4 is last: given the decision has been made, how do we implement it at the lowest friction? Clients who reach out to me asking "should I restructure?" are usually asking the wrong question. The right one is: "should I buy a second property, and if so, how?"</p>
+
+  <h2>10. The honest close</h2>
+  <p>I'll tell you not to restructure more often than I'll tell you to. Not because it's a bad tool  --  because it's frequently pitched at couples whose actual situation doesn't support it. When the numbers work, restructuring is one of the single highest-leverage moves in Singapore real estate. When they don't, it's an expensive detour into a bad trade.</p>
+  <p>The job of a good advisor is to know which case you're in before you sign anything.</p>
+
+  <div class="cta-block">
+    <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Book the 4-Pillar Portfolio Audit</p>
+    <p class="mb-4">If you're considering restructuring, come in for the audit first. Two hours. I'll run your actual numbers  --  restructuring cost, TDSR feasibility, IRAS risk assessment, and the downstream plan. If the math doesn't work, I'll tell you.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27m%20considering%20restructuring.%20Can%20we%20run%20the%20numbers%3F" class="btn btn-primary">WhatsApp to book →</a>
+      <a href="/contact" class="btn btn-ghost">Contact form</a>
+      <a href="/services" class="btn btn-ghost">See all services</a>
+    </div>
+  </div>
+
+  <h2>Related reading</h2>
+  <ul>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/ownership-restructuring-math">The ownership restructuring math nobody shows you</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/absd-singapore-2026">ABSD Singapore 2026: Every rate, every remission, every legal angle</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/absd-explained">ABSD explained (properly)</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/portfolio-blueprint-one-income">Building a Singapore portfolio on one income</a></li>
+  </ul>
+
+
+<div class="border border-[var(--rule)] rounded-lg p-5 mt-8 mb-4">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-2">Read next</p>
+  <a href="/insights/ownership-restructuring-math" class="serif text-lg font-semibold hover:text-[var(--accent)] transition">The ownership restructuring math nobody shows you →</a>
+</div>
+
+  <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is a Senior Associate District Director and founder of Crestbrick, advising Singapore upgraders, investors, and family offices using the 4-Pillar Portfolio Audit framework. CEA R073319H.</p>
+</article>
+</main>
+
+<div style="background:var(--rule);border-radius:12px;padding:2rem;margin:2rem auto;max-width:48rem;text-align:center;">
+  <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Ready to apply this to your portfolio?</p>
+  <p class="mb-5" style="color:var(--ink-soft);">Book a complimentary 30-minute portfolio audit with Winfred. Walk away with a clear action plan, not a sales pitch.</p>
+  <div class="flex flex-wrap gap-3 justify-center">
+    <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a portfolio audit →</a>
+    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20read%20your%20article%20and%20would%20like%20a%20portfolio%20audit." class="btn btn-ghost">Message on WhatsApp →</a>
+  </div>
+</div>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
+    <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H</p>
+    <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Not legal or financial advice.</span></div>
+  </div>
+</footer>
+
+<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20discuss%20restructuring." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="hidden sm:inline">Chat</span>
+</a>
+<script>(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+</body>
+</html>

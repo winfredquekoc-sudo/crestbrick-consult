@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>The CPF Accrued Interest Trap: Why HDB Sellers Lose 6 Figures  --  Winfred Quek</title>
+  <meta name="description" content="CPF accrued interest compounds at 2.5% and quietly erodes HDB sale proceeds. A worked example showing how S$200k used from CPF OA can turn into S$90k+ of accrued interest  --  and what upgraders should do about it. By Winfred Quek, Crestbrick." />
+  <meta property="og:title" content="The CPF Accrued Interest Trap  --  Winfred Quek" />
+  <meta property="og:description" content="How CPF accrued interest silently eats HDB sale proceeds, and the real math upgraders need before selling." />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/insights/cpf-accrued-interest-trap" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://winfredquek.com/insights/cpf-accrued-interest-trap" />
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Article",
+    "headline":"The CPF Accrued Interest Trap: Why HDB Sellers Are Losing 6 Figures Silently",
+    "description":"CPF accrued interest compounds at 2.5% and quietly erodes HDB sale proceeds. A worked example and the upgrader's playbook.",
+    "image":"https://winfredquek.com/img/og-image.jpg",
+    "author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Senior Associate District Director","identifier":"CEA R073319H"},
+    "publisher":{"@type":"Organization","name":"Crestbrick","logo":{"@type":"ImageObject","url":"https://winfredquek.com/img/og-image.jpg"}},
+    "datePublished":"2026-04-19",
+    "dateModified":"2026-04-19",
+    "wordCount":2150,
+    "mainEntityOfPage":"https://winfredquek.com/insights/cpf-accrued-interest-trap"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},
+      {"@type":"ListItem","position":2,"name":"Insights","item":"https://winfredquek.com/insights"},
+      {"@type":"ListItem","position":3,"name":"CPF Accrued Interest Trap","item":"https://winfredquek.com/insights/cpf-accrued-interest-trap"}
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f1117;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .topnav a.nav-link.active::after{content:"";display:block;height:1px;background:var(--accent);margin-top:4px;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    article p{font-size:1.05rem;line-height:1.75;color:var(--ink-soft);margin-bottom:1.1em;}
+    article h2{font-family:'Fraunces',Georgia,serif;font-size:1.75rem;font-weight:600;margin:2em 0 .6em;color:var(--ink);}
+    article h3{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;margin:1.4em 0 .4em;color:var(--ink);}
+    article ul,article ol{padding-left:1.4em;color:var(--ink-soft);margin-bottom:1.1em;}
+    article ul{list-style:disc;} article ol{list-style:decimal;}
+    article ul li,article ol li{margin-bottom:.35em;}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:1em 0;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    .cta-block{background:white;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
+    .warn{background:#fdf6ec;border:1px solid #e6d3a1;border-radius:10px;padding:1rem 1.25rem;color:var(--ink);margin:1.4em 0;font-size:.95rem;}
+    .flow-step{background:white;border-left:3px solid var(--accent);border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);border-radius:6px;padding:.9rem 1.1rem;margin:.5rem 0;}
+    .flow-step strong{color:var(--ink);}
+  </style>
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/about">About</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/listings">Listings</a><a class="nav-link link-underline" href="/new-launches">New Launches</a><a class="nav-link link-underline" href="/districts">Districts</a><a class="nav-link link-underline active" href="/insights">Insights</a><a class="nav-link link-underline" href="/track-record">Track Record</a><a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/about">About</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/listings">Listings</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section style="position:relative;overflow:hidden;background:#1e2d4a;padding:5rem 1.5rem 4rem;">
+  <!-- SVG: compound growth curve + hidden "trap" X marker -->
+  <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.13;" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <!-- Compound curve (accrued interest growing silently) -->
+    <path d="M0,370 C100,360 200,330 280,290 C360,250 400,200 460,150 C520,100 600,60 800,30" stroke="#faf8f4" stroke-width="2.5" fill="none"/>
+    <!-- Shaded area under curve -->
+    <path d="M0,370 C100,360 200,330 280,290 C360,250 400,200 460,150 C520,100 600,60 800,30 L800,400 L0,400 Z" fill="#faf8f4" opacity="0.04"/>
+    <!-- "Trap" X cross at the high point -->
+    <line x1="710" y1="20" x2="750" y2="60" stroke="#e05c5c" stroke-width="3"/>
+    <line x1="750" y1="20" x2="710" y2="60" stroke="#e05c5c" stroke-width="3"/>
+    <!-- Grid lines -->
+    <line x1="0" y1="100" x2="800" y2="100" stroke="#faf8f4" stroke-width=".4"/>
+    <line x1="0" y1="200" x2="800" y2="200" stroke="#faf8f4" stroke-width=".4"/>
+    <line x1="0" y1="300" x2="800" y2="300" stroke="#faf8f4" stroke-width=".4"/>
+    <line x1="200" y1="0" x2="200" y2="400" stroke="#faf8f4" stroke-width=".4"/>
+    <line x1="400" y1="0" x2="400" y2="400" stroke="#faf8f4" stroke-width=".4"/>
+    <line x1="600" y1="0" x2="600" y2="400" stroke="#faf8f4" stroke-width=".4"/>
+  </svg>
+  <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:linear-gradient(180deg,#e05c5c 0%,#1e2d4a 100%);pointer-events:none;"></div>
+  <div style="position:relative;max-width:72rem;margin:0 auto;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#a8c0d6;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#a8c0d6;text-decoration:none;">← All insights</a></p>
+    <span style="display:inline-block;background:#1e4a3a;color:#7ec8a4;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">CPF</span>
+    <h1 aria-hidden="true" style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:28ch;text-wrap:balance;margin-bottom:1.25rem;">The CPF accrued interest trap: why HDB sellers are losing six figures silently</h1>
+    <p style="color:#b0c4de;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 11-minute read &middot; Updated 19 April 2026</p>
+  </div>
+</section>
+
+<article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+  <p class="section-label mb-4"><a href="/insights" class="hover:underline">← All insights</a></p>
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Capital Pillar · 2026</p>
+  <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6" aria-hidden="true">The CPF accrued interest trap: why HDB sellers are losing six figures silently</h1>
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek · 11-minute read · Updated 19 April 2026</p>
+
+  <p>When an HDB upgrader comes to me with a freshly signed OTP and a sale plan for their existing flat, I ask two questions before anything else. What did you use from CPF OA to pay for the flat? And when did you last pull the accrued interest statement from the CPF portal? Nine times out of ten, I get a shrug on the first, and a blank on the second.</p>
+
+  <p>That blank is expensive. Accrued interest is the invisible liability on the back of every HDB transaction, and it compounds at 2.5% per annum whether you pay attention to it or not. I've seen sellers walk away from "profitable" sales with S$40,000 in cash proceeds and a quarter of their CPF pre-empted for a decade. This article walks through the mechanics, the worked example, and the upgrader's playbook I actually use.</p>
+
+  <h2>1. What accrued interest actually is</h2>
+  <p>When you use CPF Ordinary Account (OA) savings to pay for a property  --  the downpayment, monthly instalments, stamp duties, or legal fees  --  that money leaves your CPF account. The CPF Board treats this as an opportunity cost: had you left that money in OA, it would have earned 2.5% per annum risk-free.</p>
+
+  <p>When you sell the property, you must refund the original principal plus the accrued interest that money would have earned. Both go back into your CPF OA, not your bank account. This is not a fine or a penalty. It's restoring your retirement savings to where they would have been had you not withdrawn them.</p>
+
+  <p>The problem is that 2.5% compounds. Over 15 years, a S$100 CPF withdrawal becomes roughly S$145 in refund liability. Over 25 years, it becomes roughly S$186. For a typical upgrader who used S$150,000 to S$250,000 from CPF OA across downpayment and 10–15 years of servicing, the accrued interest alone runs into tens of thousands.</p>
+
+  <h2>2. The worked example  --  why S$200k becomes S$290k</h2>
+  <p>Let's take a realistic upgrader case. Couple buys a 5-room HDB flat in 2011 for S$500,000. Downpayment from CPF: S$100,000 combined. Over 15 years of servicing the HDB loan and top-up payments, they draw another S$100,000 from CPF OA. Total principal used: S$200,000. They now want to sell in 2026 and upgrade to a condo.</p>
+
+  <table>
+    <thead><tr><th>CPF usage over time</th><th>Principal</th><th>Accrued interest</th><th>Refund liability</th></tr></thead>
+    <tbody>
+      <tr><td>2011: Downpayment</td><td>S$100,000</td><td>S$45,000 (15 yrs @ 2.5%)</td><td>S$145,000</td></tr>
+      <tr><td>2012–2026: Monthly servicing</td><td>S$100,000</td><td>S$45,000 (avg 12 yrs)</td><td>S$145,000</td></tr>
+      <tr><td><strong>Total 2026 refund</strong></td><td><strong>S$200,000</strong></td><td><strong>S$90,000</strong></td><td><strong>S$290,000</strong></td></tr>
+    </tbody>
+  </table>
+  <p class="text-xs text-[var(--ink-muted)]">Indicative figures. Actual interest compounds monthly on each dollar drawn. Pull the exact number from the CPF portal's Property Dashboard.</p>
+
+  <p>They sell for S$750,000. After outstanding loan repayment of S$200,000 and CPF refund of S$290,000, the cash in hand is S$260,000. On a headline S$250,000 gain, the "profit" looks fine. But the S$290,000 that went back into CPF is real  --  just locked up, not available for condo downpayment.</p>
+
+  <h2>3. Why this matters for your next purchase</h2>
+  <p>Here's the quiet trap: upgraders assume that CPF refund is a good thing because "it's still my money." It is. But it's not cash. It doesn't pay for the 25% downpayment on the new condo (the 5% cash + 20% CPF+cash buffer). It can't pay <a href="/absd-calculator.html" class="text-[var(--accent)] hover:underline">ABSD</a>. And if your new purchase draws down OA again, you start a new accrued interest clock.</p>
+
+  <p>What looks like a profitable sale on paper may leave you with less <em>deployable</em> capital than you need for the upgrade. The risk scenarios I see:</p>
+
+  <ul>
+    <li><strong>Negative sale.</strong> Outstanding loan + CPF refund exceeds sale price. You have to top up in cash to close. This happens on flats bought at peak prices in 2013 with minimal appreciation since.</li>
+    <li><strong>Cash-thin sale.</strong> Refund eats most of the proceeds. You have enough for the new downpayment but nothing for renovation, buffer, or ABSD if applicable.</li>
+    <li><strong>CPF-locked sale.</strong> Proceeds go to CPF OA and can't be used for ABSD (which must be cash within 14 days) on a second property purchase.</li>
+  </ul>
+
+  <h2>4. The negative sale scenario  --  what it looks like</h2>
+  <p>Take a flat bought at S$600,000 in 2013 with S$150,000 CPF used. Fast forward to 2026: outstanding loan S$250,000, CPF refund liability S$220,000 (principal + accrued interest). Total: S$470,000. If the flat sells at S$500,000, the cash in hand is S$30,000 before agent fees. If it sells at S$450,000, the seller has to <em>pay</em> S$20,000 at completion.</p>
+
+  <p>The CPF Board has an explicit provision for this: when sale proceeds are insufficient to refund CPF in full, IRAS does not require cash top-up  --  but only if the sale is at or above valuation and the shortfall is demonstrably due to market conditions. Sellers selling below valuation to force a quick sale may need to top up. This is not widely understood.</p>
+
+  <div class="warn">
+    <strong>Pull the number early.</strong> The CPF Board's Property Dashboard (cpf.gov.sg, login required) shows your exact accrued interest to the dollar, updated monthly. I run this with every HDB client in the first 15 minutes of our meeting. If you haven't checked, you're flying blind.
+  </div>
+
+  <h2>5. The upgrader's decision matrix</h2>
+  <p>Once you know your accrued interest number, the decision tree clarifies fast. Three scenarios:</p>
+
+  <h3>Scenario A: Healthy equity, low refund ratio</h3>
+  <p>Sale proceeds cover loan + CPF refund + transaction costs with meaningful cash left over. This is the "clean upgrade" case. Proceed with a standard upgrade timeline  --  the CPF refund replenishes your OA, which then funds part of the new downpayment.</p>
+
+  <h3>Scenario B: Thin equity, high refund ratio</h3>
+  <p>Sale proceeds cover the obligations but leave minimal cash. You'll need external cash (savings, bridging loan, liquidated investments) to close the gap on ABSD, downpayment top-up, stamp duties, and renovation. Model the <a class="underline hover:no-underline" style="color:var(--accent);" href="/tools/affordability">full affordability picture</a> including these cash calls before committing.</p>
+
+  <h3>Scenario C: Negative sale risk</h3>
+  <p>Sale proceeds won't cover loan + CPF refund. Either wait (if you can), rent out if HDB rules permit (5-year MOP passed, then subject to rental permission), or plan for the partial CPF refund waiver. In all three sub-options, the upgrade is paused, not cancelled  --  timing matters more than pride.</p>
+
+  <h2>6. The accrued interest on the <em>new</em> purchase</h2>
+  <p>Once you sell and buy the upgrade, the accrued interest clock starts over on the new property. If you use S$200,000 from CPF OA on the condo downpayment and service the loan partly via CPF for 10 years, your next CPF refund liability at exit could easily exceed S$300,000.</p>
+
+  <p>This is why I always show clients the <em>lifetime</em> CPF math, not the single-transaction math. Each property restarts the compounding. Two upgrades over a 25-year horizon can lock up S$500,000+ of CPF in accrued interest alone  --  retirement savings that went to property holding, not property gains.</p>
+
+  <h2>7. Three ways to reduce accrued interest exposure</h2>
+  <ol>
+    <li><strong>Pay loan with cash, not CPF, when cashflow permits.</strong> Every dollar of cash servicing is a dollar that doesn't compound at 2.5% against you. If your household cashflow supports cash-only servicing for the final 5–7 years, the accrued interest delta at exit is materially smaller.</li>
+    <li><strong>Keep the loan longer, not shorter.</strong> Counter-intuitive but real: a larger outstanding loan at sale means more principal repaid to the bank and less residual CPF refund. Paying down early with CPF lump sums inflates accrued interest; paying with bank loan interest at 3–4% vs CPF's 2.5% is a 1–1.5% spread on the marginal dollar.</li>
+    <li><strong>Refund CPF voluntarily from rental or other income.</strong> If you hold the property and rent it out (applicable post-MOP with HDB, or investment condos), you can voluntarily refund CPF from rental income  --  stopping the compounding while retaining the asset. This isn't common advice, but it's legal and effective.</li>
+  </ol>
+
+  <h2>8. How I run this in the 4-Pillar Audit</h2>
+  <p>The CPF accrued interest number enters the Capital pillar (what's actually deployable) and the Protection pillar (retirement adequacy). In the audit, I model three things:</p>
+
+  <ul>
+    <li><strong>Deployable cash at sale.</strong> Sale price − loan − CPF refund − costs. Not "profit." Deployable cash.</li>
+    <li><strong>Post-refund CPF position.</strong> What OA looks like after the refund lands, and how much of that is usable for the next purchase.</li>
+    <li><strong>Lifetime CPF trajectory.</strong> Projected CPF balance at 55 under both the "upgrade now" and "hold the flat" scenarios. The 25-year difference is usually the most sobering number in the whole audit.</li>
+  </ul>
+
+  <p>Upgraders who see this math tend to make better timing decisions. The ones who don't see it often discover the problem at completion  --  when the numbers are locked and the refund is already pulling back into CPF.</p>
+
+  <h2>9. Three myths I hear weekly</h2>
+  <ul>
+    <li><strong>"It's my own money coming back to me, so it doesn't matter."</strong> It matters because it's not available for your next downpayment, your ABSD, or your renovation. Locked capital is different from free capital.</li>
+    <li><strong>"I can waive the refund."</strong> Only in specific negative-sale scenarios where sale is at valuation or above. Voluntary waiver on a profitable sale is not permitted.</li>
+    <li><strong>"I'll just sell when the market is hot."</strong> The CPF number compounds every month regardless of market. Waiting 3 more years for price appreciation adds ~S$15,000 to the refund on S$200,000 principal. The hot-market thesis has to beat that drag.</li>
+  </ul>
+
+  <h2>10. What to do this week</h2>
+  <p>If you own an HDB flat and are considering selling within the next 24 months, do three things this week:</p>
+  <ol>
+    <li>Log into the CPF portal and pull the exact accrued interest number for each owner on the title.</li>
+    <li>Get a realistic valuation  --  not a gut guess, an actual valuer's assessment or a recent comparable transaction analysis.</li>
+    <li>Run the deployable-cash calculation: sale price − outstanding loan − CPF refund (principal + accrued interest) − 2% transaction costs. That's what you actually have for the next step.</li>
+  </ol>
+
+  <p>If the number is smaller than you expected, you're not alone. Most upgraders haven't done this calculation honestly. The ones who do are the ones who avoid the post-completion regret.</p>
+
+  <div class="cta-block">
+    <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Book the 4-Pillar Portfolio Audit</p>
+    <p class="mb-4">Two hours. We pull your exact CPF accrued interest, model deployable cash at sale, and project the lifetime CPF trajectory under your upgrade scenarios. Numbers first, decision second.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20understand%20my%20CPF%20accrued%20interest%20before%20upgrading." class="btn btn-primary">WhatsApp to book →</a>
+      <a href="/contact" class="btn btn-ghost">Contact form</a>
+      <a href="/audit" class="btn btn-ghost">AI Portfolio Audit</a>
+    </div>
+  </div>
+
+  <h2>Related reading</h2>
+  <ul>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/hdb-mop-upgrade-timeline">HDB MOP to condo upgrade: the full timeline</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/portfolio-blueprint-one-income">Portfolio blueprint on one income</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/restructuring-breakeven">Restructuring in Singapore: the break-even math</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/absd-singapore-2026">ABSD Singapore 2026: the full reference</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/tools/affordability">Affordability calculator</a></li>
+  </ul>
+
+  <div class="article-cta" style="background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">Want to apply this to your own situation?</p>
+    <p style="color:#4a4a4a;margin-bottom:1rem;">Book a 30-min 4-Pillar Portfolio Audit with Winfred. No pressure, just honest numbers.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free audit call</a>
+  </div>
+
+
+<div class="border border-[var(--rule)] rounded-lg p-5 mt-8 mb-4">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-2">Read next</p>
+  <a href="/insights/hdb-mop-upgrade-timeline" class="serif text-lg font-semibold hover:text-[var(--accent)] transition">HDB MOP to condo upgrade: the full timeline & cost map →</a>
+</div>
+
+  <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is a Senior Associate District Director and founder of Crestbrick, advising Singapore upgraders, investors, and family offices using the 4-Pillar Portfolio Audit framework. CEA R073319H.</p>
+</article>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
+    <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H</p>
+    <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Not legal or financial advice.</span></div>
+  </div>
+</footer>
+
+<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20CPF%20accrued%20interest%20question." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="hidden sm:inline">Chat</span>
+</a>
+<script>(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+</body>
+</html>

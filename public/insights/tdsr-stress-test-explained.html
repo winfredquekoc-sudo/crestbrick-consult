@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TDSR Stress Test Singapore: Why Bank Calculators Mislead  --  Winfred Quek</title>
+  <meta name="description" content="TDSR stress test Singapore  --  MAS 4% stress-test rate mechanics, why bank calculators overstate borrowing capacity, and how variable income is actually treated. By Winfred Quek, Crestbrick." />
+  <meta property="og:title" content="TDSR Stress Test Singapore  --  Winfred Quek" />
+  <meta property="og:description" content="The real mechanics of MAS's 4% stress test, and why your bank's calculator gives false comfort." />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/insights/tdsr-stress-test-explained" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://winfredquek.com/insights/tdsr-stress-test-explained" />
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Article",
+    "headline":"TDSR Stress Test Singapore: Why Your Bank's Calculator Gives You False Comfort",
+    "description":"MAS 4% stress-test mechanics, variable income treatment, and the protection it actually provides.",
+    "image":"https://winfredquek.com/img/og-image.jpg",
+    "author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Senior Associate District Director","identifier":"CEA R073319H"},
+    "publisher":{"@type":"Organization","name":"Crestbrick","logo":{"@type":"ImageObject","url":"https://winfredquek.com/img/og-image.jpg"}},
+    "datePublished":"2026-04-19",
+    "dateModified":"2026-04-19",
+    "wordCount":2050,
+    "mainEntityOfPage":"https://winfredquek.com/insights/tdsr-stress-test-explained"
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},
+      {"@type":"ListItem","position":2,"name":"Insights","item":"https://winfredquek.com/insights"},
+      {"@type":"ListItem","position":3,"name":"TDSR Stress Test","item":"https://winfredquek.com/insights/tdsr-stress-test-explained"}
+    ]
+  }
+  </script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f1117;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .topnav a.nav-link.active::after{content:"";display:block;height:1px;background:var(--accent);margin-top:4px;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    article p{font-size:1.05rem;line-height:1.75;color:var(--ink-soft);margin-bottom:1.1em;}
+    article h2{font-family:'Fraunces',Georgia,serif;font-size:1.75rem;font-weight:600;margin:2em 0 .6em;color:var(--ink);}
+    article h3{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;margin:1.4em 0 .4em;color:var(--ink);}
+    article ul,article ol{padding-left:1.4em;color:var(--ink-soft);margin-bottom:1.1em;}
+    article ul{list-style:disc;} article ol{list-style:decimal;}
+    article ul li,article ol li{margin-bottom:.35em;}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:1em 0;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    .cta-block{background:white;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
+    .warn{background:#fdf6ec;border:1px solid #e6d3a1;border-radius:10px;padding:1rem 1.25rem;color:var(--ink);margin:1.4em 0;font-size:.95rem;}
+    .flow-step{background:white;border-left:3px solid var(--accent);border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);border-radius:6px;padding:.9rem 1.1rem;margin:.5rem 0;}
+    .flow-step strong{color:var(--ink);}
+  </style>
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/about">About</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/listings">Listings</a><a class="nav-link link-underline" href="/new-launches">New Launches</a><a class="nav-link link-underline" href="/districts">Districts</a><a class="nav-link link-underline active" href="/insights">Insights</a><a class="nav-link link-underline" href="/track-record">Track Record</a><a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/about">About</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/listings">Listings</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section style="position:relative;overflow:hidden;background:#1e2d4a;padding:5rem 1.5rem 4rem;">
+  <!-- SVG: pressure gauge / stress-test dial metaphor -->
+  <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.12;" preserveAspectRatio="xMidYMid slice" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg">
+    <!-- Semicircle gauge -->
+    <path d="M600,360 A160,160 0 0,1 440,200" stroke="#faf8f4" stroke-width="3" fill="none"/>
+    <path d="M440,200 A160,160 0 0,1 760,200" stroke="#faf8f4" stroke-width="3" fill="none"/>
+    <!-- Needle pointing at danger zone -->
+    <line x1="600" y1="360" x2="680" y2="220" stroke="#e05c5c" stroke-width="3"/>
+    <circle cx="600" cy="360" r="6" fill="#e05c5c"/>
+    <!-- Tick marks on gauge -->
+    <line x1="440" y1="200" x2="450" y2="214" stroke="#faf8f4" stroke-width="1.5"/>
+    <line x1="480" y1="120" x2="492" y2="132" stroke="#faf8f4" stroke-width="1.5"/>
+    <line x1="600" y1="90" x2="600" y2="105" stroke="#faf8f4" stroke-width="1.5"/>
+    <line x1="720" y1="120" x2="708" y2="132" stroke="#faf8f4" stroke-width="1.5"/>
+    <line x1="760" y1="200" x2="746" y2="208" stroke="#faf8f4" stroke-width="1.5"/>
+    <!-- Warning zone arc -->
+    <path d="M680,118 A160,160 0 0,1 760,200" stroke="#e05c5c" stroke-width="4" fill="none" opacity="0.6"/>
+    <!-- Background horizontal lines -->
+    <line x1="0" y1="80" x2="380" y2="80" stroke="#faf8f4" stroke-width=".5"/>
+    <line x1="0" y1="160" x2="380" y2="160" stroke="#faf8f4" stroke-width=".5"/>
+    <line x1="0" y1="240" x2="380" y2="240" stroke="#faf8f4" stroke-width=".5"/>
+    <line x1="0" y1="320" x2="380" y2="320" stroke="#faf8f4" stroke-width=".5"/>
+    <line x1="80" y1="0" x2="80" y2="400" stroke="#faf8f4" stroke-width=".5"/>
+    <line x1="200" y1="0" x2="200" y2="400" stroke="#faf8f4" stroke-width=".5"/>
+    <line x1="320" y1="0" x2="320" y2="400" stroke="#faf8f4" stroke-width=".5"/>
+  </svg>
+  <div style="position:absolute;bottom:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent 0%,#7ec8d4 50%,transparent 100%);pointer-events:none;"></div>
+  <div style="position:relative;max-width:72rem;margin:0 auto;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#a8c0d6;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#a8c0d6;text-decoration:none;">← All insights</a></p>
+    <span style="display:inline-block;border:1px solid #7ec8d4;color:#7ec8d4;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">Financing · TDSR</span>
+    <h1 aria-hidden="true" style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:28ch;text-wrap:balance;margin-bottom:1.25rem;">TDSR stress test Singapore: why your bank's calculator gives you false comfort</h1>
+    <p style="color:#b0c4de;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 10-minute read &middot; Updated 19 April 2026</p>
+  </div>
+</section>
+
+<article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+  <p class="section-label mb-4"><a href="/insights" class="hover:underline">← All insights</a></p>
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Protection Pillar · 2026</p>
+  <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6" aria-hidden="true">TDSR stress test Singapore: why your bank's calculator gives you false comfort</h1>
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek · 10-minute read · Updated 19 April 2026</p>
+
+  <p>Almost every client I meet has used an online mortgage calculator. Almost none of them understand that the number it produces is softer than what will happen when they submit a real application. The gap between "what the calculator says I can borrow" and "what the bank actually approves" is routinely 10–25%. That gap is where stressed buyers get surprised at IPA stage.</p>
+
+  <p>This article explains how the MAS <a href="/tdsr-calculator.html" class="text-[var(--accent)] hover:underline">Total Debt Servicing Ratio</a> (TDSR) framework actually works, including the 4% stress-test rate, variable income treatment, and the assumptions bank calculators quietly make that inflate your theoretical borrowing power.</p>
+
+  <h2>1. TDSR in one sentence</h2>
+  <p>Total Debt Servicing Ratio is the MAS regulation that caps your monthly debt obligations (including the new mortgage) at 55% of your gross monthly income. It's not a bank policy  --  it's a regulatory floor. Every licensed lender in Singapore applies it.</p>
+
+  <p>Debt obligations counted under TDSR include: all outstanding mortgages, car loans, credit card minimum payments, personal loans, student loans, and any guaranteed debts. Not counted: household expenses, insurance premiums, school fees.</p>
+
+  <h2>2. The 4% stress-test rate  --  the core mechanic</h2>
+  <p>When banks calculate your TDSR for a new mortgage, they don't use the actual rate you'll pay (say 3.2% fixed). They use a stress-test rate  --  currently 4% for residential property  --  to compute the hypothetical monthly mortgage.</p>
+
+  <p>This means the bank runs two calculations:</p>
+  <ul>
+    <li><strong>Approval calculation:</strong> Your monthly payment at 4% over the tenure. This is what must fit within 55% TDSR.</li>
+    <li><strong>Actual payment calculation:</strong> Your monthly payment at the contracted rate (say 3.2%). This is what you actually pay.</li>
+  </ul>
+
+  <p>The difference protects borrowers from rate shocks. If rates rise from 3.2% to 4%, your actual monthly payment rises  --  but it's still within the stress-tested approval threshold, so you shouldn't be overstretched. This is the regulatory intent.</p>
+
+  <h2>3. Why bank calculators overstate your capacity</h2>
+  <p>Public-facing mortgage calculators often:</p>
+  <ul>
+    <li><strong>Use the current rate (not the 4% stress rate).</strong> Your "max loan" number inflates by 10–15% versus reality.</li>
+    <li><strong>Assume 30-year tenure</strong> even when your age caps it at 25 or 20. Max tenure = 65 (or loan maturity by age 65) minus your current age, or 30 years, whichever is shorter. Older borrowers see real caps.</li>
+    <li><strong>Use gross income without variable income haircuts.</strong> Bonus, commission, rental income are discounted by 30–50% in real applications.</li>
+    <li><strong>Assume no other debt.</strong> The user may have forgotten a car loan or credit card facility, which reduces approvable amount.</li>
+  </ul>
+
+  <p>The net effect: a calculator that says "S$2M approvable" may translate to S$1.6M at the real application desk. That's the gap that blindsides buyers at IPA.</p>
+
+  <h2>4. Variable income  --  the hidden haircut</h2>
+  <p>MAS requires banks to discount variable income by a specified haircut before including it in TDSR computations. The rule of thumb:</p>
+
+  <table>
+    <thead><tr><th>Income type</th><th>Treatment</th></tr></thead>
+    <tbody>
+      <tr><td>Basic monthly salary</td><td>100% counted</td></tr>
+      <tr><td>Performance bonus (annual)</td><td>70% counted, averaged over 2 years</td></tr>
+      <tr><td>Sales commission</td><td>70% counted, averaged over 2 years</td></tr>
+      <tr><td>Self-employed income</td><td>70% counted, averaged over 2 years</td></tr>
+      <tr><td>Rental income from other properties</td><td>70% counted (less vacancy allowance)</td></tr>
+      <tr><td>Dividend / interest income</td><td>70% counted, averaged over 2 years</td></tr>
+    </tbody>
+  </table>
+
+  <p>For a professional whose total income is heavily weighted to bonus or commission, this haircut can cut approvable loan by 15–20%. A S$25k/month banker with S$10k base and S$15k avg variable has a TDSR income of S$10k + (S$15k × 0.7) = S$20,500/month, not S$25k.</p>
+
+  <h2>5. The Loan Tenure Limit  --  the age variable</h2>
+  <p>Maximum loan tenure for residential property:</p>
+  <ul>
+    <li>HDB flats: 25 years (if using HDB loan) or 30 years (if using bank loan)</li>
+    <li>Private residential: 30 years, OR loan maturity by age 65  --  whichever is shorter</li>
+  </ul>
+
+  <p>A 45-year-old applying for a private condo loan has max tenure of 20 years (matures at 65). A 30-year-old has full 30-year tenure. The shorter tenure for older borrowers means higher monthly instalments, which tightens TDSR headroom.</p>
+
+  <p>This is why upgrading late (in your 50s) with a new 20-year tenure on a larger asset is materially harder than upgrading at 40. The stress test cuts deeper.</p>
+
+  <h2>6. What TDSR actually protects against</h2>
+  <p>The 4% stress rate protects against rate shock  --  if SORA rises meaningfully, you shouldn't be pushed into default. Historical data suggests 4% is a reasonable buffer over the long-run SORA average of ~2–3%.</p>
+
+  <p>What TDSR <em>does not</em> protect against:</p>
+  <ul>
+    <li><strong>Income shock</strong>  --  job loss, business slowdown, variable income evaporation. TDSR assumes income continues.</li>
+    <li><strong>Life-event cost shock</strong>  --  medical emergencies, family obligations, education costs. TDSR doesn't see these.</li>
+    <li><strong>Multi-dimensional stress</strong>  --  rate rise + income drop + unexpected expenses happening together. TDSR stress-tests rate only.</li>
+  </ul>
+
+  <p>The regulation protects the system (mortgage defaults) more than it protects the individual borrower from all realistic stress scenarios. Which is why my real advice is always: pass TDSR <em>with headroom</em>, don't target maximum approval.</p>
+
+  <h2>7. MSR  --  the HDB overlay</h2>
+  <p>For HDB properties (both HDB concessionary loans and bank loans on HDB), the Mortgage Servicing Ratio (MSR) applies on top of TDSR. MSR caps mortgage payments at 30% of gross monthly income  --  a stricter floor than TDSR's 55%.</p>
+
+  <p>For executive condo (EC) buyers, MSR applies for the first 10 years after purchase. After Year 10, the EC becomes treated as private and only TDSR applies.</p>
+
+  <h2>8. The worked example  --  how the gap materialises</h2>
+  <p>Couple, both 38. Combined gross income S$18,000/month (S$12k base + S$6k avg bonus). No other debt. Looking at S$2M condo, 25% down, S$1.5M loan, 27-year tenure.</p>
+
+  <div class="flow-step"><strong>Public calculator says:</strong> At 3.2% over 27 years on S$18k income, TDSR is 38%. Loan is approvable at S$1.8M+. Budget fits comfortably.</div>
+
+  <div class="flow-step"><strong>Real bank computation:</strong> Income stress = S$12k + (S$6k × 0.7) = S$16,200. Monthly payment at 4% over 27 years on S$1.5M = ~S$8,100. TDSR = S$8,100 / S$16,200 = 50%. Still under 55%, but much tighter than the calculator implied.</div>
+
+  <div class="flow-step"><strong>What happens if they aim for S$1.8M loan:</strong> Monthly at 4% stress = S$9,720. TDSR = 60%. Rejected. They'd need to either reduce loan amount, extend tenure (not possible  --  already near cap), or add a co-borrower.</div>
+
+  <p>The couple walked into the bank thinking S$1.8M was in reach. It wasn't. The calculator was sugarcoating.</p>
+
+  <h2>9. What to do before walking into the bank</h2>
+  <ol>
+    <li><strong>Get a proper affordability estimate.</strong> Use the <a class="underline" style="color:var(--accent);" href="/tools/affordability">affordability calculator</a> with the 4% stress rate and variable income haircuts correctly applied.</li>
+    <li><strong>Pull your credit report from Credit Bureau Singapore.</strong> S$6.90. Identifies debts the bank will see that you may have forgotten.</li>
+    <li><strong>Gather 2 years of income documentation.</strong> IR8A, bank statements, commission slips. The bank will ask.</li>
+    <li><strong>Pre-compute TDSR manually.</strong> (Monthly mortgage at 4% + existing debt obligations) ÷ haircut-adjusted monthly income. Should be under 55%.</li>
+    <li><strong>Leave headroom.</strong> Don't target 54% TDSR. Target 45–50% so you're not one income fluctuation from stress.</li>
+  </ol>
+
+  <h2>10. How TDSR fits the Protection pillar</h2>
+  <p>In the 4-Pillar Audit, the TDSR stress test and affordability buffer sit in the Protection pillar  --  what protects your financial position under adverse scenarios. I run every client's affordability at three stress levels:</p>
+
+  <ul>
+    <li><strong>Policy stress:</strong> Current rate + regulatory 4% stress = the IPA number.</li>
+    <li><strong>My stress:</strong> Current rate + 5% (one percentage point above MAS stress) to test the next cycle up.</li>
+    <li><strong>Shock stress:</strong> Current rate + income loss scenario  --  what if primary earner loses job for 6 months?</li>
+  </ul>
+
+  <p>If the plan survives all three, we proceed. If it survives only the first two, we revisit the loan size, tenure, or target property. If it barely survives the first, we pause. Affordability is not just about getting approved  --  it's about staying solvent when life happens.</p>
+
+  <p>The bank's stress test is a floor. Your own stress test should be the ceiling you actually plan to.</p>
+
+  <div class="cta-block">
+    <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Book the 4-Pillar Portfolio Audit</p>
+    <p class="mb-4">Two hours. We run your affordability honestly  --  4% stress, variable income haircuts, multi-scenario stress testing. You know exactly what you can take on with clean headroom, before the bank's application pipeline.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20verify%20my%20affordability%20honestly." class="btn btn-primary">WhatsApp to book →</a>
+      <a href="/contact" class="btn btn-ghost">Contact form</a>
+      <a href="/tools/affordability" class="btn btn-ghost">Affordability calculator</a>
+    </div>
+  </div>
+
+  <h2>Related reading</h2>
+  <ul>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/fixed-vs-floating-mortgage">Fixed vs floating mortgage</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/portfolio-blueprint-one-income">Portfolio blueprint on one income</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/cpf-accrued-interest-trap">The CPF accrued interest trap</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/cooling-measures">Reading the latest cooling measures</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/tools/affordability">Affordability calculator</a></li>
+  </ul>
+
+  <div class="article-cta" style="background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">Want to apply this to your own situation?</p>
+    <p style="color:#4a4a4a;margin-bottom:1rem;">Book a 30-min 4-Pillar Portfolio Audit with Winfred. No pressure, just honest numbers.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free audit call</a>
+  </div>
+
+
+<div class="border border-[var(--rule)] rounded-lg p-5 mt-8 mb-4">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-2">Read next</p>
+  <a href="/insights/fixed-vs-floating-mortgage" class="serif text-lg font-semibold hover:text-[var(--accent)] transition">Fixed vs floating mortgage Singapore 2026: the decision, not the rate →</a>
+</div>
+
+  <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is a Senior Associate District Director and founder of Crestbrick, advising Singapore upgraders, investors, and family offices using the 4-Pillar Portfolio Audit framework. CEA R073319H.</p>
+</article>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
+    <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H</p>
+    <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Not legal or financial advice.</span></div>
+  </div>
+</footer>
+
+<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20TDSR%20question." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="hidden sm:inline">Chat</span>
+</a>
+<script>(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+</body>
+</html>

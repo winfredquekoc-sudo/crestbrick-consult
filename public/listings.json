@@ -1,0 +1,56 @@
+{
+  "agent": "Winfred Quek (CEA R073319H)",
+  "source": "manual",
+  "synced_at": "2026-04-27T00:00:00+08:00",
+  "count": 2,
+  "listings": [
+    {
+      "id": "farrer-park-common-room-1",
+      "title": "Common Room — Farrer Park",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1500,
+      "currency": "SGD",
+      "price_label": "S$1,500 / month",
+      "address": "Farrer Park",
+      "district": "D8",
+      "beds": 1,
+      "baths_shared": true,
+      "sqft": 120,
+      "tenure": "—",
+      "highlights": [
+        "Includes utilities",
+        "2-min walk to Farrer Park MRT (NEL)",
+        "Furnished — bed, wardrobe, ceiling fan",
+        "Central location"
+      ],
+      "image": "/img/listings/farrer-park-common-room-1.jpg",
+      "wa_text": "Hi%20Winfred%2C%20I%27m%20interested%20in%20the%20Common%20Room%20in%20Farrer%20Park%20at%20S%241%2C500%2Fmo.",
+      "url": "",
+      "scraped_at": "2026-04-18T15:45:00+08:00"
+    },
+    {
+      "id": "oxley-bizhub-2-office-1",
+      "title": "Office Space — Oxley Bizhub 2",
+      "type": "Industrial",
+      "transaction": "rent",
+      "price": 700,
+      "currency": "SGD",
+      "price_label": "S$700 / month",
+      "address": "Oxley Bizhub 2 · Ubi",
+      "district": "D14",
+      "sqft": 90,
+      "tenure": "—",
+      "highlights": [
+        "B1 industrial — suited for light business / workspace use",
+        "Aircon-ready, power points, fitted flooring",
+        "Affordable entry point for a dedicated office",
+        "Within the Ubi cluster — easy access via Downtown Line (Ubi MRT)"
+      ],
+      "image": "/img/listings/oxley-bizhub-2-room-1.jpg",
+      "wa_text": "Hi%20Winfred%2C%20I%27m%20interested%20in%20the%20office%20space%20at%20Oxley%20Bizhub%202%20at%20S%24700%2Fmo.",
+      "url": "",
+      "scraped_at": "2026-04-18T17:05:00+08:00"
+    }
+  ]
+}

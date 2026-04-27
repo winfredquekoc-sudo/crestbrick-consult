@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Affordability Calculator Singapore  --  TDSR & MSR | Winfred Quek</title>
+  <meta name="description" content="Free Singapore property affordability calculator. Max loan + max purchase price under TDSR 55% (private) or MSR 30% (HDB/EC). 4% stress-test rate applied. By Winfred Quek, Crestbrick." />
+  <meta property="og:title" content="Affordability Calculator Singapore  --  Winfred Quek" />
+  <meta property="og:description" content="Max loan + max price under TDSR/MSR. 4% stress-test applied." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/tools/affordability" />
+  <link rel="canonical" href="https://winfredquek.com/tools/affordability" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/_shared.css" />
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+<style>
+    .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
+  </style>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline active" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline active" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a></div>
+  </div>
+</header>
+
+<main>
+<section class="hero hero-sequence max-w-3xl mx-auto px-6 pt-16 pb-6">
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <p class="section-label"><a href="/" class="hover:text-[var(--ink)]">Home</a> / <a href="/tools" class="hover:text-[var(--ink)]">Tools</a> / <span>Affordability Calculator</span></p>
+  </nav>
+  <h1 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-4">Singapore Property Affordability <span class="italic text-[var(--accent)]">Calculator</span></h1>
+  <p class="text-[var(--ink-soft)] leading-relaxed mb-8">This calculator tells you the maximum loan and maximum purchase price your banker can legally offer based on your income, existing debts, and the MAS stress-test rules (TDSR 55% for private, MSR 30% for HDB/EC). It uses the MAS 4% stress-test floor, not your actual promotional rate, because that's what every Singapore bank will underwrite against. Treat the result as your ceiling, not your comfortable budget.</p>
+</section>
+
+<section class="max-w-3xl mx-auto px-6 pb-20">
+  <div class="calc-panel">
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="income">Gross monthly income (SGD)</label>
+        <input id="income" type="number" min="0" step="100" value="12000" />
+      </div>
+      <div class="calc-row">
+        <label for="debts">Existing monthly debts (car, credit, other loans)</label>
+        <input id="debts" type="number" min="0" step="50" value="500" />
+      </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="ptype">Property type</label>
+        <select id="ptype">
+          <option value="private">Private (TDSR 55%)</option>
+          <option value="hdbec">HDB / EC (MSR 30% + TDSR 55%)</option>
+        </select>
+      </div>
+      <div class="calc-row">
+        <label for="tenure">Loan tenure (years)</label>
+        <input id="tenure" type="number" min="5" max="35" step="1" value="30" />
+      </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="ltv">LTV % (75 for 1st private loan)</label>
+        <input id="ltv" type="number" min="35" max="75" step="1" value="75" />
+      </div>
+      <div class="calc-row">
+        <label for="stress">Stress-test rate % (MAS floor 4%)</label>
+        <input id="stress" type="number" min="0" step="0.1" value="4.0" />
+      </div>
+    </div>
+
+    <div id="result" class="result-panel mt-6" style="display:none;">
+      <h3 class="serif text-xl font-semibold mb-3" style="color:#faf8f4;">Your ceiling</h3>
+      <div class="result-row"><span class="label">Max monthly instalment (ceiling)</span><span id="o-pmt" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Max loan amount (stress-tested)</span><span id="o-loan" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">LTV applied</span><span id="o-ltv" class="amount"> -- </span></div>
+      <div class="result-total">
+        <span class="label">Max purchase price</span>
+        <span id="o-price" class="amount"> -- </span>
+      </div>
+      <p class="calc-note" style="color:rgba(250,248,244,.7);">Ceiling only. Real budget accounts for stamp duty, CPF used, legal fees, renovation, and 6–12 months of emergency reserves. See the <a href="/tools/absd" style="color:inherit;text-decoration:underline;">ABSD calculator</a> and book the audit for the full-stack read.</p>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Want a realistic budget, not just a ceiling? Book a 30-min consult →</a>
+      <a href="/tools/absd" class="btn btn-ghost">Add stamp duty to the picture →</a>
+    </div>
+  </div>
+
+  <div class="mt-10 p-6 bg-[#1c1e26] border border-[var(--rule)] rounded-xl">
+    <h3 class="serif text-xl font-semibold mb-4">How to read this result</h3>
+    <ul class="list-disc pl-5 space-y-2 text-[var(--ink-soft)] leading-relaxed">
+      <li>Max purchase price is the legal ceiling -- your actual comfort level is usually 70--85% of that number.</li>
+      <li>Existing car loans, credit card minimums, and co-signed loans eat into your TDSR room dollar-for-dollar.</li>
+      <li>Cash at hand must cover downpayment (25%+), BSD + ABSD, legal fees, renovation, and 6--12 months of reserves.</li>
+    </ul>
+  </div>
+
+  <p class="mt-6 text-xs text-[var(--ink-muted)]">Figures are estimates for planning purposes. Verify with your banker and solicitor before committing.</p>
+</section>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 text-center text-xs text-[var(--ink-muted)]">
+    © 2026 Winfred Quek · Crestbrick · CEA R073319H · Estimates only.
+  </div>
+</footer>
+
+<script>
+(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();
+
+function fmt(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
+
+// Monthly payment formula inverted: given PMT, r, n, find PV (loan amount)
+// PV = PMT * (1 - (1+r)^-n) / r
+function maxLoan(pmt, annualRate, years){
+  if(annualRate<=0 || years<=0) return 0;
+  var r=annualRate/100/12;
+  var n=years*12;
+  return pmt * (1 - Math.pow(1+r, -n)) / r;
+}
+
+function recalc(){
+  var income=parseFloat(document.getElementById('income').value)||0;
+  var debts=parseFloat(document.getElementById('debts').value)||0;
+  var ptype=document.getElementById('ptype').value;
+  var tenure=parseFloat(document.getElementById('tenure').value)||30;
+  var ltv=parseFloat(document.getElementById('ltv').value)||75;
+  var stress=parseFloat(document.getElementById('stress').value)||4.0;
+
+  if(income<=0) return;
+
+  var tdsrRoom = income*0.55 - debts;
+  var msrRoom = ptype==='hdbec' ? income*0.30 : Infinity;
+  var pmtCeiling = Math.max(0, Math.min(tdsrRoom, msrRoom));
+
+  var loan = maxLoan(pmtCeiling, stress, tenure);
+  var price = ltv>0 ? loan/(ltv/100) : 0;
+
+  document.getElementById('o-pmt').textContent = fmt(pmtCeiling) + ' / mo';
+  document.getElementById('o-loan').textContent = fmt(loan);
+  document.getElementById('o-ltv').textContent = ltv + '%';
+  document.getElementById('o-price').textContent = fmt(price);
+  document.getElementById('result').style.display='block';
+}
+
+['income','debts','ptype','tenure','ltv','stress'].forEach(function(id){
+  var el=document.getElementById(id);
+  el.addEventListener('input', recalc);
+  el.addEventListener('change', recalc);
+});
+recalc();
+</script>
+</body>
+</html>

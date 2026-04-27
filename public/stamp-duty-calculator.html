@@ -1,0 +1,678 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stamp Duty Calculator Singapore 2026 (BSD + ABSD) — Winfred Quek, Crestbrick</title>
+  <meta name="description" content="Calculate your full Singapore stamp duty — BSD and ABSD combined — based on 2026 rates. See a full breakdown by tier. By Winfred Quek, CEA R073319H." />
+  <link rel="canonical" href="https://winfredquek.com/stamp-duty-calculator" />
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0f1117" />
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <style>
+    :root {
+      --bg:#0f1117;
+      --ink:#f0ede6;
+      --ink-soft:#b8b4aa;
+      --ink-muted:#706c64;
+      --accent:#c6a36a;
+      --rule:#252830;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-feature-settings: 'ss01', 'kern';
+      -webkit-font-smoothing: antialiased;
+    }
+    .serif { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; }
+    .divider { border-top: 1px solid var(--rule); }
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.6rem;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.15s ease;
+    }
+    .btn-primary { background: var(--ink); color: var(--bg); }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-ghost { color: var(--ink); border: 1px solid var(--rule); }
+    .topnav a.nav-link { color: var(--ink-soft); font-size: 14px; font-weight: 500; transition: color .15s ease; }
+    .topnav a.nav-link:hover { color: var(--ink); }
+    .topnav a.nav-link.active { color: var(--ink); }
+    .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+    .crest-card {
+      background: #14161c;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--ink);
+    }
+    @keyframes wa-pulse {
+      0%, 100% { box-shadow: 0 10px 30px -5px rgba(37,211,102,0.4), 0 0 0 0 rgba(37,211,102,0.55); }
+      50%       { box-shadow: 0 10px 30px -5px rgba(37,211,102,0.4), 0 0 0 14px rgba(37,211,102,0); }
+    }
+    #wa-float.wa-pulsing { animation: wa-pulse 1s ease-out 2; }
+
+    /* Calculator */
+    .calc-card {
+      background: #faf8f4;
+      color: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.35);
+    }
+    .calc-card label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .calc-card select,
+    .calc-card input[type="number"] {
+      width: 100%;
+      padding: 0.85rem 1rem;
+      border: 1.5px solid #d8d4ce;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Inter', sans-serif;
+      background: #fff;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .calc-card select:focus,
+    .calc-card input[type="number"]:focus { border-color: var(--accent); }
+    .calc-card select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 40px;
+    }
+    .calc-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #1a1a1a;
+      color: #faf8f4;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .calc-btn:hover { background: var(--accent); color: #1a1a1a; }
+    .result-panel {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      display: none;
+    }
+    .result-panel.visible { display: block; }
+
+    /* BSD Breakdown table inside result */
+    .bsd-breakdown {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      margin-bottom: 1rem;
+    }
+    .bsd-breakdown th {
+      text-align: left;
+      padding: 7px 10px;
+      background: rgba(255,255,255,0.05);
+      color: var(--ink-soft);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      font-weight: 600;
+    }
+    .bsd-breakdown th:last-child { text-align: right; }
+    .bsd-breakdown td { padding: 7px 10px; color: var(--ink-soft); border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 13px; }
+    .bsd-breakdown td:first-child { color: var(--ink); }
+    .bsd-breakdown td:last-child { text-align: right; color: var(--accent); font-weight: 600; }
+    .bsd-breakdown tr.inactive td { opacity: 0.35; }
+    .bsd-breakdown tfoot td { padding: 10px 10px; border-top: 1px solid rgba(255,255,255,0.15); color: var(--ink); font-weight: 600; font-size: 14px; border-bottom: none; }
+    .bsd-breakdown tfoot td:last-child { color: var(--ink); text-align: right; }
+
+    .summary-rows { margin-top: 1rem; }
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0.55rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      font-size: 14px;
+    }
+    .result-row:last-child { border-bottom: none; }
+    .result-row .label { color: var(--ink-soft); }
+    .result-row .value { color: var(--ink); font-weight: 600; font-size: 15px; }
+    .result-row.highlight .label { color: var(--accent); font-weight: 600; font-size: 14px; }
+    .result-row.highlight .value { color: var(--accent); font-size: 20px; font-family: 'Fraunces', serif; }
+    .result-row.grand .label { color: var(--ink); font-weight: 700; font-size: 15px; }
+    .result-row.grand .value { color: #fff; font-size: 22px; font-family: 'Fraunces', serif; font-weight: 700; }
+
+    .disclaimer {
+      font-size: 12px;
+      color: #999;
+      margin-top: 1.25rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .cta-strip {
+      background: linear-gradient(135deg, #14161c 0%, #1e2030 100%);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .rate-ref {
+      background: #14161c;
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 1.75rem;
+    }
+    .rate-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .rate-table th {
+      text-align: left;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.04);
+      color: var(--ink-soft);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    .rate-table td { padding: 8px 10px; color: var(--ink-soft); border-bottom: 1px solid var(--rule); font-size: 13px; }
+    .rate-table tr:last-child td { border-bottom: none; }
+    .rate-table td.accent { color: var(--accent); font-weight: 600; }
+    .rate-table td.right { text-align: right; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <header class="topnav border-b border-[var(--rule)] sticky top-0 z-40" style="background:rgba(15,17,23,0.95);backdrop-filter:blur(8px);">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <span class="serif font-semibold text-lg">Winfred Quek</span>
+        <span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span>
+      </a>
+      <div class="hidden lg:flex items-center gap-6">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/pricing">Pricing</a>
+        <a class="nav-link active" href="/tools">Tools</a>
+        <a class="nav-link" href="/audit">AI Audit</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/insights">Insights</a>
+        <div class="relative group">
+          <button class="nav-link flex items-center gap-1">Resources
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="absolute right-0 top-full pt-2 hidden group-hover:block z-50">
+            <div class="crest-card border border-[var(--rule)] rounded-lg shadow-lg py-2 min-w-[180px]">
+              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/buyers-guide">Buyers Guide</a>
+              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/sellers-guide">Sellers Guide</a>
+              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/new-launches">New Launches</a>
+              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/districts">Districts</a>
+              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/testimonials">Testimonials</a>
+              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/faq">FAQ</a>
+            </div>
+          </div>
+        </div>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link active" href="/tools">Tools</a>
+        <a class="nav-link" href="/audit">AI Audit</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section style="padding: 4rem 1.5rem 2rem;">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="section-label mb-3">Singapore Property Tools</p>
+        <h1 class="serif" style="font-size:clamp(2rem,5vw,3rem); font-weight:700; line-height:1.15; margin-bottom:1rem;">
+          Stamp Duty Calculator
+        </h1>
+        <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.7; max-width:580px; margin:0 auto;">
+          Get your full stamp duty picture in one place. This calculator covers both Buyer's Stamp Duty (BSD) and Additional Buyer's Stamp Duty (ABSD) based on Singapore 2026 rates.
+        </p>
+      </div>
+    </section>
+
+    <!-- Calculator section -->
+    <section style="padding: 0 1.5rem 3rem;">
+      <div class="max-w-5xl mx-auto" style="display:grid; grid-template-columns:1fr; gap:2rem;">
+
+        <!-- Main calculator card -->
+        <div class="calc-card" style="padding: 2rem 2rem 1.75rem;">
+          <h2 style="font-family:'Fraunces',serif; font-size:1.4rem; font-weight:600; color:#1a1a1a; margin-bottom:1.75rem;">
+            Your Total Stamp Duty
+          </h2>
+
+          <div style="margin-bottom:1rem;">
+            <label for="purchase-price">Purchase price (SGD)</label>
+            <input type="number" id="purchase-price" placeholder="e.g. 1500000" min="0" step="10000" />
+          </div>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+            <div>
+              <label for="buyer-type">Buyer type</label>
+              <select id="buyer-type">
+                <option value="sc">Singapore Citizen (SC)</option>
+                <option value="pr">Permanent Resident (PR)</option>
+                <option value="foreigner">Foreigner</option>
+                <option value="entity">Entity / Company</option>
+              </select>
+            </div>
+            <div>
+              <label for="prop-count">Property count</label>
+              <select id="prop-count">
+                <option value="1">1st property</option>
+                <option value="2">2nd property</option>
+                <option value="3">3rd or more</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="calc-btn" onclick="calcStampDuty()">Calculate Stamp Duty</button>
+
+          <!-- Results panel -->
+          <div class="result-panel" id="sd-result">
+            <!-- BSD Breakdown table -->
+            <p style="color:var(--accent); font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.12em; margin-bottom:0.75rem;">BSD Breakdown by Tier</p>
+            <table class="bsd-breakdown">
+              <thead>
+                <tr>
+                  <th>Tier</th>
+                  <th>Amount in Tier</th>
+                  <th>Rate</th>
+                  <th>BSD</th>
+                </tr>
+              </thead>
+              <tbody id="bsd-tbody">
+                <!-- populated by JS -->
+              </tbody>
+              <tfoot>
+                <tr>
+                  <td colspan="3" style="color:var(--ink); font-weight:600; font-size:13px;">Total BSD</td>
+                  <td id="bsd-total-cell" style="color:var(--accent); font-weight:700; font-size:14px; text-align:right;">--</td>
+                </tr>
+              </tfoot>
+            </table>
+
+            <div class="summary-rows">
+              <div class="result-row highlight">
+                <span class="label">ABSD Rate Applied</span>
+                <span class="value" id="res-absd-rate">--</span>
+              </div>
+              <div class="result-row">
+                <span class="label">ABSD Amount</span>
+                <span class="value" id="res-absd-amount">--</span>
+              </div>
+              <div class="result-row">
+                <span class="label">Total BSD</span>
+                <span class="value" id="res-bsd">--</span>
+              </div>
+              <div class="result-row">
+                <span class="label">Total Stamp Duty (BSD + ABSD)</span>
+                <span class="value" id="res-stamp-total">--</span>
+              </div>
+              <div class="result-row grand">
+                <span class="label">All-in Cost (Price + BSD + ABSD)</span>
+                <span class="value" id="res-grand-total">--</span>
+              </div>
+            </div>
+          </div>
+
+          <p class="disclaimer">For illustration only. Not financial advice. CEA R073319H. BSD and ABSD rates effective 2026. Verify with IRAS before transacting.</p>
+        </div>
+
+        <!-- Rate reference card -->
+        <div class="rate-ref">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+            <!-- BSD Tiers -->
+            <div>
+              <p class="section-label mb-4">BSD Tiers (Residential)</p>
+              <table class="rate-table">
+                <thead>
+                  <tr>
+                    <th>Price Band</th>
+                    <th class="right">Rate</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td>First S$180,000</td><td class="accent right">1%</td></tr>
+                  <tr><td>Next S$180,000</td><td class="accent right">2%</td></tr>
+                  <tr><td>Next S$640,000</td><td class="accent right">3%</td></tr>
+                  <tr><td>Next S$500,000</td><td class="accent right">4%</td></tr>
+                  <tr><td>Next S$1,500,000</td><td class="accent right">5%</td></tr>
+                  <tr><td>Above S$3,000,000</td><td class="accent right">6%</td></tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- ABSD Quick Ref -->
+            <div>
+              <p class="section-label mb-4">ABSD Rates 2026</p>
+              <table class="rate-table">
+                <thead>
+                  <tr>
+                    <th>Profile</th>
+                    <th class="right">1st</th>
+                    <th class="right">2nd</th>
+                    <th class="right">3rd+</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>SC</td>
+                    <td class="accent right">0%</td>
+                    <td class="accent right">20%</td>
+                    <td class="accent right">30%</td>
+                  </tr>
+                  <tr>
+                    <td>PR</td>
+                    <td class="accent right">5%</td>
+                    <td class="accent right">30%</td>
+                    <td class="accent right">35%</td>
+                  </tr>
+                  <tr>
+                    <td>Foreigner</td>
+                    <td class="accent right">60%</td>
+                    <td class="accent right">60%</td>
+                    <td class="accent right">60%</td>
+                  </tr>
+                  <tr>
+                    <td>Entity</td>
+                    <td class="accent right">65%</td>
+                    <td class="accent right">65%</td>
+                    <td class="accent right">65%</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--rule);">
+            <p style="color:var(--ink-soft); font-size:13px; line-height:1.6; margin-bottom:0.75rem;">
+              <strong style="color:var(--ink);">BSD is non-negotiable</strong> for all buyers. ABSD is layered on top and varies by buyer profile and property count.
+            </p>
+            <p style="color:var(--ink-soft); font-size:13px; line-height:1.6; margin-bottom:0.75rem;">
+              <strong style="color:var(--ink);">When is stamp duty due?</strong> BSD and ABSD are payable within 14 days of signing the Sales and Purchase Agreement (SPA), or within 30 days if the SPA is executed overseas.
+            </p>
+            <p style="color:var(--ink-soft); font-size:13px; line-height:1.6;">
+              <strong style="color:var(--ink);">SC + PR joint purchase:</strong> IRAS applies the SC ABSD rate where at least one buyer is SC and it is a joint purchase of a first property (with ABSD remission available). Always confirm eligibility with a legal advisor.
+            </p>
+          </div>
+
+          <div style="margin-top:1.25rem; padding-top:1.25rem; border-top:1px solid var(--rule);">
+            <p class="section-label mb-3">Also useful</p>
+            <div style="display:flex; flex-direction:column; gap:0.5rem;">
+              <a href="/absd-calculator" style="color:var(--accent); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                ABSD-only Calculator
+              </a>
+              <a href="/tdsr-calculator" style="color:var(--accent); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                TDSR / Affordability Calculator
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA Strip -->
+    <section style="padding: 0 1.5rem 5rem;">
+      <div class="max-w-3xl mx-auto">
+        <div class="cta-strip">
+          <p class="section-label mb-3">Want the full picture?</p>
+          <h3 class="serif" style="font-size:1.6rem; font-weight:600; margin-bottom:0.75rem;">
+            Want a full financial breakdown? Book a portfolio audit with Winfred.
+          </h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem; margin-bottom:1.5rem; line-height:1.6;">
+            Stamp duty is just one piece. A proper portfolio audit covers your CPF usage, TDSR headroom, optimal ownership structure, loan quantum, and long-term exit strategy.
+          </p>
+          <a href="/audit/" class="btn btn-primary" style="font-size:15px;">
+            Book a portfolio audit with Winfred
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="divider bg-[var(--bg)]">
+    <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
+      <div>
+        <p class="serif font-semibold text-lg mb-3">Winfred Quek</p>
+        <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">
+          Investor-minded property advisor, Singapore. I help professionals, families,
+          and investors build property portfolios — not just buy units.
+        </p>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">
+          Salesperson of <strong class="text-[var(--ink-soft)]">Crestbrick</strong>, Singapore<br />
+          CEA Registration No.: <strong class="text-[var(--ink-soft)]">R073319H</strong>
+        </p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Quick links</p>
+        <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
+          <li><a href="/about" class="hover:text-[var(--ink)]">About Winfred</a></li>
+          <li><a href="/services" class="hover:text-[var(--ink)]">Services</a></li>
+          <li><a href="/listings" class="hover:text-[var(--ink)]">Listings</a></li>
+          <li><a href="/buyers-guide" class="hover:text-[var(--ink)]">Buyers Guide</a></li>
+          <li><a href="/sellers-guide" class="hover:text-[var(--ink)]">Sellers Guide</a></li>
+          <li><a href="/insights" class="hover:text-[var(--ink)]">Insights</a></li>
+          <li><a href="/testimonials" class="hover:text-[var(--ink)]">Testimonials</a></li>
+          <li><a href="/contact" class="hover:text-[var(--ink)]">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Contact</p>
+        <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
+          <li><a href="https://wa.me/6581618149" class="hover:text-[var(--ink)]">WhatsApp · +65 8161 8149</a></li>
+          <li><a href="tel:+6581618149" class="hover:text-[var(--ink)]">Phone · +65 8161 8149</a></li>
+          <li><a href="mailto:winfredquekoc@gmail.com" class="hover:text-[var(--ink)]">winfredquekoc@gmail.com</a></li>
+          <li><a href="https://calendly.com/winfredquekoc" class="hover:text-[var(--ink)]">Book via Calendly</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[var(--rule)]">
+      <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-[var(--ink-muted)]">
+        <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H · All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a>
+          <span>·</span>
+          <span>Information on this site is general and not legal or financial advice.</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp CTA -->
+  <a id="wa-float"
+    href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20know%20more%20about%20stamp%20duty%20for%20my%20purchase."
+    aria-label="Message Winfred on WhatsApp"
+    class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200"
+    style="box-shadow: 0 10px 30px -5px rgba(37, 211, 102, 0.4);">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span class="hidden sm:inline">Chat</span>
+  </a>
+
+  <script>
+    // Mobile menu
+    (function(){
+      var t = document.getElementById('menu-toggle');
+      var m = document.getElementById('mobile-menu');
+      if(t && m){ t.addEventListener('click', function(){ m.classList.toggle('open'); }); }
+    })();
+
+    // WhatsApp pulse
+    (function(){
+      var btn = document.getElementById('wa-float');
+      if (!btn) return;
+      var fired = false;
+      function pulse() {
+        if (fired) return; fired = true;
+        btn.classList.add('wa-pulsing');
+        setTimeout(function(){ btn.classList.remove('wa-pulsing'); }, 2200);
+        window.removeEventListener('scroll', pulse);
+      }
+      window.addEventListener('scroll', pulse, { passive: true });
+    })();
+
+    // BSD tiers: [ceiling, rate]
+    // cumulative max BSD at each band:
+    // 0-180k: 1% => max 1,800
+    // 180k-360k: 2% => max 3,600 => cumulative 5,400
+    // 360k-1M: 3% => max 19,200 => cumulative 24,600
+    // 1M-1.5M: 4% => max 20,000 => cumulative 44,600
+    // 1.5M-3M: 5% => max 75,000 => cumulative 119,600
+    // >3M: 6%
+    var BSD_BANDS = [
+      { label: 'First S$180,000',     cap: 180000,    rate: 0.01 },
+      { label: 'Next S$180,000',      cap: 360000,    rate: 0.02 },
+      { label: 'Next S$640,000',      cap: 1000000,   rate: 0.03 },
+      { label: 'Next S$500,000',      cap: 1500000,   rate: 0.04 },
+      { label: 'Next S$1,500,000',    cap: 3000000,   rate: 0.05 },
+      { label: 'Remainder above S$3m',cap: Infinity,  rate: 0.06 }
+    ];
+
+    var ABSD_RATES = {
+      sc:        [0,    0.20, 0.30],
+      pr:        [0.05, 0.30, 0.35],
+      foreigner: [0.60, 0.60, 0.60],
+      entity:    [0.65, 0.65, 0.65]
+    };
+
+    function fmtSGD(n) {
+      return 'S$' + Math.round(n).toLocaleString('en-SG');
+    }
+
+    function calcBSD(price) {
+      var remaining = price;
+      var total = 0;
+      var rows = [];
+      var prev = 0;
+      for (var i = 0; i < BSD_BANDS.length; i++) {
+        var band = BSD_BANDS[i];
+        var bandSize = Math.min(band.cap, price) - prev;
+        if (bandSize <= 0) {
+          rows.push({ label: band.label, rate: band.rate, inTier: 0, bsd: 0, active: false });
+          continue;
+        }
+        var inTier = Math.min(remaining, bandSize);
+        var bsd = inTier * band.rate;
+        total += bsd;
+        rows.push({ label: band.label, rate: band.rate, inTier: inTier, bsd: bsd, active: inTier > 0 });
+        remaining -= inTier;
+        prev = Math.min(band.cap, price);
+        if (remaining <= 0) {
+          // fill remaining bands as inactive
+          for (var j = i + 1; j < BSD_BANDS.length; j++) {
+            rows.push({ label: BSD_BANDS[j].label, rate: BSD_BANDS[j].rate, inTier: 0, bsd: 0, active: false });
+          }
+          break;
+        }
+      }
+      return { total: total, rows: rows };
+    }
+
+    function calcStampDuty() {
+      var price     = parseFloat(document.getElementById('purchase-price').value);
+      var buyerType = document.getElementById('buyer-type').value;
+      var propCount = parseInt(document.getElementById('prop-count').value, 10);
+
+      if (!price || price <= 0) {
+        alert('Please enter a valid purchase price.');
+        return;
+      }
+
+      var bsdResult = calcBSD(price);
+      var idx = Math.min(propCount - 1, 2);
+      var absdRate = ABSD_RATES[buyerType][idx];
+      var absdAmount = price * absdRate;
+      var stampTotal = bsdResult.total + absdAmount;
+      var grandTotal = price + stampTotal;
+
+      // Populate BSD breakdown table
+      var tbody = document.getElementById('bsd-tbody');
+      tbody.innerHTML = '';
+      bsdResult.rows.forEach(function(row) {
+        var tr = document.createElement('tr');
+        if (!row.active) tr.className = 'inactive';
+        tr.innerHTML =
+          '<td>' + row.label + '</td>' +
+          '<td>' + (row.inTier > 0 ? fmtSGD(row.inTier) : '--') + '</td>' +
+          '<td>' + (row.rate * 100).toFixed(0) + '%' + '</td>' +
+          '<td>' + (row.bsd > 0 ? fmtSGD(row.bsd) : '--') + '</td>';
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('bsd-total-cell').textContent = fmtSGD(bsdResult.total);
+      document.getElementById('res-absd-rate').textContent   = (absdRate * 100).toFixed(0) + '%';
+      document.getElementById('res-absd-amount').textContent = fmtSGD(absdAmount);
+      document.getElementById('res-bsd').textContent         = fmtSGD(bsdResult.total);
+      document.getElementById('res-stamp-total').textContent = fmtSGD(stampTotal);
+      document.getElementById('res-grand-total').textContent = fmtSGD(grandTotal);
+
+      document.getElementById('sd-result').classList.add('visible');
+    }
+
+    document.getElementById('purchase-price').addEventListener('keydown', function(e){
+      if (e.key === 'Enter') calcStampDuty();
+    });
+  </script>
+</body>
+</html>

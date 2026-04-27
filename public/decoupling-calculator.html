@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ABSD Decoupling Calculator Singapore 2025 2026 | Winfred Quek, Crestbrick</title>
+  <meta name="description" content="Calculate whether ABSD decoupling makes financial sense for your situation. See ABSD savings vs inter-spouse transfer costs and get an instant verdict. Free tool by Winfred Quek, Crestbrick CEA R073319H." />
+  <meta property="og:title" content="ABSD Decoupling Calculator Singapore 2026 | Crestbrick" />
+  <meta property="og:description" content="Free ABSD decoupling calculator. Instant verdict: is decoupling worth it for your property?" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://winfredquek.com/decoupling-calculator" />
+  <link rel="canonical" href="https://winfredquek.com/decoupling-calculator" />
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{--bg:#0f1117;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .fade-up{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease;}
+    .fade-up.is-in{opacity:1;transform:translateY(0);}
+    @keyframes wa-pulse{0%,100%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4),0 0 0 0 rgba(37,211,102,.55);}50%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4),0 0 0 14px rgba(37,211,102,0);}}
+    #wa-float.wa-pulsing{animation:wa-pulse 1s ease-out 2;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    .crest-card{background:#14161c;border:1px solid rgba(255,255,255,.08);color:var(--ink);}
+    input,select{background:#1a1d24;border:1px solid var(--rule);border-radius:6px;padding:.75rem 1rem;width:100%;font-size:15px;color:var(--ink);transition:border-color .15s;}
+    input:focus,select:focus{outline:none;border-color:var(--accent);}
+    label{font-size:13px;color:var(--ink-soft);font-weight:500;display:block;margin-bottom:.4rem;}
+    .result-row{display:flex;justify-content:space-between;align-items:center;padding:.75rem 0;border-bottom:1px solid var(--rule);}
+    .result-row:last-child{border-bottom:none;}
+    .result-label{font-size:14px;color:var(--ink-soft);}
+    .result-value{font-size:15px;font-weight:600;color:var(--ink);}
+    .result-value.positive{color:#4ade80;}
+    .result-value.negative{color:#f87171;}
+    .verdict{padding:1.5rem;border-radius:8px;text-align:center;margin-top:1.5rem;}
+    .verdict.worth{background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);}
+    .verdict.marginal{background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);}
+    .verdict.not-worth{background:rgba(248,113,113,.12);border:1px solid rgba(248,113,113,.3);}
+    .verdict-title{font-family:'Fraunces',Georgia,serif;font-size:24px;font-weight:700;margin-bottom:.5rem;}
+    .worth .verdict-title{color:#4ade80;}
+    .marginal .verdict-title{color:#fbbf24;}
+    .not-worth .verdict-title{color:#f87171;}
+  </style>
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+    function trackWAClick() { gtag('event','whatsapp_click'); }
+    function trackCalcUse() { gtag('event','decoupling_calc_used'); }
+  </script>
+</head>
+
+<body>
+  <!-- TOP NAV -->
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2">
+        <span class="serif font-semibold text-lg">Winfred Quek</span>
+        <span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span>
+      </a>
+      <div class="hidden lg:flex items-center gap-6">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link active" href="/decoupling-calculator">Decoupling Calculator</a>
+        <a class="nav-link" href="/tools">Tools</a>
+        <a class="nav-link" href="/sell">Sell</a>
+        <a class="nav-link" href="/insights">Insights</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+      </div>
+      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link active" href="/decoupling-calculator">Decoupling Calculator</a>
+        <a class="nav-link" href="/sell">Sell</a>
+        <a class="nav-link" href="/tools">Tools</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="max-w-4xl mx-auto px-6 pt-16 pb-10">
+      <p class="section-label mb-4">Free calculator</p>
+      <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-4">
+        ABSD Decoupling Calculator
+      </h1>
+      <p class="text-lg text-[var(--ink-soft)] max-w-2xl leading-relaxed mb-2">
+        Should you decouple to free up ABSD capacity for a second property? Enter your numbers and get an instant verdict.
+      </p>
+      <p class="text-sm text-[var(--ink-muted)]">Singapore 2025/2026 ABSD rates. For SC / PR / Foreigner profiles.</p>
+    </section>
+
+    <div class="divider max-w-4xl mx-auto"></div>
+
+    <!-- CALCULATOR -->
+    <section class="max-w-4xl mx-auto px-6 py-12 fade-up">
+      <div class="grid md:grid-cols-2 gap-10">
+
+        <!-- INPUTS -->
+        <div>
+          <h2 class="serif text-2xl font-semibold mb-6">Your details</h2>
+
+          <div class="mb-5">
+            <label for="profile">Citizenship status</label>
+            <select id="profile" onchange="updateABSDRate()">
+              <option value="sc">Singapore Citizen (SC)</option>
+              <option value="pr">Permanent Resident (PR)</option>
+              <option value="foreigner">Foreigner</option>
+            </select>
+          </div>
+
+          <div class="mb-5">
+            <label for="prop-count">Buyer's existing property count (before next purchase)</label>
+            <select id="prop-count" onchange="updateABSDRate()">
+              <option value="0">0 — first property</option>
+              <option value="1" selected>1 — second property</option>
+              <option value="2">2 — third or more</option>
+            </select>
+          </div>
+
+          <div class="mb-5">
+            <label for="absd-rate-display">Applicable ABSD rate (auto-calculated)</label>
+            <input type="text" id="absd-rate-display" readonly style="background:#0f1117;color:var(--accent);font-weight:600;" />
+          </div>
+
+          <div class="mb-5">
+            <label for="property-value">Estimated property value (S$)</label>
+            <input type="number" id="property-value" placeholder="e.g. 1500000" min="100000" step="10000" oninput="calculate()" />
+          </div>
+
+          <div class="mb-5">
+            <label for="transfer-cost">Estimated inter-spouse transfer costs (S$)</label>
+            <input type="number" id="transfer-cost" value="6500" min="0" step="500" oninput="calculate()" />
+            <p class="text-xs text-[var(--ink-muted)] mt-1">Typical range: S$5,000 — S$8,000. Includes legal fees and BSD on transfer value.</p>
+          </div>
+
+          <button onclick="calculate(); trackCalcUse();" class="btn btn-primary w-full mt-2" style="width:100%;justify-content:center;">
+            Calculate
+          </button>
+        </div>
+
+        <!-- RESULTS -->
+        <div id="results-panel" style="display:none;">
+          <h2 class="serif text-2xl font-semibold mb-6">Your results</h2>
+
+          <div class="crest-card rounded-xl p-6">
+            <div class="result-row">
+              <span class="result-label">Property value</span>
+              <span class="result-value" id="r-prop-value">--</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">ABSD rate applied</span>
+              <span class="result-value" id="r-absd-rate">--</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">ABSD if bought jointly</span>
+              <span class="result-value negative" id="r-joint-absd">--</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">ABSD if one spouse buys solo (SC first property)</span>
+              <span class="result-value positive" id="r-solo-absd">S$0</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">ABSD savings from decoupling</span>
+              <span class="result-value positive" id="r-savings">--</span>
+            </div>
+            <div class="result-row">
+              <span class="result-label">Legal + transfer costs</span>
+              <span class="result-value negative" id="r-transfer">--</span>
+            </div>
+            <div class="result-row" style="border-bottom:none;padding-top:1rem;">
+              <span class="result-label" style="font-weight:600;color:var(--ink);">Net benefit of decoupling</span>
+              <span class="result-value" id="r-net" style="font-size:18px;">--</span>
+            </div>
+          </div>
+
+          <div id="verdict-box" class="verdict" style="display:none;">
+            <div class="verdict-title" id="verdict-title"></div>
+            <p id="verdict-text" style="font-size:14px;color:var(--ink-soft);"></p>
+          </div>
+        </div>
+
+        <!-- PLACEHOLDER BEFORE CALCULATE -->
+        <div id="results-placeholder">
+          <div class="crest-card rounded-xl p-8 text-center" style="height:100%;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:1rem;">
+            <div class="serif text-5xl text-[var(--accent)]">S$?</div>
+            <p class="text-[var(--ink-soft)] text-sm">Fill in your details and click Calculate to see your ABSD savings analysis.</p>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <div class="divider max-w-4xl mx-auto"></div>
+
+    <!-- CTA -->
+    <section class="max-w-4xl mx-auto px-6 py-16 fade-up">
+      <div class="crest-card rounded-xl p-8 md:p-10 text-center">
+        <p class="section-label mb-4">Go deeper</p>
+        <h2 class="serif text-2xl md:text-3xl font-semibold balance mb-4">
+          Want the full decoupling analysis?
+        </h2>
+        <p class="text-[var(--ink-soft)] max-w-xl mx-auto mb-8 leading-relaxed">
+          CPF implications, loan restructuring, timeline, and which spouse should hold which property — the numbers this calculator doesn't show. Free 30-minute session, no obligation.
+        </p>
+        <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20used%20the%20decoupling%20calculator%20and%20would%20like%20a%20full%20analysis%20including%20CPF%20and%20loan%20implications."
+           class="btn btn-primary" onclick="trackWAClick()">
+          Let's talk on WhatsApp
+        </a>
+        <p class="text-xs text-[var(--ink-muted)] mt-4">Or book via <a href="https://calendly.com/winfredquekoc" class="underline hover:text-[var(--ink)]">Calendly</a></p>
+      </div>
+    </section>
+
+    <!-- EXPLAINER -->
+    <section class="max-w-4xl mx-auto px-6 py-12 fade-up">
+      <h2 class="serif text-2xl font-semibold mb-6">How to read these results</h2>
+      <div class="grid md:grid-cols-3 gap-6 text-sm text-[var(--ink-soft)]">
+        <div class="crest-card rounded-xl p-5">
+          <p class="font-semibold text-[var(--ink)] mb-2">WORTH DECOUPLING</p>
+          <p>Net benefit above S$15,000. The ABSD savings comfortably outweigh the transfer costs. Decoupling is financially compelling.</p>
+        </div>
+        <div class="crest-card rounded-xl p-5">
+          <p class="font-semibold text-[var(--ink)] mb-2">MARGINAL</p>
+          <p>Net benefit between S$1 and S$15,000. The numbers work, but only just. Consider other factors: loan impact, CPF, timeline.</p>
+        </div>
+        <div class="crest-card rounded-xl p-5">
+          <p class="font-semibold text-[var(--ink)] mb-2">NOT WORTH IT</p>
+          <p>Transfer costs exceed ABSD savings. Other strategies (e.g. one spouse absorbs ABSD, or delaying the second purchase) may be better.</p>
+        </div>
+      </div>
+      <p class="text-xs text-[var(--ink-muted)] mt-6">
+        Disclaimer: This calculator is for illustrative purposes only. ABSD rates, BSD, and CPF rules can change. This is not legal or financial advice. Consult a qualified advisor before making any property decisions. Winfred Quek, CEA R073319H, Crestbrick.
+      </p>
+      <p class="text-sm text-[var(--ink-soft)] mt-3">
+        Read more: <a href="/blog/absd-decoupling-singapore.html" class="underline hover:text-[var(--ink)]">ABSD Decoupling Singapore 2025 2026 — Complete Guide</a>
+      </p>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="divider bg-[var(--bg)]">
+    <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-soft)]">
+      <div>
+        <p class="serif font-semibold text-[var(--ink)] mb-1">Winfred Quek</p>
+        <p class="text-xs text-[var(--ink-muted)]">Crestbrick · CEA R073319H · Singapore</p>
+      </div>
+      <div class="flex gap-6 text-xs">
+        <a href="/" class="hover:text-[var(--ink)]">Home</a>
+        <a href="/tools" class="hover:text-[var(--ink)]">Tools</a>
+        <a href="/contact" class="hover:text-[var(--ink)]">Contact</a>
+        <a href="/privacy.html" class="hover:text-[var(--ink)]">Privacy / PDPA</a>
+      </div>
+    </div>
+  </footer>
+
+  <a id="wa-float"
+    href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20discuss%20ABSD%20decoupling%20for%20my%20situation."
+    aria-label="Message Winfred on WhatsApp"
+    onclick="trackWAClick()"
+    class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200"
+    style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span class="hidden sm:inline">WhatsApp</span>
+  </a>
+
+  <script>
+    // Mobile menu
+    (function(){
+      var t=document.getElementById('menu-toggle');
+      var m=document.getElementById('mobile-menu');
+      if(t&&m){t.addEventListener('click',function(){m.classList.toggle('open');});}
+    })();
+
+    // ABSD rates table: [profile][propCount] = rate (decimal)
+    var ABSD_RATES = {
+      sc:        { 0: 0,    1: 0.20, 2: 0.30 },
+      pr:        { 0: 0.05, 1: 0.30, 2: 0.35 },
+      foreigner: { 0: 0.60, 1: 0.60, 2: 0.60 }
+    };
+
+    function getRate() {
+      var profile = document.getElementById('profile').value;
+      var count   = parseInt(document.getElementById('prop-count').value);
+      return ABSD_RATES[profile][count] || 0;
+    }
+
+    function updateABSDRate() {
+      var rate = getRate();
+      document.getElementById('absd-rate-display').value = (rate * 100).toFixed(0) + '%';
+      calculate();
+    }
+
+    function fmtSGD(n) {
+      return 'S$' + Math.round(n).toLocaleString('en-SG');
+    }
+
+    function calculate() {
+      var val = parseFloat(document.getElementById('property-value').value);
+      var transferCost = parseFloat(document.getElementById('transfer-cost').value) || 6500;
+      var rate = getRate();
+
+      if (!val || val < 100000) {
+        document.getElementById('results-panel').style.display = 'none';
+        document.getElementById('results-placeholder').style.display = 'block';
+        return;
+      }
+
+      var jointABSD = val * rate;
+      var soloABSD  = 0; // SC first property
+      var savings   = jointABSD - soloABSD;
+      var netBenefit = savings - transferCost;
+
+      document.getElementById('r-prop-value').textContent  = fmtSGD(val);
+      document.getElementById('r-absd-rate').textContent   = (rate * 100).toFixed(0) + '%';
+      document.getElementById('r-joint-absd').textContent  = fmtSGD(jointABSD);
+      document.getElementById('r-solo-absd').textContent   = fmtSGD(soloABSD);
+      document.getElementById('r-savings').textContent     = fmtSGD(savings);
+      document.getElementById('r-transfer').textContent    = fmtSGD(transferCost);
+
+      var netEl = document.getElementById('r-net');
+      netEl.textContent = fmtSGD(netBenefit);
+      netEl.className   = 'result-value ' + (netBenefit > 0 ? 'positive' : 'negative');
+
+      var vbox  = document.getElementById('verdict-box');
+      var vtitle = document.getElementById('verdict-title');
+      var vtext  = document.getElementById('verdict-text');
+      vbox.style.display = 'block';
+
+      if (netBenefit > 15000) {
+        vbox.className  = 'verdict worth';
+        vtitle.textContent = 'WORTH DECOUPLING';
+        vtext.textContent  = 'Net benefit of ' + fmtSGD(netBenefit) + '. The ABSD savings clearly outweigh the transfer costs. Decoupling is financially sound — worth exploring with your advisor.';
+      } else if (netBenefit > 0) {
+        vbox.className  = 'verdict marginal';
+        vtitle.textContent = 'MARGINAL';
+        vtext.textContent  = 'Net benefit of ' + fmtSGD(netBenefit) + '. The numbers work, but the margin is slim. Factor in CPF, loan restructuring costs, and your timeline before deciding.';
+      } else {
+        vbox.className  = 'verdict not-worth';
+        vtitle.textContent = 'NOT WORTH IT';
+        vtext.textContent  = 'Transfer costs exceed ABSD savings by ' + fmtSGD(Math.abs(netBenefit)) + '. Other strategies may serve you better. Book a call to explore alternatives.';
+      }
+
+      document.getElementById('results-panel').style.display = 'block';
+      document.getElementById('results-placeholder').style.display = 'none';
+    }
+
+    // Init
+    updateABSDRate();
+
+    // Fade-in
+    (function(){
+      var els=document.querySelectorAll('.fade-up');
+      if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('is-in');});return;}
+      var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('is-in');io.unobserve(en.target);}});},{threshold:0.08});
+      els.forEach(function(e){io.observe(e);});
+    })();
+  </script>
+</body>
+</html>

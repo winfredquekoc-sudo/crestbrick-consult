@@ -1,0 +1,69 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains; preload" },
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "camera=(), microphone=(), geolocation=()" }
+      ]
+    },
+    {
+      "source": "/img/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800" }
+      ]
+    },
+    {
+      "source": "/(.*).(css|js|woff2)",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }
+      ]
+    },
+    {
+      "source": "/(.*).html",
+      "headers": [
+        { "key": "Cache-Control", "value": "public, max-age=0, s-maxage=600, stale-while-revalidate=86400" }
+      ]
+    }
+  ],
+  "redirects": [
+    { "source": "/links", "destination": "/links.html", "permanent": false },
+    { "source": "/:path*", "has": [{"type": "host", "value": "crestbrick-consult.vercel.app"}], "destination": "https://winfredquek.com/:path*", "permanent": true },
+    { "source": "/:path*", "has": [{"type": "host", "value": "www.winfredquek.com"}], "destination": "https://winfredquek.com/:path*", "permanent": true },
+    { "source": "/about.html", "destination": "/about", "permanent": true },
+    { "source": "/services.html", "destination": "/services", "permanent": true },
+    { "source": "/pricing.html", "destination": "/pricing", "permanent": true },
+    { "source": "/hdb-towns", "destination": "/districts#hdb-towns", "permanent": false },
+    { "source": "/contact.html", "destination": "/contact", "permanent": true },
+    { "source": "/listings.html", "destination": "/listings", "permanent": true },
+    { "source": "/insights.html", "destination": "/insights", "permanent": true },
+    { "source": "/testimonials.html", "destination": "/testimonials", "permanent": true },
+    { "source": "/track-record.html", "destination": "/track-record", "permanent": true },
+    { "source": "/buyers-guide.html", "destination": "/buyers-guide", "permanent": true },
+    { "source": "/sellers-guide.html", "destination": "/sellers-guide", "permanent": true },
+    { "source": "/faq.html", "destination": "/faq", "permanent": true },
+    { "source": "/new-launches.html", "destination": "/new-launches", "permanent": true },
+    { "source": "/districts.html", "destination": "/districts", "permanent": true },
+    { "source": "/privacy.html", "destination": "/privacy", "permanent": true },
+    { "source": "/tools/decoupling", "destination": "/tools/restructuring", "permanent": true },
+    { "source": "/tools/decoupling.html", "destination": "/tools/restructuring", "permanent": true },
+    { "source": "/insights/decoupling-breakeven", "destination": "/insights/restructuring-breakeven", "permanent": true },
+    { "source": "/insights/decoupling-breakeven.html", "destination": "/insights/restructuring-breakeven", "permanent": true },
+    { "source": "/blog", "destination": "/insights", "permanent": true },
+    { "source": "/blog/index.html", "destination": "/insights", "permanent": true },
+    { "source": "/blog/hdb-upgrade-timeline", "destination": "/insights/hdb-mop-upgrade-timeline", "permanent": true },
+    { "source": "/blog/hdb-upgrade-timeline.html", "destination": "/insights/hdb-mop-upgrade-timeline", "permanent": true },
+    { "source": "/blog/absd-decoupling-singapore", "destination": "/insights/ownership-restructuring-math", "permanent": true },
+    { "source": "/blog/absd-decoupling-singapore.html", "destination": "/insights/ownership-restructuring-math", "permanent": true },
+    { "source": "/blog/absd-second-property-guide", "destination": "/insights/absd-singapore-2026", "permanent": true },
+    { "source": "/blog/absd-second-property-guide.html", "destination": "/insights/absd-singapore-2026", "permanent": true },
+    { "source": "/blog/hdb-bto-vs-resale", "destination": "/insights/new-launch-vs-resale", "permanent": true },
+    { "source": "/blog/hdb-bto-vs-resale.html", "destination": "/insights/new-launch-vs-resale", "permanent": true }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "name": "Winfred Quek — Crestbrick",
+  "short_name": "Winfred Quek",
+  "description": "Investor-minded property advisor, Singapore. Crestbrick.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#faf8f4",
+  "theme_color": "#1a1a1a",
+  "icons": [
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" }
+  ]
+}

@@ -1,0 +1,1434 @@
+{
+  "synced_at": "2026-04-20",
+  "author": "Winfred Quek · CEA R073319H · Crestbrick",
+  "districts": [
+    {
+      "code": "D1",
+      "vibe": "Office-core CBD — residential is a yield trade, not a lifestyle move.",
+      "demographics": "Predominantly tenants: foreign professionals in banking, law, consulting. Owner-occupiers are rare and skew SC/PR expats with CBD commutes. Almost no families; studio and 1BR dominant.",
+      "mrt": [
+        { "station": "Raffles Place", "lines": "NSL · EWL" },
+        { "station": "Tanjong Pagar", "lines": "EWL" },
+        { "station": "Downtown", "lines": "DTL" },
+        { "station": "Shenton Way", "lines": "TEL" },
+        { "station": "Marina Bay", "lines": "NSL · CCL · TEL" }
+      ],
+      "travel_cbd_min": 0,
+      "travel_orchard_min": 10,
+      "travel_changi_min": 25,
+      "schools": ["Cantonment Primary (in D2, nearest)"],
+      "amenities": ["Marina Bay Sands", "Gardens by the Bay", "CapitaSpring", "Lau Pa Sat", "Marina One Green Heart", "Raffles Place Park"],
+      "tenure_mix": "Almost entirely 99-yr leasehold from Marina Bay reclamation releases; a few FH boutique shophouse conversions.",
+      "typical_size_range": "450-1,500 sqft (studios to 3BR, with penthouse outliers at Wallich)",
+      "notable_projects": [
+        "Marina One Residences",
+        "Wallich Residence",
+        "V on Shenton",
+        "Clermont Residence",
+        "The Sail @ Marina Bay",
+        "Marina Bay Residences",
+        "Marina Bay Suites",
+        "One Shenton"
+      ],
+      "psf_range_sgd": "S$2,600 – S$3,400 psf (2026 range — CBD private condos)",
+      "yield_range": "2.8% – 3.5% gross (post-2022 rental reset)",
+      "supply_pipeline_2026_2028": "Limited new launches; Marina South GLS site and a couple of boutique redevelopments. Net supply tight.",
+      "suits": [
+        "Yield-led investor with CBD office-demand thesis",
+        "Foreign buyer on 60% ABSD only if long-term SG commit",
+        "SC/PR single or couple wanting zero-commute lifestyle"
+      ],
+      "faqs": [
+        {
+          "q": "Is D1 a good investment district?",
+          "a": "Yields compress to ~3% because entry PSF is high. Best suited to investors with >10yr hold who value CBD office-demand exposure and FX hedging. Not for first-time OOE buyers — poor value-per-sqft versus RCR alternatives."
+        },
+        {
+          "q": "What's the tenure situation in D1?",
+          "a": "Almost all 99-year leasehold from the Marina Bay reclamation era. Freehold is rare and commands a noticeable premium when it surfaces, usually via shophouse conversions."
+        },
+        {
+          "q": "Best MRT access in D1?",
+          "a": "Raffles Place is the NSL+EWL interchange. Shenton Way (TEL, opened 2022) added meaningful connectivity for Marina South. Marina Bay is a triple-line node (NSL+CCL+TEL)."
+        }
+      ]
+    },
+    {
+      "code": "D2",
+      "vibe": "Walking-distance CBD with real rejuvenation — Newport FH is the 2026 headline.",
+      "demographics": "Expat professionals + SG singles/DINKs working in CBD. Mixed renter/owner; Wallich sets the ultra-prime tone. Very few families.",
+      "mrt": [
+        { "station": "Tanjong Pagar", "lines": "EWL" },
+        { "station": "Maxwell", "lines": "TEL" },
+        { "station": "Outram Park", "lines": "EWL · NEL · TEL" }
+      ],
+      "travel_cbd_min": 2,
+      "travel_orchard_min": 12,
+      "travel_changi_min": 27,
+      "schools": ["Cantonment Primary"],
+      "amenities": ["Tanjong Pagar F&B belt", "Maxwell Food Centre", "Chinatown Point", "Wallich Sky Park", "Pearl's Hill City Park"],
+      "tenure_mix": "Mix of 99-yr (newer GLS) and FH (Newport, some boutique). Newport's FH status is a core thesis.",
+      "typical_size_range": "500-1,600 sqft",
+      "notable_projects": [
+        "Wallich Residence",
+        "Newport Residences",
+        "Skysuites @ Anson",
+        "Altez",
+        "Icon",
+        "76 Shenton",
+        "Spottiswoode Residences",
+        "Spottiswoode 18"
+      ],
+      "psf_range_sgd": "S$2,600 – S$3,500 psf (Newport FH premium at upper end)",
+      "yield_range": "2.9% – 3.6% gross",
+      "supply_pipeline_2026_2028": "Newport Residences launched 2024; absorption ongoing. Limited new GLS here — Cecil Street redevelopments trickle in.",
+      "suits": [
+        "FH-seeking prime buyer (Newport thesis)",
+        "CBD-commuting executive owner-occupier",
+        "Restructurer looking for trophy unit with long runway"
+      ],
+      "faqs": [
+        {
+          "q": "Is Newport Residences worth the premium?",
+          "a": "Newport is one of very few FH prime-CBD launches of this decade. Premium over neighbouring 99-yr stock is 15-25%. Worth it only if you value FH and can hold 10+ years — otherwise D1/D2 99-yr gives better yield per dollar."
+        },
+        {
+          "q": "D1 vs D2 — which is better for investment?",
+          "a": "D2 is the cleaner pick right now. Marina view is priced-in for D1; D2 has more redevelopment upside around Cecil Street and benefits from TEL's Maxwell station. Rental tenant pool is similar."
+        },
+        {
+          "q": "How's connectivity from Tanjong Pagar?",
+          "a": "Tanjong Pagar EWL is 1 stop to Raffles Place. Maxwell TEL (2022) added north-south access. Outram Park 3-line interchange is a 7-min walk. Genuinely well-connected."
+        }
+      ]
+    },
+    {
+      "code": "D3",
+      "vibe": "City-fringe sweet spot — mature MRT, quality schools, en-bloc-rich. Holds value through cycles.",
+      "demographics": "Mix of SC families, young PMET couples, and expat renters. Tiong Bahru draws creative/F&B professionals. Queenstown rejuvenation attracting upgraders.",
+      "mrt": [
+        { "station": "Tiong Bahru", "lines": "EWL" },
+        { "station": "Redhill", "lines": "EWL" },
+        { "station": "Queenstown", "lines": "EWL" },
+        { "station": "Havelock", "lines": "TEL" },
+        { "station": "Great World", "lines": "TEL" }
+      ],
+      "travel_cbd_min": 8,
+      "travel_orchard_min": 10,
+      "travel_changi_min": 30,
+      "schools": ["Gan Eng Seng Primary", "Queenstown Primary", "Alexandra Primary", "Crescent Girls'", "Queensway Secondary"],
+      "amenities": ["Great World City", "Tiong Bahru Market", "Tiong Bahru Plaza", "Dempsey Hill (edge)", "Anchorpoint", "IKEA Alexandra"],
+      "tenure_mix": "Predominantly 99-yr; pockets of FH apartments. HDB stock is significant in Queenstown.",
+      "typical_size_range": "600-1,800 sqft",
+      "notable_projects": [
+        "Avenue South Residence",
+        "Queens Peak",
+        "Highline Residences",
+        "Commonwealth Towers",
+        "Stirling Residences",
+        "One Pearl Bank",
+        "Irwell Hill Residences",
+        "Riviere",
+        "The Reserve Residences (edge)"
+      ],
+      "psf_range_sgd": "S$2,200 – S$2,900 psf (new-launch RCR), resale S$1,800-2,400 psf",
+      "yield_range": "3.0% – 3.8% gross",
+      "supply_pipeline_2026_2028": "Several GLS sites in Queenstown pipeline; en-bloc pipeline active around Alexandra. Moderate supply, well-absorbed.",
+      "suits": [
+        "HDB upgrader wanting RCR with CCR proximity",
+        "Investor seeking balance of yield and capital appreciation",
+        "Family wanting schools + city access"
+      ],
+      "faqs": [
+        {
+          "q": "Why is D3 considered a sweet spot?",
+          "a": "10 minutes to both Orchard and CBD, mature MRT, strong school catchment, and consistent en-bloc refresh. PSF is ~25-30% below CCR equivalents for similar commute. Best risk-adjusted district in the RCR."
+        },
+        {
+          "q": "Tiong Bahru vs Queenstown — which to pick?",
+          "a": "Tiong Bahru = character, FH boutique pockets, cafe culture, thinner new-launch pipeline. Queenstown = modern, more new launches, better MRT access via TEL. Tiong Bahru for lifestyle, Queenstown for liquidity."
+        },
+        {
+          "q": "Is Avenue South Residence still a good buy in 2026?",
+          "a": "TOP-era depreciation has largely played out. Compare resale PSF against launch PSF — if you're getting in at near-launch, it's reasonable. Greater Southern Waterfront remains a 15-20yr catalyst that isn't yet fully priced."
+        }
+      ]
+    },
+    {
+      "code": "D4",
+      "vibe": "Sentosa is a niche FX/foreign-buyer game; HarbourFront mainland is the more practical play.",
+      "demographics": "Sentosa Cove: foreign UHNW, SC returnees, very low density. HarbourFront mainland: SC/PR professionals, Keppel/VivoCity commuters, some expat renters.",
+      "mrt": [
+        { "station": "HarbourFront", "lines": "NEL · CCL" },
+        { "station": "Telok Blangah", "lines": "CCL" },
+        { "station": "Labrador Park", "lines": "CCL" }
+      ],
+      "travel_cbd_min": 10,
+      "travel_orchard_min": 15,
+      "travel_changi_min": 30,
+      "schools": ["Radin Mas Primary", "Blangah Rise Primary", "CHIJ (Kellock) within reach"],
+      "amenities": ["VivoCity", "Sentosa (RWS, beaches, golf)", "Mount Faber Park", "HarbourFront Centre", "Labrador Nature Reserve"],
+      "tenure_mix": "Sentosa Cove 99-yr; mainland D4 mixed 99-yr with some FH (Caribbean at Keppel Bay etc.).",
+      "typical_size_range": "700-3,500 sqft (Sentosa bungalows far larger)",
+      "notable_projects": [
+        "Reflections at Keppel Bay",
+        "Corals at Keppel Bay",
+        "Caribbean at Keppel Bay",
+        "The Interlace (edge)",
+        "Skyline Residences",
+        "The Oceanfront @ Sentosa Cove",
+        "Seven Palms Sentosa Cove",
+        "The Residences at W"
+      ],
+      "psf_range_sgd": "Sentosa Cove S$1,800-2,500 psf (still below 2013 peak); HarbourFront mainland S$1,900-2,600 psf",
+      "yield_range": "2.5% – 3.5% gross (Sentosa thinner; HarbourFront tighter renter demand)",
+      "supply_pipeline_2026_2028": "Very limited. Greater Southern Waterfront masterplan is the decade-long overhang — positive long-term, but no imminent launches.",
+      "suits": [
+        "Foreign UHNW buyer (Sentosa Cove is one of the few SG plots open post-2011 rules)",
+        "SC/PR wanting waterfront lifestyle with Keppel Bay views",
+        "Long-hold GSW thesis investor"
+      ],
+      "faqs": [
+        {
+          "q": "Has Sentosa Cove finally bottomed?",
+          "a": "PSF has recovered from the 2013-2020 trough but still trails 2013 peak in many projects. Volume remains thin. Bottom may be in, but liquidity risk is the real issue — exits can take 12-18 months."
+        },
+        {
+          "q": "Keppel Bay vs Sentosa Cove?",
+          "a": "Keppel Bay is mainland, better rental liquidity, more realistic yields. Sentosa Cove is the trophy play — zero commute to CBD (via Sentosa Gateway), but tenant pool thin and MCST costs high."
+        },
+        {
+          "q": "What's the Greater Southern Waterfront impact?",
+          "a": "Keppel Port relocation frees ~1,000 hectares over 15-20 years. Genuinely transformative for D4/D3, but timeline makes it a long-hold bet, not a 5-year play."
+        }
+      ]
+    },
+    {
+      "code": "D5",
+      "vibe": "Quietly strong — NUS, one-north, Science Park demand pillars. Tenant-friendly, mature stock.",
+      "demographics": "Academics, NUS faculty/staff, biotech/tech professionals at one-north, postgrad students. Mix of expat renters and SC owner-occupiers.",
+      "mrt": [
+        { "station": "Clementi", "lines": "EWL" },
+        { "station": "Dover", "lines": "EWL" },
+        { "station": "Pasir Panjang", "lines": "CCL" },
+        { "station": "Haw Par Villa", "lines": "CCL" },
+        { "station": "Kent Ridge", "lines": "CCL" },
+        { "station": "one-north", "lines": "CCL" }
+      ],
+      "travel_cbd_min": 20,
+      "travel_orchard_min": 18,
+      "travel_changi_min": 35,
+      "schools": ["Nan Hua Primary", "Pei Tong Primary", "Clementi Primary", "NUS High", "NUS (tertiary)", "Anglo-Chinese JC"],
+      "amenities": ["West Coast Plaza", "Clementi Mall", "The Star Vista", "Rochester Mall", "West Coast Park"],
+      "tenure_mix": "Mix of 99-yr condos and FH apartments; landed FH in West Coast area.",
+      "typical_size_range": "700-2,000 sqft",
+      "notable_projects": [
+        "Normanton Park",
+        "Kent Ridge Hill Residences",
+        "Clavon",
+        "Parc Clematis",
+        "The Trilinq",
+        "Whistler Grand",
+        "The Hillford (edge)",
+        "One-North Residences"
+      ],
+      "psf_range_sgd": "S$1,800 – S$2,400 psf",
+      "yield_range": "3.2% – 4.0% gross (NUS/one-north tenant pull)",
+      "supply_pipeline_2026_2028": "Clementi GLS sites released; moderate pipeline. Greater Southern Waterfront edge benefits D5 long-term.",
+      "suits": [
+        "Yield-focused investor leveraging NUS/one-north tenant demand",
+        "Family buying into Nan Hua / NUS High catchment",
+        "HDB upgrader preferring west-side quietness"
+      ],
+      "faqs": [
+        {
+          "q": "Why is D5 rental yield higher than neighbouring districts?",
+          "a": "Three institutional demand pillars: NUS (staff + postgrads), one-north (biotech/tech), and Science Park (R&D). Tenant base is deep and price-insensitive for mid-tier units. 3.5-4% gross is achievable on the right stack."
+        },
+        {
+          "q": "Is Normanton Park worth considering in 2026?",
+          "a": "1,862 units — large project with corresponding exit liquidity risk. But the PSF remains reasonable versus one-north proximity. Pick the right stack (east-facing, pool-view, mid-high floor) and it works."
+        },
+        {
+          "q": "How does Clementi compare to Queenstown (D3)?",
+          "a": "Clementi is ~20% cheaper PSF, ~5 min further to CBD, tenant pool is more institutional (NUS/one-north) vs CBD-led in D3. For yield, Clementi wins; for capital growth, D3 has historically led."
+        }
+      ]
+    },
+    {
+      "code": "D6",
+      "vibe": "Tiny district by sales volume — mostly old commercial-residential mixed-use.",
+      "demographics": "Very thin residential pool; mostly singles in boutique city-fringe units. High transient / serviced apartment mix.",
+      "mrt": [
+        { "station": "City Hall", "lines": "NSL · EWL" },
+        { "station": "Clarke Quay", "lines": "NEL" },
+        { "station": "Fort Canning", "lines": "DTL" }
+      ],
+      "travel_cbd_min": 3,
+      "travel_orchard_min": 8,
+      "travel_changi_min": 25,
+      "schools": ["Stamford Primary (nearest, in D8)"],
+      "amenities": ["Raffles City", "Clarke Quay", "Fort Canning Park", "National Gallery", "Funan Mall"],
+      "tenure_mix": "Mix of FH shophouse-resi and 99-yr; very few pure-residential projects.",
+      "typical_size_range": "400-1,200 sqft",
+      "notable_projects": [
+        "The Clift",
+        "One Raffles Quay (edge, commercial)",
+        "Park Regis (serviced residence)"
+      ],
+      "psf_range_sgd": "S$2,400 – S$3,000 psf (thin sample)",
+      "yield_range": "3.0% – 3.8% gross",
+      "supply_pipeline_2026_2028": "Negligible pure-resi pipeline. Any upside is from mixed-use redevelopment (Funan-adjacent sites).",
+      "suits": [
+        "Ultra-niche city-living buyer",
+        "Short-term investor trading on serviced-apartment conversion plays"
+      ],
+      "faqs": [
+        {
+          "q": "Can you actually live in D6?",
+          "a": "Yes, but the residential pool is small. Most buyers pick D1/D2/D9 for city living — D6 is chosen mostly for specific projects like The Clift or boutique shophouse conversions."
+        },
+        {
+          "q": "Is D6 good for investment?",
+          "a": "Thin transaction volume makes valuation harder. Liquidity risk on exit. Not recommended unless the specific project has clear rental story (serviced apartment operator, expat corporate lease)."
+        },
+        {
+          "q": "Why is D6 so small?",
+          "a": "Urban-planning history — the City Hall/High Street area was built primarily for commercial and civic uses. Residential is incidental to those zones."
+        }
+      ]
+    },
+    {
+      "code": "D7",
+      "vibe": "Gentrifying fast — Guoco Midtown anchor, F&B + creative tenant pool.",
+      "demographics": "Young professionals, creatives, hospitality workers. Mix of expat and SC renters. Starting to attract DINK owner-occupiers post-Midtown.",
+      "mrt": [
+        { "station": "Bugis", "lines": "EWL · DTL" },
+        { "station": "Bencoolen", "lines": "DTL" },
+        { "station": "Bras Basah", "lines": "CCL" },
+        { "station": "Rochor", "lines": "DTL" }
+      ],
+      "travel_cbd_min": 5,
+      "travel_orchard_min": 7,
+      "travel_changi_min": 25,
+      "schools": ["Stamford Primary", "St. Margaret's Primary (reach)"],
+      "amenities": ["Bugis Junction", "Bugis+", "Guoco Midtown", "National Library", "Bras Basah arts cluster", "Kampong Glam"],
+      "tenure_mix": "Mixed — Midtown Bay/Modern 99-yr, some FH older stock. Land-scarce.",
+      "typical_size_range": "450-1,400 sqft",
+      "notable_projects": [
+        "Midtown Bay",
+        "Midtown Modern",
+        "The M",
+        "City Gate",
+        "DUO Residences",
+        "Concourse Skyline",
+        "South Beach Residences"
+      ],
+      "psf_range_sgd": "S$2,500 – S$3,200 psf",
+      "yield_range": "2.9% – 3.6% gross",
+      "supply_pipeline_2026_2028": "Midtown cluster absorption continues; limited fresh GLS. Supply tight.",
+      "suits": [
+        "CBD-adjacent investor who wants character + yield",
+        "Young couple owner-occupier seeking Orchard + CBD dual access",
+        "Buyer on Guoco Midtown master-plan thesis"
+      ],
+      "faqs": [
+        {
+          "q": "Is D7 under-rated versus D9?",
+          "a": "Yes. D7 is ~15-20% cheaper PSF than D9 for similar commute times to both CBD and Orchard. Guoco Midtown commercial anchor is adding genuine tenant demand. Gap should narrow."
+        },
+        {
+          "q": "Midtown Bay vs Midtown Modern?",
+          "a": "Modern is residential-first with larger family layouts. Bay is smaller, more investor-centric. Modern has the better owner-occupier story; Bay is a yield + lock-up-and-leave play."
+        },
+        {
+          "q": "How's the rental market in D7?",
+          "a": "Deep, driven by F&B, hospitality, creative agency workers, and Raffles Hospital staff. 1BR/2BR rent well. Studios can be softer — too much supply from older conversions."
+        }
+      ]
+    },
+    {
+      "code": "D8",
+      "vibe": "Underrated CCR-fringe — yield-friendly, Indian professional + medical tenant base.",
+      "demographics": "Indian professional expats (Farrer Park Hospital, Mustafa, tech), SC singles, mid-income families in older stock. High rental turnover.",
+      "mrt": [
+        { "station": "Farrer Park", "lines": "NEL" },
+        { "station": "Little India", "lines": "NEL · DTL" },
+        { "station": "Jalan Besar", "lines": "DTL" },
+        { "station": "Rochor", "lines": "DTL" }
+      ],
+      "travel_cbd_min": 8,
+      "travel_orchard_min": 10,
+      "travel_changi_min": 25,
+      "schools": ["Stamford Primary", "Farrer Park Primary (historical site)", "St. Joseph's Institution (Junior)"],
+      "amenities": ["Mustafa Centre", "City Square Mall", "Farrer Park Hospital", "Tekka Market", "Kampong Java Park"],
+      "tenure_mix": "Mix of FH shophouse conversions and 99-yr newer builds. Kampong Java has some FH apartment blocks.",
+      "typical_size_range": "500-1,400 sqft",
+      "notable_projects": [
+        "City Square Residences",
+        "Kentish Green",
+        "Uptown @ Farrer",
+        "The Atelier",
+        "Piccadilly Grand",
+        "The Landmark",
+        "One Pearl Bank (edge)"
+      ],
+      "psf_range_sgd": "S$1,900 – S$2,500 psf",
+      "yield_range": "3.3% – 4.0% gross",
+      "supply_pipeline_2026_2028": "Piccadilly Grand absorption nearly done; some GLS in Kampong Java / Jalan Besar watch list.",
+      "suits": [
+        "Yield investor with Indian professional tenant thesis",
+        "HDB upgrader wanting CCR address under S$2M entry",
+        "Restructurer buying for rental liquidity"
+      ],
+      "faqs": [
+        {
+          "q": "Why does D8 have better yields than neighbouring districts?",
+          "a": "Structural tenant demand from Farrer Park Hospital (medical tourism + staff), Mustafa (24/7 retail workers), and the Indian professional community. Rental market is one of the most liquid in the CCR-fringe."
+        },
+        {
+          "q": "Is Piccadilly Grand still relevant in 2026?",
+          "a": "TOP'd 2024. Rental market has absorbed it well. Resale PSF has held — this is a fairer entry than launch for yield-led buyers."
+        },
+        {
+          "q": "D7 vs D8 — which for investment?",
+          "a": "D7 has higher capital upside (Midtown catalyst). D8 has higher current yield. If holding <7 years, D8 wins on cash-on-cash. Longer holds, D7 likely outperforms on total return."
+        }
+      ]
+    },
+    {
+      "code": "D9",
+      "vibe": "Singapore's prime-of-prime — liquidity strong, FX-driven. Quiet luxury beats bling.",
+      "demographics": "UHNW SC, PR, foreign investors (China, HK, India, Indonesia). Owner-occupier mix heavy at top end; strong rental market for expat C-suite.",
+      "mrt": [
+        { "station": "Orchard", "lines": "NSL · TEL" },
+        { "station": "Somerset", "lines": "NSL" },
+        { "station": "Dhoby Ghaut", "lines": "NSL · NEL · CCL" },
+        { "station": "Great World", "lines": "TEL" },
+        { "station": "Orchard Boulevard", "lines": "TEL" }
+      ],
+      "travel_cbd_min": 10,
+      "travel_orchard_min": 0,
+      "travel_changi_min": 28,
+      "schools": ["River Valley Primary", "Anglo-Chinese School (Junior)", "ISS International (private)"],
+      "amenities": ["ION Orchard", "Paragon", "Ngee Ann City", "Great World City", "UE Square", "Emerald Hill"],
+      "tenure_mix": "Strong FH stock (Cairnhill, River Valley) balanced with 99-yr Orchard Boulevard precincts.",
+      "typical_size_range": "700-4,000 sqft (penthouse outliers >6,000)",
+      "notable_projects": [
+        "Boulevard 88",
+        "Cairnhill 16",
+        "Cuscaden Reserve",
+        "Martin Modern",
+        "RV Altitude",
+        "8 Saint Thomas",
+        "Riviere",
+        "Irwell Hill Residences",
+        "Klimt Cairnhill",
+        "Park Nova",
+        "The Avenir"
+      ],
+      "psf_range_sgd": "S$2,800 – S$4,500 psf (Park Nova / Boulevard 88 at upper end; River Valley 99-yr nearer S$2,400)",
+      "yield_range": "2.5% – 3.2% gross (prime compresses yield)",
+      "supply_pipeline_2026_2028": "Cuscaden/Orchard Boulevard GLS trickle. Thin FH pipeline — scarcity supports premium.",
+      "suits": [
+        "FX-hedged foreign buyer with long horizon",
+        "Restructurer parking prime asset for wealth preservation",
+        "UHNW SC wanting flagship trophy unit"
+      ],
+      "faqs": [
+        {
+          "q": "Is D9 prime worth the PSF premium?",
+          "a": "For capital preservation and liquidity in a downturn, yes — prime CCR is the most liquid tier for foreign buyers. For yield, no — D15/D3/D8 deliver better cash. Pick based on portfolio purpose."
+        },
+        {
+          "q": "FH vs 99-yr in D9?",
+          "a": "FH Cairnhill/River Valley still commands 15-25% premium over 99-yr at entry. Over 30+ years the premium compounds as 99-yr decays. For multi-generational holds, FH is correct. For 10-15yr holds, 99-yr offers better yield."
+        },
+        {
+          "q": "How has ABSD impacted D9 liquidity?",
+          "a": "60% foreign ABSD (from Apr 2023) thinned foreign buying by ~70% at peak. Market has adjusted — PSF held up because supply tightened in parallel. Liquidity on resale is slower; holding periods stretched."
+        }
+      ]
+    },
+    {
+      "code": "D10",
+      "vibe": "Family prime — school zones drive premium; landed enclave premium intact.",
+      "demographics": "SC families (often 2nd/3rd generation), expat C-suite renters, returnees. Heavy owner-occupier skew. Intergenerational wealth visible.",
+      "mrt": [
+        { "station": "Holland Village", "lines": "CCL" },
+        { "station": "Farrer Road", "lines": "CCL" },
+        { "station": "Tan Kah Kee", "lines": "DTL" },
+        { "station": "Sixth Avenue", "lines": "DTL" },
+        { "station": "Stevens", "lines": "DTL · TEL" },
+        { "station": "Napier", "lines": "TEL" },
+        { "station": "Orchard Boulevard", "lines": "TEL" }
+      ],
+      "travel_cbd_min": 15,
+      "travel_orchard_min": 8,
+      "travel_changi_min": 30,
+      "schools": ["Nanyang Primary", "Raffles Girls' Primary", "Henry Park Primary", "Singapore Chinese Girls'", "Hwa Chong Institution", "Nanyang Girls' High", "ACS (Independent)", "Methodist Girls' School"],
+      "amenities": ["Holland Village", "Dempsey Hill", "Botanic Gardens", "Cluny Court", "Coronation Plaza", "Bukit Timah Plaza"],
+      "tenure_mix": "Heavy FH — Ardmore, Tanglin, Bukit Timah landed. 99-yr only in newer GLS pockets.",
+      "typical_size_range": "900-4,500 sqft (landed far larger)",
+      "notable_projects": [
+        "Leedon Green",
+        "Leedon Residence",
+        "Pullman Residences Newton (edge)",
+        "Hyll on Holland",
+        "Van Holland",
+        "Perfect Ten",
+        "Juniper Hill",
+        "The Marq on Paterson Hill",
+        "Nassim Park Residences",
+        "Ardmore Residence",
+        "Cluny Park Residence"
+      ],
+      "psf_range_sgd": "S$2,600 – S$4,000 psf (FH); landed GCB pricing is a separate market",
+      "yield_range": "2.5% – 3.3% gross",
+      "supply_pipeline_2026_2028": "Thin — Holland / Bukit Timah pipeline tightly metered. GCB supply essentially static.",
+      "suits": [
+        "Multi-generational SC family buying for school enrolment",
+        "Expat C-suite relocating with family",
+        "UHNW buyer seeking landed GCB (SC-only asset class)"
+      ],
+      "faqs": [
+        {
+          "q": "Is 1km school catchment still worth paying for?",
+          "a": "Yes — distance registration phases still apply (Phase 2C). Top-tier primaries (Nanyang, RGPS, Henry Park) generate measurable PSF premium, particularly on units within 1km radius."
+        },
+        {
+          "q": "D10 vs D11 for family living?",
+          "a": "D10 has deeper top-school catchment and the landed enclave cachet. D11 has better MRT (Novena NSL interchange) and hospital access. D10 is the 'quiet wealth' pick; D11 is more functional."
+        },
+        {
+          "q": "How are GCBs performing in 2026?",
+          "a": "GCB market is SC-only and thin — typically 30-60 transactions a year. Prices have held up post-2023 ABSD changes because buyer pool (SC UHNW) wasn't directly impacted. Long-hold inflation hedge."
+        }
+      ]
+    },
+    {
+      "code": "D11",
+      "vibe": "Health corridor — NSC / TTSH / Mt Elizabeth. Family-friendly, MRT-rich.",
+      "demographics": "Medical professionals, SC families, expat families (medical tourism-adjacent), mid-senior management. Balanced owner/renter.",
+      "mrt": [
+        { "station": "Novena", "lines": "NSL" },
+        { "station": "Newton", "lines": "NSL · DTL" },
+        { "station": "Stevens", "lines": "DTL · TEL" },
+        { "station": "Mount Pleasant", "lines": "TEL" },
+        { "station": "Caldecott", "lines": "CCL · TEL" }
+      ],
+      "travel_cbd_min": 13,
+      "travel_orchard_min": 5,
+      "travel_changi_min": 28,
+      "schools": ["Anglo-Chinese School (Primary)", "Anglo-Chinese School (Barker)", "Singapore Chinese Girls' School", "St. Joseph's Institution", "CHIJ Toa Payoh"],
+      "amenities": ["United Square", "Novena Square", "Velocity", "Tan Tock Seng Hospital", "Mt Elizabeth Novena", "Balestier Food Street (edge)"],
+      "tenure_mix": "Mix of FH (Newton, Watten) and 99-yr (Novena recent launches).",
+      "typical_size_range": "700-2,500 sqft",
+      "notable_projects": [
+        "Pullman Residences Newton",
+        "Kopar at Newton",
+        "The Atelier",
+        "Park Colonial (edge)",
+        "Fyve Derbyshire",
+        "10 Evelyn",
+        "Watten House",
+        "Newton Suites",
+        "Lincoln Suites"
+      ],
+      "psf_range_sgd": "S$2,300 – S$2,900 psf",
+      "yield_range": "2.8% – 3.5% gross",
+      "supply_pipeline_2026_2028": "Watten House launched 2023; Mount Pleasant GLS (former police site) is a medium-term catalyst.",
+      "suits": [
+        "Medical professional owner-occupier",
+        "ACS/SJI catchment family buyer",
+        "Investor on medical tourism tenant thesis"
+      ],
+      "faqs": [
+        {
+          "q": "Why is D11 called the health corridor?",
+          "a": "TTSH, National Skin Centre, Mt Elizabeth Novena, Novena Medical Center are all clustered. Rental demand from medical staff, visiting specialists, and medical tourists is structural — underwrites rental liquidity."
+        },
+        {
+          "q": "D10 vs D11 — which is more liquid?",
+          "a": "D11 sells faster, especially 99-yr stock near Novena MRT. D10 FH holds value longer but transactions take longer. D11 for 7-10yr hold, D10 for 15yr+."
+        },
+        {
+          "q": "How's Mount Pleasant development going?",
+          "a": "Former police academy redevelopment is a decade-long project. First GLS parcels expected mid-late 2020s. Adjacent projects (Watten House, upcoming GLS) will benefit — but timeline is patient-capital territory."
+        }
+      ]
+    },
+    {
+      "code": "D12",
+      "vibe": "City-fringe HDB-heavy — Toa Payoh en-bloc supply reshapes mid-2030s.",
+      "demographics": "Heavy HDB owner-occupier base, SC families, older demographics in Balestier. Limited expat renters — mostly Indian professionals near Novena edge.",
+      "mrt": [
+        { "station": "Toa Payoh", "lines": "NSL" },
+        { "station": "Braddell", "lines": "NSL" },
+        { "station": "Boon Keng", "lines": "NEL" },
+        { "station": "Potong Pasir", "lines": "NEL" },
+        { "station": "Serangoon", "lines": "NEL · CCL (edge)" },
+        { "station": "Caldecott", "lines": "CCL · TEL (edge)" }
+      ],
+      "travel_cbd_min": 12,
+      "travel_orchard_min": 10,
+      "travel_changi_min": 28,
+      "schools": ["CHIJ Primary (Toa Payoh)", "Pei Chun Public School", "Hong Wen School", "St. Andrew's Junior", "First Toa Payoh Primary"],
+      "amenities": ["HDB Hub", "Toa Payoh Central", "Balestier Plaza", "Velocity Novena (edge)", "Whampoa Park"],
+      "tenure_mix": "Majority HDB; private is mixed 99-yr with some FH apartments in Balestier/Moulmein.",
+      "typical_size_range": "600-1,800 sqft",
+      "notable_projects": [
+        "The Orie (Toa Payoh en-bloc redevelopment)",
+        "Trevista",
+        "Gem Residences",
+        "8@Woodleigh (edge)",
+        "The Venue Residences",
+        "Park Colonial",
+        "Sennett Residence",
+        "The Tre Ver"
+      ],
+      "psf_range_sgd": "S$1,900 – S$2,400 psf",
+      "yield_range": "3.2% – 3.9% gross",
+      "supply_pipeline_2026_2028": "The Orie is the headline 2026 launch; further en-bloc opportunities in older Toa Payoh HUDC/private stock over 2027-2030.",
+      "suits": [
+        "HDB upgrader staying in familiar Toa Payoh catchment",
+        "Yield-led investor near NEL/NSL interchanges",
+        "Buyer on long-term Toa Payoh en-bloc thesis"
+      ],
+      "faqs": [
+        {
+          "q": "Is The Orie worth buying at launch?",
+          "a": "Toa Payoh hasn't had a fresh private launch in over a decade. Scarcity premium is real. Compare against Bishan D20 PSF to benchmark — if The Orie prices within 5-8% of Bishan, reasonable. Beyond that, stretch."
+        },
+        {
+          "q": "Why so little private supply in D12?",
+          "a": "HDB land use dominates Toa Payoh. Private GLS releases are rare. This creates supply-scarcity upside when en-bloc deals trigger redevelopment — which is the 2025-2030 thesis."
+        },
+        {
+          "q": "D12 or D13 for a RCR entry?",
+          "a": "D12 has the better schools (CHIJ TP, Maris Stella primary fringe) and city access. D13 is cheaper and has Potong Pasir charm. D12 for families; D13 for yield-led investors."
+        }
+      ]
+    },
+    {
+      "code": "D13",
+      "vibe": "Quiet performer — CCL access, affordable RCR for upgraders.",
+      "demographics": "SC upgraders from HDB, middle-income professionals, some expat renters at larger projects. Limited foreign buyer presence.",
+      "mrt": [
+        { "station": "Potong Pasir", "lines": "NEL" },
+        { "station": "Woodleigh", "lines": "NEL" },
+        { "station": "Macpherson", "lines": "CCL · DTL" },
+        { "station": "Tai Seng", "lines": "CCL" },
+        { "station": "Bartley", "lines": "CCL" }
+      ],
+      "travel_cbd_min": 15,
+      "travel_orchard_min": 15,
+      "travel_changi_min": 25,
+      "schools": ["Maris Stella High (Primary + Secondary)", "St. Andrew's Junior School", "Cedar Primary", "St. Gabriel's Primary"],
+      "amenities": ["The Poiz Centre", "The Venue Shoppes", "Bidadari Park (edge)", "NEX (edge)", "Woodleigh Mall"],
+      "tenure_mix": "Majority 99-yr; small FH apartment pockets.",
+      "typical_size_range": "600-1,600 sqft",
+      "notable_projects": [
+        "Park Colonial",
+        "The Woodleigh Residences",
+        "Sennett Residence",
+        "The Poiz Residences",
+        "Bartley Ridge",
+        "Botanique at Bartley",
+        "Bartley Residences",
+        "Sant Ritz"
+      ],
+      "psf_range_sgd": "S$1,800 – S$2,300 psf",
+      "yield_range": "3.3% – 4.0% gross",
+      "supply_pipeline_2026_2028": "Bidadari absorption continuing; a couple of GLS sites along Lor 1 Geylang edge. Moderate supply.",
+      "suits": [
+        "HDB upgrader wanting sub-S$1.8M RCR entry",
+        "Yield investor near Maris Stella / SJI catchments",
+        "Buyer on Bidadari transformation thesis"
+      ],
+      "faqs": [
+        {
+          "q": "Is Bidadari the long-term winner in D13?",
+          "a": "Bidadari masterplan is one of HDB's best-designed new estates. Proximity to Woodleigh MRT + The Woodleigh Residences mall is driving rental demand. Private stock next to Bidadari should compound."
+        },
+        {
+          "q": "Park Colonial vs The Woodleigh Residences?",
+          "a": "Park Colonial has the Woodleigh MRT doorstep. The Woodleigh Residences has the integrated mall + Japanese-developer design. Park Colonial for yield; TWR for lifestyle + resale story."
+        },
+        {
+          "q": "Why is D13 cheaper than D12?",
+          "a": "D12 has Toa Payoh heritage and stronger primary-school catchment. D13's strength is transit (CCL) — improving but not yet priced-in. Expect gap to narrow over the next cycle."
+        }
+      ]
+    },
+    {
+      "code": "D14",
+      "vibe": "Two-speed — Geylang FH + Paya Lebar Quarter mature; Ubi industrial-fringe stays niche.",
+      "demographics": "Heavy expat renter mix (Paya Lebar corporate tenants), Indian/Bangladeshi working class in Geylang rental stock, HDB upgraders to PLQ. High rental velocity.",
+      "mrt": [
+        { "station": "Paya Lebar", "lines": "EWL · CCL" },
+        { "station": "Aljunied", "lines": "EWL" },
+        { "station": "Kallang", "lines": "EWL" },
+        { "station": "Eunos", "lines": "EWL" },
+        { "station": "Ubi", "lines": "DTL" },
+        { "station": "MacPherson", "lines": "CCL · DTL" }
+      ],
+      "travel_cbd_min": 12,
+      "travel_orchard_min": 18,
+      "travel_changi_min": 15,
+      "schools": ["Geylang Methodist (Primary + Secondary)", "Kong Hwa School", "Canossa Catholic Primary", "Tanjong Katong Girls'"],
+      "amenities": ["Paya Lebar Quarter", "PLQ Mall", "SingPost Centre", "Kinex", "Geylang Serai Market", "Haig Road"],
+      "tenure_mix": "Significant FH stock in Geylang (strata/walk-up); 99-yr in Paya Lebar / Ubi newer launches.",
+      "typical_size_range": "500-1,500 sqft",
+      "notable_projects": [
+        "Park Place Residences at PLQ",
+        "Sims Urban Oasis",
+        "Penrose",
+        "The Tapestry (edge)",
+        "Liv @ MB (Mountbatten, edge)",
+        "Sky Eden @ Bedok (edge)",
+        "One Meyer (edge)",
+        "Lorong 1 Toa Payoh (edge)"
+      ],
+      "psf_range_sgd": "S$1,800 – S$2,400 psf (Paya Lebar higher, Ubi lower)",
+      "yield_range": "3.4% – 4.2% gross (one of the strongest in OCR-RCR border)",
+      "supply_pipeline_2026_2028": "Paya Lebar Air Base redevelopment is the 2030s+ catalyst. Near-term, a few Geylang / Ubi GLS sites. Moderate.",
+      "suits": [
+        "Yield investor on expat corporate tenant thesis",
+        "HDB upgrader wanting PLQ integrated mall + MRT",
+        "Long-hold buyer on Paya Lebar Air Base masterplan"
+      ],
+      "faqs": [
+        {
+          "q": "Is Geylang FH stock a value play?",
+          "a": "FH walk-ups and strata-landed in Geylang trade at significant discount to CCR FH. Works if you accept the tenant mix and en-bloc timeline patience. Not owner-occupier territory for most."
+        },
+        {
+          "q": "Park Place Residences at PLQ — worth it in 2026?",
+          "a": "Integrated development with mall + MRT is a premium proposition. PSF reflects that. Yield is reasonable on smaller units; capital growth depends on PLQ office occupancy."
+        },
+        {
+          "q": "When does Paya Lebar Air Base move?",
+          "a": "Scheduled for 2030 onwards. Full redevelopment will take decades. Too far out for a 5-10yr thesis, but supports long-hold D14/D17 positioning."
+        }
+      ]
+    },
+    {
+      "code": "D15",
+      "vibe": "East Coast lifestyle premium — walkable, cafe-rich, mature schools. New launches priced accordingly.",
+      "demographics": "SC families (generational East Coast), expat families with schools-led preferences, DINK owner-occupiers. Strong owner-occupier skew.",
+      "mrt": [
+        { "station": "Katong Park", "lines": "TEL" },
+        { "station": "Tanjong Katong", "lines": "TEL" },
+        { "station": "Marine Parade", "lines": "TEL" },
+        { "station": "Marine Terrace", "lines": "TEL" },
+        { "station": "Siglap", "lines": "TEL" },
+        { "station": "Mountbatten", "lines": "CCL" },
+        { "station": "Dakota", "lines": "CCL" }
+      ],
+      "travel_cbd_min": 15,
+      "travel_orchard_min": 20,
+      "travel_changi_min": 15,
+      "schools": ["Tao Nan School", "CHIJ (Katong) Primary", "Haig Girls'", "Kong Hwa School", "Tanjong Katong Primary", "Victoria School", "Chung Cheng High", "Dunman High"],
+      "amenities": ["Parkway Parade", "I12 Katong", "East Coast Park", "Katong food belt", "Joo Chiat shophouse row", "Big Splash redevelopment"],
+      "tenure_mix": "Strong FH base (Katong, Joo Chiat, Amber); 99-yr in Marine Parade / Mountbatten GLS.",
+      "typical_size_range": "700-2,500 sqft",
+      "notable_projects": [
+        "Grand Dunman",
+        "Tembusu Grand",
+        "The Continuum",
+        "Liv @ MB",
+        "Amber Park",
+        "One Meyer",
+        "Coastline Residences",
+        "Meyer Mansion",
+        "Meyerhouse",
+        "Nyon",
+        "The Reef at King's Dock (edge D4)",
+        "Seaside Residences"
+      ],
+      "psf_range_sgd": "S$2,300 – S$2,900 psf (Amber / Meyer at upper end)",
+      "yield_range": "3.0% – 3.7% gross",
+      "supply_pipeline_2026_2028": "Heavy — Grand Dunman absorption, Tembusu Grand, Continuum, plus GLS sites. Supply the key risk 2026-27.",
+      "suits": [
+        "SC family owner-occupier (generational East Coast buyer)",
+        "Expat family with Tao Nan / CHIJ catchment preference",
+        "Investor on TEL connectivity thesis"
+      ],
+      "faqs": [
+        {
+          "q": "Is D15 oversupplied in 2026?",
+          "a": "Near-term yes — Grand Dunman (1,008 units), Tembusu Grand (638), Continuum (816), plus Tanjong Katong GLS. Absorption will take 24-36 months. Resale may see price pressure until pipeline clears."
+        },
+        {
+          "q": "Amber vs Marine Parade — which pocket?",
+          "a": "Amber is quieter, FH-rich, Katong Park TEL doorstep. Marine Parade is 99-yr new launches, mall-integrated at Marine Parade MRT. Amber for hold-to-pass-on; Marine Parade for rental."
+        },
+        {
+          "q": "How has TEL opening changed D15?",
+          "a": "Meaningfully. East Coast historically rail-poor — buses or drive. TEL cut Orchard/CBD commute by 15+ minutes. Catalyst mostly priced-in by 2024, but resale liquidity is now stronger."
+        }
+      ]
+    },
+    {
+      "code": "D16",
+      "vibe": "Bayshore TEL + Bedok rejuvenation = 5-10yr upside. HDB upgrader-rich catchment.",
+      "demographics": "Heavy HDB-upgrader base, SC families, older owner-occupiers, growing expat renter pool at Siglap/Upper East Coast edge. Very owner-occupier heavy.",
+      "mrt": [
+        { "station": "Bedok", "lines": "EWL" },
+        { "station": "Tanah Merah", "lines": "EWL" },
+        { "station": "Kembangan", "lines": "EWL" },
+        { "station": "Bedok Reservoir", "lines": "DTL" },
+        { "station": "Bayshore", "lines": "TEL" },
+        { "station": "Bedok South", "lines": "TEL" },
+        { "station": "Sungei Bedok", "lines": "TEL · DTL interchange" }
+      ],
+      "travel_cbd_min": 20,
+      "travel_orchard_min": 22,
+      "travel_changi_min": 10,
+      "schools": ["Red Swastika School", "Fengshan Primary", "St. Anthony's Canossian Primary", "Temasek Primary", "Bedok Green Primary"],
+      "amenities": ["Bedok Mall", "Djitsun Mall Bedok", "Bedok Point", "Eastpoint Mall (Simei edge)", "Bayshore Park (under development)", "East Coast Park access"],
+      "tenure_mix": "Mixed — Bedok older stock 99-yr, Upper East Coast has FH landed, newer GLS 99-yr.",
+      "typical_size_range": "700-2,000 sqft",
+      "notable_projects": [
+        "Bayshore GLS sites (upcoming 2026-27 launches)",
+        "Sky Eden @ Bedok",
+        "The Glades",
+        "Urban Vista",
+        "Eastwood Residences",
+        "Bagnall Haus",
+        "Grand Bay (2026)",
+        "Sceneca Residence"
+      ],
+      "psf_range_sgd": "S$1,900 – S$2,500 psf (Bayshore / Upper East Coast new launches at upper end)",
+      "yield_range": "3.2% – 3.9% gross",
+      "supply_pipeline_2026_2028": "Heavy at Bayshore — multiple GLS sites, first launch in 2026. Absorption is the key question.",
+      "suits": [
+        "HDB upgrader staying east",
+        "Investor on Bayshore / TEL station premium",
+        "Family owner-occupier wanting schools + beach access"
+      ],
+      "faqs": [
+        {
+          "q": "Is Bayshore the next big east-side story?",
+          "a": "TEL station + waterfront precinct + new GLS launches = genuine catalyst. But total supply is large. Early movers who pick best-positioned stacks benefit; late buyers at peak pricing face supply pressure."
+        },
+        {
+          "q": "D15 vs D16 — where's better value?",
+          "a": "D15 is more mature, cafe/school premium priced-in. D16 is 15-20% cheaper PSF with Bayshore catalyst ahead. For investors, D16 offers better forward return; for lifestyle, D15 wins today."
+        },
+        {
+          "q": "How bad is the east oversupply risk?",
+          "a": "D15 + D16 combined have 3,500+ units launching/absorbing 2024-2027. Resale market will face competition from new launches. Best to buy at launch pricing or wait for absorption cycle to end."
+        }
+      ]
+    },
+    {
+      "code": "D17",
+      "vibe": "Industrial-anchored — aviation + CBP tenant pool. Niche residential.",
+      "demographics": "Thin residential; mostly SC landed owners, airport/CBP staff renters. Very low foreign buyer interest.",
+      "mrt": [
+        { "station": "Tampines East", "lines": "DTL (edge)" },
+        { "station": "Upper Changi", "lines": "DTL" },
+        { "station": "Expo", "lines": "EWL · DTL (edge)" },
+        { "station": "Pasir Ris", "lines": "EWL (edge)" }
+      ],
+      "travel_cbd_min": 30,
+      "travel_orchard_min": 35,
+      "travel_changi_min": 5,
+      "schools": ["Changkat Primary", "Loyang View Secondary", "UWC South East Asia (East)"],
+      "amenities": ["Changi Airport", "Jewel Changi", "Changi Business Park", "Changi Village", "Loyang Point"],
+      "tenure_mix": "Mostly 99-yr condos; landed FH in Jalan Loyang Besar enclave.",
+      "typical_size_range": "700-2,000 sqft",
+      "notable_projects": [
+        "The Jovell",
+        "Parc Komo",
+        "Ferraria Park",
+        "Azalea Park",
+        "Changi Green",
+        "Avila Gardens",
+        "Edelweiss Park"
+      ],
+      "psf_range_sgd": "S$1,500 – S$1,900 psf",
+      "yield_range": "3.5% – 4.3% gross (limited tenant pool caps upside)",
+      "supply_pipeline_2026_2028": "Limited. Changi Airport T5 completion (2030s) is the long-dated catalyst.",
+      "suits": [
+        "Aviation / CBP professional owner-occupier",
+        "UWCSEA (East) parent renter/buyer",
+        "Yield investor accepting thin liquidity"
+      ],
+      "faqs": [
+        {
+          "q": "Is D17 too far for most buyers?",
+          "a": "Yes — commute times to CBD are 30+ minutes. Works only if you/tenant is based in Changi/CBP/Pasir Ris. Not a mainstream upgrader pick."
+        },
+        {
+          "q": "Does Changi T5 impact D17 prices?",
+          "a": "Long-term tailwind, but timeline is mid-2030s. Won't drive 5yr returns. Better to buy on current cash-yield math than future catalyst."
+        },
+        {
+          "q": "Landed in D17 — worth it?",
+          "a": "Jalan Loyang Besar FH landed is cheap vs D10/D11. Trade-off is commute, ambience, resale liquidity. Works for SC families prioritising space over location."
+        }
+      ]
+    },
+    {
+      "code": "D18",
+      "vibe": "Mature regional centre — Tampines Hub + retail draw. Pinery Residences is the 2026 anchor.",
+      "demographics": "HDB-heavy catchment, SC families, some expat renters (CBP-adjacent), mid-income professionals. Strong owner-occupier base.",
+      "mrt": [
+        { "station": "Tampines", "lines": "EWL · DTL" },
+        { "station": "Tampines West", "lines": "DTL" },
+        { "station": "Tampines East", "lines": "DTL" },
+        { "station": "Pasir Ris", "lines": "EWL" },
+        { "station": "Simei", "lines": "EWL" }
+      ],
+      "travel_cbd_min": 25,
+      "travel_orchard_min": 28,
+      "travel_changi_min": 10,
+      "schools": ["Poi Ching School", "St. Hilda's Primary", "Junyuan Primary", "Red Swastika (edge D16)", "Temasek Junior College", "Meridian Junior College"],
+      "amenities": ["Tampines Mall", "Century Square", "Tampines 1", "Our Tampines Hub", "IKEA Tampines", "Courts Megastore", "White Sands (Pasir Ris)"],
+      "tenure_mix": "99-yr dominant; a few FH pockets in older Tampines.",
+      "typical_size_range": "700-1,800 sqft",
+      "notable_projects": [
+        "Pinery Residences (2026)",
+        "The Tapestry",
+        "Treasure at Tampines",
+        "Parc Esta (edge D14)",
+        "The Santorini",
+        "Q Bay Residences",
+        "Tampines Trilliant (EC)",
+        "The Alps Residences"
+      ],
+      "psf_range_sgd": "S$1,800 – S$2,300 psf",
+      "yield_range": "3.4% – 4.1% gross",
+      "supply_pipeline_2026_2028": "Pinery Residences is the headline 2026 launch. Moderate further GLS.",
+      "suits": [
+        "East-side HDB upgrader",
+        "Yield investor on CBP/Pasir Ris professional tenant base",
+        "Family buyer on Temasek JC catchment"
+      ],
+      "faqs": [
+        {
+          "q": "Why is Pinery Residences significant?",
+          "a": "First major new launch in mature Tampines in years. Integrated amenities proximity (Tampines Hub / Mall cluster). Will set PSF benchmark for the district in 2026."
+        },
+        {
+          "q": "Treasure at Tampines — still a buy?",
+          "a": "Mega-development (2,203 units). TOP'd, absorption on resale ongoing. Stack selection matters — pool-facing mid-floor trades at premium. Exit liquidity is the risk given project size."
+        },
+        {
+          "q": "How does Tampines compare to Punggol for upgrading?",
+          "a": "Tampines is mature, schools deeper, retail proven. Punggol is newer, better waterfront, Digital District catalyst. Tampines for stability; Punggol for growth."
+        }
+      ]
+    },
+    {
+      "code": "D19",
+      "vibe": "Family-suburban — Punggol Digital District ramping. HDB-upgrader heartland.",
+      "demographics": "Young SC families (Punggol/Sengkang), established SC families (Serangoon Gardens/Hougang), mixed expat renters near Serangoon MRT. Heavy owner-occupier.",
+      "mrt": [
+        { "station": "Serangoon", "lines": "NEL · CCL" },
+        { "station": "Hougang", "lines": "NEL" },
+        { "station": "Punggol", "lines": "NEL" },
+        { "station": "Sengkang", "lines": "NEL" },
+        { "station": "Kovan", "lines": "NEL" },
+        { "station": "Lorong Chuan", "lines": "CCL" }
+      ],
+      "travel_cbd_min": 22,
+      "travel_orchard_min": 22,
+      "travel_changi_min": 25,
+      "schools": ["Rosyth School", "Nan Chiau Primary", "CHIJ Our Lady of Good Counsel", "Paya Lebar Methodist Girls'", "Maris Stella High (edge)", "Nanyang JC (edge)"],
+      "amenities": ["NEX", "Hougang Mall", "Waterway Point", "Compass One", "Heartland Mall (Kovan)", "Serangoon Gardens food belt", "Punggol Waterway"],
+      "tenure_mix": "99-yr majority; small FH pockets in Serangoon Garden / Hougang.",
+      "typical_size_range": "700-1,800 sqft",
+      "notable_projects": [
+        "The Florence Residences",
+        "Affinity at Serangoon",
+        "Riverfront Residences",
+        "The Garden Residences",
+        "Stars of Kovan",
+        "Parc Botannia",
+        "Parc Canberra (edge)",
+        "Piermont Grand (EC)",
+        "The Jovell (edge D17)"
+      ],
+      "psf_range_sgd": "S$1,700 – S$2,200 psf",
+      "yield_range": "3.4% – 4.1% gross",
+      "supply_pipeline_2026_2028": "Multiple GLS sites in Punggol / Hougang; steady launch cadence. Punggol Digital District completions drive tenant demand.",
+      "suits": [
+        "HDB upgrader staying in NE catchment",
+        "Young family prioritising schools + waterfront",
+        "Investor on PDD tenant thesis (SIT campus + fintech offices)"
+      ],
+      "faqs": [
+        {
+          "q": "Is Punggol Digital District a real catalyst?",
+          "a": "Yes — SIT campus operational, JTC offices absorbing fintech/cybersecurity tenants. PSF in adjacent Punggol condos has outperformed broader OCR. Real impact, not speculation."
+        },
+        {
+          "q": "Hougang vs Serangoon Gardens for landed?",
+          "a": "Serangoon Gardens is the established FH landed enclave — higher PSF, mature ambience. Hougang has newer strata-landed at better prices. Gardens for long-hold; Hougang for value."
+        },
+        {
+          "q": "The Florence Residences worth considering?",
+          "a": "Large 1,410-unit project. TOP'd 2023. Resale pricing has stabilised. Kovan MRT proximity is the hook. Good yield for young landlords; appreciation modest given project size."
+        }
+      ]
+    },
+    {
+      "code": "D20",
+      "vibe": "Education + TEL/NSL connectivity. Premium HDB resale. Thomson View en-bloc = signal.",
+      "demographics": "Heavy SC family owner-occupier, school-catchment-driven buyers, limited expat renters. Intergenerational, stable.",
+      "mrt": [
+        { "station": "Bishan", "lines": "NSL · CCL" },
+        { "station": "Ang Mo Kio", "lines": "NSL" },
+        { "station": "Marymount", "lines": "CCL" },
+        { "station": "Upper Thomson", "lines": "TEL" },
+        { "station": "Bright Hill", "lines": "TEL" },
+        { "station": "Mayflower", "lines": "TEL" },
+        { "station": "Lentor", "lines": "TEL (edge)" }
+      ],
+      "travel_cbd_min": 18,
+      "travel_orchard_min": 15,
+      "travel_changi_min": 28,
+      "schools": ["Catholic High (Primary + Secondary)", "Ai Tong School", "Raffles Institution", "Anderson Primary", "CHIJ Primary (Toa Payoh, edge)", "Eunoia JC"],
+      "amenities": ["Junction 8", "Bishan-AMK Park", "AMK Hub", "Thomson Plaza", "Bishan Library"],
+      "tenure_mix": "Mixed — older FH pockets in Thomson, 99-yr in newer Bishan / AMK launches. Extensive HDB.",
+      "typical_size_range": "750-2,000 sqft",
+      "notable_projects": [
+        "The Panorama",
+        "Thomson Impressions",
+        "Thomson Grand",
+        "Sky@Eleven",
+        "Bishan Loft",
+        "Sky Habitat",
+        "Sky Vue",
+        "Thomson View (en-bloc redevelopment pending)"
+      ],
+      "psf_range_sgd": "S$2,000 – S$2,500 psf",
+      "yield_range": "3.0% – 3.7% gross",
+      "supply_pipeline_2026_2028": "Thomson View en-bloc redevelopment is the major 2026-27 catalyst. AMK Ave 1 GLS in pipeline.",
+      "suits": [
+        "SC family on Catholic High / Ai Tong / RI catchment",
+        "HDB upgrader staying in Bishan/AMK",
+        "Investor on Thomson View / TEL premium"
+      ],
+      "faqs": [
+        {
+          "q": "Why is Bishan HDB resale so expensive?",
+          "a": "Catholic High + Raffles Institution catchment, NSL+CCL interchange, mature town. HDB resale in Bishan regularly crosses S$1M for 5-room. Private condo PSF follows that premium."
+        },
+        {
+          "q": "Is Thomson View en-bloc a buy signal?",
+          "a": "En-bloc redevelopment signals land-value confidence. Expect launch PSF at S$2,400-2,700 given Upper Thomson MRT doorstep. Nearby 99-yr stock (Thomson Impressions, Thomson Grand) benefits."
+        },
+        {
+          "q": "D20 vs D11 for family buyers?",
+          "a": "D11 is closer to Orchard, ACS/SJI catchment. D20 has Raffles/Catholic High, better parks (Bishan-AMK), cheaper PSF. D20 is better risk-adjusted family value."
+        }
+      ]
+    },
+    {
+      "code": "D21",
+      "vibe": "Quiet, leafy, school-driven. Beauty World rejuvenation continues. Rare landed pockets.",
+      "demographics": "SC families (HCI/NJC parents), expat families in landed, some academic renters. Very owner-occupier heavy.",
+      "mrt": [
+        { "station": "Beauty World", "lines": "DTL" },
+        { "station": "King Albert Park", "lines": "DTL" },
+        { "station": "Sixth Avenue", "lines": "DTL" },
+        { "station": "Hillview", "lines": "DTL (edge)" },
+        { "station": "Clementi", "lines": "EWL (edge)" }
+      ],
+      "travel_cbd_min": 22,
+      "travel_orchard_min": 18,
+      "travel_changi_min": 35,
+      "schools": ["Pei Hwa Presbyterian Primary", "Methodist Girls' (Primary + Secondary)", "Hwa Chong Institution (Secondary + JC)", "National Junior College", "Nanyang Girls' High (edge D10)"],
+      "amenities": ["Beauty World Plaza", "Bukit Timah Plaza", "Bukit Timah Nature Reserve", "Rail Corridor", "Rifle Range Nature Park"],
+      "tenure_mix": "Heavy FH landed + FH apartments (older Bukit Timah); newer 99-yr at Beauty World / Hillview edge.",
+      "typical_size_range": "800-3,000 sqft (landed much larger)",
+      "notable_projects": [
+        "The Reserve Residences",
+        "Dairy Farm Residences",
+        "Ki Residences at Brookvale",
+        "Daintree Residence",
+        "Forett at Bukit Timah",
+        "Fourth Avenue Residences",
+        "Pine Grove (upcoming redevelopment)"
+      ],
+      "psf_range_sgd": "S$2,200 – S$2,700 psf",
+      "yield_range": "2.8% – 3.5% gross",
+      "supply_pipeline_2026_2028": "Pine Grove en-bloc redevelopment (~2,000 units over multiple GLS parcels) is the supply overhang.",
+      "suits": [
+        "HCI / NJC / MGS catchment family",
+        "Expat family wanting green landed",
+        "Patient buyer on Beauty World rejuvenation"
+      ],
+      "faqs": [
+        {
+          "q": "Is The Reserve Residences worth its premium?",
+          "a": "Integrated development (mall + MRT + bus interchange) is a structurally scarce proposition. PSF reflects that. For families on HCI/NJC catchment with mid/long hold, it works. Yield-led investors can find better."
+        },
+        {
+          "q": "How will Pine Grove impact D21?",
+          "a": "Pine Grove redevelopment releases substantial new supply. Near-term pressure on resale PSF at neighbouring projects. Long-term, refreshes the district and drives up land-value benchmarks."
+        },
+        {
+          "q": "D21 vs D10 — which is better for schools?",
+          "a": "D10 has the Nanyang Primary + RGPS flagship. D21 has HCI Secondary/JC + NJC. For primary-stage planning, D10. For secondary-stage preparedness, D21 wins."
+        }
+      ]
+    },
+    {
+      "code": "D22",
+      "vibe": "Jurong Lake District = the long-dated regional CBD bet. JRL + JID land releases matter.",
+      "demographics": "Mixed HDB base, NTU faculty/staff, industrial professionals, growing expat renter pool at JEM/Westgate area. Owner-occupier heavy at HDB, rental-heavy at newer condos.",
+      "mrt": [
+        { "station": "Jurong East", "lines": "EWL · NSL · JRL (opening phases)" },
+        { "station": "Chinese Garden", "lines": "EWL" },
+        { "station": "Lakeside", "lines": "EWL" },
+        { "station": "Boon Lay", "lines": "EWL" },
+        { "station": "Pioneer", "lines": "EWL" }
+      ],
+      "travel_cbd_min": 25,
+      "travel_orchard_min": 25,
+      "travel_changi_min": 45,
+      "schools": ["Rulang Primary", "Fuhua Primary", "Lakeside Primary", "Jurong Secondary", "River Valley High", "NTU (tertiary)"],
+      "amenities": ["JEM", "Westgate", "IMM", "Jurong Point", "Jurong Lake Gardens", "Science Centre (relocating)"],
+      "tenure_mix": "99-yr dominant; some FH landed in older Jurong West pockets.",
+      "typical_size_range": "700-1,600 sqft",
+      "notable_projects": [
+        "J'den",
+        "Lake Grande",
+        "Lake Life (EC)",
+        "Parc Vista",
+        "Parc Oasis",
+        "The Lakeshore",
+        "Caspian",
+        "Westwood Residences (EC, edge)",
+        "The Clement Canopy (edge D5)"
+      ],
+      "psf_range_sgd": "S$1,800 – S$2,400 psf (J'den at upper end on JLD catalyst)",
+      "yield_range": "3.2% – 4.0% gross",
+      "supply_pipeline_2026_2028": "JLD masterplan releases GLS in waves. Significant supply 2026-2030. JRL phased opening is the demand driver.",
+      "suits": [
+        "Long-hold investor on JLD second-CBD thesis",
+        "NTU / industrial professional owner-occupier",
+        "HDB upgrader staying west"
+      ],
+      "faqs": [
+        {
+          "q": "Is JLD really a second CBD?",
+          "a": "URA masterplan commits decades of development. JEM/Westgate/IMM are the anchor retail. New office towers + mixed-use in pipeline. Timeline is 15-25 years for full build-out. Real but patient."
+        },
+        {
+          "q": "J'den worth the launch PSF?",
+          "a": "J'den is on the former JCube site at Jurong East interchange. Premium vs nearby projects reflects integrated + interchange proximity. Works for JLD-thesis long-hold; near-term yield is tight."
+        },
+        {
+          "q": "When does JRL fully open?",
+          "a": "Jurong Region Line phased openings from late 2020s through early 2030s. Full completion adds meaningful connectivity across D22/D23/D24. Prices adjust as each phase opens."
+        }
+      ]
+    },
+    {
+      "code": "D23",
+      "vibe": "Affordable OCR — family-friendly, nature-fronted. Senja Close EC 2026 in this pocket.",
+      "demographics": "HDB-heavy, SC families, affordable-entry upgraders, minimal expat presence. Strong owner-occupier.",
+      "mrt": [
+        { "station": "Hillview", "lines": "DTL" },
+        { "station": "Bukit Panjang", "lines": "DTL · BPLRT" },
+        { "station": "Cashew", "lines": "DTL" },
+        { "station": "Choa Chu Kang", "lines": "NSL · BPLRT" },
+        { "station": "Bukit Gombak", "lines": "NSL" },
+        { "station": "Yew Tee", "lines": "NSL" }
+      ],
+      "travel_cbd_min": 30,
+      "travel_orchard_min": 25,
+      "travel_changi_min": 45,
+      "schools": ["Bukit Panjang Primary", "Zhenghua Primary", "CHIJ Our Lady Queen of Peace", "Assumption Pathway", "West Spring Secondary"],
+      "amenities": ["Hillion Mall", "Junction 10", "Lot One (CCK)", "Bukit Timah Nature Reserve access", "Dairy Farm Nature Park", "Hillview Rail Mall"],
+      "tenure_mix": "99-yr dominant; small FH pockets in Hillview / Dairy Farm.",
+      "typical_size_range": "700-1,500 sqft",
+      "notable_projects": [
+        "Dairy Farm Residences",
+        "The Hillford",
+        "The Tennery",
+        "Hillview Peak",
+        "Midwood",
+        "View at Kismis",
+        "Park Natura",
+        "Senja Close EC (2026)",
+        "The Myst (upcoming)"
+      ],
+      "psf_range_sgd": "S$1,600 – S$2,100 psf",
+      "yield_range": "3.3% – 4.0% gross",
+      "supply_pipeline_2026_2028": "Senja Close EC 2026; a couple of Hillview / Dairy Farm GLS sites. Moderate.",
+      "suits": [
+        "First-time private buyer upgrading from HDB",
+        "Family wanting nature access + affordable entry",
+        "EC buyer (Senja Close income-eligible)"
+      ],
+      "faqs": [
+        {
+          "q": "Is D23 too far from the city?",
+          "a": "DTL gets you to Bugis in ~30 min, Newton ~25 min. Liveable for most, but not zero-commute. Trade-off is PSF ~25-30% below comparable D15/D16."
+        },
+        {
+          "q": "Senja Close EC worth considering?",
+          "a": "ECs in 2026 come with income ceilings. For income-qualified upgraders, EC remains the highest-value new-launch format. Senja Close specifically — check MOP timeline + completion to decide hold strategy."
+        },
+        {
+          "q": "D23 vs D24 Tengah for new buyers?",
+          "a": "D23 is mature — infra done, schools established. D24 Tengah is brand-new — pricing reflects anticipation. D23 for 'buy and live immediately', D24 for 'patient masterplan upside'."
+        }
+      ]
+    },
+    {
+      "code": "D24",
+      "vibe": "Singapore's newest town — Tengah Garden Residences (2026, 863 units) = the test case.",
+      "demographics": "Very young HDB town — first BTO residents moving in 2023-2025. Private stock still in formation. SC upgrader-heavy projection.",
+      "mrt": [
+        { "station": "Tengah", "lines": "JRL (phased 2027+)" },
+        { "station": "Tengah Plantation", "lines": "JRL (phased 2027+)" },
+        { "station": "Tengah Park", "lines": "JRL (phased 2027+)" },
+        { "station": "Hong Kah", "lines": "JRL" },
+        { "station": "Corporation", "lines": "JRL" }
+      ],
+      "travel_cbd_min": 35,
+      "travel_orchard_min": 35,
+      "travel_changi_min": 50,
+      "schools": ["Shuqun Primary (edge)", "Princess Elizabeth Primary (edge)", "Jurong West Primary (edge)"],
+      "amenities": ["Forest town concept + central park", "Future Tengah town centre (under construction)", "Jurong Innovation District (edge)"],
+      "tenure_mix": "99-yr only; no FH land available.",
+      "typical_size_range": "700-1,300 sqft (limited product range so far)",
+      "notable_projects": [
+        "Tengah Garden Residences (2026 launch, 863 units)",
+        "Copen Grand (EC, Tengah)",
+        "Tenet (EC)"
+      ],
+      "psf_range_sgd": "S$1,700 – S$2,100 psf (new-launch expected range)",
+      "yield_range": "3.0% – 3.8% gross (thin data — projection)",
+      "supply_pipeline_2026_2028": "Tengah Garden Residences 2026. Further GLS planned as town matures. JRL phased openings from 2027.",
+      "suits": [
+        "Patient masterplan investor",
+        "HDB upgrader wanting brand-new town",
+        "Buyer comfortable with 5-7yr wait for full infra"
+      ],
+      "faqs": [
+        {
+          "q": "Is Tengah too early to buy?",
+          "a": "Depends on horizon. MRT doesn't open until 2027+, town centre still under construction. 3-year buyers face immature living experience. 10-year buyers capture the masterplan story. Know your hold period."
+        },
+        {
+          "q": "Tengah Garden Residences — worth launch pricing?",
+          "a": "First major private launch in Tengah. Scarcity premium real, but you're paying for a catalyst not yet delivered. If launch PSF >S$2,100, compare hard against Copen Grand resale."
+        },
+        {
+          "q": "Tengah vs Punggol for new buyers?",
+          "a": "Punggol has working infrastructure + PDD catalyst already in motion. Tengah is 3-5yr behind Punggol's current state. Punggol for near-term liveability; Tengah for deeper long-hold discount."
+        }
+      ]
+    },
+    {
+      "code": "D25",
+      "vibe": "Causeway corridor — cheap entry, MY-buyer optionality, JB-RTS post-2027 catalyst.",
+      "demographics": "HDB-heavy, cross-border Malaysian workers (renters), SC families, retirees. Very owner-occupier HDB base; private rental mixed.",
+      "mrt": [
+        { "station": "Woodlands", "lines": "NSL · TEL" },
+        { "station": "Woodlands North", "lines": "TEL (RTS interchange 2027)" },
+        { "station": "Woodlands South", "lines": "TEL" },
+        { "station": "Marsiling", "lines": "NSL" },
+        { "station": "Kranji", "lines": "NSL" }
+      ],
+      "travel_cbd_min": 35,
+      "travel_orchard_min": 30,
+      "travel_changi_min": 50,
+      "schools": ["Woodgrove Primary", "Admiralty Primary", "Innova Primary", "Republic Polytechnic", "Singapore American School (SAS)"],
+      "amenities": ["Causeway Point", "Woods Square", "Vista Point", "Kranji Turf Club", "Mandai Wildlife Reserve (edge)", "Admiralty Park"],
+      "tenure_mix": "99-yr dominant; minimal FH.",
+      "typical_size_range": "700-1,600 sqft",
+      "notable_projects": [
+        "The Woodleigh Residences (mis-name — actually D13)",
+        "Woods Square",
+        "Parc Rosewood",
+        "Parc Centros (EC)",
+        "Forest Woods (edge D19)",
+        "Parc Canberra (EC)",
+        "The Brownstone (EC)"
+      ],
+      "psf_range_sgd": "S$1,500 – S$1,900 psf",
+      "yield_range": "3.5% – 4.2% gross",
+      "supply_pipeline_2026_2028": "Woodlands Regional Centre GLS releases. RTS terminal completion late 2026-2027. Moderate-to-heavy supply.",
+      "suits": [
+        "Entry-level private buyer on budget",
+        "Investor on cross-border rental thesis (MY commuters)",
+        "Long-hold RTS / Woodlands Regional Centre thesis buyer"
+      ],
+      "faqs": [
+        {
+          "q": "Will RTS actually impact property prices?",
+          "a": "Yes — cross-border time drops from 60-90 min (bus) to 5 min (rail). Unlocks MY executive rental pool for D25. But impact is concentrated around Woodlands North specifically, not all of D25."
+        },
+        {
+          "q": "Is D25 an SAS-catchment play?",
+          "a": "Singapore American School is a material rental driver. Expat American families near SAS pay premium for 3BR+ units within 15-min drive. Genuine niche demand."
+        },
+        {
+          "q": "D25 vs D27 Yishun for affordability?",
+          "a": "D25 has RTS catalyst D27 lacks. D27 has better established retail (Northpoint City). D25 for upside bet; D27 for current liveability."
+        }
+      ]
+    },
+    {
+      "code": "D26",
+      "vibe": "TEL-driven boom zone — Lentor cluster (Mansion/Central/Gardens) = supply test.",
+      "demographics": "SC families upgrading from HDB, young professionals, some expat families drawn by Thomson/Lentor green zones. Owner-occupier heavy.",
+      "mrt": [
+        { "station": "Lentor", "lines": "TEL" },
+        { "station": "Mayflower", "lines": "TEL" },
+        { "station": "Springleaf", "lines": "TEL" },
+        { "station": "Upper Thomson", "lines": "TEL (edge)" },
+        { "station": "Bright Hill", "lines": "TEL (edge)" }
+      ],
+      "travel_cbd_min": 22,
+      "travel_orchard_min": 18,
+      "travel_changi_min": 35,
+      "schools": ["Anderson Primary", "CHIJ St. Nicholas Girls'", "Presbyterian High School", "Ai Tong (edge D20)"],
+      "amenities": ["Thomson Plaza (edge)", "Springleaf Prata Place", "Mandai Wildlife Reserve", "Thomson Nature Park", "Lower Pierce Reservoir Park"],
+      "tenure_mix": "99-yr dominant (Lentor GLS sites); some FH landed in Springleaf enclave.",
+      "typical_size_range": "700-1,700 sqft",
+      "notable_projects": [
+        "Lentor Modern",
+        "Lentor Hills Residences",
+        "Hillock Green",
+        "Lentoria",
+        "Lentor Mansion",
+        "Lentor Central Residences (upcoming)",
+        "Lentor Gardens (upcoming)",
+        "Springleaf GLS (upcoming)"
+      ],
+      "psf_range_sgd": "S$2,000 – S$2,400 psf",
+      "yield_range": "3.0% – 3.7% gross",
+      "supply_pipeline_2026_2028": "Heavy — Lentor cluster has 7+ adjacent GLS projects. Supply absorption is the dominant risk 2026-2028.",
+      "suits": [
+        "HDB upgrader on TEL/Lentor story",
+        "Family wanting green zone + MRT",
+        "Investor willing to price in supply risk for long-hold upside"
+      ],
+      "faqs": [
+        {
+          "q": "Is Lentor cluster oversupplied?",
+          "a": "Likely near-term. 5-7 projects launching within 1km over 2022-2027. Resale liquidity will be thin until absorption completes. Buy at discount to launch, or wait for pipeline to clear."
+        },
+        {
+          "q": "Lentor Modern vs Lentor Hills Residences?",
+          "a": "Lentor Modern has the integrated mall + MRT exit (doorstep). Lentor Hills is further from MRT but larger site with better amenities. Modern for convenience; Hills for space-per-dollar."
+        },
+        {
+          "q": "How does TEL change D26?",
+          "a": "Transformative. Pre-TEL, Lentor was bus-reliant. TEL connects to Orchard in 20 min. PSF pre-TEL was ~S$1,500; current S$2,000+. Much of the uplift is priced-in now."
+        }
+      ]
+    },
+    {
+      "code": "D27",
+      "vibe": "North suburban — Yishun integrated transport + Khoo Teck Puat catchment. Sembawang EC 2026 supply.",
+      "demographics": "HDB-heavy base, SC families, healthcare professionals (KTPH), mid-income professionals. Strong owner-occupier.",
+      "mrt": [
+        { "station": "Yishun", "lines": "NSL" },
+        { "station": "Khatib", "lines": "NSL" },
+        { "station": "Canberra", "lines": "NSL" },
+        { "station": "Sembawang", "lines": "NSL" },
+        { "station": "Admiralty", "lines": "NSL" }
+      ],
+      "travel_cbd_min": 30,
+      "travel_orchard_min": 27,
+      "travel_changi_min": 42,
+      "schools": ["Northland Primary", "Yishun Primary", "Chongfu School", "Xishan Primary", "Canberra Primary"],
+      "amenities": ["Northpoint City", "Junction Nine", "Sun Plaza", "Khoo Teck Puat Hospital", "Yishun Park", "Sembawang Hot Spring Park"],
+      "tenure_mix": "99-yr dominant; minimal FH.",
+      "typical_size_range": "700-1,600 sqft",
+      "notable_projects": [
+        "North Park Residences",
+        "The Criterion (EC)",
+        "The Brownstone (EC)",
+        "Parc Canberra (EC)",
+        "Provence Residence (EC)",
+        "The Visionaire (EC)",
+        "Watercove (strata landed)",
+        "Parc Life (EC)",
+        "Sembawang EC 2026"
+      ],
+      "psf_range_sgd": "S$1,500 – S$1,900 psf",
+      "yield_range": "3.5% – 4.2% gross",
+      "supply_pipeline_2026_2028": "Sembawang EC 2026; further Yishun / Canberra GLS in pipeline.",
+      "suits": [
+        "First-time HDB upgrader",
+        "EC-eligible family buyer",
+        "Healthcare professional (KTPH) owner-occupier"
+      ],
+      "faqs": [
+        {
+          "q": "Is North Park Residences still a buy?",
+          "a": "Integrated with Northpoint City mall + Yishun interchange. Convenient, large project (920 units), yield decent. Resale PSF has held up. Reasonable for yield buyers, less exciting for capital growth."
+        },
+        {
+          "q": "Yishun vs Sembawang for upgraders?",
+          "a": "Yishun is more mature (retail, hospital, interchange). Sembawang is quieter, newer, has seaside aspect. Yishun for convenience; Sembawang for ambience at similar PSF."
+        },
+        {
+          "q": "Sembawang EC 2026 — should I queue?",
+          "a": "ECs remain the best-value new-launch format for income-qualified upgraders. Sembawang EC specifically — evaluate commute tolerance + MOP resale strategy. Queue if you fit the income ceiling."
+        }
+      ]
+    },
+    {
+      "code": "D28",
+      "vibe": "Aerospace + landed enclaves. Niche — not the headline upgrader path.",
+      "demographics": "Landed SC families, Seletar Aerospace professionals, some expat renters. Very owner-occupier heavy in landed; thin condo rental market.",
+      "mrt": [
+        { "station": "Yio Chu Kang", "lines": "NSL" },
+        { "station": "Ang Mo Kio", "lines": "NSL (edge)" },
+        { "station": "Seletar", "lines": "CRL (future, late 2020s/2030s)" }
+      ],
+      "travel_cbd_min": 28,
+      "travel_orchard_min": 25,
+      "travel_changi_min": 30,
+      "schools": ["Rosyth School (edge D19)", "Mayflower Primary (edge)", "Presbyterian High (edge D26)", "Yio Chu Kang Secondary"],
+      "amenities": ["Seletar Mall (edge D19)", "Jalan Kayu food street", "Seletar Aerospace Park", "The Oval @ Seletar", "AMK-Bishan Park (edge)"],
+      "tenure_mix": "Heavy FH landed; 99-yr for the few condo projects.",
+      "typical_size_range": "800-2,000 sqft (condos); landed far larger",
+      "notable_projects": [
+        "Seletar Park Residence",
+        "The Estuary",
+        "H2O Residences",
+        "Parc Rosewood (edge D25)",
+        "Stream Valley Seletar Hills (landed enclave)",
+        "Nim Collection (strata landed)"
+      ],
+      "psf_range_sgd": "S$1,600 – S$2,000 psf (condos); landed priced per dwelling",
+      "yield_range": "3.2% – 3.9% gross",
+      "supply_pipeline_2026_2028": "Minimal new condo supply; CRL Seletar station is the long-dated catalyst.",
+      "suits": [
+        "SC family prioritising landed on budget",
+        "Seletar Aerospace professional owner-occupier",
+        "Niche long-hold CRL-catalyst buyer"
+      ],
+      "faqs": [
+        {
+          "q": "Why is D28 so small in volume?",
+          "a": "Predominantly landed enclaves + airbase land. Private condo stock is thin. Not a natural target for upgraders or investors — mostly chosen by existing residents or niche landed buyers."
+        },
+        {
+          "q": "Is Jalan Kayu / Seletar Hills landed a value play?",
+          "a": "Versus D10/D11 landed, yes — significantly cheaper per sqft of land. Trade-off is commute, ambience, resale liquidity. Works for end-use families, not short-hold investors."
+        },
+        {
+          "q": "When does CRL reach D28?",
+          "a": "Cross Island Line phase with Seletar station is on the longer horizon (late 2020s/2030s). Too distant to drive near-term pricing. Worth monitoring for 10-15yr positioning."
+        }
+      ]
+    }
+  ]
+}

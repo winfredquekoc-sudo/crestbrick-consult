@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BSD Calculator Singapore 2026  --  Tiered Breakdown | Winfred Quek</title>
+  <meta name="description" content="Free Buyer's Stamp Duty calculator for Singapore property purchases. Full tiered breakdown per IRAS 2026. Residential and non-residential. By Winfred Quek, Crestbrick." />
+  <meta property="og:title" content="BSD Calculator Singapore 2026  --  Winfred Quek" />
+  <meta property="og:description" content="Tiered BSD breakdown. IRAS 2026 schedule." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/tools/bsd" />
+  <link rel="canonical" href="https://winfredquek.com/tools/bsd" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/_shared.css" />
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+<style>
+    .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
+  </style>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline active" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline active" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a></div>
+  </div>
+</header>
+
+<main>
+<section class="hero hero-sequence max-w-3xl mx-auto px-6 pt-16 pb-6">
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <p class="section-label"><a href="/" class="hover:text-[var(--ink)]">Home</a> / <a href="/tools" class="hover:text-[var(--ink)]">Tools</a> / <span>BSD Calculator</span></p>
+  </nav>
+  <h1 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-4">BSD Calculator Singapore <span class="italic text-[var(--accent)]">2026</span></h1>
+  <p class="text-[var(--ink-soft)] leading-relaxed mb-8">Buyer's Stamp Duty (BSD) is the base stamp duty every Singapore property buyer pays, regardless of citizenship or property count. It's charged on a tiered schedule per IRAS, meaning different bands of your purchase price are taxed at different rates. On a S$1.5M residential, BSD is around S$44,600 -- knowing exactly where the bill stacks helps you price-shop intelligently and time your cheque.</p>
+</section>
+
+<section class="max-w-3xl mx-auto px-6 pb-20">
+  <div class="calc-panel">
+    <div class="calc-row">
+      <label for="price">Purchase price (SGD)</label>
+      <input id="price" type="number" min="0" step="1000" value="1500000" />
+    </div>
+    <div class="calc-row">
+      <label for="type">Property type</label>
+      <select id="type">
+        <option value="res">Residential</option>
+        <option value="nonres">Non-residential (commercial/industrial)</option>
+      </select>
+    </div>
+
+    <div id="result" class="result-panel mt-6" style="display:none;">
+      <h3 class="serif text-xl font-semibold mb-3" style="color:#faf8f4;">BSD breakdown</h3>
+      <div id="tier-rows"></div>
+      <div class="result-total">
+        <span class="label">Total BSD</span>
+        <span id="o-total" class="amount"> -- </span>
+      </div>
+      <p class="calc-note" style="color:rgba(250,248,244,.7);">Residential tiers per IRAS 2026. Non-residential uses the simplified 1–5% schedule. Excludes ABSD (use the <a href="/tools/absd" style="color:inherit;text-decoration:underline;">ABSD calculator</a>).</p>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Need the full stamp duty picture including ABSD? Book a consult →</a>
+      <a href="/tools/absd" class="btn btn-ghost">Add ABSD →</a>
+    </div>
+  </div>
+
+  <div class="mt-10 p-6 bg-[#1c1e26] border border-[var(--rule)] rounded-xl">
+    <h3 class="serif text-xl font-semibold mb-4">How to read this result</h3>
+    <ul class="list-disc pl-5 space-y-2 text-[var(--ink-soft)] leading-relaxed">
+      <li>BSD is payable within 14 days of signing the Option to Purchase (OTP) exercise or S&amp;P, whichever is earlier.</li>
+      <li>CPF can be used to pay BSD on residential property (subject to CPF rules); cash is required for non-residential.</li>
+      <li>The top 6% band only triggers on residential above S$3M -- most buyers never hit it.</li>
+    </ul>
+  </div>
+
+  <p class="mt-6 text-xs text-[var(--ink-muted)]">Figures are estimates for planning purposes. Verify with your banker and solicitor before committing.</p>
+</section>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 text-center text-xs text-[var(--ink-muted)]">
+    © 2026 Winfred Quek · Crestbrick · CEA R073319H · <a href="/privacy" class="hover:text-[var(--ink)]">Privacy</a>
+  </div>
+</footer>
+
+<script>
+(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();
+
+var RES=[
+  {label:'1% on first S$180k', cap:180000, rate:0.01},
+  {label:'2% on next S$180k', cap:180000, rate:0.02},
+  {label:'3% on next S$640k', cap:640000, rate:0.03},
+  {label:'4% on next S$500k', cap:500000, rate:0.04},
+  {label:'5% on next S$1.5M', cap:1500000, rate:0.05},
+  {label:'6% above S$3M', cap:Infinity, rate:0.06}
+];
+var NONRES=[
+  {label:'1% on first S$180k', cap:180000, rate:0.01},
+  {label:'2% on next S$180k', cap:180000, rate:0.02},
+  {label:'3% on next S$640k', cap:640000, rate:0.03},
+  {label:'4% on next S$500k', cap:500000, rate:0.04},
+  {label:'5% above S$1.5M', cap:Infinity, rate:0.05}
+];
+
+function fmt(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
+
+function recalc(){
+  var price=parseFloat(document.getElementById('price').value)||0;
+  var type=document.getElementById('type').value;
+  var tiers = type==='nonres' ? NONRES : RES;
+  if(price<=0) return;
+  var rows='', total=0, remaining=price;
+  for(var i=0;i<tiers.length;i++){
+    var slice=Math.min(remaining, tiers[i].cap);
+    if(slice<=0) break;
+    var cost=slice*tiers[i].rate;
+    rows += '<div class="result-row"><span class="label">'+tiers[i].label+' · on '+fmt(slice)+'</span><span class="amount">'+fmt(cost)+'</span></div>';
+    total+=cost; remaining-=slice;
+  }
+  document.getElementById('tier-rows').innerHTML=rows;
+  document.getElementById('o-total').textContent=fmt(total);
+  document.getElementById('result').style.display='block';
+}
+
+['price','type'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', recalc);
+  document.getElementById(id).addEventListener('change', recalc);
+});
+recalc();
+</script>
+</body>
+</html>

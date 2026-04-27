@@ -1,0 +1,882 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>4-Pillar Portfolio Audit -- Your Property Strategy Built in 30 Minutes | Winfred Quek</title>
+  <meta name="description" content="Complete the free 4-Pillar Portfolio Audit in 4 minutes. Winfred maps your Capital, Cashflow, Progression, and Protection -- then walks into your 30-minute strategy session with a custom plan already built. CEA R073319H, Crestbrick Singapore." />
+  <meta property="og:title" content="4-Pillar Portfolio Audit -- Your Property Strategy Built in 30 Minutes | Winfred Quek" />
+  <meta property="og:description" content="Free 4-minute audit across Capital, Cashflow, Progression, and Protection. Winfred reviews your answers before the call -- so your consultation starts with a strategy, not a blank sheet." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/audit" />
+  <link rel="canonical" href="https://winfredquek.com/audit" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+  <style>
+    :root{--bg:#0f1117;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;--highlight:#1a1c24;--ok:#4a7a5c;--warn:#a76b2e;
+          --card:#faf8f4;--card-border:#e4dfd5;--card-ink:#0f1117;--card-soft:#5a5650;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:6px;font-weight:500;font-size:15px;transition:all .15s ease;cursor:pointer;border:none;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none;}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);background:transparent;}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    .progress-track{height:3px;background:rgba(198,163,106,.25);border-radius:999px;overflow:hidden;}
+    .progress-fill{height:100%;background:var(--accent);transition:width .5s ease;}
+    /* Chat bubbles  --  warm card on dark page */
+    .bubble{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:1.1rem 1.3rem;font-size:15px;line-height:1.55;color:var(--card-ink);margin-bottom:.9rem;max-width:640px;box-shadow:0 1px 4px rgba(0,0,0,.12);}
+    .bubble.accent{background:var(--card);border-color:#c6a36a;}
+    .bubble strong{color:var(--card-ink);font-weight:600;}
+    /* Question card  --  warm card */
+    .qcard{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:1.6rem 1.4rem 1.3rem;box-shadow:0 2px 8px rgba(0,0,0,.15);}
+    .qtitle{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;margin-bottom:.4rem;color:var(--card-ink);}
+    .qsub{font-size:13px;color:var(--card-soft);margin-bottom:1.1rem;}
+    /* Option buttons  --  white with dark text */
+    .opt{display:block;width:100%;padding:.85rem 1.1rem;background:#fff;border:1.5px solid var(--card-border);border-radius:8px;text-align:left;font-size:14px;color:var(--card-ink);cursor:pointer;margin-bottom:.5rem;transition:all .12s;font-family:inherit;line-height:1.45;}
+    .opt:hover{border-color:var(--accent);background:#faf8f4;transform:translateX(2px);}
+    .opt.sel{border-color:var(--accent);background:#fdf6e8;color:var(--card-ink);font-weight:500;box-shadow:0 0 0 1px var(--accent) inset;}
+    /* Text input */
+    .tinput{width:100%;background:#fff;border:1.5px solid var(--card-border);border-radius:8px;padding:.85rem 1.1rem;font-size:15px;color:var(--card-ink);font-family:inherit;}
+    .tinput:focus{outline:none;border-color:var(--accent);}
+    .tinput::placeholder{color:#a09c96;}
+    /* Insight callout  --  keeps dark inverted style */
+    .insight{background:var(--card-ink);color:var(--card);border-radius:12px;padding:1.4rem;margin:1.2rem 0;}
+    .insight .label{font-size:11px;text-transform:uppercase;letter-spacing:.12em;color:rgba(250,248,244,.65);font-weight:600;margin-bottom:.3rem;}
+    .insight .val{font-family:'Fraunces',Georgia,serif;font-size:28px;font-weight:600;line-height:1.1;margin-bottom:.3rem;}
+    .insight .note{font-size:13px;color:rgba(250,248,244,.75);line-height:1.5;}
+    /* Summary panel  --  warm card */
+    .summary-panel{background:var(--card);border:1px solid var(--card-border);border-radius:14px;padding:1.8rem;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+    .summary-row{display:flex;justify-content:space-between;gap:1rem;padding:.65rem 0;border-bottom:1px dashed var(--card-border);align-items:baseline;}
+    .summary-row:last-child{border-bottom:none;}
+    .summary-row .k{color:var(--card-soft);font-size:13px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;flex-shrink:0;}
+    .summary-row .v{color:var(--card-ink);font-family:'Fraunces',Georgia,serif;font-weight:500;text-align:right;}
+    .spinner{width:24px;height:24px;border:3px solid var(--card-border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;display:inline-block;vertical-align:middle;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    .chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+    .chip-pick{padding:.5rem .85rem;background:#fff;border:1.5px solid var(--card-border);border-radius:999px;font-size:13px;color:var(--card-ink);cursor:pointer;transition:all .12s;font-family:inherit;}
+    .chip-pick:hover{border-color:var(--accent);}
+    .chip-pick.sel{background:var(--card-ink);color:var(--card);border-color:var(--card-ink);}
+    .step{animation:fadeIn .4s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+    .fade-up{opacity:0;transform:translateY(14px);transition:opacity .7s ease,transform .7s ease;}
+    .fade-up.is-in{opacity:1;transform:translateY(0);}
+    /* Pillar cards  --  stay dark (info sections) */
+    .pillar-card{background:var(--highlight);border:1px solid var(--rule);border-radius:12px;padding:1.8rem;}
+    .pillar-num{font-family:'Fraunces',Georgia,serif;font-size:38px;font-weight:600;color:var(--accent);line-height:1;margin-bottom:.5rem;}
+    .deliverable-item{display:flex;gap:.9rem;align-items:flex-start;padding:.85rem 0;border-bottom:1px dashed var(--card-border);}
+    .deliverable-item:last-child{border-bottom:none;}
+    .deliverable-icon{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:600;color:var(--accent);flex-shrink:0;padding-top:.1rem;}
+    .faq-item{border-bottom:1px solid var(--rule);padding:1.2rem 0;}
+    .faq-q{font-weight:600;color:var(--ink);font-size:15px;margin-bottom:.5rem;}
+    .faq-a{color:var(--ink-soft);font-size:14px;line-height:1.65;}
+    /* Social proof  --  warm card */
+    .social-proof-strip{background:var(--card);border:1px solid #d4b47a;border-radius:10px;padding:1.1rem 1.4rem;font-size:14px;color:var(--card-ink);line-height:1.55;}
+    .social-proof-strip strong{color:var(--card-ink);}
+    .bronze-rule{border:none;border-top:1px solid var(--rule);margin:3rem 0;}
+    table{width:100%;border-collapse:collapse;font-size:14px;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--card-border);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    /* Audit wizard section gets warm bg */
+    #audit-wizard{border-top:1px solid var(--rule);}
+    main#audit-main{background:var(--card);}
+  </style>
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+
+  <!-- GA4  --  replace G-XXXXXXXXXX with your measurement ID from analytics.google.com -->
+  <!-- TODO: Create GA4 property at analytics.google.com → Admin → Create Property → get Measurement ID -->
+  <!-- Note: Replace G-XXXXXXXXXX with real ID from analytics.google.com once property is created. -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+    // Custom events
+    function trackAuditStep(n) { gtag('event','audit_step',{step_number:n}); }
+    function trackWAClick() { gtag('event','whatsapp_click'); }
+  </script>
+  <link rel="stylesheet" href="/animations.css">
+  <script defer src="/animations.js"></script>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a>
+      <a class="nav-link link-underline" href="/services">Services</a>
+      <a class="nav-link link-underline" href="/pricing">Pricing</a>
+      <a class="nav-link link-underline" href="/tools">Tools</a>
+      <a class="nav-link link-underline" href="/insights">Insights</a>
+      <a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a></div>
+  </div>
+</header>
+
+<!-- ===== AUDIT LANDING PAGE ===== -->
+<div class="audit-landing">
+
+  <!-- Hero -->
+  <section class="max-w-3xl mx-auto px-6 pt-16 pb-10 fade-up scroll-reveal">
+    <p class="section-label mb-6">4-Pillar Portfolio Audit</p>
+    <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6 hero-text-reveal">Your 4-Pillar Property Strategy -- <span class="italic text-[var(--accent)]">Built in 30 Minutes</span></h1>
+    <p class="text-lg text-[var(--ink-soft)] leading-relaxed mb-8 max-w-2xl">Most property consultations start from scratch. Yours won't. Complete the audit in 4 minutes below, and I'll walk into our session with your full strategy already mapped -- across Capital, Cashflow, Progression, and Protection.</p>
+    <div class="flex flex-wrap gap-3 mb-8">
+      <a href="#audit-wizard" class="btn btn-primary">Start audit (4 min)</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-ghost">Skip to Calendly</a>
+    </div>
+    <div class="social-proof-strip">
+      <strong>40+ Singapore property owners</strong> have completed the 4-Pillar Audit this year. Investors, upgraders, restructuring couples, foreign buyers.
+    </div>
+  </section>
+
+  <div class="max-w-3xl mx-auto px-6"><hr class="bronze-rule"></div>
+
+  <!-- The 4 Pillars -->
+  <section class="max-w-3xl mx-auto px-6 pb-16 fade-up scroll-reveal">
+    <p class="section-label mb-4">The 4 pillars</p>
+    <h2 class="serif text-3xl font-semibold balance leading-tight mb-8">What gets mapped in your audit.</h2>
+    <div class="grid md:grid-cols-2 gap-5">
+
+      <div class="pillar-card">
+        <div class="pillar-num">01</div>
+        <h3 class="serif text-xl font-semibold mb-2">Capital</h3>
+        <p class="text-[var(--ink-soft)] text-sm leading-relaxed">ABSD exposure, financing ceiling, liquidity runway. Where your deployable dollars actually go -- and how much is truly available after stamp duties, CPF accruals, and existing debt are netted out.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-num">02</div>
+        <h3 class="serif text-xl font-semibold mb-2">Cashflow</h3>
+        <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Rental yield realism, mortgage servicing, vacancy buffer. What lands in your account every month after the property runs -- not the gross number on a brochure, the net number on a spreadsheet.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-num">03</div>
+        <h3 class="serif text-xl font-semibold mb-2">Progression</h3>
+        <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Sequencing, sell-first vs buy-first, restructuring math, MOP timing. The 10-year map, not the next purchase. Every decision you make now changes the menu of options you have in year 5.</p>
+      </div>
+
+      <div class="pillar-card">
+        <div class="pillar-num">04</div>
+        <h3 class="serif text-xl font-semibold mb-2">Protection</h3>
+        <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Insurance, trust structures, spousal rights, exit plan. The downside math most agents skip. What happens to the portfolio if income drops, rates spike, or a forced sale is required on an illiquid timeline.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <div class="max-w-3xl mx-auto px-6"><hr class="bronze-rule"></div>
+
+  <!-- What you get -->
+  <section class="max-w-3xl mx-auto px-6 pb-16 fade-up scroll-reveal">
+    <p class="section-label mb-4">What you get</p>
+    <h2 class="serif text-3xl font-semibold balance leading-tight mb-8">Four specific deliverables. Not a pitch.</h2>
+    <div class="rounded-xl p-8" style="background:var(--card);border:1px solid var(--card-border);box-shadow:0 2px 12px rgba(0,0,0,.1);">
+      <div class="deliverable-item">
+        <div class="deliverable-icon">01</div>
+        <div>
+          <p class="font-semibold mb-1" style="color:var(--card-ink);">Personalised PDF audit summary</p>
+          <p class="text-sm leading-relaxed" style="color:var(--card-soft);">Your ABSD exposure, TDSR headroom, and required portfolio size -- calculated from your actual numbers, not a generic template.</p>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="deliverable-icon">02</div>
+        <div>
+          <p class="font-semibold mb-1" style="color:var(--card-ink);">4-Pillar strategy map</p>
+          <p class="text-sm leading-relaxed" style="color:var(--card-soft);">Tailored to your citizenship, capital base, and timeline. Shows the sequencing across Capital, Cashflow, Progression, and Protection -- the full picture, not one transaction.</p>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="deliverable-icon">03</div>
+        <div>
+          <p class="font-semibold mb-1" style="color:var(--card-ink);">30-minute strategy session with Winfred</p>
+          <p class="text-sm leading-relaxed" style="color:var(--card-soft);">Reviewed before the call, not during. You get analysis on arrival, not a conversation that starts from zero while the clock runs.</p>
+        </div>
+      </div>
+      <div class="deliverable-item">
+        <div class="deliverable-icon">04</div>
+        <div>
+          <p class="font-semibold mb-1" style="color:var(--card-ink);">Prep-notes document</p>
+          <p class="text-sm leading-relaxed" style="color:var(--card-soft);">So you know what decisions to bring and what to expect. No surprises, no wasted time on basics that should have been resolved before you arrive.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="max-w-3xl mx-auto px-6"><hr class="bronze-rule"></div>
+
+  <!-- FAQ -->
+  <section class="max-w-3xl mx-auto px-6 pb-16 fade-up scroll-reveal">
+    <p class="section-label mb-4">FAQ</p>
+    <h2 class="serif text-3xl font-semibold balance leading-tight mb-8">Common questions.</h2>
+    <div>
+      <div class="faq-item">
+        <p class="faq-q">Is this free?</p>
+        <p class="faq-a">Yes. No fee, no obligation. The audit is the first step of my investor-grade consultation. I only earn if and when I represent you on a transaction, under the standard Singapore co-broke model.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">How long does it take?</p>
+        <p class="faq-a">About 4 minutes online, then a 30-minute strategy session (virtual or in-person) once I've reviewed your audit. The form is conversational -- you will not be staring at a spreadsheet.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">What do I need to bring?</p>
+        <p class="faq-a">Nothing for the online form. For the call, it helps to have a rough sense of your monthly income, existing debt, and any current property holdings. If you don't know the exact numbers, ballpark is fine -- that's what the call is for.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Who is this for?</p>
+        <p class="faq-a">First-time buyers, HDB upgraders, restructuring couples, foreigners and PRs, and existing investors with 1 to 5+ properties. If you want a strategy and not just a listing, this is the right starting point.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">What happens to my data?</p>
+        <p class="faq-a">Held by Winfred Quek (CEA R073319H, Crestbrick) under PDPA. Never sold or shared. Deletion on request at any time.</p>
+      </div>
+    </div>
+  </section>
+
+</div>
+<!-- ===== END AUDIT LANDING PAGE ===== -->
+
+<div id="audit-wizard" class="divider max-w-3xl mx-auto px-6 pt-6 pb-2">
+  <p class="section-label">Start your audit below</p>
+</div>
+
+<main id="audit-main" class="max-w-3xl mx-auto px-6 pt-10 pb-20">
+  <div id="progress-wrap" style="display:none;" class="mb-6">
+    <div class="flex justify-between items-center mb-2">
+      <span class="section-label" id="progress-label">Section 1 of 6</span>
+      <span class="text-xs text-[var(--ink-muted)]" id="progress-pct">0%</span>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+  </div>
+  <div id="step-host"></div>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-[var(--ink-muted)]">
+    © 2026 Winfred Quek · Crestbrick · CEA R073319H · Portfolio audit is informational  --  not regulated financial advice.
+  </div>
+</footer>
+
+<script>
+(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();
+(function(){var els=document.querySelectorAll('.fade-up');if(!('IntersectionObserver' in window)){els.forEach(function(e){e.classList.add('is-in');});return;}var io=new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('is-in');io.unobserve(en.target);}});},{threshold:.08});els.forEach(function(e){io.observe(e);});})();
+
+const QUESTIONS = [
+  { id:'current_ownership_status', section:1, title:'What properties do you currently own?', sub:'This sets your ABSD exposure baseline.',
+    options:['🏠 I own an HDB flat (MOP completed  --  can sell anytime)','🏠 I own an HDB flat (still within 5-year MOP period)','🏢 I own 1 private condo or EC in Singapore','🏡 I own 1 landed property in Singapore','🏘️ I own 2+ properties in Singapore','🌍 I only own property overseas (no Singapore property)',"❌ I don't own any property yet","🔄 It's complicated  --  sold recently / complex ownership"]},
+  { id:'citizenship_status', section:1, title:"What's your citizenship/residency status?",
+    options:['🇸🇬 Singapore Citizen (SC)','🟢 Singapore Permanent Resident (SPR)','✈️ Employment Pass / Work Pass holder','🌐 Foreigner (tourist/dependent pass)','👫 Mixed couple (SC + SPR or SC + Foreigner)']},
+  { id:'purchase_structure', section:1, title:'Are you buying solo or with someone?',
+    options:['👤 Flying solo  --  just me','💑 Joint purchase with spouse/partner','👨‍👩‍👧 Family purchase (parents, siblings, children)','🏢 Considering company/entity structure',"🤔 Not sure yet  --  need Winfred's advice on structure"]},
+  { id:'monthly_income_range', section:2, title:'Combined gross monthly household income?', sub:'Include salary, rental, business, commissions  --  before CPF deductions.',
+    options:['💵 Under S$8,000/month','💵 S$8,000 – S$12,000/month','💵 S$12,001 – S$18,000/month','💵 S$18,001 – S$25,000/month','💵 S$25,001 – S$35,000/month','💵 S$35,001 – S$50,000/month','💵 Above S$50,000/month','🤐 Prefer to discuss with Winfred directly']},
+  { id:'existing_debt_obligations', section:2, title:'Current monthly debt commitments?', sub:'Mortgage, car loan, personal loans, credit card minimums.',
+    options:['✅ Zero debt  --  completely clean slate','📊 Under S$2,000/month','📊 S$2,000 – S$4,000/month','📊 S$4,001 – S$6,000/month','📊 S$6,001 – S$8,000/month','📊 Above S$8,000/month','🤷 Not sure of exact amount']},
+  { id:'cpf_oa_balance', section:2, title:'Combined CPF Ordinary Account (OA) balance?', sub:'Total OA balance across all account holders. Check your CPF statement at cpf.gov.sg.',
+    options:['💰 Under S$50,000','💰 S$50,000 – S$100,000','💰 S$100,001 – S$200,000','💰 S$200,001 – S$350,000','💰 S$350,001 – S$500,000','💰 Above S$500,000','🤷 Not sure -- need help checking']},
+  { id:'existing_home_loan', section:2, title:'Outstanding home loan balance?', sub:'Total remaining loan owed on any property you currently own. Check your HDB/bank statement.',
+    options:['✅ No home loan -- fully paid or no property','💳 Under S$200,000','💳 S$200,000 – S$400,000','💳 S$400,001 – S$600,000','💳 S$600,001 – S$900,000','💳 Above S$900,000','🤷 Not sure of exact amount']},
+  { id:'available_capital', section:2, title:'Liquid cash deployable in next 12 months?', sub:'Cash savings + liquidatable investments only. CPF OA is captured above.',
+    options:['💰 Under S$100,000','💰 S$100,000 – S$200,000','💰 S$200,001 – S$400,000','💰 S$400,001 – S$700,000','💰 S$700,001 – S$1,000,000','💰 Above S$1,000,000','🔄 Currently liquidating assets -- funds coming soon','🤷 Not sure -- need help calculating this']},
+  { id:'primary_objective', section:3, title:'Primary goal for this audit?',
+    options:['🎯 Build passive rental income for financial freedom','📈 Grow net worth through strategic capital appreciation','🏖️ Secure retirement income streams (10+ years out)','👨‍👩‍👧‍👦 Build generational wealth/legacy for family','🔄 Optimize or restructure my existing portfolio','🏠 Upgrade my home while building investment portfolio','🌍 Diversify into overseas markets (UK/Malaysia)',"🆘 I'm stuck  --  need a clear strategy from scratch"]},
+  { id:'target_passive_income', section:3, title:'Monthly passive income for the life you want?', sub:'Level that lets you live comfortably without working.',
+    options:['🎯 S$4,000 – S$6,000/month (lean but comfortable)','🎯 S$6,001 – S$9,000/month (solid middle-class)','🎯 S$9,001 – S$15,000/month (premium lifestyle)','🎯 S$15,001 – S$25,000/month (luxury)','🎯 Above S$25,000/month (ultra-HNW)',"🤔 Haven't calculated this  --  need Winfred's help"]},
+  { id:'wealth_timeline', section:3, title:'Target timeline to hit that income level?',
+    options:['⚡ 3–5 years (aggressive growth mode)','🚀 5–8 years (focused wealth building)','📅 8–15 years (steady accumulation)','🌱 15+ years (long-term generational building)','🔄 No fixed timeline  --  just want to start moving']},
+  { id:'risk_tolerance_score', section:4, title:'Comfort with price fluctuations and leverage?', sub:'No right answer  --  this just ensures Winfred recommends the right mix.',
+    options:['🛡️ 1–3: Maximum safety  --  stable assets, minimal leverage','⚖️ 4–6: Moderate  --  balanced risk and returns','🚀 7–8: Growth-focused  --  calculated risks for better returns','🔥 9–10: Aggressive  --  maximize growth, full leverage strategically']},
+  { id:'property_type_openness', section:4, title:'Which property types interest you?', sub:'Select all that apply.', multi:true,
+    options:['🏠 HDB resale flats','🏢 Executive Condominiums (EC)','🏙️ Private condominiums (Singapore)','🏡 Landed property (Singapore)','🏭 Industrial/warehouse units (yields ~7%+)','🏪 Commercial/shophouses (ABSD-free)','🇬🇧 UK properties (Liverpool/Manchester ~5.6-7.7%)','🇲🇾 Malaysia/KL properties (~5-8%)','🤔 Open to anything  --  let Winfred recommend']},
+  { id:'yield_expectation', section:4, title:'Acceptable gross rental yield for SG residential?',
+    options:['📊 2.5–3.0% if appreciation story is strong','✅ 3.0–3.5% (around market average)','🎯 3.5–4.5% (above average, yield-focused)','🔥 4.5%+ (willing to look industrial/commercial/overseas)',"🤷 Not sure  --  need Winfred to explain what's realistic"]},
+  { id:'life_stage', section:5, title:'What life stage best describes you?',
+    options:['🎓 Young professional (under 30, building career)','💼 Established professional (30–40, peak earning years)','👨‍👩‍👧 Young family (kids under 12)','🏫 Established family (teenage/adult kids)','🌅 Pre-retirement (50–62)','🏖️ Retired/semi-retired']},
+  { id:'legacy_importance', section:5, title:'How important is legacy/inheritance planning?',
+    options:['🔥 Critical  --  building specifically to pass on to children','✅ Important  --  want to leave assets but not the only focus','➡️ Moderate  --  growth first, legacy can come later','❌ Not a priority  --  plan to enjoy the wealth myself']},
+  { id:'key_challenges', section:6, title:'Biggest concerns right now?', sub:'Select all that apply.', multi:true,
+    options:['💸 ABSD costs making second property feel unaffordable','🏦 Unsure about loan eligibility (TDSR/income concerns)',"⏰ Feel like I've missed the market or started too late",'👫 Spouse and I have different risk appetites or goals',"🌍 Interested in overseas but don't know how to start",'🏠 Confused about HDB rules, MOP timelines, upgrade paths',"📊 Information overload  --  can't make decisions",'🔄 Sell current property first or buy first?','🏢 Personal name vs company structure?','📉 Past financial difficulties  --  unsure about eligibility','💭 Fear of too much debt/leverage anxiety','🤷 No clear strategy  --  just know I should be doing something','✅ No major blockers  --  just need expert guidance']},
+  { id:'urgency_timeline', section:6, title:'How soon are you looking to make your next move?',
+    options:['⚡ Within 1–3 months  --  ready to act NOW','🚀 3–6 months  --  actively planning','📅 6–12 months  --  serious research mode','🌱 12+ months  --  long-term planning',"🤷 Depends on what Winfred recommends"]}
+];
+
+// step meaning: -2 opening, -1 section-intro-about-to-show, 1..6 = section number being answered, 7 = contact, 8 = summary
+const state = { step: -2, answers: {}, name: '' };
+function getSectionQuestions(sec) { return QUESTIONS.filter(q => q.section === sec); }
+const host = document.getElementById('step-host');
+const progressWrap = document.getElementById('progress-wrap');
+const progressFill = document.getElementById('progress-fill');
+const progressLabel = document.getElementById('progress-label');
+const progressPct = document.getElementById('progress-pct');
+
+function renderOpening() {
+  progressWrap.style.display = 'none';
+  host.innerHTML = `
+    <div class="step">
+      <div class="bubble accent">Hey  --  I'm Winfred. This is my <strong>Portfolio Strategy Audit</strong>.</div>
+      <div class="bubble">This takes about <strong>4 minutes</strong>. By the end, I'll have what I need to build you a <strong>custom wealth plan before we meet</strong>  --  so your consultation isn't starting from zero.</div>
+      <div class="bubble">Ready to see what your numbers actually allow? Let's go.</div>
+      <div class="qcard card-lift mt-4">
+        <div class="qtitle">First up  --  what should I call you?</div>
+        <input id="name-input" class="tinput" placeholder="Your first name" autofocus />
+        <div class="mt-4 flex justify-end"><button class="btn btn-primary" id="name-next" disabled>Continue →</button></div>
+      </div>
+    </div>`;
+  const input = document.getElementById('name-input');
+  const btn = document.getElementById('name-next');
+  input.addEventListener('input', () => { btn.disabled = input.value.trim().length < 2; });
+  input.addEventListener('keypress', e => { if (e.key === 'Enter' && !btn.disabled) btn.click(); });
+  btn.addEventListener('click', () => { state.name = input.value.trim(); state.step = -1; renderSectionIntro(1); });
+}
+
+const SECTION_INTROS = {
+  1: `Good to meet you, <strong>__NAME__</strong>. First I need to map where you stand today  --  property-wise. This sets the foundation for everything after.`,
+  2: `Now the financial reality. I need these numbers to calculate what's actually achievable under MAS lending rules. No judgment  --  just math.`,
+  3: `The interesting part  --  what you actually want to build. I'll design around your definition of winning, not a template.`,
+  4: `No right or wrong here. I just need to know your risk temperature so the asset mix fits your comfort zone, not mine.`,
+  5: `Helps me recommend the right ownership structure and sequencing for your situation.`,
+  6: `Last section. Tell me what's been holding you back so I walk into our call with solutions, not questions.`
+};
+
+function renderSectionIntro(sec) {
+  if (sec > 6) { renderContactCapture(); return; }
+  state.step = sec;
+  updateProgress();
+  host.innerHTML = `
+    <div class="step">
+      <div class="bubble accent">${SECTION_INTROS[sec].replace('__NAME__', state.name || 'there')}</div>
+      <div class="mt-4 flex justify-end"><button class="btn btn-primary" id="intro-next">Let's go →</button></div>
+    </div>`;
+  document.getElementById('intro-next').addEventListener('click', () => renderSection(sec));
+}
+
+function renderSection(sec) {
+  if (sec > 6) { renderContactCapture(); return; }
+  state.step = sec;
+  updateProgress();
+  const qs = getSectionQuestions(sec);
+  const qBlocks = qs.map((q, idx) => {
+    const current = state.answers[q.id] || (q.multi ? [] : null);
+    const opts = q.multi
+      ? `<div class="chips" data-qid="${q.id}">${q.options.map(o => `<button class="chip-pick ${current.includes(o)?'sel':''}" data-qid="${q.id}" data-val="${o.replace(/"/g,'&quot;')}">${o}</button>`).join('')}</div>`
+      : q.options.map(o => `<button class="opt ${current===o?'sel':''}" data-qid="${q.id}" data-val="${o.replace(/"/g,'&quot;')}">${o}</button>`).join('');
+    return `
+      <div class="qcard card-lift ${idx>0?'mt-4':''}">
+        <div class="text-xs text-[var(--accent)] uppercase tracking-widest font-semibold mb-1">Q${idx+1} of ${qs.length}</div>
+        <div class="qtitle">${q.title}</div>
+        ${q.sub ? `<div class="qsub">${q.sub}</div>` : ''}
+        ${opts}
+      </div>`;
+  }).join('');
+
+  host.innerHTML = `
+    <div class="step">
+      ${qBlocks}
+      <div class="mt-5 flex justify-between items-center">
+        <button class="btn btn-ghost text-sm" id="back-btn" ${sec===1?'disabled':''}>← Back</button>
+        <button class="btn btn-primary" id="next-btn" disabled>${sec === 6 ? 'Finish →' : 'Continue →'}</button>
+      </div>
+    </div>`;
+
+  // Wire interactions
+  host.querySelectorAll('.opt').forEach(el => el.addEventListener('click', () => {
+    const qid = el.getAttribute('data-qid');
+    const v = el.getAttribute('data-val');
+    state.answers[qid] = v;
+    host.querySelectorAll(`.opt[data-qid="${qid}"]`).forEach(x => x.classList.remove('sel'));
+    el.classList.add('sel');
+    updateNextEnabled();
+  }));
+  host.querySelectorAll('.chip-pick').forEach(el => el.addEventListener('click', () => {
+    const qid = el.getAttribute('data-qid');
+    const v = el.getAttribute('data-val');
+    state.answers[qid] = state.answers[qid] || [];
+    const idx = state.answers[qid].indexOf(v);
+    if (idx >= 0) state.answers[qid].splice(idx, 1); else state.answers[qid].push(v);
+    el.classList.toggle('sel');
+    updateNextEnabled();
+  }));
+
+  function updateNextEnabled() {
+    const allAnswered = qs.every(q => {
+      const a = state.answers[q.id];
+      return q.multi ? (Array.isArray(a) && a.length > 0) : !!a;
+    });
+    document.getElementById('next-btn').disabled = !allAnswered;
+  }
+  updateNextEnabled();
+
+  document.getElementById('back-btn').addEventListener('click', () => {
+    if (sec > 1) renderSectionTransition(sec - 1, sec - 1, true);
+  });
+  document.getElementById('next-btn').addEventListener('click', () => {
+    if (sec < 6) { trackAuditStep(sec); renderSectionTransition(sec, sec + 1); }
+    else { trackAuditStep(6); renderContactCapture(); }
+  });
+}
+
+function renderSectionTransition(completed, next, isBack) {
+  updateProgress();
+  let msg = '', extra = '';
+  if (isBack) {
+    msg = `No problem, <strong>${state.name}</strong>  --  going back to section ${next}. Edit anything you want.`;
+    host.innerHTML = `<div class="step"><div class="bubble">${msg}</div><div class="mt-4 flex justify-end"><button class="btn btn-primary" id="trans-next">Back to Section ${next} →</button></div></div>`;
+    document.getElementById('trans-next').addEventListener('click', () => renderSection(next));
+    return;
+  }
+  if (completed === 1) msg = `Got it, <strong>${state.name}</strong>. I can see your ABSD exposure and optimal structure already. Now the financial firepower.`;
+  else if (completed === 2) {
+    const income = midpointIncome(state.answers.monthly_income_range);
+    const debt = midpointDebt(state.answers.existing_debt_obligations);
+    const room = Math.max(0, income * 0.55 - debt);
+    msg = `Good numbers to work with, <strong>${state.name}</strong>. Now the target you're building toward.`;
+    if (income > 0) extra = `<div class="insight"><div class="label">Your TDSR headroom (estimated)</div><div class="val">${fmtSGD(room)} / month</div><div class="note">Max monthly debt servicing the bank would allow on top of your existing commitments (55% of gross income minus current debts).</div></div>`;
+  } else if (completed === 3) {
+    const target = midpointTarget(state.answers.target_passive_income);
+    const required = target > 0 ? Math.round(target * 12 / 0.0329) : 0;
+    msg = `Noted, <strong>${state.name}</strong>. At Singapore's 3.29% residential average, your income target translates to the portfolio size below. Now the personality fit.`;
+    if (required > 0) extra = `<div class="insight"><div class="label">Required portfolio value (gross yield 3.29%)</div><div class="val">${fmtSGD(required)}</div><div class="note">Rough portfolio size needed to generate your target at SG residential average yields. Higher-yield asset mixes (commercial, industrial, overseas) lower this number.</div></div>`;
+  } else if (completed === 4) msg = `Your risk profile is coming together, <strong>${state.name}</strong>. Two more sections and I'll have the full picture.`;
+  else if (completed === 5) msg = `Almost done, <strong>${state.name}</strong>. Last section  --  blockers and timing.`;
+
+  host.innerHTML = `<div class="step"><div class="bubble accent">${msg}</div>${extra}<div class="mt-4 flex justify-end"><button class="btn btn-primary" id="trans-next">Continue →</button></div></div>`;
+  document.getElementById('trans-next').addEventListener('click', () => renderSection(next));
+}
+
+function renderContactCapture() {
+  state.step = 7;
+  updateProgress();
+  host.innerHTML = `
+    <div class="step">
+      <div class="bubble accent">One last step, <strong>${state.name}</strong>. So I can send your audit PDF and follow up:</div>
+      <div class="qcard card-lift">
+        <div class="qtitle">Your contact</div>
+        <div class="grid md:grid-cols-2 gap-3 mt-2">
+          <div><label class="text-xs uppercase tracking-widest text-[var(--ink-muted)] block mb-1">Full name</label><input id="c-name" class="tinput" value="${state.name}" /></div>
+          <div><label class="text-xs uppercase tracking-widest text-[var(--ink-muted)] block mb-1">Email</label><input id="c-email" type="email" class="tinput" placeholder="your@email.com" /></div>
+          <div><label class="text-xs uppercase tracking-widest text-[var(--ink-muted)] block mb-1">WhatsApp / mobile</label><input id="c-phone" type="tel" class="tinput" placeholder="+65 ..." /></div>
+          <div><label class="text-xs uppercase tracking-widest text-[var(--ink-muted)] block mb-1">How did you hear about Winfred?</label>
+            <select id="c-ref" class="tinput"><option value="">Choose...</option><option>Instagram</option><option>LinkedIn</option><option>Google search</option><option>Referral</option><option>Event / seminar</option><option>Other</option></select>
+          </div>
+        </div>
+        <label class="flex gap-3 items-start text-xs text-[var(--ink-muted)] leading-relaxed cursor-pointer mt-5">
+          <input type="checkbox" id="c-consent" required class="mt-1" />
+          <span><strong class="text-[var(--ink)]">(Required)</strong> I consent to Winfred Quek (CEA R073319H, Crestbrick) processing these answers to prepare my strategy audit. My data is never sold or shared with third parties. I can request deletion anytime.</span>
+        </label>
+        <label class="flex gap-3 items-start text-xs text-[var(--ink-muted)] leading-relaxed cursor-pointer mt-3">
+          <input type="checkbox" id="c-marketing" class="mt-1" />
+          <span><strong class="text-[var(--ink)]">(Optional)</strong> Yes, send me occasional market updates, new-launch insights, and property investment ideas by email. One to two emails per month, unsubscribe anytime.</span>
+        </label>
+        <div class="mt-6 flex justify-between items-center">
+          <button class="btn btn-ghost text-sm" id="contact-back">← Back</button>
+          <button class="btn btn-primary" id="submit-btn" disabled>Generate my audit →</button>
+        </div>
+      </div>
+    </div>`;
+  const submit = document.getElementById('submit-btn');
+  function check() {
+    submit.disabled = !(document.getElementById('c-name').value.trim() && document.getElementById('c-email').value.trim() && document.getElementById('c-phone').value.trim() && document.getElementById('c-consent').checked);
+  }
+  ['c-name','c-email','c-phone','c-consent'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', check); el.addEventListener('change', check);
+  });
+  document.getElementById('contact-back').addEventListener('click', () => renderSection(6));
+  submit.addEventListener('click', async () => {
+    submit.disabled = true; submit.innerHTML = '<span class="spinner"></span> Generating...';
+    await submitAudit({
+      full_name: document.getElementById('c-name').value.trim(),
+      email: document.getElementById('c-email').value.trim(),
+      phone: document.getElementById('c-phone').value.trim(),
+      referral_source: document.getElementById('c-ref').value,
+      marketing_consent: document.getElementById('c-marketing').checked
+    });
+  });
+}
+
+async function submitAudit(contact) {
+  const payload = { ...state.answers, ...contact, name: state.name };
+  try {
+    const resp = await fetch('/api/audit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+    const data = await resp.json();
+    if (!data.ok) throw new Error('failed');
+    renderSummary(data, contact);
+  } catch (err) {
+    renderSummary(computeClientSummary(state.answers), contact);
+  }
+}
+
+// Send audit completion to Telegram via Virtual Office dispatch
+function sendAuditToTelegram(summaryData) {
+  const payload = {
+    type: 'audit_completion',
+    timestamp: new Date().toISOString(),
+    data: summaryData
+  };
+  // Try Virtual Office dispatch (local)
+  fetch('http://127.0.0.1:8787/dispatch', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      agent: 'lead-qualifier',
+      message: 'New audit completion from website:\n' + JSON.stringify(summaryData, null, 2)
+    })
+  }).catch(() => {
+    // Fallback: Formspree (add endpoint once account created)
+    // fetch('https://formspree.io/f/XXXXXXXX', {...})
+    console.log('Audit completion logged locally:', payload);
+  });
+}
+
+function renderSummary(data, contact) {
+  progressFill.style.width = '100%';
+  progressPct.textContent = '100%';
+  progressLabel.textContent = 'Audit complete';
+  const s = data.summary || computeClientSummary(state.answers).summary;
+  const prep = data.prep_notes || computeClientSummary(state.answers).prep_notes;
+
+  // Fire audit completion to Telegram via VO dispatch
+  sendAuditToTelegram({
+    name: contact.full_name || state.name,
+    email: contact.email,
+    phone: contact.phone,
+    referral_source: contact.referral_source,
+    ownership: s.ownership,
+    citizenship: s.citizenship,
+    absd: s.absd,
+    income: s.income,
+    capital: s.capital,
+    objective: s.objective,
+    urgency: s.urgency,
+    prep_notes: prep
+  });
+
+  host.innerHTML = `
+    <div class="step">
+      <div class="bubble accent">That's everything I need, <strong>${contact.full_name || state.name}</strong>. Here's your Portfolio Audit Summary  --  I review every one of these personally before the call.</div>
+      <div class="summary-panel mt-4">
+        <p class="section-label mb-3">🎯 Portfolio Audit  --  ${contact.full_name || state.name}</p>
+        <p class="serif text-lg font-semibold mt-3 mb-2">Current Position</p>
+        <div class="summary-row"><span class="k">Ownership</span><span class="v">${s.ownership || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Citizenship</span><span class="v">${s.citizenship || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">ABSD exposure</span><span class="v">${s.absd || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Structure</span><span class="v">${s.structure || ' -- '}</span></div>
+        <p class="serif text-lg font-semibold mt-5 mb-2">Financial Snapshot</p>
+        <div class="summary-row"><span class="k">Monthly income</span><span class="v">${s.income || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Current debt</span><span class="v">${s.debt || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">TDSR headroom</span><span class="v">${s.tdsr_room || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">CPF OA balance</span><span class="v">${s.cpf_oa || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Home loan outstanding</span><span class="v">${s.home_loan || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Liquid cash</span><span class="v">${s.capital || ' -- '}</span></div>
+        <p class="serif text-lg font-semibold mt-5 mb-2">Wealth Goals</p>
+        <div class="summary-row"><span class="k">Objective</span><span class="v">${s.objective || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Target income</span><span class="v">${s.target_income || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Timeline</span><span class="v">${s.timeline || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Required portfolio</span><span class="v">${s.portfolio_required || ' -- '}</span></div>
+        <p class="serif text-lg font-semibold mt-5 mb-2">Strategy Profile</p>
+        <div class="summary-row"><span class="k">Risk score</span><span class="v">${s.risk || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Property types</span><span class="v" style="font-size:13px;">${s.types || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Yield expectation</span><span class="v">${s.yield_exp || ' -- '}</span></div>
+        <p class="serif text-lg font-semibold mt-5 mb-2">Execution</p>
+        <div class="summary-row"><span class="k">Life stage</span><span class="v">${s.life_stage || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Legacy priority</span><span class="v">${s.legacy || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Key challenges</span><span class="v" style="font-size:12px;text-align:right;">${s.challenges || ' -- '}</span></div>
+        <div class="summary-row"><span class="k">Urgency</span><span class="v">${s.urgency || ' -- '}</span></div>
+      </div>
+      <div class="insight mt-4">
+        <div class="label">My prep notes</div>
+        ${prep.map(p => `<div class="note" style="margin-bottom:.5rem;"><strong style="color:#fff;">→</strong> ${p}</div>`).join('')}
+      </div>
+      <div class="bubble accent mt-4"><strong>You're set, ${contact.full_name || state.name}.</strong> I review every audit personally before consultations. Expect a custom strategy session  --  not a generic pitch.</div>
+      <div id="email-status" class="text-sm text-center text-[var(--ink-muted)] mt-4"></div>
+      <div class="flex flex-wrap gap-3 mt-4 justify-center">
+        <button id="download-pdf" class="btn btn-ghost">📄 Download PDF copy</button>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book your strategy session →</a>
+        <a href="https://wa.me/6581618149?text=${encodeURIComponent('Hi Winfred, just finished the portfolio audit ('+contact.full_name+'). Looking forward to the session.')}" class="btn btn-ghost" onclick="trackWAClick()">WhatsApp instead</a>
+      </div>
+    </div>`;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // Wire download PDF
+  document.getElementById('download-pdf').addEventListener('click', () => {
+    const target = document.querySelector('.summary-panel').parentElement; // includes insight box
+    const opt = {
+      margin: [10, 10, 10, 10],
+      filename: `Portfolio-Audit-${(contact.full_name||state.name).replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`,
+      image: { type: 'jpeg', quality: 0.95 },
+      html2canvas: { scale: 2, backgroundColor: '#faf8f4' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    if (window.html2pdf) html2pdf().set(opt).from(target).save();
+    else alert('PDF library still loading  --  try again in a second.');
+  });
+
+  // Auto-email: generate PDF as base64 and POST to backend so Winfred can email it
+  // (server-side email requires RESEND_API_KEY env var; if missing, API returns ok but no-op)
+  if (window.html2pdf && contact.email) {
+    const target = document.querySelector('.summary-panel').parentElement;
+    const pdfOpt = {
+      margin: [10, 10, 10, 10],
+      filename: 'audit.pdf',
+      image: { type: 'jpeg', quality: 0.92 },
+      html2canvas: { scale: 1.5, backgroundColor: '#faf8f4' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(pdfOpt).from(target).toPdf().get('pdf').then(pdf => {
+      const b64 = btoa(pdf.output());
+      return fetch('/api/audit-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          full_name: contact.full_name,
+          email: contact.email,
+          pdf_base64: b64,
+          summary_text: Object.entries(s).map(([k,v])=>`${k}: ${v}`).join('\n'),
+          prep_notes: prep
+        })
+      });
+    }).then(r => r && r.json()).then(res => {
+      const el = document.getElementById('email-status');
+      if (!el) return;
+      if (res && res.ok && res.emailed) {
+        el.innerHTML = `✉️ A copy was emailed to <strong>${contact.email}</strong> (check inbox + spam).`;
+      } else if (res && res.ok) {
+        el.innerHTML = `📩 I'll email your PDF copy personally  --  typically within the day.`;
+      }
+    }).catch(err => {
+      const el = document.getElementById('email-status');
+      if (el) el.innerHTML = `📩 PDF ready  --  download above. Winfred will follow up via WhatsApp.`;
+    });
+  }
+}
+
+function fmtSGD(n) { return 'S$' + Math.round(n).toLocaleString('en-SG'); }
+function midpointIncome(r) {
+  if (!r) return 0;
+  if (r.includes('Under S$8,000')) return 6500;
+  if (r.includes('S$8,000 – S$12,000')) return 10000;
+  if (r.includes('S$12,001 – S$18,000')) return 15000;
+  if (r.includes('S$18,001 – S$25,000')) return 21500;
+  if (r.includes('S$25,001 – S$35,000')) return 30000;
+  if (r.includes('S$35,001 – S$50,000')) return 42500;
+  if (r.includes('Above S$50,000')) return 60000;
+  return 0;
+}
+function midpointDebt(r) {
+  if (!r) return 0;
+  if (r.includes('Zero debt')) return 0;
+  if (r.includes('Under S$2,000')) return 1000;
+  if (r.includes('S$2,000 – S$4,000')) return 3000;
+  if (r.includes('S$4,001 – S$6,000')) return 5000;
+  if (r.includes('S$6,001 – S$8,000')) return 7000;
+  if (r.includes('Above S$8,000')) return 9000;
+  return 1500;
+}
+function midpointTarget(r) {
+  if (!r) return 0;
+  if (r.includes('S$4,000 – S$6,000')) return 5000;
+  if (r.includes('S$6,001 – S$9,000')) return 7500;
+  if (r.includes('S$9,001 – S$15,000')) return 12000;
+  if (r.includes('S$15,001 – S$25,000')) return 20000;
+  if (r.includes('Above S$25,000')) return 35000;
+  return 0;
+}
+function absdExposure(c, o) {
+  c = c || ''; o = o || '';
+  const isFirst = o.includes("don't own") || o.includes('no Singapore property');
+  const isThirdPlus = o.includes('2+');
+  if (c.includes('Singapore Citizen')) return isFirst ? '0% (1st)' : isThirdPlus ? '30% (3rd+)' : '20% (2nd)';
+  if (c.includes('Singapore Permanent Resident')) return isFirst ? '5% (1st PR)' : isThirdPlus ? '35% (3rd+ PR)' : '30% (2nd PR)';
+  if (c.includes('Foreigner') || c.includes('Work Pass')) return '60% (foreigner)';
+  if (c.includes('Mixed couple')) return 'Mixed  --  highest rate applies; remission paths exist';
+  return ' -- ';
+}
+function computeClientSummary(a) {
+  const income = midpointIncome(a.monthly_income_range);
+  const debt = midpointDebt(a.existing_debt_obligations);
+  const tdsrRoom = Math.max(0, income * 0.55 - debt);
+  const target = midpointTarget(a.target_passive_income);
+  const portfolioReq = target > 0 ? target * 12 / 0.0329 : 0;
+  const summary = {
+    ownership: a.current_ownership_status, citizenship: a.citizenship_status,
+    absd: absdExposure(a.citizenship_status, a.current_ownership_status),
+    structure: a.purchase_structure, income: a.monthly_income_range, debt: a.existing_debt_obligations,
+    tdsr_room: income > 0 ? fmtSGD(tdsrRoom) + ' / mo' : 'needs calc',
+    cpf_oa: a.cpf_oa_balance || ' -- ',
+    home_loan: a.existing_home_loan || ' -- ',
+    capital: a.available_capital, objective: a.primary_objective,
+    target_income: a.target_passive_income, timeline: a.wealth_timeline,
+    portfolio_required: target > 0 ? fmtSGD(portfolioReq) : 'needs calc',
+    risk: a.risk_tolerance_score,
+    types: Array.isArray(a.property_type_openness) ? a.property_type_openness.join(' · ') : (a.property_type_openness || ' -- '),
+    yield_exp: a.yield_expectation, life_stage: a.life_stage, legacy: a.legacy_importance,
+    challenges: Array.isArray(a.key_challenges) ? a.key_challenges.join(' · ') : (a.key_challenges || ' -- '),
+    urgency: a.urgency_timeline
+  };
+  const notes = [];
+  const ch = (a.key_challenges || []).join(' ');
+  if (ch.includes('ABSD costs')) notes.push('ABSD optimization: review restructuring, entity structures, and purchase sequencing.');
+  if (ch.includes('loan eligibility') || ch.includes('TDSR')) notes.push('TDSR maximization: variable-income treatment, bonus averaging, multi-bank AIP strategy.');
+  if (ch.includes('overseas')) notes.push('Overseas entry: UK (Liverpool/Manchester yield), KL (MM2H), Japan/Bali (niche).');
+  if (ch.includes('Sell current')) notes.push('Sell-first vs buy-first sequencing: BSD/ABSD timing window, bridging math, CPF refund.');
+  if (ch.includes('Personal name')) notes.push('Entity structure review: company 65% ABSD vs personal ownership; when entity wins.');
+  if ((a.legacy_importance || '').includes('Critical')) notes.push('Legacy planning: trust for minor beneficiaries, matrimonial remission, intergenerational transfer.');
+  if ((a.current_ownership_status || '').includes('2+')) notes.push('Existing portfolio stress-test: yield, cashflow, exit sequencing before adding another asset.');
+  if (income >= 30000 && (a.available_capital || '').includes('Above S$1,000,000')) notes.push('High-capacity profile: family-office-grade construction, shophouse carve-outs, multi-jurisdictional.');
+  if (notes.length === 0) notes.push('Build the 4-Pillar Audit map (Capital / Cashflow / Progression / Protection) around capital + timeline.');
+  if (notes.length < 3) notes.push('Walk through 10-year progression blueprint with sensitivity analysis on rate + vacancy.');
+  return { summary, prep_notes: notes.slice(0, 5) };
+}
+function updateProgress() {
+  progressWrap.style.display = 'block';
+  // Step 1-6 = sections, 7 = contact, 8 = summary
+  const pct = state.step <= 0 ? 0 : Math.min(100, Math.round(((state.step) / 7) * 100));
+  progressFill.style.width = pct + '%';
+  progressPct.textContent = pct + '%';
+  if (state.step >= 1 && state.step <= 6) progressLabel.textContent = `Section ${state.step} of 6`;
+  else if (state.step === 7) progressLabel.textContent = 'Final step · Contact';
+  else progressLabel.textContent = 'Getting started';
+}
+renderOpening();
+
+// ===== BUILD 75: EXIT-INTENT PARTIAL CAPTURE =====
+(function() {
+  var modalShown = false;
+  var modalDismissed = false;
+
+  // Only fire if user has completed >= 2 steps (state.step >= 2 means sections 2+ started)
+  function shouldShowModal() {
+    return !modalShown && !modalDismissed && state.step >= 2;
+  }
+
+  function createModal() {
+    var overlay = document.createElement('div');
+    overlay.id = 'exit-intent-overlay';
+    overlay.style.cssText = [
+      'position:fixed', 'inset:0', 'z-index:9999',
+      'background:rgba(26,58,92,0.92)',
+      'display:flex', 'align-items:center', 'justify-content:center',
+      'padding:1rem'
+    ].join(';');
+
+    overlay.innerHTML = [
+      '<div id="exit-intent-card" style="background:#fff;border-radius:14px;padding:2rem;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.35);">',
+        '<p style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#c6a36a;font-weight:600;margin-bottom:.6rem;">Don\'t lose your progress</p>',
+        '<h2 style="font-family:Georgia,serif;font-size:1.3rem;font-weight:600;color:#0f1117;margin-bottom:.7rem;line-height:1.3;">Enter your email and we\'ll send your partial audit results.</h2>',
+        '<p style="font-size:13px;color:#5a5650;margin-bottom:1.2rem;">You\'ve already completed the hard part. We\'ll save your answers and Winfred can follow up with a personalised read -- even from a partial audit.</p>',
+        '<div style="margin-bottom:.75rem;">',
+          '<label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#706c64;display:block;margin-bottom:.35rem;">Email address</label>',
+          '<input id="exit-email-input" type="email" placeholder="your@email.com" style="width:100%;background:#fff;border:1.5px solid #e4dfd5;border-radius:8px;padding:.75rem 1rem;font-size:15px;color:#0f1117;font-family:inherit;box-sizing:border-box;" />',
+        '</div>',
+        '<div style="display:flex;gap:.6rem;flex-wrap:wrap;">',
+          '<button id="exit-send-btn" style="flex:1;min-width:140px;background:#c6a36a;color:#0f1117;border:none;border-radius:8px;padding:.8rem 1.2rem;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;">Send my results</button>',
+          '<button id="exit-dismiss-btn" style="background:transparent;color:#706c64;border:1.5px solid #e4dfd5;border-radius:8px;padding:.8rem 1rem;font-size:13px;cursor:pointer;font-family:inherit;">Continue anyway</button>',
+        '</div>',
+        '<p id="exit-status" style="font-size:12px;color:#5a5650;margin-top:.75rem;min-height:1.2em;"></p>',
+      '</div>'
+    ].join('');
+
+    return overlay;
+  }
+
+  function showExitModal() {
+    if (!shouldShowModal()) return;
+    modalShown = true;
+
+    var modal = createModal();
+    document.body.appendChild(modal);
+
+    var emailInput = document.getElementById('exit-email-input');
+    var sendBtn = document.getElementById('exit-send-btn');
+    var dismissBtn = document.getElementById('exit-dismiss-btn');
+    var statusEl = document.getElementById('exit-status');
+
+    if (emailInput) emailInput.focus();
+
+    function dismissModal() {
+      modalDismissed = true;
+      if (modal.parentNode) modal.parentNode.removeChild(modal);
+    }
+
+    if (dismissBtn) dismissBtn.addEventListener('click', dismissModal);
+
+    if (sendBtn) sendBtn.addEventListener('click', function() {
+      var email = emailInput ? emailInput.value.trim() : '';
+      if (!email || !email.includes('@')) {
+        if (statusEl) statusEl.textContent = 'Please enter a valid email address.';
+        return;
+      }
+
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+
+      var payload = {
+        email: email,
+        partial: 'true',
+        step_reached: String(state.step),
+        answers: JSON.stringify(state.answers)
+      };
+
+      var formData = new FormData();
+      Object.keys(payload).forEach(function(k) { formData.append(k, payload[k]); });
+
+      fetch('https://formspree.io/f/FORMSPREE_ID', {
+        method: 'POST',
+        body: formData,
+        headers: { 'Accept': 'application/json' }
+      }).then(function(r) {
+        if (statusEl) statusEl.textContent = 'Done! Check your inbox. Winfred will review your partial audit.';
+        setTimeout(dismissModal, 1800);
+      }).catch(function() {
+        if (statusEl) statusEl.textContent = 'Saved locally. Winfred will follow up if you share your number.';
+        setTimeout(dismissModal, 1800);
+      });
+    });
+
+    // Close on overlay click (outside card)
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) dismissModal();
+    });
+  }
+
+  // Listen for page unload / visibility change; do NOT use event.returnValue (no browser dialog)
+  window.addEventListener('beforeunload', function() {
+    showExitModal();
+  });
+
+  // Also catch tab switching / navigating away via visibilitychange
+  document.addEventListener('visibilitychange', function() {
+    if (document.visibilityState === 'hidden') showExitModal();
+  });
+
+  // Mouse-leave heuristic (cursor moving toward browser chrome = exit intent)
+  document.addEventListener('mouseleave', function(e) {
+    if (e.clientY <= 5) showExitModal();
+  });
+})();
+// ===== END BUILD 75 =====
+</script>
+</body>
+</html>

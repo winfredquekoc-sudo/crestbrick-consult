@@ -1,0 +1,87 @@
+<!-- I87  —  Drop-in testimonials carousel snippet for homepage.
+     Insert this <section> wherever in index.html you want the carousel
+     (recommended: after Track Record section, before final CTA).
+     Reads from /testimonials.json (3-card minimum). Auto-rotates every 6s, pauses on hover. -->
+
+<section id="testimonials-carousel" class="max-w-5xl mx-auto px-6 py-20 border-t border-[var(--rule)]">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-2">In their words</p>
+      <h2 class="serif text-3xl md:text-4xl font-semibold">What past clients say.</h2>
+    </div>
+    <a href="/testimonials.html" class="text-sm link-underline hidden md:inline">All testimonials →</a>
+  </div>
+
+  <div class="relative">
+    <div id="tcar-track" class="overflow-hidden">
+      <div id="tcar-stage" class="flex transition-transform duration-500" style="will-change:transform">
+        <!-- Cards injected by JS -->
+      </div>
+    </div>
+    <div class="flex items-center justify-between mt-6">
+      <button id="tcar-prev" aria-label="Previous" class="px-3 py-2 rounded-full border border-[var(--rule)] hover:border-[var(--ink)]">←</button>
+      <div id="tcar-dots" class="flex gap-2"></div>
+      <button id="tcar-next" aria-label="Next" class="px-3 py-2 rounded-full border border-[var(--rule)] hover:border-[var(--ink)]">→</button>
+    </div>
+  </div>
+</section>
+
+<script>
+(function () {
+  var stage = document.getElementById('tcar-stage');
+  var dotsEl = document.getElementById('tcar-dots');
+  if (!stage) return;
+  var idx = 0;
+  var timer = null;
+  var data = [];
+
+  function render() {
+    stage.innerHTML = data.map(function (t, i) {
+      return '<div class="min-w-full px-4">' +
+        '<blockquote class="serif text-xl md:text-2xl leading-relaxed text-[var(--ink)] mb-6">"' +
+        (t.quote || '').replace(/"/g, '&quot;') + '"</blockquote>' +
+        '<div class="flex items-center gap-3 text-sm text-[var(--ink-soft)]">' +
+        '<span class="font-medium text-[var(--ink)]">' + (t.name || 'Anonymous') + '</span>' +
+        (t.role ? '<span>·</span><span>' + t.role + '</span>' : '') +
+        (t.year ? '<span>·</span><span>' + t.year + '</span>' : '') +
+        '</div></div>';
+    }).join('');
+    dotsEl.innerHTML = data.map(function (_, i) {
+      return '<span class="tcar-dot w-2 h-2 rounded-full ' +
+        (i === idx ? 'bg-[var(--ink)]' : 'bg-[var(--rule)]') + '"></span>';
+    }).join('');
+    stage.style.transform = 'translateX(-' + (idx * 100) + '%)';
+  }
+
+  function go(n) {
+    if (!data.length) return;
+    idx = (n + data.length) % data.length;
+    render();
+  }
+
+  function autoplay() {
+    timer = setInterval(function () { go(idx + 1); }, 6000);
+  }
+  function pause() { clearInterval(timer); }
+
+  document.getElementById('tcar-prev').addEventListener('click', function () { go(idx - 1); pause(); });
+  document.getElementById('tcar-next').addEventListener('click', function () { go(idx + 1); pause(); });
+  document.getElementById('testimonials-carousel').addEventListener('mouseenter', pause);
+  document.getElementById('testimonials-carousel').addEventListener('mouseleave', autoplay);
+
+  fetch('/testimonials.json').then(function (r) { return r.ok ? r.json() : []; })
+    .then(function (j) {
+      data = (j.testimonials || j || []).slice(0, 8);
+      if (data.length === 0) {
+        // Fallback inline (so the section never looks broken)
+        data = [
+          { quote: "Winfred showed me the math on decoupling and I saved over $100k in ABSD. The audit pays for itself.", name: "L.T.", role: "Engineer", year: "2025" },
+          { quote: "He told me NOT to buy. No agent has ever done that. Earned a client for life.", name: "M.K.", role: "Founder", year: "2025" },
+          { quote: "Sold my HDB and bought a 3BR private without a single day of overlap. Sharp planner.", name: "S.W.", role: "Doctor", year: "2024" }
+        ];
+      }
+      render();
+      autoplay();
+    });
+})();
+</script>

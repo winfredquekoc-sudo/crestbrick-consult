@@ -1,0 +1,586 @@
+/* ===========================================================================
+   Motion Direction B — Warm Modern Prestige (UNIFIED)
+   Single source of truth for all motion + secondary-palette tokens.
+   Reference: /docs/motion-direction.md (Section 13B).
+
+   Philosophy: measured hospitality. Editorial restraint with a single warm
+   flourish — a thin accent line that flashes across headline reveals,
+   warmer card shadows, slightly slower CTA warmth so the transition
+   registers as deliberate rather than reflexive.
+
+   History: Consolidated from former animations.css + motion.css pair on
+   2026-04-20. See /docs/motion-direction.md "Do Not" list for bans
+   (parallax, typewriter, gradient-shift backgrounds, shadow pulse).
+   =========================================================================== */
+
+:root {
+  /* Easing — one signature curve does 80% of the work */
+  --ease-primary: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-entry:   cubic-bezier(0.4, 0, 0.1, 1);
+  --ease-exit:    cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Durations — Direction B: reveal tokens +20%, micro-interactions unchanged */
+  --dur-hover:        200ms;
+  --dur-hover-cta:    260ms;   /* CTA warmth, deliberate dwell (B) */
+  --dur-press:         80ms;
+  --dur-focus:        280ms;
+  --dur-reveal:       780ms;   /* 640ms + 20% (B) */
+  --dur-reveal-slow:  960ms;   /* 800ms + 20% (B) */
+  --dur-menu-open:    500ms;   /* 420ms + 20% (B) */
+  --dur-menu-close:   320ms;
+  --dur-accent-flash: 600ms;   /* warm accent flash on reveal (B) */
+
+  /* Stagger */
+  --stagger-tight:  60ms;
+  --stagger-std:    80ms;
+  --stagger-wide:  120ms;
+
+  /* ---------- Secondary palette (scoped, data/outcome only) ----------
+     Kept after audit because:
+     - --accent-2 is consumed by .lifestage-tile:hover p color + inline
+       hexes on sellers-guide / pricing value-receipt segments.
+     - --accent-2-soft reserved for pale washes on outcome cards.
+     - --accent-deep powers #wa-float:hover tint.
+     Do NOT promote these to primary page chrome — stay editorial.
+     Dropped: --accent-forest (unused), --gradient-hero (banned startup). */
+  --accent-2:       #2d4f4a; /* ink-teal — data/outcome accent */
+  --accent-2-soft:  #e8f0ee; /* pale ink-teal wash */
+  --accent-deep:    #4a3820; /* richer tan — hover tint for wa-float */
+}
+
+/* ---------- Reveal primitives ---------- */
+
+/* Mask wipe — for images and featured art */
+.reveal-mask {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path var(--dur-reveal-slow) var(--ease-primary);
+  will-change: clip-path;
+}
+.reveal-mask.is-in {
+  clip-path: inset(0 0 0 0);
+}
+
+/* Line reveal — per-line wrappers inside a headline */
+.reveal-line {
+  display: block;
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(0.4em);
+  transition:
+    clip-path var(--dur-reveal) var(--ease-primary),
+    transform var(--dur-reveal) var(--ease-primary);
+  will-change: clip-path, transform;
+}
+.reveal-line.is-in {
+  clip-path: inset(0 0 0 0);
+  transform: translateY(0);
+}
+
+/* Simple fade — body copy, cards, CTA clusters */
+.reveal-fade {
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity var(--dur-reveal) var(--ease-primary),
+    transform var(--dur-reveal) var(--ease-primary);
+  will-change: opacity, transform;
+}
+.reveal-fade.is-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- Direction B: warm accent flash on feature-moment reveals ----------
+   Applied to .reveal-line (headline lines) and hero .reveal-mask only.
+   Cards and body copy reveal cleanly without the flash.
+   Opt out anywhere with .no-accent. */
+
+.reveal-line,
+.hero .reveal-mask,
+.hero-sequence .reveal-mask {
+  position: relative;
+}
+
+.reveal-line::after,
+.hero .reveal-mask::after,
+.hero-sequence .reveal-mask::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 20%;
+  height: 1px;
+  background: var(--accent, #8b6f47);
+  transform: scaleX(0);
+  transform-origin: left center;
+  opacity: 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.reveal-line.is-in::after,
+.hero .reveal-mask.is-in::after,
+.hero-sequence .reveal-mask.is-in::after {
+  animation: motionb-accent-flash var(--dur-accent-flash) var(--ease-primary) 200ms 1 forwards;
+}
+
+/* Explicit opt-out hook */
+.reveal-line.no-accent::after,
+.reveal-mask.no-accent::after {
+  content: none;
+}
+
+@keyframes motionb-accent-flash {
+  0%   { opacity: 0; transform: scaleX(0); }
+  40%  { opacity: 1; transform: scaleX(1); }
+  100% { opacity: 0; transform: scaleX(1); }
+}
+
+/* ---------- L→R underline for inline links ----------
+   Direction B: underline settles in warm --accent throughout hover.
+   Simpler than a two-gradient crossfade; reads as the warm flourish B asks for. */
+.link-underline {
+  position: relative;
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-size: 0% 1px;
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  transition: background-size 220ms var(--ease-primary),
+              color 180ms var(--ease-primary);
+  padding-bottom: 1px;
+}
+.link-underline:hover { background-size: 100% 1px; }
+
+/* ---------- CTAs — editorial, not SaaS ---------- */
+
+/* Primary: ink fill, hover → accent. Direction B: deliberate 260ms warmth. */
+.btn.btn-primary,
+a.btn-primary,
+button.btn-primary {
+  transition: background var(--dur-hover-cta) var(--ease-primary),
+              color var(--dur-hover-cta) var(--ease-primary),
+              transform var(--dur-press) var(--ease-exit);
+}
+.btn.btn-primary:hover,
+a.btn-primary:hover,
+button.btn-primary:hover {
+  /* Neutralise legacy lift. Accent background handled elsewhere. */
+  transform: none;
+}
+.btn.btn-primary:active,
+a.btn-primary:active,
+button.btn-primary:active {
+  transform: scale(0.96);
+}
+
+/* Ghost: L→R ink fill via ::before. Text crossfades to cream. */
+.btn.btn-ghost,
+a.btn-ghost,
+button.btn-ghost {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  z-index: 0;
+  transition: color var(--dur-hover) var(--ease-primary),
+              border-color var(--dur-hover) var(--ease-primary),
+              transform var(--dur-press) var(--ease-exit);
+}
+.btn.btn-ghost::before,
+a.btn-ghost::before,
+button.btn-ghost::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--ink);
+  transform: translateX(-101%);
+  transition: transform 280ms var(--ease-primary);
+  z-index: -1;
+}
+.btn.btn-ghost:hover,
+a.btn-ghost:hover,
+button.btn-ghost:hover {
+  color: var(--bg);
+  border-color: var(--ink);
+}
+.btn.btn-ghost:hover::before,
+a.btn-ghost:hover::before,
+button.btn-ghost:hover::before {
+  transform: translateX(0);
+}
+.btn.btn-ghost:active,
+a.btn-ghost:active,
+button.btn-ghost:active {
+  transform: scale(0.96);
+}
+
+/* ---------- Card hover: 2px lift + image zoom inside fixed frame ----------
+   Direction B: warm-toned hover shadow (accent @ 12%). */
+.motion-card {
+  transition: transform var(--dur-hover) var(--ease-primary),
+              box-shadow var(--dur-hover) var(--ease-primary);
+  will-change: transform;
+}
+.motion-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 111, 71, 0.12);
+}
+.card {
+  transition: transform var(--dur-hover) var(--ease-primary),
+              box-shadow var(--dur-hover) var(--ease-primary);
+}
+.card:hover {
+  box-shadow: 0 12px 32px rgba(139, 111, 71, 0.12);
+}
+.motion-card .card-image-frame,
+.motion-card .motion-frame {
+  overflow: hidden;
+}
+.motion-card .card-image-frame img,
+.motion-card .motion-frame img {
+  transition: transform var(--dur-reveal) var(--ease-primary);
+  will-change: transform;
+}
+.motion-card:hover .card-image-frame img,
+.motion-card:hover .motion-frame img {
+  transform: scale(1.03);
+}
+
+/* ---------- Legacy .card-lift — kept for backwards compat across 59 uses ----------
+   Direction B treatment: 2px translate + warm shadow, no 3D tilt.
+   Behaviour aligned with .motion-card above. */
+.card-lift {
+  transition: transform var(--dur-hover) var(--ease-primary),
+              box-shadow var(--dur-hover) var(--ease-primary),
+              border-color var(--dur-hover) var(--ease-primary);
+  will-change: transform;
+}
+.card-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(139, 111, 71, 0.12);
+  border-color: var(--accent);
+}
+
+/* ---------- Form field — floating label + L→R border grow on focus ---------- */
+.field {
+  position: relative;
+  padding-top: 18px;
+}
+.field input,
+.field textarea,
+.field select {
+  border: none;
+  border-bottom: 1px solid var(--rule);
+  background: transparent;
+  width: 100%;
+  padding: 8px 0;
+  font-size: 16px;
+  outline: none;
+  color: var(--ink);
+  transition: border-color var(--dur-focus) var(--ease-primary);
+}
+.field label {
+  position: absolute;
+  left: 0;
+  top: 18px;
+  font-size: 14px;
+  color: var(--ink-muted);
+  pointer-events: none;
+  transition: top 220ms var(--ease-primary),
+              font-size 220ms var(--ease-primary),
+              color 220ms var(--ease-primary);
+}
+.field input:focus ~ label,
+.field input:not(:placeholder-shown) ~ label,
+.field textarea:focus ~ label,
+.field textarea:not(:placeholder-shown) ~ label {
+  top: 0;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 0.04em;
+}
+.field input:focus,
+.field textarea:focus,
+.field select:focus {
+  border-bottom: 1.5px solid var(--accent);
+}
+
+/* ---------- Nav scroll-state — background fades in past 40px scroll ---------- */
+body.is-scrolled header.topnav {
+  background: rgba(250, 248, 244, 0.92);
+  border-bottom-color: var(--rule);
+  backdrop-filter: saturate(1.2) blur(6px);
+  -webkit-backdrop-filter: saturate(1.2) blur(6px);
+}
+header.topnav {
+  transition: background 240ms var(--ease-primary),
+              border-color 240ms var(--ease-primary);
+}
+
+/* ---------- Hero sequenced load helpers ---------- */
+/* Used on the homepage hero: reveal-line delays handled inline via JS stagger */
+.hero .reveal-mask { /* slower wipe on hero art */
+  transition-duration: var(--dur-reveal-slow);
+}
+
+/* ===========================================================================
+   Migrated primitives — previously in animations.css.
+   Retained after HTML audit; all uses documented inline.
+   =========================================================================== */
+
+/* Section band — full-bleed white panel (used on homepage, 3 places) */
+.section-band-white {
+  position: relative;
+  isolation: isolate;
+}
+.section-band-white::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  background: #ffffff;
+  z-index: -1;
+}
+
+/* Hero headshot rotator — stacked imgs, crossfade (index.html only) */
+.hero-rotator {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 18px 36px -16px rgba(26, 26, 26, 0.18), 0 4px 14px -6px rgba(26, 26, 26, 0.08);
+}
+.hero-rotator img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 1.2s ease-in-out;
+  will-change: opacity;
+}
+.hero-rotator img.is-active {
+  opacity: 1;
+}
+
+/* Launch-card image overlay chips (new-launches.html) */
+.launch-card-media {
+  position: relative;
+}
+.launch-card-chips {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 0.5rem;
+  pointer-events: none;
+  z-index: 2;
+}
+.launch-card-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(26, 26, 26, 0.82);
+  color: #faf8f4;
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.launch-card-chip.chip-psf {
+  background: rgba(250, 248, 244, 0.94);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+}
+.launch-card-chip .chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* Value stack receipt — stacked-bar visualisation
+   Live on pricing.html + sellers-guide.html. Inline hex teals used deliberately
+   as data-viz segments; do not collapse to tokens or the chart loses contrast. */
+.value-receipt {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0.5rem 0 1.5rem;
+  padding: 1rem 1.25rem;
+  background: #ffffff;
+  border: 1px solid var(--rule, #e8e1d2);
+  border-radius: 14px;
+}
+.value-receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-muted, #837a6d);
+  margin-bottom: 0.5rem;
+}
+.value-receipt-bar {
+  display: flex;
+  width: 100%;
+  height: 14px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: #f3ead9;
+}
+.value-receipt-bar span {
+  height: 100%;
+  transition: filter 0.2s ease;
+}
+.value-receipt-bar span:hover { filter: brightness(0.92); }
+.value-receipt-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1.25rem;
+  margin-top: 0.75rem;
+  font-size: 0.72rem;
+  color: var(--ink-soft, #4a4a4a);
+}
+.value-receipt-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.value-receipt-legend em {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  font-style: normal;
+}
+.value-receipt-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px dashed var(--rule, #e8e1d2);
+  font-size: 0.9rem;
+}
+.value-receipt-total strong {
+  font-size: 1.25rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Life-stage tile — accent hairline + number growth on hover (index.html strip) */
+.lifestage-tile {
+  position: relative;
+  transition: transform var(--dur-hover) var(--ease-primary),
+              border-color var(--dur-hover) var(--ease-primary),
+              box-shadow var(--dur-hover) var(--ease-primary);
+}
+.lifestage-tile::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent) 50%, transparent 100%);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.lifestage-tile:hover::before { opacity: 1; }
+.lifestage-tile .pillar-number,
+.lifestage-tile > p:first-child {
+  transition: transform var(--dur-hover) var(--ease-primary),
+              color var(--dur-hover) var(--ease-primary);
+}
+.lifestage-tile:hover > p:first-child {
+  transform: translateY(-2px);
+  color: var(--accent-2);
+}
+
+/* WhatsApp float — dark ink pill, refined one-shot pulse on load (global) */
+#wa-float {
+  background: var(--ink) !important;
+  color: var(--bg) !important;
+  box-shadow: 0 10px 30px -8px rgba(26, 26, 26, 0.36) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+#wa-float:hover {
+  background: var(--accent-deep) !important;
+  transform: scale(1.04) translateY(-2px);
+  box-shadow: 0 14px 36px -10px rgba(74, 56, 32, 0.48) !important;
+}
+#wa-float svg { color: #faf8f4; }
+@keyframes wa-pulse-refined {
+  0%, 100% {
+    box-shadow: 0 10px 30px -8px rgba(26, 26, 26, 0.36),
+                0 0 0 0 rgba(139, 111, 71, 0.6);
+  }
+  60% {
+    box-shadow: 0 10px 30px -8px rgba(26, 26, 26, 0.36),
+                0 0 0 14px rgba(139, 111, 71, 0);
+  }
+}
+#wa-float.wa-pulsing {
+  /* Two-iteration, finite — permitted as a single attention-tap, not a loop */
+  animation: wa-pulse-refined 1.4s ease-out 2 !important;
+}
+
+/* ---------- Reduced motion — non-negotiable ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .reveal-mask,
+  .reveal-line,
+  .reveal-fade {
+    clip-path: none !important;
+    transform: none !important;
+    transition: opacity 160ms linear !important;
+  }
+  .reveal-mask:not(.is-in),
+  .reveal-line:not(.is-in),
+  .reveal-fade:not(.is-in) {
+    opacity: 0;
+  }
+  .reveal-mask.is-in,
+  .reveal-line.is-in,
+  .reveal-fade.is-in {
+    opacity: 1;
+  }
+  /* Suppress Direction B accent flash entirely */
+  .reveal-line::after,
+  .hero .reveal-mask::after,
+  .hero-sequence .reveal-mask::after,
+  .reveal-line.is-in::after,
+  .hero .reveal-mask.is-in::after,
+  .hero-sequence .reveal-mask.is-in::after {
+    animation: none !important;
+    opacity: 0 !important;
+    transform: scaleX(0) !important;
+  }
+  .btn.btn-ghost::before,
+  a.btn-ghost::before,
+  button.btn-ghost::before {
+    transition-duration: 1ms !important;
+  }
+  .motion-card,
+  .motion-card .card-image-frame img,
+  .motion-card .motion-frame img,
+  .card,
+  .card-lift,
+  .lifestage-tile {
+    transition: none !important;
+    transform: none !important;
+  }
+  .hero-rotator img {
+    transition: none !important;
+  }
+  #wa-float.wa-pulsing {
+    animation: none !important;
+  }
+}

@@ -1,0 +1,133 @@
+/* ===========================================================================
+   animations.css — Additive motion layer for winfredquek.com
+   Editorial, minimal, restrained. Designed to layer on top of motion.css.
+   Inspired by ryanserhant.com + NYT Magazine interactive aesthetics.
+   All animations respect prefers-reduced-motion.
+   =========================================================================== */
+
+/* ---------- Extended palette tokens ---------- */
+:root {
+  --accent-deep: #4a3820;
+  --accent-forest: #3d5a4a;
+  --gradient-hero: linear-gradient(135deg, #faf8f4 0%, #f3ead9 50%, #e9e0d3 100%);
+}
+
+/* ---------- .scroll-reveal — intersection-triggered fade + lift ---------- */
+/* Intentionally separate from .reveal-fade so JS can target independently  */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1),
+              transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: opacity, transform;
+}
+.scroll-reveal.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ---------- .hero-text-reveal — character-level stagger ---------- */
+/* JS splitter wraps each char in <span class="char">; CSS drives the timing */
+.hero-text-reveal {
+  overflow: visible;
+}
+.hero-text-reveal .char-word {
+  display: inline-block;
+  white-space: nowrap;
+}
+.hero-text-reveal .char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(0.3em);
+  animation: char-enter 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  will-change: opacity, transform;
+}
+@keyframes char-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------- .card-lift — enhanced 3D hover (supplements motion.css base) ---------- */
+/* motion.css already provides 2px lift + warm shadow; we add subtle 3D tilt */
+.card-lift {
+  transform-style: preserve-3d;
+  perspective: 800px;
+}
+/* JS hover-tilt applies rotateX/rotateY via inline style; CSS handles transition */
+.card-lift:hover {
+  transform: translateY(-4px) rotate(0.5deg);
+  box-shadow: 0 16px 40px rgba(139, 111, 71, 0.16);
+}
+
+/* ---------- .gradient-bar — animated accent divider / decorative bar ---------- */
+.gradient-bar {
+  height: 2px;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    var(--accent, #c6a36a) 0%,
+    #1a1c24 40%,
+    var(--accent, #c6a36a) 80%,
+    #1a1c24 100%
+  );
+  background-size: 200% 100%;
+  animation: gradient-sweep 8s linear infinite;
+  border: none;
+  border-radius: 999px;
+}
+@keyframes gradient-sweep {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* ---------- .pulse-accent — slow breath pulse for CTAs ---------- */
+/* Subtle — scale 1→1.02, opacity 1→0.88, 3s cycle so it reads as calm */
+.pulse-accent {
+  animation: pulse-breath 3s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+.pulse-accent:hover {
+  animation-play-state: paused;
+}
+@keyframes pulse-breath {
+  0%, 100% { transform: scale(1);    opacity: 1; }
+  50%       { transform: scale(1.02); opacity: 0.88; }
+}
+
+/* ---------- .parallax-slow — CSS layer; JS handles translateY via data-speed ---------- */
+.parallax-slow,
+[data-parallax] {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+
+/* ---------- Reduced motion — non-negotiable ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .hero-text-reveal .char {
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+  .card-lift:hover {
+    transform: none !important;
+  }
+  .gradient-bar {
+    animation: none !important;
+    background: var(--accent, #c6a36a);
+  }
+  .pulse-accent {
+    animation: none !important;
+  }
+  [data-parallax],
+  .parallax-slow {
+    will-change: auto !important;
+    transform: none !important;
+  }
+}

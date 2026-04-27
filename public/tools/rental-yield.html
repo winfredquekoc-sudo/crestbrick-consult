@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rental Yield & Breakeven Calculator Singapore | Winfred Quek</title>
+  <meta name="description" content="Free rental yield + breakeven calculator for Singapore property. Gross yield, net yield, monthly cashflow after mortgage/MCST/tax, and years-to-breakeven. By Winfred Quek, Crestbrick. CEA R073319H." />
+  <meta property="og:title" content="Rental Yield Calculator Singapore  --  Winfred Quek" />
+  <meta property="og:description" content="Gross yield, net yield, monthly cashflow, years-to-breakeven. Investor-grade math." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/tools/rental-yield" />
+  <link rel="canonical" href="https://winfredquek.com/tools/rental-yield" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/tools/_shared.css" />
+  <link rel="stylesheet" href="/motion.css">
+  <script defer src="/motion.js"></script>
+<style>
+    .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
+  </style>
+</head>
+<body>
+
+<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span><span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span></a>
+    <div class="hidden lg:flex items-center gap-6">
+      <a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline active" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
+    </div>
+    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+  </nav>
+  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link link-underline" href="/">Home</a><a class="nav-link link-underline" href="/services">Services</a><a class="nav-link link-underline" href="/pricing">Pricing</a><a class="nav-link link-underline active" href="/tools">Tools</a><a class="nav-link link-underline" href="/insights">Insights</a><a class="nav-link link-underline" href="/contact">Contact</a></div>
+  </div>
+</header>
+
+<main>
+<section class="hero hero-sequence max-w-3xl mx-auto px-6 pt-16 pb-6">
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <p class="section-label"><a href="/" class="hover:text-[var(--ink)]">Home</a> / <a href="/tools" class="hover:text-[var(--ink)]">Tools</a> / <span>Rental Yield Calculator</span></p>
+  </nav>
+  <h1 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-4">Rental Yield Calculator Singapore <span class="italic text-[var(--accent)]">2026</span></h1>
+  <p class="text-[var(--ink-soft)] leading-relaxed mb-8">Gross yield is what agents quote in marketing brochures. Net yield -- rent minus mortgage, MCST, property tax, insurance, vacancy, and income tax -- is what actually lands in your bank account. This calculator runs both, then surfaces monthly cashflow and years-to-breakeven on your cash outlay so you can compare deals apples-to-apples. If you're evaluating a rental property, these are the only numbers that matter.</p>
+</section>
+
+<section class="max-w-3xl mx-auto px-6 pb-20">
+  <div class="calc-panel">
+    <h3 class="serif text-lg font-semibold mb-4">Property &amp; rent</h3>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="price">Purchase price (SGD)</label>
+        <input id="price" type="number" min="0" step="10000" value="1500000" />
+      </div>
+      <div class="calc-row">
+        <label for="rent">Expected monthly rent (SGD)</label>
+        <input id="rent" type="number" min="0" step="100" value="5500" />
+      </div>
+    </div>
+
+    <div class="divider my-5"></div>
+    <h3 class="serif text-lg font-semibold mb-4">Financing</h3>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="calc-row">
+        <label for="ltv">LTV % (loan-to-value)</label>
+        <input id="ltv" type="number" min="0" max="75" step="1" value="75" />
+      </div>
+      <div class="calc-row">
+        <label for="rate">Mortgage rate % (annual)</label>
+        <input id="rate" type="number" min="0" step="0.05" value="3.5" />
+      </div>
+      <div class="calc-row">
+        <label for="tenure">Tenure (years)</label>
+        <input id="tenure" type="number" min="5" max="35" step="1" value="30" />
+      </div>
+    </div>
+
+    <div class="divider my-5"></div>
+    <h3 class="serif text-lg font-semibold mb-4">Holding costs (annual, SGD)</h3>
+    <div class="grid md:grid-cols-3 gap-4">
+      <div class="calc-row">
+        <label for="mcst">MCST / maintenance</label>
+        <input id="mcst" type="number" min="0" step="50" value="4800" />
+      </div>
+      <div class="calc-row">
+        <label for="tax">Property tax (non-owner-occupied)</label>
+        <input id="tax" type="number" min="0" step="50" value="6000" />
+      </div>
+      <div class="calc-row">
+        <label for="insure">Fire &amp; contents insurance</label>
+        <input id="insure" type="number" min="0" step="25" value="500" />
+      </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="vacancy">Vacancy assumption (% of year)</label>
+        <input id="vacancy" type="number" min="0" max="50" step="1" value="8" />
+      </div>
+      <div class="calc-row">
+        <label for="taxrate">Your marginal income tax rate %</label>
+        <input id="taxrate" type="number" min="0" max="24" step="1" value="15" />
+      </div>
+    </div>
+
+    <div id="result" class="result-panel mt-6" style="display:none;">
+      <h3 class="serif text-xl font-semibold mb-3" style="color:#faf8f4;">Your numbers</h3>
+
+      <div class="result-row"><span class="label">Annual rent (gross)</span><span id="o-gross-rent" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Gross yield</span><span id="o-gross-yield" class="amount"> -- </span></div>
+      <div class="result-row" style="padding-top:1rem;"><span class="label">Loan amount</span><span id="o-loan" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Monthly mortgage</span><span id="o-pmt" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Annual loan interest (yr 1)</span><span id="o-interest" class="amount"> -- </span></div>
+      <div class="result-row" style="padding-top:1rem;"><span class="label">Effective rent (after vacancy)</span><span id="o-eff-rent" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Annual holding costs</span><span id="o-costs" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Taxable rental income</span><span id="o-taxable" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Income tax on rental</span><span id="o-inctax" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Net cashflow (annual, after tax)</span><span id="o-netcf" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Monthly cashflow after all costs</span><span id="o-monthcf" class="amount"> -- </span></div>
+
+      <div class="result-total" id="yield-total">
+        <span class="label">Net yield (on purchase price)</span>
+        <span id="o-net-yield" class="amount"> -- </span>
+      </div>
+
+      <div class="result-row" style="padding-top:1rem;"><span class="label">Your cash in (downpayment + BSD ~5%)</span><span id="o-cashin" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Cash-on-cash return</span><span id="o-coc" class="amount"> -- </span></div>
+      <div class="result-row"><span class="label">Years to breakeven on cash outlay</span><span id="o-breakeven" class="amount"> -- </span></div>
+
+      <p id="verdict" class="calc-note" style="color:rgba(250,248,244,.85);font-size:14px;margin-top:1rem;"></p>
+    </div>
+
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Is this deal worth it? Book a 30-min investor walkthrough →</a>
+      <a href="/insights/rental-yield-vs-appreciation" class="btn btn-ghost">Read the yield article →</a>
+    </div>
+  </div>
+
+  <div class="mt-10 p-6 bg-[#1c1e26] border border-[var(--rule)] rounded-xl">
+    <h3 class="serif text-xl font-semibold mb-4">How to read this result</h3>
+    <ul class="list-disc pl-5 space-y-2 text-[var(--ink-soft)] leading-relaxed">
+      <li>Net yield above 3% is the SG investor benchmark -- below that, you're betting on capital appreciation, not cashflow.</li>
+      <li>Monthly cashflow is what hits your bank; if it's negative, you're topping up every month -- size the gap against your reserves.</li>
+      <li>Years-to-breakeven ignores capital appreciation and SSD -- useful as a floor, not a full ROI picture.</li>
+    </ul>
+  </div>
+
+  <div class="mt-8 text-xs text-[var(--ink-muted)] leading-relaxed">
+    <p><strong>Notes:</strong> Uses straight-line first-year estimates. Property tax shown is at non-owner-occupied rates (IRAS progressive 12--36% of AV) -- use the actual AV for precision. Rental income tax deducts mortgage interest, MCST, property tax, insurance, and repairs. SSD and capital appreciation not modelled -- this is cashflow yield only. Cash-on-cash excludes stamp duty at exit.</p>
+  </div>
+
+  <p class="mt-6 text-xs text-[var(--ink-muted)]">Figures are estimates for planning purposes. Verify with your banker and solicitor before committing.</p>
+</section>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 text-center text-xs text-[var(--ink-muted)]">
+    © 2026 Winfred Quek · Crestbrick · CEA R073319H · Estimates only  --  not financial advice.
+  </div>
+</footer>
+
+<script>
+(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();
+
+function fmt(n){ var s=Math.abs(Math.round(n)).toLocaleString('en-SG'); return (n<0?'-S$':'S$')+s; }
+function pct(x){ return (x*100).toFixed(2) + '%'; }
+
+function monthlyPmt(loan, annualRate, years){
+  if (annualRate<=0) return loan / (years*12);
+  var r = annualRate/100/12;
+  var n = years*12;
+  return loan * r / (1 - Math.pow(1+r, -n));
+}
+
+function computeBSD(price){
+  var tiers=[[180000,0.01],[180000,0.02],[640000,0.03],[500000,0.04],[1500000,0.05]];
+  var bsd=0, remaining=price;
+  for(var i=0;i<tiers.length;i++){
+    var slice=Math.min(remaining, tiers[i][0]);
+    if(slice<=0) break;
+    bsd += slice*tiers[i][1]; remaining -= slice;
+  }
+  if(remaining>0) bsd += remaining*0.06;
+  return bsd;
+}
+
+function recalc(){
+  var price = parseFloat(document.getElementById('price').value)||0;
+  var rent = parseFloat(document.getElementById('rent').value)||0;
+  var ltv = parseFloat(document.getElementById('ltv').value)||0;
+  var rate = parseFloat(document.getElementById('rate').value)||0;
+  var tenure = parseFloat(document.getElementById('tenure').value)||30;
+  var mcst = parseFloat(document.getElementById('mcst').value)||0;
+  var ptax = parseFloat(document.getElementById('tax').value)||0;
+  var insure = parseFloat(document.getElementById('insure').value)||0;
+  var vacancy = parseFloat(document.getElementById('vacancy').value)||0;
+  var taxrate = parseFloat(document.getElementById('taxrate').value)||0;
+
+  if (price<=0 || rent<=0) return;
+
+  var annualRent = rent*12;
+  var grossYield = annualRent/price;
+  var loan = price*(ltv/100);
+  var pmt = monthlyPmt(loan, rate, tenure);
+  var annualInterest = loan*(rate/100); // year-1 approx
+  var effRent = annualRent*(1-vacancy/100);
+  var totalHolding = mcst + ptax + insure;
+  var taxable = Math.max(0, effRent - totalHolding - annualInterest);
+  var incTax = taxable*(taxrate/100);
+  var netCF = effRent - pmt*12 - totalHolding - incTax;
+  var monthCF = netCF/12;
+  var netYield = (effRent - totalHolding - pmt*12 + (loan/tenure)) / price; // yield treating principal as equity accrual
+  // Simpler investor-read net yield: cash income vs price
+  var cashNetYield = (effRent - totalHolding - incTax) / price;
+
+  var downpayment = price - loan;
+  var bsd = computeBSD(price);
+  var cashIn = downpayment + bsd;
+  var cocReturn = cashIn>0 ? netCF/cashIn : 0;
+  var breakeven = (netCF>0 && cashIn>0) ? cashIn/netCF : -1;
+
+  document.getElementById('o-gross-rent').textContent = fmt(annualRent);
+  document.getElementById('o-gross-yield').textContent = pct(grossYield);
+  document.getElementById('o-loan').textContent = fmt(loan);
+  document.getElementById('o-pmt').textContent = fmt(pmt) + ' / mo';
+  document.getElementById('o-interest').textContent = fmt(annualInterest);
+  document.getElementById('o-eff-rent').textContent = fmt(effRent);
+  document.getElementById('o-costs').textContent = fmt(totalHolding);
+  document.getElementById('o-taxable').textContent = fmt(taxable);
+  document.getElementById('o-inctax').textContent = fmt(incTax);
+  document.getElementById('o-netcf').textContent = fmt(netCF);
+  document.getElementById('o-monthcf').textContent = fmt(monthCF) + ' / mo';
+  document.getElementById('o-net-yield').textContent = pct(cashNetYield);
+  document.getElementById('o-cashin').textContent = fmt(cashIn);
+  document.getElementById('o-coc').textContent = pct(cocReturn);
+  document.getElementById('o-breakeven').textContent = breakeven>0 ? breakeven.toFixed(1) + ' years' : ' --  (negative cashflow)';
+
+  var box = document.getElementById('yield-total');
+  var verdict = document.getElementById('verdict');
+  if (cashNetYield >= 0.03) {
+    box.style.background = '#c6a36a';
+    verdict.innerHTML = '✅ Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> clears the 3% threshold most SG investors benchmark to. Still sanity-check vacancy and rate-rise scenarios before committing.';
+  } else if (cashNetYield >= 0.015) {
+    box.style.background = '#c6a36a';
+    verdict.innerHTML = '⚠️ Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> is below typical SG benchmarks. Only makes sense if you\'re explicitly playing capital appreciation, not yield. Stress-test the 5-10yr PSF case.';
+  } else {
+    box.style.background = '#8b2f2f';
+    verdict.innerHTML = '❌ Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> is weak. Either the price is too high, the rent too optimistic, or the costs too heavy. Walk the numbers with me before committing.';
+  }
+
+  document.getElementById('result').style.display = 'block';
+}
+
+['price','rent','ltv','rate','tenure','mcst','tax','insure','vacancy','taxrate'].forEach(function(id){
+  var el=document.getElementById(id);
+  el.addEventListener('input', recalc);
+  el.addEventListener('change', recalc);
+});
+recalc();
+</script>
+</body>
+</html>
