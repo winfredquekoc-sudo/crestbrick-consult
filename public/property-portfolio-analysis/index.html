@@ -669,7 +669,7 @@ function renderSummary(data, contact) {
     const target = document.querySelector('.summary-panel').parentElement; // includes insight box
     const opt = {
       margin: [10, 10, 10, 10],
-      filename: `Portfolio-Audit-${(contact.full_name||state.name).replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`,
+      filename: `Property-Portfolio-Analysis-${(contact.full_name||state.name).replace(/\s+/g,'-')}-${new Date().toISOString().slice(0,10)}.pdf`,
       image: { type: 'jpeg', quality: 0.95 },
       html2canvas: { scale: 2, backgroundColor: '#faf8f4' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -684,14 +684,14 @@ function renderSummary(data, contact) {
     const target = document.querySelector('.summary-panel').parentElement;
     const pdfOpt = {
       margin: [10, 10, 10, 10],
-      filename: 'audit.pdf',
+      filename: 'property-portfolio-analysis.pdf',
       image: { type: 'jpeg', quality: 0.92 },
       html2canvas: { scale: 1.5, backgroundColor: '#faf8f4' },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
     html2pdf().set(pdfOpt).from(target).toPdf().get('pdf').then(pdf => {
       const b64 = btoa(pdf.output());
-      return fetch('/api/audit-email', {
+      return fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -830,7 +830,7 @@ renderOpening();
       '<div id="exit-intent-card" style="background:#fff;border-radius:14px;padding:2rem;max-width:420px;width:100%;box-shadow:0 8px 40px rgba(0,0,0,.35);">',
         '<p style="font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:#c6a36a;font-weight:600;margin-bottom:.6rem;">Don\'t lose your progress</p>',
         '<h2 style="font-family:Georgia,serif;font-size:1.3rem;font-weight:600;color:#0f1117;margin-bottom:.7rem;line-height:1.3;">Enter your email and we\'ll send your partial property portfolio analysis results.</h2>',
-        '<p style="font-size:13px;color:#5a5650;margin-bottom:1.2rem;">You\'ve already completed the hard part. We\'ll save your answers and Winfred can follow up with a personalised read, even from a partial audit.</p>',
+        '<p style="font-size:13px;color:#5a5650;margin-bottom:1.2rem;">You\'ve already completed the hard part. We\'ll save your answers and Winfred can follow up with a personalised read, even from a partial analysis.</p>',
         '<div style="margin-bottom:.75rem;">',
           '<label style="font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#706c64;display:block;margin-bottom:.35rem;">Email address</label>',
           '<input id="exit-email-input" type="email" placeholder="your@email.com" style="width:100%;background:#fff;border:1.5px solid #e4dfd5;border-radius:8px;padding:.75rem 1rem;font-size:15px;color:#0f1117;font-family:inherit;box-sizing:border-box;" />',
@@ -892,7 +892,7 @@ renderOpening();
         body: formData,
         headers: { 'Accept': 'application/json' }
       }).then(function(r) {
-        if (statusEl) statusEl.textContent = 'Done! Check your inbox. Winfred will review your partial audit.';
+        if (statusEl) statusEl.textContent = 'Done! Check your inbox. Winfred will review your partial analysis.';
         setTimeout(dismissModal, 1800);
       }).catch(function() {
         if (statusEl) statusEl.textContent = 'Saved locally. Winfred will follow up if you share your number.';
