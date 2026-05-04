@@ -90,7 +90,7 @@ function buildSummary(a) {
   if ((a.current_ownership_status || '').includes('2+')) notes.push('Existing portfolio stress-test: yield, cashflow, exit sequencing across all holdings before adding another asset.');
   if ((a.primary_objective || '').includes('Diversify into overseas')) notes.push('Overseas diversification: weight, currency exposure, tax residency, exit/repatriation path.');
   if (income >= 30000 && (a.available_capital || '').includes('Above S$1,000,000')) notes.push('High-capacity profile: family-office-grade construction, commercial + shophouse carve-outs, multi-jurisdictional.');
-  if (notes.length === 0) notes.push('Build the 4-Pillar Audit map (Capital / Cashflow / Progression / Protection) around the specific capital + timeline combination.');
+  if (notes.length === 0) notes.push('Build the Property Portfolio Analysis map (Capital / Cashflow / Progression / Protection) around the specific capital + timeline combination.');
   if (notes.length < 3) notes.push('Walk through a 10-year progression blueprint matched to timeline, with sensitivity analysis on rate + vacancy.');
 
   return { summary, prep_notes: notes.slice(0, 5), metrics: { income, debt, tdsr_room: Math.round(tdsrRoom), target, portfolio_required: Math.round(portfolioReq) } };

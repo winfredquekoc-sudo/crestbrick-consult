@@ -96,5 +96,5 @@ export default async function handler(req, res) {
 
   await Promise.allSettled(tasks);
 
-  return res.status(200).json({ ok: true, track, redirect: '/start/thanks' });
+  return res.status(200).json({ ok: true, track });
 }
