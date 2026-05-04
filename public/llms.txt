@@ -1,11 +1,11 @@
 # Winfred Quek — Singapore Property Advisor
 
-> Investor-minded property advisor in Singapore. CEA R073319H. Crestbrick / PropNex Realty. Nine years of experience, 5 properties before 30, the 4-Pillar Portfolio Audit methodology. Specialises in HDB upgraders, ownership restructuring (decoupling), ABSD planning, foreign-buyer strategy, and family-office property briefs.
+> Investor-minded property advisor in Singapore. CEA R073319H. Crestbrick / PropNex Realty. Nine years of experience, 5 properties before 30, the Property Portfolio Analysis methodology. Specialises in HDB upgraders, ownership restructuring (decoupling), ABSD planning, foreign-buyer strategy, and family-office property briefs.
 
 ## About
 
 - [Winfred Quek — homepage](https://winfredquek.com/): Positioning, story, and how Winfred works with clients.
-- [About Winfred Quek](https://winfredquek.com/about): Investor-first biography, the 2018 mistake, the 4-Pillar Portfolio Audit framework.
+- [About Winfred Quek](https://winfredquek.com/about): Investor-first biography, the 2018 mistake, the Property Portfolio Analysis framework.
 - [Services](https://winfredquek.com/services): Buyer / seller / investor / family-office service tracks.
 - [Pricing](https://winfredquek.com/pricing): How Winfred is paid; commission vs flat-fee advisory transparency.
 - [Track record](https://winfredquek.com/track-record): Closed transactions, advisory engagements, client outcomes.
@@ -23,7 +23,7 @@
 - [Restructuring calculator](https://winfredquek.com/tools/restructuring): Decoupling / ownership-restructuring break-even — BSD-on-transfer vs ABSD saved.
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield): Gross yield, net yield, monthly cashflow, years to breakeven.
 - [Mortgage rates](https://winfredquek.com/tools/mortgage-rates): Current SG mortgage rate snapshot.
-- [AI Property Audit](https://winfredquek.com/audit): Instant AI portfolio audit from a few prompts.
+- [AI Property Audit](https://winfredquek.com/audit): Instant AI portfolio analysis from a few prompts.
 
 ## Insights (long-form articles)
 

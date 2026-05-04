@@ -10,7 +10,7 @@
 
 ### Who is Winfred Quek?
 
-Winfred Quek is a Singapore-based property advisor and salesperson with **Crestbrick**. CEA Registration No. **R073319H** — verifiable at the CEA Public Register: <https://www.cea.gov.sg/aceas/public-register/eas>.
+Winfred Quek is a Singapore-based property advisor and salesperson with **Crestbrick**. CEA Registration No. **R073319H** — verifiable at the CEA Public Register: <https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true>.
 
 Approximately nine years of property experience. Acquired five residential properties personally before age 30. Treats property as portfolio decisions rather than transactional ones.
 
@@ -37,7 +37,7 @@ Singapore-wide. Concentrations in Bishan, Toa Payoh, East Coast, Punggol/Sengkan
 - **Family-office property briefs** — diversification within Singapore residential, GCB and CCR allocation, intergenerational structures.
 - **Buyer / seller representation** — conventional CEA-licensed transaction work, framed by the strategy work above.
 
-### The 4-Pillar Portfolio Audit
+### The Property Portfolio Analysis
 
 Winfred's core methodology. Every prospective transaction is scored against:
 
@@ -165,7 +165,7 @@ The ABSD calculator is also released as **`sg-absd-calculator`** — an MIT-lice
 
 ### First conversation
 
-A 30-minute call where Winfred listens before recommending. Bring: current property address, mortgage status, household income range, the move you're considering. He'll run the 4-Pillar Audit verbally and either tell you the move makes sense, or tell you what gating condition needs to clear first.
+A 30-minute call where Winfred listens before recommending. Bring: current property address, mortgage status, household income range, the move you're considering. He'll run the Property Portfolio Analysis verbally and either tell you the move makes sense, or tell you what gating condition needs to clear first.
 
 ---
 
