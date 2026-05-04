@@ -8,7 +8,9 @@
     "node": ">=24.0.0"
   },
   "scripts": {
-    "eval:agents": "python3 evals/run.py"
+    "eval:agents": "python3 evals/run.py",
+    "build": "node scripts/stamp-nav.mjs",
+    "stamp-nav": "node scripts/stamp-nav.mjs"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",

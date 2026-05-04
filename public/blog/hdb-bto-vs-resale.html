@@ -60,26 +60,49 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40" style="background:var(--bg);">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg" style="color:var(--ink);">Winfred Quek</span><span class="hidden sm:inline text-xs uppercase tracking-widest" style="color:var(--ink-muted);">Crestbrick</span></a>
-    <div class="hidden lg:flex items-center gap-6">
-      <a class="nav-link" href="/">Home</a>
-      <a class="nav-link" href="/about.html">About</a>
-      <a class="nav-link" href="/services.html">Services</a>
-      <a class="nav-link" href="/insights.html">Insights</a>
-      <a class="nav-link" href="/contact.html">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;background:var(--ink);color:var(--bg);">Book a call</a>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden lg:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
     </div>
-    <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu" style="color:var(--ink);"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)]" style="background:var(--bg);">
-    <div class="px-6 py-4 flex flex-col gap-3">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about.html">About</a><a class="nav-link" href="/services.html">Services</a><a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/contact.html">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2" style="background:var(--ink);color:var(--bg);">Book a call</a>
-    </div>
-  </div>
-</header>
+  </header>
 
 <main>
 <article>

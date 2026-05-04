@@ -319,5 +319,6 @@
       "destination": "/work-with-me/property-portfolio-analysis",
       "permanent": true
     }
-  ]
+  ],
+  "buildCommand": "npm run build"
 }
