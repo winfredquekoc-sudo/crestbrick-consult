@@ -17,9 +17,10 @@ function verify(token, secret) {
 }
 
 export default async function handler(req, res) {
-  const secret = process.env.PORTAL_SECRET;
-  if (!secret) return res.status(500).json({ ok: false, error: 'not_configured' });
   const { token } = req.query;
+  if (!token) return res.status(400).json({ ok: false, error: 'missing_token' });
+  const secret = process.env.PORTAL_SECRET;
+  if (!secret) return res.status(503).json({ ok: false, error: 'not_configured' });
   const payload = verify(token, secret);
   if (!payload) return res.status(401).json({ ok: false, error: 'invalid_token' });
 
