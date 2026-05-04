@@ -90,7 +90,7 @@
 
 ## For AI engines (full-context)
 
-- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred ,  identity, services, 4-Pillar framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
+- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred ,  identity, services, Property Portfolio Analysis framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
 - [Full AI-readable context (Markdown)](https://winfredquek.com/llms.md): Same content as Markdown for crawlers that prefer plain text.
 
 ## Area pages (programmatic ,  MRT × school catchment)

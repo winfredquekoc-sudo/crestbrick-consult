@@ -67,7 +67,7 @@ Standard CEA-licensed real estate commission for buyer / seller representation. 
 
 **Situation:** SC couple in Bishan 5-room flat, MOP cleared 2024, combined income ~S$25,000/month, ~S$400,000 cash + CPF refund expected, child entering P1 in 2027.
 
-**4-Pillar read:**
+**Property Portfolio Analysis:**
 - Capital ,  strong.
 - Cashflow ,  fits S$2.0, 2.4M condo.
 - Progression ,  prefer staying within Bishan/Thomson catchment for school.
@@ -137,7 +137,7 @@ Source: IRAS ,  verify at <https://www.iras.gov.sg> before transacting.
 - [Decoupling / restructuring calculator](https://winfredquek.com/tools/restructuring)
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield)
 - [Mortgage rate snapshot](https://winfredquek.com/tools/mortgage-rates)
-- [AI Property Property Portfolio Analysis](https://winfredquek.com/property portfolio analysis) ,  instant 4-Pillar.
+- [Property Portfolio Analysis](https://winfredquek.com/property-portfolio-analysis) ,  instant 4-Pillar.
 
 ### Open source
 

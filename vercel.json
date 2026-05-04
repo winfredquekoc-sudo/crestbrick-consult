@@ -318,6 +318,16 @@
       "source": "/work-with-me/audit.html",
       "destination": "/work-with-me/property-portfolio-analysis",
       "permanent": true
+    },
+    {
+      "source": "/tools/absd-calculator",
+      "destination": "/tools/absd",
+      "permanent": true
+    },
+    {
+      "source": "/launches",
+      "destination": "/new-launches",
+      "permanent": true
     }
   ],
   "buildCommand": "npm run build"
