@@ -191,28 +191,26 @@
     .topnav a.nav-link:hover { color: var(--ink); }
     .topnav a.nav-link.active { color: var(--ink); }
     .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
-    /* Resources dropdown — clickable + hoverable, baseline-aligned with sibling nav links */
-    .nav-dropdown { position: relative; display: inline-flex; align-items: center; }
+    /* Resources dropdown — toggle matches sibling .nav-link box exactly so it sits on the same baseline. */
+    .nav-dropdown { position: relative; display: block; }
     .nav-dropdown-toggle {
-      display: inline-flex;
-      align-items: center;
+      display: block;
       cursor: pointer;
       color: var(--ink-soft);
       font-size: 14px;
       font-weight: 500;
+      line-height: 21px;
+      padding-bottom: 1px;        /* match .nav-link.link-underline padding */
       transition: color .15s ease;
-      line-height: 1;            /* match sibling nav-link baseline */
-      padding: 0;                /* no extra height */
     }
     .nav-dropdown-toggle:hover { color: var(--ink); }
-    .nav-dropdown-toggle svg { display: inline-block; vertical-align: middle; margin-left: 4px; }
-    /* Remove gap between toggle and menu so hover doesn't break when cursor moves down.
-       Use padding-top on the menu wrapper instead of margin-top so hover area is continuous. */
+    .nav-dropdown-toggle svg { display: inline-block; vertical-align: middle; margin-left: 4px; position: relative; top: -1px; }
+    /* Hover-continuous menu: padding-top on the menu wrapper acts as a gap-bridge */
     .nav-dropdown-menu {
       position: absolute;
       right: 0;
       top: 100%;
-      padding-top: 8px;          /* invisible buffer so hover persists when crossing the gap */
+      padding-top: 8px;
       display: none;
       z-index: 50;
     }
@@ -357,9 +355,8 @@
   <!-- ===== TOP NAV ===== -->
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="flex items-center gap-2">
-        <span class="serif font-semibold text-lg">Winfred Quek</span>
-        <span class="hidden sm:inline text-xs text-[var(--ink-muted)] uppercase tracking-widest">Crestbrick</span>
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
       <div class="hidden lg:flex items-center gap-6">
