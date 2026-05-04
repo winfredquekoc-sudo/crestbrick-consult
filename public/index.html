@@ -191,11 +191,35 @@
     .topnav a.nav-link:hover { color: var(--ink); }
     .topnav a.nav-link.active { color: var(--ink); }
     .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
-    /* Resources dropdown , clickable + hoverable, baseline-aligned with sibling nav links */
-    .nav-dropdown { display: inline-flex; align-items: center; }
-    .nav-dropdown-toggle { display: inline-flex; align-items: center; cursor: pointer; }
+    /* Resources dropdown — clickable + hoverable, baseline-aligned with sibling nav links */
+    .nav-dropdown { position: relative; display: inline-flex; align-items: center; }
+    .nav-dropdown-toggle {
+      display: inline-flex;
+      align-items: center;
+      cursor: pointer;
+      color: var(--ink-soft);
+      font-size: 14px;
+      font-weight: 500;
+      transition: color .15s ease;
+      line-height: 1;            /* match sibling nav-link baseline */
+      padding: 0;                /* no extra height */
+    }
+    .nav-dropdown-toggle:hover { color: var(--ink); }
+    .nav-dropdown-toggle svg { display: inline-block; vertical-align: middle; margin-left: 4px; }
+    /* Remove gap between toggle and menu so hover doesn't break when cursor moves down.
+       Use padding-top on the menu wrapper instead of margin-top so hover area is continuous. */
+    .nav-dropdown-menu {
+      position: absolute;
+      right: 0;
+      top: 100%;
+      padding-top: 8px;          /* invisible buffer so hover persists when crossing the gap */
+      display: none;
+      z-index: 50;
+    }
     .nav-dropdown:hover .nav-dropdown-menu,
-    .nav-dropdown.open .nav-dropdown-menu { display: block !important; }
+    .nav-dropdown.open .nav-dropdown-menu,
+    .nav-dropdown:focus-within .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu a { white-space: nowrap; }
 
     /* Fade-in on scroll */
     .fade-up { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
@@ -347,11 +371,9 @@
         <a class="nav-link link-underline" href="/sell">Sell</a>
         <a class="nav-link link-underline" href="/listings">Listings</a>
         <a class="nav-link link-underline" href="/insights">Insights</a>
-        <div class="nav-dropdown relative" data-nav-dropdown>
-          <a class="nav-link link-underline nav-dropdown-toggle" href="/resources" aria-haspopup="true" aria-expanded="false">Resources
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"/></svg>
-          </a>
-          <div class="nav-dropdown-menu absolute right-0 top-full mt-1 hidden z-50">
+        <div class="nav-dropdown" data-nav-dropdown>
+          <a class="nav-dropdown-toggle" href="/resources" aria-haspopup="true" aria-expanded="false">Resources<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></a>
+          <div class="nav-dropdown-menu">
             <div class="crest-card border border-[var(--rule)] rounded-lg shadow-lg py-2 min-w-[180px]">
               <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/buyers-guide">Buyers Guide</a>
               <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/sellers-guide">Sellers Guide</a>
