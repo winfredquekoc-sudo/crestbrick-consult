@@ -32,3 +32,4 @@ ruvector.db
 *-secrets.*
 *.key
 *.pem
+_api_archive/
