@@ -191,6 +191,11 @@
     .topnav a.nav-link:hover { color: var(--ink); }
     .topnav a.nav-link.active { color: var(--ink); }
     .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
+    /* Resources dropdown , clickable + hoverable, baseline-aligned with sibling nav links */
+    .nav-dropdown { display: inline-flex; align-items: center; }
+    .nav-dropdown-toggle { display: inline-flex; align-items: center; cursor: pointer; }
+    .nav-dropdown:hover .nav-dropdown-menu,
+    .nav-dropdown.open .nav-dropdown-menu { display: block !important; }
 
     /* Fade-in on scroll */
     .fade-up { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
@@ -342,11 +347,11 @@
         <a class="nav-link link-underline" href="/sell">Sell</a>
         <a class="nav-link link-underline" href="/listings">Listings</a>
         <a class="nav-link link-underline" href="/insights">Insights</a>
-        <div class="relative group">
-          <button class="nav-link flex items-center gap-1">Resources
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
-          </button>
-          <div class="absolute right-0 top-full pt-2 hidden group-hover:block z-50">
+        <div class="nav-dropdown relative" data-nav-dropdown>
+          <a class="nav-link link-underline nav-dropdown-toggle" href="/resources" aria-haspopup="true" aria-expanded="false">Resources
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="display:inline-block;vertical-align:middle;margin-left:4px;"><polyline points="6 9 12 15 18 9"/></svg>
+          </a>
+          <div class="nav-dropdown-menu absolute right-0 top-full mt-1 hidden z-50">
             <div class="crest-card border border-[var(--rule)] rounded-lg shadow-lg py-2 min-w-[180px]">
               <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/buyers-guide">Buyers Guide</a>
               <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/sellers-guide">Sellers Guide</a>
@@ -795,6 +800,33 @@
         .catch(function(){
           host.innerHTML = '<div class="col-span-full text-center text-[var(--ink-muted)] py-8"><a href="/listings" class="underline hover:text-[var(--ink)]">View all listings </a></div>';
         });
+    })();
+  </script>
+
+  <script>
+    /* Resources nav dropdown , click-to-toggle on mobile/touch, hover on desktop, link goes to /resources */
+    (function(){
+      const dd = document.querySelector('.nav-dropdown');
+      if (!dd) return;
+      const toggle = dd.querySelector('.nav-dropdown-toggle');
+      // Tap on the chevron icon (or anywhere except the link area) → toggle dropdown instead of navigating
+      toggle.addEventListener('click', function(e){
+        // Allow plain click on link to navigate to /resources
+        // Only intercept if user clicks the chevron icon
+        if (e.target.tagName === 'svg' || e.target.tagName === 'polyline' || e.target.closest('svg')) {
+          e.preventDefault();
+          dd.classList.toggle('open');
+          toggle.setAttribute('aria-expanded', dd.classList.contains('open'));
+        }
+      });
+      // Close on outside click
+      document.addEventListener('click', function(e){
+        if (!dd.contains(e.target)) dd.classList.remove('open');
+      });
+      // Close on ESC
+      document.addEventListener('keydown', function(e){
+        if (e.key === 'Escape') dd.classList.remove('open');
+      });
     })();
   </script>
 
