@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Start your strategy track · Winfred Quek</title>
+<meta name="description" content="Pick your Singapore property strategy track — Empire, Equity, or Reinvest. 10 free emails over 14 days. By Winfred Quek (CEA R073319H, Crestbrick).">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/start">
+<meta property="og:title" content="Pick your SG property strategy track">
+<meta property="og:description" content="Empire, Equity, or Reinvest. 10 free emails. Winfred Quek.">
+<meta property="og:image" content="/img/og-image.jpg">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;line-height:1.6;min-height:100vh;}
+.wrap{max-width:760px;margin:0 auto;padding:48px 24px 80px;}
+.eyebrow{color:#b48c50;font-size:12px;letter-spacing:0.3em;text-transform:uppercase;margin-bottom:14px;}
+h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0e9d8;line-height:1.1;margin-bottom:14px;letter-spacing:-0.01em;}
+.lead{color:#a89980;font-size:17px;margin-bottom:36px;max-width:580px;}
+.tracks{display:grid;grid-template-columns:1fr;gap:14px;margin-bottom:32px;}
+@media(min-width:720px){.tracks{grid-template-columns:repeat(3,1fr);}}
+.track{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:22px;cursor:pointer;transition:all .18s ease;position:relative;}
+.track:hover{border-color:rgba(180,140,80,0.6);transform:translateY(-2px);}
+.track.selected{border-color:#b48c50;background:#1f1a13;box-shadow:0 0 0 2px rgba(180,140,80,0.25);}
+.track h3{font-family:'Fraunces',serif;font-weight:400;color:#b48c50;font-size:20px;margin-bottom:8px;}
+.track p{color:#a89980;font-size:14px;line-height:1.5;}
+.track .meta{color:#7a6c54;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;margin-top:14px;}
+.track input[type=radio]{position:absolute;opacity:0;pointer-events:none;}
+.form{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:28px;}
+.form h2{font-family:'Fraunces',serif;font-weight:400;color:#f0e9d8;font-size:22px;margin-bottom:18px;}
+.field{margin-bottom:14px;}
+.field label{display:block;color:#a89980;font-size:12px;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:6px;}
+.field input{width:100%;padding:13px 14px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;font-size:15px;font-family:inherit;}
+.field input:focus{outline:none;border-color:#b48c50;}
+.field input.err{border-color:#c95a3e;}
+.consent{display:flex;align-items:flex-start;gap:10px;margin:14px 0 18px;color:#a89980;font-size:13px;line-height:1.5;}
+.consent input{margin-top:3px;flex-shrink:0;}
+.consent a{color:#b48c50;}
+.btn{background:#b48c50;color:#0e0c08;padding:14px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:600;font-size:15px;width:100%;transition:background .15s;}
+.btn:hover:not(:disabled){background:#caa56a;}
+.btn:disabled{opacity:0.55;cursor:not-allowed;}
+.note{color:#7a6c54;font-size:12px;text-align:center;margin-top:14px;}
+.msg{margin-top:14px;padding:12px;border-radius:6px;font-size:14px;display:none;}
+.msg.show{display:block;}
+.msg.ok{background:rgba(34,160,90,0.15);color:#86d99e;border:1px solid rgba(34,160,90,0.3);}
+.msg.err{background:rgba(201,90,62,0.15);color:#f0998a;border:1px solid rgba(201,90,62,0.3);}
+.foot{color:#5a544c;font-size:12px;margin-top:48px;padding-top:24px;border-top:1px solid rgba(180,140,80,0.15);}
+.foot a{color:#7a6c54;}
+.success-card{display:none;background:#1a1610;border:1px solid rgba(34,160,90,0.4);border-radius:12px;padding:36px 28px;text-align:center;}
+.success-card.show{display:block;}
+.success-card h2{font-family:'Fraunces',serif;color:#86d99e;font-weight:400;font-size:26px;margin-bottom:12px;}
+.success-card p{color:#a89980;margin-bottom:8px;}
+.success-card .check{width:48px;height:48px;border-radius:50%;background:rgba(34,160,90,0.2);color:#86d99e;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px;}
+</style>
+<link rel="stylesheet" href="/_a11y-fixes.css">
+<script defer src="/_enhance.js"></script>
+<script defer src="/_nav.js"></script>
+</head>
+<body>
+<div class="wrap">
+
+<div class="eyebrow">Crestbrick · Singapore property</div>
+<h1>Pick a track. Get 10 emails over 14 days.</h1>
+<p class="lead">Three strategy tracks for the three problems Singapore property owners actually have. Free. No fluff. Reply STOP any time.</p>
+
+<form id="signup-form" novalidate>
+  <div class="tracks">
+    <label class="track" data-track="empire">
+      <input type="radio" name="track" value="empire" required>
+      <h3>Empire</h3>
+      <p>Building 3+ properties without ABSD eating you alive.</p>
+      <div class="meta">For investors · 10 emails</div>
+    </label>
+    <label class="track" data-track="equity">
+      <input type="radio" name="track" value="equity" required>
+      <h3>Equity</h3>
+      <p>Pulling trapped equity out of your current property — safely.</p>
+      <div class="meta">For HDB upgraders · 10 emails</div>
+    </label>
+    <label class="track" data-track="reinvest">
+      <input type="radio" name="track" value="reinvest" required>
+      <h3>Reinvest</h3>
+      <p>Selling smart and reinvesting before tax + rates erode you.</p>
+      <div class="meta">For sellers · 10 emails</div>
+    </label>
+  </div>
+
+  <div class="form">
+    <h2>Where should I send them?</h2>
+    <div class="field">
+      <label for="name">Your name</label>
+      <input id="name" name="name" type="text" autocomplete="name" required>
+    </div>
+    <div class="field">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email" autocomplete="email" required>
+    </div>
+    <div class="field">
+      <label for="phone">Mobile (Singapore +65)</label>
+      <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="9XXX XXXX" required>
+    </div>
+    <label class="consent">
+      <input id="consent" type="checkbox" required>
+      <span>I'm OK with Winfred contacting me by email + WhatsApp about this track. <a href="/privacy">Privacy</a>.</span>
+    </label>
+    <button type="submit" class="btn" id="submit-btn">Start the track</button>
+    <div class="note">No spam. Unsubscribe in one click. PDPA-aligned.</div>
+    <div id="msg" class="msg"></div>
+  </div>
+</form>
+
+<div id="success" class="success-card">
+  <div class="check">✓</div>
+  <h2>You're in.</h2>
+  <p>Day 1 lands in your inbox tomorrow morning.</p>
+  <p style="margin-top:14px;color:#7a6c54;font-size:13px;">If urgent: <a href="https://wa.me/6581618149" style="color:#b48c50;">WhatsApp me directly</a>.</p>
+</div>
+
+<div class="foot">
+  <p><strong style="color:#a89980;">Winfred Quek</strong> · CEA R073319H · Crestbrick Pte Ltd</p>
+  <p style="margin-top:6px;">Singapore property strategist. Investor-minded, not agent-minded.</p>
+  <p style="margin-top:14px;"><a href="/">Home</a> · <a href="/services/portfolio-audit">Strategy enquiry</a> · <a href="/privacy">Privacy</a></p>
+</div>
+
+</div>
+
+<script>
+(function(){
+  const form = document.getElementById('signup-form');
+  const btn = document.getElementById('submit-btn');
+  const msg = document.getElementById('msg');
+  const success = document.getElementById('success');
+  const tracks = document.querySelectorAll('.track');
+
+  // Track card selection styling
+  tracks.forEach(t => {
+    t.addEventListener('click', () => {
+      tracks.forEach(x => x.classList.remove('selected'));
+      t.classList.add('selected');
+    });
+  });
+
+  // Pre-fill track from URL ?t=empire
+  const params = new URLSearchParams(location.search);
+  const preselect = params.get('t');
+  if (preselect && ['empire','equity','reinvest'].includes(preselect)) {
+    const card = document.querySelector(`.track[data-track="${preselect}"]`);
+    if (card) {
+      card.querySelector('input').checked = true;
+      card.classList.add('selected');
+    }
+  }
+
+  function setMsg(text, kind){ msg.textContent = text; msg.className = 'msg show ' + (kind||''); }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.className = 'msg';
+
+    const fd = new FormData(form);
+    const data = {
+      name: fd.get('name')?.trim(),
+      email: fd.get('email')?.trim(),
+      phone: fd.get('phone')?.trim(),
+      track: fd.get('track'),
+      consent: document.getElementById('consent').checked,
+      source: params.get('src') || 'start_page'
+    };
+
+    if (!data.track) return setMsg('Pick a track first.', 'err');
+    if (!data.name) return setMsg('Name?', 'err');
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email||'')) return setMsg('Email looks off.', 'err');
+    if (!data.phone || data.phone.replace(/\D/g,'').length < 8) return setMsg('Mobile looks off.', 'err');
+    if (!data.consent) return setMsg('Tick the consent box.', 'err');
+
+    btn.disabled = true; btn.textContent = 'Sending…';
+
+    try {
+      const r = await fetch('/api/drip-signup', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(data)
+      });
+      const d = await r.json();
+      if (d.ok) {
+        form.style.display = 'none';
+        success.classList.add('show');
+        if (window.gtag) gtag('event', 'drip_signup', {track: data.track});
+      } else {
+        setMsg(d.error === 'invalid_email' ? 'Email looks off.' : d.error === 'invalid_phone' ? 'Mobile looks off.' : 'Hmm, try again.', 'err');
+        btn.disabled = false; btn.textContent = 'Start the track';
+      }
+    } catch (err) {
+      setMsg('Network error — try again.', 'err');
+      btn.disabled = false; btn.textContent = 'Start the track';
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>HDB EIP / SPR Quota Checker · Winfred Quek</title>
+<meta name="description" content="Check if your HDB resale flat is sellable to your ethnic group under the Ethnic Integration Policy (EIP) and SPR quota.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/hdb-eip-checker">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:560px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:24px;padding:20px;background:#171410;border-left:4px solid #b48c50;border-radius:8px;}.result.show{display:block;}.verdict{font-family:'Fraunces',serif;font-size:24px;color:#b48c50;margin-bottom:10px;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}.factbox{background:#171410;padding:14px;border-radius:6px;font-size:13px;color:#a89980;margin-top:14px;line-height:1.7;}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>HDB EIP / SPR Quota Checker</h1>
+<div class="lead">Two quotas govern HDB resale: Ethnic Integration Policy (EIP) and SPR quota. If your block is at quota for the buyer's group, the sale can't proceed. Check before you list.</div>
+<div class="card">
+<label><span>Block / neighbourhood</span><input id="block" placeholder="e.g. 142 Tampines St 12" /></label>
+<label><span>Your ethnic group (seller)</span><select id="seller"><option>Chinese</option><option>Malay</option><option>Indian / Other</option></select></label>
+<label><span>Target buyer's ethnic group</span><select id="buyer"><option>Chinese</option><option>Malay</option><option>Indian / Other</option></select></label>
+<label><span>Target buyer is SPR (not SC)?</span><select id="spr"><option value="no">No - Singapore Citizen</option><option value="yes">Yes - SPR</option></select></label>
+<button class="btn" onclick="check()">Check eligibility</button>
+</div>
+<div id="result" class="result">
+<div class="verdict" id="verdict"></div>
+<div id="rationale"></div>
+<div class="factbox"><b>How EIP works:</b> HDB sets max % per ethnic group per block + neighbourhood. When a block hits quota for an ethnicity, no buyer of that ethnicity can purchase resale flats in that block, regardless of price. Quotas are: Chinese 84% block / 87% neighbourhood; Malay 22% / 25%; Indian/Other 12% / 15%. SPR quota: 5% per block / 8% per neighbourhood for non-Malaysian SPRs.<br><br>This tool gives a directional check - <b>verify against the live HDB website</b> before listing or offering: <a href="https://services2.hdb.gov.sg/web/fi10/emap.html" style="color:#b48c50;">HDB EIP eMap</a>.</div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20need%20to%20check%20EIP%20for%20a%20specific%20HDB%20listing.">Want me to verify a specific block? WA me →</a></div>
+<script>
+function check(){
+const seller=document.getElementById('seller').value;
+const buyer=document.getElementById('buyer').value;
+const spr=document.getElementById('spr').value;
+let verdict='', rationale='';
+if (seller===buyer){verdict='✓ EIP NOT BLOCKING';rationale='Same ethnic group as seller - the block already counts you in quota, so transferring within group does not change the count.';}
+else {verdict='⚠ VERIFY EIP STATUS';rationale=`Cross-ethnic transfer (${seller} seller → ${buyer} buyer). Check live HDB EIP eMap for this block. If buyer's group is at quota, sale blocked. If under quota, fine.`;}
+if (spr==='yes'){rationale+='<br><br><b>+ SPR quota check:</b> Buyer is SPR. Verify SPR quota at block (5%) and neighbourhood (8%). At cap = blocked regardless of EIP.';}
+document.getElementById('verdict').textContent=verdict;
+document.getElementById('rationale').innerHTML=rationale;
+document.getElementById('result').classList.add('show');
+}
+</script>
+</div></body></html>

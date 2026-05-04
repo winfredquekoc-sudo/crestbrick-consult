@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>HDB Resale Levy Calculator · Winfred Quek</title>
+<meta name="description" content="Calculate your HDB resale levy when buying a second subsidised flat or EC.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/resale-levy-calculator">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:560px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:24px;padding:20px;background:#171410;border-left:4px solid #b48c50;border-radius:8px;}.result.show{display:block;}.amt{font-family:'Fraunces',serif;font-size:42px;color:#b48c50;text-align:center;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>HDB Resale Levy</h1>
+<div class="lead">If you took a subsidised flat (BTO/SBF) and now want a second BTO or EC, you owe a resale levy. Quick check.</div>
+<div class="card">
+<label><span>First flat type (the one you sold or are selling)</span><select id="first">
+<option value="2r">2-room flexi (S$15,000)</option>
+<option value="3r">3-room (S$30,000)</option>
+<option value="4r">4-room (S$40,000)</option>
+<option value="5r">5-room (S$45,000)</option>
+<option value="exec">Executive flat (S$50,000)</option>
+<option value="ec">Executive Condo (S$55,000)</option>
+</select></label>
+<label><span>Are you buying a second subsidised flat (BTO/SBF) or new EC?</span><select id="second">
+<option value="yes">Yes - levy applies</option>
+<option value="no">No - buying resale HDB / private (no levy)</option>
+</select></label>
+<button class="btn" onclick="calc()">Calculate levy</button>
+</div>
+<div id="result" class="result">
+<div class="amt" id="amt"></div>
+<div style="text-align:center;color:#7a6c54;font-size:13px;margin:8px 0 16px;text-transform:uppercase;letter-spacing:0.1em;">Resale levy payable</div>
+<div id="note" style="color:#a89980;font-size:14px;line-height:1.7;"></div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27m%20planning%20a%20second%20HDB%20purchase%20and%20want%20to%20talk%20levy%20strategy.">Want a fuller upgrade math? WA me →</a></div>
+<script>
+function calc(){
+const first=document.getElementById('first').value;
+const second=document.getElementById('second').value;
+const levy={'2r':15000,'3r':30000,'4r':40000,'5r':45000,'exec':50000,'ec':55000};
+const amt=levy[first];
+let display, note;
+if (second==='no'){display='S$0';note='No resale levy. You only owe the levy when buying a second SUBSIDISED flat (BTO, SBF, EC). Resale HDB and private property do not trigger levy.';}
+else {display='S$'+amt.toLocaleString();note=`<b>Levy of S$${amt.toLocaleString()}</b> payable to HDB at the second flat purchase. Levy is paid via cash/CPF at second flat completion. Strategy: this is non-recoverable - factor it into the upgrade math when comparing BTO vs resale paths.`;}
+document.getElementById('amt').textContent=display;
+document.getElementById('note').innerHTML=note;
+document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

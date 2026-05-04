@@ -1,0 +1,150 @@
+{
+  "_updated": "2026-05-03",
+  "_source": "URA Q1 2026 baseline + caveats; refreshed weekly",
+  "districts": {
+    "D1": {
+      "name": "Raffles Place / Marina",
+      "yield": 2.8,
+      "avg_psf": 2850,
+      "med_rent": 4500
+    },
+    "D2": {
+      "name": "Anson / Tanjong Pagar",
+      "yield": 3.0,
+      "avg_psf": 2700,
+      "med_rent": 4200
+    },
+    "D3": {
+      "name": "Queenstown / Tiong Bahru",
+      "yield": 3.4,
+      "avg_psf": 2400,
+      "med_rent": 4500
+    },
+    "D4": {
+      "name": "Sentosa / Harbourfront",
+      "yield": 2.5,
+      "avg_psf": 2900,
+      "med_rent": 4800
+    },
+    "D5": {
+      "name": "Pasir Panjang / Clementi",
+      "yield": 3.5,
+      "avg_psf": 2150,
+      "med_rent": 4200
+    },
+    "D8": {
+      "name": "Little India / Farrer Park",
+      "yield": 3.6,
+      "avg_psf": 2300,
+      "med_rent": 4200
+    },
+    "D9": {
+      "name": "Orchard / River Valley",
+      "yield": 2.6,
+      "avg_psf": 3300,
+      "med_rent": 5500
+    },
+    "D10": {
+      "name": "Bukit Timah / Holland",
+      "yield": 2.9,
+      "avg_psf": 2950,
+      "med_rent": 5200
+    },
+    "D11": {
+      "name": "Novena / Newton",
+      "yield": 3.1,
+      "avg_psf": 2750,
+      "med_rent": 4800
+    },
+    "D12": {
+      "name": "Balestier / Toa Payoh",
+      "yield": 3.5,
+      "avg_psf": 2200,
+      "med_rent": 4200
+    },
+    "D14": {
+      "name": "Geylang / Eunos",
+      "yield": 3.8,
+      "avg_psf": 1900,
+      "med_rent": 3600
+    },
+    "D15": {
+      "name": "East Coast / Katong",
+      "yield": 3.2,
+      "avg_psf": 2400,
+      "med_rent": 4500
+    },
+    "D16": {
+      "name": "Bedok / Upper East Coast",
+      "yield": 3.6,
+      "avg_psf": 1850,
+      "med_rent": 3800
+    },
+    "D17": {
+      "name": "Changi / Loyang",
+      "yield": 3.7,
+      "avg_psf": 1700,
+      "med_rent": 3400
+    },
+    "D18": {
+      "name": "Tampines / Pasir Ris",
+      "yield": 3.9,
+      "avg_psf": 1650,
+      "med_rent": 3500
+    },
+    "D19": {
+      "name": "Serangoon / Hougang / Punggol",
+      "yield": 3.7,
+      "avg_psf": 1850,
+      "med_rent": 3700
+    },
+    "D20": {
+      "name": "Bishan / Ang Mo Kio",
+      "yield": 3.5,
+      "avg_psf": 2050,
+      "med_rent": 3900
+    },
+    "D21": {
+      "name": "Upper Bukit Timah",
+      "yield": 3.2,
+      "avg_psf": 2200,
+      "med_rent": 4000
+    },
+    "D22": {
+      "name": "Jurong / Boon Lay",
+      "yield": 3.8,
+      "avg_psf": 1750,
+      "med_rent": 3500
+    },
+    "D23": {
+      "name": "Hillview / Bukit Panjang",
+      "yield": 3.6,
+      "avg_psf": 1850,
+      "med_rent": 3500
+    },
+    "D25": {
+      "name": "Kranji / Woodlands",
+      "yield": 3.7,
+      "avg_psf": 1650,
+      "med_rent": 3200
+    },
+    "D26": {
+      "name": "Upper Thomson / Springleaf",
+      "yield": 3.4,
+      "avg_psf": 2100,
+      "med_rent": 3900
+    },
+    "D27": {
+      "name": "Yishun / Sembawang",
+      "yield": 3.7,
+      "avg_psf": 1700,
+      "med_rent": 3300
+    },
+    "D28": {
+      "name": "Seletar / Yio Chu Kang",
+      "yield": 3.5,
+      "avg_psf": 1800,
+      "med_rent": 3500
+    }
+  }
+}

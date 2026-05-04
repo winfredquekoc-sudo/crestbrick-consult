@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>HDB-to-Condo Upgrade ROI · Winfred Quek</title>
+<meta name="description" content="Calculate 5/10/15-year equity curves for upgrading HDB to condo in Singapore.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/upgrade-roi">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:680px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
+.lead{color:#a89980;margin:8px 0 28px;line-height:1.6;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}
+label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}
+input{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}
+.row{display:flex;gap:14px;}.row label{flex:1;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;margin-top:24px;}.result.show{display:block;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{background:#171410;padding:8px;text-align:left;color:#b48c50;font-size:12px;letter-spacing:0.05em;}
+td{padding:10px;border-bottom:1px solid rgba(180,140,80,0.1);}
+.cta{margin-top:24px;text-align:center;}
+.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>HDB-to-Condo Upgrade ROI</h1>
+<div class="lead">5/10/15-year equity curves: stay in HDB vs upgrade to condo. The right answer is rarely "always upgrade".</div>
+
+<div class="card">
+<div class="row">
+<label><span>Current HDB value (S$)</span><input id="hdb_val" type="number" value="650000"/></label>
+<label><span>HDB outstanding loan (S$)</span><input id="hdb_loan" type="number" value="200000"/></label>
+</div>
+<div class="row">
+<label><span>Target condo price (S$)</span><input id="condo_price" type="number" value="1500000"/></label>
+<label><span>Cash on hand for top-up (S$)</span><input id="cash" type="number" value="200000"/></label>
+</div>
+<div class="row">
+<label><span>HDB appreciation (%/yr)</span><input id="hdb_app" type="number" value="2" step="0.1"/></label>
+<label><span>Condo appreciation (%/yr)</span><input id="condo_app" type="number" value="3.5" step="0.1"/></label>
+</div>
+<button class="btn" onclick="calc()">Show me the curves</button>
+</div>
+
+<div id="result" class="result">
+<div class="card">
+<table>
+<thead><tr><th>Year</th><th>Stay in HDB</th><th>Upgrade to Condo</th><th>Diff</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+<div style="margin-top:14px;color:#7a6c54;font-size:12px;line-height:1.6;" id="note"></div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20ran%20the%20upgrade%20ROI%20calculator%20and%20want%20to%20chat.">Run YOUR specific numbers with me →</a></div>
+</div>
+
+<script>
+function calc(){
+  const hdbV0 = +document.getElementById('hdb_val').value;
+  const hdbL0 = +document.getElementById('hdb_loan').value;
+  const condoP = +document.getElementById('condo_price').value;
+  const cash = +document.getElementById('cash').value;
+  const hdbApp = +document.getElementById('hdb_app').value/100;
+  const condoApp = +document.getElementById('condo_app').value/100;
+
+  // Stay-in-HDB: equity = hdb value - loan + 0 (no top-up needed)
+  // Upgrade: sell HDB, downpay condo with proceeds + cash, take 75% LTV loan
+  const proceeds = hdbV0 - hdbL0 - 5000; // ~5k legal/agent
+  const totalDown = proceeds + cash;
+  const condoLoan0 = condoP - totalDown;
+  // BSD on condo
+  const tiers = [[180000,0.01],[180000,0.02],[640000,0.03],[500000,0.04],[1500000,0.05],[Infinity,0.06]];
+  let bsd = 0, rem = condoP;
+  for (const [s,r] of tiers){ const slc = Math.min(rem,s); bsd += slc*r; rem -= slc; if (rem<=0) break; }
+  const upfront = bsd + 5000; // BSD + legal
+  const upgradeStartEq = totalDown - upfront; // equity post-purchase
+
+  let hdbV = hdbV0, hdbL = hdbL0;
+  let condoV = condoP, condoL = condoLoan0;
+  let stayEq, upgEq;
+  const tb = document.getElementById('tbody');
+  tb.innerHTML = '';
+  const fmt = n => 'S$' + Math.round(n).toLocaleString();
+
+  for (let y = 1; y <= 15; y++) {
+    hdbV *= (1+hdbApp); hdbL *= 0.97; // light amortisation
+    condoV *= (1+condoApp); condoL *= 0.97;
+    stayEq = hdbV - hdbL;
+    upgEq = condoV - condoL;
+    if ([5,10,15].includes(y)) {
+      const diff = upgEq - stayEq;
+      tb.insertAdjacentHTML('beforeend', `<tr><td>Y${y}</td><td>${fmt(stayEq)}</td><td>${fmt(upgEq)}</td><td>${fmt(diff)}</td></tr>`);
+    }
+  }
+
+  document.getElementById('note').innerHTML = `Upfront cost of upgrade (BSD + legal): ${fmt(upfront)}. Cashflow gap during upgrade is excluded  --  model that separately. ABSD only triggers if you keep the HDB AND buy condo (this calc assumes sell-first).`;
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

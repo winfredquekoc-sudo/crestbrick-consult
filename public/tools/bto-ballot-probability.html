@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>BTO Ballot Probability Estimator · Winfred Quek</title>
+<meta name="description" content="Estimate your BTO ballot odds based on town, flat type, and applicant profile. Historical SG oversubscription data.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/bto-ballot-probability">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:560px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.row{display:flex;gap:14px;}.row label{flex:1;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:24px;padding:20px;background:#171410;border-left:4px solid #b48c50;border-radius:8px;}.result.show{display:block;}.prob{font-family:'Fraunces',serif;font-size:48px;color:#b48c50;text-align:center;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>BTO Ballot Probability</h1>
+<div class="lead">Rough estimate based on historical 2023-2025 oversubscription rates. Useful for "should I apply for this BTO or go resale?" decision.</div>
+<div class="card">
+<label><span>Town tier</span><select id="town">
+<option value="mature_central">Mature central (Bishan, Toa Payoh, Queenstown)</option>
+<option value="mature">Mature (Tampines, Bedok, Ang Mo Kio, Hougang)</option>
+<option value="non_mature_popular">Non-mature popular (Punggol, Sengkang)</option>
+<option value="non_mature_emerging">Non-mature emerging (Tengah, Bidadari)</option>
+<option value="non_mature_quiet">Non-mature quiet (Yishun, Woodlands, Jurong)</option>
+</select></label>
+<label><span>Flat type</span><select id="ftype">
+<option value="2r">2-room flexi</option>
+<option value="3r">3-room</option>
+<option value="4r">4-room</option>
+<option value="5r">5-room</option>
+<option value="3gen">3Gen</option>
+</select></label>
+<label><span>Applicant priority scheme</span><select id="scheme">
+<option value="none">First-timer, no scheme</option>
+<option value="married_parent">Married Parent Priority</option>
+<option value="senior">Senior Priority Scheme</option>
+<option value="multi_gen">Multi-Generation Priority</option>
+<option value="second">Second-timer</option>
+</select></label>
+<button class="btn" onclick="calc()">Estimate odds</button>
+</div>
+<div id="result" class="result">
+<div class="prob" id="prob"></div>
+<div style="text-align:center;color:#7a6c54;font-size:13px;margin:8px 0 16px;text-transform:uppercase;letter-spacing:0.1em;">Estimated probability of being shortlisted</div>
+<div id="rationale" style="color:#a89980;font-size:14px;line-height:1.7;"></div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27m%20deciding%20BTO%20vs%20resale%20and%20want%20to%20talk%20strategy.">BTO vs resale strategy? WA me →</a></div>
+<script>
+function calc(){
+const town=document.getElementById('town').value;
+const ftype=document.getElementById('ftype').value;
+const scheme=document.getElementById('scheme').value;
+// Approximate historical oversubscription rates 2023-2025
+const baseProb={
+'mature_central':{'2r':0.05,'3r':0.08,'4r':0.10,'5r':0.12,'3gen':0.20},
+'mature':{'2r':0.10,'3r':0.15,'4r':0.18,'5r':0.20,'3gen':0.30},
+'non_mature_popular':{'2r':0.20,'3r':0.30,'4r':0.35,'5r':0.40,'3gen':0.50},
+'non_mature_emerging':{'2r':0.30,'3r':0.45,'4r':0.50,'5r':0.55,'3gen':0.65},
+'non_mature_quiet':{'2r':0.50,'3r':0.65,'4r':0.70,'5r':0.75,'3gen':0.85}
+};
+let p=baseProb[town][ftype];
+const schemeMult={'none':1,'married_parent':1.6,'senior':1.4,'multi_gen':1.5,'second':0.5};
+p=Math.min(0.95,p*schemeMult[scheme]);
+const pct=Math.round(p*100);
+document.getElementById('prob').textContent=pct+'%';
+let advice='';
+if (pct<15) advice='Very low. Resale is likely faster + cheaper if you cannot wait 2-3 cycles.';
+else if (pct<35) advice='Low. Plan for 2 application cycles minimum. Have a resale Plan B.';
+else if (pct<60) advice='Moderate. Reasonable to apply, but do not bank on first try.';
+else advice='Decent odds. Worth applying if your timeline allows 4-5 years to keys.';
+document.getElementById('rationale').innerHTML=`<b>Read:</b> ${advice}<br><br><b>Note:</b> Real ballot is RANDOM after priority filtering - this estimates your odds of being SHORTLISTED, not assigned a specific unit you want. Actual unit selection comes 4-6 months after ballot.<br><br><b>Sources:</b> Historical 2023-2025 application rates from HDB. Always verify current cycle subscription rates.`;
+document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

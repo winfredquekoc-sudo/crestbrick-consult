@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Property Affordability Calculator Singapore  --  TDSR & MSR | Winfred Quek</title>
+  <title>Property Affordability Calculator Singapore   --   TDSR & MSR | Winfred Quek</title>
   <meta name="description" content="Free Singapore property affordability calculator. Max loan + max purchase price under TDSR 55% (private) or MSR 30% (HDB/EC). 4% stress-test rate applied. By Winfred Quek, Crestbrick." />
-  <meta property="og:title" content="Affordability Calculator Singapore  --  Winfred Quek" />
+  <meta property="og:title" content="Affordability Calculator Singapore   --   Winfred Quek" />
   <meta property="og:description" content="Max loan + max price under TDSR/MSR. 4% stress-test applied." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/img/og-image.jpg" />
@@ -23,7 +24,10 @@
 <style>
     .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
   </style>
-</head>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"How to use the Singapore Property Affordability Calculator","description":"Step-by-step instructions to test mortgage affordability against TDSR and MSR using the 4% stress-test rate.","step":[{"@type":"HowToStep","position":1,"name":"Enter your gross monthly income","text":"Include all evidenced income sources. Variable income may be haircut by the bank."},{"@type":"HowToStep","position":2,"name":"List existing debt obligations","text":"Car loans, student loans, credit card minimum, existing mortgages  --  all contribute to TDSR."},{"@type":"HowToStep","position":3,"name":"Choose property type and price","text":"Private vs HDB / EC determines whether MSR applies (HDB / EC only)."},{"@type":"HowToStep","position":4,"name":"Review the maximum loan","text":"Calculator stress-tests at 4% medium-term rate, applies 55% TDSR and 30% MSR (if applicable)."},{"@type":"HowToStep","position":5,"name":"Adjust deposit and tenure","text":"Tweak loan tenure (max 30 years private, 25 HDB) and down payment to find the affordability ceiling."}]}
+</script>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
 <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -114,6 +118,17 @@
 
   <p class="mt-6 text-xs text-[var(--ink-muted)]">Figures are estimates for planning purposes. Verify with your banker and solicitor before committing.</p>
 </section>
+
+<aside class="max-w-3xl mx-auto px-6 my-12">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-3">Related reading</p>
+  <h3 class="serif text-2xl font-semibold mb-5">Go deeper on the math.</h3>
+  <div class="grid md:grid-cols-3 gap-3">
+      <a href="/insights/tdsr-stress-test-explained" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Read</p><p class="serif text-[var(--ink)] font-semibold leading-snug">TDSR Stress Test Explained</p></a>
+      <a href="/insights/cpf-accrued-interest-trap" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Read</p><p class="serif text-[var(--ink)] font-semibold leading-snug">The CPF Accrued Interest Trap</p></a>
+      <a href="/insights/hdb-mop-upgrade-timeline" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Read</p><p class="serif text-[var(--ink)] font-semibold leading-snug">HDB MOP to Condo Upgrade Timeline</p></a>
+  </div>
+</aside>
+
 </main>
 
 <footer class="divider bg-[var(--bg)]">

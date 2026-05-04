@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Should I Sell Now? · Winfred Quek</title>
+<meta name="description" content="5-question decision tool: SELL NOW / WAIT / RESTRUCTURE / RENT-OUT verdict for SG property owners.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/should-i-sell">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:540px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
+.lead{color:#a89980;margin:8px 0 28px;line-height:1.6;}
+.q{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:20px;margin-bottom:14px;}
+.q .lbl{font-size:14px;color:#b48c50;margin-bottom:10px;}
+.opts label{display:block;padding:10px 14px;background:#0e0c08;border:1px solid rgba(180,140,80,0.2);border-radius:6px;margin-bottom:6px;cursor:pointer;font-size:14px;}
+.opts label:hover{border-color:#b48c50;}
+.opts input{margin-right:8px;}
+.opts input:checked + span{color:#b48c50;font-weight:500;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;background:#171410;border-left:4px solid #b48c50;padding:24px;border-radius:8px;margin-top:24px;}
+.result.show{display:block;}
+.verdict{font-family:'Fraunces',serif;font-size:26px;color:#b48c50;margin-bottom:12px;}
+.rationale{color:#f0e9d8;line-height:1.7;margin-bottom:18px;}
+.cta a{display:inline-block;background:#b48c50;color:#0e0c08;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:500;}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>Should I sell now?</h1>
+<div class="lead">5 questions, 1 verdict. Honest answer  --  not "every market is a good market for sellers".</div>
+
+<form id="qform">
+<div class="q"><div class="lbl">1. How long have you owned this property?</div>
+<div class="opts">
+<label><input type="radio" name="q1" value="ssd"><span>&lt; 3 years (still in SSD)</span></label>
+<label><input type="radio" name="q1" value="ok"><span>3–5 years</span></label>
+<label><input type="radio" name="q1" value="long"><span>5+ years</span></label>
+</div></div>
+
+<div class="q"><div class="lbl">2. What's your primary motivation?</div>
+<div class="opts">
+<label><input type="radio" name="q2" value="upgrade"><span>Upgrade to bigger / better property</span></label>
+<label><input type="radio" name="q2" value="cash"><span>Need cash / liquidity</span></label>
+<label><input type="radio" name="q2" value="absd"><span>Decouple to dodge ABSD on next purchase</span></label>
+<label><input type="radio" name="q2" value="exit"><span>Exit market entirely</span></label>
+</div></div>
+
+<div class="q"><div class="lbl">3. Has your property gone up vs purchase price?</div>
+<div class="opts">
+<label><input type="radio" name="q3" value="up_lot"><span>Up &gt;20%</span></label>
+<label><input type="radio" name="q3" value="up_some"><span>Up 5–20%</span></label>
+<label><input type="radio" name="q3" value="flat"><span>Flat / down (negative equity)</span></label>
+</div></div>
+
+<div class="q"><div class="lbl">4. Do you have an alternative property in mind?</div>
+<div class="opts">
+<label><input type="radio" name="q4" value="locked"><span>Yes, already shortlisted</span></label>
+<label><input type="radio" name="q4" value="thinking"><span>Browsing, no specific pick</span></label>
+<label><input type="radio" name="q4" value="no"><span>No, would rent / move in with family</span></label>
+</div></div>
+
+<div class="q"><div class="lbl">5. Could you afford to hold 12 more months if rates spiked 1pp?</div>
+<div class="opts">
+<label><input type="radio" name="q5" value="yes"><span>Yes, comfortably</span></label>
+<label><input type="radio" name="q5" value="tight"><span>Tight but yes</span></label>
+<label><input type="radio" name="q5" value="no"><span>No, would be stretched</span></label>
+</div></div>
+
+<button type="button" class="btn" onclick="decide()">Show my verdict</button>
+</form>
+
+<div id="result" class="result">
+<div class="verdict" id="verdict"></div>
+<div class="rationale" id="rationale"></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20got%20a%20verdict%20on%20your%20Should-I-Sell%20tool%20and%20want%20to%20talk.">Run my actual numbers with Winfred →</a></div>
+</div>
+
+<script>
+function decide(){
+  const f = document.getElementById('qform');
+  const a = {};
+  for (const r of f.querySelectorAll('input:checked')) a[r.name] = r.value;
+  if (Object.keys(a).length < 5) { alert('Pick all 5 first.'); return; }
+  let verdict = '', rationale = '';
+
+  if (a.q1 === 'ssd' && a.q2 !== 'cash') {
+    verdict = 'WAIT';
+    rationale = 'You\'re still in SSD (Seller Stamp Duty) territory. Selling now means giving up 4-12% of sale price to IRAS. Unless you NEED the cash, hold until SSD expires.';
+  } else if (a.q3 === 'flat' && a.q5 !== 'no') {
+    verdict = 'WAIT';
+    rationale = 'Selling at flat or negative equity locks in the loss. You\'re not under cashflow pressure (Q5). Use the next 12-24 months to reach breakeven before deciding.';
+  } else if (a.q2 === 'absd') {
+    verdict = 'RESTRUCTURE (don\'t sell)';
+    rationale = 'You\'re selling to dodge ABSD  --  but restructuring (transferring spouse\'s share) is usually cheaper. BSD on the transferred share is 3-5%, vs 20%+ ABSD on the new buy. Run the math at /tools/decoupling-breakeven before listing.';
+  } else if (a.q2 === 'upgrade' && a.q4 === 'locked' && a.q5 !== 'no') {
+    verdict = 'SELL  --  but coordinate with the next buy';
+    rationale = 'Upgrade math works when (a) you have a target, (b) you can carry both temporarily, (c) sequencing minimizes ABSD exposure. Sell-then-buy avoids ABSD; buy-then-sell needs the 6-month disposal window. This is the right window  --  but timing matters.';
+  } else if (a.q2 === 'cash') {
+    verdict = 'CONSIDER ALTERNATIVES FIRST';
+    rationale = 'Selling for cash is the most expensive way to access equity (BSD on next purchase, transaction costs, market-timing risk). Cheaper alternatives: (1) cash-out refi, (2) home equity loan, (3) sell only if rate sunk-cost makes refi unattractive. Run /tools/refinance-savings.';
+  } else if (a.q5 === 'no') {
+    verdict = 'SELL (cashflow first)';
+    rationale = 'You\'re stretched. Selling now de-risks. Don\'t maximise  --  exit cleanly. List 5% above last comparable sale, accept first reasonable offer.';
+  } else if (a.q4 === 'no') {
+    verdict = 'RENT OUT INSTEAD';
+    rationale = 'No alternative property + comfortable holding = you\'re selling on autopilot. Convert to rental, capture yield + appreciation, sell later when the upgrade thesis is concrete.';
+  } else {
+    verdict = 'CONSULT BEFORE DECIDING';
+    rationale = 'Your situation has competing signals (e.g. mid-cycle, no urgent driver). Worth 30 minutes with someone investor-minded to look at all your options at once.';
+  }
+  document.getElementById('verdict').textContent = verdict;
+  document.getElementById('rationale').textContent = rationale;
+  document.getElementById('result').classList.add('show');
+}
+</script>
+</div></body></html>

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>60% ABSD Calculator for Foreign Buyers · Winfred Quek</title>
+<meta name="description" content="Singapore 60% ABSD on foreign buyers, with worked scenarios. Calculate the actual cost + smarter alternatives.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/foreign-buyer-absd">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:720px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;margin-bottom:6px;}
+.sub-hd{color:#b48c50;font-size:14px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:18px;}
+.lead{color:#a89980;line-height:1.7;margin-bottom:28px;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}
+label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}
+input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;font-size:15px;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;background:#171410;border-left:4px solid #b48c50;padding:24px;border-radius:8px;margin-top:18px;}
+.result.show{display:block;}
+.row-r{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(180,140,80,0.1);}
+.row-r:last-child{border-bottom:none;font-weight:600;font-size:18px;color:#b48c50;padding-top:14px;}
+.alt-card{background:#171410;border-left:3px solid #3ddc84;padding:16px;border-radius:6px;margin-top:12px;}
+.alt-card h3{font-size:14px;color:#3ddc84;margin-bottom:6px;}
+.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+h2{font-family:'Fraunces',serif;font-size:20px;font-weight:400;margin:24px 0 10px;color:#b48c50;}
+.factbox{background:#171410;padding:16px;border-radius:8px;font-size:14px;line-height:1.7;}
+.factbox b{color:#b48c50;}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<div class="sub-hd">For Foreign Buyers</div>
+<h1>60% ABSD Calculator</h1>
+<div class="lead">Since 27 Apr 2023, foreign buyers pay <b style="color:#ff8a65;">60% ABSD</b> on every Singapore residential purchase  --  on top of BSD. That's an extra S$1.2M on a S$2M property. This page tells you the real cost  --  and the legitimate alternatives.</div>
+
+<h2>Calculate</h2>
+<div class="card">
+<label><span>Property purchase price (S$)</span><input id="price" type="number" value="2000000"/></label>
+<label><span>Buyer profile</span>
+<select id="prof">
+  <option value="60">Foreigner (non-PR, non-SC)  --  60%</option>
+  <option value="30">PR (1st property)  --  5%; (2nd)  --  30%</option>
+  <option value="20">SC (2nd property)  --  20%</option>
+  <option value="0">SC (1st property)  --  0%</option>
+</select>
+</label>
+<button class="btn" onclick="calc()">Calculate</button>
+</div>
+
+<div id="result" class="result">
+<h2 style="margin-top:0;">Total stamp duty</h2>
+<div class="row-r"><span>BSD (tiered)</span><span id="bsd"></span></div>
+<div class="row-r"><span>ABSD</span><span id="absd"></span></div>
+<div class="row-r"><span>Total upfront stamp duty</span><span id="total"></span></div>
+<div class="row-r"><span>As % of purchase price</span><span id="pct"></span></div>
+</div>
+
+<h2>Alternatives if you're a foreigner</h2>
+<div class="factbox">
+<b>1. Marry an SC/PR (joint purchase as occupier).</b> ABSD on the household is determined by the highest-tier profile. SC + Foreigner = SC's 0% on 1st property (but only if structure is right  --  get this wrong and full 60% applies).
+<br><br>
+<b>2. Buy under a Singapore corporate vehicle (Pte Ltd).</b> Trust + corporate rate is 65% (yes, higher)  --  but this only works for specific commercial scenarios. Generally NOT a workaround for residential.
+<br><br>
+<b>3. Sengkang/Tengah landed (PR exception).</b> Some FTAs exempt nationals (US, Switzerland, Norway, Liechtenstein, Iceland) from ABSD entirely on residential. If you're from one of these countries, you pay SC rates.
+<br><br>
+<b>4. Wait for PR.</b> PR (1st property) ABSD is 5%. The 55pp delta = a meaningful reason to apply.
+<br><br>
+<b>5. Commercial/industrial property.</b> No ABSD. But yields are different + tenant risk profile differs.
+</div>
+
+<div class="cta">
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27m%20a%20foreign%20buyer%20looking%20at%20SG%20property%20and%20want%20to%20talk%20options.">Want to map your specific situation? WA me →</a>
+</div>
+
+<script>
+function calc(){
+  const price = +document.getElementById('price').value;
+  const profPct = +document.getElementById('prof').value;
+  // BSD tiers
+  const tiers = [[180000,0.01],[180000,0.02],[640000,0.03],[500000,0.04],[1500000,0.05],[Infinity,0.06]];
+  let bsd = 0, rem = price;
+  for (const [s,r] of tiers){ const slc = Math.min(rem,s); bsd += slc*r; rem -= slc; if (rem<=0) break; }
+  const absd = price * (profPct/100);
+  const total = bsd + absd;
+  const pct = (total/price)*100;
+  const fmt = n => 'S$' + Math.round(n).toLocaleString();
+  document.getElementById('bsd').textContent = fmt(bsd);
+  document.getElementById('absd').textContent = fmt(absd) + ` (${profPct}%)`;
+  document.getElementById('total').textContent = fmt(total);
+  document.getElementById('pct').textContent = pct.toFixed(1) + '%';
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

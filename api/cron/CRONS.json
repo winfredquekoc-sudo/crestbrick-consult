@@ -1,0 +1,28 @@
+{
+  "_comment": "Proposed cron entries to splice into vercel.json (top-level 'crons' array) when ready to activate. Times are UTC. Vercel Hobby tier supports daily crons; Pro allows finer schedules.",
+  "_activation": "Copy the 'crons' array below into vercel.json at top level (sibling of 'redirects'), commit, push. Vercel auto-registers schedules on next prod deploy.",
+  "_env_required": [
+    "ANTHROPIC_API_KEY",
+    "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_WINFRED_CHAT_ID",
+    "TELEGRAM_CHANNEL_ID"
+  ],
+  "_auth": "Vercel injects CRON_SECRET into requests as Authorization: Bearer <secret>. Set CRON_SECRET in Vercel project env to enable verification (skipped automatically in dev/preview when unset).",
+  "crons": [
+    {
+      "path": "/api/cron/4pillar-daily",
+      "schedule": "0 23 * * *",
+      "_sgt": "07:00 SGT daily"
+    },
+    {
+      "path": "/api/cron/daily-property-news",
+      "schedule": "30 6 * * *",
+      "_sgt": "14:30 SGT daily"
+    },
+    {
+      "path": "/api/cron/overnight-new-launch-pov",
+      "schedule": "0 18 * * *",
+      "_sgt": "02:00 SGT daily"
+    }
+  ]
+}

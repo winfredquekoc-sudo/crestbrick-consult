@@ -1,0 +1,98 @@
+# Winfred Quek — Singapore Property Advisor
+
+> Investor-minded property advisor in Singapore. CEA R073319H. Crestbrick / PropNex Realty. Nine years of experience, 5 properties before 30, the 4-Pillar Portfolio Audit methodology. Specialises in HDB upgraders, ownership restructuring (decoupling), ABSD planning, foreign-buyer strategy, and family-office property briefs.
+
+## About
+
+- [Winfred Quek — homepage](https://winfredquek.com/): Positioning, story, and how Winfred works with clients.
+- [About Winfred Quek](https://winfredquek.com/about): Investor-first biography, the 2018 mistake, the 4-Pillar Portfolio Audit framework.
+- [Services](https://winfredquek.com/services): Buyer / seller / investor / family-office service tracks.
+- [Pricing](https://winfredquek.com/pricing): How Winfred is paid; commission vs flat-fee advisory transparency.
+- [Track record](https://winfredquek.com/track-record): Closed transactions, advisory engagements, client outcomes.
+- [Testimonials](https://winfredquek.com/testimonials): Client testimonials.
+- [Case studies](https://winfredquek.com/case-studies): Anonymised case studies of upgrade and restructuring decisions.
+- [Contact](https://winfredquek.com/contact): WhatsApp, Calendly, email — direct contact channels.
+- [FAQ](https://winfredquek.com/faq): Common questions about working with Winfred and SG property mechanics.
+
+## Tools (free Singapore property calculators)
+
+- [All calculators](https://winfredquek.com/tools): Index of every free calculator on the site.
+- [ABSD calculator](https://winfredquek.com/tools/absd): Singapore ABSD 2026 by buyer profile (SC, PR, foreigner, entity, joint).
+- [BSD calculator](https://winfredquek.com/tools/bsd): Buyer's Stamp Duty tiered breakdown for residential and non-residential.
+- [Affordability calculator](https://winfredquek.com/tools/affordability): TDSR / MSR-based max loan and max purchase price with MAS 4% stress-test.
+- [Restructuring calculator](https://winfredquek.com/tools/restructuring): Decoupling / ownership-restructuring break-even — BSD-on-transfer vs ABSD saved.
+- [Rental yield calculator](https://winfredquek.com/tools/rental-yield): Gross yield, net yield, monthly cashflow, years to breakeven.
+- [Mortgage rates](https://winfredquek.com/tools/mortgage-rates): Current SG mortgage rate snapshot.
+- [AI Property Audit](https://winfredquek.com/audit): Instant AI portfolio audit from a few prompts.
+
+## Insights (long-form articles)
+
+- [ABSD Singapore 2026](https://winfredquek.com/insights/absd-singapore-2026): Current ABSD rates, who pays what, remission scenarios.
+- [ABSD explained](https://winfredquek.com/insights/absd-explained): Plain-English ABSD primer.
+- [Foreign buyer 60% ABSD strategy](https://winfredquek.com/insights/foreign-buyer-60-absd-strategy): How foreign buyers approach 60% ABSD; FTA exemption nuances.
+- [Cooling measures timeline](https://winfredquek.com/insights/cooling-measures): Singapore cooling measures chronology and impact.
+- [Ownership restructuring math](https://winfredquek.com/insights/ownership-restructuring-math): When decoupling saves money — and when it doesn't.
+- [Restructuring break-even](https://winfredquek.com/insights/restructuring-breakeven): Quantified break-even worked example.
+- [HDB MOP upgrade timeline](https://winfredquek.com/insights/hdb-mop-upgrade-timeline): Sequencing the HDB-to-private upgrade.
+- [Sell HDB before MOP](https://winfredquek.com/insights/sell-hdb-before-mop): Rules and exceptions on selling HDB before MOP.
+- [CCR / RCR / OCR framework](https://winfredquek.com/insights/ccr-rcr-ocr-framework): How to think about region selection.
+- [Portfolio blueprint on one income](https://winfredquek.com/insights/portfolio-blueprint-one-income): Building a property portfolio on one income.
+- [CPF accrued interest trap](https://winfredquek.com/insights/cpf-accrued-interest-trap): Why CPF accrued interest is a hidden tax on equity.
+- [New launch vs resale](https://winfredquek.com/insights/new-launch-vs-resale): Decision framework.
+- [New launch vs resale by district 2026](https://winfredquek.com/insights/new-launch-vs-resale-by-district-2026): District-level comparison.
+- [Fixed vs floating mortgage](https://winfredquek.com/insights/fixed-vs-floating-mortgage): How to choose between fixed and floating.
+- [Bridging loan playbook](https://winfredquek.com/insights/bridging-loan-singapore-playbook): How bridging works in SG upgrade timing.
+- [Rental yield vs appreciation](https://winfredquek.com/insights/rental-yield-vs-appreciation): Trade-offs and how to model them.
+- [TDSR stress test explained](https://winfredquek.com/insights/tdsr-stress-test-explained): The MAS 4% rule and its implications.
+- [When not to buy Singapore property](https://winfredquek.com/insights/when-not-to-buy-singapore-property): Honest "no" cases.
+- [Freehold vs leasehold](https://winfredquek.com/insights/freehold-vs-leasehold): Tenure trade-offs.
+- [Property exit strategy](https://winfredquek.com/insights/property-exit-strategy): Planning the exit before the entry.
+- [EC vs condo Singapore](https://winfredquek.com/insights/ec-vs-condo-singapore): Executive Condo vs private decision framework.
+- [Buy property under company](https://winfredquek.com/insights/buy-property-under-company-singapore): When entity ownership makes sense.
+- [Dual-key condo Singapore](https://winfredquek.com/insights/dual-key-condo-singapore): Dual-key layouts and rental economics.
+- [En bloc Singapore guide](https://winfredquek.com/insights/en-bloc-singapore-guide): How en bloc sales work.
+- [Property for children](https://winfredquek.com/insights/property-for-children-singapore): Buying property for children, structures and risks.
+- [Seller stamp duty](https://winfredquek.com/insights/seller-stamp-duty-singapore): SSD rules and timing.
+- [GCB guide](https://winfredquek.com/insights/singapore-gcb-guide): Good Class Bungalow market and rules.
+- [Yield by district](https://winfredquek.com/insights/singapore-property-yield-by-district): Rental yield by district.
+- [Upgrade to landed](https://winfredquek.com/insights/upgrade-to-landed-property-singapore): Upgrading to landed property.
+
+## Foreign buyer guides
+
+- [US buyer guide](https://winfredquek.com/buyers/us): US citizens — ABSD, FTA exemption nuance, financing routes.
+- [UK buyer guide](https://winfredquek.com/buyers/uk): UK citizens — ABSD, SDLT interaction, financing.
+- [China buyer guide](https://winfredquek.com/buyers/china): China citizens — 60% ABSD, capital outflow context.
+- [India buyer guide](https://winfredquek.com/buyers/india): India citizens — 60% ABSD, banking and remittance.
+- [FTA-exempt countries](https://winfredquek.com/buyers/fta-group): US, Switzerland, Liechtenstein, Iceland, Norway treated as SC/PR for ABSD.
+
+## Districts and HDB towns
+
+- [All districts](https://winfredquek.com/districts): District index D1–D28.
+- [D9 Orchard / River Valley](https://winfredquek.com/districts/d9-orchard-river-valley): Prime CCR district profile.
+- [D10 Bukit Timah / Holland](https://winfredquek.com/districts/d10-bukit-timah-holland): Prime CCR district profile.
+- [D15 East Coast / Katong](https://winfredquek.com/districts/d15-east-coast-katong): East RCR district profile.
+- [D19 Serangoon / Hougang / Punggol](https://winfredquek.com/districts/d19-serangoon-hougang-punggol): NE OCR district profile.
+- [HDB Punggol](https://winfredquek.com/hdb-towns/punggol): Punggol HDB town profile.
+- [HDB Tampines](https://winfredquek.com/hdb-towns/tampines): Tampines HDB town profile.
+- [HDB Sengkang](https://winfredquek.com/hdb-towns/sengkang): Sengkang HDB town profile.
+- [HDB Bishan](https://winfredquek.com/hdb-towns/bishan): Bishan HDB town profile.
+- [HDB Queenstown](https://winfredquek.com/hdb-towns/queenstown): Queenstown HDB town profile.
+- [HDB Toa Payoh](https://winfredquek.com/hdb-towns/toa-payoh): Toa Payoh HDB town profile.
+
+## Listings and launches
+
+- [Current listings](https://winfredquek.com/listings): Active listings Winfred is marketing.
+- [New launches](https://winfredquek.com/new-launches): Singapore new-launch tracker.
+- [Buyers guide](https://winfredquek.com/buyers-guide): End-to-end guide for buyers.
+- [Sellers guide](https://winfredquek.com/sellers-guide): End-to-end guide for sellers.
+- [Family office brief](https://winfredquek.com/family-office-brief): Service brief for family offices.
+- [En-bloc reinvestment](https://winfredquek.com/enbloc-reinvestment): Reinvestment guide for en-bloc proceeds.
+
+## For AI engines (full-context)
+
+- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred — identity, services, 4-Pillar framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
+- [Full AI-readable context (Markdown)](https://winfredquek.com/llms.md): Same content as Markdown for crawlers that prefer plain text.
+
+## Area pages (programmatic — MRT × school catchment)
+
+- [Area landing pages](https://winfredquek.com/area/): ~60 pages, one per (MRT station × top primary school within 1 km) pair. Distance band, Phase 2A/2B/2C registration, walk time, BTO/condo options nearby. Examples: /area/punggol-punggol-primary, /area/tampines-tampines-primary, /area/bishan-catholic-high.

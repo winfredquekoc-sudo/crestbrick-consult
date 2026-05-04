@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Walk-Away Threshold Calculator · Winfred Quek</title>
+<meta name="description" content="Set your walk-away number BEFORE entering negotiation. The discipline I teach clients, productized.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/walk-away-calculator">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:680px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;font-size:16px;margin-bottom:28px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}input{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.row{display:flex;gap:14px;}.row label{flex:1;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}.result{display:none;margin-top:24px;}.result.show{display:block;}.big{font-family:'Fraunces',serif;font-size:42px;color:#b48c50;text-align:center;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>Walk-Away Threshold</h1>
+<div class="lead">Decide BEFORE you enter the room. Once you're in negotiation, your judgment is compromised. Lock in the number now.</div>
+<div class="card">
+<div class="row">
+<label><span>Asking price (S$)</span><input id="ask" type="number" value="2000000"/></label>
+<label><span>Last comparable sold (S$)</span><input id="comp" type="number" value="1880000"/></label>
+</div>
+<div class="row">
+<label><span>Your hard max (cash + financing)</span><input id="hardmax" type="number" value="1950000"/></label>
+<label><span>Months you'd happily wait for next deal</span><input id="patience" type="number" value="6"/></label>
+</div>
+<div class="row">
+<label><span>Annual carrying-cost vs renting (S$)</span><input id="carry" type="number" value="24000"/></label>
+<label><span>Emotional adjustment (-100k to +100k)</span><input id="emo" type="number" value="0"/></label>
+</div>
+<button class="btn" onclick="calc()">Lock my number</button>
+</div>
+<div id="result" class="result">
+<div class="card">
+<div class="big" id="walkaway"></div>
+<div style="text-align:center;color:#7a6c54;font-size:13px;margin-top:8px;">Your walk-away threshold</div>
+<div style="margin-top:24px;font-size:14px;color:#a89980;line-height:1.7;" id="logic"></div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20locked%20my%20walk-away%20number%20and%20want%20to%20talk%20strategy.">Want me on the call when you negotiate? WA me →</a></div>
+</div>
+<script>
+function calc(){
+  const ask=+document.getElementById('ask').value;
+  const comp=+document.getElementById('comp').value;
+  const hardmax=+document.getElementById('hardmax').value;
+  const patience=+document.getElementById('patience').value;
+  const carry=+document.getElementById('carry').value;
+  const emo=+document.getElementById('emo').value;
+  // Walk-away = MIN of: hardmax, comp + (patience-cost adjusted premium)
+  const patience_premium=Math.max(0, (carry/12)*patience);
+  const fair_value=comp + patience_premium*0.4 + emo;
+  const walkaway=Math.min(hardmax, fair_value);
+  const fmt=n=>'S$'+Math.round(n).toLocaleString();
+  document.getElementById('walkaway').textContent=fmt(walkaway);
+  document.getElementById('logic').innerHTML=`<b>How it's computed:</b><br>• Last comparable: ${fmt(comp)}<br>• Patience premium (you'd wait ${patience}mo, costing ~${fmt(patience_premium)} in carry): adds 40% of that as ceiling premium<br>• Emotional adjustment: ${fmt(emo)}<br>• Hard max constraint: ${fmt(hardmax)}<br><br><b>Your walk-away: ${fmt(walkaway)}.</b> If seller won't meet ${fmt(walkaway)}, you walk. Period. The discipline is the whole game.<br><br>Asking is ${fmt(ask)} - so you have <b>${fmt(ask-walkaway)}</b> to negotiate down. That's your room.`;
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

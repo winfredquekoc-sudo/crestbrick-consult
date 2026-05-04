@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Mortgage Q&A · Winfred Quek</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="description" content="Ask anything about Singapore mortgages  --  TDSR, MSR, refinance, lock-in, SORA. Quick AI-powered answers.">
+<link rel="canonical" href="https://winfredquek.com/tools/mortgage-qa-bot">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:24px;}
+.wrap{max-width:660px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:26px;font-weight:400;margin-bottom:6px;}
+.sub{color:#a89980;margin-bottom:24px;font-size:14px;}
+.chat{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:18px;min-height:320px;max-height:60vh;overflow-y:auto;}
+.msg{padding:10px 14px;border-radius:10px;margin-bottom:10px;line-height:1.6;font-size:14px;}
+.msg.u{background:#252018;}
+.msg.b{background:#0e3a1e;color:#9bffaf;}
+.msg b{color:#b48c50;display:block;font-size:11px;letter-spacing:0.05em;margin-bottom:4px;}
+.input-row{display:flex;gap:10px;margin-top:14px;}
+input{flex:1;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 22px;border-radius:8px;border:none;cursor:pointer;font-weight:500;}
+.suggest{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;}
+.suggest button{background:transparent;border:1px solid rgba(180,140,80,0.3);color:#a89980;padding:6px 12px;border-radius:14px;font-size:12px;cursor:pointer;}
+.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>Mortgage Q&A</h1>
+<div class="sub">Ask about SG mortgages  --  rates, TDSR, refi timing, lock-in penalties. Powered by current market data + Winfred's playbook.</div>
+<div id="chat" class="chat"></div>
+<div class="input-row">
+  <input id="q" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')ask()"/>
+  <button class="btn" onclick="ask()">Ask</button>
+</div>
+<div class="suggest">
+  <button onclick="prefill('What\\'s the difference between TDSR and MSR?')">TDSR vs MSR?</button>
+  <button onclick="prefill('When should I refi?')">When to refi?</button>
+  <button onclick="prefill('Lock-in penalty  --  how does it work?')">Lock-in penalty?</button>
+  <button onclick="prefill('Fixed vs floating?')">Fixed vs floating?</button>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20mortgage%20question%20the%20bot%20couldn%27t%20fully%20answer.">Want a real human answer? WA me →</a></div>
+
+<script>
+const chat = document.getElementById('chat');
+function add(role, text){ chat.insertAdjacentHTML('beforeend', `<div class="msg ${role}"><b>${role==='u'?'YOU':'WINFRED'}</b>${text}</div>`); chat.scrollTop = chat.scrollHeight; }
+add('b', "Hey  --  ask me anything about SG mortgages. I draw from current SORA + bank rates and the playbook I run with my clients.");
+function prefill(q){ document.getElementById('q').value = q; ask(); }
+async function ask(){
+  const qel = document.getElementById('q');
+  const q = qel.value.trim();
+  if (!q) return;
+  add('u', q);
+  qel.value = '';
+  add('b', '<i>thinking…</i>');
+  try {
+    const r = await fetch('/api/mortgage-qa', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({q})});
+    const d = await r.json();
+    chat.lastChild.remove();
+    add('b', d.a || 'Hmm, couldn\'t answer that one  --  WA me directly.');
+  } catch(e){
+    chat.lastChild.remove();
+    add('b', 'Couldn\'t reach the answer service. Ping me on WA.');
+  }
+}
+</script>
+</div></body></html>

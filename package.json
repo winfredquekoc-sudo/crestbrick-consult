@@ -7,7 +7,13 @@
   "engines": {
     "node": ">=24.0.0"
   },
+  "scripts": {
+    "eval:agents": "python3 evals/run.py"
+  },
   "dependencies": {
     "nodemailer": "^6.9.16"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
   }
 }

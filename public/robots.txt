@@ -1,3 +1,6 @@
+# Winfred Quek — winfredquek.com
+# Allow all crawlers including AI engines
+
 User-agent: *
 Allow: /
 Disallow: /*?utm_
@@ -5,4 +8,51 @@ Disallow: /*?fbclid=
 Disallow: /*?gclid=
 Disallow: /*?msclkid=
 
+# Explicit allow for AI crawlers (belt-and-braces; default policy already allows)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: ClaudeUserBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: BraveBot
+Allow: /
+
+User-agent: Bravebot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
 Sitemap: https://winfredquek.com/sitemap.xml
+Sitemap: https://winfredquek.com/news-sitemap.xml

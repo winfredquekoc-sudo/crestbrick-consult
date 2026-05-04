@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Client Portal · Winfred Quek</title>
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:24px;}
+.wrap{max-width:760px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin-bottom:6px;}
+.sub{color:#a89980;margin-bottom:24px;font-size:14px;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:16px;}
+.card h2{font-size:13px;letter-spacing:0.15em;text-transform:uppercase;color:#b48c50;margin-bottom:14px;}
+.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(180,140,80,0.1);font-size:14px;}
+.row:last-child{border-bottom:none;}
+.row .v{color:#fff;font-weight:500;}
+input{width:100%;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;font-size:15px;margin-bottom:14px;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.muted{color:#7a6c54;font-size:12px;margin-top:14px;line-height:1.6;}
+.deadline{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;margin-right:6px;}
+.deadline.red{background:#3a0e0e;color:#ff8585;}
+.deadline.amber{background:#3a2a0e;color:#ffd180;}
+.deadline.green{background:#0e3a1e;color:#9bffaf;}
+.empty{padding:32px;text-align:center;color:#7a6c54;}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<div id="login">
+<h1>Crestbrick portal</h1>
+<div class="sub">Enter your email — we'll send a private link valid for 30 days.</div>
+<div class="card">
+<input id="email" type="email" placeholder="you@example.com"/>
+<button class="btn" onclick="reqLink()">Send me the link</button>
+<div class="muted" id="loginNote"></div>
+</div>
+</div>
+
+<div id="dashboard" style="display:none;">
+<h1 id="hello">Welcome</h1>
+<div class="sub">Your private dashboard — properties, deals, pipeline.</div>
+
+<div class="card"><h2>Properties</h2><div id="props"></div></div>
+<div class="card"><h2>Active deals</h2><div id="deals"></div></div>
+<div class="card"><h2>Net worth snapshot</h2><div id="nw"></div></div>
+<div class="card"><h2>Documents</h2><div id="docs" class="muted">Coming soon — secure document vault.</div></div>
+</div>
+
+<script>
+async function reqLink(){
+  const email = document.getElementById('email').value.trim();
+  if (!email) return;
+  const note = document.getElementById('loginNote');
+  note.textContent = 'Sending…';
+  const r = await fetch('/api/portal-magic-link', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email})});
+  const d = await r.json();
+  if (d.ok) note.textContent = '✓ Sent. Check your inbox (also spam).';
+  else note.textContent = '⚠ ' + (d.error || 'failed');
+}
+
+const params = new URLSearchParams(location.search);
+const token = params.get('token');
+if (token) {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  fetch('/api/portal-data?token=' + encodeURIComponent(token)).then(r => r.json()).then(d => {
+    if (!d.ok) {
+      document.getElementById('dashboard').innerHTML = '<div class="card empty">Link invalid or expired. <a href="/portal" style="color:#b48c50;">Request a new one →</a></div>';
+      return;
+    }
+    document.getElementById('hello').textContent = `Welcome, ${d.data.first_name || d.data.display_name || 'client'}`;
+
+    // Properties
+    const props = d.data.properties || [];
+    const propsHtml = props.length
+      ? props.map(p => `<div class="row"><span>${p.address || '?'} (${p.kind || '?'})</span><span class="v">S$${(p.estimated_value||0).toLocaleString()}</span></div>`).join('')
+      : '<div class="empty">No properties on file.</div>';
+    document.getElementById('props').innerHTML = propsHtml;
+
+    // Deals
+    const deals = d.data.deals || [];
+    const fmt = n => 'S$' + Math.round(n).toLocaleString();
+    const dealsHtml = deals.length
+      ? deals.map(D => `<div class="row"><span>${D.deal_type || '?'} · ${D.property_address || '?'}<br><small style="color:#7a6c54;">${(D.deadlines||[]).map(dd => `<span class="deadline ${dd.urgency}">${dd.label}: ${dd.date}</span>`).join('')}</small></span><span class="v">${D.stage}</span></div>`).join('')
+      : '<div class="empty">No active deals.</div>';
+    document.getElementById('deals').innerHTML = dealsHtml;
+
+    // Net worth
+    const nw = d.data.net_worth || {};
+    document.getElementById('nw').innerHTML = `
+      <div class="row"><span>Property equity</span><span class="v">${fmt(nw.property_equity || 0)}</span></div>
+      <div class="row"><span>CPF OA</span><span class="v">${fmt(nw.cpf_oa || 0)}</span></div>
+      <div class="row"><span>Cash</span><span class="v">${fmt(nw.cash || 0)}</span></div>
+      <div class="row"><span><b>Net worth</b></span><span class="v"><b>${fmt((nw.property_equity||0)+(nw.cpf_oa||0)+(nw.cash||0))}</b></span></div>
+    `;
+  });
+}
+</script>
+</div></body></html>

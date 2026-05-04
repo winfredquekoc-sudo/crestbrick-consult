@@ -1,0 +1,125 @@
+/* Accessibility + UX fixes (covers #242 WCAG, #244 image, #245 fonts,
+ * #260 loading skeletons, #255 print, dark/light theme switching).
+ * Inject in every page <head>:
+ *   <link rel="stylesheet" href="/_a11y-fixes.css">
+ */
+
+/* ====== #242 WCAG focus rings, all interactive ====== */
+:focus-visible {
+  outline: 2px solid #b48c50 !important;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+button, a, [role="button"], input, select, textarea {
+  min-height: 44px; /* iOS HIG tap target */
+}
+
+/* Skip-to-main link for screen-readers */
+.wf-skip {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #b48c50;
+  color: #0e0c08;
+  padding: 8px 16px;
+  z-index: 100;
+  text-decoration: none;
+}
+.wf-skip:focus { top: 0; }
+
+/* ====== #244 image responsive defaults ====== */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* ====== #245 font-display swap (handled in @font-face) ====== */
+@font-face {
+  font-family: 'Fraunces';
+  font-display: swap;
+  src: local('Fraunces');
+}
+@font-face {
+  font-family: 'Inter';
+  font-display: swap;
+  src: local('Inter');
+}
+
+/* ====== #260 loading skeleton ====== */
+.wf-skeleton {
+  background: linear-gradient(90deg, #1a1610 25%, #252018 50%, #1a1610 75%);
+  background-size: 200% 100%;
+  animation: wf-shimmer 1.5s infinite;
+  border-radius: 4px;
+  height: 16px;
+  margin-bottom: 8px;
+}
+@keyframes wf-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ====== Reduced motion respect ====== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ====== #246 Light theme variables (when [data-theme="light"]) ====== */
+html[data-theme="light"] body {
+  background: #faf6ee !important;
+  color: #1a1410 !important;
+}
+html[data-theme="light"] .card,
+html[data-theme="light"] [class*="card"] {
+  background: #fff !important;
+  border-color: rgba(180,140,80,0.3) !important;
+}
+html[data-theme="light"] .lead,
+html[data-theme="light"] [class*="lead"] {
+  color: #5a544c !important;
+}
+html[data-theme="light"] input,
+html[data-theme="light"] select {
+  background: #fff !important;
+  color: #1a1410 !important;
+}
+
+/* ====== #255 Print-friendly stylesheet ====== */
+@media print {
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+  /* Hide nav, sticky CTAs, theme toggle, etc */
+  nav, header, footer, .wf-skip, [class*="cta"], button, .nav-link,
+  [style*="position:fixed"], [style*="position: fixed"] {
+    display: none !important;
+  }
+  a {
+    color: black !important;
+    text-decoration: underline;
+  }
+  /* Show full URLs of links inline */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 9pt;
+    color: #555;
+  }
+  /* Avoid breaks inside cards */
+  .card, [class*="card"] {
+    page-break-inside: avoid;
+    background: white !important;
+    border: 1px solid #ccc !important;
+    color: black !important;
+  }
+  h1, h2, h3 { page-break-after: avoid; color: black !important; }
+}
+
+/* ====== Geo-targeted CTA hooks (#289) ====== */
+[data-geo="foreign"] .wf-cta-sg { display: none; }
+[data-geo="sg"] .wf-cta-foreign { display: none; }

@@ -64,6 +64,16 @@
     { "source": "/blog/absd-second-property-guide", "destination": "/insights/absd-singapore-2026", "permanent": true },
     { "source": "/blog/absd-second-property-guide.html", "destination": "/insights/absd-singapore-2026", "permanent": true },
     { "source": "/blog/hdb-bto-vs-resale", "destination": "/insights/new-launch-vs-resale", "permanent": true },
-    { "source": "/blog/hdb-bto-vs-resale.html", "destination": "/insights/new-launch-vs-resale", "permanent": true }
+    { "source": "/blog/hdb-bto-vs-resale.html", "destination": "/insights/new-launch-vs-resale", "permanent": true },
+    { "source": "/absd-calculator", "destination": "/tools/absd", "permanent": true },
+    { "source": "/absd-calculator.html", "destination": "/tools/absd", "permanent": true },
+    { "source": "/stamp-duty-calculator", "destination": "/tools/bsd", "permanent": true },
+    { "source": "/stamp-duty-calculator.html", "destination": "/tools/bsd", "permanent": true },
+    { "source": "/tdsr-calculator", "destination": "/tools/affordability", "permanent": true },
+    { "source": "/tdsr-calculator.html", "destination": "/tools/affordability", "permanent": true },
+    { "source": "/decoupling-calculator", "destination": "/tools/restructuring", "permanent": true },
+    { "source": "/decoupling-calculator.html", "destination": "/tools/restructuring", "permanent": true },
+    { "source": "/index", "destination": "/", "permanent": true },
+    { "source": "/index.html", "destination": "/", "permanent": true }
   ]
 }

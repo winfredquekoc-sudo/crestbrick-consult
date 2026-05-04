@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>WhatsApp Winfred Quek · winfredquek.com</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Message Winfred Quek directly on WhatsApp. Singapore property strategist · CEA R073319H · Crestbrick.">
+<link rel="canonical" href="https://winfredquek.com/wa">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased;}
+  body{
+    font-family:'Inter',-apple-system,system-ui,sans-serif;
+    background:#0e0c08;
+    color:#f0e9d8;
+    min-height:100vh;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;
+  }
+  .card{
+    max-width:420px;width:100%;
+    background:#1a1610;
+    border:1px solid rgba(180,140,80,0.2);
+    border-radius:16px;
+    padding:36px 32px;
+    text-align:center;
+  }
+  .logo{
+    font-family:'Fraunces',serif;
+    font-size:14px;letter-spacing:0.3em;text-transform:uppercase;
+    color:#b48c50;margin-bottom:36px;
+  }
+  h1{
+    font-family:'Fraunces',serif;font-weight:400;
+    font-size:28px;line-height:1.25;margin-bottom:16px;
+  }
+  .sub{color:#a89980;font-size:14px;line-height:1.6;margin-bottom:32px;}
+  .qr-block{
+    background:#fff;border-radius:12px;padding:16px;
+    display:inline-block;margin:20px 0;
+  }
+  .qr-block img,.qr-block canvas{display:block;width:200px;height:200px;}
+  .cta{
+    display:inline-block;background:#25D366;color:#fff;
+    padding:14px 32px;border-radius:10px;text-decoration:none;
+    font-weight:500;font-size:16px;
+    margin-top:8px;
+    transition:transform 0.15s ease;
+  }
+  .cta:hover{transform:translateY(-1px);}
+  .src-tag{
+    display:inline-block;background:rgba(180,140,80,0.15);
+    color:#b48c50;font-size:11px;letter-spacing:0.1em;
+    text-transform:uppercase;padding:4px 12px;border-radius:20px;
+    margin-bottom:16px;
+  }
+  .footer{
+    color:#7a6c54;font-size:11px;margin-top:28px;line-height:1.5;
+  }
+  .footer a{color:#b48c50;text-decoration:none;}
+</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body>
+<div class="card">
+  <div class="logo">Winfred Quek</div>
+  <div id="srcTag" class="src-tag" style="display:none"></div>
+  <h1 id="hookHeadline">Message me on WhatsApp</h1>
+  <div class="sub" id="subHeadline">
+    Property strategy · zero pitch · investor-minded.
+  </div>
+
+  <div class="qr-block">
+    <canvas id="qrCanvas"></canvas>
+  </div>
+
+  <a id="waLink" class="cta" href="#" target="_blank" rel="noopener">Open WhatsApp →</a>
+
+  <div class="footer">
+    Winfred Quek · CEA R073319H · Crestbrick Pte Ltd<br>
+    <a href="/">winfredquek.com</a> · <a href="/about">about</a> · <a href="/insights">insights</a>
+  </div>
+</div>
+
+<!-- QR code generator (small, vendor-free implementation) -->
+<script>
+(function(){
+  const PHONE = "6581618149";
+
+  // Source-aware messaging: ?src=ig / ?src=linkedin / ?src=newsletter / ?src=qr / etc.
+  const params = new URLSearchParams(window.location.search);
+  const src = (params.get("src") || "").toLowerCase().slice(0,30);
+  const customMsg = params.get("msg");
+
+  const SRC_MAP = {
+    "ig":         { tag:"From Instagram",    msg:"Hi Winfred, I saw your Instagram." },
+    "linkedin":   { tag:"From LinkedIn",     msg:"Hi Winfred, I saw your LinkedIn post." },
+    "newsletter": { tag:"From Newsletter",   msg:"Hi Winfred, I'm subscribed to your newsletter." },
+    "telegram":   { tag:"From Telegram",     msg:"Hi Winfred, found you via your Telegram channel." },
+    "qr":         { tag:"From QR code",      msg:"Hi Winfred, I scanned your QR." },
+    "card":       { tag:"From Name Card",    msg:"Hi Winfred, I got your name card." },
+    "referral":   { tag:"Referral",          msg:"Hi Winfred, I was referred to you." },
+    "podcast":    { tag:"From Podcast",      msg:"Hi Winfred, I heard you on a podcast." },
+    "youtube":    { tag:"From YouTube",      msg:"Hi Winfred, I saw your YouTube video." },
+    "ad":         { tag:"From Ad",           msg:"Hi Winfred, I clicked through from your ad." }
+  };
+
+  const meta = SRC_MAP[src] || { tag:"", msg:"Hi Winfred, " };
+  const message = customMsg || meta.msg;
+
+  if (meta.tag) {
+    const tag = document.getElementById("srcTag");
+    tag.textContent = meta.tag;
+    tag.style.display = "inline-block";
+  }
+
+  const waUrl = `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
+  document.getElementById("waLink").href = waUrl;
+
+  // Tiny inline QR generator (qrcode-svg port — minimal). For production grade,
+  // could swap to `qrcode` npm package — but a vendor-free implementation keeps
+  // the page cacheable and load-fast.
+  // We use Google Charts API as the simplest reliable QR — but it's deprecated;
+  // use a 3rd-party static QR image as fallback.
+  const qrSize = 200;
+  const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(waUrl)}&qzone=1`;
+  const canvas = document.getElementById("qrCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = qrSize;
+  canvas.height = qrSize;
+  const img = new Image();
+  img.crossOrigin = "anonymous";
+  img.onload = function(){ ctx.drawImage(img, 0, 0); };
+  img.onerror = function(){
+    // fallback: hide canvas, show text link
+    canvas.style.display = "none";
+  };
+  img.src = qrSrc;
+
+  // Track click for analytics (simple GA event if gtag exists)
+  document.getElementById("waLink").addEventListener("click", function(){
+    if (typeof gtag !== "undefined") {
+      gtag("event","wa_click",{source:src||"direct"});
+    }
+  });
+})();
+</script>
+
+<!-- Optional: Plausible / GA snippet — currently a no-op since gtag isn't loaded -->
+</body>
+</html>

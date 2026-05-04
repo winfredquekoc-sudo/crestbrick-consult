@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Project Comparison Tool · Winfred Quek</title>
+<meta name="description" content="Side-by-side comparison of two Singapore property projects: PSF, tenure, yield, distance, completion.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/comparison-tool">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:760px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.compare{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;}.col{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:10px;padding:20px;}.col h2{font-family:'Fraunces',serif;font-size:18px;color:#b48c50;font-weight:400;margin-bottom:12px;}.col input{width:100%;padding:8px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:5px;color:#f0e9d8;margin-bottom:8px;font-size:13px;}.col label{display:block;font-size:11px;color:#a89980;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.05em;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:20px;}.result.show{display:block;}.result table{width:100%;border-collapse:collapse;font-size:14px;}.result th{padding:8px;text-align:left;color:#b48c50;font-size:11px;letter-spacing:0.05em;}.result td{padding:10px 8px;border-bottom:1px solid rgba(180,140,80,0.1);}.result td.win{color:#3ddc84;font-weight:500;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}@media (max-width:520px){.compare{grid-template-columns:1fr;}}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>Project A vs Project B</h1>
+<div class="lead">Side-by-side comparison. Cuts through the marketing noise — focuses on the math + timing that actually matters.</div>
+<div class="compare">
+<div class="col"><h2>Project A</h2>
+<label>Name</label><input id="a_name" value="Project A"/>
+<label>Avg PSF (S$)</label><input id="a_psf" type="number" value="2200"/>
+<label>Tenure (years)</label><input id="a_ten" type="number" value="99"/>
+<label>Years remaining</label><input id="a_left" type="number" value="99"/>
+<label>Distance to MRT (m)</label><input id="a_mrt" type="number" value="500"/>
+<label>Expected gross yield %</label><input id="a_yield" type="number" value="3.2" step="0.1"/>
+<label>Years to TOP</label><input id="a_top" type="number" value="3"/>
+<label>Total units in project</label><input id="a_units" type="number" value="500"/>
+</div>
+<div class="col"><h2>Project B</h2>
+<label>Name</label><input id="b_name" value="Project B"/>
+<label>Avg PSF (S$)</label><input id="b_psf" type="number" value="2400"/>
+<label>Tenure (years)</label><input id="b_ten" type="number" value="999"/>
+<label>Years remaining</label><input id="b_left" type="number" value="999"/>
+<label>Distance to MRT (m)</label><input id="b_mrt" type="number" value="800"/>
+<label>Expected gross yield %</label><input id="b_yield" type="number" value="3.5" step="0.1"/>
+<label>Years to TOP</label><input id="b_top" type="number" value="0"/>
+<label>Total units in project</label><input id="b_units" type="number" value="120"/>
+</div>
+</div>
+<button class="btn" onclick="comp()">Compare</button>
+<div id="result" class="result">
+<table id="tbl"></table>
+<div style="margin-top:14px;color:#a89980;font-size:13px;line-height:1.7;" id="verdict"></div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20compared%20two%20projects%20and%20want%20to%20talk.">Want my honest read on either? WA me →</a></div>
+<script>
+function comp(){
+const a={n:document.getElementById('a_name').value,psf:+document.getElementById('a_psf').value,ten:+document.getElementById('a_ten').value,left:+document.getElementById('a_left').value,mrt:+document.getElementById('a_mrt').value,yield:+document.getElementById('a_yield').value,top:+document.getElementById('a_top').value,units:+document.getElementById('a_units').value};
+const b={n:document.getElementById('b_name').value,psf:+document.getElementById('b_psf').value,ten:+document.getElementById('b_ten').value,left:+document.getElementById('b_left').value,mrt:+document.getElementById('b_mrt').value,yield:+document.getElementById('b_yield').value,top:+document.getElementById('b_top').value,units:+document.getElementById('b_units').value};
+const rows=[
+['Metric',a.n,b.n,'Winner'],
+['PSF (lower wins)',`S$${a.psf}`,`S$${b.psf}`,a.psf<b.psf?'A':'B'],
+['Tenure',a.ten>=999?'Freehold':`${a.ten}y`,b.ten>=999?'Freehold':`${b.ten}y`,a.ten>b.ten?'A':b.ten>a.ten?'B':'tie'],
+['Yrs remaining',a.left,b.left,a.left>b.left?'A':b.left>a.left?'B':'tie'],
+['Distance to MRT (lower wins)',`${a.mrt}m`,`${b.mrt}m`,a.mrt<b.mrt?'A':'B'],
+['Gross yield',`${a.yield}%`,`${b.yield}%`,a.yield>b.yield?'A':'B'],
+['Years to TOP (lower wins)',a.top===0?'Ready':`${a.top}y`,b.top===0?'Ready':`${b.top}y`,a.top<b.top?'A':b.top<a.top?'B':'tie'],
+['Units (smaller = exclusive, larger = liquidity)',a.units,b.units,'depends']
+];
+let html='<thead><tr><th>'+rows[0].join('</th><th>')+'</th></tr></thead><tbody>';
+let aWins=0,bWins=0;
+rows.slice(1).forEach(r=>{
+  const winner=r[3];
+  if (winner==='A') aWins++;
+  if (winner==='B') bWins++;
+  html+=`<tr><td>${r[0]}</td><td class="${winner==='A'?'win':''}">${r[1]}</td><td class="${winner==='B'?'win':''}">${r[2]}</td><td>${winner}</td></tr>`;
+});
+html+='</tbody>';
+document.getElementById('tbl').innerHTML=html;
+let v=`<b>Quantitative score:</b> ${a.n} ${aWins} - ${bWins} ${b.n}.<br><br>`;
+v+='<b>Important caveats:</b> this is a thin comparison. Real decision needs: (a) developer reputation, (b) layout efficiency per unit, (c) MCST history, (d) tenant pool for rental, (e) URA Master Plan upside in vicinity. WA me to dig deeper.';
+document.getElementById('verdict').innerHTML=v;
+document.getElementById('result').classList.add('show');
+}
+comp();
+</script>
+</body></html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Property vs Equities · Winfred Quek</title>
+<meta name="description" content="Compare 10-yr and 20-yr returns: SG property (with leverage) vs S&P 500 / STI equities.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/property-vs-equities">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:680px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
+.lead{color:#a89980;margin:8px 0 28px;line-height:1.6;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}
+label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}
+input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}
+.row{display:flex;gap:14px;}.row label{flex:1;}
+.btn{display:inline-block;background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;margin-top:24px;}
+.result.show{display:block;}
+table{width:100%;border-collapse:collapse;font-size:14px;}
+th{background:#171410;padding:8px;text-align:left;color:#b48c50;font-size:12px;letter-spacing:0.05em;}
+td{padding:10px;border-bottom:1px solid rgba(180,140,80,0.1);}
+td.win{color:#3ddc84;font-weight:500;}
+.note{color:#7a6c54;font-size:12px;line-height:1.6;margin-top:16px;}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>Property vs Equities</h1>
+<div class="lead">Same starting cash. Property uses leverage (75% loan). Equities use full cash. Both compounded over 10 / 20 years. The leverage matters more than people realise.</div>
+
+<div class="card">
+<label><span>Cash deployed (S$)</span><input id="cash" type="number" value="500000" /></label>
+<div class="row">
+<label><span>Property appreciation (%/yr)</span><input id="prop_app" type="number" value="3.5" step="0.1" /></label>
+<label><span>Net rental yield (%/yr)</span><input id="rent_yield" type="number" value="2.5" step="0.1" /></label>
+</div>
+<div class="row">
+<label><span>Equity return (%/yr)</span><input id="eq_return" type="number" value="8" step="0.1" /></label>
+<label><span>Mortgage rate (%/yr)</span><input id="mort_rate" type="number" value="3" step="0.1" /></label>
+</div>
+<button class="btn" onclick="calc()">Compare</button>
+</div>
+
+<div id="result" class="result">
+<div class="card">
+<table>
+<thead><tr><th>Year</th><th>Property net</th><th>Equity</th><th>Diff</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+<div class="note" id="note"></div>
+</div>
+</div>
+
+<script>
+function calc(){
+  const cash = +document.getElementById('cash').value;
+  const propApp = +document.getElementById('prop_app').value/100;
+  const rentYield = +document.getElementById('rent_yield').value/100;
+  const eqRet = +document.getElementById('eq_return').value/100;
+  const mortRate = +document.getElementById('mort_rate').value/100;
+
+  // Property: cash = 25% downpayment, 75% loan; prop value = cash / 0.25
+  const propValue0 = cash / 0.25;
+  const loan0 = propValue0 * 0.75;
+
+  const tb = document.getElementById('tbody');
+  tb.innerHTML = '';
+  const fmt = n => 'S$' + Math.round(n).toLocaleString();
+
+  let propVal = propValue0;
+  let loan = loan0;
+  let netRent = 0;
+  let eq = cash;
+  for (let y = 1; y <= 25; y++) {
+    propVal *= (1 + propApp);
+    netRent += (propVal * rentYield) - (loan * mortRate);
+    // Loan amortizes lightly  --  assume 1% principal/yr for simplicity (real schedule depends)
+    loan *= 0.99;
+    eq *= (1 + eqRet);
+    const propEq = propVal - loan + netRent;
+    if ([5, 10, 15, 20, 25].includes(y)) {
+      const diff = propEq - eq;
+      const winClass = diff > 0 ? 'win' : '';
+      tb.insertAdjacentHTML('beforeend', `<tr><td>Y${y}</td><td>${fmt(propEq)}</td><td>${fmt(eq)}</td><td class="${winClass}">${fmt(diff)}</td></tr>`);
+    }
+  }
+
+  document.getElementById('note').innerHTML = `Assumes leveraged property (4× leverage = 25% down). Real-world returns vary with: refinance windows, rental vacancy, market cycle, and cooling-measure shocks. SG property historically: ~3-4%/yr appreciation + 2-3% yield. S&P 500: ~8-10%/yr nominal. Property's edge is leverage. Equity's edge is liquidity + diversification.`;
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

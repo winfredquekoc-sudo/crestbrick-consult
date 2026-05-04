@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>HDB Enhancement Grant Eligibility · Winfred Quek</title>
+<meta name="description" content="Check eligibility for all 5 HDB grants: CPF Housing Grant, Enhanced, Step-Up, Proximity, Family.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/hdb-grant-eligibility">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:600px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.row{display:flex;gap:14px;}.row label{flex:1;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:24px;}.result.show{display:block;}.grant{padding:14px;background:#171410;border-radius:8px;margin-bottom:10px;border-left:4px solid #555;}.grant.eligible{border-left-color:#3ddc84;}.grant.maybe{border-left-color:#ffb000;}.grant b{color:#fff;}.grant .amt{color:#b48c50;font-weight:600;}.grant .note{color:#a89980;font-size:13px;margin-top:4px;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}.total{padding:14px;background:#171410;border-radius:8px;text-align:center;margin-top:14px;}.total .v{font-family:'Fraunces',serif;font-size:36px;color:#b48c50;}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>HDB Grant Eligibility</h1>
+<div class="lead">5 grants available. Most first-timers don't realise they qualify for 3-4 of them. Quick check, indicative only.</div>
+<div class="card">
+<div class="row">
+<label><span>Combined household income/mo (S$)</span><input id="income" type="number" value="6000"/></label>
+<label><span>Citizenship setup</span><select id="citz">
+<option value="sc_sc">Both SC</option>
+<option value="sc_pr">SC + PR</option>
+<option value="sc_fiance">SC + non-citizen fiancé</option>
+</select></label>
+</div>
+<div class="row">
+<label><span>First-timer (never owned)?</span><select id="first">
+<option value="yes">Yes - first-timer</option>
+<option value="no">No - second-timer</option>
+</select></label>
+<label><span>Buying within 4km of parents?</span><select id="prox">
+<option value="no">No</option>
+<option value="2km">Yes, within 2km</option>
+<option value="4km">Yes, 2-4km</option>
+<option value="same">Same flat as parents</option>
+</select></label>
+</div>
+<div class="row">
+<label><span>Buying flat type</span><select id="ftype">
+<option value="2r3r">2-room or 3-room</option>
+<option value="4r">4-room</option>
+<option value="5r">5-room or larger</option>
+</select></label>
+<label><span>Resale or BTO?</span><select id="bto">
+<option value="resale">Resale</option>
+<option value="bto">BTO/SBF</option>
+</select></label>
+</div>
+<button class="btn" onclick="check()">Check grants</button>
+</div>
+<div id="result" class="result"></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20maximise%20my%20HDB%20grants%20and%20talk%20strategy.">Maximising grants? WA me →</a></div>
+<script>
+function check(){
+const inc=+document.getElementById('income').value;
+const citz=document.getElementById('citz').value;
+const first=document.getElementById('first').value;
+const prox=document.getElementById('prox').value;
+const ftype=document.getElementById('ftype').value;
+const bto=document.getElementById('bto').value;
+let html='';let total=0;
+
+// 1. CPF Housing Grant (resale, first-timer)
+if (bto==='resale' && first==='yes' && inc<=14000){
+  let amt=ftype==='5r'?40000:50000;
+  if (citz==='sc_pr'){amt-=10000;}
+  total+=amt;
+  html+=`<div class="grant eligible"><b>1. CPF Housing Grant</b> · <span class="amt">S$${amt.toLocaleString()}</span><div class="note">First-timer resale grant. Income ≤ S$14k.</div></div>`;
+} else html+=`<div class="grant"><b>1. CPF Housing Grant</b> · not eligible (resale + first-timer + income ≤14k)</div>`;
+
+// 2. Enhanced CPF Housing Grant (EHG, BTO+resale, lower income)
+if (first==='yes' && inc<=9000){
+  const amt=Math.max(5000, 80000-(Math.floor(inc/500)*5000));
+  total+=amt;
+  html+=`<div class="grant eligible"><b>2. Enhanced Housing Grant (EHG)</b> · <span class="amt">~S$${amt.toLocaleString()}</span><div class="note">Income-tiered. ≤S$1500 = max S$80k. Reduces by S$5k per S$500 income tier.</div></div>`;
+} else html+=`<div class="grant"><b>2. Enhanced Housing Grant</b> · not eligible (income > S$9k or not first-timer)</div>`;
+
+// 3. Step-Up CPF Grant (second-timer 2r→3r upgrade only)
+if (first==='no' && ftype==='2r3r'){
+  total+=15000;
+  html+=`<div class="grant maybe"><b>3. Step-Up CPF Grant</b> · <span class="amt">S$15,000</span><div class="note">Second-timer upgrading from 2-room to 3-room. Income ≤ S$7k. Verify.</div></div>`;
+} else html+=`<div class="grant"><b>3. Step-Up CPF Grant</b> · not eligible (only second-timers upgrading 2r→3r)</div>`;
+
+// 4. Proximity Housing Grant
+if (prox!=='no'){
+  const amt=prox==='same'?30000:20000;
+  total+=amt;
+  html+=`<div class="grant eligible"><b>4. Proximity Housing Grant</b> · <span class="amt">S$${amt.toLocaleString()}</span><div class="note">${prox==='same'?'Living WITH parents - S$30k':'Within 4km of parents - S$20k'}.</div></div>`;
+} else html+=`<div class="grant"><b>4. Proximity Housing Grant</b> · not applicable (>4km from parents)</div>`;
+
+// 5. Family Grant (resale family applicants)
+if (bto==='resale' && first==='yes'){
+  const amt=citz==='sc_sc'?80000:50000;
+  total+=amt;
+  html+=`<div class="grant eligible"><b>5. Family Grant (resale)</b> · <span class="amt">S$${amt.toLocaleString()}</span><div class="note">${citz==='sc_sc'?'Both SC - S$80k':'SC+PR or SC+non-citizen - S$50k'}. First-timer resale.</div></div>`;
+} else html+=`<div class="grant"><b>5. Family Grant</b> · not applicable (BTO or second-timer)</div>`;
+
+html+=`<div class="total"><div class="v">~S$${total.toLocaleString()}</div><div style="color:#7a6c54;font-size:12px;margin-top:6px;text-transform:uppercase;letter-spacing:0.1em;">Indicative total grants</div><div style="color:#a89980;font-size:13px;margin-top:10px;">Verify on HDB website. Grant rules change. This is a directional check.</div></div>`;
+document.getElementById('result').innerHTML=html;
+document.getElementById('result').classList.add('show');
+}
+check();
+</script>
+</div></body></html>

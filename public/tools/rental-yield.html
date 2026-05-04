@@ -2,10 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Rental Yield & Breakeven Calculator Singapore | Winfred Quek</title>
   <meta name="description" content="Free rental yield + breakeven calculator for Singapore property. Gross yield, net yield, monthly cashflow after mortgage/MCST/tax, and years-to-breakeven. By Winfred Quek, Crestbrick. CEA R073319H." />
-  <meta property="og:title" content="Rental Yield Calculator Singapore  --  Winfred Quek" />
+  <meta property="og:title" content="Rental Yield Calculator Singapore   --   Winfred Quek" />
   <meta property="og:description" content="Gross yield, net yield, monthly cashflow, years-to-breakeven. Investor-grade math." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/img/og-image.jpg" />
@@ -23,7 +24,10 @@
 <style>
     .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
   </style>
-</head>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"HowTo","name":"How to use the Singapore Rental Yield Calculator","description":"Step-by-step instructions to compute gross and net rental yield on Singapore residential property.","step":[{"@type":"HowToStep","position":1,"name":"Enter monthly rental income","text":"Use realistic stabilised rental  --  not asking-rent. Check URA REALIS or recent comparable transactions."},{"@type":"HowToStep","position":2,"name":"Enter property purchase price","text":"Use the all-in cost including BSD and ABSD if held as investment."},{"@type":"HowToStep","position":3,"name":"Enter annual operating costs","text":"Maintenance fees, property tax, insurance, agent commission for re-letting, occasional repairs."},{"@type":"HowToStep","position":4,"name":"Review gross and net yield","text":"Gross = annual rent / price. Net = (annual rent − costs) / price. Compare against bond yields and risk-free rate."},{"@type":"HowToStep","position":5,"name":"Stress-test vacancy","text":"Apply a 5-10% vacancy haircut. The realistic net yield is what survives a 1-month vacancy per year."}]}
+</script>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
 <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -155,6 +159,17 @@
 
   <p class="mt-6 text-xs text-[var(--ink-muted)]">Figures are estimates for planning purposes. Verify with your banker and solicitor before committing.</p>
 </section>
+
+<aside class="max-w-3xl mx-auto px-6 my-12">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-3">Related reading</p>
+  <h3 class="serif text-2xl font-semibold mb-5">Go deeper on the math.</h3>
+  <div class="grid md:grid-cols-3 gap-3">
+      <a href="/insights/rental-yield-vs-appreciation" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Read</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Rental Yield vs Appreciation</p></a>
+      <a href="/insights/singapore-property-yield-by-district" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Read</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Yield by District</p></a>
+      <a href="/insights/dual-key-condo-singapore" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Read</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Dual-key Condo Yield Math</p></a>
+  </div>
+</aside>
+
 </main>
 
 <footer class="divider bg-[var(--bg)]">

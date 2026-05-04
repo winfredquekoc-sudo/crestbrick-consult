@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Seller Motivation Scorer · Winfred Quek</title>
+<meta name="description" content="8-question rubric to gauge a seller's motivation and adjust your negotiation strategy accordingly.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/seller-motivation-scorer">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:560px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin-bottom:6px;}.lead{color:#a89980;margin-bottom:24px;}.q{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:10px;padding:18px;margin-bottom:12px;}.q .lbl{font-size:14px;color:#b48c50;margin-bottom:10px;}.opts label{display:block;padding:8px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.2);border-radius:6px;margin-bottom:5px;cursor:pointer;font-size:13px;}.opts label:hover{border-color:#b48c50;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;background:#171410;border-left:4px solid #b48c50;padding:24px;border-radius:8px;margin-top:24px;}.result.show{display:block;}.score{font-family:'Fraunces',serif;font-size:48px;color:#b48c50;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>Seller Motivation Scorer</h1>
+<div class="lead">8 questions. The score tells you how aggressive to be in negotiation.</div>
+<form id="qform">
+<div class="q"><div class="lbl">1. Days on market?</div><div class="opts">
+<label><input type="radio" name="q1" value="0"> &lt;14 days</label>
+<label><input type="radio" name="q1" value="2"> 15-60 days</label>
+<label><input type="radio" name="q1" value="4"> 60-120 days</label>
+<label><input type="radio" name="q1" value="6"> &gt;120 days</label>
+</div></div>
+<div class="q"><div class="lbl">2. Price reductions on listing?</div><div class="opts">
+<label><input type="radio" name="q2" value="0"> None</label>
+<label><input type="radio" name="q2" value="3"> 1 reduction</label>
+<label><input type="radio" name="q2" value="6"> 2+ reductions</label>
+</div></div>
+<div class="q"><div class="lbl">3. Already bought next property?</div><div class="opts">
+<label><input type="radio" name="q3" value="0"> No</label>
+<label><input type="radio" name="q3" value="3"> Possibly</label>
+<label><input type="radio" name="q3" value="8"> Yes - bridging risk</label>
+</div></div>
+<div class="q"><div class="lbl">4. Seller's stated reason?</div><div class="opts">
+<label><input type="radio" name="q4" value="0"> Testing market</label>
+<label><input type="radio" name="q4" value="3"> Upgrading</label>
+<label><input type="radio" name="q4" value="6"> Relocating / divorce / estate</label>
+</div></div>
+<div class="q"><div class="lbl">5. Property condition?</div><div class="opts">
+<label><input type="radio" name="q5" value="0"> Premium / staged</label>
+<label><input type="radio" name="q5" value="2"> Lived-in OK</label>
+<label><input type="radio" name="q5" value="4"> Tired / needs reno</label>
+</div></div>
+<div class="q"><div class="lbl">6. Marketing intensity?</div><div class="opts">
+<label><input type="radio" name="q6" value="0"> Low - drone, brochure, premium photos</label>
+<label><input type="radio" name="q6" value="2"> Standard listing only</label>
+<label><input type="radio" name="q6" value="4"> Multiple agents listed simultaneously</label>
+</div></div>
+<div class="q"><div class="lbl">7. Recent ABSD/SSD pressure?</div><div class="opts">
+<label><input type="radio" name="q7" value="0"> Outside SSD, no ABSD pressure</label>
+<label><input type="radio" name="q7" value="3"> ABSD remission deadline approaching</label>
+<label><input type="radio" name="q7" value="5"> ABSD remission &lt;90 days from deadline</label>
+</div></div>
+<div class="q"><div class="lbl">8. Counter speed in initial chat?</div><div class="opts">
+<label><input type="radio" name="q8" value="0"> Slow, no urgency</label>
+<label><input type="radio" name="q8" value="3"> Same-day responses</label>
+<label><input type="radio" name="q8" value="5"> Asking when you can view ASAP</label>
+</div></div>
+<button type="button" class="btn" onclick="score()">Score motivation</button>
+</form>
+<div id="result" class="result">
+<div class="score" id="scoreVal"></div>
+<div style="color:#7a6c54;font-size:13px;text-transform:uppercase;letter-spacing:0.1em;margin-bottom:14px;">Motivation score / 41</div>
+<div id="strategy" style="color:#f0e9d8;line-height:1.7;"></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20scored%20a%20seller%20and%20want%20to%20strategise.">Talk strategy with me on WA →</a></div>
+</div>
+<script>
+function score(){
+const f=document.getElementById('qform');
+let total=0,answered=0;
+for (const r of f.querySelectorAll('input:checked')){total+=+r.value;answered++;}
+if (answered<8){alert('Answer all 8.');return;}
+let strat='';
+if (total>=28) strat='<b>HIGHLY MOTIVATED.</b> Open low - 8-12% below asking. They need you. Use silence. Set tight deadlines. Walk-away discipline matters here because they may chase, which is a tell.';
+else if (total>=18) strat='<b>MODERATELY MOTIVATED.</b> Open 5-8% below asking. Negotiate firmly. They have options but you have leverage too.';
+else if (total>=10) strat='<b>BALANCED MARKET.</b> Open 3-5% below. Be respectful, build rapport. Move on quickly if they push back hard.';
+else strat='<b>SELLER HAS LEVERAGE.</b> Either pay close to asking or walk. Trying to steal at low ball will lose you the deal AND insult them. Wrong unit, wrong moment.';
+document.getElementById('scoreVal').textContent=total;
+document.getElementById('strategy').innerHTML=strat;
+document.getElementById('result').classList.add('show');
+}
+</script>
+</div></body></html>

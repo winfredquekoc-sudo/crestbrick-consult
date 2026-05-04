@@ -1,0 +1,102 @@
+% SG Property Almanac — Pandoc XeLaTeX template
+% Brand: Crestbrick — navy + gold, Fraunces (serif) + Inter (sans)
+% Use: pandoc input.md --pdf-engine=xelatex --template=template.tex -o out.pdf
+%
+% Required system fonts: Fraunces, Inter, JetBrains Mono
+%   brew install --cask font-fraunces font-inter font-jetbrains-mono
+
+\documentclass[$if(fontsize)$$fontsize$$else$11pt$endif$,a4paper]{article}
+
+\usepackage{fontspec}
+\usepackage{xcolor}
+\usepackage[$if(geometry)$$geometry$$else$margin=2.2cm$endif$]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{longtable,booktabs,array}
+\usepackage{tcolorbox}
+\usepackage{enumitem}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{microtype}
+\usepackage{parskip}
+
+% Brand palette
+\definecolor{NavyBrand}{HTML}{0B1F3A}
+\definecolor{NavyBrand2}{HTML}{14305A}
+\definecolor{GoldBrand}{HTML}{C9A14A}
+\definecolor{InkBrand}{HTML}{1A1A1A}
+\definecolor{MutedBrand}{HTML}{5A6470}
+\definecolor{QuoteBg}{HTML}{F6F1E3}
+\definecolor{RuleBrand}{HTML}{D8D8D8}
+
+% Fonts
+$if(mainfont)$
+\setmainfont{$mainfont$}
+$else$
+\setmainfont{Fraunces}
+$endif$
+$if(sansfont)$
+\setsansfont{$sansfont$}
+$else$
+\setsansfont{Inter}
+$endif$
+$if(monofont)$
+\setmonofont{$monofont$}
+$else$
+\setmonofont{JetBrains Mono}
+$endif$
+
+\color{InkBrand}
+
+% Headings — navy with gold rule above H1
+\titleformat{\section}[block]
+  {\color{NavyBrand}\sffamily\Huge\bfseries}
+  {}{0pt}
+  {\color{GoldBrand}\rule{\linewidth}{2pt}\\[6pt]\color{NavyBrand}}
+\titleformat{\subsection}{\color{NavyBrand2}\sffamily\Large\bfseries}{}{0pt}{}
+\titleformat{\subsubsection}{\color{NavyBrand2}\sffamily\large\bfseries}{}{0pt}{}
+
+% Headers / footers
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\sffamily\footnotesize\color{MutedBrand}SG Property Almanac 2026 — Crestbrick}
+\fancyfoot[C]{\sffamily\footnotesize\color{MutedBrand}\thepage}
+\renewcommand{\headrulewidth}{0pt}
+
+% Hyperlinks
+\hypersetup{
+  colorlinks=true,
+  linkcolor=NavyBrand,
+  urlcolor=NavyBrand2,
+  citecolor=NavyBrand
+}
+
+% Block-quote callout
+\renewenvironment{quote}
+  {\begin{tcolorbox}[colback=QuoteBg,colframe=GoldBrand,boxrule=0pt,leftrule=3pt,arc=0pt,left=10pt,right=10pt,top=8pt,bottom=8pt]\color{NavyBrand}}
+  {\end{tcolorbox}}
+
+% Tables — sans-serif numerics
+\renewcommand{\arraystretch}{1.25}
+
+\begin{document}
+
+% Cover page
+\begin{titlepage}
+  \vspace*{2cm}
+  \noindent{\sffamily\small\color{GoldBrand}\MakeUppercase{SG Property Almanac \quad Volume 1}}\\[8pt]
+  \noindent{\Huge\bfseries\color{NavyBrand}Singapore Property\\[2pt]Almanac 2026}\\[16pt]
+  \noindent{\sffamily\small\color{NavyBrand2}\MakeUppercase{Year in Review \quad Year Ahead}}
+  \vfill
+  \noindent{\sffamily\small\color{MutedBrand}Winfred Quek \quad CEA R073319H \quad Crestbrick \quad PropNex Realty}\\
+  \noindent{\sffamily\footnotesize\color{MutedBrand}Published 15 January 2027}
+\end{titlepage}
+
+$if(toc)$
+{\sffamily\tableofcontents}
+\clearpage
+$endif$
+
+$body$
+
+\end{document}

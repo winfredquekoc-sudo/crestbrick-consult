@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>HDB MOP Countdown · Winfred Quek</title>
+<meta name="description" content="Calculate days until HDB Minimum Occupation Period (MOP) ends and what happens next.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/hdb-mop-countdown">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:520px;margin:0 auto;text-align:center;}
+h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;margin-bottom:8px;}
+.lead{color:#a89980;margin-bottom:32px;line-height:1.6;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:28px;margin-bottom:18px;}
+input,select{width:100%;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;font-size:15px;margin-bottom:14px;}
+input:focus,select:focus{outline:none;border-color:#b48c50;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;margin-top:24px;}
+.result.show{display:block;}
+.days-big{font-family:'Fraunces',serif;font-size:60px;color:#b48c50;line-height:1;}
+.days-label{color:#7a6c54;font-size:13px;letter-spacing:0.1em;text-transform:uppercase;margin-top:8px;}
+.detail{margin-top:24px;padding:16px;background:#171410;border-left:3px solid #b48c50;border-radius:6px;text-align:left;font-size:14px;line-height:1.7;}
+.cta{margin-top:24px;}
+.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>HDB MOP Countdown</h1>
+<div class="lead">5 years. Then the door opens  --  sell, sublet, or upgrade. Plug in your key collection date.</div>
+
+<div class="card">
+<input id="kc" type="date" placeholder="Key collection date" />
+<select id="ftype">
+  <option value="resale">Resale HDB (5y MOP)</option>
+  <option value="bto">BTO (5y MOP from key collection)</option>
+  <option value="ec">Executive Condo (5y MOP)</option>
+</select>
+<button class="btn" onclick="calc()">Show countdown</button>
+</div>
+
+<div id="r" class="result">
+<div class="days-big" id="days"> -- </div>
+<div class="days-label" id="status">days until MOP</div>
+<div class="detail" id="detail"></div>
+</div>
+
+<div class="cta">
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20my%20MOP%20ends%20soon%20and%20I'm%20thinking%20about%20what's%20next.">When MOP hits, want to plan the next move? WA me →</a>
+</div>
+
+<script>
+function calc(){
+  const kc = document.getElementById('kc').value;
+  if (!kc) return;
+  const t0 = new Date(kc);
+  const mop = new Date(kc); mop.setFullYear(mop.getFullYear()+5);
+  const today = new Date();
+  const diff = Math.ceil((mop - today) / (1000*60*60*24));
+  const r = document.getElementById('r');
+  const d = document.getElementById('days');
+  const s = document.getElementById('status');
+  const det = document.getElementById('detail');
+
+  r.classList.add('show');
+  if (diff > 0){
+    d.textContent = diff.toLocaleString();
+    s.textContent = 'days until MOP';
+    if (diff <= 180){
+      det.innerHTML = '<b>You\'re in the planning window.</b> Most upgraders make their move 6–9 months ahead of MOP. Time to: (1) get a valuation refreshed, (2) get IPA from 2-3 banks, (3) shortlist the upgrade target.';
+    } else if (diff <= 365){
+      det.innerHTML = '<b>~12 months out.</b> Start the equity audit now. Knowing your post-MOP equity unlocks the upgrade math.';
+    } else {
+      det.innerHTML = `<b>${(diff/365).toFixed(1)} years.</b> Still early  --  but a quarterly equity check costs nothing and tells you when the curve flattens.`;
+    }
+  } else {
+    d.textContent = Math.abs(diff).toLocaleString();
+    s.textContent = 'days post-MOP';
+    det.innerHTML = '<b>You\'re past MOP.</b> Options now: sell + upgrade, sublet, hold-and-wait. Each has different math. Want me to run yours?';
+  }
+}
+</script>
+</div></body></html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>99-Year Leasehold Tail Discount · Winfred Quek</title>
+<meta name="description" content="Compute the lease-decay discount on Singapore leasehold properties as years remaining decrease.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/leasehold-tail-discount">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:560px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}input{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.row{display:flex;gap:14px;}.row label{flex:1;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:24px;padding:20px;background:#171410;border-left:4px solid #b48c50;border-radius:8px;}.result.show{display:block;}table{width:100%;border-collapse:collapse;font-size:14px;}th{padding:8px;text-align:left;color:#b48c50;font-size:12px;letter-spacing:0.05em;background:#1a1610;}td{padding:10px 8px;border-bottom:1px solid rgba(180,140,80,0.1);}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>99-Year Leasehold Tail Discount</h1>
+<div class="lead">As remaining lease shortens, two things decay: bank-financing eligibility (35-year rule) and Bala's table valuation. Quick model.</div>
+<div class="card">
+<label><span>Property name / address</span><input id="addr" placeholder="e.g. The Sail @ Marina Bay"/></label>
+<div class="row">
+<label><span>Tenure start year</span><input id="start" type="number" value="2008"/></label>
+<label><span>Original tenure (yrs)</span><input id="tenure" type="number" value="99"/></label>
+</div>
+<label><span>Current freehold-equivalent value (S$)</span><input id="fh_val" type="number" value="2000000"/></label>
+<button class="btn" onclick="calc()">Compute lease decay</button>
+</div>
+<div id="result" class="result">
+<table>
+<thead><tr><th>Year</th><th>Lease left</th><th>Bala % vs FH</th><th>Implied value</th></tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+<div style="margin-top:14px;color:#a89980;font-size:13px;line-height:1.7;" id="readout"></div>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20own%20a%20leasehold%20property%20and%20want%20to%20talk%20exit%20strategy.">Holding old leasehold? Talk exit strategy →</a></div>
+<script>
+// Bala's table approximation: for years remaining, return % of freehold-equivalent value
+// Source: SLA "Leasehold Table" (Bala's Table) — approximated linearly between key milestones.
+const balaPct=(yrs)=>{
+  if (yrs>=99) return 0.96;
+  if (yrs>=90) return 0.92;
+  if (yrs>=80) return 0.89;
+  if (yrs>=70) return 0.85;
+  if (yrs>=60) return 0.79;
+  if (yrs>=50) return 0.73;
+  if (yrs>=40) return 0.66;
+  if (yrs>=30) return 0.55;  // financing also tightens here
+  if (yrs>=20) return 0.41;
+  if (yrs>=10) return 0.27;
+  return 0.10;
+};
+function calc(){
+const start=+document.getElementById('start').value;
+const tenure=+document.getElementById('tenure').value;
+const fh_val=+document.getElementById('fh_val').value;
+const expiry=start+tenure;
+const fmt=n=>'S$'+Math.round(n).toLocaleString();
+let rows='';
+const checkpoints=[5,10,15,20,25,30,40,50];
+const today=new Date().getFullYear();
+for (const offset of checkpoints){
+  const yr=today+offset;
+  const left=expiry-yr;
+  if (left<=0) continue;
+  const pct=balaPct(left);
+  const val=fh_val*pct;
+  rows+=`<tr><td>${yr}</td><td>${left} yrs</td><td>${Math.round(pct*100)}%</td><td>${fmt(val)}</td></tr>`;
+}
+document.getElementById('tbody').innerHTML=rows;
+const yrsLeftNow=expiry-today;
+let read='';
+if (yrsLeftNow<35) read=`<b>⚠ Critical: lease at ${yrsLeftNow} years.</b> Banks restrict mortgages once property+borrower-age exceeds 95. Buyer pool narrowing fast. Either exit, en-bloc, or hold expecting deeper discounts.`;
+else if (yrsLeftNow<50) read=`<b>Caution zone:</b> ${yrsLeftNow} years left. Lease decay accelerates from year 60 mark. CPF restrictions kick in below 30 years.`;
+else read=`<b>Healthy:</b> ${yrsLeftNow} years left. Decay is gradual until ~60 years remaining.`;
+document.getElementById('readout').innerHTML=read+`<br><br><b>Source:</b> Bala's Table (SLA) approximations. Use for directional thinking; bank/CPF rules also affect financing.`;
+document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

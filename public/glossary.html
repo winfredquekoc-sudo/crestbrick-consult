@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>SG Property Glossary A-Z · Winfred Quek</title>
+<meta name="description" content="A-Z glossary of Singapore property terms: ABSD, BSD, CPF OA, EHG, MOP, SSD, TDSR and more.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/glossary">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:760px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;margin:6px 0 8px;}.lead{color:#a89980;margin-bottom:24px;}.az{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:28px;}.az a{padding:6px 10px;background:#1a1610;border:1px solid rgba(180,140,80,0.2);color:#b48c50;border-radius:6px;text-decoration:none;font-size:13px;font-weight:500;}.az a:hover{background:#252018;}.term{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:10px;padding:18px;margin-bottom:14px;}.term h2{font-family:'Fraunces',serif;font-size:18px;color:#b48c50;font-weight:400;margin-bottom:6px;}.term .meaning{color:#a89980;font-size:14px;}.term .meaning b{color:#fff;}.section{font-family:'Fraunces',serif;font-size:24px;color:#b48c50;margin:28px 0 14px;}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_search.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>SG Property Glossary</h1>
+<div class="lead">Every Singapore property term you'll encounter, plain-English. Bookmark for reference.</div>
+<div class="az" id="az"></div>
+<div id="content"></div>
+</div>
+<script>
+const G = [
+{t:'ABSD',full:'Additional Buyer\'s Stamp Duty',def:'Tax on top of BSD when buying additional residential property. SC: 0/20/30%. PR: 5/30%. Foreigner: 60%. Entity/Trust: 65%. Triggered at every property purchase based on buyer profile and property count.'},
+{t:'AIP',full:'Approval In Principle',def:'A bank\'s written confirmation of how much they\'ll lend you, valid 1-3 months. Get 2-3 before viewing serious properties.'},
+{t:'ABSD remission',full:'',def:'Conditional refund of ABSD on second property if you sell your old one within 6 months of buying. Married SC couples only.'},
+{t:'BSD',full:'Buyer\'s Stamp Duty',def:'Tiered tax on every property purchase. 1% on first $180k, 2% on next $180k, 3% on next $640k, 4% on next $500k, 5% on next $1.5M, 6% above. ALWAYS payable.'},
+{t:'BTO',full:'Build-To-Order',def:'New HDB flats sold via ballot before construction. 4-5 year wait, lower price than resale, 5-year MOP from key collection.'},
+{t:'CCR',full:'Core Central Region',def:'Districts 9, 10, 11 + Sentosa. Premium, capital-preservation focus, lower yield.'},
+{t:'CPF OA',full:'Central Provident Fund Ordinary Account',def:'Used for housing, education, investments. Earns 2.5%/yr. When used for property, you owe back the principal + 2.5% accrued interest on sale.'},
+{t:'CPF SA',full:'Special Account',def:'Retirement-only. 4%/yr. Cannot be used for housing.'},
+{t:'CPF accrued interest',full:'',def:'The 2.5%/yr that your withdrawn OA would have earned if not used. Owed back to OA on sale of property.'},
+{t:'COV',full:'Cash Over Valuation',def:'Cash a buyer pays above bank valuation, in addition to standard down-payment. Reflects competitive bidding for HDB resale.'},
+{t:'Decoupling',full:'(see Restructuring)',def:'See "Restructuring strategy" — transferring spousal share to dodge ABSD on next property.'},
+{t:'EHG',full:'Enhanced Housing Grant',def:'Income-tiered first-timer grant for HDB. ≤S$1,500 income → S$80k; reduces by S$5k per S$500 income tier. Caps at S$9k income.'},
+{t:'EIP',full:'Ethnic Integration Policy',def:'HDB quota: each block + neighbourhood capped per ethnic group (Chinese 84/87%, Malay 22/25%, Indian/Other 12/15%). Resale blocked if at quota.'},
+{t:'EC',full:'Executive Condominium',def:'Hybrid HDB-private. 5-year MOP, 10-year private status. Income cap S$16k for new EC. Resale at 5y, fully private at 10y.'},
+{t:'En-bloc',full:'Collective sale',def:'Owners of an entire condo development collectively sell to a developer for redevelopment. Needs 80% owner consent (90% for blocks <10y old). High reward, low probability.'},
+{t:'FRS',full:'Full Retirement Sum',def:'CPF benchmark for monthly retirement payouts. 2026: ~S$213k. Affects how much CPF can be withdrawn at 55.'},
+{t:'GLS',full:'Government Land Sales',def:'URA tenders for development land. Confirmed list (definite) vs Reserve list (triggered by developer interest). Future supply signal.'},
+{t:'HDB',full:'Housing & Development Board',def:'Public housing authority. ~80% of SG households live in HDB.'},
+{t:'HPS',full:'Home Protection Scheme',def:'CPF-board-administered insurance for HDB owners using CPF for housing. Covers outstanding loan on death/permanent disability.'},
+{t:'IPA',full:'In-Principle Approval',def:'Same as AIP. Bank pre-approves loan amount before you commit to a property.'},
+{t:'JTC',full:'Jurong Town Corporation',def:'Industrial land authority. JTC industrial property has different tenure mechanics than residential.'},
+{t:'LTV',full:'Loan-To-Value',def:'Max % of property value bank will lend. 75% for 1st residential loan, lower for 2nd+. Affects required cash down-payment.'},
+{t:'MAS',full:'Monetary Authority of Singapore',def:'Central bank + financial regulator. Sets cooling measures (ABSD, TDSR, MSR, LTV).'},
+{t:'MCST',full:'Management Corporation Strata Title',def:'Condo management body. Sets and collects maintenance fees, sinking fund.'},
+{t:'MOP',full:'Minimum Occupation Period',def:'5 years for HDB/EC before you can sell or sublet whole flat. Counted from key collection date (BTO) or sale completion date (resale).'},
+{t:'MRT',full:'Mass Rapid Transit',def:'SG public rail. Distance to MRT (within 500m) commands a price premium.'},
+{t:'MSR',full:'Mortgage Servicing Ratio',def:'HDB/EC only — housing debt cap at 30% of gross monthly income.'},
+{t:'OCR',full:'Outside Central Region',def:'All districts not in CCR or RCR. Higher yield, lower entry, mass-market.'},
+{t:'OTP',full:'Option to Purchase',def:'Legal contract from seller to reserve a buy at agreed price. Buyer pays 1% option fee, then 4% on exercise within 14 days.'},
+{t:'Plot ratio',full:'',def:'URA-set max gross floor area / land area. Higher plot ratio = more developable. Key driver of en-bloc valuation.'},
+{t:'PR',full:'Permanent Resident',def:'Long-term residency status. Different ABSD rates than SC and Foreigner.'},
+{t:'PSF',full:'Per Square Foot',def:'Standard SG property pricing unit. PSF varies dramatically by district + tenure.'},
+{t:'RCR',full:'Rest of Central Region',def:'Mid-tier districts (1-8, 12-14). Between CCR premium and OCR mass-market.'},
+{t:'Restructuring strategy',full:'(formerly "Decoupling")',def:'Married couple transfers share of jointly-owned property to one spouse, freeing the other for ABSD-free next purchase. Common cost S$5-10k; common saving S$80-150k.'},
+{t:'SC',full:'Singapore Citizen',def:'Most favourable ABSD treatment: 0% on 1st residential, 20% on 2nd, 30% on 3rd+.'},
+{t:'SBF',full:'Sale of Balance Flats',def:'Unsold BTO units released quarterly. Often shorter wait than fresh BTO ballot.'},
+{t:'SLA',full:'Singapore Land Authority',def:'Manages state land + Bala\'s Table for leasehold valuations.'},
+{t:'SORA',full:'Singapore Overnight Rate Average',def:'Local risk-free rate, replaced SIBOR. Most floating mortgage packages now indexed to SORA.'},
+{t:'SPR',full:'Singapore Permanent Resident',def:'Same as PR. HDB resale has SPR quota: 5%/block, 8%/neighbourhood (excluding Malaysian SPRs).'},
+{t:'SSD',full:'Seller\'s Stamp Duty',def:'Penalty for selling residential within 3 years of purchase. Year 1: 12%. Year 2: 8%. Year 3: 4%. Year 4+: 0%.'},
+{t:'STB',full:'Strata Titles Board',def:'Approves en-bloc sales after owner consent threshold met.'},
+{t:'TDSR',full:'Total Debt Servicing Ratio',def:'Cap on all debt repayments at 55% of gross monthly income. Includes mortgage, car loan, credit cards.'},
+{t:'TOP',full:'Temporary Occupation Permit',def:'Allows occupation of new development before final certification. Marker for new launch handover.'},
+{t:'URA',full:'Urban Redevelopment Authority',def:'SG planning authority. Publishes Master Plan, quarterly price index, transaction caveats.'},
+{t:'Valuation',full:'',def:'Bank-commissioned price assessment. May differ from purchase price; affects max loan amount.'}
+];
+G.sort((a,b)=>a.t.localeCompare(b.t));
+const letters=[...new Set(G.map(g=>g.t[0]))].sort();
+const az=document.getElementById('az');
+letters.forEach(L=>az.insertAdjacentHTML('beforeend',`<a href="#L${L}">${L}</a>`));
+const content=document.getElementById('content');
+let curLetter='';
+G.forEach(g=>{
+  if (g.t[0]!==curLetter){curLetter=g.t[0];content.insertAdjacentHTML('beforeend',`<div class="section" id="L${curLetter}">${curLetter}</div>`);}
+  content.insertAdjacentHTML('beforeend',`<div class="term"><h2>${g.t}${g.full?' <span style="color:#7a6c54;font-size:14px;">— '+g.full+'</span>':''}</h2><div class="meaning">${g.def}</div></div>`);
+});
+</script>
+</body></html>

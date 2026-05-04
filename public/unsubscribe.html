@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Unsubscribe · Winfred Quek</title>
+<meta name="description" content="Unsubscribe from Winfred Quek emails — newsletter, drip campaigns, or all communications.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="robots" content="noindex">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.7;display:flex;align-items:center;justify-content:center;}.wrap{max-width:520px;width:100%;}h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;margin:6px 0 12px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:28px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}input,select{width:100%;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;font-size:15px;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;margin-top:10px;}.success{display:none;background:#0e3a1e;color:#9bffaf;padding:18px;border-radius:8px;margin-top:18px;text-align:center;}.success.show{display:block;}.foot{color:#7a6c54;font-size:12px;margin-top:24px;text-align:center;}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>Unsubscribe</h1>
+<div class="lead">No hard feelings. Confirm the email + what you'd like to opt out of, and we'll process within 24 hours.</div>
+<div class="card">
+<form id="unsubForm">
+<label><span style="display:block;font-size:13px;color:#a89980;margin-bottom:4px;">Your email</span>
+<input id="email" type="email" required placeholder="you@example.com"/></label>
+<label><span style="display:block;font-size:13px;color:#a89980;margin-bottom:4px;">What to unsubscribe from</span>
+<select id="from">
+<option value="all">All emails (full opt-out)</option>
+<option value="drip-empire">Empire drip series only</option>
+<option value="drip-equity">Equity drip series only</option>
+<option value="drip-reinvest">Reinvest drip series only</option>
+<option value="newsletter">Daily newsletter only</option>
+</select></label>
+<button type="submit" class="btn">Unsubscribe</button>
+</form>
+<div id="success" class="success">✓ Unsubscribed. You'll be removed within 24 hours. Reply STOP to any email if anything still lands.</div>
+</div>
+<div class="foot">Winfred Quek · winfred@winfredquek.com · +65 8161 8149</div>
+</div>
+<script>
+// Pre-fill email from URL param if present
+const emailFromUrl = new URLSearchParams(location.search).get('email');
+if (emailFromUrl) document.getElementById('email').value = emailFromUrl;
+
+document.getElementById('unsubForm').onsubmit = async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('email').value.trim();
+  const from = document.getElementById('from').value;
+  try {
+    await fetch('/api/unsubscribe', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, from})});
+  } catch(_){}
+  document.getElementById('unsubForm').style.display = 'none';
+  document.getElementById('success').classList.add('show');
+};
+</script>
+</body></html>

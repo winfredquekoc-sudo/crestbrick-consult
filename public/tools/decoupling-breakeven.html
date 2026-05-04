@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Restructuring Strategy Break-even Calculator · Winfred Quek</title>
+<meta name="description" content="Calculate the break-even point for restructuring strategy property ownership in Singapore. Model BSD, CPF refund, ABSD savings.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/decoupling-breakeven">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:680px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin-bottom:8px;}
+.lead{color:#a89980;margin-bottom:32px;line-height:1.6;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:20px;}
+.card h2{font-size:14px;letter-spacing:0.15em;text-transform:uppercase;color:#b48c50;margin-bottom:16px;}
+label{display:block;margin-bottom:14px;}
+label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}
+input{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;font-size:15px;}
+input:focus{outline:none;border-color:#b48c50;}
+.row{display:flex;gap:14px;}
+.row label{flex:1;}
+.btn{display:inline-block;background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;margin-top:4px;}
+.result{display:none;background:#171410;border-left:3px solid #b48c50;padding:20px 24px;border-radius:8px;margin-top:24px;}
+.result.show{display:block;}
+.result .row-r{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(180,140,80,0.1);}
+.result .row-r:last-child{border-bottom:none;font-weight:600;color:#b48c50;font-size:18px;padding-top:14px;}
+.muted{color:#7a6c54;font-size:12px;margin-top:14px;line-height:1.6;}
+.cta{margin-top:28px;text-align:center;}
+.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);padding-bottom:2px;}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>Restructuring Break-even</h1>
+<div class="lead">Should you restructure ownership now to dodge the 20%+ ABSD on your next property? Plug in the numbers  --  this tells you the true cost vs the savings.</div>
+
+<div class="card">
+<h2>Inputs</h2>
+<div class="row">
+  <label><span>Current property value (S$)</span><input id="value" type="number" value="1500000" /></label>
+  <label><span>Outstanding loan (S$)</span><input id="loan" type="number" value="600000" /></label>
+</div>
+<div class="row">
+  <label><span>CPF used by transferring spouse (S$)</span><input id="cpf" type="number" value="100000" /></label>
+  <label><span>Years held (CPF accrued interest)</span><input id="years" type="number" value="6" /></label>
+</div>
+<div class="row">
+  <label><span>Next property price (S$)</span><input id="next_price" type="number" value="1800000" /></label>
+  <label><span>Buyer ABSD rate</span><input id="absd_rate" type="number" value="20" step="0.5" /></label>
+</div>
+<button class="btn" onclick="calc()">Calculate</button>
+</div>
+
+<div id="result" class="result">
+<h2 style="font-size:13px;letter-spacing:0.15em;color:#b48c50;text-transform:uppercase;margin-bottom:12px;">Break-even</h2>
+<div class="row-r"><span>BSD on transfer (3% on transferred share)</span><span id="bsd"></span></div>
+<div class="row-r"><span>CPF refund + accrued interest</span><span id="cpf_refund"></span></div>
+<div class="row-r"><span>Loan restructure legal fees (est)</span><span id="legal"></span></div>
+<div class="row-r"><span>Total restructuring cost</span><span id="total_cost"></span></div>
+<div class="row-r"><span>ABSD saved on next purchase</span><span id="absd_saved"></span></div>
+<div class="row-r"><span>Net benefit</span><span id="net"></span></div>
+<div class="muted" id="verdict"></div>
+</div>
+
+<div class="cta">
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20ran%20the%20restructuring%20calculator%20and%20want%20to%20chat.">Run the real numbers with me on WhatsApp →</a>
+</div>
+
+<script>
+function calc(){
+  const value = +document.getElementById('value').value;
+  const loan = +document.getElementById('loan').value;
+  const cpf = +document.getElementById('cpf').value;
+  const years = +document.getElementById('years').value;
+  const next_price = +document.getElementById('next_price').value;
+  const absd_rate = +document.getElementById('absd_rate').value/100;
+
+  // Assume 50:50 split; transferring spouse buys out the other 50%
+  const transfer_value = value * 0.5;
+  // BSD on $1m+ uses tiered rates; simplify to 3% on transfer for portion
+  let bsd = 0;
+  let remaining = transfer_value;
+  const tiers = [[180000,0.01],[180000,0.02],[640000,0.03],[500000,0.04],[1500000,0.05],[Infinity,0.06]];
+  for (const [size, rate] of tiers) {
+    const slice = Math.min(remaining, size);
+    bsd += slice * rate;
+    remaining -= slice;
+    if (remaining<=0) break;
+  }
+  const cpf_refund = cpf * 0.5 * Math.pow(1.025, years);  // 2.5% CPF accrued
+  const legal = 4000;  // 2 sets of lawyers
+  const total_cost = bsd + legal;  // CPF refund is internal, not a cash cost
+  const absd_saved = next_price * absd_rate;
+  const net = absd_saved - total_cost;
+  const fmt = n => 'S$' + Math.round(n).toLocaleString();
+
+  document.getElementById('bsd').textContent = fmt(bsd);
+  document.getElementById('cpf_refund').textContent = fmt(cpf_refund) + ' (refunds to OA, not cash)';
+  document.getElementById('legal').textContent = fmt(legal);
+  document.getElementById('total_cost').textContent = fmt(total_cost);
+  document.getElementById('absd_saved').textContent = fmt(absd_saved);
+  document.getElementById('net').textContent = fmt(net);
+
+  let verdict = '';
+  if (net > 50000) verdict = '✓ Strong case for restructuring  --  net upside is meaningful.';
+  else if (net > 0) verdict = '~ Marginal upside. Consider holding-period and opportunity-cost before deciding.';
+  else verdict = '✗ Restructuring costs exceed ABSD savings on this scenario. Run alternatives (sell-then-buy, etc).';
+  document.getElementById('verdict').textContent = verdict + ' This is an indicative model  --  every case has wrinkles.';
+
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

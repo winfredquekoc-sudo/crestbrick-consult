@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>TDSR / MSR Scenario Compare · Winfred Quek</title>
+<meta name="description" content="Singapore TDSR + MSR affordability calculator with side-by-side rate-shock scenarios.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/tdsr-scenarios">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:780px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
+.lead{color:#a89980;margin:8px 0 28px;line-height:1.6;}
+.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}
+label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}
+input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}
+.row{display:flex;gap:14px;flex-wrap:wrap;}.row label{flex:1;min-width:180px;}
+.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;margin-top:24px;}
+.result.show{display:block;}
+.scenarios{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.scenario{background:#1a1610;border:1px solid rgba(180,140,80,0.15);border-radius:10px;padding:18px;border-left:4px solid #555;}
+.scenario.green{border-left-color:#3ddc84;}
+.scenario.amber{border-left-color:#ffb000;}
+.scenario.red{border-left-color:#ff5252;}
+.scenario .label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:#7a6c54;margin-bottom:4px;}
+.scenario .rate{font-family:'Fraunces',serif;font-size:18px;color:#b48c50;}
+.scenario .max-loan{font-size:24px;color:#fff;font-weight:500;margin:6px 0 10px;}
+.metric{display:flex;justify-content:space-between;font-size:12px;color:#a89980;margin:3px 0;}
+.metric .v{color:#f0e9d8;}
+.note{color:#7a6c54;font-size:12px;line-height:1.6;margin-top:14px;}
+.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>TDSR / MSR Scenario Compare</h1>
+<div class="lead">Same financial profile, four rate environments. See how much loan you qualify for at each  --  and what happens if rates spike. The MAS computes affordability at a stress rate, but reality matters too.</div>
+
+<div class="card">
+<div class="row">
+<label><span>Gross monthly income (S$)</span><input id="inc" type="number" value="12000"/></label>
+<label><span>Existing monthly debts (cars, loans, credit cards)</span><input id="debts" type="number" value="800"/></label>
+</div>
+<div class="row">
+<label><span>Property type</span><select id="ptype"><option value="hdb">HDB / EC (MSR + TDSR)</option><option value="private" selected>Private (TDSR only)</option></select></label>
+<label><span>Loan tenure (years)</span><input id="tenure" type="number" value="30"/></label>
+</div>
+<button class="btn" onclick="calc()">Compare 4 rate scenarios</button>
+</div>
+
+<div id="result" class="result">
+<div class="scenarios" id="cards"></div>
+<div class="note" id="note"></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20ran%20the%20TDSR%20scenarios%20and%20want%20to%20talk%20rate%20strategy.">Want a real bank IPA + rate-lock strategy? WA me →</a></div>
+</div>
+
+<script>
+function pmt(rate, periods, loan) {
+  // monthly payment for amortising loan
+  const r = rate / 12;
+  return loan * r / (1 - Math.pow(1 + r, -periods));
+}
+function maxLoan(rate, periods, monthlyAvail) {
+  const r = rate / 12;
+  return monthlyAvail * (1 - Math.pow(1 + r, -periods)) / r;
+}
+function calc(){
+  const inc = +document.getElementById('inc').value;
+  const debts = +document.getElementById('debts').value;
+  const ptype = document.getElementById('ptype').value;
+  const tenure = +document.getElementById('tenure').value;
+  const periods = tenure * 12;
+
+  // TDSR cap: 55% of gross income
+  const tdsrLimit = inc * 0.55;
+  const tdsrAvail = tdsrLimit - debts;
+  // MSR cap (HDB/EC only): 30% of gross income for housing only
+  const msrAvail = ptype === 'hdb' ? inc * 0.30 : Infinity;
+  const monthlyAvail = Math.min(tdsrAvail, msrAvail);
+
+  // Stress rate per MAS: 4.0% for private, 3.0% for HDB
+  const stressRate = ptype === 'hdb' ? 0.030 : 0.040;
+  const fmt = n => 'S$' + Math.round(n).toLocaleString();
+
+  const scenarios = [
+    {label: 'TODAY', rate: 0.0145, color: 'green'},
+    {label: 'STRESS (MAS test)', rate: stressRate, color: 'amber'},
+    {label: '+1pp shock', rate: 0.0245, color: 'amber'},
+    {label: '+2pp shock', rate: 0.0345, color: 'red'}
+  ];
+
+  const cards = document.getElementById('cards');
+  cards.innerHTML = '';
+  scenarios.forEach(s => {
+    // The MAS qualifying loan uses stress rate. So at-stress is the qualifying loan.
+    // At today's rate, the MONTHLY PAYMENT on that qualifying loan is what they'd actually pay.
+    const qualLoan = maxLoan(stressRate, periods, monthlyAvail);
+    const actualMonthly = pmt(s.rate, periods, qualLoan);
+    const propValue = qualLoan / 0.75;  // assume 75% LTV
+    cards.insertAdjacentHTML('beforeend', `
+      <div class="scenario ${s.color}">
+        <div class="label">${s.label}</div>
+        <div class="rate">${(s.rate*100).toFixed(2)}%</div>
+        <div class="metric"><span>Monthly avail</span><span class="v">${fmt(monthlyAvail)}</span></div>
+        <div class="max-loan">${fmt(qualLoan)}<span style="font-size:11px;color:#7a6c54;display:block;font-weight:400;">qualifying loan</span></div>
+        <div class="metric"><span>Property power</span><span class="v">${fmt(propValue)}</span></div>
+        <div class="metric"><span>Monthly @ this rate</span><span class="v">${fmt(actualMonthly)}</span></div>
+      </div>`);
+  });
+
+  document.getElementById('note').innerHTML = `
+    <b>How to read this:</b> All four cards show the SAME qualifying loan (because banks underwrite at the stress rate, ${(stressRate*100).toFixed(1)}% for ${ptype === 'hdb' ? 'HDB/EC' : 'private'}).
+    What changes is your <b>actual monthly payment</b> if rates move.
+    The amber/red cards show what your monthly hit looks like in a rate-spike scenario.
+    Use this to pressure-test: "Can I still hold this if SORA goes up 1-2pp?"
+    <br><br>
+    TDSR rule: Total debt &lt; 55% of gross income. MSR rule (HDB/EC only): Housing debt &lt; 30%.
+    `;
+  document.getElementById('result').classList.add('show');
+}
+calc();
+</script>
+</div></body></html>

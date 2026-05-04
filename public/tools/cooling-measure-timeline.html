@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>SG Cooling Measure Timeline · Winfred Quek</title>
+<meta name="description" content="Interactive timeline of every Singapore property cooling measure since 2009. Click for impact details.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/cooling-measure-timeline">
+<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:720px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;margin:6px 0 8px;}.lead{color:#a89980;margin-bottom:32px;}.timeline{border-left:2px solid rgba(180,140,80,0.3);padding-left:24px;}.event{margin-bottom:24px;position:relative;cursor:pointer;}.event::before{content:'';position:absolute;left:-31px;top:6px;width:12px;height:12px;border-radius:50%;background:#b48c50;}.event .date{font-family:'Fraunces',serif;font-size:18px;color:#b48c50;}.event .title{color:#fff;font-weight:500;margin:4px 0;}.event .change{color:#a89980;font-size:14px;}.event.expanded .impact{display:block;}.impact{display:none;margin-top:10px;padding:12px;background:#171410;border-radius:6px;font-size:13px;color:#a89980;line-height:1.7;}.impact b{color:#b48c50;}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head><body><div class="wrap">
+<h1>Cooling Measure Timeline</h1>
+<div class="lead">Every SG property cooling measure since the 2009 cycle. Click each for the rule + observed market impact 90/180/365 days after.</div>
+<div class="timeline" id="tl"></div>
+<div class="cta" style="margin-top:32px;"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20talk%20cooling-measure%20strategy.">Want to talk what next cycle might bring? WA me →</a></div>
+<script>
+const events=[
+{date:'Sep 2009',title:'First measures of cycle',change:'IAS removed, SSD on 1-year sales, LTV 80% for 2nd loan',impact:'Mild — market continued upward. Investors absorbed quickly.'},
+{date:'Aug 2010',title:'SSD extended to 3 years',change:'1-3 year sliding SSD, LTV 70% for 2nd loan, 5% min cash',impact:'Volume dropped 15-20% over 90d. Prices flatlined for 2 quarters.'},
+{date:'Jan 2011',title:'SSD up to 16% / 3 years',change:'4yr SSD: 16%/12%/8%/4%, LTV 60% for 2nd loan, foreigner LTV 50%',impact:'Volumes -30% next 6 months. Prices started declining.'},
+{date:'Dec 2011',title:'ABSD introduced',change:'PR +3% on 2nd, foreigner +10%, entity +10%',impact:'Foreign buyer share collapsed from 19% to 7% within 12 months.'},
+{date:'Jan 2013',title:'ABSD raised',change:'SC +7% on 2nd, +10% on 3rd. PR +5% on 1st, +10% on 2nd. Foreigner +15%. TDSR introduced (60%)',impact:'Major reset. Prices fell 11.6% over next 4 years.'},
+{date:'Jul 2018',title:'Mid-cycle tightening',change:'ABSD: SC +12% on 2nd, +15% on 3rd. Foreigner +20%. LTV 75→55% on 2nd loan',impact:'Volume crashed -40% in Q3 2018. Prices flatlined.'},
+{date:'Dec 2021',title:'COVID-era tightening',change:'ABSD +5pp across the board (SC 2nd: 17%, foreigner: 30%). LTV 75→85% for HDB. TDSR 60→55%',impact:'Cooled red-hot pandemic-era buying. Volume -10%, prices flat for 2 quarters.'},
+{date:'Sep 2022',title:'TDSR + LTV further',change:'Extra 0.25pp interest rate floor for stress test. HDB LTV 85→80%. 15-month wait for private→HDB',impact:'Targeted hot HDB resale market. Cooled HDB cash-over-valuation premiums.'},
+{date:'Apr 2023',title:'ABSD doubled for foreigners',change:'Foreigner ABSD 30→60%. SC 2nd 17→20%, 3rd 25→30%. PR 2nd 25→30%, 3rd 30→35%',impact:'Foreign buying collapsed to <2% of transactions. Currently in effect.'},
+{date:'Aug 2024',title:'EIP + LTV for HDB',change:'Tighter EIP enforcement. LTV for HDB loans further adjusted',impact:'Marginal — targeted specific abuse patterns rather than cycle reset.'},
+{date:'Future watch',title:'Possible next moves',change:'Speculation: SSD extension, additional ABSD, JCB-style relief packages, or none at all if 2025-26 stays cool',impact:'Unknown — but cooling-measure-rumor monitor (cron job in this system) tracks early signals.'}
+];
+const tl=document.getElementById('tl');
+events.forEach((e,i)=>{
+  tl.insertAdjacentHTML('beforeend',`<div class="event" onclick="this.classList.toggle('expanded')">
+    <div class="date">${e.date}</div>
+    <div class="title">${e.title}</div>
+    <div class="change">${e.change}</div>
+    <div class="impact"><b>Observed market impact:</b> ${e.impact}</div>
+  </div>`);
+});
+</script>
+</div></body></html>

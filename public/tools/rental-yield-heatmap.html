@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>SG Rental Yield Heatmap · Winfred Quek</title>
+<meta name="description" content="Singapore rental yield by district. Median annual yield, average PSF, median monthly rent.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/rental-yield-heatmap">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;}
+.wrap{max-width:980px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;}
+.lead{color:#a89980;margin:8px 0 28px;line-height:1.6;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px;}
+.tile{background:#1a1610;border-radius:10px;padding:14px 16px;border-left:3px solid #555;}
+.tile.heat-high{border-left-color:#3ddc84;}
+.tile.heat-mid{border-left-color:#b48c50;}
+.tile.heat-low{border-left-color:#ff8a65;}
+.dist{font-family:'Fraunces',serif;font-size:18px;color:#b48c50;}
+.area{font-size:12px;color:#a89980;margin-bottom:8px;}
+.metric{display:flex;justify-content:space-between;font-size:13px;margin:3px 0;}
+.metric .v{color:#f0e9d8;font-weight:500;}
+.legend{display:flex;gap:12px;margin:14px 0 24px;font-size:12px;color:#a89980;}
+.legend span{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:4px;vertical-align:middle;}
+.cta{margin-top:32px;text-align:center;}
+.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+.foot{color:#7a6c54;font-size:11px;margin-top:24px;text-align:center;}
+</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<body><div class="wrap">
+<h1>SG Rental Yield Heatmap</h1>
+<div class="lead">Median gross annual yield by district. Investor-grade view: where the rental math actually works, vs where you're paying for the postcode.</div>
+<div class="legend">
+  <span style="background:#3ddc84"></span>≥3.5% (high yield)
+  <span style="background:#b48c50"></span>3.0–3.5%
+  <span style="background:#ff8a65"></span>&lt;3.0% (capital-gain bet)
+</div>
+<div id="grid" class="grid"></div>
+<div class="cta">
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20talk%20yield%20vs%20capital%20gain%20in%20a%20specific%20district.">Want to dig into a specific district? WA me →</a>
+</div>
+<div class="foot" id="foot">Loading data…</div>
+</div>
+
+<script>
+fetch('/data/yield-heatmap.json').then(r => r.json()).then(d => {
+  const grid = document.getElementById('grid');
+  const districts = Object.entries(d.districts).sort((a,b) => b[1].yield - a[1].yield);
+  for (const [code, info] of districts) {
+    const heat = info.yield >= 3.5 ? 'heat-high' : (info.yield >= 3.0 ? 'heat-mid' : 'heat-low');
+    grid.insertAdjacentHTML('beforeend', `
+      <div class="tile ${heat}">
+        <div class="dist">${code}</div>
+        <div class="area">${info.name}</div>
+        <div class="metric"><span>Yield</span><span class="v">${info.yield}%</span></div>
+        <div class="metric"><span>Avg PSF</span><span class="v">$${info.avg_psf.toLocaleString()}</span></div>
+        <div class="metric"><span>Med rent</span><span class="v">$${info.med_rent.toLocaleString()}</span></div>
+      </div>`);
+  }
+  document.getElementById('foot').textContent = `Source: ${d._source} · Updated ${d._updated} · Indicative only  --  your specific unit will deviate by 0.5–1.5pp.`;
+}).catch(() => { document.getElementById('foot').textContent = 'Data not available yet  --  refreshing weekly.'; });
+</script>
+</body></html>

@@ -1,0 +1,429 @@
+[
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/insights/absd-explained.jpg",
+    "orig": 34118,
+    "avif": 11678,
+    "webp": 22686,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/insights/cooling-measures.jpg",
+    "orig": 61259,
+    "avif": 26449,
+    "webp": 46260,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/insights/district-trends.jpg",
+    "orig": 52956,
+    "avif": 21601,
+    "webp": 39618,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/insights/new-launch-analysis.jpg",
+    "orig": 54886,
+    "avif": 22295,
+    "webp": 39994,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/insights/ownership-restructuring-math.jpg",
+    "orig": 43880,
+    "avif": 14695,
+    "webp": 29790,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/insights/ura-data-quarterly.jpg",
+    "orig": 44213,
+    "avif": 16253,
+    "webp": 31508,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/amberwood-at-holland-holland-link-gls.jpg",
+    "orig": 300889,
+    "avif": 197538,
+    "webp": 289622,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/bayshore-drive-integrated-development.jpg",
+    "orig": 300052,
+    "avif": 190923,
+    "webp": 287978,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/bloomsbury-residences.jpg",
+    "orig": 827805,
+    "avif": 471785,
+    "webp": 664048,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/canberra-crescent-residences.jpg",
+    "orig": 178578,
+    "avif": 92070,
+    "webp": 138656,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/chencharu-close-gls.jpg",
+    "orig": 115899,
+    "avif": 66884,
+    "webp": 105042,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/chencharu-close-residences.jpg",
+    "orig": 146396,
+    "avif": 70312,
+    "webp": 117520,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/chuan-grove-residences.jpg",
+    "orig": 193498,
+    "avif": 147848,
+    "webp": 238304,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/coastal-cabana-jalan-loyang-besar-ec.jpg",
+    "orig": 199442,
+    "avif": 86802,
+    "webp": 131122,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/coastal-cabana.jpg",
+    "orig": 206381,
+    "avif": 138817,
+    "webp": 235336,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/dorset-road-residences.jpg",
+    "orig": 171819,
+    "avif": 84995,
+    "webp": 136466,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/dover-drive-residences-dover-road-gls.jpg",
+    "orig": 128263,
+    "avif": 54895,
+    "webp": 88790,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/dunearn-house.jpg",
+    "orig": 176662,
+    "avif": 129722,
+    "webp": 205534,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/holland-link.jpg",
+    "orig": 130883,
+    "avif": 72097,
+    "webp": 116148,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/hougang-central-residences.jpg",
+    "orig": 95727,
+    "avif": 32076,
+    "webp": 51194,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/hudson-place-residences.jpg",
+    "orig": 83727,
+    "avif": 38822,
+    "webp": 58928,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/lakeside-drive-gls.jpg",
+    "orig": 128378,
+    "avif": 75487,
+    "webp": 118678,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/lakeside-drive-residences.jpg",
+    "orig": 90831,
+    "avif": 43324,
+    "webp": 68284,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/lentor-gardens-residences.jpg",
+    "orig": 188553,
+    "avif": 94806,
+    "webp": 147216,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/miltonia-close-ec.jpg",
+    "orig": 117918,
+    "avif": 44752,
+    "webp": 75038,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/narra-residences.jpg",
+    "orig": 329107,
+    "avif": 136959,
+    "webp": 201110,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/newport-residences.jpg",
+    "orig": 219979,
+    "avif": 94926,
+    "webp": 157232,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/one-marina-gardens.jpg",
+    "orig": 536334,
+    "avif": 159393,
+    "webp": 295934,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/peck-hay-road-residences.jpg",
+    "orig": 243982,
+    "avif": 134065,
+    "webp": 209818,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/penrith-margaret-drive-gls.jpg",
+    "orig": 102534,
+    "avif": 48284,
+    "webp": 75608,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/pinery-residences.jpg",
+    "orig": 88964,
+    "avif": 47479,
+    "webp": 69392,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/promenade-peak.jpg",
+    "orig": 243466,
+    "avif": 167187,
+    "webp": 241790,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/rivelle-tampines-ec.jpg",
+    "orig": 958950,
+    "avif": 52582,
+    "webp": 79862,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/rivelle-tampines.jpg",
+    "orig": 196127,
+    "avif": 117156,
+    "webp": 195340,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/river-green.jpg",
+    "orig": 114464,
+    "avif": 98214,
+    "webp": 132182,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/river-modern.jpg",
+    "orig": 229901,
+    "avif": 165655,
+    "webp": 256658,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/river-valley-green-parcel-c-residences.jpg",
+    "orig": 232127,
+    "avif": 122933,
+    "webp": 196798,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/sembawang-ec.jpg",
+    "orig": 101138,
+    "avif": 53942,
+    "webp": 89166,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/senja-close-ec.jpg",
+    "orig": 132177,
+    "avif": 74632,
+    "webp": 121398,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/telok-blangah-residences.jpg",
+    "orig": 103495,
+    "avif": 39970,
+    "webp": 64796,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/tengah-garden-residences.jpg",
+    "orig": 100951,
+    "avif": 43489,
+    "webp": 68452,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/the-serra-residences.jpg",
+    "orig": 107466,
+    "avif": 67015,
+    "webp": 103848,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/thomson-modern-upper-thomson-parcel-b.jpg",
+    "orig": 93001,
+    "avif": 31837,
+    "webp": 52512,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/thomson-reserve-former-thomson-view.jpg",
+    "orig": 274419,
+    "avif": 175141,
+    "webp": 267100,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/thomson-view.jpg",
+    "orig": 122211,
+    "avif": 61924,
+    "webp": 117064,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/upper-thomson-residences-parcel-a.jpg",
+    "orig": 73999,
+    "avif": 24291,
+    "webp": 40870,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/upper-thomson-residences.jpg",
+    "orig": 118144,
+    "avif": 63823,
+    "webp": 105370,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/vela-bay.jpg",
+    "orig": 111996,
+    "avif": 39346,
+    "webp": 66182,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/vila-natura.jpg",
+    "orig": 122979,
+    "avif": 65745,
+    "webp": 111510,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/woodlands-drive-17-ec-1.jpg",
+    "orig": 282888,
+    "avif": 197616,
+    "webp": 304584,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/woodlands-drive-17-ec-2.jpg",
+    "orig": 282888,
+    "avif": 197616,
+    "webp": 304584,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/woodlands-drive-17-ec.jpg",
+    "orig": 178192,
+    "avif": 78736,
+    "webp": 131974,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/launches/zyon-grand.jpg",
+    "orig": 139374,
+    "avif": 71841,
+    "webp": 117118,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/listings/farrer-park-common-room-1.jpg",
+    "orig": 131677,
+    "avif": 36439,
+    "webp": 82734,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/listings/listing-2-livingroom.jpg",
+    "orig": 141805,
+    "avif": 49352,
+    "webp": 98164,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/listings/oxley-bizhub-2-room-1.jpg",
+    "orig": 113415,
+    "avif": 22447,
+    "webp": 64896,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/og-image.jpg",
+    "orig": 25870,
+    "avif": 5959,
+    "webp": 12158,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/winfred-book.jpg",
+    "orig": 45309,
+    "avif": 8178,
+    "webp": 18610,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/winfred-credibility.jpg",
+    "orig": 37015,
+    "avif": 7004,
+    "webp": 15618,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/winfred-hero.jpg",
+    "orig": 37378,
+    "avif": 6682,
+    "webp": 15162,
+    "ok": true
+  },
+  {
+    "file": "/Users/winfredquek/crestbrick-consult/public/img/winfred-keys.jpg",
+    "orig": 33298,
+    "avif": 7669,
+    "webp": 15162,
+    "ok": true
+  }
+]

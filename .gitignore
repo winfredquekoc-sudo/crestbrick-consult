@@ -1,5 +1,19 @@
 .vercel
 
+# Node
+node_modules/
+
+# Claude Code worktrees + agent state (local only)
+.claude/
+.claude-flow/
+.swarm/
+.mcp.json
+.gitleaksignore
+
+# Sensitive / client-private (review before un-ignoring)
+client-deliverables/
+hiring/
+
 # Local agent/vector DBs (never commit)
 agentdb.rvf
 agentdb.rvf.lock
@@ -9,3 +23,12 @@ ruvector.db
 # OS / editor cruft
 .DS_Store
 *.swp
+.env*.local
+.archive/
+*.env
+*.env.local
+.telegram-bot.env
+*credentials*.json
+*-secrets.*
+*.key
+*.pem
