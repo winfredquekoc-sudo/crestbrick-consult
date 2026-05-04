@@ -191,33 +191,6 @@
     .topnav a.nav-link:hover { color: var(--ink); }
     .topnav a.nav-link.active { color: var(--ink); }
     .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
-    /* Resources dropdown — toggle matches sibling .nav-link box exactly so it sits on the same baseline. */
-    .nav-dropdown { position: relative; display: block; }
-    .nav-dropdown-toggle {
-      display: block;
-      cursor: pointer;
-      color: var(--ink-soft);
-      font-size: 14px;
-      font-weight: 500;
-      line-height: 21px;
-      padding-bottom: 1px;        /* match .nav-link.link-underline padding */
-      transition: color .15s ease;
-    }
-    .nav-dropdown-toggle:hover { color: var(--ink); }
-    .nav-dropdown-toggle svg { display: inline-block; vertical-align: middle; margin-left: 4px; position: relative; top: -1px; }
-    /* Hover-continuous menu: padding-top on the menu wrapper acts as a gap-bridge */
-    .nav-dropdown-menu {
-      position: absolute;
-      right: 0;
-      top: 100%;
-      padding-top: 8px;
-      display: none;
-      z-index: 50;
-    }
-    .nav-dropdown:hover .nav-dropdown-menu,
-    .nav-dropdown.open .nav-dropdown-menu,
-    .nav-dropdown:focus-within .nav-dropdown-menu { display: block; }
-    .nav-dropdown-menu a { white-space: nowrap; }
 
     /* Fade-in on scroll */
     .fade-up { opacity: 0; transform: translateY(14px); transition: opacity .7s ease, transform .7s ease; }
@@ -368,19 +341,7 @@
         <a class="nav-link link-underline" href="/sell">Sell</a>
         <a class="nav-link link-underline" href="/listings">Listings</a>
         <a class="nav-link link-underline" href="/insights">Insights</a>
-        <div class="nav-dropdown" data-nav-dropdown>
-          <a class="nav-dropdown-toggle" href="/resources" aria-haspopup="true" aria-expanded="false">Resources<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg></a>
-          <div class="nav-dropdown-menu">
-            <div class="crest-card border border-[var(--rule)] rounded-lg shadow-lg py-2 min-w-[180px]">
-              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/buyers-guide">Buyers Guide</a>
-              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/sellers-guide">Sellers Guide</a>
-              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/new-launches">New Launches</a>
-              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/districts">Districts</a>
-              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/testimonials">Testimonials</a>
-              <a class="block px-4 py-2 text-sm text-[var(--ink-soft)] hover:bg-[var(--bg)] hover:text-[var(--ink)]" href="/faq">FAQ</a>
-            </div>
-          </div>
-        </div>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
         <a class="nav-link link-underline" href="/contact">Contact</a>
         <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
@@ -822,32 +783,6 @@
     })();
   </script>
 
-  <script>
-    /* Resources nav dropdown , click-to-toggle on mobile/touch, hover on desktop, link goes to /resources */
-    (function(){
-      const dd = document.querySelector('.nav-dropdown');
-      if (!dd) return;
-      const toggle = dd.querySelector('.nav-dropdown-toggle');
-      // Tap on the chevron icon (or anywhere except the link area) → toggle dropdown instead of navigating
-      toggle.addEventListener('click', function(e){
-        // Allow plain click on link to navigate to /resources
-        // Only intercept if user clicks the chevron icon
-        if (e.target.tagName === 'svg' || e.target.tagName === 'polyline' || e.target.closest('svg')) {
-          e.preventDefault();
-          dd.classList.toggle('open');
-          toggle.setAttribute('aria-expanded', dd.classList.contains('open'));
-        }
-      });
-      // Close on outside click
-      document.addEventListener('click', function(e){
-        if (!dd.contains(e.target)) dd.classList.remove('open');
-      });
-      // Close on ESC
-      document.addEventListener('keydown', function(e){
-        if (e.key === 'Escape') dd.classList.remove('open');
-      });
-    })();
-  </script>
 
 </body>
 </html>
