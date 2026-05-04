@@ -146,7 +146,7 @@
 
 <section class="max-w-6xl mx-auto px-6 pb-16">
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="launches-grid">
-    <p class="col-span-full text-center text-[var(--ink-muted)] py-12">Loading launches, , ¶</p>
+    <p class="col-span-full text-center text-[var(--ink-muted)] py-12">Loading launches, </p>
   </div>
   <p class="text-xs text-[var(--ink-muted)] mt-8 text-center">Project details from public sources as of April 2026 , , ,  confirmed specs sent on request. Cards are summary previews; ask for the full developer factsheet + my own analysis.</p>
 </section>
@@ -174,7 +174,7 @@
     const data = await r.json();
     all = data.launches || [];
 
-    // Sort: upcoming (by launch date asc) first , Üí launched at bottom
+    // Sort: upcoming (by launch date asc) first launched at bottom
     function launchSortKey(l) {
       const launched = l.status === 'active' || /launched/i.test(l.launch || '');
       const txt = (l.launch || '').toLowerCase();
@@ -247,7 +247,7 @@
         const launched = l.status === 'active' || /launched/i.test(l.launch || '');
         const badge = launched
           ? `<span class="badge badge-launched">üü¢ Launched</span>`
-          : `<span class="badge badge-upcoming">, è≥ Upcoming</span>`;
+          : `<span class="badge badge-upcoming">Upcoming</span>`;
         const wa = `Hi%20Winfred%2C%20I%27d%20like%20the%20brief%20for%20${encodeURIComponent(l.name)}.`;
         const subtitle = [l.units && l.units !== 'TBC' ? `${l.units} units` : null, l.tenure && l.tenure !== 'TBC' ? l.tenure : null, l.unit_mix && l.unit_mix !== 'TBC' ? l.unit_mix : null].filter(Boolean).join(' ¬∑ ');
         const priceLine = [l.psf && l.psf !== 'TBC' ? l.psf : null, l.launch].filter(Boolean).join(' ¬∑ ');
@@ -271,7 +271,7 @@
             ${note}
             <div class="mt-4 pt-4 border-t border-[var(--rule)] flex justify-between items-center gap-2">
               ${briefLink}
-              <a href="https://wa.me/6581618149?text=${wa}" class="btn btn-ghost text-sm" style="padding:.45rem .85rem;">WhatsApp , Üí</a>
+              <a href="https://wa.me/6581618149?text=${wa}" class="btn btn-ghost text-sm" style="padding:.45rem .85rem;">WhatsApp </a>
             </div>
           </div>
         </article>`;

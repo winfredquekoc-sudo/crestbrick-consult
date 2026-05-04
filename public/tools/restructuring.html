@@ -102,8 +102,8 @@
     </div>
 
     <div class="flex flex-wrap gap-3 mt-6">
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Thinking of restructuring? Book a 30-min consult before you commit , †’</a>
-      <a href="/insights/ownership-restructuring-math" class="btn btn-ghost">Read the full math , †’</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Thinking of restructuring? Book a 30-min consult before you commit </a>
+      <a href="/insights/ownership-restructuring-math" class="btn btn-ghost">Read the full math </a>
     </div>
   </div>
 
@@ -192,11 +192,11 @@ function recalc(){
   if(net > 0){
     vBox.style.background='#c6a36a';
     document.getElementById('verdict-label').textContent='Net benefit (DECOUPLING WINS)';
-    vText.innerHTML = ', œ… Restructuring saves <strong style="color:#fff;">'+fmt(net)+'</strong>. Still factor in CPF accrued interest, SSD if applicable, and loan restructuring fees before committing. Book the audit for the full-stack read.';
+    vText.innerHTML = 'Restructuring saves <strong style="color:#fff;">'+fmt(net)+'</strong>. Still factor in CPF accrued interest, SSD if applicable, and loan restructuring fees before committing. Book the audit for the full-stack read.';
   } else if(net < 0){
     vBox.style.background='#8b2f2f';
     document.getElementById('verdict-label').textContent='Net cost (DECOUPLING LOSES)';
-    vText.innerHTML = ', Œ Restructuring would cost you <strong style="color:#fff;">'+fmt(-net)+'</strong> more than the ABSD saved. Don\'t do it, unless there\'s a non-financial reason (estate planning, divorce, etc.).';
+    vText.innerHTML = 'Restructuring would cost you <strong style="color:#fff;">'+fmt(-net)+'</strong> more than the ABSD saved. Don\'t do it, unless there\'s a non-financial reason (estate planning, divorce, etc.).';
   } else {
     vBox.style.background='#4a4a4a';
     document.getElementById('verdict-label').textContent='Break-even';

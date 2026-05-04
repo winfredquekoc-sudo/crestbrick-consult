@@ -35,7 +35,7 @@ input{flex:1;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.
   <button onclick="prefill('Lock-in penalty, how does it work?')">Lock-in penalty?</button>
   <button onclick="prefill('Fixed vs floating?')">Fixed vs floating?</button>
 </div>
-<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20mortgage%20question%20the%20bot%20couldn%27t%20fully%20answer.">Want a real human answer? WA me , †’</a></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20mortgage%20question%20the%20bot%20couldn%27t%20fully%20answer.">Want a real human answer? WA me </a></div>
 
 <script>
 const chat = document.getElementById('chat');
@@ -48,7 +48,7 @@ async function ask(){
   if (!q) return;
   add('u', q);
   qel.value = '';
-  add('b', '<i>thinking, , ¦</i>');
+  add('b', '<i>thinking, </i>');
   try {
     const r = await fetch('/api/mortgage-qa', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({q})});
     const d = await r.json();

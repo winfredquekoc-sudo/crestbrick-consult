@@ -23,7 +23,7 @@
 - [Restructuring calculator](https://winfredquek.com/tools/restructuring): Decoupling / ownership-restructuring break-even ,  BSD-on-transfer vs ABSD saved.
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield): Gross yield, net yield, monthly cashflow, years to breakeven.
 - [Mortgage rates](https://winfredquek.com/tools/mortgage-rates): Current SG mortgage rate snapshot.
-- [AI Property Audit](https://winfredquek.com/audit): Instant AI portfolio analysis from a few prompts.
+- [AI Property Property Portfolio Analysis](https://winfredquek.com/property portfolio analysis): Instant AI portfolio analysis from a few prompts.
 
 ## Insights (long-form articles)
 

@@ -25,7 +25,7 @@
     .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
   </style>
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"HowTo","name":"How to use the Singapore Rental Yield Calculator","description":"Step-by-step instructions to compute gross and net rental yield on Singapore residential property.","step":[{"@type":"HowToStep","position":1,"name":"Enter monthly rental income","text":"Use realistic stabilised rental, not asking-rent. Check URA REALIS or recent comparable transactions."},{"@type":"HowToStep","position":2,"name":"Enter property purchase price","text":"Use the all-in cost including BSD and ABSD if held as investment."},{"@type":"HowToStep","position":3,"name":"Enter annual operating costs","text":"Maintenance fees, property tax, insurance, agent commission for re-letting, occasional repairs."},{"@type":"HowToStep","position":4,"name":"Review gross and net yield","text":"Gross = annual rent / price. Net = (annual rent , àí costs) / price. Compare against bond yields and risk-free rate."},{"@type":"HowToStep","position":5,"name":"Stress-test vacancy","text":"Apply a 5-10% vacancy haircut. The realistic net yield is what survives a 1-month vacancy per year."}]}
+{"@context":"https://schema.org","@type":"HowTo","name":"How to use the Singapore Rental Yield Calculator","description":"Step-by-step instructions to compute gross and net rental yield on Singapore residential property.","step":[{"@type":"HowToStep","position":1,"name":"Enter monthly rental income","text":"Use realistic stabilised rental, not asking-rent. Check URA REALIS or recent comparable transactions."},{"@type":"HowToStep","position":2,"name":"Enter property purchase price","text":"Use the all-in cost including BSD and ABSD if held as investment."},{"@type":"HowToStep","position":3,"name":"Enter annual operating costs","text":"Maintenance fees, property tax, insurance, agent commission for re-letting, occasional repairs."},{"@type":"HowToStep","position":4,"name":"Review gross and net yield","text":"Gross = annual rent / price. Net = (annual rent costs) / price. Compare against bond yields and risk-free rate."},{"@type":"HowToStep","position":5,"name":"Stress-test vacancy","text":"Apply a 5-10% vacancy haircut. The realistic net yield is what survives a 1-month vacancy per year."}]}
 </script>
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
@@ -139,8 +139,8 @@
     </div>
 
     <div class="flex flex-wrap gap-3 mt-6">
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Is this deal worth it? Book a 30-min investor walkthrough , Üí</a>
-      <a href="/insights/rental-yield-vs-appreciation" class="btn btn-ghost">Read the yield article , Üí</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Is this deal worth it? Book a 30-min investor walkthrough </a>
+      <a href="/insights/rental-yield-vs-appreciation" class="btn btn-ghost">Read the yield article </a>
     </div>
   </div>
 
@@ -258,13 +258,13 @@ function recalc(){
   var verdict = document.getElementById('verdict');
   if (cashNetYield >= 0.03) {
     box.style.background = '#c6a36a';
-    verdict.innerHTML = ', úÖ Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> clears the 3% threshold most SG investors benchmark to. Still sanity-check vacancy and rate-rise scenarios before committing.';
+    verdict.innerHTML = 'Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> clears the 3% threshold most SG investors benchmark to. Still sanity-check vacancy and rate-rise scenarios before committing.';
   } else if (cashNetYield >= 0.015) {
     box.style.background = '#c6a36a';
-    verdict.innerHTML = ', ö†Ô∏è Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> is below typical SG benchmarks. Only makes sense if you\'re explicitly playing capital appreciation, not yield. Stress-test the 5-10yr PSF case.';
+    verdict.innerHTML = 'Ô∏è Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> is below typical SG benchmarks. Only makes sense if you\'re explicitly playing capital appreciation, not yield. Stress-test the 5-10yr PSF case.';
   } else {
     box.style.background = '#8b2f2f';
-    verdict.innerHTML = ', ùå Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> is weak. Either the price is too high, the rent too optimistic, or the costs too heavy. Walk the numbers with me before committing.';
+    verdict.innerHTML = 'Net yield of <strong style="color:#fff;">'+pct(cashNetYield)+'</strong> is weak. Either the price is too high, the rent too optimistic, or the costs too heavy. Walk the numbers with me before committing.';
   }
 
   document.getElementById('result').style.display = 'block';

@@ -99,7 +99,7 @@
   <script defer src="/motion.js"></script>
 
   <!-- GA4, replace G-XXXXXXXXXX with your measurement ID from analytics.google.com -->
-  <!-- TODO: Create GA4 property at analytics.google.com , †’ Admin , †’ Create Property , †’ get Measurement ID -->
+  <!-- TODO: Create GA4 property at analytics.google.com Admin Create Property get Measurement ID -->
   <!-- Note: Replace G-XXXXXXXXXX with real ID from analytics.google.com once property is created. -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
@@ -305,41 +305,41 @@
 
 const QUESTIONS = [
   { id:'current_ownership_status', section:1, title:'What properties do you currently own?', sub:'This sets your ABSD exposure baseline.',
-    options:['ğŸ  I own an HDB flat (MOP completed, can sell anytime)','ğŸ  I own an HDB flat (still within 5-year MOP period)','ğŸ¢ I own 1 private condo or EC in Singapore','ğŸ¡ I own 1 landed property in Singapore','ğŸ˜ï¸ I own 2+ properties in Singapore','ğŸŒ I only own property overseas (no Singapore property)',", Œ I don't own any property yet","ğŸ, „ It's complicated, sold recently / complex ownership"]},
+    options:['ğŸ  I own an HDB flat (MOP completed, can sell anytime)','ğŸ  I own an HDB flat (still within 5-year MOP period)','ğŸ¢ I own 1 private condo or EC in Singapore','ğŸ¡ I own 1 landed property in Singapore','ğŸ˜ï¸ I own 2+ properties in Singapore','ğŸŒ I only own property overseas (no Singapore property)',"I don't own any property yet","It's complicated, sold recently / complex ownership"]},
   { id:'citizenship_status', section:1, title:"What's your citizenship/residency status?",
-    options:['ğŸ‡¸ğŸ‡¬ Singapore Citizen (SC)','ğŸŸ¢ Singapore Permanent Resident (SPR)',', œˆï¸ Employment Pass / Work Pass holder','ğŸŒ Foreigner (tourist/dependent pass)','ğŸ‘« Mixed couple (SC + SPR or SC + Foreigner)']},
+    options:['ğŸ‡¸ğŸ‡¬ Singapore Citizen (SC)','ğŸŸ¢ Singapore Permanent Resident (SPR)','ï¸ Employment Pass / Work Pass holder','ğŸŒ Foreigner (tourist/dependent pass)','ğŸ‘« Mixed couple (SC + SPR or SC + Foreigner)']},
   { id:'purchase_structure', section:1, title:'Are you buying solo or with someone?',
-    options:['ğŸ‘¤ Flying solo, just me','ğŸ’‘ Joint purchase with spouse/partner','ğŸ‘¨, , ğŸ‘©, , ğŸ‘§ Family purchase (parents, siblings, children)','ğŸ¢ Considering company/entity structure',"ğŸ¤,  Not sure yet, need Winfred's advice on structure"]},
+    options:['ğŸ‘¤ Flying solo, just me','ğŸ’‘ Joint purchase with spouse/partner','ğŸ‘¨, ğŸ‘©, ğŸ‘§ Family purchase (parents, siblings, children)','ğŸ¢ Considering company/entity structure',",  Not sure yet, need Winfred's advice on structure"]},
   { id:'monthly_income_range', section:2, title:'Combined gross monthly household income?', sub:'Include salary, rental, business, commissions, before CPF deductions.',
     options:['ğŸ’µ Under S$8,000/month','ğŸ’µ S$8,000 , , ,  S$12,000/month','ğŸ’µ S$12,001 , , ,  S$18,000/month','ğŸ’µ S$18,001 , , ,  S$25,000/month','ğŸ’µ S$25,001 , , ,  S$35,000/month','ğŸ’µ S$35,001 , , ,  S$50,000/month','ğŸ’µ Above S$50,000/month','ğŸ¤ Prefer to discuss with Winfred directly']},
   { id:'existing_debt_obligations', section:2, title:'Current monthly debt commitments?', sub:'Mortgage, car loan, personal loans, credit card minimums.',
-    options:[', œ… Zero debt, completely clean slate','ğŸ, Š Under S$2,000/month','ğŸ, Š S$2,000 , , ,  S$4,000/month','ğŸ, Š S$4,001 , , ,  S$6,000/month','ğŸ, Š S$6,001 , , ,  S$8,000/month','ğŸ, Š Above S$8,000/month','ğŸ¤· Not sure of exact amount']},
+    options:['Zero debt, completely clean slate','Under S$2,000/month','S$2,000 , , ,  S$4,000/month','S$4,001 , , ,  S$6,000/month','S$6,001 , , ,  S$8,000/month','Above S$8,000/month','ğŸ¤· Not sure of exact amount']},
   { id:'cpf_oa_balance', section:2, title:'Combined CPF Ordinary Account (OA) balance?', sub:'Total OA balance across all account holders. Check your CPF statement at cpf.gov.sg.',
     options:['ğŸ’° Under S$50,000','ğŸ’° S$50,000 , , ,  S$100,000','ğŸ’° S$100,001 , , ,  S$200,000','ğŸ’° S$200,001 , , ,  S$350,000','ğŸ’° S$350,001 , , ,  S$500,000','ğŸ’° Above S$500,000','ğŸ¤· Not sure, need help checking']},
   { id:'existing_home_loan', section:2, title:'Outstanding home loan balance?', sub:'Total remaining loan owed on any property you currently own. Check your HDB/bank statement.',
-    options:[', œ… No home loan, fully paid or no property','ğŸ’³ Under S$200,000','ğŸ’³ S$200,000 , , ,  S$400,000','ğŸ’³ S$400,001 , , ,  S$600,000','ğŸ’³ S$600,001 , , ,  S$900,000','ğŸ’³ Above S$900,000','ğŸ¤· Not sure of exact amount']},
+    options:['No home loan, fully paid or no property','ğŸ’³ Under S$200,000','ğŸ’³ S$200,000 , , ,  S$400,000','ğŸ’³ S$400,001 , , ,  S$600,000','ğŸ’³ S$600,001 , , ,  S$900,000','ğŸ’³ Above S$900,000','ğŸ¤· Not sure of exact amount']},
   { id:'available_capital', section:2, title:'Liquid cash deployable in next 12 months?', sub:'Cash savings + liquidatable investments only. CPF OA is captured above.',
-    options:['ğŸ’° Under S$100,000','ğŸ’° S$100,000 , , ,  S$200,000','ğŸ’° S$200,001 , , ,  S$400,000','ğŸ’° S$400,001 , , ,  S$700,000','ğŸ’° S$700,001 , , ,  S$1,000,000','ğŸ’° Above S$1,000,000','ğŸ, „ Currently liquidating assets, funds coming soon','ğŸ¤· Not sure, need help calculating this']},
+    options:['ğŸ’° Under S$100,000','ğŸ’° S$100,000 , , ,  S$200,000','ğŸ’° S$200,001 , , ,  S$400,000','ğŸ’° S$400,001 , , ,  S$700,000','ğŸ’° S$700,001 , , ,  S$1,000,000','ğŸ’° Above S$1,000,000','Currently liquidating assets, funds coming soon','ğŸ¤· Not sure, need help calculating this']},
   { id:'primary_objective', section:3, title:'Primary goal for this audit?',
-    options:['ğŸ¯ Build passive rental income for financial freedom','ğŸ, ˆ Grow net worth through strategic capital appreciation','ğŸ–ï¸ Secure retirement income streams (10+ years out)','ğŸ‘¨, , ğŸ‘©, , ğŸ‘§, , ğŸ‘¦ Build generational wealth/legacy for family','ğŸ, „ Optimize or restructure my existing portfolio','ğŸ  Upgrade my home while building investment portfolio','ğŸŒ Diversify into overseas markets (UK/Malaysia)',"ğŸ†˜ I'm stuck, need a clear strategy from scratch"]},
+    options:['ğŸ¯ Build passive rental income for financial freedom','Grow net worth through strategic capital appreciation','ğŸ–ï¸ Secure retirement income streams (10+ years out)','ğŸ‘¨, ğŸ‘©, ğŸ‘§, ğŸ‘¦ Build generational wealth/legacy for family','Optimize or restructure my existing portfolio','ğŸ  Upgrade my home while building investment portfolio','ğŸŒ Diversify into overseas markets (UK/Malaysia)',"ğŸ†˜ I'm stuck, need a clear strategy from scratch"]},
   { id:'target_passive_income', section:3, title:'Monthly passive income for the life you want?', sub:'Level that lets you live comfortably without working.',
-    options:['ğŸ¯ S$4,000 , , ,  S$6,000/month (lean but comfortable)','ğŸ¯ S$6,001 , , ,  S$9,000/month (solid middle-class)','ğŸ¯ S$9,001 , , ,  S$15,000/month (premium lifestyle)','ğŸ¯ S$15,001 , , ,  S$25,000/month (luxury)','ğŸ¯ Above S$25,000/month (ultra-HNW)',"ğŸ¤,  Haven't calculated this, need Winfred's help"]},
+    options:['ğŸ¯ S$4,000 , , ,  S$6,000/month (lean but comfortable)','ğŸ¯ S$6,001 , , ,  S$9,000/month (solid middle-class)','ğŸ¯ S$9,001 , , ,  S$15,000/month (premium lifestyle)','ğŸ¯ S$15,001 , , ,  S$25,000/month (luxury)','ğŸ¯ Above S$25,000/month (ultra-HNW)',",  Haven't calculated this, need Winfred's help"]},
   { id:'wealth_timeline', section:3, title:'Target timeline to hit that income level?',
-    options:[', š¡ 3, , , 5 years (aggressive growth mode)','ğŸš,  5, , , 8 years (focused wealth building)','ğŸ, … 8, , , 15 years (steady accumulation)','ğŸŒ± 15+ years (long-term generational building)','ğŸ, „ No fixed timeline, just want to start moving']},
+    options:['3, , , 5 years (aggressive growth mode)',',  5, , , 8 years (focused wealth building)','8, , , 15 years (steady accumulation)','ğŸŒ± 15+ years (long-term generational building)','No fixed timeline, just want to start moving']},
   { id:'risk_tolerance_score', section:4, title:'Comfort with price fluctuations and leverage?', sub:'No right answer, this just ensures Winfred recommends the right mix.',
-    options:['ğŸ›¡ï¸ 1, , , 3: Maximum safety, stable assets, minimal leverage',', š–ï¸ 4, , , 6: Moderate, balanced risk and returns','ğŸš,  7, , , 8: Growth-focused, calculated risks for better returns','ğŸ, ¥ 9, , , 10: Aggressive, maximize growth, full leverage strategically']},
+    options:['ğŸ›¡ï¸ 1, , , 3: Maximum safety, stable assets, minimal leverage','ï¸ 4, , , 6: Moderate, balanced risk and returns',',  7, , , 8: Growth-focused, calculated risks for better returns','9, , , 10: Aggressive, maximize growth, full leverage strategically']},
   { id:'property_type_openness', section:4, title:'Which property types interest you?', sub:'Select all that apply.', multi:true,
-    options:['ğŸ  HDB resale flats','ğŸ¢ Executive Condominiums (EC)','ğŸ™ï¸ Private condominiums (Singapore)','ğŸ¡ Landed property (Singapore)','ğŸ­ Industrial/warehouse units (yields ~7%+)','ğŸª Commercial/shophouses (ABSD-free)','ğŸ‡¬ğŸ‡§ UK properties (Liverpool/Manchester ~5.6-7.7%)','ğŸ‡²ğŸ‡¾ Malaysia/KL properties (~5-8%)','ğŸ¤,  Open to anything, let Winfred recommend']},
+    options:['ğŸ  HDB resale flats','ğŸ¢ Executive Condominiums (EC)','ğŸ™ï¸ Private condominiums (Singapore)','ğŸ¡ Landed property (Singapore)','ğŸ­ Industrial/warehouse units (yields ~7%+)','ğŸª Commercial/shophouses (ABSD-free)','ğŸ‡¬ğŸ‡§ UK properties (Liverpool/Manchester ~5.6-7.7%)','ğŸ‡²ğŸ‡¾ Malaysia/KL properties (~5-8%)',',  Open to anything, let Winfred recommend']},
   { id:'yield_expectation', section:4, title:'Acceptable gross rental yield for SG residential?',
-    options:['ğŸ, Š 2.5, , , 3.0% if appreciation story is strong',', œ… 3.0, , , 3.5% (around market average)','ğŸ¯ 3.5, , , 4.5% (above average, yield-focused)','ğŸ, ¥ 4.5%+ (willing to look industrial/commercial/overseas)',"ğŸ¤· Not sure, need Winfred to explain what's realistic"]},
+    options:['2.5, , , 3.0% if appreciation story is strong','3.0, , , 3.5% (around market average)','ğŸ¯ 3.5, , , 4.5% (above average, yield-focused)','4.5%+ (willing to look industrial/commercial/overseas)',"ğŸ¤· Not sure, need Winfred to explain what's realistic"]},
   { id:'life_stage', section:5, title:'What life stage best describes you?',
-    options:['ğŸ,  Young professional (under 30, building career)','ğŸ’¼ Established professional (30, , , 40, peak earning years)','ğŸ‘¨, , ğŸ‘©, , ğŸ‘§ Young family (kids under 12)','ğŸ« Established family (teenage/adult kids)','ğŸŒ… Pre-retirement (50, , , 62)','ğŸ–ï¸ Retired/semi-retired']},
+    options:[',  Young professional (under 30, building career)','ğŸ’¼ Established professional (30, , , 40, peak earning years)','ğŸ‘¨, ğŸ‘©, ğŸ‘§ Young family (kids under 12)','ğŸ« Established family (teenage/adult kids)','ğŸŒ… Pre-retirement (50, , , 62)','ğŸ–ï¸ Retired/semi-retired']},
   { id:'legacy_importance', section:5, title:'How important is legacy/inheritance planning?',
-    options:['ğŸ, ¥ Critical, building specifically to pass on to children',', œ… Important, want to leave assets but not the only focus',', ¡ï¸ Moderate, growth first, legacy can come later',', Œ Not a priority, plan to enjoy the wealth myself']},
+    options:['Critical, building specifically to pass on to children','Important, want to leave assets but not the only focus','ï¸ Moderate, growth first, legacy can come later','Not a priority, plan to enjoy the wealth myself']},
   { id:'key_challenges', section:6, title:'Biggest concerns right now?', sub:'Select all that apply.', multi:true,
-    options:['ğŸ’¸ ABSD costs making second property feel unaffordable','ğŸ¦ Unsure about loan eligibility (TDSR/income concerns)',", ° Feel like I've missed the market or started too late",'ğŸ‘« Spouse and I have different risk appetites or goals',"ğŸŒ Interested in overseas but don't know how to start",'ğŸ  Confused about HDB rules, MOP timelines, upgrade paths',"ğŸ, Š Information overload, can't make decisions",'ğŸ, „ Sell current property first or buy first?','ğŸ¢ Personal name vs company structure?','ğŸ, ‰ Past financial difficulties, unsure about eligibility','ğŸ’­ Fear of too much debt/leverage anxiety','ğŸ¤· No clear strategy, just know I should be doing something',', œ… No major blockers, just need expert guidance']},
+    options:['ğŸ’¸ ABSD costs making second property feel unaffordable','ğŸ¦ Unsure about loan eligibility (TDSR/income concerns)',"Feel like I've missed the market or started too late",'ğŸ‘« Spouse and I have different risk appetites or goals',"ğŸŒ Interested in overseas but don't know how to start",'ğŸ  Confused about HDB rules, MOP timelines, upgrade paths',"Information overload, can't make decisions",'Sell current property first or buy first?','ğŸ¢ Personal name vs company structure?','Past financial difficulties, unsure about eligibility','ğŸ’­ Fear of too much debt/leverage anxiety','ğŸ¤· No clear strategy, just know I should be doing something','No major blockers, just need expert guidance']},
   { id:'urgency_timeline', section:6, title:'How soon are you looking to make your next move?',
-    options:[', š¡ Within 1, , , 3 months, ready to act NOW','ğŸš,  3, , , 6 months, actively planning','ğŸ, … 6, , , 12 months, serious research mode','ğŸŒ± 12+ months, long-term planning',"ğŸ¤· Depends on what Winfred recommends"]}
+    options:['Within 1, , , 3 months, ready to act NOW',',  3, , , 6 months, actively planning','6, , , 12 months, serious research mode','ğŸŒ± 12+ months, long-term planning',"ğŸ¤· Depends on what Winfred recommends"]}
 ];
 
 // step meaning: -2 opening, -1 section-intro-about-to-show, 1..6 = section number being answered, 7 = contact, 8 = summary
@@ -361,7 +361,7 @@ function renderOpening() {
       <div class="qcard card-lift mt-4">
         <div class="qtitle">First up, what should I call you?</div>
         <input id="name-input" class="tinput" placeholder="Your first name" autofocus />
-        <div class="mt-4 flex justify-end"><button class="btn btn-primary" id="name-next" disabled>Continue , †’</button></div>
+        <div class="mt-4 flex justify-end"><button class="btn btn-primary" id="name-next" disabled>Continue </button></div>
       </div>
     </div>`;
   const input = document.getElementById('name-input');
@@ -387,7 +387,7 @@ function renderSectionIntro(sec) {
   host.innerHTML = `
     <div class="step">
       <div class="bubble accent">${SECTION_INTROS[sec].replace('__NAME__', state.name || 'there')}</div>
-      <div class="mt-4 flex justify-end"><button class="btn btn-primary" id="intro-next">Let's go , †’</button></div>
+      <div class="mt-4 flex justify-end"><button class="btn btn-primary" id="intro-next">Let's go </button></div>
     </div>`;
   document.getElementById('intro-next').addEventListener('click', () => renderSection(sec));
 }
@@ -415,8 +415,8 @@ function renderSection(sec) {
     <div class="step">
       ${qBlocks}
       <div class="mt-5 flex justify-between items-center">
-        <button class="btn btn-ghost text-sm" id="back-btn" ${sec===1?'disabled':''}>, † Back</button>
-        <button class="btn btn-primary" id="next-btn" disabled>${sec === 6 ? 'Finish , †’' : 'Continue , †’'}</button>
+        <button class="btn btn-ghost text-sm" id="back-btn" ${sec===1?'disabled':''}>Back</button>
+        <button class="btn btn-primary" id="next-btn" disabled>${sec === 6 ? 'Finish ' : 'Continue '}</button>
       </div>
     </div>`;
 
@@ -462,7 +462,7 @@ function renderSectionTransition(completed, next, isBack) {
   let msg = '', extra = '';
   if (isBack) {
     msg = `No problem, <strong>${state.name}</strong>, going back to section ${next}. Edit anything you want.`;
-    host.innerHTML = `<div class="step"><div class="bubble">${msg}</div><div class="mt-4 flex justify-end"><button class="btn btn-primary" id="trans-next">Back to Section ${next} , †’</button></div></div>`;
+    host.innerHTML = `<div class="step"><div class="bubble">${msg}</div><div class="mt-4 flex justify-end"><button class="btn btn-primary" id="trans-next">Back to Section ${next} </button></div></div>`;
     document.getElementById('trans-next').addEventListener('click', () => renderSection(next));
     return;
   }
@@ -481,7 +481,7 @@ function renderSectionTransition(completed, next, isBack) {
   } else if (completed === 4) msg = `Your risk profile is coming together, <strong>${state.name}</strong>. Two more sections and I'll have the full picture.`;
   else if (completed === 5) msg = `Almost done, <strong>${state.name}</strong>. Last section, blockers and timing.`;
 
-  host.innerHTML = `<div class="step"><div class="bubble accent">${msg}</div>${extra}<div class="mt-4 flex justify-end"><button class="btn btn-primary" id="trans-next">Continue , †’</button></div></div>`;
+  host.innerHTML = `<div class="step"><div class="bubble accent">${msg}</div>${extra}<div class="mt-4 flex justify-end"><button class="btn btn-primary" id="trans-next">Continue </button></div></div>`;
   document.getElementById('trans-next').addEventListener('click', () => renderSection(next));
 }
 
@@ -510,8 +510,8 @@ function renderContactCapture() {
           <span><strong class="text-[var(--ink)]">(Optional)</strong> Yes, send me occasional market updates, new-launch insights, and property investment ideas by email. One to two emails per month, unsubscribe anytime.</span>
         </label>
         <div class="mt-6 flex justify-between items-center">
-          <button class="btn btn-ghost text-sm" id="contact-back">, † Back</button>
-          <button class="btn btn-primary" id="submit-btn" disabled>Generate my audit , †’</button>
+          <button class="btn btn-ghost text-sm" id="contact-back">Back</button>
+          <button class="btn btn-primary" id="submit-btn" disabled>Generate my audit </button>
         </div>
       </div>
     </div>`;
@@ -627,13 +627,13 @@ function renderSummary(data, contact) {
       </div>
       <div class="insight mt-4">
         <div class="label">My prep notes</div>
-        ${prep.map(p => `<div class="note" style="margin-bottom:.5rem;"><strong style="color:#fff;">, †’</strong> ${p}</div>`).join('')}
+        ${prep.map(p => `<div class="note" style="margin-bottom:.5rem;"><strong style="color:#fff;"></strong> ${p}</div>`).join('')}
       </div>
       <div class="bubble accent mt-4"><strong>You're set, ${contact.full_name || state.name}.</strong> I review every audit personally before consultations. Expect a custom strategy session, not a generic pitch.</div>
       <div id="email-status" class="text-sm text-center text-[var(--ink-muted)] mt-4"></div>
       <div class="flex flex-wrap gap-3 mt-4 justify-center">
-        <button id="download-pdf" class="btn btn-ghost">ğŸ, „ Download PDF copy</button>
-        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book your strategy session , †’</a>
+        <button id="download-pdf" class="btn btn-ghost">Download PDF copy</button>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book your strategy session </a>
         <a href="https://wa.me/6581618149?text=${encodeURIComponent('Hi Winfred, just finished the portfolio analysis ('+contact.full_name+'). Looking forward to the session.')}" class="btn btn-ghost" onclick="trackWAClick()">WhatsApp instead</a>
       </div>
     </div>`;
@@ -681,13 +681,13 @@ function renderSummary(data, contact) {
       const el = document.getElementById('email-status');
       if (!el) return;
       if (res && res.ok && res.emailed) {
-        el.innerHTML = `, œ‰ï¸ A copy was emailed to <strong>${contact.email}</strong> (check inbox + spam).`;
+        el.innerHTML = `ï¸ A copy was emailed to <strong>${contact.email}</strong> (check inbox + spam).`;
       } else if (res && res.ok) {
-        el.innerHTML = `ğŸ, © I'll email your PDF copy personally, typically within the day.`;
+        el.innerHTML = `I'll email your PDF copy personally, typically within the day.`;
       }
     }).catch(err => {
       const el = document.getElementById('email-status');
-      if (el) el.innerHTML = `ğŸ, © PDF ready, download above. Winfred will follow up via WhatsApp.`;
+      if (el) el.innerHTML = `PDF ready, download above. Winfred will follow up via WhatsApp.`;
     });
   }
 }

@@ -46,7 +46,7 @@ Winfred's core methodology. Every prospective transaction is scored against:
 3. **Progression** ,  what the move enables next (upgrade path, second-property timing, exit options).
 4. **Protection** ,  buffer for rate spikes, vacancy, job loss, partner change, future cooling measures.
 
-Returns a recommendation. Where the math fails, the audit returns "do not transact yet" with the gating condition that would unlock the move.
+Returns a recommendation. Where the math fails, the property portfolio analysis returns "do not transact yet" with the gating condition that would unlock the move.
 
 ### How Winfred is paid
 
@@ -137,7 +137,7 @@ Source: IRAS ,  verify at <https://www.iras.gov.sg> before transacting.
 - [Decoupling / restructuring calculator](https://winfredquek.com/tools/restructuring)
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield)
 - [Mortgage rate snapshot](https://winfredquek.com/tools/mortgage-rates)
-- [AI Property Audit](https://winfredquek.com/audit) ,  instant 4-Pillar.
+- [AI Property Property Portfolio Analysis](https://winfredquek.com/property portfolio analysis) ,  instant 4-Pillar.
 
 ### Open source
 

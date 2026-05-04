@@ -47,7 +47,7 @@
   <script defer src="/motion.js"></script>
 
   <!-- GA4  , , ,   replace G-XXXXXXXXXX with your measurement ID from analytics.google.com -->
-  <!-- TODO: Create GA4 property at analytics.google.com , †’ Admin , †’ Create Property , †’ get Measurement ID -->
+  <!-- TODO: Create GA4 property at analytics.google.com Admin Create Property get Measurement ID -->
   <!-- Note: Replace G-XXXXXXXXXX with real ID from analytics.google.com once property is created. -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
   <script>
@@ -166,7 +166,7 @@
     <p class="section-label mb-4" style="color:var(--accent);">Message received</p>
     <h3 class="serif text-2xl font-semibold mb-3">Thanks. I've got your brief.</h3>
     <p class="text-[var(--ink-soft)] mb-6">I read every message personally. Typical reply within 4 business hours, Mon-Sat 10am-8pm. For urgent matters, please WhatsApp.</p>
-    <a href="https://wa.me/6581618149" class="btn btn-ghost" onclick="trackWAClick()">Open WhatsApp , †’</a>
+    <a href="https://wa.me/6581618149" class="btn btn-ghost" onclick="trackWAClick()">Open WhatsApp </a>
   </div>
   <form id="contact-form" class="space-y-5 bg-[#1c1e26] p-8 border border-[var(--rule)] rounded-xl" action="/api/contact" method="POST">
     <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" aria-hidden="true" />
@@ -277,7 +277,7 @@
     e.preventDefault();
     var btn = form.querySelector('button[type=submit]');
     var originalText = btn.textContent;
-    btn.disabled = true; btn.textContent = 'Sending, , ¦';
+    btn.disabled = true; btn.textContent = 'Sending, ';
     try {
       var resp = await fetch('/api/contact', {
         method: 'POST',

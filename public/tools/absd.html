@@ -94,8 +94,8 @@
     </div>
 
     <div class="flex flex-wrap gap-3 mt-6">
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Want to structure this to save on stamp duty? Book a consult , 啋</a>
-      <a href="/tools/bsd" class="btn btn-ghost">BSD tiered breakdown , 啋</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Want to structure this to save on stamp duty? Book a consult </a>
+      <a href="/tools/bsd" class="btn btn-ghost">BSD tiered breakdown </a>
     </div>
   </div>
 
@@ -109,7 +109,7 @@
   </div>
 
   <div class="mt-8 text-xs text-[var(--ink-muted)] leading-relaxed">
-    <p><strong>ABSD rates (2026):</strong> SC 1st 0% 路 2nd 20% 路 3rd+ 30% | PR 1st 5% 路 2nd 30% 路 3rd+ 35% | Foreigner 60% | Entity 65% + 5% non-remittable | SC + Foreigner joint , 啋 highest rate applies (60%).</p>
+    <p><strong>ABSD rates (2026):</strong> SC 1st 0% 路 2nd 20% 路 3rd+ 30% | PR 1st 5% 路 2nd 30% 路 3rd+ 35% | Foreigner 60% | Entity 65% + 5% non-remittable | SC + Foreigner joint highest rate applies (60%).</p>
     <p class="mt-2"><strong>BSD tiers:</strong> 1% on first S$180k 路 2% on next S$180k 路 3% on next S$640k 路 4% on next S$500k 路 5% on next S$1.5M 路 6% above S$3M (residential).</p>
   </div>
 
@@ -159,8 +159,8 @@ function absdRate(profile, count){
     case 'PR': return c===1?0.05:c===2?0.30:0.35;
     case 'FOR': return 0.60;
     case 'ENT': return 0.65;
-    case 'SCFOR': return 0.60;      // joint with Foreigner , 啋 60%
-    case 'SCPR': return c===1?0.05:c===2?0.30:0.35; // SC + PR joint , 啋 PR rate applies
+    case 'SCFOR': return 0.60;      // joint with Foreigner 60%
+    case 'SCPR': return c===1?0.05:c===2?0.30:0.35; // SC + PR joint PR rate applies
     default: return 0;
   }
 }

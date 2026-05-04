@@ -68,7 +68,6 @@
         <a class="nav-link" href="/">Home</a>
         <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
         <a class="nav-link active" href="/sell">Sell</a>
-        <a class="nav-link" href="/decoupling-calculator">Decoupling Calculator</a>
         <a class="nav-link" href="/tools">Tools</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:.55rem 1.1rem;">Book a call</a>
       </div>
@@ -112,13 +111,9 @@
           <h2 class="serif text-2xl font-semibold mb-2">Get your free net proceeds analysis</h2>
           <p class="text-[var(--ink-soft)] text-sm mb-8">Tell me a bit about your property and I'll come back with a detailed net proceeds analysis within 24 hours.</p>
 
-          <form
-            action="https://formspree.io/f/FORMSPREE_ID"
-            method="POST"
-            onsubmit="trackFormSubmit('seller_enquiry')"
-          >
-            <input type="hidden" name="_subject" value="Seller Enquiry from /sell page" />
-            <input type="hidden" name="_next" value="/thank-you.html" />
+          <form id="seller-form" action="/api/contact" method="POST" onsubmit="return submitSellerForm(event)">
+            <input type="hidden" name="type" value="Seller Enquiry (sell page)" />
+            <input type="text" name="company" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;" aria-hidden="true" />
 
             <div class="mb-5">
               <label for="property_type">Property type</label>
@@ -161,7 +156,51 @@
               Get my free net proceeds analysis
             </button>
             <p class="text-xs text-[var(--ink-muted)] mt-3 text-center">Response within 24 hours. No marketing emails.</p>
+            <p id="seller-form-msg" class="text-sm mt-3 text-center" style="display:none;"></p>
           </form>
+          <script>
+            async function submitSellerForm(e){
+              e.preventDefault();
+              const form = e.target;
+              const btn = form.querySelector('button[type="submit"]');
+              const msg = document.getElementById('seller-form-msg');
+              btn.disabled = true; btn.textContent = 'Sending...';
+              const fd = new FormData(form);
+              const contact = (fd.get('contact')||'').trim();
+              const isEmail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact);
+              const payload = {
+                name: fd.get('name'),
+                email: isEmail ? contact : 'noreply-from-sell-form@winfredquek.com',
+                phone: isEmail ? '' : contact,
+                type: fd.get('type') || 'Seller Enquiry',
+                message: `Property type: ${fd.get('property_type')}\nAddress: ${fd.get('address')}\nTimeline: ${fd.get('timeline')}\nContact: ${contact}`,
+                company: fd.get('company') || ''
+              };
+              try {
+                const r = await fetch('/api/contact', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+                const d = await r.json();
+                if (d.ok) {
+                  msg.style.display='block';
+                  msg.style.color='#86d99e';
+                  msg.textContent = '✓ Got it. I will reply within 24 hours.';
+                  form.reset();
+                  btn.style.display='none';
+                  if (window.gtag) gtag('event', 'seller_enquiry');
+                } else {
+                  msg.style.display='block';
+                  msg.style.color='#f0998a';
+                  msg.textContent = '⚠ Send failed. WhatsApp me directly: +65 8161 8149';
+                  btn.disabled=false; btn.textContent='Get my free net proceeds analysis';
+                }
+              } catch(err) {
+                msg.style.display='block';
+                msg.style.color='#f0998a';
+                msg.textContent = '⚠ Network error. WhatsApp me: +65 8161 8149';
+                btn.disabled=false; btn.textContent='Get my free net proceeds analysis';
+              }
+              return false;
+            }
+          </script>
         </div>
 
         <!-- VALUE PROP -->
@@ -178,7 +217,7 @@
             </div>
             <div class="crest-card rounded-xl p-5">
               <p class="font-semibold mb-1">Net cash proceeds</p>
-              <p class="text-[var(--ink-soft)] text-sm">After agent fee (1%), legal (~S$3k), and loan clearance, your real take-home number.</p>
+              <p class="text-[var(--ink-soft)] text-sm">After agent fee (2%), legal (~S$3k), and loan clearance, your real take-home number.</p>
             </div>
             <div class="crest-card rounded-xl p-5">
               <p class="font-semibold mb-1">Timing recommendation</p>
@@ -204,7 +243,7 @@
         </div>
 
         <div class="crest-card rounded-xl p-6 text-center">
-          <p class="section-label mb-3">Transaction record</p>
+          <p class="section-label mb-3">Families helped</p>
           <p class="serif text-3xl font-semibold text-[var(--accent)] mb-2">20+</p>
           <p class="text-[var(--ink-soft)] text-sm">Families and investors advised across HDB, private condo, and landed segments in Singapore.</p>
         </div>
@@ -232,8 +271,7 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a strategy call</a>
         <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27m%20thinking%20of%20selling%20my%20property%20and%20would%20like%20a%20net%20proceeds%20analysis."
            class="btn btn-ghost" onclick="trackWAClick()">
-          WhatsApp , ��
-        </a>
+          WhatsApp </a>
       </div>
       <p class="text-xs text-[var(--ink-muted)] mt-6">Winfred Quek · CEA R073319H · Crestbrick · Same-day response</p>
     </section>

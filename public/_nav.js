@@ -14,7 +14,7 @@
       <span style="flex:1;"></span>
       <a href="/tools" style="color:#a89980;text-decoration:none;">Tools</a>
       <a href="/insights" style="color:#a89980;text-decoration:none;">Insights</a>
-      <a href="/services/portfolio-audit" style="color:#a89980;text-decoration:none;">Services</a>
+      <a href="/services/property-portfolio-analysis" style="color:#a89980;text-decoration:none;">Services</a>
       <a href="/about" style="color:#a89980;text-decoration:none;">About</a>
       <a href="https://wa.me/6581618149" style="background:#25D366;color:#fff;padding:6px 14px;border-radius:6px;text-decoration:none;font-weight:500;font-size:12px;">WhatsApp</a>
     </nav>`;
