@@ -1,5 +1,5 @@
 /* ===========================================================================
-   Motion Direction B — Minimal Editorial Luxury (UNIFIED)
+   Motion Direction B , , ,  Minimal Editorial Luxury (UNIFIED)
    Vanilla JS. No dependencies. Runs once per session.
 
    - Reveal-on-scroll for .reveal-mask / .reveal-line / .reveal-fade
@@ -131,7 +131,7 @@
     });
   }
 
-  // ---------- 4. Hero rotator — crossfade stacked imgs every 6s ----------
+  // ---------- 4. Hero rotator , , ,  crossfade stacked imgs every 6s ----------
   // Used on index.html only. Skipped under reduced motion.
   function initHeroRotator() {
     if (reduce) return;

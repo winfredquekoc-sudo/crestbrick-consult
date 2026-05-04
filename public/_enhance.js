@@ -11,7 +11,7 @@
   'use strict';
 
   // ============================================================
-  // #259 Cookie consent — minimal, PDPA-aligned
+  // #259 Cookie consent ,  minimal, PDPA-aligned
   // ============================================================
   function initConsent() {
     if (localStorage.getItem('wf_consent')) return;
@@ -172,7 +172,7 @@
         try {
           await fetch('/api/lead-magnet', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, magnet:'4-pillar-ebook', source:'exit-intent'})});
         } catch(e){}
-        overlay.querySelector('div').innerHTML = '<h2 style="color:#b48c50;font-family:Fraunces,serif;">✓ Sent</h2><p style="color:#a89980;margin-top:14px;">Check your inbox in 1-2min. — Winfred</p>';
+        overlay.querySelector('div').innerHTML = '<h2 style="color:#b48c50;font-family:Fraunces,serif;">✓ Sent</h2><p style="color:#a89980;margin-top:14px;">Check your inbox in 1-2min. ,  Winfred</p>';
         setTimeout(() => overlay.remove(), 3000);
       };
     });

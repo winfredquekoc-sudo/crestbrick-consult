@@ -1,4 +1,4 @@
-/* Shared calculator styling — loaded by each /tools/*.html page */
+/* Shared calculator styling ,  loaded by each /tools/*.html page */
 :root{--bg:#0f1117;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;--highlight:#1a1c24;}
 body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
 .serif{font-family:'Fraunces',Georgia,serif;}

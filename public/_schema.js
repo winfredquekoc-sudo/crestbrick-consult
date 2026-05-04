@@ -86,7 +86,7 @@
     });
   }
 
-  // FAQ schema — auto-detected from h2/h3 with question marks + following p
+  // FAQ schema ,  auto-detected from h2/h3 with question marks + following p
   const faqEntries = [];
   document.querySelectorAll('h2, h3').forEach(h => {
     if (h.textContent.includes('?')) {

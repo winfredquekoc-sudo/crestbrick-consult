@@ -23,7 +23,7 @@ input:focus,select:focus{outline:none;border-color:#b48c50;}
 </style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body><div class="wrap">
 <h1>HDB MOP Countdown</h1>
-<div class="lead">5 years. Then the door opens  --  sell, sublet, or upgrade. Plug in your key collection date.</div>
+<div class="lead">5 years. Then the door opens, sell, sublet, or upgrade. Plug in your key collection date.</div>
 
 <div class="card">
 <input id="kc" type="date" placeholder="Key collection date" />
@@ -36,13 +36,13 @@ input:focus,select:focus{outline:none;border-color:#b48c50;}
 </div>
 
 <div id="r" class="result">
-<div class="days-big" id="days"> -- </div>
+<div class="days-big" id="days">, </div>
 <div class="days-label" id="status">days until MOP</div>
 <div class="detail" id="detail"></div>
 </div>
 
 <div class="cta">
-<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20my%20MOP%20ends%20soon%20and%20I'm%20thinking%20about%20what's%20next.">When MOP hits, want to plan the next move? WA me â†’</a>
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20my%20MOP%20ends%20soon%20and%20I'm%20thinking%20about%20what's%20next.">When MOP hits, want to plan the next move? WA me , †’</a>
 </div>
 
 <script>
@@ -63,11 +63,11 @@ function calc(){
     d.textContent = diff.toLocaleString();
     s.textContent = 'days until MOP';
     if (diff <= 180){
-      det.innerHTML = '<b>You\'re in the planning window.</b> Most upgraders make their move 6â€“9 months ahead of MOP. Time to: (1) get a valuation refreshed, (2) get IPA from 2-3 banks, (3) shortlist the upgrade target.';
+      det.innerHTML = '<b>You\'re in the planning window.</b> Most upgraders make their move 6, , , 9 months ahead of MOP. Time to: (1) get a valuation refreshed, (2) get IPA from 2-3 banks, (3) shortlist the upgrade target.';
     } else if (diff <= 365){
       det.innerHTML = '<b>~12 months out.</b> Start the equity audit now. Knowing your post-MOP equity unlocks the upgrade math.';
     } else {
-      det.innerHTML = `<b>${(diff/365).toFixed(1)} years.</b> Still early  --  but a quarterly equity check costs nothing and tells you when the curve flattens.`;
+      det.innerHTML = `<b>${(diff/365).toFixed(1)} years.</b> Still early, but a quarterly equity check costs nothing and tells you when the curve flattens.`;
     }
   } else {
     d.textContent = Math.abs(diff).toLocaleString();

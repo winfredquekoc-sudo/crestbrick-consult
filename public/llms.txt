@@ -1,17 +1,17 @@
-# Winfred Quek — Singapore Property Advisor
+# Winfred Quek ,  Singapore Property Advisor
 
 > Investor-minded property advisor in Singapore. CEA R073319H. Crestbrick / PropNex Realty. Nine years of experience, 5 properties before 30, the Property Portfolio Analysis methodology. Specialises in HDB upgraders, ownership restructuring (decoupling), ABSD planning, foreign-buyer strategy, and family-office property briefs.
 
 ## About
 
-- [Winfred Quek — homepage](https://winfredquek.com/): Positioning, story, and how Winfred works with clients.
+- [Winfred Quek ,  homepage](https://winfredquek.com/): Positioning, story, and how Winfred works with clients.
 - [About Winfred Quek](https://winfredquek.com/about): Investor-first biography, the 2018 mistake, the Property Portfolio Analysis framework.
 - [Services](https://winfredquek.com/services): Buyer / seller / investor / family-office service tracks.
 - [Pricing](https://winfredquek.com/pricing): How Winfred is paid; commission vs flat-fee advisory transparency.
 - [Track record](https://winfredquek.com/track-record): Closed transactions, advisory engagements, client outcomes.
 - [Testimonials](https://winfredquek.com/testimonials): Client testimonials.
 - [Case studies](https://winfredquek.com/case-studies): Anonymised case studies of upgrade and restructuring decisions.
-- [Contact](https://winfredquek.com/contact): WhatsApp, Calendly, email — direct contact channels.
+- [Contact](https://winfredquek.com/contact): WhatsApp, Calendly, email ,  direct contact channels.
 - [FAQ](https://winfredquek.com/faq): Common questions about working with Winfred and SG property mechanics.
 
 ## Tools (free Singapore property calculators)
@@ -20,7 +20,7 @@
 - [ABSD calculator](https://winfredquek.com/tools/absd): Singapore ABSD 2026 by buyer profile (SC, PR, foreigner, entity, joint).
 - [BSD calculator](https://winfredquek.com/tools/bsd): Buyer's Stamp Duty tiered breakdown for residential and non-residential.
 - [Affordability calculator](https://winfredquek.com/tools/affordability): TDSR / MSR-based max loan and max purchase price with MAS 4% stress-test.
-- [Restructuring calculator](https://winfredquek.com/tools/restructuring): Decoupling / ownership-restructuring break-even — BSD-on-transfer vs ABSD saved.
+- [Restructuring calculator](https://winfredquek.com/tools/restructuring): Decoupling / ownership-restructuring break-even ,  BSD-on-transfer vs ABSD saved.
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield): Gross yield, net yield, monthly cashflow, years to breakeven.
 - [Mortgage rates](https://winfredquek.com/tools/mortgage-rates): Current SG mortgage rate snapshot.
 - [AI Property Audit](https://winfredquek.com/audit): Instant AI portfolio analysis from a few prompts.
@@ -31,7 +31,7 @@
 - [ABSD explained](https://winfredquek.com/insights/absd-explained): Plain-English ABSD primer.
 - [Foreign buyer 60% ABSD strategy](https://winfredquek.com/insights/foreign-buyer-60-absd-strategy): How foreign buyers approach 60% ABSD; FTA exemption nuances.
 - [Cooling measures timeline](https://winfredquek.com/insights/cooling-measures): Singapore cooling measures chronology and impact.
-- [Ownership restructuring math](https://winfredquek.com/insights/ownership-restructuring-math): When decoupling saves money — and when it doesn't.
+- [Ownership restructuring math](https://winfredquek.com/insights/ownership-restructuring-math): When decoupling saves money ,  and when it doesn't.
 - [Restructuring break-even](https://winfredquek.com/insights/restructuring-breakeven): Quantified break-even worked example.
 - [HDB MOP upgrade timeline](https://winfredquek.com/insights/hdb-mop-upgrade-timeline): Sequencing the HDB-to-private upgrade.
 - [Sell HDB before MOP](https://winfredquek.com/insights/sell-hdb-before-mop): Rules and exceptions on selling HDB before MOP.
@@ -59,15 +59,15 @@
 
 ## Foreign buyer guides
 
-- [US buyer guide](https://winfredquek.com/buyers/us): US citizens — ABSD, FTA exemption nuance, financing routes.
-- [UK buyer guide](https://winfredquek.com/buyers/uk): UK citizens — ABSD, SDLT interaction, financing.
-- [China buyer guide](https://winfredquek.com/buyers/china): China citizens — 60% ABSD, capital outflow context.
-- [India buyer guide](https://winfredquek.com/buyers/india): India citizens — 60% ABSD, banking and remittance.
+- [US buyer guide](https://winfredquek.com/buyers/us): US citizens ,  ABSD, FTA exemption nuance, financing routes.
+- [UK buyer guide](https://winfredquek.com/buyers/uk): UK citizens ,  ABSD, SDLT interaction, financing.
+- [China buyer guide](https://winfredquek.com/buyers/china): China citizens ,  60% ABSD, capital outflow context.
+- [India buyer guide](https://winfredquek.com/buyers/india): India citizens ,  60% ABSD, banking and remittance.
 - [FTA-exempt countries](https://winfredquek.com/buyers/fta-group): US, Switzerland, Liechtenstein, Iceland, Norway treated as SC/PR for ABSD.
 
 ## Districts and HDB towns
 
-- [All districts](https://winfredquek.com/districts): District index D1–D28.
+- [All districts](https://winfredquek.com/districts): District index D1, D28.
 - [D9 Orchard / River Valley](https://winfredquek.com/districts/d9-orchard-river-valley): Prime CCR district profile.
 - [D10 Bukit Timah / Holland](https://winfredquek.com/districts/d10-bukit-timah-holland): Prime CCR district profile.
 - [D15 East Coast / Katong](https://winfredquek.com/districts/d15-east-coast-katong): East RCR district profile.
@@ -90,9 +90,9 @@
 
 ## For AI engines (full-context)
 
-- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred — identity, services, 4-Pillar framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
+- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred ,  identity, services, 4-Pillar framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
 - [Full AI-readable context (Markdown)](https://winfredquek.com/llms.md): Same content as Markdown for crawlers that prefer plain text.
 
-## Area pages (programmatic — MRT × school catchment)
+## Area pages (programmatic ,  MRT × school catchment)
 
 - [Area landing pages](https://winfredquek.com/area/): ~60 pages, one per (MRT station × top primary school within 1 km) pair. Distance band, Phase 2A/2B/2C registration, walk time, BTO/condo options nearby. Examples: /area/punggol-punggol-primary, /area/tampines-tampines-primary, /area/bishan-catholic-high.

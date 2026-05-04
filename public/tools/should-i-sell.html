@@ -24,13 +24,13 @@ h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
 </style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body><div class="wrap">
 <h1>Should I sell now?</h1>
-<div class="lead">5 questions, 1 verdict. Honest answer  --  not "every market is a good market for sellers".</div>
+<div class="lead">5 questions, 1 verdict. Honest answer, not "every market is a good market for sellers".</div>
 
 <form id="qform">
 <div class="q"><div class="lbl">1. How long have you owned this property?</div>
 <div class="opts">
 <label><input type="radio" name="q1" value="ssd"><span>&lt; 3 years (still in SSD)</span></label>
-<label><input type="radio" name="q1" value="ok"><span>3â€“5 years</span></label>
+<label><input type="radio" name="q1" value="ok"><span>3, , , 5 years</span></label>
 <label><input type="radio" name="q1" value="long"><span>5+ years</span></label>
 </div></div>
 
@@ -45,7 +45,7 @@ h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
 <div class="q"><div class="lbl">3. Has your property gone up vs purchase price?</div>
 <div class="opts">
 <label><input type="radio" name="q3" value="up_lot"><span>Up &gt;20%</span></label>
-<label><input type="radio" name="q3" value="up_some"><span>Up 5â€“20%</span></label>
+<label><input type="radio" name="q3" value="up_some"><span>Up 5, , , 20%</span></label>
 <label><input type="radio" name="q3" value="flat"><span>Flat / down (negative equity)</span></label>
 </div></div>
 
@@ -69,7 +69,7 @@ h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
 <div id="result" class="result">
 <div class="verdict" id="verdict"></div>
 <div class="rationale" id="rationale"></div>
-<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20got%20a%20verdict%20on%20your%20Should-I-Sell%20tool%20and%20want%20to%20talk.">Run my actual numbers with Winfred â†’</a></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20got%20a%20verdict%20on%20your%20Should-I-Sell%20tool%20and%20want%20to%20talk.">Run my actual numbers with Winfred , †’</a></div>
 </div>
 
 <script>
@@ -88,16 +88,16 @@ function decide(){
     rationale = 'Selling at flat or negative equity locks in the loss. You\'re not under cashflow pressure (Q5). Use the next 12-24 months to reach breakeven before deciding.';
   } else if (a.q2 === 'absd') {
     verdict = 'RESTRUCTURE (don\'t sell)';
-    rationale = 'You\'re selling to dodge ABSD  --  but restructuring (transferring spouse\'s share) is usually cheaper. BSD on the transferred share is 3-5%, vs 20%+ ABSD on the new buy. Run the math at /tools/decoupling-breakeven before listing.';
+    rationale = 'You\'re selling to dodge ABSD, but restructuring (transferring spouse\'s share) is usually cheaper. BSD on the transferred share is 3-5%, vs 20%+ ABSD on the new buy. Run the math at /tools/decoupling-breakeven before listing.';
   } else if (a.q2 === 'upgrade' && a.q4 === 'locked' && a.q5 !== 'no') {
-    verdict = 'SELL  --  but coordinate with the next buy';
-    rationale = 'Upgrade math works when (a) you have a target, (b) you can carry both temporarily, (c) sequencing minimizes ABSD exposure. Sell-then-buy avoids ABSD; buy-then-sell needs the 6-month disposal window. This is the right window  --  but timing matters.';
+    verdict = 'SELL, but coordinate with the next buy';
+    rationale = 'Upgrade math works when (a) you have a target, (b) you can carry both temporarily, (c) sequencing minimizes ABSD exposure. Sell-then-buy avoids ABSD; buy-then-sell needs the 6-month disposal window. This is the right window, but timing matters.';
   } else if (a.q2 === 'cash') {
     verdict = 'CONSIDER ALTERNATIVES FIRST';
     rationale = 'Selling for cash is the most expensive way to access equity (BSD on next purchase, transaction costs, market-timing risk). Cheaper alternatives: (1) cash-out refi, (2) home equity loan, (3) sell only if rate sunk-cost makes refi unattractive. Run /tools/refinance-savings.';
   } else if (a.q5 === 'no') {
     verdict = 'SELL (cashflow first)';
-    rationale = 'You\'re stretched. Selling now de-risks. Don\'t maximise  --  exit cleanly. List 5% above last comparable sale, accept first reasonable offer.';
+    rationale = 'You\'re stretched. Selling now de-risks. Don\'t maximise, exit cleanly. List 5% above last comparable sale, accept first reasonable offer.';
   } else if (a.q4 === 'no') {
     verdict = 'RENT OUT INSTEAD';
     rationale = 'No alternative property + comfortable holding = you\'re selling on autopilot. Convert to rental, capture yield + appreciation, sell later when the upgrade thesis is concrete.';

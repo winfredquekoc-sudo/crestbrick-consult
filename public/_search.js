@@ -1,4 +1,4 @@
-/* #248 Site search — simple JS over a static index.
+/* #248 Site search ,  simple JS over a static index.
  * Loads /search-index.json (built nightly by sitemap-regen) + filters on input.
  * Inject in /search.html or as a header search bar.
  */

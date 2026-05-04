@@ -4,10 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Active Listings  --  Exclusive + Co-Broke Opportunities | Winfred Quek, Crestbrick</title>
-  <meta name="description" content="Exclusive listings and co-broke opportunities from Winfred Quek, investor-minded advisor at Crestbrick. HDB, condo, landed  --  each one selected for the portfolio story, not just the photo. CEA R073319H." />
-  <meta property="og:title" content="Active Listings  --  Exclusive + Co-Broke Opportunities | Winfred Quek, Crestbrick" />
-  <meta property="og:description" content="Exclusive listings and co-broke opportunities. HDB, condo, landed  --  each one chosen for a portfolio story. CEA R073319H." />
+  <title>Active Listings, Exclusive + Co-Broke Opportunities | Winfred Quek, Crestbrick</title>
+  <meta name="description" content="Exclusive listings and co-broke opportunities from Winfred Quek, investor-minded advisor at Crestbrick. HDB, condo, landed, each one selected for the portfolio story, not just the photo. CEA R073319H." />
+  <meta property="og:title" content="Active Listings, Exclusive + Co-Broke Opportunities | Winfred Quek, Crestbrick" />
+  <meta property="og:description" content="Exclusive listings and co-broke opportunities. HDB, condo, landed, each one chosen for a portfolio story. CEA R073319H." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/listings" />
@@ -115,7 +115,7 @@
   <p class="text-lg text-[var(--ink-soft)] max-w-2xl leading-relaxed">
     Every listing here has a portfolio reason I can explain in one sentence. If I
     can't, it doesn't make the page. Includes exclusive mandates and co-broke
-    opportunities  --  updated regularly. Ask me about anything off-market.
+    opportunities, updated regularly. Ask me about anything off-market.
   </p>
 </section>
 
@@ -156,11 +156,11 @@
         <select id="om-budget" name="om-budget" required class="bg-[var(--bg)] border border-[var(--rule)] rounded px-4 py-3 text-sm text-[var(--ink)] focus:outline-none focus:border-[var(--accent)] transition appearance-none">
           <option value="" disabled selected>Select budget...</option>
           <option value="Under S$500k">Under S$500k</option>
-          <option value="S$500k – S$800k">S$500k – S$800k</option>
-          <option value="S$800k – S$1.2M">S$800k – S$1.2M</option>
-          <option value="S$1.2M – S$2M">S$1.2M – S$2M</option>
-          <option value="S$2M – S$3.5M">S$2M – S$3.5M</option>
-          <option value="S$3.5M – S$6M">S$3.5M – S$6M</option>
+          <option value="S$500k , , ,  S$800k">S$500k , , ,  S$800k</option>
+          <option value="S$800k , , ,  S$1.2M">S$800k , , ,  S$1.2M</option>
+          <option value="S$1.2M , , ,  S$2M">S$1.2M , , ,  S$2M</option>
+          <option value="S$2M , , ,  S$3.5M">S$2M , , ,  S$3.5M</option>
+          <option value="S$3.5M , , ,  S$6M">S$3.5M , , ,  S$6M</option>
           <option value="Above S$6M">Above S$6M</option>
         </select>
       </div>
@@ -204,7 +204,7 @@ function buildOffMarketWA(e) {
 
 <section class="max-w-6xl mx-auto px-6 pb-20">
   <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="listings-grid">
-    <p class="col-span-full text-center text-[var(--ink-muted)] py-12">Loading listings…</p>
+    <p class="col-span-full text-center text-[var(--ink-muted)] py-12">Loading listings, , �</p>
   </div>
   <p id="listings-meta" class="text-xs text-[var(--ink-muted)] mt-10 text-center"></p>
   <p class="text-xs text-[var(--ink-muted)] mt-3 text-center">Many of the best opportunities I work on are off-market. Ask.</p>
@@ -220,13 +220,13 @@ function buildOffMarketWA(e) {
     const listings = (data.listings || []).filter(l => l.source !== 'skeleton');
 
     if (!listings.length) {
-      grid.innerHTML = '<p class="col-span-full text-center text-[var(--ink-muted)] py-12">Listings refreshing  --  check back shortly, or message me on WhatsApp for off-market options. <a href="/contact.html" class="underline hover:text-[var(--ink)]">Submit a listing enquiry</a></p>';
+      grid.innerHTML = '<p class="col-span-full text-center text-[var(--ink-muted)] py-12">Listings refreshing, check back shortly, or message me on WhatsApp for off-market options. <a href="/contact.html" class="underline hover:text-[var(--ink)]">Submit a listing enquiry</a></p>';
       return;
     }
 
     function bedsBathsSqft(l) {
       const parts = [];
-      // Office/industrial  --  skip beds/baths
+      // Office/industrial, skip beds/baths
       const isOfficeIndustrial = (l.type || '').toLowerCase() === 'industrial' || (l.type || '').toLowerCase() === 'office';
       if (!isOfficeIndustrial) {
         if (l.beds != null && l.beds !== '') parts.push(`${l.beds} bed`);
@@ -309,9 +309,9 @@ function buildOffMarketWA(e) {
 <section class="max-w-4xl mx-auto px-6 py-20 text-center fade-up">
   <p class="section-label mb-6">Looking for something specific?</p>
   <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-6">Tell me the brief. I'll bring the shortlist.</h2>
-  <p class="text-[var(--ink-soft)] mb-8">Budget, area, timeline, portfolio fit  --  the more you share, the sharper the shortlist.</p>
+  <p class="text-[var(--ink-soft)] mb-8">Budget, area, timeline, portfolio fit, the more you share, the sharper the shortlist.</p>
   <div class="flex flex-wrap justify-center gap-3">
-    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20specific%20property%20brief%20I%27d%20like%20to%20share." class="btn btn-primary">Send me your brief →</a>
+    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20specific%20property%20brief%20I%27d%20like%20to%20share." class="btn btn-primary">Send me your brief , ��</a>
     <a href="/contact.html" class="btn btn-ghost">Submit a listing enquiry</a>
   </div>
 </section>
@@ -321,7 +321,7 @@ function buildOffMarketWA(e) {
   <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
     <div>
       <p class="serif font-semibold text-lg mb-3">Winfred Quek</p>
-      <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">Investor-minded property advisor, Singapore. I help professionals, families, and investors build property portfolios  --  not just buy units.</p>
+      <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">Investor-minded property advisor, Singapore. I help professionals, families, and investors build property portfolios, not just buy units.</p>
       <p class="text-xs text-[var(--ink-muted)] leading-relaxed">Salesperson of <strong class="text-[var(--ink-soft)]">Crestbrick</strong>, Singapore<br/>CEA Registration No.: <strong class="text-[var(--ink-soft)]">R073319H</strong></p>
     </div>
     <div>

@@ -72,7 +72,7 @@ function calc(){
   for (let y = 1; y <= 25; y++) {
     propVal *= (1 + propApp);
     netRent += (propVal * rentYield) - (loan * mortRate);
-    // Loan amortizes lightly  --  assume 1% principal/yr for simplicity (real schedule depends)
+    // Loan amortizes lightly, assume 1% principal/yr for simplicity (real schedule depends)
     loan *= 0.99;
     eq *= (1 + eqRet);
     const propEq = propVal - loan + netRent;

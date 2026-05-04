@@ -47,7 +47,7 @@
       "psf": "~S$2,800-3,200 psf",
       "launch": "Q1 2026",
       "status": "active",
-      "note": "Zion Road Parcel A GLS -- awarded Apr 2024 at $1,202 psf ppr; linked to Havelock MRT"
+      "note": "Zion Road Parcel A GLS, awarded Apr 2024 at $1,202 psf ppr; linked to Havelock MRT"
     },
     {
       "slug": "promenade-peak",
@@ -62,7 +62,7 @@
       "psf": "~S$2,800-3,100 psf",
       "launch": "Q1/Q2 2026",
       "status": "active",
-      "note": "Zion Road Parcel B GLS -- Allgreen award; TOP Feb 2031"
+      "note": "Zion Road Parcel B GLS, Allgreen award; TOP Feb 2031"
     },
     {
       "slug": "river-green",
@@ -92,7 +92,7 @@
       "psf": "~S$2,800-3,200 psf",
       "launch": "Q1 2026 (launched; ongoing sales)",
       "status": "active",
-      "note": "Kingsford launch report -- 353 units (38%) sold first weekend at avg $2,953 psf; TOP Apr 2029"
+      "note": "Kingsford launch report, 353 units (38%) sold first weekend at avg $2,953 psf; TOP Apr 2029"
     },
     {
       "slug": "bloomsbury-residences",
@@ -122,7 +122,7 @@
       "psf": "~S$1,880-2,100 psf",
       "launch": "Q1 2026 (launched)",
       "status": "active",
-      "note": "Launched early 2026 -- ~60 units remaining by late Mar 2026"
+      "note": "Launched early 2026, ~60 units remaining by late Mar 2026"
     },
     {
       "slug": "vela-bay",
@@ -137,7 +137,7 @@
       "psf": "~S$2,300-2,550 psf",
       "launch": "Q2 2026 (preview Apr 2026)",
       "status": "upcoming",
-      "note": "Bayshore Road GLS -- SingHaiyi-Chuan JV won at $1,388 psf ppr; covered walkway to Bayshore MRT (TE29)"
+      "note": "Bayshore Road GLS, SingHaiyi-Chuan JV won at $1,388 psf ppr; covered walkway to Bayshore MRT (TE29)"
     },
     {
       "slug": "tengah-garden-residences",
@@ -167,7 +167,7 @@
       "psf": "~S$2,340-2,550 psf",
       "launch": "Q2 2026 (preview 14 Mar 2026, booking 27-28 Mar 2026)",
       "status": "upcoming",
-      "note": "Tampines Street 94 GLS -- Hoi Hup-Sunway won at $1,004 psf ppr; includes FairPrice, Kopitiam, Mulberry Learning"
+      "note": "Tampines Street 94 GLS, Hoi Hup-Sunway won at $1,004 psf ppr; includes FairPrice, Kopitiam, Mulberry Learning"
     },
     {
       "slug": "hudson-place-residences",
@@ -197,7 +197,7 @@
       "psf": "~S$2,200-2,500 psf",
       "launch": "Q1-Q2 2026 (preview Mar 2026)",
       "status": "upcoming",
-      "note": "Lentor Hills Road; Kingsford -- Lentor MRT TE line; TOP Q1 2029"
+      "note": "Lentor Hills Road; Kingsford, Lentor MRT TE line; TOP Q1 2029"
     },
     {
       "slug": "chuan-grove-residences",
@@ -213,7 +213,7 @@
       "launch": "Q3 2026",
       "status": "upcoming",
       "image_placeholder": true,
-      "note": "Chuan Lane -- Sing-Sunway JV at $1,376 psf ppr; Lorong Chuan MRT Circle Line"
+      "note": "Chuan Lane, Sing-Sunway JV at $1,376 psf ppr; Lorong Chuan MRT Circle Line"
     },
     {
       "slug": "lakeside-drive-residences",
@@ -341,7 +341,7 @@
       "launch": "H2 2026",
       "status": "upcoming",
       "image_placeholder": true,
-      "note": "Margaret Drive GLS -- Hong Leong-GuocoLand won at $1,154 psf ppr; next to Queenstown Primary, near Queenstown MRT"
+      "note": "Margaret Drive GLS, Hong Leong-GuocoLand won at $1,154 psf ppr; next to Queenstown Primary, near Queenstown MRT"
     },
     {
       "slug": "thomson-modern-upper-thomson-parcel-b",
@@ -453,7 +453,7 @@
       "psf": "~S$2,900-3,200 psf",
       "launch": "2027-2028",
       "status": "upcoming",
-      "note": "1H2026 GLS Confirmed List -- pair with Peck Hay (combined ~785 units in CCR)"
+      "note": "1H2026 GLS Confirmed List, pair with Peck Hay (combined ~785 units in CCR)"
     },
     {
       "slug": "bayshore-drive-integrated-development",
@@ -469,7 +469,7 @@
       "psf": "~S$2,400-2,700 psf",
       "launch": "2027-2028",
       "status": "upcoming",
-      "note": "1H2026 GLS -- largest mixed-use site; top bid expected $1.9-2.1B ($1,200-1,306 psf ppr); sole mixed-use plot in 1H2026 programme"
+      "note": "1H2026 GLS, largest mixed-use site; top bid expected $1.9-2.1B ($1,200-1,306 psf ppr); sole mixed-use plot in 1H2026 programme"
     },
     {
       "slug": "rivelle-tampines-ec",

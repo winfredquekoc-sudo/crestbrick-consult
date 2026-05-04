@@ -31,8 +31,8 @@
     "79": "D28", "80": "D28"
   },
   "districts": [
-    { "code": "D1", "region": "CCR", "name": "Raffles Place · Marina", "areas": "Cecil · Marina · People's Park · Boat Quay · Anson", "pov": "Office-led core. Resi here is investor-only — yields tight, demand cyclical with CBD office occupancy." },
-    { "code": "D2", "region": "CCR", "name": "Anson · Tanjong Pagar", "areas": "Tanjong Pagar · Anson · Wallich", "pov": "Walking-distance CBD play. Newport (FH) is the headline 2026 launch — prime tier." },
+    { "code": "D1", "region": "CCR", "name": "Raffles Place · Marina", "areas": "Cecil · Marina · People's Park · Boat Quay · Anson", "pov": "Office-led core. Resi here is investor-only ,  yields tight, demand cyclical with CBD office occupancy." },
+    { "code": "D2", "region": "CCR", "name": "Anson · Tanjong Pagar", "areas": "Tanjong Pagar · Anson · Wallich", "pov": "Walking-distance CBD play. Newport (FH) is the headline 2026 launch ,  prime tier." },
     { "code": "D3", "region": "RCR", "name": "Queenstown · Tiong Bahru", "areas": "Queenstown · Tiong Bahru · Alexandra", "pov": "City-fringe sweet spot. Mature MRT, quality schools, en-bloc-rich. Holds value through cycles." },
     { "code": "D4", "region": "RCR", "name": "Sentosa · HarbourFront", "areas": "Telok Blangah · HarbourFront · Sentosa Cove", "pov": "Sentosa = niche FX/foreign-buyer game. HarbourFront mainland is the more practical SC/PR play." },
     { "code": "D5", "region": "OCR", "name": "Pasir Panjang · Clementi", "areas": "Pasir Panjang · West Coast · Clementi · Hong Leong Garden", "pov": "Quietly strong. NUS / one-north / Science Park demand pillars. Tenant-friendly, mature stock." },
@@ -46,7 +46,7 @@
     { "code": "D13", "region": "RCR", "name": "Macpherson · Braddell", "areas": "Macpherson · Braddell · Potong Pasir", "pov": "Quiet performer. CCL access. Affordable RCR for upgraders." },
     { "code": "D14", "region": "RCR", "name": "Geylang · Eunos", "areas": "Geylang · Eunos · Paya Lebar · Ubi · Aljunied", "pov": "Two-speed: Geylang FH + Paya Lebar Quarter mature; Ubi industrial-fringe stays niche. Yield-positive." },
     { "code": "D15", "region": "RCR", "name": "East Coast · Katong", "areas": "Katong · Joo Chiat · Marine Parade · Amber Road · Mountbatten", "pov": "East Coast lifestyle premium. Walkable, cafe-rich, mature schools. New launches priced accordingly." },
-    { "code": "D16", "region": "OCR", "name": "Bedok · Upper East Coast", "areas": "Bedok · Upper East Coast · Eastwood · Bayshore", "pov": "Bayshore TEL station + Bedok CBD redevelopment = 5–10yr upside. HDB upgrader-rich catchment." },
+    { "code": "D16", "region": "OCR", "name": "Bedok · Upper East Coast", "areas": "Bedok · Upper East Coast · Eastwood · Bayshore", "pov": "Bayshore TEL station + Bedok CBD redevelopment = 5, 10yr upside. HDB upgrader-rich catchment." },
     { "code": "D17", "region": "OCR", "name": "Changi · Loyang", "areas": "Changi · Loyang · Changi Business Park", "pov": "Industrial-anchored. Tenant pool = aviation + CBP staff. Resi is niche; landed pockets only." },
     { "code": "D18", "region": "OCR", "name": "Tampines · Pasir Ris", "areas": "Tampines · Pasir Ris · Simei", "pov": "Mature regional centre. Tampines Hub + JEM-equivalent retail draw. Pinery Residences is the 2026 anchor." },
     { "code": "D19", "region": "OCR", "name": "Serangoon · Hougang · Punggol", "areas": "Serangoon Garden · Hougang · Punggol · Sengkang", "pov": "Family-suburban. Punggol Digital District ramping. HDB-upgrader heartland for Crestbrick." },

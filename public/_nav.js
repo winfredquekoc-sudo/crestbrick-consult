@@ -1,5 +1,5 @@
 /* Global navigation injector. Adds consistent header + footer across all pages
- * if they don't already have one. Idempotent — skips pages that have wf-nav class.
+ * if they don't already have one. Idempotent ,  skips pages that have wf-nav class.
  */
 (function(){
   'use strict';

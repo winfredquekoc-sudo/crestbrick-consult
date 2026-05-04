@@ -1,10 +1,10 @@
 /* ===========================================================================
-   Motion Direction B — Warm Modern Prestige (UNIFIED)
+   Motion Direction B , , ,  Warm Modern Prestige (UNIFIED)
    Single source of truth for all motion + secondary-palette tokens.
    Reference: /docs/motion-direction.md (Section 13B).
 
    Philosophy: measured hospitality. Editorial restraint with a single warm
-   flourish — a thin accent line that flashes across headline reveals,
+   flourish , , ,  a thin accent line that flashes across headline reveals,
    warmer card shadows, slightly slower CTA warmth so the transition
    registers as deliberate rather than reflexive.
 
@@ -14,12 +14,12 @@
    =========================================================================== */
 
 :root {
-  /* Easing — one signature curve does 80% of the work */
+  /* Easing , , ,  one signature curve does 80% of the work */
   --ease-primary: cubic-bezier(0.2, 0.8, 0.2, 1);
   --ease-entry:   cubic-bezier(0.4, 0, 0.1, 1);
   --ease-exit:    cubic-bezier(0.4, 0, 0.2, 1);
 
-  /* Durations — Direction B: reveal tokens +20%, micro-interactions unchanged */
+  /* Durations , , ,  Direction B: reveal tokens +20%, micro-interactions unchanged */
   --dur-hover:        200ms;
   --dur-hover-cta:    260ms;   /* CTA warmth, deliberate dwell (B) */
   --dur-press:         80ms;
@@ -41,16 +41,16 @@
        hexes on sellers-guide / pricing value-receipt segments.
      - --accent-2-soft reserved for pale washes on outcome cards.
      - --accent-deep powers #wa-float:hover tint.
-     Do NOT promote these to primary page chrome — stay editorial.
+     Do NOT promote these to primary page chrome , , ,  stay editorial.
      Dropped: --accent-forest (unused), --gradient-hero (banned startup). */
-  --accent-2:       #2d4f4a; /* ink-teal — data/outcome accent */
+  --accent-2:       #2d4f4a; /* ink-teal , , ,  data/outcome accent */
   --accent-2-soft:  #e8f0ee; /* pale ink-teal wash */
-  --accent-deep:    #4a3820; /* richer tan — hover tint for wa-float */
+  --accent-deep:    #4a3820; /* richer tan , , ,  hover tint for wa-float */
 }
 
 /* ---------- Reveal primitives ---------- */
 
-/* Mask wipe — for images and featured art */
+/* Mask wipe , , ,  for images and featured art */
 .reveal-mask {
   clip-path: inset(0 0 100% 0);
   transition: clip-path var(--dur-reveal-slow) var(--ease-primary);
@@ -60,7 +60,7 @@
   clip-path: inset(0 0 0 0);
 }
 
-/* Line reveal — per-line wrappers inside a headline */
+/* Line reveal , , ,  per-line wrappers inside a headline */
 .reveal-line {
   display: block;
   clip-path: inset(0 0 100% 0);
@@ -75,7 +75,7 @@
   transform: translateY(0);
 }
 
-/* Simple fade — body copy, cards, CTA clusters */
+/* Simple fade , , ,  body copy, cards, CTA clusters */
 .reveal-fade {
   opacity: 0;
   transform: translateY(8px);
@@ -135,7 +135,7 @@
   100% { opacity: 0; transform: scaleX(1); }
 }
 
-/* ---------- L→R underline for inline links ----------
+/* ---------- L, ��R underline for inline links ----------
    Direction B: underline settles in warm --accent throughout hover.
    Simpler than a two-gradient crossfade; reads as the warm flourish B asks for. */
 .link-underline {
@@ -150,9 +150,9 @@
 }
 .link-underline:hover { background-size: 100% 1px; }
 
-/* ---------- CTAs — editorial, not SaaS ---------- */
+/* ---------- CTAs , , ,  editorial, not SaaS ---------- */
 
-/* Primary: ink fill, hover → accent. Direction B: deliberate 260ms warmth. */
+/* Primary: ink fill, hover , �� accent. Direction B: deliberate 260ms warmth. */
 .btn.btn-primary,
 a.btn-primary,
 button.btn-primary {
@@ -172,7 +172,7 @@ button.btn-primary:active {
   transform: scale(0.96);
 }
 
-/* Ghost: L→R ink fill via ::before. Text crossfades to cream. */
+/* Ghost: L, ��R ink fill via ::before. Text crossfades to cream. */
 .btn.btn-ghost,
 a.btn-ghost,
 button.btn-ghost {
@@ -244,7 +244,7 @@ button.btn-ghost:active {
   transform: scale(1.03);
 }
 
-/* ---------- Legacy .card-lift — kept for backwards compat across 59 uses ----------
+/* ---------- Legacy .card-lift , , ,  kept for backwards compat across 59 uses ----------
    Direction B treatment: 2px translate + warm shadow, no 3D tilt.
    Behaviour aligned with .motion-card above. */
 .card-lift {
@@ -259,7 +259,7 @@ button.btn-ghost:active {
   border-color: var(--accent);
 }
 
-/* ---------- Form field — floating label + L→R border grow on focus ---------- */
+/* ---------- Form field , , ,  floating label + L, ��R border grow on focus ---------- */
 .field {
   position: relative;
   padding-top: 18px;
@@ -303,7 +303,7 @@ button.btn-ghost:active {
   border-bottom: 1.5px solid var(--accent);
 }
 
-/* ---------- Nav scroll-state — background fades in past 40px scroll ---------- */
+/* ---------- Nav scroll-state , , ,  background fades in past 40px scroll ---------- */
 body.is-scrolled header.topnav {
   background: rgba(250, 248, 244, 0.92);
   border-bottom-color: var(--rule);
@@ -322,11 +322,11 @@ header.topnav {
 }
 
 /* ===========================================================================
-   Migrated primitives — previously in animations.css.
+   Migrated primitives , , ,  previously in animations.css.
    Retained after HTML audit; all uses documented inline.
    =========================================================================== */
 
-/* Section band — full-bleed white panel (used on homepage, 3 places) */
+/* Section band , , ,  full-bleed white panel (used on homepage, 3 places) */
 .section-band-white {
   position: relative;
   isolation: isolate;
@@ -342,7 +342,7 @@ header.topnav {
   z-index: -1;
 }
 
-/* Hero headshot rotator — stacked imgs, crossfade (index.html only) */
+/* Hero headshot rotator , , ,  stacked imgs, crossfade (index.html only) */
 .hero-rotator {
   position: relative;
   width: 100%;
@@ -407,7 +407,7 @@ header.topnav {
   background: var(--accent);
 }
 
-/* Value stack receipt — stacked-bar visualisation
+/* Value stack receipt , , ,  stacked-bar visualisation
    Live on pricing.html + sellers-guide.html. Inline hex teals used deliberately
    as data-viz segments; do not collapse to tokens or the chart loses contrast. */
 .value-receipt {
@@ -476,7 +476,7 @@ header.topnav {
   font-variant-numeric: tabular-nums;
 }
 
-/* Life-stage tile — accent hairline + number growth on hover (index.html strip) */
+/* Life-stage tile , , ,  accent hairline + number growth on hover (index.html strip) */
 .lifestage-tile {
   position: relative;
   transition: transform var(--dur-hover) var(--ease-primary),
@@ -505,7 +505,7 @@ header.topnav {
   color: var(--accent-2);
 }
 
-/* WhatsApp float — dark ink pill, refined one-shot pulse on load (global) */
+/* WhatsApp float , , ,  dark ink pill, refined one-shot pulse on load (global) */
 #wa-float {
   background: var(--ink) !important;
   color: var(--bg) !important;
@@ -529,11 +529,11 @@ header.topnav {
   }
 }
 #wa-float.wa-pulsing {
-  /* Two-iteration, finite — permitted as a single attention-tap, not a loop */
+  /* Two-iteration, finite , , ,  permitted as a single attention-tap, not a loop */
   animation: wa-pulse-refined 1.4s ease-out 2 !important;
 }
 
-/* ---------- Reduced motion — non-negotiable ---------- */
+/* ---------- Reduced motion , , ,  non-negotiable ---------- */
 @media (prefers-reduced-motion: reduce) {
   .reveal-mask,
   .reveal-line,

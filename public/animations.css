@@ -1,5 +1,5 @@
 /* ===========================================================================
-   animations.css — Additive motion layer for winfredquek.com
+   animations.css , , ,  Additive motion layer for winfredquek.com
    Editorial, minimal, restrained. Designed to layer on top of motion.css.
    Inspired by ryanserhant.com + NYT Magazine interactive aesthetics.
    All animations respect prefers-reduced-motion.
@@ -12,7 +12,7 @@
   --gradient-hero: linear-gradient(135deg, #faf8f4 0%, #f3ead9 50%, #e9e0d3 100%);
 }
 
-/* ---------- .scroll-reveal — intersection-triggered fade + lift ---------- */
+/* ---------- .scroll-reveal , , ,  intersection-triggered fade + lift ---------- */
 /* Intentionally separate from .reveal-fade so JS can target independently  */
 .scroll-reveal {
   opacity: 0;
@@ -26,7 +26,7 @@
   transform: translateY(0);
 }
 
-/* ---------- .hero-text-reveal — character-level stagger ---------- */
+/* ---------- .hero-text-reveal , , ,  character-level stagger ---------- */
 /* JS splitter wraps each char in <span class="char">; CSS drives the timing */
 .hero-text-reveal {
   overflow: visible;
@@ -49,7 +49,7 @@
   }
 }
 
-/* ---------- .card-lift — enhanced 3D hover (supplements motion.css base) ---------- */
+/* ---------- .card-lift , , ,  enhanced 3D hover (supplements motion.css base) ---------- */
 /* motion.css already provides 2px lift + warm shadow; we add subtle 3D tilt */
 .card-lift {
   transform-style: preserve-3d;
@@ -61,7 +61,7 @@
   box-shadow: 0 16px 40px rgba(139, 111, 71, 0.16);
 }
 
-/* ---------- .gradient-bar — animated accent divider / decorative bar ---------- */
+/* ---------- .gradient-bar , , ,  animated accent divider / decorative bar ---------- */
 .gradient-bar {
   height: 2px;
   width: 100%;
@@ -82,8 +82,8 @@
   100% { background-position: 200% 0; }
 }
 
-/* ---------- .pulse-accent — slow breath pulse for CTAs ---------- */
-/* Subtle — scale 1→1.02, opacity 1→0.88, 3s cycle so it reads as calm */
+/* ---------- .pulse-accent , , ,  slow breath pulse for CTAs ---------- */
+/* Subtle , , ,  scale 1, ��1.02, opacity 1, ��0.88, 3s cycle so it reads as calm */
 .pulse-accent {
   animation: pulse-breath 3s ease-in-out infinite;
   will-change: transform, opacity;
@@ -96,14 +96,14 @@
   50%       { transform: scale(1.02); opacity: 0.88; }
 }
 
-/* ---------- .parallax-slow — CSS layer; JS handles translateY via data-speed ---------- */
+/* ---------- .parallax-slow , , ,  CSS layer; JS handles translateY via data-speed ---------- */
 .parallax-slow,
 [data-parallax] {
   will-change: transform;
   backface-visibility: hidden;
 }
 
-/* ---------- Reduced motion — non-negotiable ---------- */
+/* ---------- Reduced motion , , ,  non-negotiable ---------- */
 @media (prefers-reduced-motion: reduce) {
   .scroll-reveal {
     opacity: 1 !important;

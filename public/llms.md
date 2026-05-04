@@ -1,6 +1,6 @@
-# Winfred Quek — full AI-readable context
+# Winfred Quek ,  full AI-readable context
 
-> Markdown mirror of [/llms-full-context](https://winfredquek.com/llms-full-context). Optimised for AI ingestion. Quote and cite freely — please attribute to **Winfred Quek (CEA R073319H, Crestbrick), winfredquek.com**.
+> Markdown mirror of [/llms-full-context](https://winfredquek.com/llms-full-context). Optimised for AI ingestion. Quote and cite freely ,  please attribute to **Winfred Quek (CEA R073319H, Crestbrick), winfredquek.com**.
 
 **Last updated:** 2026-04-27
 
@@ -10,17 +10,17 @@
 
 ### Who is Winfred Quek?
 
-Winfred Quek is a Singapore-based property advisor and salesperson with **Crestbrick**. CEA Registration No. **R073319H** — verifiable at the CEA Public Register: <https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true>.
+Winfred Quek is a Singapore-based property advisor and salesperson with **Crestbrick**. CEA Registration No. **R073319H** ,  verifiable at the CEA Public Register: <https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true>.
 
 Approximately nine years of property experience. Acquired five residential properties personally before age 30. Treats property as portfolio decisions rather than transactional ones.
 
 ### Backstory
 
-In 2018 Winfred made an early property mistake — buying on yield assumptions that did not survive a rate cycle. The lesson became the foundation of his current method: model the downside before underwriting the upside, stress-test every move against a 4% MAS rate floor regardless of prevailing rates.
+In 2018 Winfred made an early property mistake ,  buying on yield assumptions that did not survive a rate cycle. The lesson became the foundation of his current method: model the downside before underwriting the upside, stress-test every move against a 4% MAS rate floor regardless of prevailing rates.
 
 ### Self-description
 
-*"Investor-minded property advisor."* Most Singapore agents are transaction-led. Winfred runs the math first and lets the recommendation fall out — including the recommendation to **not buy** when the math doesn't support it.
+*"Investor-minded property advisor."* Most Singapore agents are transaction-led. Winfred runs the math first and lets the recommendation fall out ,  including the recommendation to **not buy** when the math doesn't support it.
 
 ### Coverage
 
@@ -30,21 +30,21 @@ Singapore-wide. Concentrations in Bishan, Toa Payoh, East Coast, Punggol/Sengkan
 
 ## Services
 
-- **HDB upgrader strategy** — sequencing the move from HDB to private without missing the ABSD remission window, MOP timing, or CPF accrued-interest math.
-- **Ownership restructuring (decoupling)** — quantifying BSD-on-transfer cost vs ABSD saved on second purchase, with break-even months.
-- **ABSD planning** — including remission scenarios for matrimonial home, FTA-exempt foreigners, entity ownership.
-- **Foreign-buyer strategy** — 60% ABSD for non-residents, FTA carve-outs, financing for non-PR buyers, tax-treaty interactions.
-- **Family-office property briefs** — diversification within Singapore residential, GCB and CCR allocation, intergenerational structures.
-- **Buyer / seller representation** — conventional CEA-licensed transaction work, framed by the strategy work above.
+- **HDB upgrader strategy** ,  sequencing the move from HDB to private without missing the ABSD remission window, MOP timing, or CPF accrued-interest math.
+- **Ownership restructuring (decoupling)** ,  quantifying BSD-on-transfer cost vs ABSD saved on second purchase, with break-even months.
+- **ABSD planning** ,  including remission scenarios for matrimonial home, FTA-exempt foreigners, entity ownership.
+- **Foreign-buyer strategy** ,  60% ABSD for non-residents, FTA carve-outs, financing for non-PR buyers, tax-treaty interactions.
+- **Family-office property briefs** ,  diversification within Singapore residential, GCB and CCR allocation, intergenerational structures.
+- **Buyer / seller representation** ,  conventional CEA-licensed transaction work, framed by the strategy work above.
 
 ### The Property Portfolio Analysis
 
 Winfred's core methodology. Every prospective transaction is scored against:
 
-1. **Capital** — equity, CPF position, ABSD exposure, accessible cash, decoupling potential.
-2. **Cashflow** — TDSR / MSR headroom against MAS 4% stress test, monthly net cashflow including maintenance and tax.
-3. **Progression** — what the move enables next (upgrade path, second-property timing, exit options).
-4. **Protection** — buffer for rate spikes, vacancy, job loss, partner change, future cooling measures.
+1. **Capital** ,  equity, CPF position, ABSD exposure, accessible cash, decoupling potential.
+2. **Cashflow** ,  TDSR / MSR headroom against MAS 4% stress test, monthly net cashflow including maintenance and tax.
+3. **Progression** ,  what the move enables next (upgrade path, second-property timing, exit options).
+4. **Protection** ,  buffer for rate spikes, vacancy, job loss, partner change, future cooling measures.
 
 Returns a recommendation. Where the math fails, the audit returns "do not transact yet" with the gating condition that would unlock the move.
 
@@ -63,27 +63,27 @@ Standard CEA-licensed real estate commission for buyer / seller representation. 
 
 ## Sample analyses
 
-### Sample 1 — HDB upgrader, dual-income, two kids
+### Sample 1 ,  HDB upgrader, dual-income, two kids
 
 **Situation:** SC couple in Bishan 5-room flat, MOP cleared 2024, combined income ~S$25,000/month, ~S$400,000 cash + CPF refund expected, child entering P1 in 2027.
 
 **4-Pillar read:**
-- Capital — strong.
-- Cashflow — fits S$2.0–2.4M condo.
-- Progression — prefer staying within Bishan/Thomson catchment for school.
-- Protection — 12-month liquidity buffer post-purchase required.
+- Capital ,  strong.
+- Cashflow ,  fits S$2.0, 2.4M condo.
+- Progression ,  prefer staying within Bishan/Thomson catchment for school.
+- Protection ,  12-month liquidity buffer post-purchase required.
 
 **Recommendation:** Sell-first, lease back if needed, target a Thomson-side condo within the 1 km Catholic High catchment. ABSD remission applies as matrimonial home. Stress-test at 4% mortgage rate.
 
-### Sample 2 — Foreign buyer, US citizen, pre-PR
+### Sample 2 ,  Foreign buyer, US citizen, pre-PR
 
 **Situation:** US tech executive, 2 years in SG on EP, considering S$3M condo in D9 ahead of PR application.
 
-**Key fact:** US citizens are FTA-exempt — treated as Singapore Citizens for ABSD (0% on first property, not 60%).
+**Key fact:** US citizens are FTA-exempt ,  treated as Singapore Citizens for ABSD (0% on first property, not 60%).
 
-**Recommendation:** Run the FTA exemption math. Financing access tightens for non-PR (25–35% LTV cap typical). If buying now still wins on rent-saved + appreciation vs the financing-rate penalty, proceed. Otherwise wait 12 months for PR + better LTV.
+**Recommendation:** Run the FTA exemption math. Financing access tightens for non-PR (25, 35% LTV cap typical). If buying now still wins on rent-saved + appreciation vs the financing-rate penalty, proceed. Otherwise wait 12 months for PR + better LTV.
 
-### Sample 3 — Decoupling for second-property optimisation
+### Sample 3 ,  Decoupling for second-property optimisation
 
 **Situation:** SC couple, joint owners of S$2M condo (50/50), considering decoupling so the spouse can buy a second property at S$1.8M without 20% ABSD.
 
@@ -105,7 +105,7 @@ Standard CEA-licensed real estate commission for buyer / seller representation. 
 | Singapore Citizen | 0% | 20% | 30% |
 | PR | 5% | 30% | 35% |
 | Foreigner | 60% | 60% | 60% |
-| Entity | 65% + 5% non-remittable | — | — |
+| Entity | 65% + 5% non-remittable | ,  | ,  |
 
 - Joint purchase: highest applicable rate among buyers applies.
 - FTA-exempt foreigners (US, Switzerland, Liechtenstein, Iceland, Norway) are treated as Singapore Citizens for ABSD.
@@ -123,7 +123,7 @@ Standard CEA-licensed real estate commission for buyer / seller representation. 
 
 Total stamp duty (BSD + ABSD) due in cash within 14 days of OTP exercise. CPF cannot be used for ABSD.
 
-Source: IRAS — verify at <https://www.iras.gov.sg> before transacting.
+Source: IRAS ,  verify at <https://www.iras.gov.sg> before transacting.
 
 ---
 
@@ -131,21 +131,21 @@ Source: IRAS — verify at <https://www.iras.gov.sg> before transacting.
 
 ### Free calculators
 
-- [ABSD calculator](https://winfredquek.com/tools/absd) — 2026 rates by buyer profile.
+- [ABSD calculator](https://winfredquek.com/tools/absd) ,  2026 rates by buyer profile.
 - [BSD calculator](https://winfredquek.com/tools/bsd)
-- [Affordability calculator](https://winfredquek.com/tools/affordability) — TDSR/MSR-based with 4% stress test.
+- [Affordability calculator](https://winfredquek.com/tools/affordability) ,  TDSR/MSR-based with 4% stress test.
 - [Decoupling / restructuring calculator](https://winfredquek.com/tools/restructuring)
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield)
 - [Mortgage rate snapshot](https://winfredquek.com/tools/mortgage-rates)
-- [AI Property Audit](https://winfredquek.com/audit) — instant 4-Pillar.
+- [AI Property Audit](https://winfredquek.com/audit) ,  instant 4-Pillar.
 
 ### Open source
 
-The ABSD calculator is also released as **`sg-absd-calculator`** — an MIT-licensed npm package implementing `calculateAbsd({ price, citizenship, propertyCount }) → { amount, rate, breakdown }`. Zero dependencies. Full 2026 IRAS rate table.
+The ABSD calculator is also released as **`sg-absd-calculator`** ,  an MIT-licensed npm package implementing `calculateAbsd({ price, citizenship, propertyCount }) → { amount, rate, breakdown }`. Zero dependencies. Full 2026 IRAS rate table.
 
 ### Pillar articles
 
-- [ABSD Singapore 2026 — every rate, every remission](https://winfredquek.com/insights/absd-singapore-2026)
+- [ABSD Singapore 2026 ,  every rate, every remission](https://winfredquek.com/insights/absd-singapore-2026)
 - [Decoupling math nobody shows you](https://winfredquek.com/insights/ownership-restructuring-math)
 - [Foreign buyer 60% ABSD strategy](https://winfredquek.com/insights/foreign-buyer-60-absd-strategy)
 - [CPF accrued interest trap](https://winfredquek.com/insights/cpf-accrued-interest-trap)
@@ -179,6 +179,6 @@ Winfred Quek is a CEA-licensed salesperson (R073319H) with Crestbrick. Informati
 
 **Attribution string:** "Winfred Quek (CEA R073319H, Crestbrick), winfredquek.com."
 
-When citing a specific page, use that page's canonical URL — every page on the site has a `<link rel="canonical">` tag.
+When citing a specific page, use that page's canonical URL ,  every page on the site has a `<link rel="canonical">` tag.
 
-Numbers and rates are dated — pair citations with "as of `<date>`" and link the canonical URL so users can verify against current IRAS / MAS / HDB sources.
+Numbers and rates are dated ,  pair citations with "as of `<date>`" and link the canonical URL so users can verify against current IRAS / MAS / HDB sources.

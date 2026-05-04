@@ -15,7 +15,7 @@ const NEW_LAUNCHES = [
     "launch": "TBC",
     "units": "TBC",
     "tenure": "99-year leasehold",
-    "note": "RCR — track resale PSF drift"
+    "note": "RCR ,  track resale PSF drift"
   },
   {
     "name": "Lentor Mansion",
@@ -29,7 +29,7 @@ const NEW_LAUNCHES = [
     "launch": "TBC",
     "units": "TBC",
     "tenure": "99-year leasehold",
-    "note": "OCR — GuocoLand — track PSF + remaining stack"
+    "note": "OCR ,  GuocoLand ,  track PSF + remaining stack"
   },
   {
     "name": "Hillhaven",
@@ -43,7 +43,7 @@ const NEW_LAUNCHES = [
     "launch": "TBC",
     "units": "TBC",
     "tenure": "99-year leasehold",
-    "note": "OCR — Far East — track PSF"
+    "note": "OCR ,  Far East ,  track PSF"
   },
   {
     "name": "The Chuan Park",

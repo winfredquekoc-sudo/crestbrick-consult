@@ -72,7 +72,7 @@
     <canvas id="qrCanvas"></canvas>
   </div>
 
-  <a id="waLink" class="cta" href="#" target="_blank" rel="noopener">Open WhatsApp →</a>
+  <a id="waLink" class="cta" href="#" target="_blank" rel="noopener">Open WhatsApp , ��</a>
 
   <div class="footer">
     Winfred Quek · CEA R073319H · Crestbrick Pte Ltd<br>
@@ -115,10 +115,10 @@
   const waUrl = `https://wa.me/${PHONE}?text=${encodeURIComponent(message)}`;
   document.getElementById("waLink").href = waUrl;
 
-  // Tiny inline QR generator (qrcode-svg port — minimal). For production grade,
-  // could swap to `qrcode` npm package — but a vendor-free implementation keeps
+  // Tiny inline QR generator (qrcode-svg port , , ,  minimal). For production grade,
+  // could swap to `qrcode` npm package , , ,  but a vendor-free implementation keeps
   // the page cacheable and load-fast.
-  // We use Google Charts API as the simplest reliable QR — but it's deprecated;
+  // We use Google Charts API as the simplest reliable QR , , ,  but it's deprecated;
   // use a 3rd-party static QR image as fallback.
   const qrSize = 200;
   const qrSrc = `https://api.qrserver.com/v1/create-qr-code/?size=${qrSize}x${qrSize}&data=${encodeURIComponent(waUrl)}&qzone=1`;
@@ -144,6 +144,6 @@
 })();
 </script>
 
-<!-- Optional: Plausible / GA snippet — currently a no-op since gtag isn't loaded -->
+<!-- Optional: Plausible / GA snippet , , ,  currently a no-op since gtag isn't loaded -->
 </body>
 </html>

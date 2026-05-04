@@ -28,15 +28,15 @@ h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;}
 <h1>SG Rental Yield Heatmap</h1>
 <div class="lead">Median gross annual yield by district. Investor-grade view: where the rental math actually works, vs where you're paying for the postcode.</div>
 <div class="legend">
-  <span style="background:#3ddc84"></span>â‰¥3.5% (high yield)
-  <span style="background:#b48c50"></span>3.0â€“3.5%
+  <span style="background:#3ddc84"></span>, ‰¥3.5% (high yield)
+  <span style="background:#b48c50"></span>3.0, , , 3.5%
   <span style="background:#ff8a65"></span>&lt;3.0% (capital-gain bet)
 </div>
 <div id="grid" class="grid"></div>
 <div class="cta">
-<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20talk%20yield%20vs%20capital%20gain%20in%20a%20specific%20district.">Want to dig into a specific district? WA me â†’</a>
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20talk%20yield%20vs%20capital%20gain%20in%20a%20specific%20district.">Want to dig into a specific district? WA me , †’</a>
 </div>
-<div class="foot" id="foot">Loading dataâ€¦</div>
+<div class="foot" id="foot">Loading data, , ¦</div>
 </div>
 
 <script>
@@ -54,7 +54,7 @@ fetch('/data/yield-heatmap.json').then(r => r.json()).then(d => {
         <div class="metric"><span>Med rent</span><span class="v">$${info.med_rent.toLocaleString()}</span></div>
       </div>`);
   }
-  document.getElementById('foot').textContent = `Source: ${d._source} Â· Updated ${d._updated} Â· Indicative only  --  your specific unit will deviate by 0.5â€“1.5pp.`;
-}).catch(() => { document.getElementById('foot').textContent = 'Data not available yet  --  refreshing weekly.'; });
+  document.getElementById('foot').textContent = `Source: ${d._source} Â· Updated ${d._updated} Â· Indicative only, your specific unit will deviate by 0.5, , , 1.5pp.`;
+}).catch(() => { document.getElementById('foot').textContent = 'Data not available yet, refreshing weekly.'; });
 </script>
 </body></html>

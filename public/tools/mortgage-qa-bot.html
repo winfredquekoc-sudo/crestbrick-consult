@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>Mortgage Q&A Â· Winfred Quek</title>
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="description" content="Ask anything about Singapore mortgages  --  TDSR, MSR, refinance, lock-in, SORA. Quick AI-powered answers.">
+<meta name="description" content="Ask anything about Singapore mortgages, TDSR, MSR, refinance, lock-in, SORA. Quick AI-powered answers.">
 <link rel="canonical" href="https://winfredquek.com/tools/mortgage-qa-bot">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -23,7 +23,7 @@ input{flex:1;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.
 </style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body><div class="wrap">
 <h1>Mortgage Q&A</h1>
-<div class="sub">Ask about SG mortgages  --  rates, TDSR, refi timing, lock-in penalties. Powered by current market data + Winfred's playbook.</div>
+<div class="sub">Ask about SG mortgages, rates, TDSR, refi timing, lock-in penalties. Powered by current market data + Winfred's playbook.</div>
 <div id="chat" class="chat"></div>
 <div class="input-row">
   <input id="q" placeholder="Ask anything..." onkeydown="if(event.key==='Enter')ask()"/>
@@ -32,15 +32,15 @@ input{flex:1;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.
 <div class="suggest">
   <button onclick="prefill('What\\'s the difference between TDSR and MSR?')">TDSR vs MSR?</button>
   <button onclick="prefill('When should I refi?')">When to refi?</button>
-  <button onclick="prefill('Lock-in penalty  --  how does it work?')">Lock-in penalty?</button>
+  <button onclick="prefill('Lock-in penalty, how does it work?')">Lock-in penalty?</button>
   <button onclick="prefill('Fixed vs floating?')">Fixed vs floating?</button>
 </div>
-<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20mortgage%20question%20the%20bot%20couldn%27t%20fully%20answer.">Want a real human answer? WA me â†’</a></div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20mortgage%20question%20the%20bot%20couldn%27t%20fully%20answer.">Want a real human answer? WA me , †’</a></div>
 
 <script>
 const chat = document.getElementById('chat');
 function add(role, text){ chat.insertAdjacentHTML('beforeend', `<div class="msg ${role}"><b>${role==='u'?'YOU':'WINFRED'}</b>${text}</div>`); chat.scrollTop = chat.scrollHeight; }
-add('b', "Hey  --  ask me anything about SG mortgages. I draw from current SORA + bank rates and the playbook I run with my clients.");
+add('b', "Hey, ask me anything about SG mortgages. I draw from current SORA + bank rates and the playbook I run with my clients.");
 function prefill(q){ document.getElementById('q').value = q; ask(); }
 async function ask(){
   const qel = document.getElementById('q');
@@ -48,12 +48,12 @@ async function ask(){
   if (!q) return;
   add('u', q);
   qel.value = '';
-  add('b', '<i>thinkingâ€¦</i>');
+  add('b', '<i>thinking, , ¦</i>');
   try {
     const r = await fetch('/api/mortgage-qa', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({q})});
     const d = await r.json();
     chat.lastChild.remove();
-    add('b', d.a || 'Hmm, couldn\'t answer that one  --  WA me directly.');
+    add('b', d.a || 'Hmm, couldn\'t answer that one, WA me directly.');
   } catch(e){
     chat.lastChild.remove();
     add('b', 'Couldn\'t reach the answer service. Ping me on WA.');

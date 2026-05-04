@@ -16,13 +16,13 @@
   });
 
   /* ── 2. Hero text-reveal: word-safe char splitter ── */
-  /* Groups chars by word in a nowrap wrapper — prevents inline-block chars breaking mid-word */
+  /* Groups chars by word in a nowrap wrapper ,  prevents inline-block chars breaking mid-word */
   function splitIntoCharSpans(text, startIndex, container) {
     var idx = startIndex;
     var tokens = text.split(/(\s+)/);
     tokens.forEach(function (token) {
       if (/^\s+$/.test(token)) {
-        /* whitespace between words — emit as plain text node, not inline-block */
+        /* whitespace between words ,  emit as plain text node, not inline-block */
         container.appendChild(document.createTextNode(token));
         idx += token.length;
       } else {
@@ -51,7 +51,7 @@
       if (node.nodeType === Node.TEXT_NODE) {
         charIdx = splitIntoCharSpans(node.textContent, charIdx, el);
       } else {
-        /* Preserve child elements (e.g. <span class="italic">) — split their text too */
+        /* Preserve child elements (e.g. <span class="italic">) ,  split their text too */
         var wrapper = node.cloneNode(false);
         charIdx = splitIntoCharSpans(node.textContent, charIdx, wrapper);
         el.appendChild(wrapper);

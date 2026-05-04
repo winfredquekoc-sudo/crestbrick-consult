@@ -1,4 +1,4 @@
-# Winfred Quek — winfredquek.com
+# Winfred Quek ,  winfredquek.com
 # Allow all crawlers including AI engines
 
 User-agent: *
