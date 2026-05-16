@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>HDB MOP Countdown · Winfred Quek</title>
-<meta name="description" content="Calculate days until HDB Minimum Occupation Period (MOP) ends and what happens next.">
+<meta name="description" content="HDB MOP countdown: calculate days until your Minimum Occupation Period ends, then see your upgrade options  --  sell, rent, or buy private. Winfred Quek, CEA R073319H.">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link rel="canonical" href="https://winfredquek.com/tools/hdb-mop-countdown">
 <style>
@@ -63,7 +63,7 @@ function calc(){
     d.textContent = diff.toLocaleString();
     s.textContent = 'days until MOP';
     if (diff <= 180){
-      det.innerHTML = '<b>You\'re in the planning window.</b> Most upgraders make their move 6, , , 9 months ahead of MOP. Time to: (1) get a valuation refreshed, (2) get IPA from 2-3 banks, (3) shortlist the upgrade target.';
+      det.innerHTML = '<b>You\'re in the planning window.</b> Most upgraders make their move 6–9 months ahead of MOP. Time to: (1) get a valuation refreshed, (2) get IPA from 2-3 banks, (3) shortlist the upgrade target.';
     } else if (diff <= 365){
       det.innerHTML = '<b>~12 months out.</b> Start the equity property portfolio analysis now. Knowing your post-MOP equity unlocks the upgrade math.';
     } else {

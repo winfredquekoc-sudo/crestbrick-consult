@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>SG Rental Yield Heatmap · Winfred Quek</title>
-<meta name="description" content="Singapore rental yield by district. Median annual yield, average PSF, median monthly rent.">
+<meta name="description" content="Singapore rental yield by district 2026: OCR, RCR, and CCR gross yields with median PSF and monthly rent. See which districts outperform. Winfred Quek, CEA R073319H.">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link rel="canonical" href="https://winfredquek.com/tools/rental-yield-heatmap">
 <style>
@@ -29,7 +29,7 @@ h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;}
 <div class="lead">Median gross annual yield by district. Investor-grade view: where the rental math actually works, vs where you're paying for the postcode.</div>
 <div class="legend">
   <span style="background:#3ddc84"></span>3.5% (high yield)
-  <span style="background:#b48c50"></span>3.0, , , 3.5%
+  <span style="background:#b48c50"></span>3.0–3.5%
   <span style="background:#ff8a65"></span>&lt;3.0% (capital-gain bet)
 </div>
 <div id="grid" class="grid"></div>
@@ -54,7 +54,7 @@ fetch('/data/yield-heatmap.json').then(r => r.json()).then(d => {
         <div class="metric"><span>Med rent</span><span class="v">$${info.med_rent.toLocaleString()}</span></div>
       </div>`);
   }
-  document.getElementById('foot').textContent = `Source: ${d._source} · Updated ${d._updated} · Indicative only, your specific unit will deviate by 0.5, , , 1.5pp.`;
+  document.getElementById('foot').textContent = `Source: ${d._source} · Updated ${d._updated} · Indicative only, your specific unit will deviate by 0.5–1.5pp.`;
 }).catch(() => { document.getElementById('foot').textContent = 'Data not available yet, refreshing weekly.'; });
 </script>
 </body></html>

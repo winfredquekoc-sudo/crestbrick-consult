@@ -3,10 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Property Portfolio Analysis , , ,  Your Property Strategy Built in 30 Minutes | Winfred Quek</title>
-  <meta name="description" content="Complete the free Property Portfolio Analysis in 4 minutes. Winfred maps your Capital, Cashflow, Progression, and Protection , , ,  then walks into your 30-minute strategy session with a custom plan already built. CEA R073319H, Crestbrick Singapore." />
-  <meta property="og:title" content="Property Portfolio Analysis , , ,  Your Property Strategy Built in 30 Minutes | Winfred Quek" />
-  <meta property="og:description" content="Free 4-minute Property Portfolio Analysis across Capital, Cashflow, Progression, and Protection. Winfred reviews your answers before the call , , ,  so your consultation starts with a strategy, not a blank sheet." />
+  <title>Property Portfolio Analysis — Your Property Strategy Built in 30 Minutes | Winfred Quek</title>
+  <meta name="description" content="Complete the free Property Portfolio Analysis in 4 minutes. Winfred maps your Capital, Cashflow, Progression, and Protection — then walks into your 30-minute strategy session with a custom plan already built. CEA R073319H, Crestbrick Singapore." />
+  <meta property="og:title" content="Property Portfolio Analysis — Your Property Strategy Built in 30 Minutes | Winfred Quek" />
+  <meta property="og:description" content="Free 4-minute Property Portfolio Analysis across Capital, Cashflow, Progression, and Protection. Winfred reviews your answers before the call — so your consultation starts with a strategy, not a blank sheet." />
   <meta property="og:type" content="website" />
   <meta property="og:image" content="/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/property-portfolio-analysis" />
@@ -336,35 +336,35 @@ const QUESTIONS = [
   { id:'purchase_structure', section:1, title:'Are you buying solo or with someone?',
     options:['👤 Flying solo, just me','💑 Joint purchase with spouse/partner','👨, 👩, 👧 Family purchase (parents, siblings, children)','🏢 Considering company/entity structure',",  Not sure yet, need Winfred's advice on structure"]},
   { id:'monthly_income_range', section:2, title:'Combined gross monthly household income?', sub:'Include salary, rental, business, commissions, before CPF deductions.',
-    options:['💵 Under S$8,000/month','💵 S$8,000 , , ,  S$12,000/month','💵 S$12,001 , , ,  S$18,000/month','💵 S$18,001 , , ,  S$25,000/month','💵 S$25,001 , , ,  S$35,000/month','💵 S$35,001 , , ,  S$50,000/month','💵 Above S$50,000/month','🤐 Prefer to discuss with Winfred directly']},
+    options:['💵 Under S$8,000/month','💵 S$8,000 – S$12,000/month','💵 S$12,001 – S$18,000/month','💵 S$18,001 – S$25,000/month','💵 S$25,001 – S$35,000/month','💵 S$35,001 – S$50,000/month','💵 Above S$50,000/month','🤐 Prefer to discuss with Winfred directly']},
   { id:'existing_debt_obligations', section:2, title:'Current monthly debt commitments?', sub:'Mortgage, car loan, personal loans, credit card minimums.',
-    options:['Zero debt, completely clean slate','Under S$2,000/month','S$2,000 , , ,  S$4,000/month','S$4,001 , , ,  S$6,000/month','S$6,001 , , ,  S$8,000/month','Above S$8,000/month','🤷 Not sure of exact amount']},
+    options:['Zero debt, completely clean slate','Under S$2,000/month','S$2,000 – S$4,000/month','S$4,001 – S$6,000/month','S$6,001 – S$8,000/month','Above S$8,000/month','🤷 Not sure of exact amount']},
   { id:'cpf_oa_balance', section:2, title:'Combined CPF Ordinary Account (OA) balance?', sub:'Total OA balance across all account holders. Check your CPF statement at cpf.gov.sg.',
-    options:['💰 Under S$50,000','💰 S$50,000 , , ,  S$100,000','💰 S$100,001 , , ,  S$200,000','💰 S$200,001 , , ,  S$350,000','💰 S$350,001 , , ,  S$500,000','💰 Above S$500,000','🤷 Not sure, need help checking']},
+    options:['💰 Under S$50,000','💰 S$50,000 – S$100,000','💰 S$100,001 – S$200,000','💰 S$200,001 – S$350,000','💰 S$350,001 – S$500,000','💰 Above S$500,000','🤷 Not sure, need help checking']},
   { id:'existing_home_loan', section:2, title:'Outstanding home loan balance?', sub:'Total remaining loan owed on any property you currently own. Check your HDB/bank statement.',
-    options:['No home loan, fully paid or no property','💳 Under S$200,000','💳 S$200,000 , , ,  S$400,000','💳 S$400,001 , , ,  S$600,000','💳 S$600,001 , , ,  S$900,000','💳 Above S$900,000','🤷 Not sure of exact amount']},
+    options:['No home loan, fully paid or no property','💳 Under S$200,000','💳 S$200,000 – S$400,000','💳 S$400,001 – S$600,000','💳 S$600,001 – S$900,000','💳 Above S$900,000','🤷 Not sure of exact amount']},
   { id:'available_capital', section:2, title:'Liquid cash deployable in next 12 months?', sub:'Cash savings + liquidatable investments only. CPF OA is captured above.',
-    options:['💰 Under S$100,000','💰 S$100,000 , , ,  S$200,000','💰 S$200,001 , , ,  S$400,000','💰 S$400,001 , , ,  S$700,000','💰 S$700,001 , , ,  S$1,000,000','💰 Above S$1,000,000','Currently liquidating assets, funds coming soon','🤷 Not sure, need help calculating this']},
+    options:['💰 Under S$100,000','💰 S$100,000 – S$200,000','💰 S$200,001 – S$400,000','💰 S$400,001 – S$700,000','💰 S$700,001 – S$1,000,000','💰 Above S$1,000,000','Currently liquidating assets, funds coming soon','🤷 Not sure, need help calculating this']},
   { id:'primary_objective', section:3, title:'Primary goal for this property portfolio analysis?',
     options:['🎯 Build passive rental income for financial freedom','Grow net worth through strategic capital appreciation','🏖️ Secure retirement income streams (10+ years out)','👨, 👩, 👧, 👦 Build generational wealth/legacy for family','Optimize or restructure my existing portfolio','🏠 Upgrade my home while building investment portfolio','🌍 Diversify into overseas markets (UK/Malaysia)',"🆘 I'm stuck, need a clear strategy from scratch"]},
   { id:'target_passive_income', section:3, title:'Monthly passive income for the life you want?', sub:'Level that lets you live comfortably without working.',
-    options:['🎯 S$4,000 , , ,  S$6,000/month (lean but comfortable)','🎯 S$6,001 , , ,  S$9,000/month (solid middle-class)','🎯 S$9,001 , , ,  S$15,000/month (premium lifestyle)','🎯 S$15,001 , , ,  S$25,000/month (luxury)','🎯 Above S$25,000/month (ultra-HNW)',",  Haven't calculated this, need Winfred's help"]},
+    options:['🎯 S$4,000 – S$6,000/month (lean but comfortable)','🎯 S$6,001 – S$9,000/month (solid middle-class)','🎯 S$9,001 – S$15,000/month (premium lifestyle)','🎯 S$15,001 – S$25,000/month (luxury)','🎯 Above S$25,000/month (ultra-HNW)',",  Haven't calculated this, need Winfred's help"]},
   { id:'wealth_timeline', section:3, title:'Target timeline to hit that income level?',
-    options:['3, , , 5 years (aggressive growth mode)',',  5, , , 8 years (focused wealth building)','8, , , 15 years (steady accumulation)','🌱 15+ years (long-term generational building)','No fixed timeline, just want to start moving']},
+    options:['3–5 years (aggressive growth mode)',',  5–8 years (focused wealth building)','8–15 years (steady accumulation)','🌱 15+ years (long-term generational building)','No fixed timeline, just want to start moving']},
   { id:'risk_tolerance_score', section:4, title:'Comfort with price fluctuations and leverage?', sub:'No right answer, this just ensures Winfred recommends the right mix.',
-    options:['🛡️ 1, , , 3: Maximum safety, stable assets, minimal leverage','️ 4, , , 6: Moderate, balanced risk and returns',',  7, , , 8: Growth-focused, calculated risks for better returns','9, , , 10: Aggressive, maximize growth, full leverage strategically']},
+    options:['🛡️ 1–3: Maximum safety, stable assets, minimal leverage','️ 4–6: Moderate, balanced risk and returns',',  7–8: Growth-focused, calculated risks for better returns','9–10: Aggressive, maximize growth, full leverage strategically']},
   { id:'property_type_openness', section:4, title:'Which property types interest you?', sub:'Select all that apply.', multi:true,
     options:['🏠 HDB resale flats','🏢 Executive Condominiums (EC)','🏙️ Private condominiums (Singapore)','🏡 Landed property (Singapore)','🏭 Industrial/warehouse units (yields ~7%+)','🏪 Commercial/shophouses (ABSD-free)','🇬🇧 UK properties (Liverpool/Manchester ~5.6-7.7%)','🇲🇾 Malaysia/KL properties (~5-8%)',',  Open to anything, let Winfred recommend']},
   { id:'yield_expectation', section:4, title:'Acceptable gross rental yield for SG residential?',
-    options:['2.5, , , 3.0% if appreciation story is strong','3.0, , , 3.5% (around market average)','🎯 3.5, , , 4.5% (above average, yield-focused)','4.5%+ (willing to look industrial/commercial/overseas)',"🤷 Not sure, need Winfred to explain what's realistic"]},
+    options:['2.5–3.0% if appreciation story is strong','3.0–3.5% (around market average)','🎯 3.5–4.5% (above average, yield-focused)','4.5%+ (willing to look industrial/commercial/overseas)',"🤷 Not sure, need Winfred to explain what's realistic"]},
   { id:'life_stage', section:5, title:'What life stage best describes you?',
-    options:[',  Young professional (under 30, building career)','💼 Established professional (30, , , 40, peak earning years)','👨, 👩, 👧 Young family (kids under 12)','🏫 Established family (teenage/adult kids)','🌅 Pre-retirement (50, , , 62)','🏖️ Retired/semi-retired']},
+    options:[',  Young professional (under 30, building career)','💼 Established professional (30–40, peak earning years)','👨, 👩, 👧 Young family (kids under 12)','🏫 Established family (teenage/adult kids)','🌅 Pre-retirement (50–62)','🏖️ Retired/semi-retired']},
   { id:'legacy_importance', section:5, title:'How important is legacy/inheritance planning?',
     options:['Critical, building specifically to pass on to children','Important, want to leave assets but not the only focus','️ Moderate, growth first, legacy can come later','Not a priority, plan to enjoy the wealth myself']},
   { id:'key_challenges', section:6, title:'Biggest concerns right now?', sub:'Select all that apply.', multi:true,
     options:['💸 ABSD costs making second property feel unaffordable','🏦 Unsure about loan eligibility (TDSR/income concerns)',"Feel like I've missed the market or started too late",'👫 Spouse and I have different risk appetites or goals',"🌍 Interested in overseas but don't know how to start",'🏠 Confused about HDB rules, MOP timelines, upgrade paths',"Information overload, can't make decisions",'Sell current property first or buy first?','🏢 Personal name vs company structure?','Past financial difficulties, unsure about eligibility','💭 Fear of too much debt/leverage anxiety','🤷 No clear strategy, just know I should be doing something','No major blockers, just need expert guidance']},
   { id:'urgency_timeline', section:6, title:'How soon are you looking to make your next move?',
-    options:['Within 1, , , 3 months, ready to act NOW',',  3, , , 6 months, actively planning','6, , , 12 months, serious research mode','🌱 12+ months, long-term planning',"🤷 Depends on what Winfred recommends"]}
+    options:['Within 1–3 months, ready to act NOW',',  3–6 months, actively planning','6–12 months, serious research mode','🌱 12+ months, long-term planning',"🤷 Depends on what Winfred recommends"]}
 ];
 
 // step meaning: -2 opening, -1 section-intro-about-to-show, 1..6 = section number being answered, 7 = contact, 8 = summary
@@ -721,11 +721,11 @@ function fmtSGD(n) { return 'S$' + Math.round(n).toLocaleString('en-SG'); }
 function midpointIncome(r) {
   if (!r) return 0;
   if (r.includes('Under S$8,000')) return 6500;
-  if (r.includes('S$8,000 , , ,  S$12,000')) return 10000;
-  if (r.includes('S$12,001 , , ,  S$18,000')) return 15000;
-  if (r.includes('S$18,001 , , ,  S$25,000')) return 21500;
-  if (r.includes('S$25,001 , , ,  S$35,000')) return 30000;
-  if (r.includes('S$35,001 , , ,  S$50,000')) return 42500;
+  if (r.includes('S$8,000 – S$12,000')) return 10000;
+  if (r.includes('S$12,001 – S$18,000')) return 15000;
+  if (r.includes('S$18,001 – S$25,000')) return 21500;
+  if (r.includes('S$25,001 – S$35,000')) return 30000;
+  if (r.includes('S$35,001 – S$50,000')) return 42500;
   if (r.includes('Above S$50,000')) return 60000;
   return 0;
 }
@@ -733,18 +733,18 @@ function midpointDebt(r) {
   if (!r) return 0;
   if (r.includes('Zero debt')) return 0;
   if (r.includes('Under S$2,000')) return 1000;
-  if (r.includes('S$2,000 , , ,  S$4,000')) return 3000;
-  if (r.includes('S$4,001 , , ,  S$6,000')) return 5000;
-  if (r.includes('S$6,001 , , ,  S$8,000')) return 7000;
+  if (r.includes('S$2,000 – S$4,000')) return 3000;
+  if (r.includes('S$4,001 – S$6,000')) return 5000;
+  if (r.includes('S$6,001 – S$8,000')) return 7000;
   if (r.includes('Above S$8,000')) return 9000;
   return 1500;
 }
 function midpointTarget(r) {
   if (!r) return 0;
-  if (r.includes('S$4,000 , , ,  S$6,000')) return 5000;
-  if (r.includes('S$6,001 , , ,  S$9,000')) return 7500;
-  if (r.includes('S$9,001 , , ,  S$15,000')) return 12000;
-  if (r.includes('S$15,001 , , ,  S$25,000')) return 20000;
+  if (r.includes('S$4,000 – S$6,000')) return 5000;
+  if (r.includes('S$6,001 – S$9,000')) return 7500;
+  if (r.includes('S$9,001 – S$15,000')) return 12000;
+  if (r.includes('S$15,001 – S$25,000')) return 20000;
   if (r.includes('Above S$25,000')) return 35000;
   return 0;
 }

@@ -151,9 +151,9 @@
           <div class="mb-5">
             <label for="prop-count">Buyer's existing property count (before next purchase)</label>
             <select id="prop-count" onchange="updateABSDRate()">
-              <option value="0">0 , , ,  first property</option>
-              <option value="1" selected>1 , , ,  second property</option>
-              <option value="2">2 , , ,  third or more</option>
+              <option value="0">0 — first property</option>
+              <option value="1" selected>1 — second property</option>
+              <option value="2">2 — third or more</option>
             </select>
           </div>
 
@@ -170,7 +170,7 @@
           <div class="mb-5">
             <label for="transfer-cost">Estimated inter-spouse transfer costs (S$)</label>
             <input type="number" id="transfer-cost" value="6500" min="0" step="500" oninput="calculate()" />
-            <p class="text-xs text-[var(--ink-muted)] mt-1">Typical range: S$5,000 , , ,  S$8,000. Includes legal fees and BSD on transfer value.</p>
+            <p class="text-xs text-[var(--ink-muted)] mt-1">Typical range: S$5,000 – S$8,000. Includes legal fees and BSD on transfer value.</p>
           </div>
 
           <button onclick="calculate(); trackCalcUse();" class="btn btn-primary w-full mt-2" style="width:100%;justify-content:center;">
@@ -240,7 +240,7 @@
           Want the full decoupling analysis?
         </h2>
         <p class="text-[var(--ink-soft)] max-w-xl mx-auto mb-8 leading-relaxed">
-          CPF implications, loan restructuring, timeline, and which spouse should hold which property , , ,  the numbers this calculator doesn't show. Free 30-minute session, no obligation.
+          CPF implications, loan restructuring, timeline, and which spouse should hold which property — the numbers this calculator doesn't show. Free 30-minute session, no obligation.
         </p>
         <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20used%20the%20decoupling%20calculator%20and%20would%20like%20a%20full%20analysis%20including%20CPF%20and%20loan%20implications."
            class="btn btn-primary" onclick="trackWAClick()">
@@ -271,7 +271,7 @@
         Disclaimer: This calculator is for illustrative purposes only. ABSD rates, BSD, and CPF rules can change. This is not legal or financial advice. Consult a qualified advisor before making any property decisions. Winfred Quek, CEA R073319H, Crestbrick.
       </p>
       <p class="text-sm text-[var(--ink-soft)] mt-3">
-        Read more: <a href="/blog/absd-decoupling-singapore.html" class="underline hover:text-[var(--ink)]">ABSD Decoupling Singapore 2025 2026 , , ,  Complete Guide</a>
+        Read more: <a href="/blog/absd-decoupling-singapore.html" class="underline hover:text-[var(--ink)]">ABSD Decoupling Singapore 2025 2026 — Complete Guide</a>
       </p>
     </section>
   </main>
@@ -370,7 +370,7 @@
       if (netBenefit > 15000) {
         vbox.className  = 'verdict worth';
         vtitle.textContent = 'WORTH DECOUPLING';
-        vtext.textContent  = 'Net benefit of ' + fmtSGD(netBenefit) + '. The ABSD savings clearly outweigh the transfer costs. Decoupling is financially sound , , ,  worth exploring with your advisor.';
+        vtext.textContent  = 'Net benefit of ' + fmtSGD(netBenefit) + '. The ABSD savings clearly outweigh the transfer costs. Decoupling is financially sound — worth exploring with your advisor.';
       } else if (netBenefit > 0) {
         vbox.className  = 'verdict marginal';
         vtitle.textContent = 'MARGINAL';

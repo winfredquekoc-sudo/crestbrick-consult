@@ -52,7 +52,7 @@
     .quickstat .value{font-family:'Fraunces',Georgia,serif;font-size:20px;font-weight:600;line-height:1.1;}
     .quickstat .sub{font-size:12px;color:var(--ink-muted);margin-top:.3rem;}
 
-    .chart-card{background:#1a1c24;border:1px solid var(--rule);border-radius:14px;padding:1.75rem;}
+    .chart-panel{background:#1a1c24;border:1px solid var(--rule);border-radius:14px;padding:1.75rem;}
     .chart-title{font-family:'Fraunces',Georgia,serif;font-size:18px;font-weight:600;margin-bottom:.3rem;}
     .chart-sub{font-size:13px;color:var(--ink-muted);margin-bottom:1.2rem;}
     .psf-track{position:relative;height:48px;background:linear-gradient(90deg,#e0e4d6 0%,#e0e4d6 33%,#e9e0d3 33%,#e9e0d3 66%,#f3ead9 66%,#f3ead9 100%);border-radius:6px;margin:1rem 0 1.5rem;}
@@ -81,7 +81,7 @@
     .spectrum-marker{position:absolute;top:-4px;bottom:-4px;width:3px;background:var(--ink);border-radius:2px;}
     .spectrum-marker-label{position:absolute;top:-26px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:.25rem .55rem;border-radius:4px;font-size:11px;font-weight:600;white-space:nowrap;font-family:'Fraunces',Georgia,serif;}
 
-    .project-card{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.1rem 1.3rem;}
+    .project-tile{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.1rem 1.3rem;}
 
     details.faq{background:#1a1c24;border:1px solid var(--rule);border-radius:8px;margin-bottom:.6rem;}
     details.faq[open]{border-color:var(--accent);}
@@ -204,7 +204,7 @@
   <p class="section-label mb-4">Where D15 sits</p>
   <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-8">Read the position, not just the number.</h2>
 
-  <div class="chart-card mb-6">
+  <div class="chart-panel mb-6">
     <div class="chart-title">Region spectrum</div>
     <div class="chart-sub">D15 is classified RCR, Rest of Central Region, the city-fringe tier between prime CCR and suburban OCR. Sweet spot for many upgraders..</div>
     <div class="spectrum">
@@ -218,7 +218,7 @@
     <p class="chart-sub" style="margin-top:1rem;margin-bottom:0;">D15 sits in the mid-ring, close enough to CCR to feel premium, far enough from OCR to keep mature pricing.</p>
   </div>
 
-    <div class="chart-card mb-6">
+    <div class="chart-panel mb-6">
     <div class="chart-title">PSF range (2026) vs tier medians</div>
     <div class="chart-sub">The band shows this district's new-launch PSF range overlaid on broad OCR / RCR / CCR tier bands (S$1,200, S$3,500+).</div>
     <div class="psf-track" style="margin-top:2.5rem;">
@@ -233,7 +233,7 @@
     <p class="chart-sub" style="margin-top:1rem;margin-bottom:0;">Don't shop PSF averages, shop by stack, tenure, and floor. District medians hide the 20-30% spread between freehold premium and older leasehold.</p>
   </div>
 
-    <div class="chart-card mb-6">
+    <div class="chart-panel mb-6">
     <div class="chart-title">Gross yield, where this district sits on the 2-5% spectrum</div>
     <div class="chart-sub">Yield band reflects typical 2026 rentals vs purchase price; not point estimates.</div>
     <div class="yield-gauge">
@@ -250,7 +250,7 @@
     <p class="chart-sub" style="margin-top:1rem;margin-bottom:0;">Just clears the 3% floor most SG investors use. Modest yield, appreciation thesis matters more.</p>
   </div>
 
-  <div class="chart-card">
+  <div class="chart-panel">
     <div class="chart-title">Travel times from D15</div>
     <div class="chart-sub">MRT + typical off-peak road time estimates.</div>
     <div style="margin-top:1.5rem;">
@@ -348,40 +348,40 @@
   <h2 class="serif text-3xl font-semibold balance leading-tight mb-6">The names that anchor D15 pricing.</h2>
   <p class="text-[var(--ink-soft)] leading-relaxed mb-6 max-w-3xl">Projects currently setting the PSF and tenant-quality benchmarks in D15. All verified against transacted sales.</p>
   <div class="grid md:grid-cols-2 gap-4">
-            <div class="project-card">
+            <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Grand Dunman</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Tembusu Grand</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">The Continuum</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Liv @ MB</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Amber Park</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">One Meyer</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Coastline Residences</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Meyer Mansion</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Meyerhouse</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Nyon</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">The Reef at King&#x27;s Dock (edge D4)</p>
         </div>
-        <div class="project-card">
+        <div class="project-tile">
           <p class="serif text-lg font-semibold mb-1">Seaside Residences</p>
         </div>
   </div>
