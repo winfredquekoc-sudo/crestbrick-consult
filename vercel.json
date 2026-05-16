@@ -330,5 +330,11 @@
       "permanent": true
     }
   ],
-  "buildCommand": "npm run build"
+  "buildCommand": "npm run build",
+  "crons": [
+    { "path": "/api/cron/overnight-new-launch-pov", "schedule": "0 18 * * *" },
+    { "path": "/api/cron/4pillar-daily",            "schedule": "0 23 * * *" },
+    { "path": "/api/cron/daily-property-news",      "schedule": "30 6 * * *" },
+    { "path": "/api/cron/night-brief",              "schedule": "0 14 * * *" }
+  ]
 }

@@ -35,11 +35,12 @@ async function notifyTelegram(email, magnet_title, source) {
   const chat = process.env.TELEGRAM_WINFRED_CHAT_ID;
   if (!token || !chat) return false;
   try {
-    const text = `📥 *eBook download*\n\n*${magnet_title}*\n\`${email}\`\nSource: ${source}`;
+    const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const text = `📥 <b>eBook download</b>\n\n<b>${esc(magnet_title)}</b>\n<code>${email}</code>\nSource: ${esc(source)}`;
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chat, text, parse_mode: 'Markdown' }),
+      body: JSON.stringify({ chat_id: chat, text, parse_mode: 'HTML' }),
     });
     return true;
   } catch { return false; }
