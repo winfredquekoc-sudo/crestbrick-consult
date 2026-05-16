@@ -163,8 +163,6 @@ export default async function handler(req, res) {
   if (!body.email) return res.status(400).json({ ok: false, error: 'missing_email' });
 
   const result = buildSummary(body);
-  // No per-submission Telegram ping — daily rollup at 22:00 SGT handles lead summary.
-  // Marketing consent is captured in body.marketing_consent (boolean) — surfaced in daily summary + email tools.
-
+  pingTelegram(body, result); // fire-and-forget
   return res.status(200).json({ ok: true, summary: result.summary, prep_notes: result.prep_notes, metrics: result.metrics, marketing_consent: !!body.marketing_consent });
 }

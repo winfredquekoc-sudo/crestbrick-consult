@@ -4,7 +4,7 @@
 
 const N8N_WEBHOOK = process.env.N8N_DRIP_WEBHOOK || 'https://winfredquekoc.app.n8n.cloud/webhook/drip-signup';
 const TG_BOT = process.env.TELEGRAM_BOT_TOKEN;
-const TG_CHAT = process.env.TELEGRAM_CHAT_ID;
+const TG_CHAT = process.env.TELEGRAM_WINFRED_CHAT_ID;
 
 const TRACK_META = {
   empire: { title: 'Empire Blueprint', tagline: 'Building 3+ properties without ABSD destroying you.' },
@@ -84,12 +84,13 @@ export default async function handler(req, res) {
   }
 
   if (TG_BOT && TG_CHAT) {
-    const msg = `🎯 *New drip signup*\n\n*${lead.name}*\n\`${lead.email}\`\n\`${lead.phone}\`\nTrack: *${meta.title}*\nSource: ${lead.source}`;
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const msg = `🎯 <b>New drip signup</b>\n\n<b>${esc(lead.name)}</b>\n<code>${lead.email}</code>\n<code>${lead.phone}</code>\nTrack: <b>${meta.title}</b>\nSource: ${esc(lead.source)}`;
     tasks.push(
       fetch(`https://api.telegram.org/bot${TG_BOT}/sendMessage`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ chat_id: TG_CHAT, text: msg, parse_mode: 'Markdown' })
+        body: JSON.stringify({ chat_id: TG_CHAT, text: msg, parse_mode: 'HTML' })
       }).catch(() => null)
     );
   }

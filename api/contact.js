@@ -47,7 +47,7 @@ Type: ${type}
 Message:
 ${message}
 
-(received via crestbrick-consult.vercel.app /api/contact)`;
+(received via winfredquek.com /api/contact)`;
 
     try {
       const tgResp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
