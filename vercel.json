@@ -300,13 +300,23 @@
       "permanent": true
     },
     {
+      "source": "/services/property-portfolio-analysis",
+      "destination": "/property-portfolio-analysis",
+      "permanent": true
+    },
+    {
+      "source": "/services/property-portfolio-analysis.html",
+      "destination": "/property-portfolio-analysis",
+      "permanent": true
+    },
+    {
       "source": "/services/portfolio-audit",
-      "destination": "/services/property-portfolio-analysis",
+      "destination": "/property-portfolio-analysis",
       "permanent": true
     },
     {
       "source": "/services/portfolio-audit.html",
-      "destination": "/services/property-portfolio-analysis",
+      "destination": "/property-portfolio-analysis",
       "permanent": true
     },
     {
