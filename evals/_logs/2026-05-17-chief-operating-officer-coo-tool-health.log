@@ -1,0 +1,15 @@
+=== prompt ===
+Use the chief-operating-officer agent: Audit current health of: WhatsApp bridge, Telegram bot, Vercel deploys, cron jobs. Flag anything stale > 24h.
+
+=== rc ===
+124
+
+=== duration_ms ===
+240033
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

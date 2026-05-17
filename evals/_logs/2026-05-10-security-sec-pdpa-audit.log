@@ -1,0 +1,87 @@
+=== prompt ===
+Use the security agent: A lead asks under PDPA: what data do we hold, where is it stored, and how do they request deletion?
+
+=== rc ===
+0
+
+=== duration_ms ===
+155810
+
+=== stdout ===
+Here's the full output from the legal-compliance agent:
+
+---
+
+## Lead-facing response (send as-is, insert name)
+
+**Subject: Your Personal Data Inquiry — Winfred Quek (CEA R073319H, PropNex)**
+
+> Hi [Name],
+>
+> Thank you for reaching out. I take your data seriously, and I am happy to answer your three questions clearly.
+>
+> **1. What personal data do I hold about you?**
+>
+> Depending on how we have interacted, I may hold some or all of the following:
+> - Identity and contact details: name, mobile number, email address
+> - Property profile: budget, target districts, search criteria, current property details if shared
+> - Financial profile: income range, CPF OA estimate, loan eligibility (only if shared during a consultation)
+> - Communication history: WhatsApp messages, Telegram bot interactions, emails, and consultation notes
+> - Booking records: name, email, and time of any Calendly appointment
+> - Listing portal enquiries: enquiry text and listing reference forwarded from PropertyGuru or 99.co
+> - Life-event reminders: MOP or lease expiry dates if mentioned for advisory purposes
+>
+> **2. Where is that data stored?**
+>
+> | Data category | Where it lives |
+> |---|---|
+> | Contact, property, financial, communication records | Secure cloud database (encrypted at rest) |
+> | Consultation bookings | Calendly |
+> | WhatsApp and Telegram messages | Local automation pipeline; WhatsApp Business API logs |
+> | Emails | Gmail (Google Workspace) |
+> | Listing portal enquiries | PropertyGuru / 99.co (third-party) |
+>
+> **3. How do you request access or deletion?**
+>
+> Email me at winfredquekoc@gmail.com with subject **"PDPA Data Request"** and include:
+> - Your full name and mobile number
+> - Whether you want **access** (a copy of what I hold) or **deletion** (cessation of processing)
+>
+> Under PDPA 2012, I will respond within 30 days.
+>
+> Note: data linked to a completed property transaction may be retained for regulatory record-keeping as required by CEA. For data held on Calendly, PropertyGuru, or 99.co, I will assist you in submitting a deletion request to those platforms directly.
+>
+> Warm regards,
+> **Winfred Quek**
+> CEA Registration No. R073319H | PropNex Realty Pte Ltd
+
+---
+
+## Internal compliance flags (action before you send anything)
+
+### Blockers
+
+1. **No consent gate on WhatsApp/Telegram.** The bot pipeline writes personal data to the database before any consent notice is presented — this breaches PDPA s.13 (Consent Obligation). Fix: insert a mandatory consent message at first bot/bridge interaction before any data is stored. Cited: PDPC Advisory Guidelines for the Real Estate Agency Sector, s.3.
+
+2. **DPO notification status unclear.** As of 1 June 2025, all organisations must appoint and notify PDPC of a DPO. Confirm with PropNex whether their brokerage-level DPO covers you or whether a separate notification is needed (PDPA 2012 s.11(3)).
+
+### Warnings (fix within 30 days)
+
+3. **No written retention schedule.** Sensitive financial fields (income, CPF OA) are stored with no documented purge policy. Rule of thumb: non-transactional leads purge after 2 years inactivity; transaction records retain up to 7 years (CEA guidance). Without this, s.25 (Retention Limitation) is unmet.
+
+4. **No Data Processing Agreements on file** for Calendly, n8n, Neon Postgres. PDPA s.24 (Protection Obligation) requires contractual arrangements with processors. Confirm and document these.
+
+5. **n8n and launchd logs may contain unmasked PII** outside the Postgres schema. Audit log outputs and mask sensitive fields.
+
+### Advisory
+
+- The response uses "cessation of processing" (correct PDPA framing) rather than "right to be forgotten" (GDPR framing). PDPA does not grant an erasure right for transaction records — if the lead pushes back on that, escalate to a Singapore data protection lawyer before responding further.
+- Consider a dedicated `dpo@[domain]` contact rather than personal Gmail — no statutory bar, but looks more credible if PDPC investigates.
+
+---
+
+**Bottom line:** the lead-facing draft is solid and accurate. The two blockers (consent gate + DPO status) should be resolved before you send it, so you're not inviting a deletion request into a pipeline that has no consent gate to reference.
+
+
+=== stderr ===
+

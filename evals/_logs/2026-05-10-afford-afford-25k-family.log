@@ -1,0 +1,107 @@
+=== prompt ===
+/afford 25000 0 500000 2000000 (family of 4, 2 kids). Return TDSR headroom, max loan, cash/CPF split, recommended budget.
+
+=== rc ===
+0
+
+=== duration_ms ===
+149035
+
+=== stdout ===
+---
+
+**AFFORDABILITY CHECK — Family of 4 (2 kids)**
+*Based on: Income $25,000/mth | Debts $0 | Cash $500,000 | Target $2,000,000*
+
+---
+
+## 1. TDSR Headroom
+
+| Item | Amount |
+|---|---|
+| Gross monthly income | $25,000 |
+| TDSR cap (55%) | $13,750/mth |
+| Existing debt obligations | $0 |
+| Available for mortgage | $13,750/mth |
+| **Max loan at 4.0% stress-test, 30yr** | **$2,880,092** |
+
+---
+
+## 2. TDSR Check on Target ($2,000,000 → Loan $1,500,000)
+
+| Rate | Monthly Repayment | TDSR Used | Status |
+|---|---|---|---|
+| Day-one 1.55% | $5,213 | 20.9% | PASS |
+| Stress-test 4.0% | $7,161 | 28.6% | PASS |
+| Headroom remaining (stress) | — | +26.4% | — |
+
+Target price clears TDSR comfortably at both rates.
+
+---
+
+## 3. BSD on $2,000,000
+
+| Band | Rate | Duty |
+|---|---|---|
+| First $180k | 1% | $1,800 |
+| $180k–$360k | 2% | $3,600 |
+| $360k–$1M | 3% | $19,200 |
+| $1M–$1.5M | 4% | $20,000 |
+| $1.5M–$2M | 5% | $25,000 |
+| **Total BSD** | | **$69,600** |
+| ABSD (SC 1st property) | 0% | $0 |
+
+---
+
+## 4. Cash / CPF Requirement
+
+| Component | Amount | Source |
+|---|---|---|
+| Downpayment (25%) | $500,000 | Cash + CPF OA |
+| — Min cash (5% of price) | $100,000 | Cash only |
+| — CPF-eligible balance | up to $400,000 | CPF OA |
+| BSD | $69,600 | Cash or CPF OA |
+| Legal fees | ~$3,000 | Cash or CPF OA |
+| **Total upfront** | **~$572,600** | Combined |
+
+Cash remaining after mandatory outlay: ~$327,000 (if CPF covers the $400k balance).
+
+**Critical unknown: CPF OA balance.** If OA < $400,000, the shortfall comes from cash — confirm before making offer.
+
+---
+
+## 5. Recommended Budget Band
+
+| Scenario | Max Loan | Max Property |
+|---|---|---|
+| TDSR ceiling (full draw) | $2,880,092 | $3,840,000 |
+| Conservative (20% buffer) | $2,304,074 | $3,072,000 |
+| **Recommended ceiling** | **$1,500,000** | **$2,000,000** |
+
+Client's $2,000,000 target is well inside both limits. Mathematically could stretch higher — but see risk flags.
+
+---
+
+## 6. Risk Flags
+
+**FLAG 1 — Family expenses not in TDSR (HIGH)**
+TDSR sees $0 debts, but 2 kids = $2,000–$4,000/month real spend (childcare, school, healthcare). At $4k family overhead, free cashflow after day-one mortgage is ~$15,800/mth — adequate, but stress-test on single income before committing.
+
+**FLAG 2 — Cash buffer is adequate, not surplus (MEDIUM)**
+$500k savings minus ~$172k mandatory cash outlay = ~$328k left. Thin for a family with young children if rates rise or income dips. Confirm CPF OA covers the $400k CPF portion.
+
+**FLAG 3 — Rate-rise exposure**
+At 3.5% (mid-cycle realistic): repayment rises to ~$6,736/mth (+$1,523 vs day-one). Ensure client is comfortable absorbing this before locking in.
+
+**FLAG 4 — Loan age (LOW / CLEAR)**
+Buyer ~35 → 30-year tenure to age 65. No constraint.
+
+---
+
+## Recommendation
+
+$2,000,000 is the right ceiling — do not stretch above it. The TDSR math is clean (28.6% consumed at stress-test vs 55% cap), but two young children create real cashflow obligations TDSR ignores. Before making an offer: (1) confirm CPF OA balance, and (2) model repayments on one income as a downside scenario. Both must pass before proceeding.
+
+
+=== stderr ===
+

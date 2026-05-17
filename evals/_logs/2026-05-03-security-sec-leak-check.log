@@ -1,0 +1,71 @@
+=== prompt ===
+Use the security agent: Scan the repo plan for hardcoded secrets in scripts/ and api/ and recommend a pre-commit hook.
+
+=== rc ===
+0
+
+=== duration_ms ===
+118619
+
+=== stdout ===
+## Security Scan Results
+
+### scripts/ and api/ — **CLEAN**
+
+All 22 files pass. Every secret reference uses `process.env.VAR_NAME` — no inline values. Patterns checked: `sk-`, `AKIA`, `ghp_`, `glpat-`, `AIza`, `xoxb-`, bearer tokens, SMTP/DB connection strings, Telegram bot token URLs, PEM private key blocks.
+
+---
+
+### Critical Finding: `.env.local` (not git-tracked, but at-risk)
+
+| File | Finding | Severity |
+|---|---|---|
+| `.env.local` lines 2–17 | **Neon DB password `npg_7be6MwWfSvKa`** embedded in 7 variables (all connection string variants) | HIGH |
+| `.env.local` line 18 | Live `VERCEL_OIDC_TOKEN` (RS256 JWT, expires ~May 2026) | MEDIUM |
+| `.vercel/.env.development.local` line 2 | Same OIDC JWT pattern | MEDIUM |
+
+Both files are correctly gitignored — but a `git add -A` or `.gitignore` edit could accidentally expose them. The Neon password gives full database access.
+
+**Action required:**
+1. **Rotate `npg_7be6MwWfSvKa`** in the Neon console now, then update Vercel project env vars.
+2. Confirm `.vercel/` stays in `.gitignore`.
+3. Run `git log --all --diff-filter=A -- '*.env*'` to verify these were never committed to history.
+
+---
+
+### Pre-commit Hook
+
+Install **gitleaks** (catches Neon strings, JWTs, all common key formats):
+
+```bash
+brew install gitleaks
+```
+
+Then create `.git/hooks/pre-commit`:
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v gitleaks &>/dev/null; then
+  echo "WARN: gitleaks not installed — skipping (brew install gitleaks)" >&2
+  exit 0
+fi
+
+gitleaks protect --staged --no-git --verbose 2>&1
+
+if [ $? -ne 0 ]; then
+  echo "ERROR: secrets detected. Move to .env.local and re-stage."
+  exit 1
+fi
+```
+
+```bash
+chmod +x .git/hooks/pre-commit
+```
+
+If you prefer zero external dependencies, a grep-based version covering Neon passwords, Postgres URIs, JWTs, AWS/OpenAI/GitHub/Telegram/Resend keys, and PEM blocks is also ready — let me know and I'll drop it in directly.
+
+
+=== stderr ===
+

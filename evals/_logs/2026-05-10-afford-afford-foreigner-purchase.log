@@ -1,0 +1,82 @@
+=== prompt ===
+/afford 33000 0 1000000 2500000 — foreigner on EP. Apply 60% ABSD. Is it sensible?
+
+=== rc ===
+0
+
+=== duration_ms ===
+144466
+
+=== stdout ===
+```
+═══════════════════════════════════════════════════════════════════════════
+  SINGAPORE PROPERTY AFFORDABILITY CHECK
+  Rates: ~/.claude/state/sg-property-rates.json (v2026-04-28)
+  Buyer: Foreigner (EP) | Target: SGD 2,500,000 | ABSD: 60%
+═══════════════════════════════════════════════════════════════════════════
+
+INPUTS
+  Monthly gross income          SGD    33,000
+  Existing monthly debts        SGD         0
+  Cash savings                  SGD 1,000,000
+  Target purchase price         SGD 2,500,000
+  Stress-test rate (TDSR)       4.00% p.a.
+  Loan tenure                   30 years
+
+STAMP DUTY
+  BSD (tiered on $2.5M)         $    94,600
+  ABSD (60% × $2.5M)           $ 1,500,000
+  Total stamp duty              $ 1,594,600   ← must be paid in cash
+
+LOAN
+  Loan amount (75% LTV)         $ 1,875,000
+  Monthly repayment             $     8,951   (4%, 30yr)
+
+TDSR
+  TDSR ratio                        27.1%
+  TDSR cap                          55.0%
+  TDSR verdict                    PASS ✓      (income is NOT the problem)
+
+CASH REQUIRED AT PURCHASE
+  5% cash at OTP                $   125,000
+  20% balance downpayment       $   375,000
+  BSD + ABSD (cash only)        $ 1,594,600
+  Legal fees (est.)             $     3,000
+  TOTAL CASH NEEDED             $ 2,097,600
+
+  Cash savings available        $ 1,000,000
+  SHORTFALL                     $(1,097,600)   ← hard blocker
+
+RECOMMENDED BUDGET BAND (cash-constrained)
+  SGD 900,000 – SGD 1,100,000   (where $1M savings covers all-in costs)
+
+EFFECTIVE ALL-IN COST AT $2.5M TARGET
+  Price + BSD + ABSD + legal    $ 4,097,600   for a $2.5M asset
+  Break-even appreciation       ~10–11 years  at 4% p.a. growth
+═══════════════════════════════════════════════════════════════════════════
+```
+
+**Verdict: Not viable at $2.5M — and economically punishing even if the cash existed.**
+
+Two separate problems:
+
+1. **Hard cash blocker.** The deal needs $2.097M at the table. With $1M savings, the shortfall is **$1.097M**. The ABSD alone ($1.5M) exceeds the entire savings pool by 50%. Cannot close without sourcing additional capital.
+
+2. **Economic irrationality.** Even fully funded, the buyer pays $4.1M all-in to own a $2.5M asset. It takes roughly **10–11 years of 4% annual price growth** just to recover stamp duties — before any real return. The $1.5M ABSD creates zero asset value.
+
+**Risk flags:**
+- ABSD is permanent and non-remissible for foreigners — no trust structure or clawback
+- Policy risk: ABSD has been raised 4× already; further increases possible before purchase
+- Exit is harder — next foreign buyer faces the same 60%, compressing resale demand
+- Opportunity cost: $1.5M compounding at 6% = $2.4M in 10 years
+
+**Paths worth considering:**
+- **Reset budget to $900k–$1.1M** — TDSR at 27.1% means income comfortably supports this; cash fits within $1M
+- **PR track** — ABSD drops to 5% on first purchase, saving $1.375M on a $2.5M deal
+- **Accumulate first** — at $33k income / $0 debts, $20k/month net savings bridges the $1.1M shortfall in ~4.5 years
+
+Income is healthy. The 60% ABSD is the single deciding variable — this deal lives or dies on whether the economic cost of that tax is acceptable.
+
+
+=== stderr ===
+

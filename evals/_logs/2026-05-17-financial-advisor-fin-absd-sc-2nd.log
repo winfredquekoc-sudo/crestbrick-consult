@@ -1,0 +1,55 @@
+=== prompt ===
+Use the financial-advisor agent: Singapore Citizen buying a $1.8M second residential property. Compute ABSD and BSD payable.
+
+=== rc ===
+0
+
+=== duration_ms ===
+50984
+
+=== stdout ===
+Here's the full breakdown:
+
+---
+
+**BSD — Tiered Calculation**
+
+| Band | Rate | Amount in Band | BSD |
+|---|---|---|---|
+| First $180,000 | 1% | $180,000 | $1,800 |
+| Next $180,000 | 2% | $180,000 | $3,600 |
+| Next $640,000 | 3% | $640,000 | $19,200 |
+| Next $500,000 ($1M–$1.5M) | 4% | $500,000 | $20,000 |
+| Remaining $300,000 ($1.5M–$1.8M) | 5% | $300,000 | $15,000 |
+| **BSD Total** | | | **$59,600** |
+
+---
+
+**ABSD — Singapore Citizen, 2nd Property**
+
+| Rate (post-Apr 2023) | Computation | ABSD |
+|---|---|---|
+| 20% flat | $1,800,000 × 20% | **$360,000** |
+
+---
+
+**Total Stamp Duty Outlay**
+
+| Component | Amount |
+|---|---|
+| BSD | $59,600 |
+| ABSD | $360,000 |
+| **Total** | **$419,600** |
+
+---
+
+**Key flags:**
+- ABSD ($360K) is the dominant cost — 6× the BSD
+- Total stamp duty = **23.3% of purchase price**
+- ABSD must be paid in **cash** — CPF OA cannot be used for ABSD
+- BSD can be offset from CPF OA (subject to withdrawal limits)
+- If client intends to sell the first property, check whether ABSD remission applies before committing
+
+
+=== stderr ===
+

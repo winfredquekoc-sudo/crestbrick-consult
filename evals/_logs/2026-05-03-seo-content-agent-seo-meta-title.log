@@ -1,0 +1,24 @@
+=== prompt ===
+Use the seo-content-agent agent: Write meta title + description for /district/d10 page targeting 'D10 condos Singapore' under 60/155 chars.
+
+=== rc ===
+0
+
+=== duration_ms ===
+38382
+
+=== stdout ===
+Here are the SEO tags for the D10 district page:
+
+```html
+<title>D10 Condos Singapore | Bukit Timah & Holland | Winfred Quek</title>
+<meta name="description" content="Freehold condos in D10 Bukit Timah, Holland Road and Tanglin. School-zone premiums, GCB enclave context, and investor PSF analysis by Winfred Quek." />
+```
+
+**Character counts:** Title = 59 chars (limit 60), Description = 147 chars (limit 155).
+
+The agent also flagged that the current `<title>` on the page is 100+ characters and doesn't contain the target keyword "D10 condos Singapore" at all — swapping in this tag directly fixes the gap. Want me to apply it to the file?
+
+
+=== stderr ===
+

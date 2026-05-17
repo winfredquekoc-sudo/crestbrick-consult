@@ -1,0 +1,91 @@
+=== prompt ===
+/afford 25000 0 500000 2000000 (family of 4, 2 kids). Return TDSR headroom, max loan, cash/CPF split, recommended budget.
+
+=== rc ===
+0
+
+=== duration_ms ===
+109925
+
+=== stdout ===
+---
+
+## Affordability Brief — $2,000,000 Private Property
+**Family of 4 (2 kids) | Age 35 assumed | 17 May 2026**
+
+---
+
+### TDSR Headroom
+
+| Item | Amount |
+|---|---|
+| Gross monthly income | $25,000 |
+| TDSR ceiling (55%) | $13,750 |
+| Existing monthly debts | $0 |
+| **Available debt service** | **$13,750** |
+
+Full headroom available — no TDSR compression.
+
+---
+
+### Max Loan Quantum
+
+Stress-tested at **4.0% p.a.**, 30-year tenure:
+- **Max loan (TDSR-based): ~$2,880,000** — far exceeds LTV cap
+- **LTV cap at 75% for $2M property: $1,500,000** ← binding constraint
+
+Monthly repayment at actual rate (~1.55%): **~$5,178/month** (20.7% of income — very comfortable)
+
+---
+
+### Cash + CPF Requirement at $2M
+
+| Item | Amount | Funded By |
+|---|---|---|
+| 25% down payment | $500,000 | Min $100K cash + CPF OA |
+| **BSD** | **$69,600** | Cash only (CPF cannot pay BSD) |
+| Legal + valuation fees | $4,000 | Cash |
+| **Minimum cash outlay** | **$173,600** | Cash |
+| **CPF OA required** | **$400,000** | CPF OA |
+| **Total upfront** | **$573,600** | |
+
+**Shortfall vs $500K cash savings: $73,600 — must come from CPF OA.**
+
+BSD breakdown: 1% × $180K + 2% × $180K + 3% × $640K + 4% × $500K + 5% × $500K = **$69,600**
+
+---
+
+### Recommended Budget Band
+
+| Band | Price | Loan | Monthly (1.55%) | TDSR Stress (4%) |
+|---|---|---|---|---|
+| **Comfortable** | $1,700,000 | $1,275,000 | ~$4,401 | 44.3% |
+| **Target** | $2,000,000 | $1,500,000 | ~$5,178 | 52.1% ✓ |
+| **Stretch** | $2,200,000 | $1,650,000 | ~$5,695 | 57.3% ❌ TDSR breach |
+
+**Recommended: $1.7M–$2.0M.** The $2M target works on income, but is contingent on ~$400K CPF OA being available.
+
+---
+
+### Risk Flags
+
+| Flag | Severity |
+|---|---|
+| **ABSD status unknown** — if not SC first property, ABSD of 20% ($400K) is a deal-breaker | CRITICAL |
+| **CPF OA balance unconfirmed** — $400K OA needed; if below this, cash shortfall worsens | HIGH |
+| **Post-purchase cash buffer** — after minimum outlay, only ~$326K liquid cash remains (before reno) | MEDIUM |
+| **TDSR proximity at $2M** — only $589/month buffer; any car/reno loan pushes toward breach | MEDIUM |
+| **Renovation not budgeted** — private resale typically $80K–$150K; if loan-funded, adds ~$800–$1.5K/month to commitments | MEDIUM |
+| **Family cash flow** — $25K income minus $5.2K mortgage + kids expenses ($3–6K/month) leaves ~$14–17K discretionary | Low-Medium |
+
+---
+
+### Next Steps (Confirm Before Proceeding)
+
+1. **Citizenship + existing property** — SC first property = $0 ABSD; any other scenario changes everything
+2. **CPF OA balance** — both co-borrowers; need ≥$400K combined to close the $2M deal
+3. **Single or dual income** — if $25K is combined, figures stand; if second borrower adds income, TDSR headroom increases
+
+
+=== stderr ===
+

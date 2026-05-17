@@ -1,0 +1,57 @@
+=== prompt ===
+Use the financial-advisor agent: Used $180,000 CPF over 12 years for current home. Estimate accrued interest and impact on sale proceeds.
+
+=== rc ===
+0
+
+=== duration_ms ===
+98505
+
+=== stdout ===
+Here's the full analysis:
+
+---
+
+## CPF Accrued Interest + Sale Proceeds Impact
+
+### Part 1 — Accrued Interest
+
+| Assumption | CPF Principal | Accrued Interest | Total Refund Due |
+|---|---|---|---|
+| Lump-sum (worst case) | $180,000 | $62,080 | **$242,080** |
+| Progressive draw (mid) | $180,000 | $56,224 | **$236,224** |
+
+Use **$242,080** for planning — CPF Board calculates from the earliest draw date.
+
+---
+
+### Part 2 — Net Cash War Chest (Lump-sum basis, $242K refund)
+
+| Sale Price | Less Loan | Less CPF Refund | Less Costs | **Net Cash** |
+|---|---|---|---|---|
+| $800,000 | ($200,000) | ($242,080) | ($20,440) | **$337,480** |
+| $1,000,000 | ($200,000) | ($242,080) | ($24,800) | **$533,120** |
+| $1,200,000 | ($200,000) | ($242,080) | ($29,160) | **$728,760** |
+
+> The $242K refund goes back into CPF OA — **not cash**. Net cash is the spendable war chest only.
+
+---
+
+### Part 3 — Retirement Flag
+
+- **Under 55**: $242K lands in OA at 2.5% p.a. — available for next property or retirement. Neutral.
+- **Approaching/over 55**: If total CPF exceeds FRS (~$213K), the excess is withdrawable in cash at 55. The refund could push them over the threshold — **potentially a net positive**.
+- **OA→RA transfer**: Shifting restored OA funds to RA earns 4.0% vs 2.5% (+$3,631/yr on $242K). Worth discussing but irreversible — needs a full retirement planning session.
+
+---
+
+### Key Watch-Outs
+
+1. Most clients budget $180K refund, not $242K — flag the $62K accrued interest gap early.
+2. At $800K sale price, 57.8% of gross proceeds is consumed before net cash is received.
+3. If upgrading before sale, SC second-property ABSD of 20% applies until this property is disposed.
+4. If decoupling, the CPF refund splits proportionally between owners — model separately.
+
+
+=== stderr ===
+

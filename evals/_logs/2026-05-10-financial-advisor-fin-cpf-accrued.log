@@ -1,0 +1,50 @@
+=== prompt ===
+Use the financial-advisor agent: Used $180,000 CPF over 12 years for current home. Estimate accrued interest and impact on sale proceeds.
+
+=== rc ===
+0
+
+=== duration_ms ===
+107718
+
+=== stdout ===
+Here's the full breakdown from the financial-advisor agent:
+
+---
+
+## CPF Accrued Interest — 12-Year Model
+
+### Part 1 — Accrued Interest
+Using `A = $180,000 × (1.025)^12 = $242,080`
+
+- **Principal used:** $180,000
+- **Accrued interest:** $62,080
+- **Total CPF refund on sale:** $242,080
+
+---
+
+### Part 2 — Net Cash Proceeds (3 scenarios)
+
+| Item | $1.2M | $1.5M | $1.8M |
+|---|---|---|---|
+| Gross sale | $1,200,000 | $1,500,000 | $1,800,000 |
+| Less commission + legal | ($16,500) | ($19,500) | ($22,500) |
+| Less CPF refund to OA | ($242,080) | ($242,080) | ($242,080) |
+| **Net cash in hand** | **$941,420** | **$1,238,420** | **$1,535,420** |
+| CPF OA reinstated | $242,080 | $242,080 | $242,080 |
+
+Total wealth is preserved — the CPF refund is a pocket transfer, not a loss.
+
+---
+
+### Part 3 — Key Flags for Winfred to Raise With Client
+
+1. **CPF ≠ Cash.** The $242,080 goes back to OA, not their bank. Always quote net cash, not gross-less-loan.
+2. **Age-55 RA sweep risk.** If the client is approaching 55, CPF Board sweeps OA into the Retirement Account to meet FRS (~$213,000 in 2026). This could reduce accessible cash significantly — run the RA scenario before quoting.
+3. **Liquid war chest.** Client must have separate cash for next purchase's option and exercise fees — can't rely on CPF refund as bridge liquidity.
+4. **Verify against CPF Statement.** Pull the actual statement from my.cpf.gov.sg to confirm exact principal drawn and CPF Board's authoritative interest figure.
+5. **CPF is recyclable.** The $242,080 can be redeployed into the next private purchase — frame it as a feature, not a deduction.
+
+
+=== stderr ===
+

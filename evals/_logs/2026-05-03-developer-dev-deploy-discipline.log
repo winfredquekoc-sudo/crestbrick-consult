@@ -1,0 +1,61 @@
+=== prompt ===
+Use the developer agent: User wants a quick text change shipped to prod. Walk me through the right deploy steps.
+
+=== rc ===
+0
+
+=== duration_ms ===
+47570
+
+=== stdout ===
+Here are the deploy steps for a quick text change:
+
+---
+
+**Stack notes first:**
+- Files live in `/public` — edit `.html` directly, no build step.
+- No GitHub remote. You deploy via the **Vercel CLI**, not a git push trigger.
+- Live domain is `winfredquek.com` (not `crestbrick-consult.vercel.app`).
+
+---
+
+**Steps:**
+
+1. **Edit the file** in `/Users/winfredquek/crestbrick-consult/public/your-page.html`.
+
+2. **Check it locally** — open the file in a browser, or run:
+   ```bash
+   cd /Users/winfredquek/crestbrick-consult/public && python3 -m http.server 8080
+   ```
+   Visit `http://localhost:8080/your-page`.
+
+3. **Commit:**
+   ```bash
+   git add public/your-page.html
+   git diff --staged   # read the diff first
+   git commit -m "fix: <describe the change>"
+   ```
+
+4. **Preview deploy first:**
+   ```bash
+   vercel
+   ```
+   Opens a preview URL — verify the text is correct in the actual Vercel environment.
+
+5. **Promote to prod:**
+   ```bash
+   vercel --prod
+   ```
+   Takes ~30 seconds for a static site.
+
+6. **Verify live** at `https://winfredquek.com/your-page` — use `Cmd+Shift+R` to bypass local browser cache.
+
+---
+
+**Watch out for:**
+- HTML is edge-cached for up to 10 minutes (`s-maxage=600`). If it's not showing, wait or append `?v=1` to verify.
+- If `vercel --prod` prompts for a project, select `crestbrick-consult`.
+
+
+=== stderr ===
+

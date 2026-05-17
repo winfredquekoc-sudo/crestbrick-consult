@@ -1,0 +1,87 @@
+=== prompt ===
+/afford 20000 0 300000 1800000 — stress-test if SORA-pegged rate rises from 3.5% to 5.0% on a $1.2M outstanding loan, 25 years left.
+
+=== rc ===
+0
+
+=== duration_ms ===
+125945
+
+=== stdout ===
+## SINGAPORE PROPERTY AFFORDABILITY & STRESS-TEST REPORT
+**17 May 2026**
+
+---
+
+### SECTION 1 — AFFORDABILITY SUMMARY (Target: SGD 1,800,000)
+
+**Inputs:** Income $20,000/mth | Debts $0 | Cash $300,000 | Target $1.8M
+
+---
+
+#### TARGET PRICE BREAKDOWN
+
+| Item | Amount |
+|---|---|
+| Loan (75% LTV) | SGD 1,350,000 |
+| Downpayment (25%) | SGD 450,000 |
+| — Min 5% cash | SGD 90,000 |
+| — Up to 20% cash/CPF | SGD 360,000 |
+| BSD on $1.8M | SGD 56,600 |
+| Legal fees | SGD 5,000 |
+| **Total upfront required** | **SGD 511,600** |
+| Client cash | SGD 300,000 |
+| **Cash shortfall** | **(SGD 211,600)** |
+
+*If CPF OA ≥ $360K, minimum cash needed drops to $151,600 → surplus of $148,400.*
+
+---
+
+#### MONTHLY REPAYMENT — $1.35M / 25 years
+
+| Rate | Monthly | TDSR % | Headroom |
+|---|---|---|---|
+| 3.5% (today) | $6,758 | 33.79% | $4,242/mth |
+| 4.0% (MAS assess) | $7,126 | 35.63% | $3,874/mth |
+| 5.0% (stress) | $7,892 | 39.46% | $3,108/mth |
+
+All three well inside the 55% TDSR ceiling.
+
+**Max affordable price** on income alone: ~SGD 2.78M. The binding constraint at $1.8M is **cash, not TDSR**.
+
+---
+
+#### RISK FLAGS
+
+- **Cash shortfall is the only constraint.** Clarify CPF OA balance — if ≥ $360K, gap closes.
+- TDSR is healthy across all rate scenarios.
+- BSD: $56,600 on $1.8M (1%×$180K + 2%×$180K + 3%×$640K + 4%×$800K).
+
+---
+
+### SECTION 2 — STRESS-TEST: SORA 3.5% → 5.0%
+**Loan: $1,200,000 | 25 years remaining (300 months)**
+
+| Rate | Monthly Repayment | TDSR @ $20K income |
+|---|---|---|
+| 3.5% base | **$6,007** | 30.04% |
+| 5.0% stress | **$7,015** | 35.08% |
+| **Delta** | **+$1,008/month** | +5.04 ppts |
+
+**Annual additional cost at 5.0%: $12,091**
+
+| | |
+|---|---|
+| TDSR breach at 5.0%? | **No** |
+| Headroom @ 3.5% | $4,993/mth below ceiling |
+| Headroom @ 5.0% | $3,985/mth below ceiling |
+
+**No TDSR breach** at any point in the +150bp scenario. The client absorbs a full 5.0% environment comfortably with ~$4K/month of buffer remaining.
+
+---
+
+**Bottom line:** Income is not the constraint — cash is. Resolve CPF OA picture first. Rate risk is manageable; a 5% environment adds $1,008/month but TDSR stays at 35%, well inside limits.
+
+
+=== stderr ===
+

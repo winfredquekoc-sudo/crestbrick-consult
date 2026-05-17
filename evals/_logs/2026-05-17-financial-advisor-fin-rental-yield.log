@@ -1,0 +1,53 @@
+=== prompt ===
+Use the financial-advisor agent: D15 condo at $2.4M, expected rental $6,800/month. Compute gross and net yield assuming 1.5% maintenance.
+
+=== rc ===
+0
+
+=== duration_ms ===
+75265
+
+=== stdout ===
+Here's the full yield breakdown for the D15 condo at **$2.4M / $6,800/month rent**:
+
+---
+
+### Gross Yield
+| Item | Amount |
+|---|---|
+| Annual rental income | $81,600 ($6,800 × 12) |
+| Purchase price | $2,400,000 |
+| **Gross yield** | **3.40%** |
+
+---
+
+### Net Yield (1.5% maintenance assumption)
+| Deduction | Amount (p.a.) |
+|---|---|
+| Maintenance / MCST (1.5% × $2.4M) | –$36,000 |
+| Net rental income | $45,600 |
+| **Net yield** | **1.90%** |
+
+---
+
+### Net Yield (with property tax added)
+| Deduction | Amount (p.a.) |
+|---|---|
+| Maintenance (1.5%) | –$36,000 |
+| IRAS property tax (NOO progressive rate est.) | –$18,576 |
+| Net rental income | ~$27,024 |
+| **Net yield (full holding costs)** | **~1.13%** |
+
+---
+
+### Advisor Flags
+
+1. **Verify the 1.5% maintenance figure.** At $36,000/year, this is high for pure MCST fees on a single unit. If it's meant to proxy *all* holding costs (MCST + property tax + vacancy), re-label it accordingly — don't double-count.
+
+2. **Property tax is the big surprise.** At NOO progressive rates, estimated IRAS tax is ~$18,576/year. Many clients don't anticipate this until the first bill — surface it early.
+
+3. **This is a cap-gains play, not a yield play.** At ~1.1% net unlevered yield, the property will likely run negative carry if financed. Run a cashflow stress test before the client commits — especially with SORA-based packages currently above 3%.
+
+
+=== stderr ===
+

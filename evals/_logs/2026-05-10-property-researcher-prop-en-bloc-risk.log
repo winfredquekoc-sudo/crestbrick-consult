@@ -1,0 +1,15 @@
+=== prompt ===
+Use the property-researcher agent: Assess en-bloc probability for 3 ageing freehold projects in District 10 over the next 5 years.
+
+=== rc ===
+124
+
+=== duration_ms ===
+240044
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

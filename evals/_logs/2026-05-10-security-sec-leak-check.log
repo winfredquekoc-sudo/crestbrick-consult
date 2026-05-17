@@ -1,0 +1,88 @@
+=== prompt ===
+Use the security agent: Scan the repo plan for hardcoded secrets in scripts/ and api/ and recommend a pre-commit hook.
+
+=== rc ===
+0
+
+=== duration_ms ===
+92719
+
+=== stdout ===
+## Security Audit Results
+
+**Scope**: `api/` (12 files) + `scripts/` (8 files)
+
+---
+
+### Findings
+
+| # | File | Line | Issue | Severity |
+|---|------|------|-------|----------|
+| 1 | `api/drip-signup.js` | 5 | n8n subdomain hardcoded as `||` fallback | **MEDIUM** |
+| 2 | `api/lead-magnet.js` | 13 | n8n subdomain hardcoded as `||` fallback | **MEDIUM** |
+
+Both follow the pattern:
+```js
+process.env.N8N_DRIP_WEBHOOK || 'https://winfredquekoc.app.n8n.cloud/webhook/...'
+```
+
+The subdomain `winfredquekoc.app.n8n.cloud` is a personal infrastructure identifier — exposing it publicly enables webhook enumeration and direct POST spam bypassing Vercel. No other hardcoded literals were found; all other secrets (`TELEGRAM_BOT_TOKEN`, `PORTAL_SECRET`, `RESEND_API_KEY`, etc.) are correctly env-var only.
+
+**Scripts**: All 8 are pure transformation utilities with no credentials or external calls.
+
+---
+
+### Immediate Fix
+
+Remove the `||` fallbacks in both files — if the env var is missing, return a `503` instead:
+
+```js
+const webhookUrl = process.env.N8N_DRIP_WEBHOOK;
+if (!webhookUrl) return res.status(503).json({ error: 'Webhook not configured' });
+```
+
+---
+
+### Pre-commit Hook
+
+Add `.pre-commit-config.yaml` to the repo root:
+
+```yaml
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.4
+    hooks:
+      - id: gitleaks
+
+  - repo: local
+    hooks:
+      - id: no-hardcoded-fallback-urls
+        name: No hardcoded internal webhook URLs as fallbacks
+        language: pygrep
+        entry: '\|\|\s*[''\"](https?://[a-zA-Z0-9_-]+\.app\.n8n\.cloud|https?://[a-zA-Z0-9_-]+\.ngrok\.io)'
+        types: [javascript, ts]
+
+      - id: no-secret-literals
+        name: No hardcoded secret literals
+        language: pygrep
+        entry: '(?i)(password|secret|api_?key|token|private_?key)\s*[:=]\s*[''"`][^''"`$\{][^''"`]{7,}'
+        types: [javascript, ts, python, sh]
+        exclude: '(test|spec|fixture|mock)'
+```
+
+Activate with:
+```sh
+pip install pre-commit
+pre-commit install          # registers the git hook
+pre-commit run --all-files  # one-time baseline scan
+```
+
+**Gitleaks** covers 200+ known secret patterns (Telegram tokens, Resend keys, AWS, GitHub PATs). The two local hooks add project-specific coverage for n8n fallback URLs and generic assignment literals.
+
+---
+
+Two MEDIUM findings, zero CRITICAL/HIGH. The fix is straightforward: strip the `||` literals from `drip-signup.js` and `lead-magnet.js` and ensure those env vars are set in Vercel. Want me to make those changes now?
+
+
+=== stderr ===
+

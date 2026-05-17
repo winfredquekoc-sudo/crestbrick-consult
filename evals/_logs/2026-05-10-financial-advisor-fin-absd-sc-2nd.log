@@ -1,0 +1,51 @@
+=== prompt ===
+Use the financial-advisor agent: Singapore Citizen buying a $1.8M second residential property. Compute ABSD and BSD payable.
+
+=== rc ===
+0
+
+=== duration_ms ===
+60202
+
+=== stdout ===
+Here are the stamp duty figures for a **Singapore Citizen buying a $1.8M second residential property**:
+
+---
+
+## BSD — Buyer's Stamp Duty
+
+| Tier | Rate | On |
+|------|------|----|
+| First $180,000 | 1% | $1,800 |
+| Next $180,000 | 2% | $3,600 |
+| Next $640,000 | 3% | $19,200 |
+| Remaining $800,000 | 4% | $32,000 |
+| + Tier (>$1.5M up to $3M) applies via 5% band | — | $3,000 |
+
+**BSD Total: $59,600**
+
+---
+
+## ABSD — Additional Buyer's Stamp Duty
+
+SC purchasing a **2nd residential property** is taxed at **20%** of purchase price.
+
+$1,800,000 × 20% = **$360,000**
+
+---
+
+## Combined Stamp Duty
+
+| Item | Amount |
+|------|--------|
+| BSD | $59,600 |
+| ABSD | $360,000 |
+| **Total** | **$419,600** |
+
+---
+
+**Key planning note:** ABSD at $360,000 dwarfs the BSD and is the dominant upfront cost — roughly 6× the BSD. This must be funded in cash (ABSD cannot be paid with CPF), so the client needs to plan liquidity around this before factoring in the 25% downpayment (~$450,000) on a second property loan. Worth running a decoupling analysis if the couple owns the first property jointly — restructuring ownership could eliminate the ABSD entirely.
+
+
+=== stderr ===
+

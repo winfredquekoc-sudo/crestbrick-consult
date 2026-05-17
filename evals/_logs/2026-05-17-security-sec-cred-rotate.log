@@ -1,0 +1,89 @@
+=== prompt ===
+Use the security agent: How do we rotate the Telegram bot token without downtime on the daemon?
+
+=== rc ===
+0
+
+=== duration_ms ===
+194157
+
+=== stdout ===
+Here's the full runbook from the security agent:
+
+---
+
+## Telegram Bot Token Rotation — Zero-Downtime Runbook
+
+**Effective downtime: ~10 seconds** (launchd auto-restart). True zero-downtime isn't possible because `bot.py` caches the token in memory.
+
+---
+
+### CRITICAL: Fix Before Rotating
+
+Two plist files have the token **hardcoded in plaintext at mode 644** — any process on your Mac can read them:
+
+- `~/Library/LaunchAgents/com.crestbrick.pg-conv-followup.plist`
+- `~/Library/LaunchAgents/com.crestbrick.pg-enquiry-sop.plist`
+
+**Fix first:** Remove the `TELEGRAM_BOT_TOKEN` key from both plists' `EnvironmentVariables` block, add `set -a; source "$HOME/.telegram-bot.env"; set +a` to the top of `pg-conv-followup.sh` and `pg-enquiry-sop.sh`, then `launchctl unload/load` both plists. After this, `~/.telegram-bot.env` is the single source of truth.
+
+---
+
+### Step-by-Step
+
+**1. Get new token from BotFather**
+- `/mybots` → `@Maddieprop_bot` → API Token → Revoke current token
+- Old token stops working immediately upon revocation
+
+**2. Update canonical env file**
+```bash
+nano ~/.telegram-bot.env   # change TELEGRAM_BOT_TOKEN value
+chmod 600 ~/.telegram-bot.env
+```
+
+**3. Update Vercel env**
+```bash
+vercel env rm TELEGRAM_BOT_TOKEN production
+vercel env add TELEGRAM_BOT_TOKEN production   # paste when prompted
+vercel --prod
+```
+
+**4. Restart the bot daemon**
+```bash
+launchctl unload ~/Library/LaunchAgents/com.crestbrick.telegram-bot.plist
+launchctl load  ~/Library/LaunchAgents/com.crestbrick.telegram-bot.plist
+```
+Bot resumes polling with new token within 10 seconds.
+
+**5. Verify new token is live**
+```bash
+curl -s "https://api.telegram.org/botNEW_TOKEN/getMe" | python3 -m json.tool
+# Expect: {"ok":true,"result":{"username":"Maddieprop_bot",...}}
+```
+
+Send a test message from your Telegram account to confirm replies.
+
+**6. Verify old token is dead**
+```bash
+curl -s "https://api.telegram.org/botOLD_TOKEN/getMe"
+# Expect: {"ok":false,"error_code":401}
+```
+
+**7. Clear shell history** if you typed the raw token anywhere:
+```bash
+history -c   # then also scrub ~/.zsh_history manually
+```
+
+---
+
+### Good News
+
+- Token is **not in git history** — confirmed
+- `_run.sh` alert sender reads `~/.telegram-bot.env` at runtime — picks up new token **automatically, no restart needed**
+- Token is **not hardcoded** in any committed source files
+
+**Priority action before rotation:** Fix the two plist files (Step 0). They're currently stopped in launchctl but will be a hygiene risk when reloaded.
+
+
+=== stderr ===
+

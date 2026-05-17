@@ -1,0 +1,45 @@
+=== prompt ===
+Use the chief-of-staff agent: Finance flagged that the new paid-API spend exceeds budget, but Developer says it's needed for the WhatsApp pipeline. How do we resolve?
+
+=== rc ===
+0
+
+=== duration_ms ===
+83876
+
+=== stdout ===
+**Ruling: Developer wins, with conditions.** Here's the chief-of-staff's decision:
+
+---
+
+## The Call
+
+**Approve the WhatsApp pipeline API spend. Do not cut it.**
+
+The WA pipeline is revenue-protecting infrastructure, not discretionary. The pretriage migration to the Claude API was done by design. Cutting it means inbound leads go dark with no fallback — a full operational outage in a solo practice.
+
+---
+
+## Resolution Plan
+
+| Spend | Decision |
+|---|---|
+| Claude API for WA pretriage + workflow | **Untouchable** |
+| Groq Whisper for voice transcription | **Untouchable** |
+| Ad hoc agent calls, content generation | Audit — batch & rate-limit these |
+| 372 launchd jobs making API calls | Audit within 7 days |
+| Content studio / SEO agent AI calls | Defer until core audit done |
+
+---
+
+## One Action This Week
+
+**Developer produces a manifest**: ranked list of all launchd jobs making external API calls, with estimated call frequency and monthly cost.
+
+The 372-job stack is where the invisible spend likely lives — Finance can't do their job without that manifest. Neither side is currently working from facts.
+
+If you want, I can have the chief-of-staff draft the task brief to Developer now.
+
+
+=== stderr ===
+

@@ -1,0 +1,15 @@
+=== prompt ===
+Use the property-researcher agent: Dossier on 'The Continuum' (Thiam Siew Ave): unit mix, PSF range, transaction velocity, comparable projects.
+
+=== rc ===
+124
+
+=== duration_ms ===
+240040
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

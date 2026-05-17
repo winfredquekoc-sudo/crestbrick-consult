@@ -1,0 +1,15 @@
+=== prompt ===
+Use the market-scout agent: Top 5 districts by 12-month rental growth and likely drivers (MRT, schools, employment).
+
+=== rc ===
+124
+
+=== duration_ms ===
+240036
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

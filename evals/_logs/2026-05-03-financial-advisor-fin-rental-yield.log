@@ -1,0 +1,44 @@
+=== prompt ===
+Use the financial-advisor agent: D15 condo at $2.4M, expected rental $6,800/month. Compute gross and net yield assuming 1.5% maintenance.
+
+=== rc ===
+0
+
+=== duration_ms ===
+83060
+
+=== stdout ===
+Here's the full picture:
+
+---
+
+**D15 Condo | $2.4M | $6,800/month rental**
+
+| Metric | Annual ($) | Yield |
+|---|---|---|
+| Gross rental income | $81,600 | **3.40%** |
+| Less: Maintenance (MCST @ 1.5%) | ($36,000) | (1.50%) |
+| Less: Property tax (NOO rates) | ($13,248) | (0.55%) |
+| Less: Insurance | ($600) | (0.03%) |
+| Less: Vacancy buffer (1 month) | ($6,800) | (0.28%) |
+| **Net rental income** | **$24,952** | **1.04%** |
+
+**Gross yield: 3.40% | Net yield: 1.04%**
+
+---
+
+**Key flags to raise with the client:**
+
+1. **Maintenance figure is the main wildcard.** At 1.5% of purchase price ($36K/year = $3,000/month), this is well above typical D15 MCST rates ($400–$600/month). If actual MCST is $500/month ($6K/year), net yield recovers to ~**2.29%**. Confirm the actual maintenance schedule before using this number.
+
+2. **Leveraged = cash-flow negative.** At 75% LTV (~$1.8M loan, 3.5–3.8% SORA, 25yr), monthly mortgage repayment is ~$9,000–$9,400 — exceeding the $6,800 rental. The property bleeds cash every month unless bought cash.
+
+3. **NOO property tax is non-negotiable.** $13,248/year at the IRAS progressive rates on a $81,600 AV. First-time landlords consistently underestimate this.
+
+4. **Rental income tax.** Net rent is assessable under personal income tax — material at higher brackets (up to 24% marginal rate in SG).
+
+**Bottom line:** 3.4% gross is in line with D15 market norms. Net yield at 1.04% is thin for a $2.4M outlay — the 1.5% maintenance assumption is doing most of the damage. Verify the actual MCST first; the real net yield is likely 2.2–2.5%.
+
+
+=== stderr ===
+

@@ -1,0 +1,50 @@
+=== prompt ===
+Use the competitor-scanner agent: Identify which competitor agents publish transparent commission/fee structures publicly.
+
+=== rc ===
+0
+
+=== duration_ms ===
+228428
+
+=== stdout ===
+Here's the scan summary:
+
+---
+
+## Who Publishes Fee Structures Publicly
+
+**Agency-level (all basically the same, regulatory compliance only):**
+| Agency | What's Published | Differentiation |
+|---|---|---|
+| **PropNex** | Minimum floor: 2-4% seller, 1-2% buyer | None — legal compliance framing |
+| **ERA** | Uses word "transparent" but no actual numbers shown | None — marketing veneer only |
+| **Huttons** | Same floors as PropNex | Procedural, not value-led |
+| **OrangeTee** | No public fee page found | Not playing this game at all |
+
+**Individual agents/brands:**
+- **PropertyLimBrothers** — most detailed disclosure: 3-tier package card (2.5–3% seller, 1% buyer). Uses transparency to *justify premium pricing*, not cut costs.
+- **Stuart Chng** — writes about commissions editorially but publishes no personal rate card. Expertise positioning only.
+- **Ohmyhome** — flat 1% HDB seller, prominently marketed. Volume-transactional model, not advisory.
+- **Homeseller** — flat $1,999 fixed fee, pure cost-competition.
+
+**Zero individual PropNex/ERA/Huttons/OrangeTee agents publicly disclose their personal rates.**
+
+---
+
+## The Opportunity for Winfred
+
+The advisory-tier fee transparency space is **completely empty**. The key insight: nobody has reframed fees as a function of *financial outcomes delivered* rather than a transaction cost. Ohmyhome competes on cheap; PLB justifies expensive. Neither speaks to Winfred's ICP — HDB upgraders and restructuring couples making $1.2–1.6M moves who need strategic advice.
+
+**Three content angles flagged:**
+1. **"What does your 1% buyer advisory fee actually cover?"** — scope-of-work breakdown mapped to The Move (M1–M5)
+2. **"The advisory fee conversation nobody is having"** — reframe 1% as outcomes (CPF savings, ABSD avoided, equity unlocked) not transaction cost
+3. **"Why I will sometimes tell you not to proceed"** — address the commission misalignment conflict honestly; nobody is doing this
+
+**Longer-term positioning move:** A public scope-of-work page on the site that explains what the engagement covers and what Winfred *doesn't* take on — no rate card needed, just the actual advisory practice made visible. That's a moat competitors can't fake.
+
+Want me to route any of these content briefs to `content-writer` or `linkedin-writer`?
+
+
+=== stderr ===
+

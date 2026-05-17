@@ -1,0 +1,15 @@
+=== prompt ===
+Use the market-scout agent: List all new launches expected in CCR within the next 6 months with developer and tentative TOP.
+
+=== rc ===
+124
+
+=== duration_ms ===
+240043
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

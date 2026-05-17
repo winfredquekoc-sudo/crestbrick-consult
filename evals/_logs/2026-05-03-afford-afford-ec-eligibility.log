@@ -1,0 +1,154 @@
+=== prompt ===
+/afford 16000 0 150000 1400000 — couple, first-timers, 2 kids, EC purchase. Comment on EC eligibility, MSR, CPF grant.
+
+=== rc ===
+0
+
+=== duration_ms ===
+125326
+
+=== stdout ===
+---
+
+# EC AFFORDABILITY BRIEFING
+**Client:** Married couple, both SC, first-timers, 2 children | **Target:** EC @ SGD 1,400,000
+
+---
+
+## RATES USED (from `sg-property-rates.json`, v2026-04-28)
+| Parameter | Value |
+|---|---|
+| Stress-test rate | 4.0% p.a. |
+| TDSR ceiling | 55% |
+| MSR ceiling | 30% (binding for EC) |
+| Loan tenure | 25 years (age ~35) |
+| LTV (first bank loan) | 75% |
+
+---
+
+## 1. TDSR HEADROOM
+```
+Income: SGD 16,000 × 55% = SGD 8,800 available
+Existing debts: SGD 0
+TDSR headroom: SGD 8,800/month — fully available
+```
+
+---
+
+## 2. MSR — THE BINDING CONSTRAINT
+```
+Income: SGD 16,000 × 30% = SGD 4,800/month max
+```
+MSR (30%) is far tighter than TDSR (55%) and is **mandatory for all EC purchases**.
+
+---
+
+## 3. MAX LOAN UNDER MSR
+```
+Rate: 4.0% / 12 = 0.3333% | Tenure: 300 months
+Annuity factor: 189.10
+Max loan = SGD 4,800 × 189.10 = SGD 907,680
+```
+
+---
+
+## 4. MAX AFFORDABLE PRICE
+```
+Max Price = SGD 907,680 / 75% (LTV) = SGD 1,210,240
+```
+**Target of SGD 1.4M exceeds the MSR-constrained ceiling by SGD 189,760.**
+
+---
+
+## 5. CPF OA ESTIMATE
+Combined OA inflow (~35, both): SGD 16,000 × 23% = SGD 3,680/month. Estimated combined OA balance (no prior housing use): **SGD 200,000–350,000**. Working figure: **SGD 250,000**. With Family Grant credited to CPF: ~SGD 280,000.
+
+---
+
+## 6. DOWNPAYMENT BREAKDOWN
+```
+Target price SGD 1,400,000 — 25% downpayment = SGD 350,000
+  5% mandatory cash     : SGD 70,000   ← cannot use CPF
+  20% cash or CPF       : SGD 280,000
+
+Cash available: SGD 150,000
+  Less 5% cash:         − SGD 70,000
+  Remaining cash:         SGD 80,000 (toward the 20% tranche)
+  CPF OA required:        SGD 200,000 (balance of 20% tranche)
+```
+Cash is exactly fully deployed. Zero buffer before transaction costs.
+
+---
+
+## 7. EC FAMILY GRANT
+| Criterion | Requirement | Status |
+|---|---|---|
+| Income | ≤ SGD 16,000/month | **SGD 16,000 — qualifies (at ceiling)** |
+| First-timers | Both | Both — PASS |
+| Citizenship | At least 1 SC | Both SC — PASS |
+| Family nucleus | Married with children | Married, 2 kids — PASS |
+
+**Family Grant: SGD 30,000** (credited to CPF OA) — eligible.
+
+---
+
+## 8. EC ELIGIBILITY CHECKLIST
+All criteria pass. Key notes:
+- Income exactly at SGD 16,000 ceiling — any assessment above this forfeits eligibility
+- 5-year MOP before selling on open market; 10 years before renting entire unit
+- AHG / SHG / EHG **do not apply** to EC — only the Family Grant (SGD 30,000) is available
+
+---
+
+## 9. RISK FLAGS
+
+**FLAG 1 — LOAN SHORTFALL (HIGH)**
+```
+Loan needed at SGD 1.4M: SGD 1,050,000
+Max loan under MSR:       SGD 907,680
+Shortfall:                SGD 142,320
+```
+
+**FLAG 2 — ZERO CASH BUFFER AFTER DOWNPAYMENT (HIGH)**
+```
+BSD on SGD 1.4M:     ~SGD 40,600
+Legal fees (est.):    ~SGD 3,000
+Total transaction costs: ~SGD 43,600
+Cash post-downpayment:   SGD 0
+Total cash shortfall:   ~SGD 43,600
+```
+Client **cannot complete** the SGD 1.4M purchase without finding an additional ~SGD 43,600 for stamp duty and legal fees.
+
+**FLAG 3 — INCOME AT EC CEILING (LOW)**
+Any income revision upward during eligibility assessment could breach the SGD 16,000 cap.
+
+**FLAG 4 — CPF SUFFICIENCY (MEDIUM)**
+SGD 200,000 CPF OA required — within estimated range but should be verified against actual CPF statements before committing.
+
+---
+
+## 10. RECOMMENDATION
+
+### Can SGD 1.4M work? No — not on current income.
+
+MSR is a hard regulatory cap. To buy at SGD 1.4M, the couple would need household income of ~SGD 18,750/month, or a larger cash/CPF injection of ~SGD 336,000 total upfront (vs SGD 193,600 available).
+
+**Alternatively:** A private condo is subject to TDSR only (no MSR). At TDSR, their income supports a loan of ~SGD 1,665,000 — enabling a private condo up to ~SGD 2.2M. No ABSD for first-timer SCs.
+
+### Recommended EC budget band: **SGD 1,100,000 – SGD 1,210,000**
+
+At SGD 1,210,000:
+```
+Loan (75%): SGD 907,500   → instalment ~SGD 4,798 (within MSR)
+Cash needed (5% + BSD + legal): ~SGD 96,800
+Cash available: SGD 150,000 → ~SGD 53,200 surplus after all costs
+```
+This works. Comfortable buffer, CPF covers the remaining downpayment, and Family Grant adds SGD 30,000 to CPF OA.
+
+---
+
+**Bottom line:** SGD 1.4M EC is not achievable under MSR on SGD 16,000/month. Target SGD 1.1M–SGD 1.2M ECs, or explore private condos where TDSR (not MSR) is the constraint.
+
+
+=== stderr ===
+

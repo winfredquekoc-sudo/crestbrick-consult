@@ -1,0 +1,37 @@
+=== prompt ===
+Use the chief-of-staff agent: Finance flagged that the new paid-API spend exceeds budget, but Developer says it's needed for the WhatsApp pipeline. How do we resolve?
+
+=== rc ===
+0
+
+=== duration_ms ===
+139350
+
+=== stdout ===
+Here's the chief-of-staff's verdict — clear and actionable:
+
+---
+
+**The core finding:** Finance and Developer are arguing about the wrong culprit.
+
+- **WhatsApp pipeline is innocent.** It costs ~$3-4/day equivalent on Sonnet — proportionate and approved.
+- **The real runaway is `new-client-onboarder`** — it burned $712 equivalent in one day by calling **Opus** on a polling loop every 10 minutes. That script doesn't need any LLM; it's just checking for a new `profile.md` and sending a Telegram message.
+
+---
+
+**Recommended decisions:**
+
+| Item | Decision |
+|---|---|
+| WA pipeline spend | Approve — leave it alone |
+| `new-client-onboarder` | Fix urgently — strip the Opus call (or the LLM entirely) |
+| Overnight worktree sessions | Fine for intentional builds; verify the `spend-realtime-watch` launchd job is running |
+| $100 kill-switch threshold | Too low for active build days — raise to $500 or make it per-script |
+
+---
+
+**Your call:** Do you want me to route the `new-client-onboarder` fix to Developer now? It's either a one-line model downgrade to Haiku, or a full LLM removal (leaner — the logic is deterministic). Which do you prefer?
+
+
+=== stderr ===
+

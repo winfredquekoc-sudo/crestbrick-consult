@@ -1,0 +1,56 @@
+=== prompt ===
+Use the developer agent: User wants a quick text change shipped to prod. Walk me through the right deploy steps.
+
+=== rc ===
+0
+
+=== duration_ms ===
+47575
+
+=== stdout ===
+Here's your deploy checklist for a quick text change to prod:
+
+---
+
+## Deploy Steps
+
+**1. Confirm the file is saved**
+Make sure your text edit is saved locally. Run a quick sanity check:
+```bash
+git diff --stat
+```
+This shows which files changed. Verify only the file(s) you intended are modified.
+
+**2. Stage the specific file**
+```bash
+git add public/path/to/your-file.html
+```
+Avoid `git add .` — it can accidentally stage other in-progress changes (you have many modified files currently).
+
+**3. Commit with a clear message**
+```bash
+git commit -m "Fix: [describe the text change in one line]"
+```
+
+**4. Push to main → triggers Vercel**
+```bash
+git push origin main
+```
+Vercel auto-deploys on every push to `main`.
+
+**5. Verify deployment**
+- Watch the Vercel dashboard, or run:
+```bash
+npx vercel ls --prod
+```
+- Once status shows **Ready**, visit the live URL and confirm the text change is visible.
+
+---
+
+**Current situation:** You have ~33 modified files staged but uncommitted. Make sure you only add the specific file for this change so you don't accidentally ship unrelated work. If you want to ship everything in one go, let me know and I can help you review what's in that diff first.
+
+What file are you changing?
+
+
+=== stderr ===
+

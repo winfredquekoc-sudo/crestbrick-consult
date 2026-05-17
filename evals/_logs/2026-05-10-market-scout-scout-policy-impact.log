@@ -1,0 +1,15 @@
+=== prompt ===
+Use the market-scout agent: Latest cooling measures: which segment (HDB/EC/private) is most affected and what does data show 90 days post-measure?
+
+=== rc ===
+124
+
+=== duration_ms ===
+240038
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

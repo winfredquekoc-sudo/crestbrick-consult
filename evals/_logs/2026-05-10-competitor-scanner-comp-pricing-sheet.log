@@ -1,0 +1,15 @@
+=== prompt ===
+Use the competitor-scanner agent: Identify which competitor agents publish transparent commission/fee structures publicly.
+
+=== rc ===
+124
+
+=== duration_ms ===
+240042
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

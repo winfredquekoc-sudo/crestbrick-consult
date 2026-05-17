@@ -1,0 +1,132 @@
+=== prompt ===
+/afford 20000 0 300000 1800000 — stress-test if SORA-pegged rate rises from 3.5% to 5.0% on a $1.2M outstanding loan, 25 years left.
+
+=== rc ===
+0
+
+=== duration_ms ===
+194427
+
+=== stdout ===
+---
+
+AFFORDABILITY AND RATE STRESS-TEST REPORT
+Client: anonymous | Date: 2026-05-03
+Property target: SGD 1,800,000 | Income: SGD 20,000/mo | Cash: SGD 300,000
+
+---
+
+## SECTION 1 — BSD (Buyer's Stamp Duty)
+
+| Band | Rate | Duty |
+|---|---|---|
+| First $180,000 | 1% | $1,800 |
+| Next $180,000 | 2% | $3,600 |
+| Next $640,000 | 3% | $19,200 |
+| Next $500,000 | 4% | $20,000 |
+| Next $300,000 | 5% | $15,000 |
+| **Total BSD** | | **$59,600** |
+
+ABSD: $0 — SC or PR, first property.
+
+---
+
+## SECTION 2 — MAXIMUM AFFORDABLE PRICE (TDSR-Limited)
+
+- Stress-test rate: **4.0%** (MAS floor)
+- TDSR cap 55% of $20,000 = **$11,000/mo**
+- No existing debts → full $11,000 available for mortgage
+- Max loan at 4.0% / 30yr: **$2,304,074**
+- Max property at 75% LTV: **$3,072,098**
+
+The $1,800,000 target is well inside the TDSR limit. The binding constraint is cash, not income.
+
+---
+
+## SECTION 3 — TDSR HEADROOM AT $1,800,000
+
+| Item | Value |
+|---|---|
+| Loan (75% LTV) | $1,350,000 |
+| Monthly payment at 4.0% stress rate / 30yr | $6,445/mo |
+| TDSR consumed | **32.2%** |
+| TDSR cap | 55.0% |
+| Headroom remaining | **22.8pp — $4,555/mo buffer** |
+
+Well within cap.
+
+---
+
+## SECTION 4 — UPFRONT CASH BREAKDOWN
+
+| Item | Amount | Type |
+|---|---|---|
+| 5% minimum cash downpayment | $90,000 | Cash only (no CPF) |
+| Remaining 15% of price | $270,000 | CPF OA eligible |
+| BSD | $59,600 | Cash |
+| Legal fees | $3,000 | Cash |
+| **Total cash needed** | **$152,600** | |
+| Cash available | $300,000 | |
+| **Cash remaining post-purchase** | **$147,400** | ~24 months mortgage buffer |
+
+CPF OA required: estimated **~$270,000** — balance must be verified before proceeding.
+
+---
+
+## SECTION 5 — BUDGET BAND
+
+| Band | Ceiling | Assessment |
+|---|---|---|
+| Comfortable (80% of TDSR max) | $2,457,679 | Absorbs rate rises |
+| Stretch (at cap) | $3,072,098 | No margin |
+
+Target $1,800,000: **COMFORTABLE.**
+
+---
+
+## SECTION 6 — RISK FLAGS
+
+**[FLAG 1] CPF OA unverified.** ~$270,000 needed from CPF OA. If short, cash covers the gap — but that erodes the $147,400 buffer. Confirm balance before OTP.
+
+**[FLAG 2] Tenure at hard age cap.** 30yr tenure assumes borrower is exactly 35. One year older = 29yr tenure = higher monthly payment. Confirm exact age.
+
+**[FLAG 3] Day-one rate is SORA-pegged.** Actual payment tracks SORA (~3.5% currently), not the 4.0% stress rate. Budget for the real rate, not the stress test.
+
+---
+
+## SECTION 7 — RATE STRESS-TEST
+
+Loan: $1,200,000 outstanding | 25 years remaining | SORA-pegged
+Shock: **3.5% → 5.0% (+150bps)**
+
+| Metric | 3.5% (current) | 5.0% (shocked) | Change |
+|---|---|---|---|
+| Monthly payment | $6,007 | $7,015 | **+$1,008/mo (+16.8%)** |
+| TDSR | 30.0% | 35.1% | +5.1pp |
+| TDSR breach (55% cap) | No | **No** | — |
+| Gross buffer (vs $20K income) | $13,993/mo | $12,985/mo | -$1,008 |
+| Est. net after living (~$4,500/mo) | ~$9,493 | ~$8,485 | -$1,008 |
+
+### Verdict: SURVIVE
+
+The 150bps shock adds $1,008/mo — meaningful but not a crisis. TDSR at 5.0% is 35.1% — still 19.9pp below the 55% cap. Rates would need to reach approximately 12.5% to trigger a TDSR breach.
+
+---
+
+## OVERALL SCORECARD
+
+| Check | Result |
+|---|---|
+| Affordability at $1.8M | PASS — TDSR 32.2% |
+| Budget band | COMFORTABLE |
+| Cash position | SUFFICIENT ($147,400 remainder) |
+| CPF OA adequacy | UNVERIFIED — must confirm |
+| Age/tenure | FLAG — confirm borrower is ≤35 |
+| Rate shock +150bps | SURVIVE — TDSR 35.1%, cashflow GREEN |
+| TDSR breach at 5.0% | NO — 19.9pp headroom |
+
+**Overall: PASS.** Comfortable at $1.8M. Two pre-OTP verifications needed: CPF OA balance and exact borrower age.
+
+
+=== stderr ===
+

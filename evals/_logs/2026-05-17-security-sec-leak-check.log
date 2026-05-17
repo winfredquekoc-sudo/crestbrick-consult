@@ -1,0 +1,151 @@
+=== prompt ===
+Use the security agent: Scan the repo plan for hardcoded secrets in scripts/ and api/ and recommend a pre-commit hook.
+
+=== rc ===
+0
+
+=== duration_ms ===
+230013
+
+=== stdout ===
+Here's the full security audit report:
+
+---
+
+## Security Audit — `scripts/` + `api/`
+
+### Findings Summary
+
+| Severity | Count |
+|----------|-------|
+| CRITICAL | 2 |
+| HIGH | 2 |
+| MEDIUM | 1 |
+| Clean | 4 checks |
+
+---
+
+### CRITICAL
+
+**C1 — Live Neon Postgres password in `.env.local`**
+`npg_7be6MwWfSvKa` appears in 8 variables (DATABASE_URL, PGPASSWORD, POSTGRES_PASSWORD…). The file is gitignored but lives on disk in plaintext.
+**Action: Rotate the password immediately at console.neon.tech.**
+
+**C2 — Vercel OIDC JWT token in `.vercel/.env.development.local`**
+Short-lived (~12h) but regenerated on every `vercel dev` run. The `.vercel/` dir is gitignored — confirm it stays that way.
+
+---
+
+### HIGH
+
+**H1 — Hardcoded n8n webhook URLs as fallback in source code**
+`api/drip-signup.js:5` and `api/lead-magnet.js:11-13`:
+```js
+const N8N_WEBHOOK = process.env.N8N_DRIP_WEBHOOK || 'https://winfredquekoc.app.n8n.cloud/webhook/drip-signup';
+```
+These are in committed git history. The fallback silently uses the production URL in any environment missing the env var.
+**Action:** Remove the hardcoded fallback — throw instead. Enable n8n header-based auth on both webhooks.
+
+**H2 — `isAuthorizedCron` returns `true` when `CRON_SECRET` is unset**
+`api/cron/_lib.js:16-21` — Preview deployments (where the secret isn't set) accept every cron request unauthenticated.
+**Action:** Flip the default to `return false` or set `CRON_SECRET` in all Vercel environments.
+
+---
+
+### MEDIUM
+
+**M1 — `Access-Control-Allow-Origin: *` on `api/drip-signup.js`**
+Allows any site to POST PII to this endpoint.
+**Action:** Lock to `https://winfredquek.com`.
+
+---
+
+### What's Clean
+
+- All API keys (`ANTHROPIC_API_KEY`, `TELEGRAM_BOT_TOKEN`, `RESEND_API_KEY`, etc.) are env-var-only in source — no literals.
+- No AWS keys, GitHub PATs, or PEM blocks in any tracked file.
+- `gitleaks protect --staged` hook is already installed at `.git/hooks/pre-commit`.
+
+---
+
+### Recommended Pre-Commit Hook (layered gitleaks + detect-secrets)
+
+The existing gitleaks hook is good. Harden it by adding `detect-secrets` and a filename blocklist. Two options:
+
+**Option A — Standalone drop-in** (replace `.git/hooks/pre-commit`):
+
+```bash
+#!/usr/bin/env bash
+# Requires: brew install gitleaks && pip install detect-secrets
+set -euo pipefail
+
+STAGED=$(git diff --cached --name-only --diff-filter=ACM)
+[ -z "$STAGED" ] && exit 0
+
+# 1. gitleaks
+gitleaks protect --staged --redact --verbose --no-banner || {
+  echo "COMMIT BLOCKED: gitleaks found secrets. Add fingerprint to .gitleaksignore to dismiss." >&2
+  exit 1
+}
+
+# 2. detect-secrets (high-entropy + DB URL patterns)
+if command -v detect-secrets >/dev/null 2>&1 && [ -f .secrets.baseline ]; then
+  detect-secrets-hook --baseline .secrets.baseline $STAGED || {
+    echo "COMMIT BLOCKED: run 'detect-secrets audit .secrets.baseline' to review." >&2
+    exit 1
+  }
+fi
+
+# 3. Block credential filenames outright
+for f in $STAGED; do
+  echo "$f" | grep -qE '\.env$|\.env\.|\.pem$|\.key$|credentials\.json$|id_rsa|id_ed25519' && {
+    echo "COMMIT BLOCKED: refusing to commit credential file: $f" >&2
+    exit 1
+  }
+done
+```
+
+**Option B — `pre-commit` framework** (`.pre-commit-config.yaml`):
+
+```yaml
+repos:
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.21.2
+    hooks:
+      - id: gitleaks
+        args: ["--redact", "--verbose", "--no-banner"]
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: package-lock\.json
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: detect-private-key
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+```
+
+Initialize with:
+```bash
+pip install pre-commit detect-secrets
+pre-commit install
+detect-secrets scan --exclude-files 'node_modules|\.git|\.vercel|agentdb' > .secrets.baseline
+git add .secrets.baseline .pre-commit-config.yaml
+```
+
+---
+
+### Immediate Priority Checklist
+
+1. **Rotate `npg_7be6MwWfSvKa`** at console.neon.tech — treat as compromised.
+2. **Remove the n8n hardcoded fallback URLs** from `api/drip-signup.js` and `api/lead-magnet.js` — throw on missing env var.
+3. **Flip `isAuthorizedCron` default to deny** in `api/cron/_lib.js`.
+4. **Restrict CORS** in `api/drip-signup.js` to `https://winfredquek.com`.
+5. **Run a full history scan**: `gitleaks detect --no-banner --redact` — the hook was installed recently; check older commits for any pre-hook leaks.
+
+
+=== stderr ===
+

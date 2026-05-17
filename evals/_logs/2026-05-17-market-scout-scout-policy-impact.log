@@ -1,0 +1,62 @@
+=== prompt ===
+Use the market-scout agent: Latest cooling measures: which segment (HDB/EC/private) is most affected and what does data show 90 days post-measure?
+
+=== rc ===
+0
+
+=== duration_ms ===
+216417
+
+=== stdout ===
+Here's the strategic brief from the market-scout agent:
+
+---
+
+## Latest SG Cooling Measures — 90-Day Impact Brief
+
+**Three active measures, one underreported:**
+
+| Measure | Date | Segment | Key Change |
+|---|---|---|---|
+| SSD Extension | 4 Jul 2025 | All private | Holding period 3yr→4yr; rates +4pp per tier (up to 16% Yr1) |
+| HDB LTV Cut | 20 Aug 2024 | HDB buyers (HDB loan) | LTV 80%→75% |
+| EC Policy Overhaul | 8 May 2026 | EC (future GLS) | MOP 5yr→**10yr**; full privatisation 15yr; DPS removed |
+
+---
+
+### Which Segment Is Most Affected?
+
+**By volume shock: Private resale.** Q1 2026 private transactions fell -39.7% qoq. Sub-sales hit their lowest since Q2 2020 — the SSD did exactly what it was designed to do.
+
+**By price index: HDB, not private.** This is the data surprise. Private prices actually *rose* +0.9% qoq (OCR led at +2.2%). HDB RPI fell -0.1% qoq — the **first quarterly decline since 2019** — and dropped a further -0.6% mom in April. The LTV cut is now biting, amplified by 13,480 MOP units hitting the market in 2026 (up 93% yoy).
+
+**By structural disruption: EC.** The May 8 overhaul kills the "EC carry trade" investment logic entirely. EC as a wealth vehicle is dead for new sites.
+
+---
+
+### 90-Day Post-Measure Data Points
+
+- Private rental fell -1.2% qoq (no buyer-pause → rent spike; record completions absorbed displacement)
+- Developers held price — no cuts, just managed launch cadence
+- Rivelle Tampines (pre-overhaul EC): 92.5% cleared at launch; Coastal Cabana: 66% day 1 — buyers rushed last "old rules" EC window
+- April 2026: Tengah (863 units, 99% cleared) + Vela Bay (515 units, 72% day 1) prove latent demand is intact when product/price is right
+
+---
+
+### Contrarian Plays
+
+1. **OCR private resale** — lower psf than new launches in same sub-markets; SSD freeze created motivated sellers; entry window before buyer pool expands
+2. **HDB mature estate resale** — "first decline in 7 years" is creating artificial hesitation; premium transactions ($1M+) still at record volumes (412 in Q1); genuine reprieve for HDB upgrader clients priced out in 2024-25
+3. **CCR is a 12-24 month watch** — not a Q3 2026 play; needs ABSD relaxation or foreign capital acceleration
+
+**Avoid:** New EC under post-8 May rules for any investor-oriented client. The exit mechanics are gone.
+
+---
+
+**Client action items flagged:**
+- Check any OCR resale client purchased 2021–2023 — some may have cleared the 4-year SSD window now
+- "HDB first decline" will drive inbound enquiries — position this as a buying window for upgraders, not a bearish signal
+
+
+=== stderr ===
+

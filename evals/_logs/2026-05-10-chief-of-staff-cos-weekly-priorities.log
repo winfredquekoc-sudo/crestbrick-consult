@@ -1,0 +1,38 @@
+=== prompt ===
+Use the chief-of-staff agent: It's Monday morning. Summarize this week's top 3 priorities across the C-suite pod given Q2 lead targets and the new SEO content push.
+
+=== rc ===
+0
+
+=== duration_ms ===
+59208
+
+=== stdout ===
+Here's your Monday morning brief:
+
+---
+
+## Week of 10 May 2026 — Top 3 Priorities
+
+**Priority 1 — SEO Content: Get First Articles Indexed**
+*Owner: content-director → seo-content-agent → social-media-manager gate*
+
+Publish 3 long-form articles to winfredquek.com targeting high-intent queries ("HDB upgrade to condo Singapore 2026", "decoupling property Singapore", "D10 condo investment guide"). No organic content is indexed yet — every week without it is compounding delay on Q2 top-of-funnel. Done when 3 URLs are live with internal links to tools and listing pages.
+
+**Priority 2 — Security: Close the Two Permission Blockers**
+*Owner: security → developer*
+
+Two critical findings from the 3 May review are unresolved: `.env.local` and WhatsApp session DBs are both at mode 644 (world-readable), exposing Neon Postgres credentials and the WA pipeline. These are live credential risks on a 372-job automation stack. Done when both are at mode 600 and no automation breaks.
+
+**Priority 3 — clients.db: Fill Structural Data Gaps**
+*Owner: client-lifecycle → relationship-manager*
+
+6 of 21 active client records are missing IPA, CPF data, or proper stage. referral-engine, nurture-drip, and milestone-tracker are all stalled waiting on this. Done when all 21 records have a stage + contact log, and at least 3 closed clients are flagged for referral-engine.
+
+---
+
+**The thread:** SEO drives top-of-funnel → security keeps the pipeline intact → clean client data unlocks the referral loop. All three compound into Q2 numbers.
+
+
+=== stderr ===
+

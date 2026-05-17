@@ -1,0 +1,50 @@
+=== prompt ===
+Use the chief-operating-officer agent: We are adding 2 new automation jobs (price-watcher, listing-scraper). Do we have launchd capacity and where should they live?
+
+=== rc ===
+0
+
+=== duration_ms ===
+68775
+
+=== stdout ===
+Here's the COO assessment:
+
+---
+
+**Capacity: No issue.** macOS has no hard launchd cap — 295 active plists are fine and 2 more are trivial. The only real risk is scheduling collisions.
+
+---
+
+**Where they should live** (following 100% of existing jobs):
+
+| Asset | Path |
+|---|---|
+| Script | `~/.claude/bin/price-watcher.sh` / `listing-scraper.sh` |
+| Plist | `~/Library/LaunchAgents/com.crestbrick.price-watcher.plist` / `com.crestbrick.listing-scraper.plist` |
+| Logs | `~/.claude/bin/<job-slug>.launchd.{out,err}.log` |
+
+**Do not** use `/crestbrick-consult/scripts/` — that's for one-off ingest scripts, not the automation stack.
+
+---
+
+**Recommended cadence:**
+- `price-watcher`: `StartCalendarInterval` at 09:10, 12:00, 15:00 SGT (avoids the 09:00 cluster of existing watchers)
+- `listing-scraper`: Once daily at 04:30 SGT (off-peak, before the morning burst)
+
+---
+
+**Key risks flagged:**
+
+1. **Overlap** — Several existing jobs may already cover the same ground (`hdb-price-alert`, `watchlist-price-alert`, `competitive-listing-scout`, `wa-group-listing-scraper`). Confirm the new jobs have distinct scope before adding.
+2. **Log bloat** — 295+ jobs = 590+ log files with no rotation visible. Add a `truncate` line in both new scripts before this grows further.
+3. **Duplicate network calls** — If price-watcher hits PropertyGuru/data.gov.sg at the same time as existing watchers, you're making redundant calls. Consider having new jobs consume state files written by existing jobs instead.
+4. **`RunAtLoad false`** — Keep this set on both new plists to avoid a flood at `launchctl load` time.
+
+---
+
+Bottom line: safe to add both jobs, but confirm they're not near-duplicates of 6 existing jobs first. Ready to scaffold the plists and scripts if you want to proceed.
+
+
+=== stderr ===
+

@@ -1,0 +1,54 @@
+=== prompt ===
+Use the seo-content-agent agent: Suggest 5 internal-link opportunities from a new 'EC vs Condo' article to existing Crestbrick content.
+
+=== rc ===
+0
+
+=== duration_ms ===
+123608
+
+=== stdout ===
+All 5 target pages are confirmed to exist. Here are the internal-link recommendations for your EC vs Condo article:
+
+---
+
+**1. HDB Upgrader Guide → `/insights/hdb-upgrader-guide.html`**
+- **Anchor text:** `HDB-to-condo upgrade path`
+- **Where it fits:** In the section explaining the typical EC buyer profile (coming off an HDB lease)
+- **Sentence:** *"Most EC buyers are coming off an HDB lease, which makes timing and cash flow just as important as the price gap — the full mechanics are mapped out in the [HDB-to-condo upgrade path] guide."*
+
+---
+
+**2. ABSD Calculator → `/absd-calculator.html`**
+- **Anchor text:** `calculate your exact ABSD liability`
+- **Where it fits:** In the ABSD exemption section (ECs for first-timers are ABSD-exempt; private condos are not)
+- **Sentence:** *"If you already own an HDB and buy before disposing of it, ABSD applies — [calculate your exact ABSD liability] based on your buyer profile and purchase price."*
+
+---
+
+**3. CPF Accrued Interest Trap → `/insights/cpf-accrued-interest-trap.html`**
+- **Anchor text:** `CPF accrued interest on your HDB`
+- **Where it fits:** In the cost-comparison or proceeds section
+- **Sentence:** *"Before committing to either path, model the [CPF accrued interest on your HDB] — this silent cost regularly erases $80,000–$120,000 of apparent sale proceeds."*
+
+---
+
+**4. New Launch vs Resale → `/insights/new-launch-vs-resale.html`**
+- **Anchor text:** `new launch vs resale condo decision framework`
+- **Where it fits:** In the section noting ECs are always new launches with progressive payment risk
+- **Sentence:** *"ECs are always new launches with a 3–4 year wait — before deciding, run the same [new launch vs resale condo decision framework] you'd apply to any private project."*
+
+---
+
+**5. Freehold vs Leasehold → `/insights/freehold-vs-leasehold.html`**
+- **Anchor text:** `freehold vs leasehold trade-off`
+- **Where it fits:** In the tenure comparison section (all ECs are 99-year; private condos can be freehold)
+- **Sentence:** *"All ECs are 99-year leasehold; private condos give you a choice — if tenure matters to your exit plan, the [freehold vs leasehold trade-off] article models how lease decay affects resale value over 20 years."*
+
+---
+
+All 5 paths verified against the live site. The cluster these links form (upgrader journey → ABSD cost → CPF cost → new-launch timing → tenure strategy) maps the entire decision arc an EC-vs-condo reader is working through, which signals strong topical authority to Google.
+
+
+=== stderr ===
+

@@ -1,0 +1,86 @@
+=== prompt ===
+/afford 33000 0 1000000 2500000 — foreigner on EP. Apply 60% ABSD. Is it sensible?
+
+=== rc ===
+0
+
+=== duration_ms ===
+73503
+
+=== stdout ===
+Now I have the exact rates. Computing:
+
+---
+
+## Affordability Check — Foreigner on EP
+
+**Inputs:** Income $33,000/mo · Debts $0 · Cash $1,000,000 · Target $2,500,000 · ABSD 60%
+
+---
+
+### TDSR — PASS
+
+| Line | Calculation | Amount |
+|---|---|---|
+| TDSR ceiling (55%) | $33,000 × 55% | $18,150/mo |
+| Loan (75% LTV) | $2,500,000 × 75% | $1,875,000 |
+| Monthly repayment (stress 4.0%, 30yr) | ~$8,942/mo | — |
+| TDSR ratio | $8,942 ÷ $33,000 | **27.1%** ✓ |
+| TDSR headroom remaining | $18,150 − $8,942 | $9,208/mo |
+
+Income supports the loan comfortably. TDSR is no issue.
+
+---
+
+### Cash Stack — HARD FAIL
+
+| Item | Calculation | Amount |
+|---|---|---|
+| Min cash downpayment (5%) | $2,500,000 × 5% | $125,000 |
+| CPF top-up to 25% | Foreigner on EP — **no CPF** | $500,000 cash |
+| Total downpayment (cash) | 25% × $2,500,000 | **$625,000** |
+| ABSD (60%) | $2,500,000 × 60% | **$1,500,000** |
+| BSD | See brackets below | **$94,600** |
+| Legal fees (est.) | — | $3,000 |
+| **Total upfront cash required** | | **$2,222,600** |
+| Cash available | | $1,000,000 |
+| **Shortfall** | | **−$1,222,600** |
+
+BSD breakdown: $1,800 + $3,600 + $19,200 + $20,000 + $50,000 = $94,600
+
+---
+
+### Is it sensible?
+
+**No. The ABSD alone ($1.5M) exceeds the client's entire cash savings ($1M).** The income is strong — TDSR clears with room — but cash stack is unworkable by $1.22M.
+
+---
+
+### What's the max viable target?
+
+Working backwards from $1M cash with 60% ABSD:
+
+| Budget band | ABSD | Downpayment (cash) | BSD | Total cash | Verdict |
+|---|---|---|---|---|---|
+| $1,100,000 | $660,000 | $275,000 | $28,600 | $966,600 | **Tight but possible** |
+| $1,200,000 | $720,000 | $300,000 | $32,600 | $1,055,600 | Over |
+| $1,000,000 | $600,000 | $250,000 | $24,600 | $877,600 | Comfortable |
+
+**Realistic max: ~$1.05–1.1M** if spending close to the ceiling.
+
+---
+
+### Risk Flags
+
+1. **ABSD is non-negotiable and non-remissible for foreigners** — no structure (99-to-1, trust, etc.) eliminates it without genuine SC/PR co-ownership.
+2. **No CPF access** — full 25% downpayment must be cash, not partially CPF-funded.
+3. **PR conversion path** — if client obtains PR, ABSD drops to 5% on first purchase. Worth exploring timeline.
+4. **Commercial/industrial** — exempt from ABSD entirely; if investment intent is yield, consider commercial strata.
+
+---
+
+**Verdict:** At $2.5M, the cash requirement is $2.22M against $1M available — a $1.22M gap that income cannot bridge (banks won't lend ABSD). If the client is serious about SG residential, either (a) target ≤$1.1M, (b) pursue PR first, or (c) bring co-ownership with an SC/PR to partially offset ABSD.
+
+
+=== stderr ===
+

@@ -1,0 +1,35 @@
+=== prompt ===
+Use the chief-operating-officer agent: We are adding 2 new automation jobs (price-watcher, listing-scraper). Do we have launchd capacity and where should they live?
+
+=== rc ===
+0
+
+=== duration_ms ===
+75074
+
+=== stdout ===
+Here's the COO's assessment:
+
+---
+
+**Capacity: Green.** Live count is 285 plists (your memory had 372 — stale figure). No hard macOS cap; at 285 low-frequency jobs there's zero headroom risk.
+
+**Where they go:**
+- Plists: `~/Library/LaunchAgents/com.crestbrick.price-watcher.plist` and `com.crestbrick.listing-scraper.plist`
+- Scripts: `~/.claude/bin/price-watcher.sh` and `~/.claude/bin/listing-scraper.sh` (same convention as existing jobs)
+
+**Recommended schedules:**
+- `price-watcher`: Twice daily at **07:00 and 19:00 SGT** (catches overnight changes + same-day reductions); add a weekly Sunday 03:00 trigger for data.gov.sg URA transaction data
+- `listing-scraper`: **Hourly** (`StartInterval 3600`) — existing portal scrapers already run at 30-min intervals; hourly avoids doubling the hit rate and rate-limit risk
+
+**Key risks to handle:**
+1. **Stagger listing-scraper to :30 past the hour** — three other jobs already hit PropertyGuru/99.co, avoid simultaneous requests
+2. **Scope price-watcher to private residential only** — `watchlist-price-alert.sh` and `hdb-price-alert.sh` already cover HDB; don't duplicate
+3. **Use upserts (`ON CONFLICT DO UPDATE`)** in DB writes — existing jobs share the same Postgres instance
+4. **Credentials via `EnvironmentVariables` in the plist**, not hardcoded in scripts (follow `wa-group-listing-scraper` pattern)
+
+Ready to build the plists and scripts whenever you are.
+
+
+=== stderr ===
+

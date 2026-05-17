@@ -1,0 +1,58 @@
+=== eval run 2026-05-03T09-00-02Z ===
+[run]  chief-of-staff: 4 case(s)
+  PASS chief-of-staff/cos-weekly-priorities (50655ms)
+  FAIL chief-of-staff/cos-conflict-routing (139350ms) :: missing expected_contains: 'budget'; missing expected_contains: 'trade'
+  FAIL chief-of-staff/cos-quarterly-okr (55424ms) :: missing expected_contains: 'key result'
+  FAIL chief-of-staff/cos-incident-triage (240030ms) :: non-zero rc: 124; missing expected_contains: 'incident'; missing expected_contains: 'root cause'; missing expected_contains: 'owner'; duration 240030ms > max_duration_ms 240000ms
+[run]  chief-operating-officer: 4 case(s)
+  FAIL chief-operating-officer/coo-tool-health (240039ms) :: non-zero rc: 124; missing expected_contains: 'WhatsApp'; missing expected_contains: 'Telegram'; missing expected_contains: 'Vercel'; missing expected_contains: 'cron'; duration 240039ms > max_duration_ms 240000ms
+  FAIL chief-operating-officer/coo-runbook (137789ms) :: missing expected_contains: 'whatsmeow'
+  FAIL chief-operating-officer/coo-capacity (75074ms) :: missing expected_contains: 'launchd'
+  FAIL chief-operating-officer/coo-vendor-sla (94015ms) :: missing expected_contains: 'mitigation'
+[run]  developer: 5 case(s)
+  FAIL developer/dev-website-fix (240039ms) :: non-zero rc: 124; missing expected_contains: 'bg-'; missing expected_contains: 'Tailwind'; missing expected_contains: 'd15'; duration 240039ms > max_duration_ms 240000ms
+  FAIL developer/dev-mcp-update (240040ms) :: non-zero rc: 124; missing expected_contains: 'axios'; missing expected_contains: 'upgrade'; missing expected_contains: 'test'; duration 240040ms > max_duration_ms 240000ms
+  PASS developer/dev-deploy-discipline (47570ms)
+  FAIL developer/dev-cron-script (113268ms) :: missing expected_contains: 'launchd'
+  FAIL developer/dev-rollback (240037ms) :: non-zero rc: 124; missing expected_contains: 'rollback'; missing expected_contains: 'migration'; missing expected_contains: 'leads'; duration 240037ms > max_duration_ms 240000ms
+[run]  security: 4 case(s)
+  FAIL security/sec-cred-rotate (108421ms) :: missing expected_contains: 'rotate'
+  FAIL security/sec-pdpa-audit (172540ms) :: missing expected_contains: 'deletion'
+  PASS security/sec-leak-check (118619ms)
+  PASS security/sec-access-review (195134ms)
+[run]  financial-advisor: 5 case(s)
+  PASS financial-advisor/fin-absd-sc-2nd (61069ms)
+  PASS financial-advisor/fin-tdsr-msr (49930ms)
+  FAIL financial-advisor/fin-decoupling (165103ms) :: missing expected_contains: 'stamp duty'
+  PASS financial-advisor/fin-rental-yield (83060ms)
+  PASS financial-advisor/fin-cpf-accrued (98505ms)
+[run]  seo-content-agent: 4 case(s)
+  PASS seo-content-agent/seo-d15-deepdive (184983ms)
+  FAIL seo-content-agent/seo-absd-explainer (240040ms) :: non-zero rc: 124; missing expected_contains: 'ABSD'; missing expected_contains: 'foreigner'; missing expected_contains: 'SPR'; duration 240040ms > max_duration_ms 240000ms
+  FAIL seo-content-agent/seo-internal-link (123608ms) :: missing expected_contains: 'internal link'
+  PASS seo-content-agent/seo-meta-title (38382ms)
+[run]  competitor-scanner: 4 case(s)
+  FAIL competitor-scanner/comp-propnex-content (240042ms) :: non-zero rc: 124; missing expected_contains: 'PropNex'; missing expected_contains: 'ERA'; missing expected_contains: 'gap'; duration 240042ms > max_duration_ms 240000ms
+  FAIL competitor-scanner/comp-keyword-overlap (240043ms) :: non-zero rc: 124; missing expected_contains: 'keyword'; missing expected_contains: 'stackedhomes'; missing expected_contains: 'ranking'; duration 240043ms > max_duration_ms 240000ms
+  PASS competitor-scanner/comp-pricing-sheet (215617ms)
+  FAIL competitor-scanner/comp-launch-watch (240045ms) :: non-zero rc: 124; missing expected_contains: 'Lentor Mansion'; missing expected_contains: 'competitor'; duration 240045ms > max_duration_ms 240000ms
+[run]  market-scout: 4 case(s)
+  FAIL market-scout/scout-d15-deepdive (240046ms) :: non-zero rc: 124; missing expected_contains: 'D15'; missing expected_contains: 'PSF'; missing expected_contains: 'median'; duration 240046ms > max_duration_ms 240000ms
+  FAIL market-scout/scout-launch-radar (240043ms) :: non-zero rc: 124; missing expected_contains: 'CCR'; missing expected_contains: 'launch'; missing expected_contains: 'developer'; duration 240043ms > max_duration_ms 240000ms
+  FAIL market-scout/scout-rental-heatmap (240046ms) :: non-zero rc: 124; missing expected_contains: 'rental'; missing expected_contains: 'district'; missing expected_contains: 'MRT'; duration 240046ms > max_duration_ms 240000ms
+  FAIL market-scout/scout-policy-impact (240040ms) :: non-zero rc: 124; missing expected_contains: 'cooling'; missing expected_contains: 'measure'; missing expected_contains: 'segment'; duration 240040ms > max_duration_ms 240000ms
+[run]  property-researcher: 4 case(s)
+  FAIL property-researcher/prop-project-dossier (240040ms) :: non-zero rc: 124; missing expected_contains: 'Continuum'; missing expected_contains: 'PSF'; missing expected_contains: 'unit mix'; duration 240040ms > max_duration_ms 240000ms
+  FAIL property-researcher/prop-mrt-school-match (240039ms) :: non-zero rc: 124; missing expected_contains: 'Nanyang'; missing expected_contains: 'MRT'; missing expected_contains: 'freehold'; duration 240039ms > max_duration_ms 240000ms
+  FAIL property-researcher/prop-resale-vs-new (240046ms) :: non-zero rc: 124; missing expected_contains: 'resale'; missing expected_contains: 'new launch'; missing expected_contains: 'PSF'; duration 240046ms > max_duration_ms 240000ms
+  FAIL property-researcher/prop-en-bloc-risk (240047ms) :: non-zero rc: 124; missing expected_contains: 'en bloc'; missing expected_contains: 'freehold'; missing expected_contains: 'District 10'; duration 240047ms > max_duration_ms 240000ms
+[run]  afford: 5 case(s)
+  PASS afford/afford-25k-family (160397ms)
+  PASS afford/afford-hdb-upgrader (135120ms)
+  PASS afford/afford-ec-eligibility (125326ms)
+  PASS afford/afford-foreigner-purchase (73503ms)
+  FAIL afford/afford-stress-test (194427ms) :: duration 194427ms > max_duration_ms 180000ms
+
+Results: 15/43 passed -> /Users/winfredquek/crestbrick-consult/evals/results/2026-05-03.jsonl
+[telegram] tg-send.sh not found; skipping summary
+=== exit 1 ===

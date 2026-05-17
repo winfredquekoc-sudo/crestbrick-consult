@@ -1,0 +1,59 @@
+=== prompt ===
+Use the chief-operating-officer agent: Vercel had a 12-min outage yesterday. What's our SLA exposure and mitigation?
+
+=== rc ===
+0
+
+=== duration_ms ===
+109057
+
+=== stdout ===
+Here's the COO's full assessment:
+
+---
+
+## Vercel Outage — 2026-05-09 (12 min) | SLA & Mitigation Report
+
+### SLA Exposure
+
+| Vercel Plan | Allowable Downtime/Month | 12-min Outage | Status |
+|---|---|---|---|
+| Hobby | None (no SLA) | N/A | No claim possible |
+| Pro | 4.38 min | 99.973% uptime | **Breach — credit claimable** |
+
+**No client-facing SLA exists** in Crestbrick's service agreements. Exposure is reputational only, not contractual.
+
+**Important:** If this is the second outage in May (previous on 2026-05-02), combined downtime is ~24 min — well above the Pro threshold. Both may be claimable.
+
+---
+
+### What Went Down
+All Vercel-hosted touchpoints: website, portal, all 30+ tools, all API endpoints, lead capture forms.
+
+**Not affected:** WhatsApp, Calendly, Telegram bot, n8n pipeline (all independent infrastructure).
+
+---
+
+### Biggest Gap
+No uptime monitor — detection is currently reactive. A lead who hit the site during that 12-minute window is unrecoverable (no server-side form submission log).
+
+---
+
+### Recommended Actions (Ranked)
+
+1. **This week (free):** Set up UptimeRobot → webhook alert to Telegram when site goes down. 5-minute detection instead of reactive.
+2. **Next sprint (free):** Migrate `mailto:` forms to Tally or Formspree. Submissions logged; form survives even if Vercel is down.
+3. **Skip:** Multi-CDN failover, custom caching, client SLA commitments — overkill at current scale.
+
+---
+
+### Decisions Needed From You
+
+1. **Check your Vercel plan** (vercel.com/dashboard → Billing). Hobby = no claim possible. Pro = file SLA credit claims for both May outages **before 2026-06-02**.
+2. If Hobby and outages recur: consider migrating to **Cloudflare Pages** (free, independent infrastructure, same static deploy workflow).
+
+SOP updated with the 2026-05-09 incident logged.
+
+
+=== stderr ===
+

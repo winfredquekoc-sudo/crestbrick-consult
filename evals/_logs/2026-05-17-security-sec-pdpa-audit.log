@@ -1,0 +1,66 @@
+=== prompt ===
+Use the security agent: A lead asks under PDPA: what data do we hold, where is it stored, and how do they request deletion?
+
+=== rc ===
+0
+
+=== duration_ms ===
+146697
+
+=== stdout ===
+Here's what the security agent produced — two sections:
+
+---
+
+## Section A — Internal Guide (for Winfred)
+
+**Data you hold on a lead, mapped to system:**
+
+| Category | System |
+|---|---|
+| Name, phone, email | `~/real-estate-agent/clients/[slug]/profile.md`, `clients.db`, `wa-lead-queue.jsonl` |
+| Conversation history | WhatsApp bridge `messages.db`, `wa-history.md` |
+| Property interests / financial indicators | `profile.md`, `plan.md`, `clients.db` |
+| Booking data | Calendly (cloud) + Google Calendar |
+| Email correspondence | Gmail / Google Drive |
+| Website form submissions | Neon Postgres DB + Vercel logs |
+| Drip/newsletter subscription | `drip-subscribers.jsonl`, Neon Postgres |
+| Telegram bot interactions | `~/.claude/state/` bot logs |
+| n8n workflow execution logs | n8n instance |
+
+**Retention carve-outs (cannot delete):**
+- Completed transaction records: must keep **5 years** under CEA / Estate Agents Act — but this applies only to transacted clients, not unconverted leads.
+- IRAS records: 5 years for property transaction documents.
+
+**10-step deletion checklist** covers: local Mac files → WhatsApp bridge SQLite → Gmail/Drive/Calendar → Calendly → Telegram → PropertyGuru/99.co (advise them to request directly) → Canva → Neon/Vercel → n8n → document and confirm.
+
+---
+
+## Section B — Draft Response to the Lead
+
+Ready to send via WhatsApp or email:
+
+> Hi [Name],
+>
+> Thank you for reaching out. Under PDPA, I'm happy to provide full transparency.
+>
+> **What I may hold:** Name, phone, email, enquiry details (property, budget, timeline), WhatsApp conversation history, meeting booking details (Calendly), and website form submissions.
+>
+> **Where it's stored:** My work computer (local files and database), Google Workspace (Gmail/Calendar), Calendly, and the WhatsApp bridge I use for client conversations. If your enquiry came via PropertyGuru or 99.co, they hold their own copy independently.
+>
+> **Data Access Request:** Email me at winfredquekoc@gmail.com with subject "PDPA Data Access Request — [Your Name]". I'll respond within 10 business days.
+>
+> **Deletion Request:** Email with subject "PDPA Deletion Request — [Your Name]". I'll delete from all systems I control within 10 business days and confirm in writing. Note: if we completed a transaction, CEA requires me to retain transaction records for 5 years — everything else would be deleted.
+>
+> For PropertyGuru/99.co data, contact them directly at dpo@propertyguru.com.sg.
+>
+> Warm regards,
+> Winfred Quek | CEA R073319H | PropNex Realty
+
+---
+
+**Key things to note before sending:** replace [Name], trim the "where it's stored" section to only what actually applies for this specific person, and if they're a mid-transaction client, check with PropNex compliance before acting on a deletion request.
+
+
+=== stderr ===
+

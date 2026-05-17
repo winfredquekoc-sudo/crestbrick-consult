@@ -1,0 +1,37 @@
+=== prompt ===
+Use the financial-advisor agent: Couple combined income $18,000/month, no existing loans. Max loan under TDSR 55% and MSR 30% for an EC?
+
+=== rc ===
+0
+
+=== duration_ms ===
+49930
+
+=== stdout ===
+Here's the EC affordability summary:
+
+---
+
+**EC Max Loan — Couple, $18,000 Combined Income**
+
+| Item | Figure |
+|---|---|
+| TDSR ceiling (55%) | $9,900/month |
+| **MSR ceiling (30%)** | **$5,400/month** |
+| **Binding constraint** | **MSR** (EC rule) |
+| Max monthly repayment | $5,400 |
+| Max loan quantum | **~$1,078,800** |
+| Max property price (75% LTV) | **~$1,438,400** |
+
+**Key points:**
+- **MSR binds**, not TDSR — the EC rule cuts borrowing power roughly in half vs a private condo purchase
+- Assumptions: 25-year tenure, 3.5% stress-test rate, bank loan (HDB loan ineligible for EC), first property (75% LTV)
+- **Upfront funds needed:** ~$360K downpayment + ~$33K BSD = ~$393K before legal/agent fees
+  - Minimum 5% cash (~$72K); balance can be CPF OA
+- CPF accrued interest (2.5% p.a.) will reduce net proceeds on eventual sale — worth running a full CPF optimizer if they're close to retirement
+
+Want me to run a BSD breakdown, CPF strategy, or stress-test on this?
+
+
+=== stderr ===
+

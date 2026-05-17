@@ -1,0 +1,46 @@
+=== prompt ===
+Use the market-scout agent: List all new launches expected in CCR within the next 6 months with developer and tentative TOP.
+
+=== rc ===
+0
+
+=== duration_ms ===
+196073
+
+=== stdout ===
+Here's the CCR new launch pipeline as at 17 May 2026:
+
+---
+
+### Active Sales (Units Still Available)
+
+| Project | District | Developer | Launch Date | Est. TOP |
+|---|---|---|---|---|
+| Newport Residences | D2 — Tanjong Pagar | CDL | 31 Jan 2026 | Mar 2030 |
+| River Modern | D9 — River Valley | GuocoLand | Mar 2026 | 2030 |
+| Sophia Meadow | D9 — Mt Sophia | Sin Thai Hin | Q1 2026 | Nov 2029 |
+
+---
+
+### Confirmed Pre-Launches (Before 17 Nov 2026)
+
+| Project | District | Developer | Expected Launch | Est. TOP |
+|---|---|---|---|---|
+| Dunearn House | D11 — Turf City / Bukit Timah | Frasers Property + Sekisui House + CSC Land | July 2026 | 2029–2030 |
+| The Serra Residences | D11 — Novena / Bassein Rd | Far East Organization | Q3 2026 | ~2029 |
+| Holland Link | D10 — Holland Plain / Old Holland Rd | Sim Lian Land | Q4 2026 | ~Q4 2029 |
+
+---
+
+### Key Intel for Clients
+
+- **Only 3 confirmed new launches** before November — all outside the D9 Orchard/River Valley strip. The classic D9 belt has nothing new until 2027–2028 at earliest (Peck Hay Road and River Valley Green GLS are still in tender).
+- **Freehold scarcity:** Newport Residences (D2) and The Serra Residences (D11, 133 units only) are the only FH options this cycle. Flag this for FH-only buyers.
+- **Turf City masterplan play:** Dunearn House VVIP preview is expected before July — clients interested in D11 upside should be registered by June.
+- **D1/D3/D4 (Marina Bay, Alexandra, Harbourfront):** No new launches in this window at all.
+
+Want me to register any clients for VVIP preview at Dunearn House or The Serra, or run a financial model on any of these projects?
+
+
+=== stderr ===
+

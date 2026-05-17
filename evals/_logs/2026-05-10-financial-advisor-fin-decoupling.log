@@ -1,0 +1,70 @@
+=== prompt ===
+Use the financial-advisor agent: Married SC couple wants to decouple to buy a 2nd property without ABSD. Walk through legal feasibility and costs.
+
+=== rc ===
+0
+
+=== duration_ms ===
+146773
+
+=== stdout ===
+Here's the full advisory memo the agent produced:
+
+---
+
+## Decoupling Advisory — Married SC Couple (Private Condo S$1.2M → Buy 2nd at S$1.5M)
+
+### Bottom Line Up Front
+**Net saving: S$282,400. Decoupling cost: ~S$17,600. No contest — do it.**
+
+---
+
+### 1. Legal Feasibility
+- **Allowed for private property. Not allowed for HDB** — HDB prohibits decoupling as an ABSD-avoidance strategy.
+- Requires: lender consent for loan re-assignment, CPF Board refund, SLA title update.
+- The "freed" transferor spouse is a 0-property SC and pays 0% ABSD on the 2nd purchase.
+
+### 2. Stamp Duty on the Transfer (50% share = S$600K consideration)
+| Item | Amount |
+|---|---|
+| BSD on S$600K | **S$12,600** |
+| ABSD (inter-spouse remission) | **S$0** |
+
+ABSD remission is granted under the Stamp Duties (Spouses) Rules — but comes with a **3-year clawback** if the property is then sold.
+
+### 3. CPF Impact
+- Transferring spouse must refund ~S$115K (principal ~S$100K + accrued interest ~S$15K) back to their own OA.
+- Not a loss — it's recoverable and redeployable for the 2nd purchase.
+- Receiving spouse needs ~S$197,600 in cash to cover equity gap + BSD.
+
+### 4. Loan Restructuring (TDSR)
+- Receiving spouse qualifies **solo** on the full S$600K loan.
+- Minimum gross income required (MAS stress-rate 4%): **~S$5,755/month**.
+- This is the single biggest execution risk — verify with a bank IPA before proceeding.
+
+### 5. ABSD Saved vs. Cost
+| | Amount |
+|---|---|
+| ABSD on S$1.5M 2nd purchase (SC, 2nd property) | S$300,000 |
+| Total decoupling cost | S$17,600 |
+| **Net saving** | **S$282,400** |
+| Break-even 2nd property price | S$88,000 |
+
+Decoupling pays off at virtually any realistic property price.
+
+### 6. Key Risks
+1. **SSD** — if current condo was bought <3 years ago, SSD applies on the transfer (up to 12% in Y1 = S$72K). Still net-positive vs ABSD, but check purchase date first.
+2. **ABSD remission clawback** — selling the transferred property within 3 years triggers S$120K clawback from IRAS.
+3. **Lender refusal** — bank may require full re-underwriting; run IPA before signing anything.
+4. **Sequence risk** — transferor must NOT exercise OTP on 2nd property until SLA title reflects sole ownership by the receiving spouse. IRAS audits the sequence.
+
+### Recommended Action Sequence
+1. Confirm receiving spouse's solo TDSR with DBS/OCBC this week (IPA).
+2. Check purchase date of current condo (SSD window?).
+3. Appoint conveyancer + notify bank.
+4. Complete SLA title transfer.
+5. Only then — exercised OTP on the 2nd property.
+
+
+=== stderr ===
+

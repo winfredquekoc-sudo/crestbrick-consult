@@ -1,0 +1,26 @@
+=== prompt ===
+Use the chief-operating-officer agent: Create a runbook for restarting the whatsapp-bridge Go binary when it disconnects.
+
+=== rc ===
+0
+
+=== duration_ms ===
+128210
+
+=== stdout ===
+The runbook is written to `/Users/winfredquek/crestbrick-consult/docs/runbook-whatsapp-bridge-restart.md`. Here's what the COO agent produced:
+
+**Covers the full midnight-incident flow:**
+1. **Diagnose** — 4 checks: `pgrep`, `curl :8080/health`, log scan, `launchctl list`
+2. **Standard fix** — launchd unload/reload (resolves ~90% of cases in 30s)
+3. **Manual fallback** — `nohup` launch if the job isn't loaded
+4. **Verify reconnection** — session resume check + self-send test to confirm messages flow
+5. **5 specific failure modes** — silent disconnect, QR re-pair needed, `405 client-outdated` (requires binary rebuild), port conflict, SQLite lock — each with exact fix commands
+6. **Escalation table** — clear stop-and-call conditions
+7. **Prevention** — confirms `KeepAlive true` + `ThrottleInterval 30` are already set in the live plist
+
+**Note from the agent:** there's an older `runbook-whatsapp-bridge.md` at the same path with partial overlap — you may want to delete that one to avoid confusion.
+
+
+=== stderr ===
+

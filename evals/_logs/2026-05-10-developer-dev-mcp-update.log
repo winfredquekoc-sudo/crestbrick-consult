@@ -1,0 +1,15 @@
+=== prompt ===
+Use the developer agent: higgsfield-mcp dependency has a CVE in axios. Plan the upgrade.
+
+=== rc ===
+124
+
+=== duration_ms ===
+240037
+
+=== stdout ===
+
+
+=== stderr ===
+
+[harness] timed out after 240s

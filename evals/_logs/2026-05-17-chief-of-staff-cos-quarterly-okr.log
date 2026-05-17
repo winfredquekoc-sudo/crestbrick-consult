@@ -1,0 +1,50 @@
+=== prompt ===
+Use the chief-of-staff agent: Draft Q3 OKRs for Crestbrick covering lead gen, content, and ops reliability.
+
+=== rc ===
+0
+
+=== duration_ms ===
+59842
+
+=== stdout ===
+Here are the Q3 2026 OKRs drafted by the chief-of-staff agent:
+
+---
+
+## Crestbrick Consult — Q3 2026 OKRs (July–September 2026)
+
+---
+
+### Objective 1: Build a consistent pipeline of qualified leads across all four ICP segments
+
+- **KR1.1** Qualify and contact at least 12 new inbound leads/month via WhatsApp; 40% conversion to Calendly 30-min call (36 leads, 15 booked calls for Q3).
+- **KR1.2** 1 targeted outreach campaign per ICP segment (HDB upgraders, business owners, expats, family offices) — 4 live by 31 Aug, each reaching 50+ contacts.
+- **KR1.3** Grow Telegram channel (winwithwinfred) by 25% by 30 Sep.
+- **KR1.4** Achieve 20% of new qualified leads sourced from past client referrals (tracked in clients.db).
+
+---
+
+### Objective 2: Establish Winfred Quek as the go-to voice on The Move framework and restructuring strategy
+
+- **KR2.1** 3 pieces/week across LinkedIn and Instagram; 60%+ anchored to The Move (M1–M5) or restructuring. Zero weeks under 2 posts.
+- **KR2.2** 12 weekly newsletters (every Thursday) at 35%+ open rate; each issue includes a $1.2M / $1.4M / $1.6M affordability illustration.
+- **KR2.3** 4 long-form insight articles on crestbrick-consult.vercel.app by 30 Sep, each with email capture + Calendly CTA — targeting 500 combined organic page views in Q3.
+- **KR2.4** 5-part "The Move" explainer series (one per M-stage) published across 2 channels by 31 Aug.
+
+---
+
+### Objective 3: Zero-downtime ops reliability across the automation stack and client delivery pipeline
+
+- **KR3.1** Reduce launchd jobs from 372 to under 250 by 31 Jul; documented runbook of all active jobs in `/docs`.
+- **KR3.2** WhatsApp bridge uptime above 99% for the quarter; any incident resolved within 2 hours (8am–10pm SGT).
+- **KR3.3** AI Audit PDF-to-Calendly n8n workflow formalised and verified on 3 test submissions by 31 Jul.
+- **KR3.4** No active client goes 14+ days without a logged touchpoint; weekly Monday audit in clients.db.
+
+---
+
+A few things worth noting: KR3.1 (launchd consolidation) is a meaningful Q3 cleanup task given the 372-job stack. KR2.4 on The Move series is a priority given the recent homepage rebrand. Want to adjust any targets or add a revenue/commission objective?
+
+
+=== stderr ===
+
