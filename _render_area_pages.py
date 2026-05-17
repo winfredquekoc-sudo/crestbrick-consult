@@ -55,6 +55,12 @@ FOOTER = """<footer class="divider bg-white">
       <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Information on this site is general and not legal or financial advice.</span></div>
     </div>
   </div>
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
 </footer>"""
 
 WA_FLOAT = """<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20question%20about%20{wa_ctx}." aria-label="Message Winfred on WhatsApp" class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

@@ -163,13 +163,9 @@
             <p class="text-[var(--ink-soft)] text-sm mb-6">For qualified family offices and UHNW investors. The brief will be sent to your email within 1 business day.</p>
 
             <form
-              action="https://formspree.io/f/FORMSPREE_ID"
-              method="POST"
-              onsubmit="trackFormSubmit('family_office_brief')"
+              id="fo-form"
+              onsubmit="return submitFOForm(event)"
             >
-              <input type="hidden" name="_subject" value="Family Office Brief Request" />
-              <input type="hidden" name="_next" value="/thank-you.html" />
-              <input type="hidden" name="tag" value="family_office_brief" />
 
               <div class="mb-4">
                 <label for="fo_name">Full name</label>
@@ -197,6 +193,28 @@
               </button>
               <p class="text-xs text-[var(--ink-muted)] mt-3 text-center">Your details are kept confidential and used only to send you the brief and relevant quarterly updates. Unsubscribe anytime.</p>
             </form>
+            <script>
+            async function submitFOForm(e) {
+              e.preventDefault();
+              trackFormSubmit('family_office_brief');
+              var form = document.getElementById('fo-form');
+              var btn = form.querySelector('button[type=submit]');
+              btn.disabled = true; btn.textContent = 'Sending...';
+              var payload = {
+                name: form.querySelector('[name="name"]').value,
+                email: form.querySelector('[name="email"]').value,
+                type: 'Family Office Brief',
+                message: 'Entity type: ' + form.querySelector('[name="entity_type"]').value
+              };
+              try {
+                var r = await fetch('/api/contact', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+                if (r.ok) { form.innerHTML = '<p class="text-center text-[var(--ink-soft)] py-6">Request received. The brief will be with you within 1 business day.</p>'; return false; }
+              } catch(_) {}
+              btn.disabled = false; btn.textContent = 'Request the brief';
+              alert('Something went wrong — email winfredquekoc@gmail.com directly.');
+              return false;
+            }
+            </script>
           </div>
 
           <div class="mt-6 text-center">
@@ -241,7 +259,14 @@
         This brief is for general information only and does not constitute investment, legal, or financial advice. ABSD, BSD, and property tax rates are subject to change. Always consult a qualified advisor before making investment decisions.
       </div>
     </div>
-  </footer>
+  
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
+</footer>
 
   <script>
     (function(){

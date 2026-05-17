@@ -137,7 +137,7 @@ Source: IRAS ,  verify at <https://www.iras.gov.sg> before transacting.
 - [Decoupling / restructuring calculator](https://winfredquek.com/tools/restructuring)
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield)
 - [Mortgage rate snapshot](https://winfredquek.com/tools/mortgage-rates)
-- [Property Portfolio Analysis](https://winfredquek.com/property-portfolio-analysis) ,  instant 4-Pillar.
+- [Property Portfolio Analysis](https://winfredquek.com/property-portfolio-analysis) ,  instant The Move.
 
 ### Open source
 

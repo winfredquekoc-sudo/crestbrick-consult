@@ -322,6 +322,13 @@
   <div class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-[var(--ink-muted)]">
     © 2026 Winfred Quek · Crestbrick · CEA R073319H · Portfolio analysis is informational, not regulated financial advice.
   </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
 </footer>
 
 <script>
@@ -884,18 +891,20 @@ renderOpening();
         answers: JSON.stringify(state.answers)
       };
 
-      var formData = new FormData();
-      Object.keys(payload).forEach(function(k) { formData.append(k, payload[k]); });
-
-      fetch('https://formspree.io/f/FORMSPREE_ID', {
+      fetch('/api/contact', {
         method: 'POST',
-        body: formData,
-        headers: { 'Accept': 'application/json' }
-      }).then(function(r) {
-        if (statusEl) statusEl.textContent = 'Done! Check your inbox. Winfred will review your partial analysis.';
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: 'PPA partial submission',
+          email: payload.email,
+          type: 'PPA Partial',
+          message: 'Step reached: ' + payload.step_reached + '\nAnswers: ' + payload.answers
+        })
+      }).then(function() {
+        if (statusEl) statusEl.textContent = 'Got it. Winfred will review your partial analysis and follow up.';
         setTimeout(dismissModal, 1800);
       }).catch(function() {
-        if (statusEl) statusEl.textContent = 'Saved locally. Winfred will follow up if you share your number.';
+        if (statusEl) statusEl.textContent = 'Saved. Winfred will follow up if you share your number.';
         setTimeout(dismissModal, 1800);
       });
     });

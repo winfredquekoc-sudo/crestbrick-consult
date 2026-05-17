@@ -300,7 +300,7 @@
 <div class="insight-cta-block" style="margin:3rem 0;padding:2rem;background:var(--highlight, #1c1e26);border:1px solid var(--rule, #2a2d38);border-radius:12px;text-align:center;">
   <p style="font-family:'Fraunces',Georgia,serif;font-size:1.4rem;font-weight:600;margin-bottom:.5rem;">Get Winfred's next analysis in your inbox</p>
   <p style="color:var(--ink-soft, #8b8fa8);font-size:.9rem;margin-bottom:1.5rem;">One property insight per week. No listings, no spam.</p>
-  <form action="https://formspree.io/f/FORMSPREE_ID" method="POST" style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
+  <form onsubmit="return submitInsightNewsletter(event,this)" style="display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap;">
     <input type="email" name="email" placeholder="your@email.com" required
       style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule, #2a2d38);background:var(--bg, #12141c);color:var(--ink, #e8e9f0);font-size:.95rem;min-width:220px;">
     <button type="submit"
@@ -308,6 +308,9 @@
       Subscribe
     </button>
   </form>
+<script>
+if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
+</script>
 </div>
 </article>
 
@@ -345,6 +348,13 @@
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
     <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H</p>
     <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Not legal or financial advice.</span></div>
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
   </div>
 </footer>
 
