@@ -228,11 +228,11 @@ function recalc(){
   var vText=document.getElementById('verdict');
   if(net > 0){
     vBox.style.background='#c6a36a';
-    document.getElementById('verdict-label').textContent='Net benefit — restructuring wins';
+    document.getElementById('verdict-label').textContent='Net benefit  --  restructuring wins';
     vText.innerHTML = 'Restructuring saves <strong style="color:#fff;">'+fmt(net)+'</strong>. Still factor in CPF accrued interest, SSD if applicable, and loan restructuring fees before committing. Book the property portfolio analysis for the full-stack read.';
   } else if(net < 0){
     vBox.style.background='#8b2f2f';
-    document.getElementById('verdict-label').textContent='Net cost — restructuring not worth it';
+    document.getElementById('verdict-label').textContent='Net cost  --  restructuring not worth it';
     vText.innerHTML = 'Restructuring would cost you <strong style="color:#fff;">'+fmt(-net)+'</strong> more than the ABSD saved. Don\'t do it, unless there\'s a non-financial reason (estate planning, divorce, etc.).';
   } else {
     vBox.style.background='#4a4a4a';
