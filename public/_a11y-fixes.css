@@ -123,3 +123,15 @@ html[data-theme="light"] select {
 /* ====== Geo-targeted CTA hooks (#289) ====== */
 [data-geo="foreign"] .wf-cta-sg { display: none; }
 [data-geo="sg"] .wf-cta-foreign { display: none; }
+
+/* ====== Quick Answer / AI citation block (#GEO-2026) ====== */
+.quick-answer {
+  border-left: 3px solid var(--accent, #c6a36a);
+  padding: 0.75rem 1rem;
+  margin: 1rem 0 1.5rem;
+  background: rgba(198, 163, 106, 0.07);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  border-radius: 0 4px 4px 0;
+}
+.quick-answer strong { color: var(--accent, #c6a36a); }

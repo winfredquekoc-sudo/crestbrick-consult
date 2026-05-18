@@ -25,6 +25,27 @@
       'address': {'@type':'PostalAddress','addressCountry':'SG'}
     },
     'areaServed': {'@type':'Country','name':'Singapore'},
+    'knowsAbout': [
+      'Additional Buyer\'s Stamp Duty Singapore',
+      'HDB upgrading Singapore',
+      'Ownership restructuring decoupling Singapore property',
+      'TDSR mortgage stress test Singapore',
+      'CPF accrued interest Singapore property',
+      'Singapore property cooling measures',
+      'Executive Condominium eligibility Singapore',
+      'ABSD remission married couples Singapore'
+    ],
+    'hasCredential': {
+      '@type': 'EducationalOccupationalCredential',
+      'name': 'CEA Salesperson Licence',
+      'credentialCategory': 'licence',
+      'recognizedBy': {
+        '@type': 'Organization',
+        'name': 'Council for Estate Agencies Singapore',
+        'url': 'https://www.cea.gov.sg'
+      },
+      'identifier': 'R073319H'
+    },
     'sameAs': [
       'https://www.linkedin.com/in/winfredquek',
       'https://www.instagram.com/winfredquek',
@@ -44,11 +65,12 @@
       '@type': 'Article',
       'headline': title,
       'description': meta,
-      'author': {'@type':'Person','name':'Winfred Quek'},
+      'author': {'@type':'Person','name':'Winfred Quek','identifier':'R073319H'},
       'publisher': {'@type':'Organization','name':'PropNex Realty Pte Ltd','logo':{'@type':'ImageObject','url':'https://winfredquek.com/logo.png'}},
       'datePublished': document.querySelector('meta[property="article:published_time"]')?.content || new Date().toISOString().split('T')[0],
       'dateModified': document.querySelector('meta[property="article:modified_time"]')?.content || new Date().toISOString().split('T')[0],
-      'mainEntityOfPage': {'@type':'WebPage','@id': window.location.href}
+      'mainEntityOfPage': {'@type':'WebPage','@id': window.location.href},
+      'speakable': {'@type':'SpeakableSpecification','cssSelector':['.quick-answer','h1','h2']}
     });
   }
 
