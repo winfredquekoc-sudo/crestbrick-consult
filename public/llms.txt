@@ -28,6 +28,7 @@
 ## Insights (long-form articles)
 
 - [ABSD Singapore 2026](https://winfredquek.com/insights/absd-singapore-2026): Current ABSD rates, who pays what, remission scenarios.
+- [ABSD Singapore — full rate hub](https://winfredquek.com/insights/absd-singapore): Complete ABSD reference: every rate, every buyer profile, entity ABSD, and worked examples for SC, PR, foreigner, and mixed-citizenship couples.
 - [ABSD explained](https://winfredquek.com/insights/absd-explained): Plain-English ABSD primer.
 - [Foreign buyer 60% ABSD strategy](https://winfredquek.com/insights/foreign-buyer-60-absd-strategy): How foreign buyers approach 60% ABSD; FTA exemption nuances.
 - [Cooling measures timeline](https://winfredquek.com/insights/cooling-measures): Singapore cooling measures chronology and impact.
