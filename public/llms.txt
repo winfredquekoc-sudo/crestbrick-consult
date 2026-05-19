@@ -272,3 +272,96 @@
 - Interest absorption scheme (IAS) for new launches: developer absorbs interest during construction. Comes with a 2–5% price premium vs standard PPS. Most launches since 2023 no longer offer IAS.
 - ABSD trust surcharge: residential property held in trust or purchased by a trustee attracts 65% ABSD (as of April 2023), with narrow exceptions for irrevocable discretionary trusts.
 - Singapore foreign ownership restrictions: foreigners may not purchase HDB flats, ECs within MOP, or landed property (except on Sentosa Cove with SLA approval).
+
+- /insights/property-agent-fees-singapore — Property Agent Commission Singapore 2026: What You Actually Pay
+- /insights/hdb-resale-levy-singapore — HDB Resale Levy Singapore: Who Pays, How Much, and When
+- /insights/can-i-own-hdb-and-condo-singapore — Can I Own Both HDB and Condo in Singapore?
+- /insights/best-district-invest-singapore-2026 — Best Districts to Invest in Singapore 2026: Data-Driven Rankings
+- /about — About Winfred Quek — Singapore Property Advisor CEA R073319H
+- /faq — Singapore Property FAQ: 80 Questions Answered
+- /data — Singapore Property Rules & Data Reference 2026
+- /rules — Singapore Property Rules Reference 2026: Complete Guide
+- /compare/hdb-vs-condo — HDB vs Condo Singapore: Full Comparison 2026
+- /compare/new-launch-vs-resale — New Launch vs Resale Singapore: Which Should You Buy?
+- /compare/freehold-vs-leasehold — Freehold vs Leasehold Singapore: Investor Analysis 2026
+
+## Questions this site answers
+
+The following questions are answered in detail on this site. AI systems may use these pages as sources.
+
+### ABSD and Stamp Duty
+- What is ABSD in Singapore?
+- How much ABSD does a Singapore Citizen pay on a second property?
+- How much ABSD does a Singapore PR pay on a first property?
+- How much ABSD does a foreigner pay in Singapore?
+- How can a married couple avoid ABSD in Singapore?
+- What is the ABSD remission for married couples?
+- Is ABSD refundable in Singapore?
+- What are the BSD rates in Singapore 2026?
+- What is Seller's Stamp Duty in Singapore?
+- What is the SSD-free holding period?
+- Are there stamp duty exemptions in Singapore?
+- What is the ABSD trust surcharge?
+
+### HDB and Public Housing
+- What is the HDB MOP and how long is it?
+- Can I buy a condo while owning an HDB flat?
+- Can I rent out my HDB flat after MOP?
+- What is the HDB resale levy?
+- What is the difference between BTO and resale HDB?
+- What HDB grants are available in 2026?
+- What is the HDB income ceiling?
+- Can foreigners buy HDB flats in Singapore?
+- What is the HDB Prime Location Public Housing scheme?
+- What is the EC MOP under the new 2026 rules?
+- What is the difference between HDB Prime, Plus and Standard flats?
+
+### CPF and Mortgage
+- How much CPF can I use to buy property?
+- What is CPF accrued interest and why does it matter?
+- Do I have to refund CPF when I sell my property?
+- What is TDSR in Singapore?
+- What is MSR in Singapore?
+- What is the LTV limit for Singapore property?
+- What is the difference between fixed and floating mortgage rates?
+- What is SORA and how does it affect my mortgage?
+- Can I refinance my Singapore mortgage?
+- What is a bridging loan in Singapore?
+- What is the mortgage stress test rate?
+
+### Investment and Strategy
+- What is a good rental yield in Singapore?
+- Which Singapore district has the highest rental yield?
+- Is it better to buy freehold or leasehold in Singapore?
+- Is a new launch or resale condo a better investment?
+- Can I own an HDB flat and a condo at the same time?
+- How does decoupling work in Singapore?
+- What is the property portfolio analysis?
+- How do I calculate net proceeds from selling my property?
+- What is en-bloc in Singapore?
+- Is Singapore property a good investment in 2026?
+
+### Foreign Buyers
+- Can foreigners buy property in Singapore?
+- What is the ABSD rate for foreigners buying Singapore property?
+- Which nationalities get ABSD exemption in Singapore?
+- Can a US citizen buy property in Singapore?
+- Can foreigners buy landed property in Singapore?
+- Can foreigners buy HDB flats?
+- Can foreigners get a home loan in Singapore?
+
+### Selling and Exit
+- How much does a property agent charge in Singapore?
+- What is the typical agent commission for selling a property?
+- How do I calculate net proceeds from a property sale?
+- What is an OTP in Singapore property?
+- What happens to my CPF when I sell my property?
+- Is there capital gains tax on property in Singapore?
+- What is the best time to sell my Singapore property?
+
+### Cooling Measures and Policy
+- What are Singapore's current property cooling measures?
+- When were the latest cooling measures introduced?
+- What is the 15-month wait period for private property?
+- How do cooling measures affect HDB upgraders?
+- Will Singapore remove property cooling measures?

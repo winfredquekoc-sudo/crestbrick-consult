@@ -75,7 +75,7 @@
       'datePublished': document.querySelector('meta[property="article:published_time"]')?.content || new Date().toISOString().split('T')[0],
       'dateModified': document.querySelector('meta[property="article:modified_time"]')?.content || new Date().toISOString().split('T')[0],
       'mainEntityOfPage': {'@type':'WebPage','@id': window.location.href},
-      'speakable': {'@type':'SpeakableSpecification','cssSelector':['.quick-answer','h1','h2']}
+      'speakable': {'@type':'SpeakableSpecification','cssSelector':['.quick-answer','.key-takeaways','.winfred-take','h1','h2']}
     });
     } // end else (no static Article schema)
   }
