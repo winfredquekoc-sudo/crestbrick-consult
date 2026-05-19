@@ -129,6 +129,14 @@
         "url": "https://winfredquek.com/",
         "name": "Winfred Quek, Crestbrick",
         "publisher": { "@id": "https://winfredquek.com/#agent" }
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://winfredquek.com/#crestbrick",
+        "name": "Crestbrick Pte Ltd",
+        "description": "Property investment advisory for Singapore HDB upgraders and private property investors",
+        "url": "https://winfredquek.com",
+        "areaServed": { "@type": "Country", "name": "Singapore" }
       }
     ]
   }
@@ -256,47 +264,7 @@
   <link rel="stylesheet" href="/motion.css">
   <script defer src="/motion.js"></script>
 
-  <!-- JSON-LD: Person + LocalBusiness (Crestbrick entity confirmation) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Person",
-        "@id": "https://winfredquek.com/#winfred",
-        "name": "Winfred Quek",
-        "jobTitle": "Property Investment Advisor",
-        "identifier": {
-          "@type": "PropertyValue",
-          "name": "CEA Registration",
-          "value": "R073319H"
-        },
-        "url": "https://winfredquek.com",
-        "sameAs": [
-          "https://www.linkedin.com/in/winfredquek",
-          "https://www.instagram.com/winfredquek"
-        ],
-        "worksFor": {
-          "@id": "https://winfredquek.com/#crestbrick"
-        }
-      },
-      {
-        "@type": "LocalBusiness",
-        "@id": "https://winfredquek.com/#crestbrick",
-        "name": "Crestbrick",
-        "description": "Property investment advisory for Singapore HDB upgraders and private property investors",
-        "url": "https://winfredquek.com",
-        "areaServed": {
-          "@type": "Country",
-          "name": "Singapore"
-        },
-        "founder": {
-          "@id": "https://winfredquek.com/#winfred"
-        }
-      }
-    ]
-  }
-  </script>
+  <!-- LocalBusiness merged into main @graph above -->
 
   <!-- GA4, replace G-T6C46CFKCM with your measurement ID from analytics.google.com -->
   <!-- TODO: Create GA4 property at analytics.google.com Admin Create Property get Measurement ID -->

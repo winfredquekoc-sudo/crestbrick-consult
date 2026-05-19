@@ -219,9 +219,24 @@
     trackVisit();
     initConsent(); // last so it appears on top
   }
+  // ============================================================
+  // GA4 — inject on pages that don't already have it (insight articles)
+  // ============================================================
+  function initGA4() {
+    if (document.querySelector('script[src*="googletagmanager"]')) return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-T6C46CFKCM';
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', 'G-T6C46CFKCM');
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function(){ init(); initGA4(); });
   } else {
-    init();
+    init(); initGA4();
   }
 })();
