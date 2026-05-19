@@ -255,6 +255,15 @@
     <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
   </div>
 </article>
+<section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer-s-stamp-duty-(absd)" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer's Stamp Duty (ABSD)</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/regulations/total-debt-servicing-ratio-framework" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio Framework</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/monetary-policy/monetary-policy-decisions" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Monetary Policy Decisions</a></li>
+  </ul>
+</section>
+
 <aside class="max-w-3xl mx-auto px-6 py-10 border-t border-[var(--rule)]">
   <div class="flex flex-col md:flex-row gap-5 items-start">
     <picture><source srcset="/img/winfred-hero.avif?v=3" type="image/avif"><source srcset="/img/winfred-hero.webp?v=3" type="image/webp"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek CEA R073319H" loading="lazy" width="80" height="80" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);" /></picture>
