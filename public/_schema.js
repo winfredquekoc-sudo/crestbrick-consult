@@ -17,7 +17,7 @@
     'url': 'https://winfredquek.com',
     'telephone': '+6581618149',
     'email': 'winfred@winfredquek.com',
-    'identifier': {'@type':'PropertyValue','propertyID':'CEA Salesperson Registration No.','value':'R073319H'},
+    'identifier': {'@type':'PropertyValue','propertyID':'CEA Registration No.','value':'R073319H'},
     'worksFor': {
       '@type': 'RealEstateOrganization',
       'name': 'Crestbrick Pte Ltd',
@@ -37,7 +37,7 @@
     ],
     'hasCredential': {
       '@type': 'EducationalOccupationalCredential',
-      'name': 'CEA Salesperson Licence',
+      'name': 'CEA Registration',
       'credentialCategory': 'licence',
       'recognizedBy': {
         '@type': 'Organization',
