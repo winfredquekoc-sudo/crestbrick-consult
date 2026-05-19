@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Winfred Quek — 10 Origin Story Reel Scripts — May 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy: #0f1117;
+    --navy-mid: #161b27;
+    --navy-card: #1a2035;
+    --navy-border: #222c44;
+    --gold: #c6a36a;
+    --gold-light: #e0c48a;
+    --gold-dim: #8a6e3e;
+    --text: #e8e8e8;
+    --text-muted: #9aa3b2;
+    --accent-bg: #1e2840;
+  }
+
+  @page {
+    size: A4;
+    margin: 18mm 16mm;
+  }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13.5px;
+    line-height: 1.65;
+    padding: 40px 0;
+  }
+
+  .page-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── HEADER ── */
+  .doc-header {
+    border-bottom: 2px solid var(--gold);
+    padding-bottom: 28px;
+    margin-bottom: 40px;
+  }
+
+  .doc-header .eyebrow {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+
+  .doc-header h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--gold-light);
+    line-height: 1.2;
+    margin-bottom: 8px;
+  }
+
+  .doc-header .subtitle {
+    font-size: 12.5px;
+    color: var(--text-muted);
+    font-weight: 300;
+  }
+
+  .doc-header .meta-row {
+    display: flex;
+    gap: 24px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .doc-header .meta-pill {
+    background: var(--accent-bg);
+    border: 1px solid var(--navy-border);
+    border-radius: 4px;
+    padding: 4px 12px;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  .doc-header .meta-pill span {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  /* ── REEL CARD ── */
+  .reel-card {
+    background: var(--navy-card);
+    border: 1px solid var(--navy-border);
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+    padding: 28px 28px 24px;
+    margin-bottom: 28px;
+    page-break-inside: avoid;
+  }
+
+  .reel-card .reel-number {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 4px;
+  }
+
+  .reel-card .reel-title {
+    font-family: 'Fraunces', serif;
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--gold-light);
+    margin-bottom: 20px;
+    line-height: 1.3;
+  }
+
+  .field {
+    margin-bottom: 16px;
+  }
+
+  .field-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    color: var(--gold-dim);
+    margin-bottom: 6px;
+  }
+
+  .field-content {
+    font-size: 13px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+
+  .hook-block {
+    background: var(--accent-bg);
+    border-left: 3px solid var(--gold);
+    border-radius: 0 4px 4px 0;
+    padding: 10px 14px;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--gold-light);
+    margin-top: 4px;
+  }
+
+  .script-block {
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    padding: 16px 18px;
+    font-size: 13px;
+    line-height: 1.8;
+    color: #d8d8d8;
+    white-space: pre-wrap;
+    margin-top: 4px;
+    border: 1px solid rgba(198,163,106,0.1);
+  }
+
+  .cta-block {
+    display: inline-block;
+    background: rgba(198,163,106,0.1);
+    border: 1px solid var(--gold-dim);
+    border-radius: 4px;
+    padding: 7px 14px;
+    font-size: 12.5px;
+    color: var(--gold-light);
+    margin-top: 4px;
+    font-weight: 500;
+  }
+
+  .visual-block {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-style: italic;
+    margin-top: 4px;
+    padding-left: 4px;
+    border-left: 2px solid var(--navy-border);
+  }
+
+  /* ── FOOTER ── */
+  .doc-footer {
+    border-top: 1px solid var(--navy-border);
+    padding-top: 20px;
+    margin-top: 20px;
+    font-size: 11px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .doc-footer strong {
+    color: var(--gold);
+  }
+
+  /* Print overrides */
+  @media print {
+    body { background: #0f1117 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .reel-card { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+  <!-- HEADER -->
+  <header class="doc-header">
+    <div class="eyebrow">Realtor Origin Story Series · Short-Form Reels</div>
+    <h1>Winfred Quek — 10 Origin Story Reel Scripts</h1>
+    <div class="subtitle">Authentic first-person scripts for Instagram / TikTok / YouTube Shorts · May 2026</div>
+    <div class="meta-row">
+      <div class="meta-pill">Agent: <span>Winfred Quek</span></div>
+      <div class="meta-pill">Licence: <span>CEA R073319H</span></div>
+      <div class="meta-pill">Agency: <span>PropNex Realty</span></div>
+      <div class="meta-pill">Duration: <span>45–60 sec each</span></div>
+      <div class="meta-pill">Scripts: <span>10</span></div>
+    </div>
+  </header>
+
+  <!-- REEL 1 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 01 of 10</div>
+    <div class="reel-title">Why I Became a Realtor — Not the Polished Answer. The Real One.</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"I didn't become a realtor because I loved property. I became one because I was embarrassed."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">I didn't become a realtor because I loved property. I became one because I was embarrassed.
+
+My parents worked their whole lives and still couldn't figure out how to upgrade from their HDB. Every agent they met either confused them or rushed them. Nobody sat down and actually explained how it worked.
+
+And I remember thinking — I want to be the person who actually explains it.
+
+Not the guy chasing commission. Not the one who disappears after signing. The one who makes families feel like they actually understand what they're doing with the biggest asset of their lives.
+
+Nine years later, I've owned five properties before 30, advised over twenty families through upgrades, and I still go back to that same reason every single time a deal gets hard.
+
+It's not about property. It was never about property.
+
+It was about not letting another family feel like they were on their own.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">If you're trying to figure out your next move — DM me. Let's talk before you commit to anything.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Start close-up, slightly off-camera gaze. Cut to slow B-roll of HDB void decks / estate shots mid-script. Return to face for final lines. No fancy transitions — raw and still.</div>
+    </div>
+  </div>
+
+  <!-- REEL 2 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 02 of 10</div>
+    <div class="reel-title">My First Listing: What I Got Completely Wrong</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"My first listing, I prepared the perfect pitch. The client rejected me in under four minutes."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">My first listing, I prepared the perfect pitch. The client rejected me in under four minutes.
+
+I had the market data. I had the comparable transactions. I had a whole plan for how to price and market their flat. I walked in confident.
+
+And then she said: "You're talking about the flat. I need someone who understands my situation."
+
+She wasn't selling because she wanted to. She was selling because her family needed to restructure — MOP had just passed, finances were stretched, and she needed to know the whole picture would work out.
+
+I didn't have an answer for that. I had a sales deck.
+
+I went back the next week with a proper financial timeline — CPF projections, stamp duty, the next purchase plan. She listed with me.
+
+That was the day I stopped showing up with a pitch and started showing up with a plan.
+
+Hardest lesson I ever got in under four minutes.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">Want an actual plan — not just a pitch? Link in bio to book a 30-min chat.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Talking-head, seated, slightly informal. Use a cut at "I didn't have an answer" — pause for effect. No music under voice, maybe low ambient hum. Show documents / spreadsheet B-roll briefly at "financial timeline."</div>
+    </div>
+  </div>
+
+  <!-- REEL 3 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 03 of 10</div>
+    <div class="reel-title">I Bought 5 Properties Before 30 — Here's What I Actually Learned</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"Five properties before 30. Sounds impressive. The truth is messier than that."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">Five properties before 30. Sounds impressive. The truth is messier than that.
+
+The first one I nearly didn't buy because I overthought it for six months. The second one taught me that timing matters less than structure. The third one — I made a mistake on ABSD because I didn't plan the sequence properly. Cost me real money.
+
+What I actually learned across all five: it's never just about the property. It's about the order of transactions, the CPF position, the loan structure, and what you want your life to look like five years after you sign.
+
+Most people focus on which unit. I was always obsessing over the sequence — what do I sell first, what do I buy next, how do I protect liquidity without paying unnecessary tax.
+
+That obsession is what I now bring to every client I work with.
+
+Five properties didn't make me smart. The mistakes in between did.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">Thinking about your property sequence? Drop a comment or DM — I'll tell you what I'd look at first.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Walking-and-talking works well here — outdoor, residential estate or condo lobby. Cuts between walking and direct-to-camera at key points. Energy is reflective, not boastful.</div>
+    </div>
+  </div>
+
+  <!-- REEL 4 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 04 of 10</div>
+    <div class="reel-title">The Client Call That Changed How I Work Forever</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"A client called me at 11pm. Not to ask about property — to tell me their marriage was in trouble."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">A client called me at 11pm. Not to ask about property — to tell me their marriage was in trouble.
+
+They'd been planning to buy a condo together. Then things changed. And suddenly the whole financial plan we'd built — the CPF usage, the joint loan, the upgrade timeline — it all had to be rethought.
+
+I didn't know what to say. I wasn't trained for this. But I stayed on the call.
+
+And by the end of it, we had a new path. Not the dream plan — a realistic one. One that protected both of them individually. One that didn't create a financial trap if things didn't work out.
+
+After that call, I changed how I do the first consult. Before I talk about any property, I ask: "What's your situation at home? Who are the people this decision affects?"
+
+Property is never just property. It sits inside someone's life. And if I don't understand the life, I can't actually help with the property.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">If your situation is more complicated than "just looking to buy" — that's exactly the kind of conversation I'm built for. DM me.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Low light, calm setting — home office or quiet corner. Hold a long pause after "I wasn't trained for this." Let the silence sit. This reel should feel intimate, not produced.</div>
+    </div>
+  </div>
+
+  <!-- REEL 5 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 05 of 10</div>
+    <div class="reel-title">Why I Refuse to Call Myself "Just an Agent"</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"Every time someone calls me 'just an agent' I know exactly what happened to them before they met me."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">Every time someone calls me "just an agent" I know exactly what happened to them before they met me.
+
+Someone showed them listings without asking about their goals. Someone rushed them to an OTP before they understood the full cost. Someone disappeared after commission cleared.
+
+I'm not an agent in that sense.
+
+I'm a strategist who specialises in property. The agent part is the licence — it's the minimum qualification to operate. What I actually do is figure out whether you should buy, sell, hold, or restructure — and in what order, at what timing, with what financial exposure.
+
+I've turned down deals where I knew the client would regret it. I've told people not to sell even though it cost me the listing fee. Because if the advice isn't right, the transaction isn't worth it.
+
+If you want someone to just open doors and collect keys — there are cheaper options.
+
+If you want someone who will tell you the truth about whether you should even be buying right now — that's where I come in.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">Want the honest read on your situation? Calendly link in bio. 30 minutes, no obligation.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Direct camera, steady, slight lean-in on "I'm not an agent in that sense." Calm and measured — this should feel like someone drawing a line, not pitching. No B-roll; hold the face throughout.</div>
+    </div>
+  </div>
+
+  <!-- REEL 6 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 06 of 10</div>
+    <div class="reel-title">The Deal I Almost Lost Because I Gave Honest Advice</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"I told a client not to buy. Three weeks later they almost signed with someone else — and I was fine with that."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">I told a client not to buy. Three weeks later they almost signed with someone else — and I was fine with that.
+
+They'd found a condo they loved. Everything looked right on the surface. But when I ran the numbers — the ABSD they'd pay, the rental yield they were assuming, the loan-to-value on their second property — it didn't stack up. Not at that price. Not at that timing.
+
+I told them to wait six months.
+
+They got frustrated. They called another agent who told them what they wanted to hear. They came back to me two days before OTP.
+
+And I told them again: this doesn't work for your situation. The other agent is not wrong about the property. He's just not looking at your whole picture.
+
+They didn't sign.
+
+Six months later they found a better entry point and saved close to $80,000.
+
+The honest advice almost cost me the deal. It's also why they've referred three families to me since.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">Want someone who'll tell you the truth even when it's inconvenient? That's the conversation. DM me.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Conversational, candid energy. Slight smile at the end — earned, not forced. B-roll of numbers / spreadsheet briefly at "ran the numbers." Return to face for punchline and close.</div>
+    </div>
+  </div>
+
+  <!-- REEL 7 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 07 of 10</div>
+    <div class="reel-title">What 20+ Families Upgrading from HDB Taught Me</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"After helping over twenty families upgrade from HDB, I've noticed the same mistake — and almost nobody talks about it."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">After helping over twenty families upgrade from HDB, I've noticed the same mistake — and almost nobody talks about it.
+
+They start with the condo. They go to show flats, they fall in love, they set a budget. And then they work backwards to figure out whether the HDB sale makes sense.
+
+That's the wrong order.
+
+The right order starts with the HDB. What's the market value now? What's the CPF refund on sale? What does the actual cash and loan position look like after MOP? And only then — what can you actually afford, and does this upgrade genuinely improve your position or just add stress?
+
+I've seen families upgrade into a condo and feel poorer than they did in their HDB because they didn't plan the sequence.
+
+The property is almost never the hard part. It's the sequencing, the timing, and understanding what "upgrade" actually means for your specific household — not someone else's.
+
+Start with your position. Then choose the property.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">HDB and thinking about the next step? Comment "UPGRADE" or DM me and I'll share what I'd look at first.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Outdoor, HDB estate context works well — void deck or carpark. Energetic but grounded. Use a text overlay for key phrases: "wrong order" / "right order." Pacing should be slightly faster here to match the practical, instructive tone.</div>
+    </div>
+  </div>
+
+  <!-- REEL 8 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 08 of 10</div>
+    <div class="reel-title">Why Most Realtors Show You Listings — I Show You Strategies</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"A listing is just a door. What's behind the door only matters if the door is the right one for you."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">A listing is just a door. What's behind the door only matters if the door is the right one for you.
+
+Most agents start with inventory. Here are five units in your budget — which one do you like?
+
+I start with structure. What does your household look like in five years? Do you have kids entering school? Are your parents going to need to move closer? Do you have ABSD exposure from a second property? Are you planning to rent one out?
+
+Once I understand the structure, the listings become obvious. Sometimes the right move isn't buying at all — it's restructuring what you already own. Sometimes it's decoupling a joint property so one party can buy without ABSD.
+
+Listings are the output of a strategy. They're not the starting point.
+
+The reason I work this way is because I've seen what happens when people lead with the property and backfill the rationale. They end up in a unit they love that doesn't actually work for their life.
+
+I'd rather you feel boring confidence at the end than excited regret six months in.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">Want to start with strategy, not listings? 30-min session, link in bio.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Whiteboard or notebook visible in background adds strategic credibility. Direct to camera, measured pace. Slight pause before "Listings are the output of a strategy" — that line deserves a breath.</div>
+    </div>
+  </div>
+
+  <!-- REEL 9 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 09 of 10</div>
+    <div class="reel-title">The Question I Ask Every New Client Before I Show Them a Single Property</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"Before I show any client a single listing, I ask them one question. Most of them have never been asked it before."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">Before I show any client a single listing, I ask them one question. Most of them have never been asked it before.
+
+The question is: "If this works out exactly as planned — what does your life look like in five years?"
+
+Not what does the property look like. Not what's the return. What does your life look like.
+
+Because the answer tells me everything I need to know about what they actually need.
+
+Some people say "I want stability, my kids in the same school zone, I'm done moving." That tells me to prioritise permanence over upside.
+
+Some people say "I want options. I want liquidity. I might move for work." That tells me we probably need a different structure entirely.
+
+The property is a vehicle. If I don't know where you're trying to go, I have no business recommending a vehicle.
+
+That one question has saved more deals from going wrong than any amount of market research I could show you.
+
+Ask it of yourself before you talk to any agent — including me.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">What's your answer? Drop it in the comments — or DM me and let's build from there.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Slow, deliberate pace for the question itself — let it land. Talking head throughout. Consider a subtle zoom-in at "What does your life look like." End with a genuine, direct look to camera.</div>
+    </div>
+  </div>
+
+  <!-- REEL 10 -->
+  <div class="reel-card">
+    <div class="reel-number">Reel 10 of 10</div>
+    <div class="reel-title">What "Trust Your Realtor" Actually Means — and How to Test It</div>
+
+    <div class="field">
+      <div class="field-label">Hook · First 3 Seconds</div>
+      <div class="hook-block">"'Trust your realtor' is terrible advice unless you know exactly how to test whether yours deserves it."</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Script</div>
+      <div class="script-block">"Trust your realtor" is terrible advice unless you know exactly how to test whether yours deserves it.
+
+Here's the test. Ask them one question: "Is now actually a good time for me to buy?"
+
+A realtor who says yes without knowing your CPF balance, your loan eligibility, your household plans, and your ABSD position — doesn't deserve your trust. They deserve a thank-you and a goodbye.
+
+A realtor who says "I need more information before I can answer that" — that's someone worth talking to.
+
+The second test: ask them to show you a deal they talked a client out of. If they can't give you one, every single recommendation they make is pointed in one direction — toward a transaction.
+
+Trust is earned through inconvenience. The agent who tells you to wait, to hold, or to restructure instead of buy — that's not someone losing your business. That's someone doing their job.
+
+I've built my entire practice on this. And the families who trust me the most are the ones I told "not yet" before I ever sold them anything.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">CTA</div>
+      <div class="cta-block">Test me. Ask me if now is a good time for you. DM me your situation and I'll give you a straight answer.</div>
+    </div>
+
+    <div class="field">
+      <div class="field-label">Visual Note</div>
+      <div class="visual-block">Most confident reel of the series — deliver this one with full eye contact. This is the capstone. Steady shot, no movement. End with a slight pause after the final line before the CTA — let it settle.</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="doc-footer">
+    <div><strong>Winfred Quek</strong> · CEA R073319H · PropNex Realty</div>
+    <div>10 Reel Scripts · May 2026 · Confidential — Do Not Distribute</div>
+  </footer>
+
+</div>
+</body>
+</html>

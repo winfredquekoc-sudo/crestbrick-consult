@@ -20,8 +20,8 @@
     'identifier': {'@type':'PropertyValue','propertyID':'CEA Salesperson Registration No.','value':'R073319H'},
     'worksFor': {
       '@type': 'RealEstateOrganization',
-      'name': 'PropNex Realty Pte Ltd',
-      'identifier': {'@type':'PropertyValue','propertyID':'CEA Estate Agency Licence No.','value':'L3008022J'},
+      'name': 'Crestbrick Pte Ltd',
+      'identifier': {'@type':'PropertyValue','propertyID':'CEA Estate Agency Licence No.','value':'L31010886H'},
       'address': {'@type':'PostalAddress','addressCountry':'SG'}
     },
     'areaServed': {'@type':'Country','name':'Singapore'},
@@ -66,7 +66,7 @@
       'headline': title,
       'description': meta,
       'author': {'@type':'Person','name':'Winfred Quek','identifier':'R073319H'},
-      'publisher': {'@type':'Organization','name':'PropNex Realty Pte Ltd','logo':{'@type':'ImageObject','url':'https://winfredquek.com/logo.png'}},
+      'publisher': {'@type':'Organization','name':'Crestbrick Pte Ltd','logo':{'@type':'ImageObject','url':'https://winfredquek.com/logo.png'}},
       'datePublished': document.querySelector('meta[property="article:published_time"]')?.content || new Date().toISOString().split('T')[0],
       'dateModified': document.querySelector('meta[property="article:modified_time"]')?.content || new Date().toISOString().split('T')[0],
       'mainEntityOfPage': {'@type':'WebPage','@id': window.location.href},
