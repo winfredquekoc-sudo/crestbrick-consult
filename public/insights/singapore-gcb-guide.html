@@ -67,13 +67,13 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -88,11 +88,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -271,7 +271,7 @@
     </button>
   </form>
 <script>
-if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
+if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}
 </script>
 </div>
 </article>
@@ -279,7 +279,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
   <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.85rem;"><a href="https://www.sla.gov.sg/land-administration/managing-land-ownership-and-registration/residential-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">SLA: Residential Property — Land Ownership & Registration</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.sla.gov.sg/land-administration/managing-land-ownership-and-registration/residential-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">SLA: Residential Property Land Ownership & Registration</a></li>
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer-s-stamp-duty-(absd)" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer's Stamp Duty (ABSD)</a></li>
     <li style="font-size:.85rem;"><a href="https://www.ura.gov.sg/Corporate/Property/Residential" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">URA: Residential Property</a></li>
   </ul>
@@ -313,6 +313,16 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 </aside>
 <!-- /author-bio-block -->
 
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/absd-singapore" style="color:var(--accent);">ABSD Singapore 2026: The Hub</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cooling-measures" style="color:var(--accent);">Singapore Cooling Measures 2026: What They Really Mean</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/ccr-rcr-ocr-framework" style="color:var(--accent);">CCR vs RCR vs OCR: The 2026 Investor Framework</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-vs-resale" style="color:var(--accent);">New Launch vs Resale Condo Singapore</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/freehold-vs-leasehold" style="color:var(--accent);">Freehold vs 99-Year Leasehold Singapore</a></li>
+  </ul>
+</section>
 </main>
 
 <footer class="divider bg-[var(--bg)]">

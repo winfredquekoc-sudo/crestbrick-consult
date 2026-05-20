@@ -25,14 +25,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -50,16 +85,16 @@
   <div class="quick-answer"><strong>Quick answer:</strong> OCR (Outside Central Region) has delivered stronger capital appreciation than CCR (Core Central Region) over 2014–2024, driven by HDB upgrader demand and cooling measures that disproportionately hurt foreign CCR buyers. OCR also offers higher gross rental yields (3.5–4.5%) versus CCR (2.5–3.5% for luxury, 4%+ for smaller CCR units). For investors with $1.5M–$2.5M capital, OCR offers better risk-adjusted returns in 2026. CCR becomes defensible at $3M+ where exit liquidity to foreigners and ultra-high-net-worth buyers matters.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>OCR versus CCR is the oldest debate in Singapore property investment. Mass market versus luxury. HDB upgrader demand versus expat tenant demand. Clementi versus Orchard. The question has no permanent answer — the correct region depends on your capital, investment horizon, exit strategy, and the prevailing policy environment.</p>
+  <p>OCR versus CCR is the oldest debate in Singapore property investment. Mass market versus luxury. HDB upgrader demand versus expat tenant demand. Clementi versus Orchard. The question has no permanent answer the correct region depends on your capital, investment horizon, exit strategy, and the prevailing policy environment.</p>
 
-  <p>This analysis uses URA price index data, EdgeProp transaction analytics, and rental yield surveys to give you the 2026 evidence base — not theory, but the numbers.</p>
+  <p>This analysis uses URA price index data, EdgeProp transaction analytics, and rental yield surveys to give you the 2026 evidence base not theory, but the numbers.</p>
 
   <h2>How Singapore Classifies Its Property Regions</h2>
   <p>URA divides Singapore's non-landed residential market into three market segments:</p>
   <ul>
     <li><strong>CCR (Core Central Region):</strong> Districts 9, 10, 11, Downtown Core (D1/D2), and Sentosa Cove (D4). Think Orchard, River Valley, Holland Village, Buona Vista, Novena, Sentosa. The traditional "prime" address segment.</li>
-    <li><strong>RCR (Rest of Central Region):</strong> The middle belt — Bishan, Toa Payoh, Queenstown, Tiong Bahru, Geylang, Serangoon, Dakota. Sometimes called "city fringe."</li>
-    <li><strong>OCR (Outside Central Region):</strong> Everything else — Tampines, Punggol, Sengkang, Bukit Panjang, Woodlands, Jurong, Pasir Ris. The mass market, where most HDB upgraders buy.</li>
+    <li><strong>RCR (Rest of Central Region):</strong> The middle belt Bishan, Toa Payoh, Queenstown, Tiong Bahru, Geylang, Serangoon, Dakota. Sometimes called "city fringe."</li>
+    <li><strong>OCR (Outside Central Region):</strong> Everything else Tampines, Punggol, Sengkang, Bukit Panjang, Woodlands, Jurong, Pasir Ris. The mass market, where most HDB upgraders buy.</li>
   </ul>
 
   <h2>10-Year Capital Appreciation: OCR Has Won</h2>
@@ -106,8 +141,8 @@
   <p style="font-size:0.85rem;color:var(--ink-muted);">Illustrative model only. Assumes no additional debt obligations, 4% stress test serviced throughout, ABSD 0% (SC first property). Total return figures are before CPF refund on sale and transaction costs. Not financial advice.</p>
 
   <h2>Why CCR Underperformed: The Cooling Measure Effect</h2>
-  <p>The 2018 round of cooling measures imposed ABSD at 5% on PRs (first property) and 15% on foreigners (first property). The 2021 measures raised foreigner ABSD to 30%. The April 2023 measures brought it to 60%. CCR's marginal buyer — the foreign investor or high-net-worth individual — was systematically taxed out of the market at each cooling measure round.</p>
-  <p>OCR's marginal buyer — the Singapore Citizen HDB upgrader — faced no ABSD on their first private property. The government's policy deliberately supported mass market housing for SC upgraders while cooling foreign demand for prime property. This structural advantage ran for a full decade.</p>
+  <p>The 2018 round of cooling measures imposed ABSD at 5% on PRs (first property) and 15% on foreigners (first property). The 2021 measures raised foreigner ABSD to 30%. The April 2023 measures brought it to 60%. CCR's marginal buyer the foreign investor or high-net-worth individual was systematically taxed out of the market at each cooling measure round.</p>
+  <p>OCR's marginal buyer the Singapore Citizen HDB upgrader faced no ABSD on their first private property. The government's policy deliberately supported mass market housing for SC upgraders while cooling foreign demand for prime property. This structural advantage ran for a full decade.</p>
 
   <h2>The 2026 Outlook: Will CCR Catch Up?</h2>
   <p>There are credible reasons CCR could close the gap in 2026 and beyond:</p>
@@ -121,7 +156,7 @@
   <h2>How to Choose Between OCR and CCR in 2026</h2>
 
   <div class="flow-step"><strong>Budget $700K–$1.5M:</strong> OCR is your only realistic option. 1–2 bedroom in a well-located OCR condo near MRT. Focus on yield and HDB upgrader exit liquidity.</div>
-  <div class="flow-step"><strong>Budget $1.5M–$2.5M:</strong> OCR gives better risk-adjusted total return for most investors. Consider OCR 3-bedroom or integrated development. CCR at this budget means a small 1BR in D9/10 — limited capital gain potential relative to the quantum.</div>
+  <div class="flow-step"><strong>Budget $1.5M–$2.5M:</strong> OCR gives better risk-adjusted total return for most investors. Consider OCR 3-bedroom or integrated development. CCR at this budget means a small 1BR in D9/10 limited capital gain potential relative to the quantum.</div>
   <div class="flow-step"><strong>Budget $2.5M–$4M:</strong> RCR or CCR entry becomes viable. RCR (city fringe) offers the best blend of OCR-like yields with CCR proximity upside. Districts like D3, D5, D15 are RCR plays worth modelling.</div>
   <div class="flow-step"><strong>Budget $4M+:</strong> CCR makes strategic sense. Larger CCR units (3BR+) in prime districts offer capital preservation, deep liquidity, and positioning for the ultra-HNW buyer on exit. Think of it as store of value plus modest yield.</div>
 
@@ -146,6 +181,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ccr-rcr-ocr-framework" style="color:var(--accent);">CCR vs RCR vs OCR: The 2026 Investor Framework</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/lentor-hills-property-investment" style="color:var(--accent);">Lentor Hills: Why Singapore's Newest MRT Cluster is an Investor's Argument</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/best-district-invest-singapore-2026" style="color:var(--accent);">Best District to Invest in Singapore 2026: Data-Driven Rankings</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/jurong-lake-district-property-2026" style="color:var(--accent);">Jurong Lake District Property 2026: The Growth Story Explained</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/kallang-river-district-property-2026" style="color:var(--accent);">Kallang-Bugis Property Corridor 2026</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

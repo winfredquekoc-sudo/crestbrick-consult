@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -51,60 +86,61 @@
   <div style="background:rgba(198,163,106,0.07);border:1px solid rgba(198,163,106,0.25);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:2rem;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.75rem;">Key Takeaways</p>
     <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Household income under S$6,000/month: TDSR 55% caps your loan at ~S$495,000 on that income — insufficient for any private condo in Singapore at current prices. Upgrading means severe cashflow strain.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Household income under S$6,000/month: TDSR 55% caps your loan at ~S$495,000 on that income insufficient for any private condo in Singapore at current prices. Upgrading means severe cashflow strain.</li>
       <li style="font-size:.9rem;color:var(--ink-soft);">• Age 55+ with depleted CPF OA: upgrading forces you to fund the downpayment entirely in cash and restarts mortgage commitments when retirement is close. The CPF RA 4% p.a. return often beats the condo's net rental yield of 1.5–2.5%.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Planning to emigrate in 2–3 years: buying a S$1.5M condo and selling within 3 years means BSD of ~S$44,600 in + ~S$44,600 out, plus agent fees of ~S$22,500, plus mortgage interest — total friction cost of S$140,000+ to break even on a 2-year hold.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Prime/Plus HDB: resale income ceiling and buyer restrictions on these flats reduce your resale pool significantly — upgrading surrenders a subsidised, restriction-free HDB flat you cannot replicate.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Planning to emigrate in 2–3 years: buying a S$1.5M condo and selling within the 4-year SSD window means BSD of ~S$44,600 going in, plus SSD of S$120,000–S$180,000 going out (12% in year 2, 16% in year 1), plus agent fees of ~S$22,500 a friction cost well above S$200,000 on a 2-year hold.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Prime/Plus HDB: resale income ceiling and buyer restrictions on these flats reduce your resale pool significantly upgrading surrenders a subsidised, restriction-free HDB flat you cannot replicate.</li>
       <li style="font-size:.9rem;color:var(--ink-soft);">• Significant existing debt: according to MAS TDSR rules, all debt obligations count against your 55% cap. Car loans, personal loans, and existing mortgages compound quickly to make private property unaffordable.</li>
     </ul>
   </div>
 
-  <p>Every property agent in Singapore will tell you to upgrade. Upgrade from HDB to condo. Upgrade from condo to bigger condo. Upgrade from OCR to RCR. The narrative of perpetual upgrading is baked into Singapore's property culture — and it has served many families well over the decades of consistent property appreciation.</p>
+  <p>Every property agent in Singapore will tell you to upgrade. Upgrade from HDB to condo. Upgrade from condo to bigger condo. Upgrade from OCR to RCR. The narrative of perpetual upgrading is baked into Singapore's property culture and it has served many families well over the decades of consistent property appreciation.</p>
 
   <p>But this article is the one most property agents will not write: the cases where upgrading is the wrong move, and staying in your HDB is the better financial outcome.</p>
 
-  <p>I have advised 20+ families on their property decisions. A meaningful number of them, after running the full analysis together, chose not to upgrade — and they made the right call. Here are the five scenarios where the numbers do not support the upgrade.</p>
+  <p>I have advised 20+ families on their property decisions. A meaningful number of them, after running the full analysis together, chose not to upgrade and they made the right call. Here are the five scenarios where the numbers do not support the upgrade.</p>
 
   <h2>Scenario 1: Near Retirement (Age 55+), CPF OA Nearly Depleted</h2>
-  <p>Property upgrading is a leverage play: you borrow a large sum, hold the asset for appreciation, and sell at a profit. For this to work, you need time — ideally 7–10 years minimum — to allow appreciation to exceed your transaction costs (BSD, agent commission, legal fees), cover your holding costs (mortgage interest, maintenance, property tax), and leave a meaningful net gain.</p>
+  <p>Property upgrading is a leverage play: you borrow a large sum, hold the asset for appreciation, and sell at a profit. For this to work, you need time ideally 7–10 years minimum to allow appreciation to exceed your transaction costs (BSD, agent commission, legal fees), cover your holding costs (mortgage interest, maintenance, property tax), and leave a meaningful net gain.</p>
 
-  <p>For a couple in their late 50s, the loan tenure ceiling is shrinking fast. Singapore banks limit mortgage tenures to the lesser of 30 years or the number of years until the youngest borrower turns 65 (with some banks, 70 for private property). If you are 57, your maximum loan tenure is 13 years. This dramatically increases your monthly mortgage payment relative to a 25-year loan — potentially adding $500–$800/month to the payment for the same loan quantum.</p>
+  <p>For a couple in their late 50s, the loan tenure ceiling is shrinking fast. Singapore banks limit mortgage tenures to the lesser of 30 years or the number of years until the youngest borrower turns 65 (with some banks, 70 for private property). If you are 57, your maximum loan tenure is 13 years. This dramatically increases your monthly mortgage payment relative to a 25-year loan potentially adding $500–$800/month to the payment for the same loan quantum.</p>
 
-  <p>Meanwhile, CPF OA contributions slow and stop at 55 as the CPF allocation shifts to the Retirement Account. If your CPF OA is largely depleted from the existing HDB loan, the upfront cash requirement for a private property purchase becomes entirely cash-funded — a much higher bar.</p>
+  <p>Meanwhile, CPF OA contributions slow and stop at 55 as the CPF allocation shifts to the Retirement Account. If your CPF OA is largely depleted from the existing HDB loan, the upfront cash requirement for a private property purchase becomes entirely cash-funded a much higher bar.</p>
 
   <div class="flow-step"><strong>The math at 57:</strong> $1.2M private condo, 75% LTV = $900K loan. At 1.5% over 13 years: ~$6,300/month. Compare that to a remaining HDB loan of ~$1,500/month. The monthly commitment more than quadruples. For what gain? A 7-year hold with 4% p.a. appreciation = $1.2M × (1.04)^7 = ~$1.58M. After agent fees, BSD on next purchase, legal costs: net gain ~$200,000–$250,000. Is it worth $57,000+ in additional annual mortgage commitment for 7 years to earn $200K–$250K? Often not.</div>
 
   <h2>Scenario 2: Household Income Under $6,000/Month</h2>
   <p>TDSR (Total Debt Servicing Ratio) caps total monthly debt obligations at 55% of gross income. For a household earning $6,000/month, the TDSR ceiling is $3,300/month in total debt servicing. If you have a car loan ($800/month) and credit card minimums ($200/month), your available monthly mortgage capacity is $2,300.</p>
 
-  <p>At $2,300/month with a 25-year tenure at 1.5%, the maximum loan quantum is approximately $545,000. With 75% LTV, this supports a property price of approximately $727,000. In 2026, a private condo at $727,000 exists only at the far fringes of OCR — very small units (under 600 sqft), limited facilities, in areas with weak upgrader demand. You would be buying a property that is harder to sell than your HDB.</p>
+  <p>At $2,300/month with a 25-year tenure at 1.5%, the maximum loan quantum is approximately $545,000. With 75% LTV, this supports a property price of approximately $727,000. In 2026, a private condo at $727,000 exists only at the far fringes of OCR very small units (under 600 sqft), limited facilities, in areas with weak upgrader demand. You would be buying a property that is harder to sell than your HDB.</p>
 
   <p>For a household at this income level, the better path is often to stay in the HDB, rent out spare rooms (if 3-room or larger), and invest the difference. A spare room in a 4-room HDB in an established town can fetch $900–$1,200/month. That income, redirected to CPF SA top-ups or a diversified ETF portfolio, builds wealth without the downside risk of an inappropriate private property purchase.</p>
 
   <div class="warn">
-    <strong>HDB subletting rules:</strong> You can sublet rooms (not the whole flat) while still living in your HDB. No separate application needed for rooms — just ensure your tenants are legally allowed to rent in Singapore (SCs, PRs, work pass holders). Whole-flat subletting requires HDB approval.
+    <strong>HDB subletting rules:</strong> You can sublet rooms (not the whole flat) while still living in your HDB. No separate application needed for rooms just ensure your tenants are legally allowed to rent in Singapore (SCs, PRs, work pass holders). Whole-flat subletting requires HDB approval.
   </div>
 
   <h2>Scenario 3: Planning to Leave Singapore in 2–3 Years</h2>
-  <p>Property transaction costs in Singapore run to 3–5% on the way in and 1–2% on the way out:</p>
+  <p>Property transaction costs in Singapore are heavy on the way in, and a short hold also triggers Seller's Stamp Duty on the way out:</p>
   <ul>
     <li>Buying costs: BSD (approximately 3% effective on $1.2M), legal fees (~$3,000)</li>
     <li>Selling costs: agent commission (1% of sale price = $12,000 on $1.2M), legal fees (~$1,500)</li>
-    <li>Total round-trip cost: approximately $55,000–$65,000 on a $1.2M property</li>
+    <li>SSD if sold within 4 years: 16% (year 1), 12% (year 2), 8% (year 3), 4% (year 4) selling a $1.2M condo in year 3 is $96,000 in SSD alone. SSD applies to property bought on or after 4 July 2025.</li>
+    <li>Total round-trip cost: approximately $55,000–$65,000 on a $1.2M property before SSD, and $150,000+ once SSD on a year 2–3 exit is included</li>
   </ul>
-  <p>For a property to break even on a 3-year hold, it needs to appreciate by at least 5%+ in nominal terms — just to cover transaction costs. In a stable or softening market, this is not guaranteed. In a rising market, you may clear costs, but the risk adjusted return is poor relative to simply leaving your money in CPF (2.5–4% guaranteed, liquid) or a short-duration bond fund.</p>
-  <p>If your emigration is certain (confirmed company transfer, family decision, citizenship application abroad), do not upgrade. Sell your HDB at MOP, bank the proceeds, and let them compound in liquid instruments while you finalise your plans. You can always buy property in Singapore again when you return — if you return.</p>
+  <p>For a property to break even on a 3-year hold, it needs to appreciate strongly in nominal terms just to cover transaction costs and the 8% SSD that still applies at year 3. In a stable or softening market, this is not guaranteed. In a rising market, you may clear costs, but the risk adjusted return is poor relative to simply leaving your money in CPF (2.5–4% guaranteed, liquid) or a short-duration bond fund.</p>
+  <p>If your emigration is certain (confirmed company transfer, family decision, citizenship application abroad), do not upgrade. Sell your HDB at MOP, bank the proceeds, and let them compound in liquid instruments while you finalise your plans. You can always buy property in Singapore again when you return if you return.</p>
 
   <h2>Scenario 4: Should You Upgrade If Your HDB Is Prime or Plus Classification?</h2>
-  <p>HDB's Prime and Plus classifications (announced from 2023 launches onwards) apply to flats in premium locations — city fringe estates, mature town centres, waterfront sites. These flats come with government subsidies but carry resale restrictions that do not exist for standard HDB flats:</p>
+  <p>HDB's Prime and Plus classifications (announced from 2023 launches onwards) apply to flats in premium locations city fringe estates, mature town centres, waterfront sites. These flats come with government subsidies but carry resale restrictions that do not exist for standard HDB flats:</p>
   <ul>
     <li><strong>10-year MOP</strong> (vs 5-year for standard flats)</li>
     <li><strong>Income ceiling for resale buyers:</strong> your buyer must earn below a household income ceiling</li>
     <li><strong>Subsidy clawback:</strong> a percentage of the resale price is returned to HDB, reducing your net proceeds</li>
     <li><strong>Proximity requirement:</strong> certain new purchases near elderly parents may be restricted</li>
   </ul>
-  <p>If you own a Prime or Plus HDB, the resale restrictions mean your buyer pool is limited and the subsidy clawback reduces your proceeds. This makes the upgrade math less favourable than for standard HDB owners. Before deciding to sell and upgrade, calculate your actual net proceeds after clawback — it may be materially lower than the headline resale price suggests.</p>
-  <p>In many cases, a Prime HDB in a city-fringe location will appreciate as well as or better than a comparable OCR private condo over the next 10 years — without the ABSD, BSD, maintenance fees, and mortgage burden of the private property upgrade.</p>
+  <p>If you own a Prime or Plus HDB, the resale restrictions mean your buyer pool is limited and the subsidy clawback reduces your proceeds. This makes the upgrade math less favourable than for standard HDB owners. Before deciding to sell and upgrade, calculate your actual net proceeds after clawback it may be materially lower than the headline resale price suggests.</p>
+  <p>In many cases, a Prime HDB in a city-fringe location will appreciate as well as or better than a comparable OCR private condo over the next 10 years without the ABSD, BSD, maintenance fees, and mortgage burden of the private property upgrade.</p>
 
   <h2>Scenario 5: Significant Outstanding Debt Across Multiple Categories</h2>
   <p>If you have a car loan, personal loan, or significant credit card debt alongside your HDB mortgage, your TDSR is already partially consumed. The bank assesses all monthly debt obligations when determining your private property loan quantum.</p>
@@ -138,26 +174,26 @@
   <div class="flow-step"><strong>Financial:</strong> Monthly debt obligations already exceed 35% of gross income. Car loan, personal loan, or credit card debt outstanding. CPF OA balance below $50,000 per borrower. HDB proceeds after CPF refund insufficient for 25% downpayment + BSD.</div>
   <div class="flow-step"><strong>Life stage:</strong> Both borrowers over 55. Household income declining or uncertain. Career transition or retraining in progress. Children's university fees due within 3 years.</div>
   <div class="flow-step"><strong>Planning horizon:</strong> Likely to relocate internationally within 5 years. No clear reason to commit to a specific district. No consensus between spouses on the upgrade decision.</div>
-  <div class="flow-step"><strong>Property specific:</strong> Prime or Plus HDB with significant clawback. HDB located near elderly parents who may require care soon (relocation risk). HDB undervalued in current market — better to wait for a higher resale.</div>
+  <div class="flow-step"><strong>Property specific:</strong> Prime or Plus HDB with significant clawback. HDB located near elderly parents who may require care soon (relocation risk). HDB undervalued in current market better to wait for a higher resale.</div>
 
   <h2>What to Do Instead of Upgrading</h2>
   <p>If you have concluded that upgrading is not the right move right now, here are productive alternatives that build wealth without the risk:</p>
   <ul>
     <li><strong>Maximise CPF voluntary contributions:</strong> Top up your CPF SA (if under 55) or RA (if 55+) to earn 4–5% guaranteed interest on funds you would eventually need for retirement.</li>
-    <li><strong>Rent spare rooms in your HDB:</strong> A 4-room HDB in a mature town can generate $1,800–$2,400/month from two spare rooms — without selling, without a new mortgage, without ABSD.</li>
+    <li><strong>Rent spare rooms in your HDB:</strong> A 4-room HDB in a mature town can generate $1,800–$2,400/month from two spare rooms without selling, without a new mortgage, without ABSD.</li>
     <li><strong>Clear high-interest debt:</strong> Personal loans at 3–7% interest are a guaranteed return when cleared. Pay these before taking on any new property debt.</li>
-    <li><strong>Build a cash reserve:</strong> 6–12 months of household expenses in liquid savings gives you the buffer to upgrade strategically when market conditions and your personal finances align — rather than reactively.</li>
-    <li><strong>Revisit in 2–3 years:</strong> The right time to upgrade is when the upgrade makes unambiguous financial sense. Waiting is not failure — it is discipline.</li>
+    <li><strong>Build a cash reserve:</strong> 6–12 months of household expenses in liquid savings gives you the buffer to upgrade strategically when market conditions and your personal finances align rather than reactively.</li>
+    <li><strong>Revisit in 2–3 years:</strong> The right time to upgrade is when the upgrade makes unambiguous financial sense. Waiting is not failure it is discipline.</li>
   </ul>
 
   <h2>A Note on Peer Pressure</h2>
   <p>One of the most powerful forces pushing Singapore families into premature property upgrades is peer pressure. Friends bought. Family members bought. The neighbour just sold their HDB for $650,000 and moved into a new launch. The Facebook group is full of upgrader success stories.</p>
   <p>What you do not see are the families who upgraded at the wrong time, into the wrong property, and spent 5–7 years in financial stress before eventually being forced to sell at a small loss. Those stories do not get shared. This article is, in part, for them.</p>
-  <p>The question to ask is not "should I upgrade because others are?" — it is "does the upgrade improve my family's financial position in a measurable, achievable way over a defined time horizon?" If the honest answer is no, staying in your HDB is a legitimate, defensible, and often superior choice.</p>
+  <p>The question to ask is not "should I upgrade because others are?" it is "does the upgrade improve my family's financial position in a measurable, achievable way over a defined time horizon?" If the honest answer is no, staying in your HDB is a legitimate, defensible, and often superior choice.</p>
 
   <div style="background:rgba(198,163,106,0.07);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1.25rem 1.5rem;margin:2.5rem 0;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.6rem;">Winfred's Take</p>
-    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The most valuable thing I can do for some clients is to tell them honestly: don't upgrade yet. The industry's incentive structure rewards transactions, not optimal outcomes — every upgrade generates agent commission, legal fees, and stamp duty whether or not it made financial sense. After running the numbers with families in Scenarios 1 and 2 above, I've recommended staying in HDB more than once, and those clients are financially better off for it. Upgrade when the maths clearly works; stay when it doesn't.</p>
+    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The most valuable thing I can do for some clients is to tell them honestly: don't upgrade yet. The industry's incentive structure rewards transactions, not optimal outcomes every upgrade generates agent commission, legal fees, and stamp duty whether or not it made financial sense. After running the numbers with families in Scenarios 1 and 2 above, I've recommended staying in HDB more than once, and those clients are financially better off for it. Upgrade when the maths clearly works; stay when it doesn't.</p>
   </div>
 
   <h2>Related reading</h2>
@@ -170,7 +206,7 @@
 
   <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
     <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Not sure if upgrading is right for you?</p>
-    <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">Book a free 30-minute Portfolio Analysis. I will run the actual numbers — and tell you honestly if the upgrade makes sense or not.</p>
+    <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">Book a free 30-minute Portfolio Analysis. I will run the actual numbers and tell you honestly if the upgrade makes sense or not.</p>
     <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call</a>
   </div>
 
@@ -193,6 +229,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/can-i-own-hdb-and-condo-singapore" style="color:var(--accent);">Can I Own HDB and Condo at the Same Time in Singapore? (2026 Rules)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/divorce-hdb-flat-procedure-2026" style="color:var(--accent);">HDB Flat Divorce Procedure 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-5-room-vs-executive-flat" style="color:var(--accent);">HDB 5-Room vs Executive Flat 2026: Which Holds Value Better?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-bto-vs-resale-first-time-buyer-2026" style="color:var(--accent);">BTO vs Resale HDB 2026: True Cost Comparison for First-Time Couples</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

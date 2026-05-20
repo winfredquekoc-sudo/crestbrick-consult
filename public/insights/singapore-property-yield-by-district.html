@@ -108,13 +108,13 @@
 </head>
 <body>
 
-    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -129,11 +129,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -223,9 +223,9 @@
   </div>
 
   <h2>3 Steps to Pick Your Investment District: Yield vs Total Return</h2>
-  <div class="flow-step"><strong>Step 1 — Define your investment mandate.</strong> Pure income (need cash flow now) → focus on D15, D5, D3 for best net yield quality. Capital growth (10-year horizon, can absorb negative carry) → CCR districts D9/10/11. Balanced (moderate yield + appreciation) → D15, D5, D3 sweet spot. Avoid OCR fringe (D25/27/28) as a yield play unless you have specific tenant pipeline — headline yield is deceptive once vacancy and management intensity are factored.</div>
-  <div class="flow-step"><strong>Step 2 — Convert gross to net before comparing.</strong> Take the advertised gross yield. Subtract: property tax (−0.4% on a $1.2M unit renting at $3,500/month), maintenance fees (−0.3% to −0.6%), agent commission (−0.7%, one month per year), vacancy at 6 weeks (−1.1%), maintenance/wear (−0.3%). Result: a 4.2% gross yield typically delivers 2.5–2.9% net before income tax. Then apply your marginal tax rate on net rental income. That final number is your actual return — compare it to SG 10-year government bonds (~2.9%) to size the illiquidity premium you're actually earning.</div>
-  <div class="flow-step"><strong>Step 3 — Add the capital appreciation overlay.</strong> Look up 10-year PSF appreciation in your shortlisted district (URA Realis data). Add net yield + annualised appreciation = total pre-tax return. If total return for a high-gross-yield OCR district (e.g., D19: 3.8% gross / 2.4% net + 1.8% appreciation = 4.2% total) is lower than a lifestyle district (D15: 3.6% gross / 2.6% net + 3.2% appreciation = 5.8% total) — the lifestyle district wins on total return despite lower headline yield. This is the analysis most investors skip.</div>
+  <div class="flow-step"><strong>Step 1 Define your investment mandate.</strong> Pure income (need cash flow now) → focus on D15, D5, D3 for best net yield quality. Capital growth (10-year horizon, can absorb negative carry) → CCR districts D9/10/11. Balanced (moderate yield + appreciation) → D15, D5, D3 sweet spot. Avoid OCR fringe (D25/27/28) as a yield play unless you have specific tenant pipeline headline yield is deceptive once vacancy and management intensity are factored.</div>
+  <div class="flow-step"><strong>Step 2 Convert gross to net before comparing.</strong> Take the advertised gross yield. Subtract: property tax (−0.4% on a $1.2M unit renting at $3,500/month), maintenance fees (−0.3% to −0.6%), agent commission (−0.7%, one month per year), vacancy at 6 weeks (−1.1%), maintenance/wear (−0.3%). Result: a 4.2% gross yield typically delivers 2.5–2.9% net before income tax. Then apply your marginal tax rate on net rental income. That final number is your actual return compare it to SG 10-year government bonds (~2.9%) to size the illiquidity premium you're actually earning.</div>
+  <div class="flow-step"><strong>Step 3 Add the capital appreciation overlay.</strong> Look up 10-year PSF appreciation in your shortlisted district (URA Realis data). Add net yield + annualised appreciation = total pre-tax return. If total return for a high-gross-yield OCR district (e.g., D19: 3.8% gross / 2.4% net + 1.8% appreciation = 4.2% total) is lower than a lifestyle district (D15: 3.6% gross / 2.6% net + 3.2% appreciation = 5.8% total) the lifestyle district wins on total return despite lower headline yield. This is the analysis most investors skip.</div>
 
   <h2>2. The district-by-district gross yield league table</h2>
 
@@ -390,7 +390,7 @@
     </button>
   </form>
 <script>
-if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
+if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}
 </script>
 </div>
 </article>
@@ -431,6 +431,16 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 </aside>
 <!-- /author-bio-block -->
 
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/jurong-lake-district-property-2026" style="color:var(--accent);">Jurong Lake District Property 2026: The Growth Story Explained</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/kallang-river-district-property-2026" style="color:var(--accent);">Kallang-Bugis Property Corridor 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-rental-yield-district-2026" style="color:var(--accent);">Singapore Property Yield by District 2026: Where Rental Income Actually Covers Mortgage</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/best-district-invest-singapore-2026" style="color:var(--accent);">Best District to Invest in Singapore 2026: Data-Driven Rankings</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/lentor-hills-property-investment" style="color:var(--accent);">Lentor Hills: Why Singapore's Newest MRT Cluster is an Investor's Argument</a></li>
+  </ul>
+</section>
 </main>
 
 <footer class="divider bg-[var(--bg)]">

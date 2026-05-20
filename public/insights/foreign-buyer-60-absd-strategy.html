@@ -70,13 +70,13 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -91,11 +91,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -127,11 +127,11 @@
   <div style="background:rgba(198,163,106,0.07);border:1px solid rgba(198,163,106,0.25);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:2rem;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.75rem;">Key Takeaways</p>
     <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Foreign buyer ABSD is 60% on every residential purchase — S$1.2M ABSD on a S$2M property, due in cash within 14 days.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Foreign buyer ABSD is 60% on every residential purchase S$1.2M ABSD on a S$2M property, due in cash within 14 days.</li>
       <li style="font-size:.9rem;color:var(--ink-soft);">• FTA-qualifying nationals (US, Switzerland, Liechtenstein, Iceland, Norway) pay SC-equivalent rates: 0% on first property, 20% on second.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Entity purchases attract 65% ABSD — higher than the individual foreign rate — and FTA benefits are forfeited for corporate structures.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Entity purchases attract 65% ABSD higher than the individual foreign rate and FTA benefits are forfeited for corporate structures.</li>
       <li style="font-size:.9rem;color:var(--ink-soft);">• The rent-vs-buy break-even for a foreign buyer at 60% ABSD is approximately 12–15 years under realistic appreciation assumptions.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Commercial property has zero ABSD for all buyers including foreigners — a legitimate alternative for foreign capital seeking Singapore real estate exposure.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Commercial property has zero ABSD for all buyers including foreigners a legitimate alternative for foreign capital seeking Singapore real estate exposure.</li>
     </ul>
   </div>
 
@@ -245,7 +245,7 @@
 
   <div style="background:rgba(198,163,106,0.07);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1.25rem 1.5rem;margin:2.5rem 0;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.6rem;">Winfred's Take</p>
-    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The most underserviced category in Singapore property is the FTA-qualifying foreigner who doesn't know they qualify for SC-equivalent ABSD — I've had American clients arrive at the conversation having budgeted for 60% ABSD, and the moment they learn their 0% first-property rate the entire calculus changes. For everyone else at 60%, the honest conversation is this: the break-even horizon is 12–15 years, and I have never met an expat who accurately predicted how long they'd stay in Singapore. Renting is not a consolation; it's the financially correct answer for a 3-year posting, and the sooner that's said clearly, the better the client relationship.</p>
+    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The most underserviced category in Singapore property is the FTA-qualifying foreigner who doesn't know they qualify for SC-equivalent ABSD I've had American clients arrive at the conversation having budgeted for 60% ABSD, and the moment they learn their 0% first-property rate the entire calculus changes. For everyone else at 60%, the honest conversation is this: the break-even horizon is 12–15 years, and I have never met an expat who accurately predicted how long they'd stay in Singapore. Renting is not a consolation; it's the financially correct answer for a 3-year posting, and the sooner that's said clearly, the better the client relationship.</p>
   </div>
 
   <h2>Related reading</h2>
@@ -277,7 +277,7 @@
     </button>
   </form>
 <script>
-if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
+if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}
 </script>
 </div>
 </article>
@@ -287,7 +287,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
   <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer-s-stamp-duty-(absd)" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer's Stamp Duty (ABSD)</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.sla.gov.sg/land-administration/managing-land-ownership-and-registration/residential-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">SLA: Residential Property — Land Ownership & Registration</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.sla.gov.sg/land-administration/managing-land-ownership-and-registration/residential-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">SLA: Residential Property Land Ownership & Registration</a></li>
     <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/regulations/total-debt-servicing-ratio-framework" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio Framework</a></li>
   </ul>
 </section>
@@ -307,6 +307,16 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 </aside>
 <!-- /author-bio-block -->
 
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/foreign-buyer-absd-property-types-2026" style="color:var(--accent);">Foreign Buyer 60% ABSD: Which Property Types Are Still Worth It?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/absd-explained" style="color:var(--accent);">ABSD Explained: Singapore Rates, Remissions, FTAs (2026)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/absd-for-singles-singapore-2026" style="color:var(--accent);">ABSD for Singles Singapore 2026: The Strategic Gap Every Single Buyer Faces</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/absd-refund-how-to-claim-timeline" style="color:var(--accent);">ABSD Refund Singapore: How to Claim Remission and the Full Timeline</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/absd-remission-claim-process-iras" style="color:var(--accent);">How to Claim ABSD Remission From IRAS: Step-by-Step 2026</a></li>
+  </ul>
+</section>
 </main>
 
 <div style="background:var(--rule);border-radius:12px;padding:2rem;margin:2rem auto;max-width:48rem;text-align:center;">

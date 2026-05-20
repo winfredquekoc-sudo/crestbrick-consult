@@ -23,14 +23,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -47,12 +82,12 @@
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Yishun MOP 2026: North Singapore's Most Affordable Upgrade Window</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 8-minute read &middot; Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Yishun's 2026 MOP cohort unlocks one of Singapore's most affordably priced upgrade windows — Yishun 4-room HDB prices at $380,000–$520,000 give upgraders the smallest entry gap into private property anywhere in the OCR. Most Yishun upgrader households qualify for EC (combined income ≤$16,000) via North Gaia at Yishun Ave 9, making EC the sharpest value play before privatisation. For those ineligible for EC, resale condos in D27 at $950,000–$1.2M are achievable on moderate incomes.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Yishun's 2026 MOP cohort unlocks one of Singapore's most affordably priced upgrade windows Yishun 4-room HDB prices at $380,000–$520,000 give upgraders the smallest entry gap into private property anywhere in the OCR. Most Yishun upgrader households qualify for EC (combined income ≤$16,000) via North Gaia at Yishun Ave 9, making EC the sharpest value play before privatisation. For those ineligible for EC, resale condos in D27 at $950,000–$1.2M are achievable on moderate incomes.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Yishun BTOs Are MOP-Eligible in 2026?</h2>
-  <p>Yishun BTO projects that received TOP in 2021 are MOP-eligible from 2026. Key clusters span Yishun Ave 1, Ave 4, Ave 6, Ave 9, Yishun Ring Road, Yishun St 72, and Yishun St 81. HDB's push to develop the north during the 2019–2021 cycle produced significant Yishun volume — the town has a higher-than-average proportion of younger BTO stock, which means a meaningful MOP cohort size in 2026.</p>
-  <p>Verify your exact MOP date via HDB MyFlat Portal: navigate to My Flat and check your key collection date. MOP is 5 years from key collection. Note that subletting the whole flat for any period resets those months out of your MOP count — this catches some owners off guard.</p>
+  <p>Yishun BTO projects that received TOP in 2021 are MOP-eligible from 2026. Key clusters span Yishun Ave 1, Ave 4, Ave 6, Ave 9, Yishun Ring Road, Yishun St 72, and Yishun St 81. HDB's push to develop the north during the 2019–2021 cycle produced significant Yishun volume the town has a higher-than-average proportion of younger BTO stock, which means a meaningful MOP cohort size in 2026.</p>
+  <p>Verify your exact MOP date via HDB MyFlat Portal: navigate to My Flat and check your key collection date. MOP is 5 years from key collection. Note that subletting the whole flat for any period resets those months out of your MOP count this catches some owners off guard.</p>
 
   <h2>What Is a Yishun HDB Worth in 2026?</h2>
   <table>
@@ -63,30 +98,30 @@
       <tr><td>Yishun Ave 9 / Ring Road / outer Yishun</td><td>Low–Mid (3–10)</td><td>$380,000 – $430,000</td><td>$2,100 – $2,400/mth</td></tr>
     </tbody>
   </table>
-  <p>Data based on URA REALIS and HDB resale portal 2025–2026 transactions. Northpoint City (one of the north's largest retail hubs) and Yishun MRT (NSL) proximity are the primary premium drivers within Yishun. Outer Yishun blocks toward Ave 9 are more affordably priced — which is actually an advantage for upgraders, as the low HDB exit price is offset by the even smaller gap to EC entry.</p>
+  <p>Data based on URA REALIS and HDB resale portal 2025–2026 transactions. Northpoint City (one of the north's largest retail hubs) and Yishun MRT (NSL) proximity are the primary premium drivers within Yishun. Outer Yishun blocks toward Ave 9 are more affordably priced which is actually an advantage for upgraders, as the low HDB exit price is offset by the even smaller gap to EC entry.</p>
 
   <div class="warn">
-    <strong>ABSD rule for upgraders:</strong> Buying private property while still owning your HDB flat triggers 20% ABSD on the private purchase price, payable upfront. A remission is available if you sell the HDB within 6 months of completing the private purchase — but most upgraders avoid this altogether by selling first. For Yishun upgraders considering North Gaia EC: EC purchases by existing HDB owners are governed by HDB eligibility rules, not the ABSD 20% rule — check your eligibility with an HDB-authorised developer's representative.
+    <strong>ABSD rule for upgraders:</strong> Buying private property while still owning your HDB flat triggers 20% ABSD on the private purchase price, payable upfront. A remission is available if you sell the HDB within 6 months of completing the private purchase but most upgraders avoid this altogether by selling first. For Yishun upgraders considering North Gaia EC: EC purchases by existing HDB owners are governed by HDB eligibility rules, not the ABSD 20% rule check your eligibility with an HDB-authorised developer's representative.
   </div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1 — North Gaia EC (D27, Yishun Ave 9)</h3>
-  <p>North Gaia EC at Yishun Ave 9 (approximately 616 units, TOP targeting 2026–2027) is the flagship upgrade destination for income-eligible Yishun households. Entry PSF of $1,100–$1,350 translates to 3BR units from approximately $1.1M–$1.3M. Only available to households with combined monthly income at or below $16,000 — this income ceiling governs EC eligibility. The core value proposition: EC PSF is 15–20% below comparable private condos in D27, and after the EC's 5-year MOP, the development fully privatises, opening the resale market to all buyers including foreigners and corporates. Historical EC privatisation events have delivered 15–30% price appreciation in the 12–18 months post-privatisation.</p>
+  <h3>Path 1 North Gaia EC (D27, Yishun Ave 9)</h3>
+  <p>North Gaia EC at Yishun Ave 9 (approximately 616 units, TOP targeting 2026–2027) is the flagship upgrade destination for income-eligible Yishun households. Entry PSF of $1,100–$1,350 translates to 3BR units from approximately $1.1M–$1.3M. Only available to households with combined monthly income at or below $16,000 this income ceiling governs EC eligibility. The core value proposition: EC PSF is 15–20% below comparable private condos in D27, and after the EC's 5-year MOP, the development fully privatises, opening the resale market to all buyers including foreigners and corporates. Historical EC privatisation events have delivered 15–30% price appreciation in the 12–18 months post-privatisation.</p>
 
-  <h3>Path 2 — D27 Resale Condo (Yishun/Sembawang)</h3>
+  <h3>Path 2 D27 Resale Condo (Yishun/Sembawang)</h3>
   <p>For households above the EC income ceiling or who prefer immediate full private ownership, established D27 resale condos offer solid value. Eight Courtyards (TOP 2014, Yishun Ave 9), Parc Rosewood (TOP 2016), Skies Miltonia (TOP 2016, near Lower Seletar Reservoir), and the older freehold Orchid Park are the primary options. 3BR resale ranges from $950,000–$1.2M in this corridor. PSF is among the lowest for private condos in Singapore, making yield arithmetic more favourable than most other OCR towns.</p>
 
-  <h3>Path 3 — D26 Upper Thomson Resale (Stretch)</h3>
-  <p>Thomson Impressions and Thomson Grand (D26, Upper Thomson) represent a meaningful step up in both price and lifestyle. 3BR in this corridor: $1.4M–$1.6M. The TEL Upper Thomson station — now operational — puts Orchard within approximately 15 minutes and Bishan within 8 minutes. For Yishun upgraders willing to stretch their budget and move slightly south, D26 offers a genuine connectivity and lifestyle upgrade, with a stronger historical appreciation track record than D27 OCR.</p>
+  <h3>Path 3 D26 Upper Thomson Resale (Stretch)</h3>
+  <p>Thomson Impressions and Thomson Grand (D26, Upper Thomson) represent a meaningful step up in both price and lifestyle. 3BR in this corridor: $1.4M–$1.6M. The TEL Upper Thomson station now operational puts Orchard within approximately 15 minutes and Bishan within 8 minutes. For Yishun upgraders willing to stretch their budget and move slightly south, D26 offers a genuine connectivity and lifestyle upgrade, with a stronger historical appreciation track record than D27 OCR.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
     <thead><tr><th>Path</th><th>Entry Price (3BR)</th><th>ABSD (SC 1st)</th><th>BSD</th><th>Upfront Cash+CPF Est.</th><th>Timeline</th></tr></thead>
     <tbody>
-      <tr><td>Path 1 — North Gaia EC (D27)</td><td>~$1,200,000</td><td>0%</td><td>~$32,600</td><td>$50,000 – $100,000 after HDB proceeds</td><td>2026–2027 TOP</td></tr>
-      <tr><td>Path 2 — Yishun resale condo (D27)</td><td>~$1,100,000</td><td>0%</td><td>~$29,600</td><td>$30,000 – $80,000 after HDB proceeds</td><td>Immediate</td></tr>
-      <tr><td>Path 3 — Thomson resale (D26)</td><td>~$1,500,000</td><td>0%</td><td>~$44,600</td><td>$110,000 – $160,000 after HDB proceeds</td><td>Immediate</td></tr>
+      <tr><td>Path 1 North Gaia EC (D27)</td><td>~$1,200,000</td><td>0%</td><td>~$32,600</td><td>$50,000 – $100,000 after HDB proceeds</td><td>2026–2027 TOP</td></tr>
+      <tr><td>Path 2 Yishun resale condo (D27)</td><td>~$1,100,000</td><td>0%</td><td>~$29,600</td><td>$30,000 – $80,000 after HDB proceeds</td><td>Immediate</td></tr>
+      <tr><td>Path 3 Thomson resale (D26)</td><td>~$1,500,000</td><td>0%</td><td>~$44,600</td><td>$110,000 – $160,000 after HDB proceeds</td><td>Immediate</td></tr>
     </tbody>
   </table>
   <p>BSD for $1.1M: $1,800 + $3,600 + $19,200 + $5,000 = $29,600. For $1.2M: $1,800 + $3,600 + $19,200 + $14,400 = $39,000 (Path 1 approximates $1.2M). For $1.5M: $1,800 + $3,600 + $19,200 + $20,000 = $44,600. ABSD for Singapore Citizen purchasing first private property is 0%. EC note: EC BSD is calculated identically to private property.</p>
@@ -97,8 +132,8 @@
     <tbody>
       <tr><td>Entry PSF</td><td>$1,100 – $1,350</td><td>$850 – $1,100</td></tr>
       <tr><td>Income eligibility</td><td>Combined HH income ≤$16,000</td><td>No income ceiling</td></tr>
-      <tr><td>Immediate occupancy</td><td>2026–2027 TOP</td><td>Yes — 8–12 weeks</td></tr>
-      <tr><td>Privatisation upside</td><td>Yes — 5yr EC MOP, then open market</td><td>Already private — no additional unlock</td></tr>
+      <tr><td>Immediate occupancy</td><td>2026–2027 TOP</td><td>Yes 8–12 weeks</td></tr>
+      <tr><td>Privatisation upside</td><td>Yes 5yr EC MOP, then open market</td><td>Already private no additional unlock</td></tr>
       <tr><td>Rental yield</td><td>Strong post-TOP; EC discount priced out by rental market</td><td>Immediate; lower PSF supports better yields</td></tr>
       <tr><td>Long-term appreciation</td><td>EC privatisation event + infrastructure runway</td><td>Constrained D27 supply, Seletar expansion</td></tr>
     </tbody>
@@ -110,32 +145,32 @@
     <li>2BR condo (D27, Yishun): $2,600 – $3,000/mth</li>
     <li>3BR condo (D27): $3,300 – $3,900/mth</li>
     <li>Indicative gross yield on a $1.1M unit at $3,300/mth: 3.6% gross</li>
-    <li>Seletar Aerospace Park expansion — ongoing hiring from aerospace MRO and manufacturing firms drives rental demand from professionals preferring north locations</li>
+    <li>Seletar Aerospace Park expansion ongoing hiring from aerospace MRO and manufacturing firms drives rental demand from professionals preferring north locations</li>
     <li>North Gaia EC, once TOPed, will add fresh rental supply to the Yishun Ave 9 corridor but also signal the area's growing private residential profile</li>
   </ul>
-  <p>Unlike the CBD rental market which fluctuates with economic cycles and expat assignment volumes, Yishun's rental anchors — hospitals and aerospace — are driven by long-term national infrastructure investment. This makes D27 rental income more predictable over a 5–10 year ownership horizon.</p>
+  <p>Unlike the CBD rental market which fluctuates with economic cycles and expat assignment volumes, Yishun's rental anchors hospitals and aerospace are driven by long-term national infrastructure investment. This makes D27 rental income more predictable over a 5–10 year ownership horizon.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Confirm MOP date from HDB MyFlat Portal.</strong> Log in and navigate to My Flat to find your key collection date. Add 5 years. If you subleted the whole flat at any point, those months are excluded from your MOP count — verify with HDB directly if unsure.</div>
-  <div class="flow-step"><strong>Step 2 — Check EC eligibility (3–6 months before MOP).</strong> If targeting North Gaia or another EC, verify your combined household income is at or below $16,000/mth using the previous 12 months' gross income. Also check that neither you nor your co-applicant has owned private property in the past 30 months. If ineligible, pivot to private resale.</div>
-  <div class="flow-step"><strong>Step 3 — Get CPF statement and outstanding loan balance.</strong> Download your CPF property withdrawal statement from my.cpf.gov.sg. Check your outstanding HDB loan. These two figures determine your net proceeds — the foundation of your upgrade budget.</div>
-  <div class="flow-step"><strong>Step 4 — List HDB and accept an offer before exercising OTP on your upgrade target.</strong> Sell HDB first to eliminate ABSD risk. Once you have a committed HDB buyer (Option to Purchase exercised), you have the financial certainty to proceed with your condo or EC OTP.</div>
-  <div class="flow-step"><strong>Step 5 — Bridge the interim rental period.</strong> Yishun 4-room rentals run $2,100–$2,400/mth. Budget for 4–8 weeks of interim rental between HDB completion and condo vacant possession. For EC purchases with deferred payment schemes, the timeline alignment is more complex — confirm with your conveyancing lawyer.</div>
+  <div class="flow-step"><strong>Step 1 Confirm MOP date from HDB MyFlat Portal.</strong> Log in and navigate to My Flat to find your key collection date. Add 5 years. If you subleted the whole flat at any point, those months are excluded from your MOP count verify with HDB directly if unsure.</div>
+  <div class="flow-step"><strong>Step 2 Check EC eligibility (3–6 months before MOP).</strong> If targeting North Gaia or another EC, verify your combined household income is at or below $16,000/mth using the previous 12 months' gross income. Also check that neither you nor your co-applicant has owned private property in the past 30 months. If ineligible, pivot to private resale.</div>
+  <div class="flow-step"><strong>Step 3 Get CPF statement and outstanding loan balance.</strong> Download your CPF property withdrawal statement from my.cpf.gov.sg. Check your outstanding HDB loan. These two figures determine your net proceeds the foundation of your upgrade budget.</div>
+  <div class="flow-step"><strong>Step 4 List HDB and accept an offer before exercising OTP on your upgrade target.</strong> Sell HDB first to eliminate ABSD risk. Once you have a committed HDB buyer (Option to Purchase exercised), you have the financial certainty to proceed with your condo or EC OTP.</div>
+  <div class="flow-step"><strong>Step 5 Bridge the interim rental period.</strong> Yishun 4-room rentals run $2,100–$2,400/mth. Budget for 4–8 weeks of interim rental between HDB completion and condo vacant possession. For EC purchases with deferred payment schemes, the timeline alignment is more complex confirm with your conveyancing lawyer.</div>
 
   <h2>Key Considerations for Yishun MOP 2026 Upgraders</h2>
   <ul>
     <li><strong>EC income ceiling check is the first decision gate.</strong> If combined household income is $16,000 or below, North Gaia EC at approximately 15–20% discount to comparable private property is the optimal first move. This is the single highest-leverage decision Yishun upgraders face in 2026.</li>
     <li><strong>Yishun's affordability is a feature, not a flaw.</strong> The small HDB-to-condo gap means more capital remains available for renovation, cash reserves, or a future second property. An upgrader who exhausts their war chest on a $1.5M condo is more financially exposed than one who buys a $1.1M unit with reserves intact.</li>
     <li><strong>TEL Springleaf and Lentor stations open previously isolated north residents to CCR-adjacent access.</strong> The TEL extension means Upper Thomson and Caldecott (CCR fringe) are now within 15–20 minutes of Yishun. This connectivity improvement structurally reduces the price discount that north Singapore has historically carried relative to CCR.</li>
-    <li><strong>Seletar Aerospace Park expansion is an underappreciated demand driver.</strong> The aerospace cluster — home to companies including Pratt &amp; Whitney, ST Engineering, and multiple MRO operators — is expanding its workforce. Aviation professionals on long-term postings strongly prefer north Singapore residential locations for commute efficiency. This is a durable rental demand source that is rarely discussed in property market commentary.</li>
+    <li><strong>Seletar Aerospace Park expansion is an underappreciated demand driver.</strong> The aerospace cluster home to companies including Pratt &amp; Whitney, ST Engineering, and multiple MRO operators is expanding its workforce. Aviation professionals on long-term postings strongly prefer north Singapore residential locations for commute efficiency. This is a durable rental demand source that is rarely discussed in property market commentary.</li>
   </ul>
 
   <h2>Related reading</h2>
   <ul>
-    <li><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent)">HDB MOP upgrade timeline — what to do 6 months before MOP</a></li>
-    <li><a href="/insights/woodlands-mop-2026" style="color:var(--accent)">Woodlands MOP 2026 — north Singapore upgrade guide</a></li>
-    <li><a href="/insights/ec-new-rules-2026-10-year-mop" style="color:var(--accent)">EC new rules 2026 — the 10-year MOP explained</a></li>
-    <li><a href="/insights/hdb-upgrader-guide" style="color:var(--accent)">HDB upgrader guide — the full process</a></li>
+    <li><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent)">HDB MOP upgrade timeline what to do 6 months before MOP</a></li>
+    <li><a href="/insights/woodlands-mop-2026" style="color:var(--accent)">Woodlands MOP 2026 north Singapore upgrade guide</a></li>
+    <li><a href="/insights/ec-new-rules-2026-10-year-mop" style="color:var(--accent)">EC new rules 2026 the 10-year MOP explained</a></li>
+    <li><a href="/insights/hdb-upgrader-guide" style="color:var(--accent)">HDB upgrader guide the full process</a></li>
     <li><a href="/insights/sell-hdb-first-buy-condo-2026" style="color:var(--accent)">Sell HDB first or buy condo first in 2026?</a></li>
   </ul>
 
@@ -154,7 +189,7 @@
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -172,6 +207,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

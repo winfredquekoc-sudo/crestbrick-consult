@@ -23,14 +23,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -51,8 +86,8 @@
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Choa Chu Kang BTOs Are MOP-Eligible in 2026?</h2>
-  <p>CCK BTO projects that received TOP in 2021 cross their MOP in 2026. Key clusters include developments along CCK Ave 4, CCK Ave 5, CCK Ave 7, the Keat Hong area, and the Limbang precinct. The CCK 2026 MOP cohort is moderate in size — approximately 4,000–5,000 units — smaller than Jurong West or Sengkang but large enough to create meaningful market activity through the year.</p>
-  <p>Verify your MOP date via HDB MyFlat Portal. CCK MRT interchange (EWL + Bukit Panjang LRT terminus) is the primary connectivity anchor for the estate. The upcoming Jurong Region Line (JRL), with Tengah Park and Tengah Plantation MRT stations adjacent to CCK, is expected to open in 2027–2028 — adding a third transit line to the catchment.</p>
+  <p>CCK BTO projects that received TOP in 2021 cross their MOP in 2026. Key clusters include developments along CCK Ave 4, CCK Ave 5, CCK Ave 7, the Keat Hong area, and the Limbang precinct. The CCK 2026 MOP cohort is moderate in size approximately 4,000–5,000 units smaller than Jurong West or Sengkang but large enough to create meaningful market activity through the year.</p>
+  <p>Verify your MOP date via HDB MyFlat Portal. CCK MRT interchange (EWL + Bukit Panjang LRT terminus) is the primary connectivity anchor for the estate. The upcoming Jurong Region Line (JRL), with Tengah Park and Tengah Plantation MRT stations adjacent to CCK, is expected to open in 2027–2028 adding a third transit line to the catchment.</p>
 
   <h2>What Is a Choa Chu Kang HDB Worth in 2026?</h2>
   <table>
@@ -66,27 +101,27 @@
   <p>CCK MRT interchange proximity remains the principal price driver within the estate. Lot One Shoppers' Mall, the CCK market and hawker cluster, and bus interchange access contribute to the amenity premium for centrally located CCK blocks. Keat Hong and Limbang blocks are more peripherally priced but benefit from quiet residential environments and direct bus access to the LRT.</p>
 
   <div class="warn">
-    <strong>ABSD rule for upgraders:</strong> Purchasing private property while still owning your HDB flat triggers 20% ABSD on the private purchase price, payable upfront. Remission is available if you sell the HDB within 6 months of completing the private purchase. Most CCK upgraders sell the HDB first to avoid this cash-flow burden. For EC purchases: EC buyers who own an HDB must dispose of their HDB within 6 months of the EC's TOP — a different and often overlooked timeline constraint.
+    <strong>ABSD rule for upgraders:</strong> Purchasing private property while still owning your HDB flat triggers 20% ABSD on the private purchase price, payable upfront. Remission is available if you sell the HDB within 6 months of completing the private purchase. Most CCK upgraders sell the HDB first to avoid this cash-flow burden. For EC purchases: EC buyers who own an HDB must dispose of their HDB within 6 months of the EC's TOP a different and often overlooked timeline constraint.
   </div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1 — Lumina Grand EC (D23, Bukit Batok West)</h3>
-  <p>Lumina Grand EC at Bukit Batok West Ave 5 (510 units, TOP targeting approximately 2027) is the flagship income-eligible upgrade target for CCK and Bukit Batok households in 2026. Entry PSF of $1,300–$1,500 translates to 3BR units from approximately $1.3M–$1.5M. Eligibility requires combined household income at or below $16,000/mth and no private property ownership in the past 30 months. Lumina Grand's proximity to the planned JRL Tengah corridor makes it one of the more strategically positioned ECs in the west — JRL connectivity, once open, will significantly reduce commute times to Jurong East and eventually to the planned Jurong Lake District.</p>
+  <h3>Path 1 Lumina Grand EC (D23, Bukit Batok West)</h3>
+  <p>Lumina Grand EC at Bukit Batok West Ave 5 (510 units, TOP targeting approximately 2027) is the flagship income-eligible upgrade target for CCK and Bukit Batok households in 2026. Entry PSF of $1,300–$1,500 translates to 3BR units from approximately $1.3M–$1.5M. Eligibility requires combined household income at or below $16,000/mth and no private property ownership in the past 30 months. Lumina Grand's proximity to the planned JRL Tengah corridor makes it one of the more strategically positioned ECs in the west JRL connectivity, once open, will significantly reduce commute times to Jurong East and eventually to the planned Jurong Lake District.</p>
 
-  <h3>Path 2 — Parc Canberra EC Resale (Privatised)</h3>
-  <p>Parc Canberra EC (Sembawang Crescent, TOP 2022) has completed its 5-year EC MOP and is now fully privatised — available for purchase by any buyer, including permanent residents and foreigners. Resale 3BR units trade at approximately $1.2M–$1.4M, representing the first resale cycle of a relatively new EC. This is often one of the most favourable buying windows for privatised ECs: the development is new enough to be modern and well-maintained, but priced at a discount to comparable private condos in D27 because the EC stigma (income ceiling history, earlier restrictions) persists in some buyers' minds. The rational buyer ignores this — a privatised EC is simply private property.</p>
+  <h3>Path 2 Parc Canberra EC Resale (Privatised)</h3>
+  <p>Parc Canberra EC (Sembawang Crescent, TOP 2022) has completed its 5-year EC MOP and is now fully privatised available for purchase by any buyer, including permanent residents and foreigners. Resale 3BR units trade at approximately $1.2M–$1.4M, representing the first resale cycle of a relatively new EC. This is often one of the most favourable buying windows for privatised ECs: the development is new enough to be modern and well-maintained, but priced at a discount to comparable private condos in D27 because the EC stigma (income ceiling history, earlier restrictions) persists in some buyers' minds. The rational buyer ignores this a privatised EC is simply private property.</p>
 
-  <h3>Path 3 — The Criterion EC Resale / Private D23</h3>
-  <p>The Criterion EC (TOP 2016, Choa Chu Kang Crescent) is now fully privatised and offers smaller-development character — lower unit counts, more established landscaping — at 3BR resale prices of $1.15M–$1.35M. For CCK upgraders who want to stay close to their community while stepping into full private ownership without the income ceiling complexity, The Criterion is a clean, immediate option. Nearby private condos in D23 (Bukit 828, Kingsford Waterbay) offer similar pricing with full private ownership from day one.</p>
+  <h3>Path 3 The Criterion EC Resale / Private D23</h3>
+  <p>The Criterion EC (TOP 2016, Choa Chu Kang Crescent) is now fully privatised and offers smaller-development character lower unit counts, more established landscaping at 3BR resale prices of $1.15M–$1.35M. For CCK upgraders who want to stay close to their community while stepping into full private ownership without the income ceiling complexity, The Criterion is a clean, immediate option. Nearby private condos in D23 (Bukit 828, Kingsford Waterbay) offer similar pricing with full private ownership from day one.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
     <thead><tr><th>Path</th><th>Entry Price (3BR)</th><th>ABSD (SC 1st)</th><th>BSD</th><th>Upfront Cash+CPF Est.</th><th>Timeline</th></tr></thead>
     <tbody>
-      <tr><td>Path 1 — Lumina Grand EC new launch (D23)</td><td>~$1,400,000</td><td>0%</td><td>~$36,600</td><td>$100,000 – $150,000 after HDB proceeds</td><td>2027 TOP</td></tr>
-      <tr><td>Path 2 — Parc Canberra EC resale (D27)</td><td>~$1,300,000</td><td>0%</td><td>~$34,100</td><td>$80,000 – $130,000 after HDB proceeds</td><td>Immediate</td></tr>
-      <tr><td>Path 3 — The Criterion EC resale / D23 private (D23)</td><td>~$1,200,000</td><td>0%</td><td>~$32,600</td><td>$50,000 – $100,000 after HDB proceeds</td><td>Immediate</td></tr>
+      <tr><td>Path 1 Lumina Grand EC new launch (D23)</td><td>~$1,400,000</td><td>0%</td><td>~$36,600</td><td>$100,000 – $150,000 after HDB proceeds</td><td>2027 TOP</td></tr>
+      <tr><td>Path 2 Parc Canberra EC resale (D27)</td><td>~$1,300,000</td><td>0%</td><td>~$34,100</td><td>$80,000 – $130,000 after HDB proceeds</td><td>Immediate</td></tr>
+      <tr><td>Path 3 The Criterion EC resale / D23 private (D23)</td><td>~$1,200,000</td><td>0%</td><td>~$32,600</td><td>$50,000 – $100,000 after HDB proceeds</td><td>Immediate</td></tr>
     </tbody>
   </table>
   <p>BSD for $1.4M: $1,800 + $3,600 + $19,200 + $12,000 = $36,600. For $1.3M: $1,800 + $3,600 + $19,200 + $9,500 = $34,100. For $1.2M: $1,800 + $3,600 + $19,200 + $8,000 = $32,600. All figures indicative. ABSD for Singapore Citizen purchasing first private property (including privatised EC) is 0%.</p>
@@ -97,8 +132,8 @@
     <tbody>
       <tr><td>Entry PSF</td><td>$1,300 – $1,500</td><td>$1,050 – $1,350</td></tr>
       <tr><td>Income eligibility</td><td>Combined HH income ≤$16,000</td><td>No income ceiling (privatised EC or private)</td></tr>
-      <tr><td>Immediate occupancy</td><td>No — 2027 TOP estimated</td><td>Yes — 8–12 weeks to completion</td></tr>
-      <tr><td>JRL proximity upside</td><td>Strong — Tengah JRL stations walkable</td><td>Indirect — CCK EWL serves existing connectivity</td></tr>
+      <tr><td>Immediate occupancy</td><td>No 2027 TOP estimated</td><td>Yes 8–12 weeks to completion</td></tr>
+      <tr><td>JRL proximity upside</td><td>Strong Tengah JRL stations walkable</td><td>Indirect CCK EWL serves existing connectivity</td></tr>
       <tr><td>Privatisation upside</td><td>5yr EC MOP then open market</td><td>Already privatised (EC) or always private</td></tr>
       <tr><td>Rental timing</td><td>Post-TOP 2027</td><td>Immediate</td></tr>
     </tbody>
@@ -110,32 +145,32 @@
     <li>2BR condo (D23, CCK vicinity): $2,700 – $3,100/mth</li>
     <li>3BR condo (D23): $3,400 – $4,000/mth</li>
     <li>Indicative gross yield on a $1.3M unit at $3,600/mth: 3.3% gross</li>
-    <li>EC resale units (privatised) typically rent 10–15% below comparable private condo in the same corridor — this discount is reflected in the lower purchase price, not a yield penalty</li>
-    <li>Tengah's car-free town centre and forest corridor concept is expected to attract a professional and young family demographic — these residents will need CCK-area private rentals during Tengah's construction phase</li>
+    <li>EC resale units (privatised) typically rent 10–15% below comparable private condo in the same corridor this discount is reflected in the lower purchase price, not a yield penalty</li>
+    <li>Tengah's car-free town centre and forest corridor concept is expected to attract a professional and young family demographic these residents will need CCK-area private rentals during Tengah's construction phase</li>
   </ul>
-  <p>CCK's EWL direct connection to Jurong East (Singapore's tech hub and future second CBD) in approximately 15 minutes is a meaningful commute advantage for western corridor tenants. Once JRL opens, CCK's effective connectivity improves further — two rail lines plus the LRT network make CCK one of the better-connected non-interchange OCR stations in Singapore.</p>
+  <p>CCK's EWL direct connection to Jurong East (Singapore's tech hub and future second CBD) in approximately 15 minutes is a meaningful commute advantage for western corridor tenants. Once JRL opens, CCK's effective connectivity improves further two rail lines plus the LRT network make CCK one of the better-connected non-interchange OCR stations in Singapore.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Confirm MOP date via HDB MyFlat Portal.</strong> MOP is exactly 5 years from your key collection date. CCK BTO owners who collected keys in mid-2021 are eligible from mid-2026. Those who collected in late 2021 wait until late 2026. Set a calendar reminder 6 months before your MOP date to begin preparation.</div>
-  <div class="flow-step"><strong>Step 2 — Check EC eligibility before targeting Lumina Grand (4–6 months before MOP).</strong> Combined household income must be ≤$16,000/mth (based on the 12 months before application). Neither applicant may own private property in the preceding 30 months. If you are above the income ceiling, go directly to private resale options.</div>
-  <div class="flow-step"><strong>Step 3 — Pull CPF property statement and outstanding HDB loan balance.</strong> The CPF principal plus accrued interest (at 2.5% per annum) is what you must refund to your OA upon HDB sale. This refunded CPF is immediately re-deployable toward your condo or EC downpayment — it is not lost money, it is repositioned capital.</div>
-  <div class="flow-step"><strong>Step 4 — List HDB and secure buyer before committing to condo OTP.</strong> Selling HDB first is the cleanest path for most CCK upgraders. Once your HDB buyer has exercised their OTP, you have the certainty to exercise your own OTP on your upgrade target. For Lumina Grand EC (new launch deferred payment), the timeline alignment is different — confirm the payment schedule and TOP date with the developer's sales team.</div>
-  <div class="flow-step"><strong>Step 5 — Complete HDB sale, receive CPF refund, and deploy into upgrade purchase.</strong> CPF refund arrives in your OA automatically upon HDB completion. Your bank IPA should already be secured before this point. Ensure your conveyancing lawyer has both transaction timelines aligned to minimise the interim rental period — typically 4–8 weeks for D23 resale completions.</div>
+  <div class="flow-step"><strong>Step 1 Confirm MOP date via HDB MyFlat Portal.</strong> MOP is exactly 5 years from your key collection date. CCK BTO owners who collected keys in mid-2021 are eligible from mid-2026. Those who collected in late 2021 wait until late 2026. Set a calendar reminder 6 months before your MOP date to begin preparation.</div>
+  <div class="flow-step"><strong>Step 2 Check EC eligibility before targeting Lumina Grand (4–6 months before MOP).</strong> Combined household income must be ≤$16,000/mth (based on the 12 months before application). Neither applicant may own private property in the preceding 30 months. If you are above the income ceiling, go directly to private resale options.</div>
+  <div class="flow-step"><strong>Step 3 Pull CPF property statement and outstanding HDB loan balance.</strong> The CPF principal plus accrued interest (at 2.5% per annum) is what you must refund to your OA upon HDB sale. This refunded CPF is immediately re-deployable toward your condo or EC downpayment it is not lost money, it is repositioned capital.</div>
+  <div class="flow-step"><strong>Step 4 List HDB and secure buyer before committing to condo OTP.</strong> Selling HDB first is the cleanest path for most CCK upgraders. Once your HDB buyer has exercised their OTP, you have the certainty to exercise your own OTP on your upgrade target. For Lumina Grand EC (new launch deferred payment), the timeline alignment is different confirm the payment schedule and TOP date with the developer's sales team.</div>
+  <div class="flow-step"><strong>Step 5 Complete HDB sale, receive CPF refund, and deploy into upgrade purchase.</strong> CPF refund arrives in your OA automatically upon HDB completion. Your bank IPA should already be secured before this point. Ensure your conveyancing lawyer has both transaction timelines aligned to minimise the interim rental period typically 4–8 weeks for D23 resale completions.</div>
 
   <h2>Key Considerations for Choa Chu Kang MOP 2026 Upgraders</h2>
   <ul>
-    <li><strong>Tengah is the structural wildcard — buy D23 before JRL opens.</strong> The 42,000-home Tengah Forest Town, with its forest corridor and car-free town centre, will progressively attract buyers and tenants who value western Singapore living. JRL connectivity from 2027–2028 will compress commute times and increase Tengah's residential attractiveness. D23 private and EC owners who enter before the JRL launch will benefit from the demand influx that Tengah's residents bring.</li>
-    <li><strong>EC income ceiling check is the first decision gate.</strong> For incomes at or below $16,000/mth, Lumina Grand EC delivers entry at $1,300–$1,500 PSF — meaningfully below comparable private condo pricing in D23. For incomes above $16,000/mth, pivot immediately to private options such as Parc Canberra resale (privatised EC) or The Criterion — no point spending time on EC eligibility research if you do not qualify.</li>
+    <li><strong>Tengah is the structural wildcard buy D23 before JRL opens.</strong> The 42,000-home Tengah Forest Town, with its forest corridor and car-free town centre, will progressively attract buyers and tenants who value western Singapore living. JRL connectivity from 2027–2028 will compress commute times and increase Tengah's residential attractiveness. D23 private and EC owners who enter before the JRL launch will benefit from the demand influx that Tengah's residents bring.</li>
+    <li><strong>EC income ceiling check is the first decision gate.</strong> For incomes at or below $16,000/mth, Lumina Grand EC delivers entry at $1,300–$1,500 PSF meaningfully below comparable private condo pricing in D23. For incomes above $16,000/mth, pivot immediately to private options such as Parc Canberra resale (privatised EC) or The Criterion no point spending time on EC eligibility research if you do not qualify.</li>
     <li><strong>Parc Canberra resale is the best near-term value in the western corridor.</strong> Post-privatisation ECs with relatively recent TOP dates (2022 in Parc Canberra's case) represent an often-overlooked buying window. The development is new, the facilities are modern, and pricing sits below comparable private condos because the EC label persists in perception even after privatisation. Rational buyers treat a privatised EC identically to private property.</li>
     <li><strong>CCK's dual MRT modes are underappreciated.</strong> The EWL direct service to Jurong East and City Hall, combined with the Bukit Panjang LRT network covering the Bukit Panjang and Fajar precincts, gives CCK residents more public transport options than the raw MRT station count suggests. The upcoming JRL third line will add further optionality. This connectivity profile supports both owner-occupier quality of life and tenant breadth.</li>
   </ul>
 
   <h2>Related reading</h2>
   <ul>
-    <li><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent)">HDB MOP upgrade timeline — what to do 6 months before MOP</a></li>
-    <li><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent)">Bukit Batok MOP 2026 — western upgrade guide</a></li>
-    <li><a href="/insights/ec-new-rules-2026-10-year-mop" style="color:var(--accent)">EC new rules 2026 — the 10-year MOP explained</a></li>
-    <li><a href="/insights/hdb-upgrader-guide" style="color:var(--accent)">HDB upgrader guide — the full process</a></li>
+    <li><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent)">HDB MOP upgrade timeline what to do 6 months before MOP</a></li>
+    <li><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent)">Bukit Batok MOP 2026 western upgrade guide</a></li>
+    <li><a href="/insights/ec-new-rules-2026-10-year-mop" style="color:var(--accent)">EC new rules 2026 the 10-year MOP explained</a></li>
+    <li><a href="/insights/hdb-upgrader-guide" style="color:var(--accent)">HDB upgrader guide the full process</a></li>
     <li><a href="/insights/sell-hdb-first-buy-condo-2026" style="color:var(--accent)">Sell HDB first or buy condo first in 2026?</a></li>
   </ul>
 
@@ -154,7 +189,7 @@
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -172,6 +207,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

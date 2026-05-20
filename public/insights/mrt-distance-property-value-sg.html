@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,15 +79,15 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">MRT Distance and Singapore Property Values: What the Data Actually Shows</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 9-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> Being within 400m of an MRT station adds approximately 10–20% to Singapore property values versus a comparable unit at 800–1,200m from the same or similar station. On a $1.2M condo, that is $120,000–$240,000. The premium is highest near NSL/EWL interchange stations and CCL stations with strong CBD access. The TEL is still maturing — stations like Upper Thomson, Lentor, and Bayshore have not yet fully priced in their connectivity premium, creating a medium-term opportunity.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Being within 400m of an MRT station adds approximately 10–20% to Singapore property values versus a comparable unit at 800–1,200m from the same or similar station. On a $1.2M condo, that is $120,000–$240,000. The premium is highest near NSL/EWL interchange stations and CCL stations with strong CBD access. The TEL is still maturing stations like Upper Thomson, Lentor, and Bayshore have not yet fully priced in their connectivity premium, creating a medium-term opportunity.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Singapore has one of the highest public transport usage rates in the world — approximately 70% of all journeys are made on public transport, with MRT at the core. In a city where car ownership costs over $100,000 (just for the Certificate of Entitlement, before the car itself), MRT access is not a lifestyle amenity — it is an economic necessity for most households.</p>
+  <p>Singapore has one of the highest public transport usage rates in the world approximately 70% of all journeys are made on public transport, with MRT at the core. In a city where car ownership costs over $100,000 (just for the Certificate of Entitlement, before the car itself), MRT access is not a lifestyle amenity it is an economic necessity for most households.</p>
 
-  <p>This creates a property market where MRT proximity is one of the strongest and most durable price drivers. The question is not whether MRT proximity matters — it clearly does — but how much it matters, how the effect varies by line and station type, and where the premium has not yet fully priced in.</p>
+  <p>This creates a property market where MRT proximity is one of the strongest and most durable price drivers. The question is not whether MRT proximity matters it clearly does but how much it matters, how the effect varies by line and station type, and where the premium has not yet fully priced in.</p>
 
   <h2>The MRT Proximity Premium: A Distance-Based Framework</h2>
-  <p>Research on Singapore property transactions — from NUS studies, CBRE analyses, and OrangeTee transaction data — consistently finds a distance-based premium gradient for MRT access. Composite findings:</p>
+  <p>Research on Singapore property transactions from NUS studies, CBRE analyses, and OrangeTee transaction data consistently finds a distance-based premium gradient for MRT access. Composite findings:</p>
 
   <table>
     <thead><tr><th>Distance to MRT</th><th>Premium vs 1–1.2km baseline</th><th>Absolute Premium (on $1.2M condo)</th><th>Notes</th></tr></thead>
@@ -88,7 +123,7 @@
   </table>
 
   <h2>The TEL Opportunity: Stations Still Pricing In</h2>
-  <p>The Thomson-East Coast Line is Singapore's newest fully operational MRT line (all stages through Stage 4 open as of 2024). Unlike the NSL and EWL — which have 30+ years of property market data adjusting around them — the TEL is still in the process of being priced by the market.</p>
+  <p>The Thomson-East Coast Line is Singapore's newest fully operational MRT line (all stages through Stage 4 open as of 2024). Unlike the NSL and EWL which have 30+ years of property market data adjusting around them the TEL is still in the process of being priced by the market.</p>
 
   <p>What this means practically: properties near TEL stations that opened in 2021–2024 (Upper Thomson, Caldecott, Springleaf, Lentor, Bayshore, Bedok South, Tanjong Rhu) may not have fully priced in the long-term MRT premium. Historical patterns from other Singapore MRT line openings show:</p>
   <ul>
@@ -96,21 +131,21 @@
     <li>A second appreciation wave 3–5 years after opening, as the actual commute benefit is experienced and the station precinct develops amenities</li>
     <li>Full pricing of the MRT premium typically takes 7–10 years from station opening</li>
   </ul>
-  <p>TEL opened its first stations in 2020. The 7–10 year window puts full TEL pricing somewhere around 2027–2030 — meaning investors buying near TEL stations now are still in the maturing phase of the premium.</p>
+  <p>TEL opened its first stations in 2020. The 7–10 year window puts full TEL pricing somewhere around 2027–2030 meaning investors buying near TEL stations now are still in the maturing phase of the premium.</p>
 
   <h2>HDB vs Private: Where MRT Premium Manifests Differently</h2>
   <p>The MRT proximity premium is proportionally stronger in HDB resale markets than private condo markets. Reasons:</p>
   <ul>
     <li><strong>HDB buyers are more car-light:</strong> HDB households have lower car ownership rates than private condo households. MRT access is correspondingly more important to their daily commute and quality of life.</li>
     <li><strong>HDB price transparency:</strong> HDB resale transaction data is publicly available and comparable flats within the same block/street can be compared directly, making the MRT distance effect easier to isolate.</li>
-    <li><strong>Private condo confounders:</strong> Private condo prices are influenced by brand, developer, facilities, age, and unit facing — all of which obscure the pure MRT distance signal.</li>
+    <li><strong>Private condo confounders:</strong> Private condo prices are influenced by brand, developer, facilities, age, and unit facing all of which obscure the pure MRT distance signal.</li>
   </ul>
 
   <h2>How to Apply This When Buying</h2>
-  <div class="flow-step"><strong>Step 1 — Measure actual walking distance, not straight-line:</strong> Use OneMap.gov.sg or Google Maps walking directions. A property that is 350m straight-line from MRT may be 600m walking distance if there is a canal, road barrier, or expressway in between. The walking experience (not crow-flies distance) is what buyers and tenants value.</div>
-  <div class="flow-step"><strong>Step 2 — Identify whether you are buying a "mature premium" or a "maturing premium":</strong> Properties near NSL/EWL/CCL stations are fully priced — you are paying for the premium but not getting future pricing-in appreciation. Properties near TEL (especially Stage 3–4 stations) and future JRL stations carry a maturing premium — you may benefit from additional appreciation as the line matures.</div>
-  <div class="flow-step"><strong>Step 3 — Check what the MRT connects to:</strong> A station that requires one interchange to reach the CBD is valued less than a station with direct CBD access. Bayshore MRT (TEL direct to Shenton Way) is more valuable than a DTL station requiring interchange at City Hall. Map the direct journey to Raffles Place / Marina Bay / Shenton Way from your target property.</div>
-  <div class="flow-step"><strong>Step 4 — Factor MRT premium into your exit strategy:</strong> If you are selling to the rental market or to families, MRT proximity is a key selling point. If you are selling to car-owning buyers in landed districts, MRT proximity is less important to your exit price.</div>
+  <div class="flow-step"><strong>Step 1 Measure actual walking distance, not straight-line:</strong> Use OneMap.gov.sg or Google Maps walking directions. A property that is 350m straight-line from MRT may be 600m walking distance if there is a canal, road barrier, or expressway in between. The walking experience (not crow-flies distance) is what buyers and tenants value.</div>
+  <div class="flow-step"><strong>Step 2 Identify whether you are buying a "mature premium" or a "maturing premium":</strong> Properties near NSL/EWL/CCL stations are fully priced you are paying for the premium but not getting future pricing-in appreciation. Properties near TEL (especially Stage 3–4 stations) and future JRL stations carry a maturing premium you may benefit from additional appreciation as the line matures.</div>
+  <div class="flow-step"><strong>Step 3 Check what the MRT connects to:</strong> A station that requires one interchange to reach the CBD is valued less than a station with direct CBD access. Bayshore MRT (TEL direct to Shenton Way) is more valuable than a DTL station requiring interchange at City Hall. Map the direct journey to Raffles Place / Marina Bay / Shenton Way from your target property.</div>
+  <div class="flow-step"><strong>Step 4 Factor MRT premium into your exit strategy:</strong> If you are selling to the rental market or to families, MRT proximity is a key selling point. If you are selling to car-owning buyers in landed districts, MRT proximity is less important to your exit price.</div>
 
   <h2>Key MRT Premium Numbers for Common Investment Scenarios</h2>
   <table>
@@ -132,7 +167,7 @@
 
   <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
     <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Want the MRT premium analysis for a specific property?</p>
-    <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">Book a free 30-minute session with Winfred — bring the address and get a clear view of how MRT distance affects that property's value and exit options.</p>
+    <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">Book a free 30-minute session with Winfred bring the address and get a clear view of how MRT distance affects that property's value and exit options.</p>
     <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call</a>
   </div>
 
@@ -144,6 +179,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/adding-child-to-property-title-sg" style="color:var(--accent);">Adding Child to Singapore Property Title 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/australian-buyer-singapore-property-2026" style="color:var(--accent);">Australian Buying Singapore Property 2026: 60% ABSD, No FTA, What to Do</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/buy-property-under-company-singapore" style="color:var(--accent);">Buy property under company Singapore: the HNW investor's honest guide</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/buying-property-before-marriage-singapore" style="color:var(--accent);">Buying Property Before Marriage in Singapore: What You Need to Know</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cpf-second-property-rules-singapore" style="color:var(--accent);">Using CPF for Second Property Singapore 2026: Withdrawal Limits, OA Ceiling, and Traps</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

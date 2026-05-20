@@ -18,14 +18,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;"><div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div><div style="position:relative;max-width:72rem;margin:0 auto;"><p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#c6a36a;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#c6a36a;text-decoration:none;">All insights</a></p><span style="display:inline-block;border:1px solid #c6a36a;color:#c6a36a;font-size:11px;font-weight:600;text-transform:uppercase;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">Foreign Buyers</span><p aria-hidden="true" style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:28ch;text-wrap:balance;margin-bottom:1.25rem;">Non-Singapore Income and TDSR: How Banks Haircut Foreign Salaries</p><p style="color:#c8b89a;font-size:.9rem;">By Winfred Quek · 8-minute read · Last reviewed May 2026</p></div></section>
 <article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
@@ -37,15 +72,15 @@
 
   <h2>Why Banks Discount Foreign Income</h2>
   <p>MAS TDSR guidelines require lenders to ensure borrowers can service their debt even under adverse conditions. Overseas income introduces two risks that Singapore-sourced income does not: currency volatility and employment continuity uncertainty. A Malaysian earning MYR that depreciates 15% against SGD now has proportionally less debt-servicing capacity. A foreigner whose overseas employment terminates has no Singapore safety net.</p>
-  <p>To account for these risks, MAS guidelines classify overseas income as "variable" or "uncertain" income, and banks apply a haircut — typically 20% for stable overseas employment income, 30% or more for variable or self-employment overseas income.</p>
+  <p>To account for these risks, MAS guidelines classify overseas income as "variable" or "uncertain" income, and banks apply a haircut typically 20% for stable overseas employment income, 30% or more for variable or self-employment overseas income.</p>
 
   <h2>The Haircut Impact: $15,000/Month Overseas Income</h2>
   <table>
     <thead><tr><th>Scenario</th><th>Gross Monthly Income</th><th>Recognised by Bank</th><th>Max Debt Service (55%)</th><th>Max Loan (30yr, 4%)</th></tr></thead>
     <tbody>
-      <tr><td>Singapore income — no haircut</td><td>$15,000</td><td>$15,000</td><td>$8,250</td><td>~$1,728,000</td></tr>
-      <tr><td>Overseas income — 20% haircut</td><td>$15,000</td><td>$12,000</td><td>$6,600</td><td>~$1,382,000</td></tr>
-      <tr><td>Overseas income — 30% haircut</td><td>$15,000</td><td>$10,500</td><td>$5,775</td><td>~$1,209,000</td></tr>
+      <tr><td>Singapore income no haircut</td><td>$15,000</td><td>$15,000</td><td>$8,250</td><td>~$1,728,000</td></tr>
+      <tr><td>Overseas income 20% haircut</td><td>$15,000</td><td>$12,000</td><td>$6,600</td><td>~$1,382,000</td></tr>
+      <tr><td>Overseas income 30% haircut</td><td>$15,000</td><td>$10,500</td><td>$5,775</td><td>~$1,209,000</td></tr>
       <tr><td>Difference (no haircut vs 20%)</td><td>–</td><td>–$3,000</td><td>–$1,650</td><td><strong style="color:var(--accent);">–$346,000</strong></td></tr>
     </tbody>
   </table>
@@ -70,7 +105,7 @@
   <p>Ahmad is a Malaysian software engineer on Singapore Employment Pass. His salary is MYR 28,000/month paid by his Malaysian holding company into a Malaysian bank account. At the exchange rate of MYR 3.2:SGD 1, this is SGD 8,750/month.</p>
   <p>Bank applies 25% haircut: recognised income = SGD 6,563/month. At 55% TDSR, max monthly debt service = SGD 3,609. With no other debts and a 30-year tenure at 4% stress rate, maximum loan ≈ SGD 756,000.</p>
   <p>Without the haircut: recognised income SGD 8,750, max debt service SGD 4,813, max loan ≈ SGD 1,008,000. The haircut costs Ahmad SGD 252,000 in borrowing capacity.</p>
-  <p>If Ahmad instead gets PR and transfers to a Singapore employer paying SGD 8,750/month directly: same gross income, but bank recognises 100%, max loan = SGD 1,008,000 — recovering the $252,000 reduction.</p>
+  <p>If Ahmad instead gets PR and transfers to a Singapore employer paying SGD 8,750/month directly: same gross income, but bank recognises 100%, max loan = SGD 1,008,000 recovering the $252,000 reduction.</p>
 
   <div class="warn">The income haircut affects every foreigner relying on overseas salary. Before applying for a Singapore mortgage, calculate your recognised income at 80% (conservative) to understand your real borrowing capacity. Don't assume gross salary = bank-recognised income.</div>
 
@@ -82,9 +117,9 @@
   <h2>Getting Approval in Principle Before Making an Offer</h2>
   <p>Foreign income earners should always obtain an Approval in Principle (AIP) from at least two banks before making an offer or signing an OTP. Different banks apply different haircuts and have varying appetites for overseas income complexity. An AIP takes 1–3 business days and gives you a firm understanding of your borrowing capacity.</p>
 
-  <div class="flow-step"><strong>Step 1:</strong> Compile income documents — payslips (3–6 months), tax returns (2 years), employer letter, bank statements.</div>
+  <div class="flow-step"><strong>Step 1:</strong> Compile income documents payslips (3–6 months), tax returns (2 years), employer letter, bank statements.</div>
   <div class="flow-step"><strong>Step 2:</strong> Apply for AIP at 2–3 banks simultaneously. Specify that income is overseas-sourced and currency-denominated.</div>
-  <div class="flow-step"><strong>Step 3:</strong> Compare AIP amounts — banks differ in haircut policies. The highest AIP indicates the most accommodating income assessment.</div>
+  <div class="flow-step"><strong>Step 3:</strong> Compare AIP amounts banks differ in haircut policies. The highest AIP indicates the most accommodating income assessment.</div>
   <div class="flow-step"><strong>Step 4:</strong> Calculate actual purchase budget: AIP loan + cash downpayment + cash for ABSD (if applicable). This is your true ceiling.</div>
 
   <h2>Related reading</h2>
@@ -95,7 +130,7 @@
     <li><a href="/insights/fixed-vs-floating-mortgage">Fixed vs floating rate mortgage: which to choose</a></li>
   </ul>
 
-  <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;"><p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Get Winfred's take on your situation</p><p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">Free 30-min Property Portfolio Analysis — income haircut, TDSR, and mortgage strategy.</p><a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;text-decoration:none;">Book a free call</a></div>
+  <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;"><p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Get Winfred's take on your situation</p><p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">Free 30-min Property Portfolio Analysis income haircut, TDSR, and mortgage strategy.</p><a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;font-weight:600;text-decoration:none;">Book a free call</a></div>
   <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is an Associate Marketing Consultant at Crestbrick Pte Ltd. CEA R073319H. Information on this page is general and does not constitute financial, investment, or mortgage advice.</p>
 
   <p style="margin-top:1rem">Use the <a href="/tools/tdsr" style="color:var(--accent)">TDSR Calculator</a> to run the numbers on your situation.</p>
@@ -109,6 +144,16 @@
 </section>
 
 <aside class="max-w-3xl mx-auto px-6 py-10 border-t border-[var(--rule)]"><div class="flex gap-5 items-start"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek CEA R073319H" loading="lazy" width="80" height="80" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);flex-shrink:0;" /><div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property, five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div></div></aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/tdsr-one-income-singapore-2026" style="color:var(--accent);">TDSR at 4% Stress Test: How Much Condo Can One Household Income Buy in 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/tdsr-stress-test-explained" style="color:var(--accent);">TDSR Stress Test Singapore</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bridging-loan-singapore-playbook" style="color:var(--accent);">Bridging Loan Singapore: The Full Playbook</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/fixed-floating-lock-in-expires-2026" style="color:var(--accent);">Fixed vs Floating Mortgage 2026: What Happens When Your Lock-In Expires</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/fixed-vs-floating-mortgage" style="color:var(--accent);">Fixed vs Floating Mortgage Singapore 2026</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]"><div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]"><p>© 2026 Winfred Quek · Associate Marketing Consultant, Crestbrick Pte Ltd (CEA L31010886H) · CEA R073319H</p><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a></div><div style="border-top:1px solid rgba(255,255,255,0.08);padding:1.25rem 1.5rem;"><p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this page is general and does not constitute financial, investment, or mortgage advice.</p></div></footer>
 <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20property%20question." style="position:fixed;bottom:1.25rem;right:1.25rem;z-index:50;display:flex;align-items:center;gap:.5rem;background:#25D366;color:#fff;padding:.75rem 1.25rem;border-radius:9999px;font-weight:500;text-decoration:none;box-shadow:0 8px 25px -5px rgba(37,211,102,.4);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span>Chat</span></a>

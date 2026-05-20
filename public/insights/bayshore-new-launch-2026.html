@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -47,12 +82,12 @@
   <div class="quick-answer"><strong>Quick answer:</strong> The Bayshore / Bedok Waterfront precinct in District 16 is one of the most significant new residential areas to emerge in Singapore this decade. With Bayshore MRT (TEL Stage 4, opened 2024) now live, URA masterplan designating high-density residential development, and coastal East Coast Parkway frontage, upcoming GLS launches here are expected at $2,000–$2,400 psf. The investment case combines coastal premium, TEL CBD connectivity, and first-mover pricing on a genuinely new precinct.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Bayshore is not a household name — yet. But that is precisely why property investors are paying attention. The precinct, centred around the Old Tampines Road corridor and Bayshore MRT station on the Thomson-East Coast Line, represents something rare in land-scarce Singapore: a greenfield high-density residential area that has not yet been fully priced by the market.</p>
+  <p>Bayshore is not a household name yet. But that is precisely why property investors are paying attention. The precinct, centred around the Old Tampines Road corridor and Bayshore MRT station on the Thomson-East Coast Line, represents something rare in land-scarce Singapore: a greenfield high-density residential area that has not yet been fully priced by the market.</p>
 
-  <p>The URA 2019 Master Plan designated Bayshore as a major new private residential precinct. In 2025 and 2026, Government Land Sales (GLS) tenders along the Bayshore corridor have begun releasing sites to the market. With TEL Stage 4 now complete and the East Coast Plan connecting this area to broader Singapore, the precinct is entering its growth window — the period when the infrastructure is done but pricing has not yet fully reflected the long-term value.</p>
+  <p>The URA 2019 Master Plan designated Bayshore as a major new private residential precinct. In 2025 and 2026, Government Land Sales (GLS) tenders along the Bayshore corridor have begun releasing sites to the market. With TEL Stage 4 now complete and the East Coast Plan connecting this area to broader Singapore, the precinct is entering its growth window the period when the infrastructure is done but pricing has not yet fully reflected the long-term value.</p>
 
   <h2>Why Bayshore Is Different From Other D16 Development</h2>
-  <p>District 16 is established — Bedok, Tampines Road, Siglap. The Bayshore precinct is specifically the stretch of land between the East Coast Parkway (ECP) and the Bayshore MRT corridor. This area was previously constrained by planning uncertainties around the ECP and coastal park connector network. The URA masterplan has resolved those questions and earmarked the area for high-density residential with active frontages facing the coastal greenway.</p>
+  <p>District 16 is established Bedok, Tampines Road, Siglap. The Bayshore precinct is specifically the stretch of land between the East Coast Parkway (ECP) and the Bayshore MRT corridor. This area was previously constrained by planning uncertainties around the ECP and coastal park connector network. The URA masterplan has resolved those questions and earmarked the area for high-density residential with active frontages facing the coastal greenway.</p>
 
   <p>The existing price benchmark is Seaside Residences (TOP 2022), Singapore's first private condo with direct access to East Coast Park. This 843-unit development at Siglap Link set the template for coastal D16 private living:</p>
   <ul>
@@ -60,10 +95,10 @@
     <li><strong>2-bedroom:</strong> Resale ~$1,300,000–$1,650,000</li>
     <li><strong>3-bedroom:</strong> Resale ~$1,600,000–$2,000,000</li>
   </ul>
-  <p>Seaside Residences, however, pre-dates the TEL opening. New GLS launches at Bayshore benefit from TEL connectivity that Seaside does not have — Bayshore MRT gives residents direct access to Marine Parade, Tanjong Katong, and eventually Shenton Way (CBD) without changing trains.</p>
+  <p>Seaside Residences, however, pre-dates the TEL opening. New GLS launches at Bayshore benefit from TEL connectivity that Seaside does not have Bayshore MRT gives residents direct access to Marine Parade, Tanjong Katong, and eventually Shenton Way (CBD) without changing trains.</p>
 
   <h2>TEL Connectivity: The Game-Changer for East Coast Property</h2>
-  <p>The Thomson-East Coast Line (TEL) Stage 4, which opened in 2024, runs through the heart of the Bayshore precinct. Bayshore MRT station sits within the development zone, meaning future residents of GLS launches here will have doorstep MRT access — a characteristic previously absent from the coastal D16 area, which was historically car-dependent.</p>
+  <p>The Thomson-East Coast Line (TEL) Stage 4, which opened in 2024, runs through the heart of the Bayshore precinct. Bayshore MRT station sits within the development zone, meaning future residents of GLS launches here will have doorstep MRT access a characteristic previously absent from the coastal D16 area, which was historically car-dependent.</p>
   <p>Key TEL journey times from Bayshore (approximate):</p>
   <table>
     <thead><tr><th>Destination</th><th>TEL Journey Time</th><th>Interchange Required</th></tr></thead>
@@ -76,13 +111,13 @@
       <tr><td>Shenton Way (CBD)</td><td>~28–32 min</td><td>None (direct TEL)</td></tr>
     </tbody>
   </table>
-  <p style="font-size:0.85rem;color:var(--ink-muted);">Journey times are indicative. TEL direct to Shenton Way is projected upon completion of full TEL line — check current routing.</p>
+  <p style="font-size:0.85rem;color:var(--ink-muted);">Journey times are indicative. TEL direct to Shenton Way is projected upon completion of full TEL line check current routing.</p>
 
   <h2>GLS Pipeline: What's Coming to Bayshore</h2>
   <p>The URA has been releasing Bayshore corridor sites in its GLS confirmed and reserve lists from 2025 onward. Developers who have bid on East Coast / Bayshore sites include major players attracted by the coastal premium and pent-up demand from upgraders and investors in D16.</p>
 
   <div class="warn">
-    <strong>Note for buyers:</strong> GLS tender prices become known only at award. A developer's tender price directly influences the eventual launch psf. For Bayshore sites, tender prices in 2025 suggest developer breakeven at approximately $1,800–$1,950 psf — supporting a launch range of $2,000–$2,400 psf for a viable profit margin.
+    <strong>Note for buyers:</strong> GLS tender prices become known only at award. A developer's tender price directly influences the eventual launch psf. For Bayshore sites, tender prices in 2025 suggest developer breakeven at approximately $1,800–$1,950 psf supporting a launch range of $2,000–$2,400 psf for a viable profit margin.
   </div>
 
   <h2>Investment Case: Who Should Consider Bayshore</h2>
@@ -94,7 +129,7 @@
   <p>The combination of East Coast Park proximity (cycling, running, beach access) with TEL MRT connectivity is genuinely unique in Singapore. No other current residential district combines these two features. For professional households who value lifestyle quality and commute efficiency, Bayshore addresses both without requiring a car.</p>
 
   <h3>Upgraders from D15 and D16</h3>
-  <p>East Singapore upgraders from Bedok, Tampines, and Marine Parade estates often want to stay east. Bayshore offers new-build quality, coastal amenity, and MRT access — all within the eastern corridor they are familiar with. For HDB upgraders from D16 estates hitting MOP in 2025–2027, Bayshore GLS launches are a natural upgrade target.</p>
+  <p>East Singapore upgraders from Bedok, Tampines, and Marine Parade estates often want to stay east. Bayshore offers new-build quality, coastal amenity, and MRT access all within the eastern corridor they are familiar with. For HDB upgraders from D16 estates hitting MOP in 2025–2027, Bayshore GLS launches are a natural upgrade target.</p>
 
   <h2>Price Comparison: Bayshore vs Surrounding D16</h2>
   <table>
@@ -115,14 +150,14 @@
     <li><strong>2-bedroom condo:</strong> $3,800–$4,800/month</li>
     <li><strong>3-bedroom condo:</strong> $5,000–$6,500/month (waterfront premium)</li>
   </ul>
-  <p>Gross rental yield on Bayshore new launch at $2,000 psf: a 2-bedroom at $1.5M renting at $4,200/month gives ~3.4% gross yield — comparable to other coastal new launches in Singapore. Yield is not the primary investment case here; capital appreciation from new precinct maturation is.</p>
+  <p>Gross rental yield on Bayshore new launch at $2,000 psf: a 2-bedroom at $1.5M renting at $4,200/month gives ~3.4% gross yield comparable to other coastal new launches in Singapore. Yield is not the primary investment case here; capital appreciation from new precinct maturation is.</p>
 
   <h2>How to Approach the Bayshore Opportunity</h2>
-  <div class="flow-step"><strong>Step 1:</strong> Register interest with developers before launch. Bayshore GLS sites will have VVIPs and preview periods — being on the registry gives first access to unit selection and preview pricing.</div>
+  <div class="flow-step"><strong>Step 1:</strong> Register interest with developers before launch. Bayshore GLS sites will have VVIPs and preview periods being on the registry gives first access to unit selection and preview pricing.</div>
   <div class="flow-step"><strong>Step 2:</strong> Confirm your financing position. New launches require 5% booking fee + 20% within 8 weeks. Ensure mortgage in principle is ready.</div>
   <div class="flow-step"><strong>Step 3:</strong> Compare unit stacks. Bayshore-facing units (coastal view) will command a stack premium of $50K–$150K over pool-facing or road-facing units. Evaluate the premium against your investment thesis.</div>
-  <div class="flow-step"><strong>Step 4:</strong> If buying as SC without existing property — 0% ABSD. If buying as second property — factor 20% ABSD into returns modelling. At $1.9M, ABSD = $380,000. Second-property Bayshore only works if you have a strong capital appreciation thesis (5+ years, 20%+ appreciation needed to recover ABSD).</div>
-  <div class="flow-step"><strong>Step 5:</strong> Plan for TOP in 2028–2029. Have a bridging plan if you are an upgrader selling HDB or existing property — timing the sale with progressive payment construction milestones reduces cash pressure.</div>
+  <div class="flow-step"><strong>Step 4:</strong> If buying as SC without existing property 0% ABSD. If buying as second property factor 20% ABSD into returns modelling. At $1.9M, ABSD = $380,000. Second-property Bayshore only works if you have a strong capital appreciation thesis (5+ years, 20%+ appreciation needed to recover ABSD).</div>
+  <div class="flow-step"><strong>Step 5:</strong> Plan for TOP in 2028–2029. Have a bridging plan if you are an upgrader selling HDB or existing property timing the sale with progressive payment construction milestones reduces cash pressure.</div>
 
   <h2>Key Risks</h2>
   <ul>
@@ -161,6 +196,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-investment-returns-data" style="color:var(--accent);">New Launch Condo Investment Returns: 10-Year Data on Which Projects Beat Inflation</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-resale-by-mrt-line-2026" style="color:var(--accent);">New Launch vs Resale: How to Choose by MRT Line in 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-vs-resale" style="color:var(--accent);">New Launch vs Resale Condo Singapore</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-vs-resale-by-district-2026" style="color:var(--accent);">New Launch vs Resale by District: The 2026 Numbers</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/pre-sale-subsale-new-launch-singapore" style="color:var(--accent);">Pre-Selling Singapore Condo Before TOP: Sub-Sale Rules, Stamp Duty, and What the Market Pays</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

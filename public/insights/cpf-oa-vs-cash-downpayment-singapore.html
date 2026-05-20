@@ -25,14 +25,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -47,12 +82,12 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Should You Use CPF or Cash for Your Singapore Property Downpayment?</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 9-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> CPF OA earns 2.5% per annum. Using it for property saves cash but creates an accrued interest liability — you must refund the CPF principal plus all accrued interest when you sell. If your cash can earn more than 2.5% (in equities, REITs, bonds, or T-bills), preserving CPF for investment and using cash for the downpayment is mathematically better. If your cash sits idle in a savings account earning 0.05%, use CPF instead. The decision depends entirely on what you would do with the cash alternative.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> CPF OA earns 2.5% per annum. Using it for property saves cash but creates an accrued interest liability you must refund the CPF principal plus all accrued interest when you sell. If your cash can earn more than 2.5% (in equities, REITs, bonds, or T-bills), preserving CPF for investment and using cash for the downpayment is mathematically better. If your cash sits idle in a savings account earning 0.05%, use CPF instead. The decision depends entirely on what you would do with the cash alternative.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Every Singapore property buyer using CPF OA faces a version of this question: should I put in as much CPF as possible to preserve cash, or should I put in more cash and preserve CPF for retirement or investment? There is no universal correct answer — but there is a rigorous framework for finding your personal correct answer.</p>
+  <p>Every Singapore property buyer using CPF OA faces a version of this question: should I put in as much CPF as possible to preserve cash, or should I put in more cash and preserve CPF for retirement or investment? There is no universal correct answer but there is a rigorous framework for finding your personal correct answer.</p>
 
-  <p>The key insight most buyers miss: CPF is not free money for property. When you use CPF OA for your downpayment, every dollar withdrawn accumulates interest at 2.5% per annum from the withdrawal date. That interest compounds. On sale, you must return the full withdrawal plus all accumulated interest to your CPF OA — before you receive a single dollar of net sale proceeds. This is the CPF accrued interest mechanism, and understanding it is essential before committing to a CPF-heavy downpayment strategy.</p>
+  <p>The key insight most buyers miss: CPF is not free money for property. When you use CPF OA for your downpayment, every dollar withdrawn accumulates interest at 2.5% per annum from the withdrawal date. That interest compounds. On sale, you must return the full withdrawal plus all accumulated interest to your CPF OA before you receive a single dollar of net sale proceeds. This is the CPF accrued interest mechanism, and understanding it is essential before committing to a CPF-heavy downpayment strategy.</p>
 
   <h2>How CPF Accrued Interest Works</h2>
   <p>Suppose you withdraw $200,000 from your CPF OA for a property purchase in 2026 and sell in 2036 (10 years later). The CPF Board charges accrued interest at 2.5% per annum on the withdrawn amount:</p>
@@ -60,7 +95,7 @@
   <table>
     <thead><tr><th>Year</th><th>CPF Balance Owed (Principal + Interest)</th><th>Annual Interest Added</th></tr></thead>
     <tbody>
-      <tr><td>2026 (withdrawal)</td><td>$200,000</td><td>—</td></tr>
+      <tr><td>2026 (withdrawal)</td><td>$200,000</td><td> </td></tr>
       <tr><td>2027</td><td>$205,000</td><td>$5,000</td></tr>
       <tr><td>2030</td><td>$220,752</td><td>~$5,519</td></tr>
       <tr><td>2033</td><td>$237,196</td><td>~$5,930</td></tr>
@@ -70,7 +105,7 @@
   <p style="font-size:0.85rem;color:var(--ink-muted);">Accrued interest calculated at 2.5% per annum compounded annually on the initial $200,000 CPF OA withdrawal. Additional CPF withdrawals for monthly mortgage payments are added to the principal and also accrue interest separately.</p>
 
   <div class="warn">
-    <strong>The accrued interest trap on loss-making sales:</strong> If you sell your property for the same price you bought it (breakeven), the CPF accrued interest means you actually lose money. On a $200,000 CPF withdrawal held for 10 years, you owe $255,685 back to CPF — but your property only returned $200,000 of the original CPF. The additional $55,685 must come from your cash sale proceeds. A "breakeven" property transaction with large CPF usage can result in a cash loss.
+    <strong>The accrued interest trap on loss-making sales:</strong> If you sell your property for the same price you bought it (breakeven), the CPF accrued interest means you actually lose money. On a $200,000 CPF withdrawal held for 10 years, you owe $255,685 back to CPF but your property only returned $200,000 of the original CPF. The additional $55,685 must come from your cash sale proceeds. A "breakeven" property transaction with large CPF usage can result in a cash loss.
   </div>
 
   <h2>The Opportunity Cost Comparison: CPF vs Cash</h2>
@@ -90,28 +125,28 @@
   <h2>When to Use CPF for the Downpayment</h2>
   <p>Use CPF OA for the property downpayment when:</p>
   <ul>
-    <li><strong>Your cash is otherwise unproductive</strong> — sitting in a savings account at 0.05–0.5% (below CPF's 2.5% floor). In this case, the CPF accrued interest cost is lower than the alternative return, and using CPF preserves liquidity without sacrificing much.</li>
-    <li><strong>You are cash-constrained</strong> — the downpayment and stamp duties absorb most of your liquid savings, and you have limited reserves for emergencies. Using CPF for eligible expenses protects your cash buffer.</li>
-    <li><strong>You are close to retirement</strong> — for buyers aged 50+, CPF OA funds are better deployed in property (a tangible asset) than at 2.5% in the OA, especially if your SA has already hit the Full Retirement Sum.</li>
-    <li><strong>The mortgage interest rate is higher than 2.5%</strong> — in a higher rate environment (3–4%), using more CPF to reduce the loan amount can save more in mortgage interest than you lose in CPF accrued interest.</li>
+    <li><strong>Your cash is otherwise unproductive</strong> sitting in a savings account at 0.05–0.5% (below CPF's 2.5% floor). In this case, the CPF accrued interest cost is lower than the alternative return, and using CPF preserves liquidity without sacrificing much.</li>
+    <li><strong>You are cash-constrained</strong> the downpayment and stamp duties absorb most of your liquid savings, and you have limited reserves for emergencies. Using CPF for eligible expenses protects your cash buffer.</li>
+    <li><strong>You are close to retirement</strong> for buyers aged 50+, CPF OA funds are better deployed in property (a tangible asset) than at 2.5% in the OA, especially if your SA has already hit the Full Retirement Sum.</li>
+    <li><strong>The mortgage interest rate is higher than 2.5%</strong> in a higher rate environment (3–4%), using more CPF to reduce the loan amount can save more in mortgage interest than you lose in CPF accrued interest.</li>
   </ul>
 
   <h2>When to Preserve CPF and Use Cash</h2>
   <p>Preserve CPF OA and use cash for the downpayment when:</p>
   <ul>
-    <li><strong>You have a disciplined investment strategy</strong> — you will invest the preserved cash in a diversified portfolio targeting 5–8% annual returns (CPFIS equities, REITs, SSBs, T-bills). The math favours this at returns above 2.5%.</li>
-    <li><strong>You are under 45 with a long accumulation horizon</strong> — preserving CPF OA allows it to compound at 2.5% (or invest via CPFIS) for decades, building a larger retirement base.</li>
-    <li><strong>Your SA is below the Full Retirement Sum (FRS)</strong> — if your SA is still accumulating toward FRS, consider topping up SA from OA (irreversible but tax-advantaged) and using cash for the property instead.</li>
-    <li><strong>You expect to sell within 5 years</strong> — the CPF accrued interest burden over a short holding period is smaller, but the refund liability on a short-term sale is still significant relative to any capital gain.</li>
+    <li><strong>You have a disciplined investment strategy</strong> you will invest the preserved cash in a diversified portfolio targeting 5–8% annual returns (CPFIS equities, REITs, SSBs, T-bills). The math favours this at returns above 2.5%.</li>
+    <li><strong>You are under 45 with a long accumulation horizon</strong> preserving CPF OA allows it to compound at 2.5% (or invest via CPFIS) for decades, building a larger retirement base.</li>
+    <li><strong>Your SA is below the Full Retirement Sum (FRS)</strong> if your SA is still accumulating toward FRS, consider topping up SA from OA (irreversible but tax-advantaged) and using cash for the property instead.</li>
+    <li><strong>You expect to sell within 5 years</strong> the CPF accrued interest burden over a short holding period is smaller, but the refund liability on a short-term sale is still significant relative to any capital gain.</li>
   </ul>
 
   <h2>Decision Framework: A Step-by-Step Approach</h2>
 
-  <div class="flow-step"><strong>Step 1:</strong> Determine the minimum cash you must keep liquid (6 months emergency fund + BSD + legal fees + any renovation budget). This is your cash floor — never dip below it for a property downpayment.</div>
+  <div class="flow-step"><strong>Step 1:</strong> Determine the minimum cash you must keep liquid (6 months emergency fund + BSD + legal fees + any renovation budget). This is your cash floor never dip below it for a property downpayment.</div>
   <div class="flow-step"><strong>Step 2:</strong> Above your cash floor, assess your investment discipline honestly. Have you invested consistently in the past 3 years? If yes, preserve CPF and invest the cash. If no, use CPF to pay down the property (a forced savings mechanism).</div>
   <div class="flow-step"><strong>Step 3:</strong> Calculate your CPF accrued interest liability at your intended holding period (5yr, 10yr, 15yr). Compare against the opportunity cost of not investing that cash. Use the CPF Board's online calculator.</div>
   <div class="flow-step"><strong>Step 4:</strong> Check your SA balance relative to Full Retirement Sum. If well below FRS, consider preserving OA and doing a voluntary CPF SA top-up from cash (tax-deductible up to $8,000/year for self, $8,000 for family members) instead.</div>
-  <div class="flow-step"><strong>Step 5:</strong> Make the split decision — use CPF for the mandatory minimums (e.g., 5% of the 20% downpayment that must be cash comes from cash; remaining 15% can be CPF) and use cash strategically for BSD and legal fees.</div>
+  <div class="flow-step"><strong>Step 5:</strong> Make the split decision use CPF for the mandatory minimums (e.g., 5% of the 20% downpayment that must be cash comes from cash; remaining 15% can be CPF) and use cash strategically for BSD and legal fees.</div>
 
   <h2>Related reading</h2>
   <ul>
@@ -143,6 +178,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/cpf-accrued-interest-trap" style="color:var(--accent);">The CPF Accrued Interest Trap</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cpf-accrued-interest-upgrade" style="color:var(--accent);">CPF Accrued Interest When You Upgrade: The Hidden Cost Most Upgraders Miss</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cpf-second-property-rules-singapore" style="color:var(--accent);">Using CPF for Second Property Singapore 2026: Withdrawal Limits, OA Ceiling, and Traps</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-property-vs-reits-vs-cpf" style="color:var(--accent);">Singapore Property vs REITs vs CPF SA: Where $500,000 Grows Most in 10 Years</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-will-vs-cpf-nomination-property" style="color:var(--accent);">Singapore Will vs CPF Nomination Property Guide</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

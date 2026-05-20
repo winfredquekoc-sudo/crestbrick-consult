@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,10 +79,10 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">New Launch vs Resale: How to Choose by MRT Line in 2026</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 9-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> The new launch vs resale decision is not universal — it varies significantly by MRT corridor. Along the TEL near CCR interchanges, new launches justify their 20–30% premium through stronger capital gain potential. Along mature NSL/EWL corridors and the NEL, the premium narrows to 10–15%, making resale better value. The DTL near Bayfront and Buona Vista favours new launches for rental yield plays; the CCL favours resale for value.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> The new launch vs resale decision is not universal it varies significantly by MRT corridor. Along the TEL near CCR interchanges, new launches justify their 20–30% premium through stronger capital gain potential. Along mature NSL/EWL corridors and the NEL, the premium narrows to 10–15%, making resale better value. The DTL near Bayfront and Buona Vista favours new launches for rental yield plays; the CCL favours resale for value.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Singapore has six MRT lines, and each corridor has a distinct property investment profile — different price levels, different buyer pools, different rental demand drivers, and different dynamics between new launch and resale pricing. Treating "new launch vs resale" as a binary national question misses the point entirely.</p>
+  <p>Singapore has six MRT lines, and each corridor has a distinct property investment profile different price levels, different buyer pools, different rental demand drivers, and different dynamics between new launch and resale pricing. Treating "new launch vs resale" as a binary national question misses the point entirely.</p>
 
   <p>The right framework is: which MRT line, which station catchment, and what is your investment objective? This guide works through each line systematically so you can map your budget and objectives to the right corridor and the right property type.</p>
 
@@ -62,12 +97,12 @@
 
   <h2>Thomson-East Coast Line (TEL): Highest New Launch Potential</h2>
   <p>The TEL is Singapore's newest fully operational MRT line, connecting Woodlands in the north through the Orchard/Newton CCR core and down the east coast to Sungei Bedok interchange with the EWL. Key investment stations: Stevens (D10), Orchard Boulevard (D10), Great World (D9), Havelock (D3), Tanjong Rhu (D15), Katong Park (D15).</p>
-  <p>The TEL has created new connectivity and appreciation tailwinds along D15 (East Coast) which was historically underserved by MRT. New launches along the TEL in D15 command a 20–30% premium over older resale stock — and this premium is largely justified by the improved accessibility narrative. The capital gain story is strongest for D15 TEL-adjacent new launches in 2026.</p>
+  <p>The TEL has created new connectivity and appreciation tailwinds along D15 (East Coast) which was historically underserved by MRT. New launches along the TEL in D15 command a 20–30% premium over older resale stock and this premium is largely justified by the improved accessibility narrative. The capital gain story is strongest for D15 TEL-adjacent new launches in 2026.</p>
   <p><strong>Verdict: New launch favoured along TEL, especially D15 stations. Resale suitable for buyers who want immediate occupation or older D10/D9 stock at lower psf.</strong></p>
 
-  <h2>Circle Line (CCL): Mixed — Resale Better Value</h2>
+  <h2>Circle Line (CCL): Mixed Resale Better Value</h2>
   <p>The CCL runs in a loop connecting all radial lines. Key investment nodes: one-north/Buona Vista interchange (D5), Paya Lebar interchange (D14/D15), Serangoon interchange (D19), Bishan interchange (D20), Caldecott (D11).</p>
-  <p>The CCL is a mature line. New launches along CCL corridors exist but are limited in volume. The price gap between new launch and resale is narrower than on TEL — typically 10–20%. At this gap, resale often wins on value, especially at one-north (D5) where established resale condos near Buona Vista offer strong rental yield from the tech/biomedical cluster.</p>
+  <p>The CCL is a mature line. New launches along CCL corridors exist but are limited in volume. The price gap between new launch and resale is narrower than on TEL typically 10–20%. At this gap, resale often wins on value, especially at one-north (D5) where established resale condos near Buona Vista offer strong rental yield from the tech/biomedical cluster.</p>
   <p><strong>Verdict: Resale favoured along CCL for value buyers. New launch only if unique locational advantage justifies premium.</strong></p>
 
   <h2>Downtown Line (DTL): Strong Rental, New Launch for Growth Nodes</h2>
@@ -76,12 +111,12 @@
   <p><strong>Verdict: DTL new launches justified near Bayfront and D10 interchanges. Resale better value in D19 segment.</strong></p>
 
   <h2>North-East Line (NEL): Mass Market, Resale Better Value</h2>
-  <p>The NEL runs from HarbourFront through Chinatown, Little India, Serangoon, and up to Punggol. Key investment corridor: D19 (Hougang, Serangoon, Punggol, Sengkang) — Singapore's most active HDB upgrader market.</p>
+  <p>The NEL runs from HarbourFront through Chinatown, Little India, Serangoon, and up to Punggol. Key investment corridor: D19 (Hougang, Serangoon, Punggol, Sengkang) Singapore's most active HDB upgrader market.</p>
   <p>New OCR launches along NEL in D19 are plentiful and the developer premium over resale is typically 10–15%. At this level, resale wins on immediate occupation, larger unit sizes, and established estate maturity. New launches in D19 are appropriate only if the specific project offers a meaningful infrastructure catalyst (new MRT interchange, commercial hub, upcoming BTO upgrader cohort) that justifies paying new launch pricing.</p>
   <p><strong>Verdict: Resale generally better value in NEL/D19. New launch only for specific catalytic projects.</strong></p>
 
   <h2>North-South Line (NSL) and East-West Line (EWL): Mature Corridors</h2>
-  <p>The NSL (Jurong to Woodlands) and EWL (Pasir Ris to Jurong/Changi) are Singapore's original MRT lines — fully mature corridors with established resale markets and limited new launch activity in most segments. Where new launches do exist (e.g., Tengah on the EWL extension), they serve primarily as first-home or upgrader purchases rather than investment plays.</p>
+  <p>The NSL (Jurong to Woodlands) and EWL (Pasir Ris to Jurong/Changi) are Singapore's original MRT lines fully mature corridors with established resale markets and limited new launch activity in most segments. Where new launches do exist (e.g., Tengah on the EWL extension), they serve primarily as first-home or upgrader purchases rather than investment plays.</p>
   <p>Resale condos along the NSL/EWL offer the best value in the Singapore market for budget-focused buyers: established neighbourhoods, proven rental demand, and psf that can be 20–35% below comparable new launch pricing. The trade-off is slower capital appreciation.</p>
   <p><strong>Verdict: Resale strongly favoured along NSL/EWL for value and yield. New launches only in emerging nodes like Tengah.</strong></p>
 
@@ -140,6 +175,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-vs-resale-by-district-2026" style="color:var(--accent);">New Launch vs Resale by District: The 2026 Numbers</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-vs-resale" style="color:var(--accent);">New Launch vs Resale Condo Singapore</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bayshore-new-launch-2026" style="color:var(--accent);">Bayshore / Bedok Waterfront New Launch 2026: Singapore's Coastal Property Opportunity</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-investment-returns-data" style="color:var(--accent);">New Launch Condo Investment Returns: 10-Year Data on Which Projects Beat Inflation</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/pre-sale-subsale-new-launch-singapore" style="color:var(--accent);">Pre-Selling Singapore Condo Before TOP: Sub-Sale Rules, Stamp Duty, and What the Market Pays</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

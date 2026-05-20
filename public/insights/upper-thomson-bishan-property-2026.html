@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,10 +79,10 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Upper Thomson to Bishan: How the TEL is Reshaping This Mature Estate</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 8-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> Upper Thomson and Bishan are mature estates that have quietly become some of Singapore's best-connected residential areas since TEL Stage 2 opened in 2021. Upper Thomson MRT gives direct CBD access in ~25 minutes. Caldecott MRT is a CCL/TEL interchange connecting Bishan to both lines. Resale condos in the corridor — Sky Vue, Sky Habitat, The Atelier — offer established large units at $1.3M–$2.0M with 3BR. Lentor Modern (nearby new launch) has set a new pricing anchor for the entire corridor at ~$2,100–$2,300 psf.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Upper Thomson and Bishan are mature estates that have quietly become some of Singapore's best-connected residential areas since TEL Stage 2 opened in 2021. Upper Thomson MRT gives direct CBD access in ~25 minutes. Caldecott MRT is a CCL/TEL interchange connecting Bishan to both lines. Resale condos in the corridor Sky Vue, Sky Habitat, The Atelier offer established large units at $1.3M–$2.0M with 3BR. Lentor Modern (nearby new launch) has set a new pricing anchor for the entire corridor at ~$2,100–$2,300 psf.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>The stretch of Singapore running from Bishan through Upper Thomson to Lentor is undergoing a quiet transformation. This is not a greenfield precinct like Bayshore or Tengah — it is a mature residential corridor where established infrastructure, excellent schools, and now TEL MRT access are combining to attract buyers who previously looked exclusively at the Core Central Region or District 10.</p>
+  <p>The stretch of Singapore running from Bishan through Upper Thomson to Lentor is undergoing a quiet transformation. This is not a greenfield precinct like Bayshore or Tengah it is a mature residential corridor where established infrastructure, excellent schools, and now TEL MRT access are combining to attract buyers who previously looked exclusively at the Core Central Region or District 10.</p>
 
   <p>The catalysts are clear: TEL Stage 2 (opened 2021) brought Upper Thomson MRT to a corridor that relied heavily on CTE and buses. Caldecott MRT (also TEL Stage 2) created a two-line interchange connecting the Circle Line and TEL, meaning Bishan residents now have seamless access to both MRT networks. And Lentor MRT (TEL Stage 3, opened 2022) anchored the new Lentor Hills precinct immediately north, which has since attracted multiple GLS launches and brought new retail (Lentor Modern mixed-use) to the area.</p>
 
@@ -57,7 +92,7 @@
     <li><strong>Bishan:</strong> Junction 8 (regional mall), Bishan MRT (NSL/CCL interchange), Bishan-Ang Mo Kio Park (one of Singapore's largest urban parks), established HDB and condo stock (Sky Vue, Sky Habitat)</li>
     <li><strong>Caldecott:</strong> TEL/CCL interchange, proximity to Caldecott Broadcasting Campus, low-density landed and condominium mix</li>
     <li><strong>Upper Thomson:</strong> Upper Thomson MRT (TEL), Thomson Plaza (neighbourhood mall), Thomson Nature Park, Springleaf Nature Park, The Atelier condo, lower-density private residential</li>
-    <li><strong>Lentor:</strong> Lentor MRT (TEL), Lentor Modern (mixed-use with Foodfare, Cold Storage, childcare — opened 2025), Lentor Hills Road GLS cluster (multiple launches 2022–2024)</li>
+    <li><strong>Lentor:</strong> Lentor MRT (TEL), Lentor Modern (mixed-use with Foodfare, Cold Storage, childcare opened 2025), Lentor Hills Road GLS cluster (multiple launches 2022–2024)</li>
   </ul>
 
   <h2>Property Prices in the Corridor (2026)</h2>
@@ -76,13 +111,13 @@
   <h2>The TEL Premium: What the Data Shows</h2>
   <p>Upper Thomson MRT opened in August 2021 as part of TEL Stage 2. In the 4+ years since opening, properties within 600m of Upper Thomson station have appreciated meaningfully relative to comparable condos further from the station. The corridor benefit flows from three elements:</p>
   <ol>
-    <li><strong>Direct CBD access:</strong> Upper Thomson to Shenton Way (TEL) without changing trains — a connectivity that the area never had before. Pre-TEL, the only fast access was private car on CTE.</li>
+    <li><strong>Direct CBD access:</strong> Upper Thomson to Shenton Way (TEL) without changing trains a connectivity that the area never had before. Pre-TEL, the only fast access was private car on CTE.</li>
     <li><strong>Nature park premium:</strong> Thomson Nature Park, Springleaf Nature Park, and the Central Catchment Nature Reserve give this corridor a "green lung" quality that appeals to HNW buyers seeking peace alongside connectivity.</li>
     <li><strong>School cluster:</strong> The area is within school zone of several well-regarded primary and secondary schools, supporting sustained demand from family buyers.</li>
   </ol>
 
   <div class="warn">
-    <strong>Pricing context:</strong> Lentor Modern's launch at $2,100–$2,300 psf has effectively set a price ceiling reference for the corridor. Older resale condos like Sky Vue and Sky Habitat ($1,400–$1,700 psf) represent a relative discount to the new benchmark. The psf gap between older resale and new launch in this corridor is approximately 25–40% — wider than in OCR towns like Tampines, suggesting more potential for older resale units to close the gap as the corridor matures.
+    <strong>Pricing context:</strong> Lentor Modern's launch at $2,100–$2,300 psf has effectively set a price ceiling reference for the corridor. Older resale condos like Sky Vue and Sky Habitat ($1,400–$1,700 psf) represent a relative discount to the new benchmark. The psf gap between older resale and new launch in this corridor is approximately 25–40% wider than in OCR towns like Tampines, suggesting more potential for older resale units to close the gap as the corridor matures.
   </div>
 
   <h2>The Investment Case for Older Resale Condos in the Corridor</h2>
@@ -98,9 +133,9 @@
   </ul>
 
   <h2>Buying Strategy: New Launch vs Resale in the TEL Corridor</h2>
-  <div class="flow-step"><strong>Option A — New launch (Lentor cluster):</strong> Pay $2,000–$2,300 psf for a brand-new unit directly on Lentor MRT. Higher entry, progressive payment scheme, TOP 2025–2026. Best for buyers who want the newest product and are willing to pay the new launch premium.</div>
-  <div class="flow-step"><strong>Option B — The Atelier resale:</strong> Pay $1,750–$2,100 psf for a newer (2023 TOP) unit with immediate occupation, Upper Thomson MRT access. Good middle ground between new launch and older stock.</div>
-  <div class="flow-step"><strong>Option C — Sky Vue or Sky Habitat resale:</strong> Pay $1,400–$1,700 psf for an established Bishan condo with NSL/CCL MRT access, large unit sizes, and proven rental demand. Best for value-oriented buyers with a longer hold horizon.</div>
+  <div class="flow-step"><strong>Option A New launch (Lentor cluster):</strong> Pay $2,000–$2,300 psf for a brand-new unit directly on Lentor MRT. Higher entry, progressive payment scheme, TOP 2025–2026. Best for buyers who want the newest product and are willing to pay the new launch premium.</div>
+  <div class="flow-step"><strong>Option B The Atelier resale:</strong> Pay $1,750–$2,100 psf for a newer (2023 TOP) unit with immediate occupation, Upper Thomson MRT access. Good middle ground between new launch and older stock.</div>
+  <div class="flow-step"><strong>Option C Sky Vue or Sky Habitat resale:</strong> Pay $1,400–$1,700 psf for an established Bishan condo with NSL/CCL MRT access, large unit sizes, and proven rental demand. Best for value-oriented buyers with a longer hold horizon.</div>
   <div class="flow-step"><strong>Financing note:</strong> BSD on $1.5M resale = $44,600. On $2.0M new launch = $69,600. Factor in the additional $25,000 BSD difference when comparing entry costs across options.</div>
 
   <h2>Key Risks and Considerations</h2>
@@ -139,6 +174,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/jurong-lake-district-property-2026" style="color:var(--accent);">Jurong Lake District Property 2026: The Growth Story Explained</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/kallang-river-district-property-2026" style="color:var(--accent);">Kallang-Bugis Property Corridor 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/lentor-hills-property-investment" style="color:var(--accent);">Lentor Hills: Why Singapore's Newest MRT Cluster is an Investor's Argument</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/north-coast-innovation-corridor-property" style="color:var(--accent);">North Coast Innovation Corridor: Singapore's Next Property Growth Story?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-property-yield-by-district" style="color:var(--accent);">Singapore Property Yield by District 2026: The Honest League Table</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

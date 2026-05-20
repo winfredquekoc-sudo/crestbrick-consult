@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,7 +79,7 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Buying Near Good Schools in Singapore: How Much of a Premium is Real?</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 8-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> Being within 1km of a top Singapore primary school adds a measurable premium — typically $50,000–$150,000 on a comparable resale HDB flat, and 8–12% on private condo prices when controlling for other factors. The schools with the strongest price pull are clustered in Districts 10, 11, 15, and 19: Nanyang Primary, Raffles Girls Primary, Henry Park, Tao Nan, and Rosyth. The premium is real but lifecycle-dependent — it is most valuable to buyers who will use and then sell to another family with school-age children.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Being within 1km of a top Singapore primary school adds a measurable premium typically $50,000–$150,000 on a comparable resale HDB flat, and 8–12% on private condo prices when controlling for other factors. The schools with the strongest price pull are clustered in Districts 10, 11, 15, and 19: Nanyang Primary, Raffles Girls Primary, Henry Park, Tao Nan, and Rosyth. The premium is real but lifecycle-dependent it is most valuable to buyers who will use and then sell to another family with school-age children.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <p>Singapore's Primary One (P1) registration system creates a direct, quantifiable link between residential address and school access. Under Phase 2B and 2C of P1 registration, children living within 1km of a school receive priority over children living 1–2km away, who in turn receive priority over those living further. For oversubscribed popular schools, the difference between 900m and 1,100m from the school gate can determine whether your child gets a place.</p>
@@ -54,11 +89,11 @@
   <h2>How P1 Registration Distance Priority Works</h2>
   <p>Singapore MOE's P1 registration proceeds in phases. The distance-based phases (relevant to most families) are:</p>
   <ul>
-    <li><strong>Phase 2B:</strong> Children with community ties (parent volunteers, affiliated community leaders) and within 1km of school — priority within this phase goes to &lt;1km residents</li>
+    <li><strong>Phase 2B:</strong> Children with community ties (parent volunteers, affiliated community leaders) and within 1km of school priority within this phase goes to &lt;1km residents</li>
     <li><strong>Phase 2C:</strong> Open to all Singapore Citizens and PRs. Within this phase, children living within 1km of school receive priority over those at 1–2km. If oversubscribed, balloting occurs first within 1km, then 1–2km.</li>
     <li><strong>Phase 2C (Supplementary):</strong> Remaining places, no distance priority</li>
   </ul>
-  <p>For the most oversubscribed schools — those with insufficient Phase 2C places to accommodate all applicants — being within 1km is the difference between a guaranteed place (via ballot within 1km group) and no place at all.</p>
+  <p>For the most oversubscribed schools those with insufficient Phase 2C places to accommodate all applicants being within 1km is the difference between a guaranteed place (via ballot within 1km group) and no place at all.</p>
 
   <h2>The Schools That Move Property Prices</h2>
   <p>Not all good primary schools generate a significant property premium. The premium is highest where: (1) the school is genuinely oversubscribed in Phase 2C (i.e., there aren't enough places for all 1–2km applicants); (2) the school has a strong academic reputation; and (3) the surrounding property market has sufficient comparable transactions to isolate the school effect.</p>
@@ -77,22 +112,22 @@
   <p style="font-size:0.85rem;color:var(--ink-muted);">Premium estimates are indicative, drawn from transaction analysis comparing properties at &lt;1km vs 1–2km of the school. Actual premiums vary by specific address, property type, floor, and market conditions.</p>
 
   <div class="warn">
-    <strong>MOE ballot transparency:</strong> MOE publishes annual P1 registration data showing how many children registered in each phase and how many were balloted. Check the MOE website for your target school's Phase 2C data — schools that were over-subscribed in Phase 2C in the past 3 years are the ones where the 1km premium is most justified.
+    <strong>MOE ballot transparency:</strong> MOE publishes annual P1 registration data showing how many children registered in each phase and how many were balloted. Check the MOE website for your target school's Phase 2C data schools that were over-subscribed in Phase 2C in the past 3 years are the ones where the 1km premium is most justified.
   </div>
 
   <h2>HDB vs Private Condo: Where the Premium is Stronger</h2>
   <p>The school catchment premium is proportionally stronger in HDB resale markets than private condos. This is because:</p>
   <ul>
-    <li>HDB buyers are predominantly owner-occupiers with families — school proximity is a direct utility, not just a signal</li>
+    <li>HDB buyers are predominantly owner-occupiers with families school proximity is a direct utility, not just a signal</li>
     <li>HDB prices are more homogeneous (same flat type, similar age), making it easier to isolate the school distance effect</li>
     <li>Private condo prices are influenced by so many other factors (brand, facilities, psf, developer, age, view) that the school premium is diluted in the signal</li>
   </ul>
-  <p>That said, private condos near top schools in Districts 10, 11, and 21 do command premiums — but the premium is harder to isolate quantitatively because the same neighbourhoods also have other premium attributes (CCR location, landed enclave, MRT access).</p>
+  <p>That said, private condos near top schools in Districts 10, 11, and 21 do command premiums but the premium is harder to isolate quantitatively because the same neighbourhoods also have other premium attributes (CCR location, landed enclave, MRT access).</p>
 
   <h2>The Lifecycle of a School Catchment Investment</h2>
-  <div class="flow-step"><strong>Buy phase:</strong> You pay the 1km catchment premium. If you are buying to live and your child will attend the school, you capture the utility value directly — the premium is "spent" on access, not just investment.</div>
-  <div class="flow-step"><strong>Hold phase:</strong> During the years your child is at the school (up to 6 years of primary school), the premium is in use. If you rent out the property, note that school catchment is less valued by tenants without school-age children — your tenant pool is narrower.</div>
-  <div class="flow-step"><strong>Sell phase:</strong> When you sell, the school catchment premium is recaptured if the next buyer is also a family with primary school-age children. This is the key exit condition — school catchment properties sell well to this specific buyer profile, but liquidity is lower outside that cohort.</div>
+  <div class="flow-step"><strong>Buy phase:</strong> You pay the 1km catchment premium. If you are buying to live and your child will attend the school, you capture the utility value directly the premium is "spent" on access, not just investment.</div>
+  <div class="flow-step"><strong>Hold phase:</strong> During the years your child is at the school (up to 6 years of primary school), the premium is in use. If you rent out the property, note that school catchment is less valued by tenants without school-age children your tenant pool is narrower.</div>
+  <div class="flow-step"><strong>Sell phase:</strong> When you sell, the school catchment premium is recaptured if the next buyer is also a family with primary school-age children. This is the key exit condition school catchment properties sell well to this specific buyer profile, but liquidity is lower outside that cohort.</div>
 
   <h2>Strategic Considerations for Buyers</h2>
 
@@ -101,16 +136,16 @@
 
   <h3>When Does the Premium NOT Pay Off?</h3>
   <ul>
-    <li><strong>If you are buying purely for rental yield:</strong> Expat tenants without children, young professional couples, and single renters do not value school catchment. The premium is built into your purchase price but not your rental income — compressing yield.</li>
+    <li><strong>If you are buying purely for rental yield:</strong> Expat tenants without children, young professional couples, and single renters do not value school catchment. The premium is built into your purchase price but not your rental income compressing yield.</li>
     <li><strong>If you plan a short hold (&lt;5 years):</strong> The premium may not appreciate sufficiently to recover the extra cost paid, especially in flat or declining markets.</li>
     <li><strong>If the school's popularity declines:</strong> Schools can fall in public perception over time (leadership changes, exam result changes). The premium is partly based on reputation, which can shift.</li>
   </ul>
 
   <h3>The 1km Measurement: What Counts?</h3>
-  <p>MOE measures the straight-line distance from the residential address to the school gate — not walking distance. A property at 950m straight-line may be 1.3km walking distance due to roads and barriers. Use OneMap.gov.sg to check the straight-line distance from a specific address to the school gate before purchasing. Some agents mistakenly quote walking distance — verify independently.</p>
+  <p>MOE measures the straight-line distance from the residential address to the school gate not walking distance. A property at 950m straight-line may be 1.3km walking distance due to roads and barriers. Use OneMap.gov.sg to check the straight-line distance from a specific address to the school gate before purchasing. Some agents mistakenly quote walking distance verify independently.</p>
 
   <h2>District 21: Singapore's School Catchment Hotspot</h2>
-  <p>District 21 (Clementi, West Coast, Buona Vista, King Albert Park) is Singapore's densest concentration of top primary schools in a small geographic area: Nanyang Primary, Raffles Girls Primary, Henry Park Primary, and Methodist Girls School (secondary) are all within a 2km radius. Properties in D21 carry a sustained school-driven premium on top of their CCR/RCR location premium. This double premium means D21 private condos ($2,000–$2,800 psf) are expensive — but the buyer pool is consistently deep, making resale liquidity strong.</p>
+  <p>District 21 (Clementi, West Coast, Buona Vista, King Albert Park) is Singapore's densest concentration of top primary schools in a small geographic area: Nanyang Primary, Raffles Girls Primary, Henry Park Primary, and Methodist Girls School (secondary) are all within a 2km radius. Properties in D21 carry a sustained school-driven premium on top of their CCR/RCR location premium. This double premium means D21 private condos ($2,000–$2,800 psf) are expensive but the buyer pool is consistently deep, making resale liquidity strong.</p>
 
   <h2>Related reading</h2>
   <ul>
@@ -133,6 +168,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/property-exit-strategy" style="color:var(--accent);">Singapore Property Exit Strategy</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-pr-property-strategy-2026" style="color:var(--accent);">Singapore PR Property Strategy 2026: Timing Your ABSD Window</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/adding-child-to-property-title-sg" style="color:var(--accent);">Adding Child to Singapore Property Title 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/australian-buyer-singapore-property-2026" style="color:var(--accent);">Australian Buying Singapore Property 2026: 60% ABSD, No FTA, What to Do</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/buy-property-under-company-singapore" style="color:var(--accent);">Buy property under company Singapore: the HNW investor's honest guide</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

@@ -26,14 +26,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -49,10 +84,10 @@
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Pasir Ris MOP 2026: Upgrade to Private or Take the Windfall?</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 8-minute read · Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Pasir Ris HDB owners reaching MOP in 2026 can expect resale proceeds of $520,000–$680,000 (4-room) or $640,000–$800,000 (5-room). With the Cross Island Line interchange confirmed at Pasir Ris MRT and Elara launching as the area's next big new launch, the case for upgrading now — before CRL-driven price appreciation — is compelling for those with the income headroom.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Pasir Ris HDB owners reaching MOP in 2026 can expect resale proceeds of $520,000–$680,000 (4-room) or $640,000–$800,000 (5-room). With the Cross Island Line interchange confirmed at Pasir Ris MRT and Elara launching as the area's next big new launch, the case for upgrading now before CRL-driven price appreciation is compelling for those with the income headroom.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Pasir Ris has long been regarded as the "resort town" of Singapore's East — wide roads, park connectors, White Sand Shopping Centre, Downtown East, and Escape Theme Park. For HDB upgraders, D18 has historically offered large family-sized flats, a loyal community, and comparatively affordable private property entry points versus Tampines or Bedok.</p>
+  <p>Pasir Ris has long been regarded as the "resort town" of Singapore's East wide roads, park connectors, White Sand Shopping Centre, Downtown East, and Escape Theme Park. For HDB upgraders, D18 has historically offered large family-sized flats, a loyal community, and comparatively affordable private property entry points versus Tampines or Bedok.</p>
 
   <p>In 2026, Pasir Ris faces a rare convergence: a meaningful cohort of BTOs hitting MOP, a new launch (Elara) absorbing upgrader demand, and the Cross Island Line Phase 2 delivering an MRT interchange that will fundamentally re-rate the town's connectivity story. The question is whether to move now or wait for CRL to fully materialise.</p>
 
@@ -66,12 +101,12 @@
   <p>Higher floors facing Pasir Ris Park or the coastline, and units within a short walk of Pasir Ris MRT, command the top of these ranges. The large floor plates typical of Pasir Ris HDB (5-rooms often exceed 120 sqm) are a key selling point for families.</p>
 
   <div class="warn">
-    <strong>MOP timing:</strong> You must be in your MOP flat for 5 years from the date of TOP (not the date you collected keys or signed the sales agreement). If your TOP was January 2021, your MOP ends January 2026. Check your HDB letter — the exact TOP date determines when you can sell or rent the entire unit.
+    <strong>MOP timing:</strong> You must be in your MOP flat for 5 years from the date of TOP (not the date you collected keys or signed the sales agreement). If your TOP was January 2021, your MOP ends January 2026. Check your HDB letter the exact TOP date determines when you can sell or rent the entire unit.
   </div>
 
   <h2>The Cross Island Line Factor</h2>
-  <p>The single biggest medium-term catalyst for Pasir Ris property is the Cross Island Line Phase 2. When complete, Pasir Ris MRT will become an interchange station serving both the East-West Line and the CRL. This means direct, no-change connections to Ang Mo Kio, Jurong Lake District, and eventually the full CRL corridor — a transformative shift for a town that previously required multiple transfers to reach the city.</p>
-  <p>Historically, MRT interchange announcements have driven 5–10% price appreciation within 500 metres of the affected station within 12 months of confirmed opening timelines. The current Pasir Ris private market is already factoring in some CRL premium, but the full effect will only be realised upon actual opening. Upgraders who buy now — before CRL opens — position themselves to capture residual appreciation.</p>
+  <p>The single biggest medium-term catalyst for Pasir Ris property is the Cross Island Line Phase 2. When complete, Pasir Ris MRT will become an interchange station serving both the East-West Line and the CRL. This means direct, no-change connections to Ang Mo Kio, Jurong Lake District, and eventually the full CRL corridor a transformative shift for a town that previously required multiple transfers to reach the city.</p>
+  <p>Historically, MRT interchange announcements have driven 5–10% price appreciation within 500 metres of the affected station within 12 months of confirmed opening timelines. The current Pasir Ris private market is already factoring in some CRL premium, but the full effect will only be realised upon actual opening. Upgraders who buy now before CRL opens position themselves to capture residual appreciation.</p>
   <p>The key risk: CRL timelines have slipped before. Buyers who are banking entirely on CRL upside should ensure their fundamentals (income, TDSR, rental yield) hold up even without the CRL catalyst.</p>
 
   <h2>Upgrade Paths: Elara, Costa Del Sol, or Resale?</h2>
@@ -97,24 +132,24 @@
   <p style="font-size:0.85rem;color:var(--ink-muted);">BSD: first $180K at 1% ($1,800) + next $180K at 2% ($3,600) + next $640K at 3% ($19,200) + remainder at 4%. Upfront cash estimates assume ~$600K from 4-room HDB resale after CPF refund and loan settlement. Individual figures vary.</p>
 
   <h2>Should You Upgrade Now or Wait for CRL?</h2>
-  <p>This is the defining question for Pasir Ris 2026 MOP owners. The CRL is a genuine catalyst, but it is already partially priced into Elara's launch pricing. Waiting for CRL to open before upgrading means you will be buying into a market that has already re-rated — you capture none of the pre-opening appreciation.</p>
+  <p>This is the defining question for Pasir Ris 2026 MOP owners. The CRL is a genuine catalyst, but it is already partially priced into Elara's launch pricing. Waiting for CRL to open before upgrading means you will be buying into a market that has already re-rated you capture none of the pre-opening appreciation.</p>
   <p>Conversely, if you upgrade now into a resale condo, you lock in current pricing, begin building equity immediately through rental income or mortgage paydown, and participate in the CRL-driven appreciation as a property owner rather than a bystander.</p>
-  <p>The math generally favours upgrading sooner rather than later — provided the TDSR works and you have adequate cash reserves. Every year of delay is a year of mortgage paydown and appreciation foregone.</p>
+  <p>The math generally favours upgrading sooner rather than later provided the TDSR works and you have adequate cash reserves. Every year of delay is a year of mortgage paydown and appreciation foregone.</p>
 
   <h2>The MOP Upgrade Sequence</h2>
   <div class="flow-step"><strong>Step 1 (Now):</strong> Get an accurate valuation of your Pasir Ris HDB. Understand your net proceeds after CPF accrued interest refund and outstanding loan settlement.</div>
   <div class="flow-step"><strong>Step 2 (Month 1–2):</strong> Engage a mortgage broker or banker to determine your maximum loan quantum based on current income and TDSR. Identify target condos within that budget.</div>
   <div class="flow-step"><strong>Step 3 (Month 2–3):</strong> Shortlist properties and secure an Option to Purchase (OTP) for your private property. For new launches, this means booking fee and exercise of OTP. For resale, agree on price with seller.</div>
   <div class="flow-step"><strong>Step 4 (Month 3–6):</strong> List your HDB for sale. Aim to complete HDB sale before or simultaneous with private property completion (for resale) or within 6 months of private TOP (for new launch).</div>
-  <div class="flow-step"><strong>Step 5 (Ongoing):</strong> Service private mortgage. Consider renting out the private property temporarily if you have family housing arrangements — Pasir Ris rental demand is solid given proximity to Changi airport and business park clusters.</div>
+  <div class="flow-step"><strong>Step 5 (Ongoing):</strong> Service private mortgage. Consider renting out the private property temporarily if you have family housing arrangements Pasir Ris rental demand is solid given proximity to Changi airport and business park clusters.</div>
 
   <h2>Rental Market: Pasir Ris in 2026</h2>
-  <p>Pasir Ris benefits from proximity to Changi Business Park, the airport logistics cluster, and Loyang industrial estate — all steady demand drivers for professional rental tenants. Indicative 2026 condo rental rates:</p>
+  <p>Pasir Ris benefits from proximity to Changi Business Park, the airport logistics cluster, and Loyang industrial estate all steady demand drivers for professional rental tenants. Indicative 2026 condo rental rates:</p>
   <ul>
     <li><strong>2-bedroom condo:</strong> $3,000 – $3,600/month</li>
     <li><strong>3-bedroom condo:</strong> $3,800 – $4,600/month</li>
   </ul>
-  <p>A 3-bedroom resale condo at $1.2M with a $900K loan at 1.5% costs approximately $3,100/month in mortgage — rentable at $3,800–$4,200/month in Pasir Ris. The yield math works if you are renting out while living elsewhere or holding for future occupation.</p>
+  <p>A 3-bedroom resale condo at $1.2M with a $900K loan at 1.5% costs approximately $3,100/month in mortgage rentable at $3,800–$4,200/month in Pasir Ris. The yield math works if you are renting out while living elsewhere or holding for future occupation.</p>
 
   <h2>Key Considerations for Pasir Ris 2026 Upgraders</h2>
   <ul>
@@ -154,6 +189,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

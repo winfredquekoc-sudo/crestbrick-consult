@@ -47,14 +47,49 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -71,11 +106,11 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Bukit Panjang MOP 2026: Upgrading on the Downtown Line at an Affordable Entry</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 8-minute read &middot; Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Bukit Panjang's 2026 MOP cohort offers one of the most affordable upgrade entry points in western Singapore. BP 4-room HDB prices range from $380,000 to $520,000. With the DT Line connecting Bukit Panjang directly to Bugis and Marina Bay in under 30 minutes, the upgrade calculus is stronger than the price tag suggests. Most upgrade paths in D23 sit at $1.0M to $1.4M — within reach for dual-income households earning $8,000 to $10,000 per month combined.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Bukit Panjang's 2026 MOP cohort offers one of the most affordable upgrade entry points in western Singapore. BP 4-room HDB prices range from $380,000 to $520,000. With the DT Line connecting Bukit Panjang directly to Bugis and Marina Bay in under 30 minutes, the upgrade calculus is stronger than the price tag suggests. Most upgrade paths in D23 sit at $1.0M to $1.4M within reach for dual-income households earning $8,000 to $10,000 per month combined.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Bukit Panjang BTOs Are MOP-Eligible in 2026?</h2>
-  <p>Bukit Panjang is a mid-size western estate with a moderate BTO history. The 2026 MOP cohort spans several clusters across Bangkit Road, Jelebu Road, Senja Road, Fajar Road, and Petir Road — an estimated 3,000 to 4,000 units in total. Unlike Clementi or Toa Payoh where supply scarcity is the seller's advantage, Bukit Panjang's selling proposition is affordability and DT Line connectivity. The estate's multiple BP LRT stations mean that even blocks well away from the DT Line terminus have convenient transit access.</p>
+  <p>Bukit Panjang is a mid-size western estate with a moderate BTO history. The 2026 MOP cohort spans several clusters across Bangkit Road, Jelebu Road, Senja Road, Fajar Road, and Petir Road an estimated 3,000 to 4,000 units in total. Unlike Clementi or Toa Payoh where supply scarcity is the seller's advantage, Bukit Panjang's selling proposition is affordability and DT Line connectivity. The estate's multiple BP LRT stations mean that even blocks well away from the DT Line terminus have convenient transit access.</p>
   <table>
     <thead><tr><th>Cluster / Location</th><th>Approx BTO Year</th><th>MOP Year</th><th>Est. 4-Room Resale Value</th></tr></thead>
     <tbody>
@@ -87,7 +122,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <p style="font-size:.85rem;color:var(--ink-muted);">Estimates based on URA REALIS transaction data for comparable Bukit Panjang HDB resale transactions. Actual values depend on floor level, LRT station proximity, and unit orientation.</p>
 
   <h2>What Is a Bukit Panjang HDB Worth in 2026?</h2>
-  <p>Bukit Panjang's HDB prices reflect the DT Line premium that has been building since the Bukit Panjang MRT interchange opened. The DT Line gives direct CBD access — Stevens, Newton, Bugis, and Marina Bay South are all reachable without a transfer. Combined with the estate's comprehensive BP LRT network covering all sub-estates, Bukit Panjang offers better overall estate connectivity than most western towns.</p>
+  <p>Bukit Panjang's HDB prices reflect the DT Line premium that has been building since the Bukit Panjang MRT interchange opened. The DT Line gives direct CBD access Stevens, Newton, Bugis, and Marina Bay South are all reachable without a transfer. Combined with the estate's comprehensive BP LRT network covering all sub-estates, Bukit Panjang offers better overall estate connectivity than most western towns.</p>
   <table>
     <thead><tr><th>Location</th><th>4-Room Resale Range</th><th>Rental (4-Room)</th><th>Notes</th></tr></thead>
     <tbody>
@@ -97,18 +132,18 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     </tbody>
   </table>
 
-  <div class="warn"><strong>ABSD reminder:</strong> Singapore Citizens buying their first private property pay 0% ABSD. The risk arises when you own the HDB and complete the condo purchase simultaneously — at that moment you are a two-property owner and ABSD on the condo rises to 20%. On a $1.35M Hillion Residences unit, 20% ABSD is $270,000. Sell the HDB first, or ensure the HDB sale completes within 6 months of completing the condo purchase. At Bukit Panjang price levels, this sequencing discipline is especially important because the upgrade gap is already tight.</div>
+  <div class="warn"><strong>ABSD reminder:</strong> Singapore Citizens buying their first private property pay 0% ABSD. The risk arises when you own the HDB and complete the condo purchase simultaneously at that moment you are a two-property owner and ABSD on the condo rises to 20%. On a $1.35M Hillion Residences unit, 20% ABSD is $270,000. Sell the HDB first, or ensure the HDB sale completes within 6 months of completing the condo purchase. At Bukit Panjang price levels, this sequencing discipline is especially important because the upgrade gap is already tight.</div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1: Hillion Residences — D23 Integrated, MRT Above</h3>
-  <p>Hillion Residences (TOP 2017, 546 units) is Singapore's only integrated condo at Bukit Panjang MRT. The development sits directly above the DT Line and BP LRT interchange, with Hillion Mall below — Fairprice, a cinema, F&B, and a bus interchange all accessible without going outdoors. This is the gold standard of convenience in the western heartland. A 3-bedroom resale unit trades at roughly $1.20M to $1.45M. The integration premium is durable: MRT-integrated condos in Singapore have historically outperformed standalone peers on both capital appreciation and rental yield, and Hillion's position as the only such development in Bukit Panjang means there is no competing product. Vacancy rates have remained below 3% since TOP in 2017.</p>
+  <h3>Path 1: Hillion Residences D23 Integrated, MRT Above</h3>
+  <p>Hillion Residences (TOP 2017, 546 units) is Singapore's only integrated condo at Bukit Panjang MRT. The development sits directly above the DT Line and BP LRT interchange, with Hillion Mall below Fairprice, a cinema, F&B, and a bus interchange all accessible without going outdoors. This is the gold standard of convenience in the western heartland. A 3-bedroom resale unit trades at roughly $1.20M to $1.45M. The integration premium is durable: MRT-integrated condos in Singapore have historically outperformed standalone peers on both capital appreciation and rental yield, and Hillion's position as the only such development in Bukit Panjang means there is no competing product. Vacancy rates have remained below 3% since TOP in 2017.</p>
 
-  <h3>Path 2: Senja Residences EC — Privatised, Affordable Entry</h3>
-  <p>Senja Residences (privatised EC, TOP 2014) is the most affordable private option in Bukit Panjang — a fully privatised EC with no further ownership restrictions. Three-bedroom resale units trade at $1.00M to $1.20M, making this the lowest-entry private upgrade in the estate. BP LRT connects Senja Residences to Bukit Panjang MRT in under 5 minutes. The older vintage (TOP 2014) means the development is established, track record is known, and there are no hidden TOP risk or defect surprises. For BP upgraders with a tighter upgrade budget — particularly those with lower HDB net proceeds — Senja Residences is the financially prudent starting point into private living.</p>
+  <h3>Path 2: Senja Residences EC Privatised, Affordable Entry</h3>
+  <p>Senja Residences (privatised EC, TOP 2014) is the most affordable private option in Bukit Panjang a fully privatised EC with no further ownership restrictions. Three-bedroom resale units trade at $1.00M to $1.20M, making this the lowest-entry private upgrade in the estate. BP LRT connects Senja Residences to Bukit Panjang MRT in under 5 minutes. The older vintage (TOP 2014) means the development is established, track record is known, and there are no hidden TOP risk or defect surprises. For BP upgraders with a tighter upgrade budget particularly those with lower HDB net proceeds Senja Residences is the financially prudent starting point into private living.</p>
 
-  <h3>Path 3: Altura EC New Launch — D23 Adjacent, Income ≤$16K</h3>
-  <p>Altura EC at Bukit Batok West Ave 8 (TOP 2026–2027) is technically in Bukit Batok rather than Bukit Panjang, but is reachable via BP LRT to Bukit Batok MRT and within the same D23 corridor. For BP households earning $16,000 or below per month, Altura EC at $1.30M to $1.45M for a 3-bedroom offers EC pricing — 15 to 25 percent below comparable private — with JRL adjacency upside. The trade-off is a 1 to 2 year wait for TOP and a slightly longer commute from the BP LRT network. For income-eligible households who want maximum capital appreciation upside per dollar invested, Altura EC is the asymmetric bet.</p>
+  <h3>Path 3: Altura EC New Launch D23 Adjacent, Income ≤$16K</h3>
+  <p>Altura EC at Bukit Batok West Ave 8 (TOP 2026–2027) is technically in Bukit Batok rather than Bukit Panjang, but is reachable via BP LRT to Bukit Batok MRT and within the same D23 corridor. For BP households earning $16,000 or below per month, Altura EC at $1.30M to $1.45M for a 3-bedroom offers EC pricing 15 to 25 percent below comparable private with JRL adjacency upside. The trade-off is a 1 to 2 year wait for TOP and a slightly longer commute from the BP LRT network. For income-eligible households who want maximum capital appreciation upside per dollar invested, Altura EC is the asymmetric bet.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
@@ -135,7 +170,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   </table>
 
   <h2>Rental Market</h2>
-  <p>Bukit Panjang's rental demand is driven by DT Line connectivity to the CBD and a growing Mandai-Kranji employment corridor. The Mandai development — Singapore's wildlife and nature tourism hub expansion — and Kranji Industrial Estate bring an emerging tenant base of professionals who work in the northern-western corridor but want suburban pricing. Young professionals who prioritise CBD commute time over prestige address increasingly consider Bukit Panjang; the DT Line to Bugis takes approximately 25 minutes.</p>
+  <p>Bukit Panjang's rental demand is driven by DT Line connectivity to the CBD and a growing Mandai-Kranji employment corridor. The Mandai development Singapore's wildlife and nature tourism hub expansion and Kranji Industrial Estate bring an emerging tenant base of professionals who work in the northern-western corridor but want suburban pricing. Young professionals who prioritise CBD commute time over prestige address increasingly consider Bukit Panjang; the DT Line to Bugis takes approximately 25 minutes.</p>
   <table>
     <thead><tr><th>Unit Type</th><th>Monthly Rental</th><th>Estimated Gross Yield</th><th>Notes</th></tr></thead>
     <tbody>
@@ -143,21 +178,21 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <tr><td>3BR condo (D23)</td><td>$3,300–$3,900/mth</td><td>~3.2–3.7%</td><td>Family tenants; Hillion commands premium</td></tr>
     </tbody>
   </table>
-  <p>Hillion Residences commands a 10 to 15 percent rental premium over standalone condos in the estate — the integrated mall and MRT access directly reduce tenant churn for families and reduce the search cost for tenants, translating into lower vacancy risk for landlords.</p>
+  <p>Hillion Residences commands a 10 to 15 percent rental premium over standalone condos in the estate the integrated mall and MRT access directly reduce tenant churn for families and reduce the search cost for tenants, translating into lower vacancy risk for landlords.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Calculate your net upgrade gap.</strong> Bukit Panjang HDB prices are lower than central estates, which means CPF use and accrued interest take up a larger proportion of the sale proceeds. Get a precise CPF statement — the OA refund amount is the key variable. The upgrade gap (condo price minus 25% downpayment minus proceeds) determines whether Hillion or Senja is the right first step.</div>
-  <div class="flow-step"><strong>Step 2 — Model TDSR at 1.5% and 4% stress test.</strong> For a $1.35M Hillion Residences unit with 75% LTV ($1.01M loan) over 25 years at 1.5%, monthly repayment is approximately $4,050. At the 4% stress test, the implied payment is $5,320. For a $1.10M Senja unit ($825K loan), the figures are $3,300 actual and $4,340 at stress test. These are comfortably within reach for dual-income households earning $8,000 to $10,000 combined.</div>
-  <div class="flow-step"><strong>Step 3 — Sell HDB first; use BP LRT estate for temporary rental.</strong> Bukit Panjang 3-room HDB rental runs $1,800 to $2,200/mth — among the most affordable temporary rental options in Singapore while you search for the right condo. Sell the HDB, bank the proceeds, rent within the estate, then execute the condo purchase at 0% ABSD as SC first private property.</div>
-  <div class="flow-step"><strong>Step 4 — For Senja Residences: verify privatisation status and no further EC restrictions.</strong> Senja Residences EC was privatised in 2024 (10 years from TOP 2014). Confirm with the seller's agent that there are no outstanding EC eligibility restrictions before proceeding. A fully privatised EC can be purchased by any buyer — SC, PR, or foreigner (foreigners pay 60% ABSD).</div>
-  <div class="flow-step"><strong>Step 5 — For Altura EC: start application early; balloting is competitive.</strong> If you are income-eligible (household ≤$16K/mth) and targeting Altura EC, the application window is time-sensitive. EC launches in Singapore are typically oversubscribed. Engage Winfred early to understand the balloting process, eligibility documentation, and timing relative to your HDB MOP date.</div>
+  <div class="flow-step"><strong>Step 1 Calculate your net upgrade gap.</strong> Bukit Panjang HDB prices are lower than central estates, which means CPF use and accrued interest take up a larger proportion of the sale proceeds. Get a precise CPF statement the OA refund amount is the key variable. The upgrade gap (condo price minus 25% downpayment minus proceeds) determines whether Hillion or Senja is the right first step.</div>
+  <div class="flow-step"><strong>Step 2 Model TDSR at 1.5% and 4% stress test.</strong> For a $1.35M Hillion Residences unit with 75% LTV ($1.01M loan) over 25 years at 1.5%, monthly repayment is approximately $4,050. At the 4% stress test, the implied payment is $5,320. For a $1.10M Senja unit ($825K loan), the figures are $3,300 actual and $4,340 at stress test. These are comfortably within reach for dual-income households earning $8,000 to $10,000 combined.</div>
+  <div class="flow-step"><strong>Step 3 Sell HDB first; use BP LRT estate for temporary rental.</strong> Bukit Panjang 3-room HDB rental runs $1,800 to $2,200/mth among the most affordable temporary rental options in Singapore while you search for the right condo. Sell the HDB, bank the proceeds, rent within the estate, then execute the condo purchase at 0% ABSD as SC first private property.</div>
+  <div class="flow-step"><strong>Step 4 For Senja Residences: verify privatisation status and no further EC restrictions.</strong> Senja Residences EC was privatised in 2024 (10 years from TOP 2014). Confirm with the seller's agent that there are no outstanding EC eligibility restrictions before proceeding. A fully privatised EC can be purchased by any buyer SC, PR, or foreigner (foreigners pay 60% ABSD).</div>
+  <div class="flow-step"><strong>Step 5 For Altura EC: start application early; balloting is competitive.</strong> If you are income-eligible (household ≤$16K/mth) and targeting Altura EC, the application window is time-sensitive. EC launches in Singapore are typically oversubscribed. Engage Winfred early to understand the balloting process, eligibility documentation, and timing relative to your HDB MOP date.</div>
 
   <h2>Key Considerations</h2>
   <ul>
     <li><strong>DT Line to Bugis is 25 minutes; to Marina Bay is 28 minutes.</strong> Bukit Panjang is less isolated than its reputation suggests. CBD professionals who live here access Raffles Place and the Marina Bay financial district without a transfer. The distance penalty versus central estates is overstated when the DT Line is factored in.</li>
-    <li><strong>Hillion Residences integration premium is durable.</strong> MRT-integrated condos in Singapore have consistently outperformed standalone peers on both capital appreciation and rental yield. Hillion is the only such development in Bukit Panjang — there is no competing product at this convenience level within the estate.</li>
+    <li><strong>Hillion Residences integration premium is durable.</strong> MRT-integrated condos in Singapore have consistently outperformed standalone peers on both capital appreciation and rental yield. Hillion is the only such development in Bukit Panjang there is no competing product at this convenience level within the estate.</li>
     <li><strong>BP LRT covers the entire estate.</strong> Even blocks at Petir, Fajar, and Jelapang that appear far from the DT Line have LRT access to Bukit Panjang MRT in under 8 minutes. This underpins broad estate demand and limits the discount that fringe blocks suffer relative to MRT-proximate blocks.</li>
-    <li><strong>Affordable entry with a low upgrade gap.</strong> Bukit Panjang's lower HDB prices mean that for some units, the HDB sale proceeds and CPF refund cover a higher proportion of the condo downpayment relative to central estates — requiring less top-up cash. The upgrade is financially achievable at a lower household income threshold than comparable paths in D5 or D12.</li>
+    <li><strong>Affordable entry with a low upgrade gap.</strong> Bukit Panjang's lower HDB prices mean that for some units, the HDB sale proceeds and CPF refund cover a higher proportion of the condo downpayment relative to central estates requiring less top-up cash. The upgrade is financially achievable at a lower household income threshold than comparable paths in D5 or D12.</li>
   </ul>
 
   <h2>Related reading</h2>
@@ -184,7 +219,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -202,6 +237,16 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

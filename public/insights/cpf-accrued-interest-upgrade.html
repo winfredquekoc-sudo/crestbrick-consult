@@ -8,7 +8,7 @@
   <meta name="description" content="CPF accrued interest HDB upgrade: the 2.5% compound cost that silently erodes your war chest. Full tables for $150K–$350K CPF usage over 5–15 years, with real upgrader scenarios." />
   <meta property="og:type" content="article" />
   <meta property="og:title" content="CPF Accrued Interest When You Upgrade: The Hidden Cost Most Upgraders Miss" />
-  <meta property="og:description" content="CPF accrued interest on HDB upgrade: 2.5% compound interest on your CPF OA withdrawals must be refunded on sale — quantified at $150K, $250K, $350K principal over 5, 10, 15 years." />
+  <meta property="og:description" content="CPF accrued interest on HDB upgrade: 2.5% compound interest on your CPF OA withdrawals must be refunded on sale quantified at $150K, $250K, $350K principal over 5, 10, 15 years." />
   <meta property="og:image" content="/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/insights/cpf-accrued-interest-upgrade" />
   <meta property="article:published_time" content="2026-05-19" />
@@ -66,23 +66,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a>
-      <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
     </div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]">
-    <div class="px-6 py-4 flex flex-col gap-3">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
-    </div>
-  </div>
-</header>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -100,41 +126,41 @@
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 9-minute read &middot; Last reviewed May 2026</p>
 
   <div class="quick-answer">
-    <strong>Quick answer:</strong> When you sell your HDB flat, you must refund to your CPF OA not just the principal withdrawn but also accrued interest at 2.5% per annum compounded — the interest your CPF would have earned had the money stayed invested. On $250,000 CPF used over 10 years, the total refund obligation is approximately $318,000 — meaning $68,000 more than you withdrew goes back to CPF, not your bank account. This refund lands in your CPF OA and can be reused for the next property purchase, but it is not liquid cash. Most upgraders underestimate their war chest by $30,000–$80,000 as a result.
+    <strong>Quick answer:</strong> When you sell your HDB flat, you must refund to your CPF OA not just the principal withdrawn but also accrued interest at 2.5% per annum compounded the interest your CPF would have earned had the money stayed invested. On $250,000 CPF used over 10 years, the total refund obligation is approximately $318,000 meaning $68,000 more than you withdrew goes back to CPF, not your bank account. This refund lands in your CPF OA and can be reused for the next property purchase, but it is not liquid cash. Most upgraders underestimate their war chest by $30,000–$80,000 as a result.
   </div>
   <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <div style="background:rgba(198,163,106,0.07);border:1px solid rgba(198,163,106,0.25);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:2rem;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.75rem;">Key Takeaways</p>
     <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-      <li style="font-size:.9rem;color:var(--ink-soft);">• CPF accrued interest compounds at 2.5% p.a. on all CPF OA withdrawals used for your property — S$250K over 10 years means S$318K total CPF refund, not S$250K.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• The CPF refund (principal + accrued interest) goes back to your CPF OA — not your bank account — and can be reused for the next property, but is not liquid cash.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• For a S$650K HDB sale with S$318K CPF refund, actual cash to bank is only ~S$317K — but most upgraders plan as if they have S$650K in cash.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• CPF OA refund cannot be used to pay ABSD — ABSD must be paid in cash. This catches upgraders buying second properties who expected CPF proceeds to cover part of the stamp duty.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Your exact CPF accrued interest figure is visible on cpf.gov.sg under "My CPF" → "Property" — always check this before planning any upgrade.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• CPF accrued interest compounds at 2.5% p.a. on all CPF OA withdrawals used for your property S$250K over 10 years means S$318K total CPF refund, not S$250K.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• The CPF refund (principal + accrued interest) goes back to your CPF OA not your bank account and can be reused for the next property, but is not liquid cash.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• For a S$650K HDB sale with S$318K CPF refund, actual cash to bank is only ~S$317K but most upgraders plan as if they have S$650K in cash.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• CPF OA refund cannot be used to pay ABSD ABSD must be paid in cash. This catches upgraders buying second properties who expected CPF proceeds to cover part of the stamp duty.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Your exact CPF accrued interest figure is visible on cpf.gov.sg under "My CPF" → "Property" always check this before planning any upgrade.</li>
     </ul>
   </div>
 
   <h2>What is CPF accrued interest and why does it exist?</h2>
 
-  <p>When you use CPF Ordinary Account savings to pay for your home — whether for the downpayment, monthly mortgage instalments, or stamp duties — those funds are no longer in your CPF account earning the guaranteed 2.5% per annum OA interest rate.</p>
+  <p>When you use CPF Ordinary Account savings to pay for your home whether for the downpayment, monthly mortgage instalments, or stamp duties those funds are no longer in your CPF account earning the guaranteed 2.5% per annum OA interest rate.</p>
 
   <p>CPF's rule is that the housing withdrawal is not treated as a gift from CPF to you. It is treated as a temporary use of your retirement savings. CPF tracks how much interest your OA <em>would</em> have earned if the money had stayed in the account, and requires that amount to be restored to your OA upon disposal of the property.</p>
 
-  <p>According to CPF Board rules, this is the accrued interest — the opportunity cost, in CPF terms, of using your OA for housing instead of leaving it to compound at 2.5%.</p>
+  <p>According to CPF Board rules, this is the accrued interest the opportunity cost, in CPF terms, of using your OA for housing instead of leaving it to compound at 2.5%.</p>
 
   <h3>The key mechanics</h3>
   <ul>
     <li>Accrued interest compounds at <strong>2.5% per annum</strong> on the CPF OA rate</li>
     <li>It accrues from the date each CPF withdrawal is made, not from the purchase date</li>
     <li>It must be refunded to CPF OA upon sale, transfer, or disposal of the property</li>
-    <li>It is <strong>not</strong> paid to the government — it goes back to your own CPF OA</li>
+    <li>It is <strong>not</strong> paid to the government it goes back to your own CPF OA</li>
     <li>Once in your CPF OA, it can be used for the next property purchase or left to earn further CPF interest</li>
   </ul>
 
   <h2>How Much CPF Accrued Interest Will You Owe After 5, 10, and 15 Years?</h2>
 
-  <p>The accrued interest calculation is compound, not simple. The formula is: Accrued Interest = Principal × [(1.025)^n − 1], where n is the number of years since withdrawal. In practice, since withdrawals happen monthly over many years, the calculation is done monthly — but the table below uses a lump-sum approximation for illustration.</p>
+  <p>The accrued interest calculation is compound, not simple. The formula is: Accrued Interest = Principal × [(1.025)^n − 1], where n is the number of years since withdrawal. In practice, since withdrawals happen monthly over many years, the calculation is done monthly but the table below uses a lump-sum approximation for illustration.</p>
 
   <table>
     <thead>
@@ -153,7 +179,7 @@
     </tbody>
   </table>
 
-  <p>For a typical HDB owner who used $300,000 in CPF over 10 years, the total CPF refund on sale is approximately $382,000 — some $82,000 above the principal. That $82,000 goes back to CPF OA, not to the bank account. It is available for the next property but is not liquid.</p>
+  <p>For a typical HDB owner who used $300,000 in CPF over 10 years, the total CPF refund on sale is approximately $382,000 some $82,000 above the principal. That $82,000 goes back to CPF OA, not to the bank account. It is available for the next property but is not liquid.</p>
 
   <h2>Why Does CPF Accrued Interest Reduce Your Upgrade War Chest?</h2>
 
@@ -184,15 +210,15 @@
     </tbody>
   </table>
 
-  <p>The "CPF OA Refund" column is the amount that goes back to your CPF OA on sale. It is not lost — you can use it for the next property's downpayment, subject to CPF withdrawal rules for private property. But it cannot be used to pay ABSD (which must be in cash), or for renovation, or for any non-CPF-eligible purpose.</p>
+  <p>The "CPF OA Refund" column is the amount that goes back to your CPF OA on sale. It is not lost you can use it for the next property's downpayment, subject to CPF withdrawal rules for private property. But it cannot be used to pay ABSD (which must be in cash), or for renovation, or for any non-CPF-eligible purpose.</p>
 
   <div class="warn">
-    <strong>Critical caveat — CPF refund does not cover ABSD:</strong> If you are buying a second property and ABSD is payable, that amount must come from cash — CPF cannot be used to pay ABSD. For an SC buying a $1.5M second property (20% ABSD = $300,000), that $300,000 must be liquid cash. Many upgraders plan to use HDB sale proceeds for ABSD only to realise at execution that the CPF refund reduces their liquid cash significantly. Always model the cash vs CPF split before committing to a purchase sequence.
+    <strong>Critical caveat CPF refund does not cover ABSD:</strong> If you are buying a second property and ABSD is payable, that amount must come from cash CPF cannot be used to pay ABSD. For an SC buying a $1.5M second property (20% ABSD = $300,000), that $300,000 must be liquid cash. Many upgraders plan to use HDB sale proceeds for ABSD only to realise at execution that the CPF refund reduces their liquid cash significantly. Always model the cash vs CPF split before committing to a purchase sequence.
   </div>
 
   <h2>The "trapped equity" effect explained</h2>
 
-  <p>When upgraders talk about their HDB "equity," they typically mean: sale price minus loan balance. But for CPF-funded properties, a large portion of that equity is not freely deployable cash — it is CPF equity, accessible only through CPF's property withdrawal rules.</p>
+  <p>When upgraders talk about their HDB "equity," they typically mean: sale price minus loan balance. But for CPF-funded properties, a large portion of that equity is not freely deployable cash it is CPF equity, accessible only through CPF's property withdrawal rules.</p>
 
   <p>For a $650,000 HDB with $318,000 CPF refund obligation:</p>
   <ul>
@@ -203,7 +229,7 @@
 
   <p>Of the $317,000 cash equity, the upgrader must use at least $75,000–$100,000 in cash for the new condo's minimum 5% cash downpayment plus BSD. The CPF OA refund of $318,000 can cover the remaining 20% of the new property's downpayment if the CPF balance after refund is sufficient.</p>
 
-  <p>This means the upgrade math often works — but the liquidity profile is very different from what most people expect. The CPF is doing a lot of the heavy lifting; cash is the scarcer resource.</p>
+  <p>This means the upgrade math often works but the liquidity profile is very different from what most people expect. The CPF is doing a lot of the heavy lifting; cash is the scarcer resource.</p>
 
   <h2>Does accrued interest affect anything if the property appreciates?</h2>
 
@@ -211,12 +237,12 @@
 
   <ul>
     <li>Bought HDB for $380,000 in 2016; used $250,000 CPF over 10 years</li>
-    <li>Selling in 2026 for $650,000 — gain of $270,000</li>
+    <li>Selling in 2026 for $650,000 gain of $270,000</li>
     <li>CPF accrued interest: ~$68,000</li>
     <li>Net cash gain after all deductions: ($650K − $318K CPF refund − $14K fees) = $318,000 cash + $318,000 CPF OA, versus original cash paid of ~$130,000</li>
   </ul>
 
-  <p>In this scenario, the accrued interest is not a financial burden — it is simply the mechanism by which CPF captures its share of the property's return. The upgrader still comes out strongly positive. The accrued interest only becomes a material problem when the property <em>has not appreciated</em> or has declined — in which case the sale proceeds may not be sufficient to repay the full CPF refund, meaning the gap is covered by cash.</p>
+  <p>In this scenario, the accrued interest is not a financial burden it is simply the mechanism by which CPF captures its share of the property's return. The upgrader still comes out strongly positive. The accrued interest only becomes a material problem when the property <em>has not appreciated</em> or has declined in which case the sale proceeds may not be sufficient to repay the full CPF refund, meaning the gap is covered by cash.</p>
 
   <h2>How to find your actual CPF accrued interest figure</h2>
 
@@ -229,7 +255,7 @@
 
   <div style="background:rgba(198,163,106,0.07);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1.25rem 1.5rem;margin:2.5rem 0;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.6rem;">Winfred's Take</p>
-    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The number that surprises most clients is this: S$300K of CPF used over 10 years means S$382K going back to CPF OA — S$82K more than they withdrew, in an account they cannot freely spend. Every single upgrade plan I review that skips this step overestimates cash by 15–25%. The second trap is thinking the CPF refund solves the downpayment problem for the next property: it does in OA terms, but ABSD must still be paid in cash, and a S$1.2M second property needs S$240K cash ABSD on top of the CPF-backed downpayment.</p>
+    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The number that surprises most clients is this: S$300K of CPF used over 10 years means S$382K going back to CPF OA S$82K more than they withdrew, in an account they cannot freely spend. Every single upgrade plan I review that skips this step overestimates cash by 15–25%. The second trap is thinking the CPF refund solves the downpayment problem for the next property: it does in OA terms, but ABSD must still be paid in cash, and a S$1.2M second property needs S$240K cash ABSD on top of the CPF-backed downpayment.</p>
   </div>
 
   <h2>Related reading</h2>
@@ -243,7 +269,7 @@
   <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
     <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Want Winfred to run your numbers?</p>
     <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">30-minute Property Portfolio Analysis. Walk away with your exact cost breakdown.</p>
-    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call — 30 min</a>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call 30 min</a>
   </div>
 
   <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is an Associate Marketing Consultant at Crestbrick Pte Ltd, advising Singapore upgraders, investors, and family offices. CEA R073319H. The information on this page is general and does not constitute financial, investment, or mortgage advice.</p>
@@ -255,7 +281,7 @@
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -276,6 +302,16 @@
     </div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/cpf-accrued-interest-trap" style="color:var(--accent);">The CPF Accrued Interest Trap</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cpf-oa-vs-cash-downpayment-singapore" style="color:var(--accent);">Should You Use CPF or Cash for Your Singapore Property Downpayment?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cpf-second-property-rules-singapore" style="color:var(--accent);">Using CPF for Second Property Singapore 2026: Withdrawal Limits, OA Ceiling, and Traps</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-property-vs-reits-vs-cpf" style="color:var(--accent);">Singapore Property vs REITs vs CPF SA: Where $500,000 Grows Most in 10 Years</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-will-vs-cpf-nomination-property" style="color:var(--accent);">Singapore Will vs CPF Nomination Property Guide</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

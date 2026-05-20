@@ -69,23 +69,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a>
-      <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
     </div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]">
-    <div class="px-6 py-4 flex flex-col gap-3">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
-    </div>
-  </div>
-</header>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -103,21 +129,21 @@
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 10-minute read &middot; Last reviewed May 2026</p>
 
   <div class="quick-answer">
-    <strong>Quick answer:</strong> Woodlands BTOs from 2021 TOP are hitting MOP in 2026, unlocking a quiet upgrade window before the Johor–Singapore Rapid Transit System (RTS Link, targeted 2026–2027) reshapes connectivity and demand in the north. Woodlands 4-room prices currently sit at $380,000–$520,000 — among the most affordable MOP cohorts in Singapore — giving upgraders a low entry into the private market. Most upgrade targets are in D25 (Woodlands) or D27 (Yishun/Sembawang). The structural case for buying before RTS opens is stronger than for most Singapore districts right now.
+    <strong>Quick answer:</strong> Woodlands BTOs from 2021 TOP are hitting MOP in 2026, unlocking a quiet upgrade window before the Johor–Singapore Rapid Transit System (RTS Link, targeted 2026–2027) reshapes connectivity and demand in the north. Woodlands 4-room prices currently sit at $380,000–$520,000 among the most affordable MOP cohorts in Singapore giving upgraders a low entry into the private market. Most upgrade targets are in D25 (Woodlands) or D27 (Yishun/Sembawang). The structural case for buying before RTS opens is stronger than for most Singapore districts right now.
   </div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>The Woodlands 2021 BTO Cohort: Who Is MOP-Eligible in 2026?</h2>
 
-  <p>HDB BTO projects in Woodlands Crescent, Woodlands Glen, the Admiralty Road corridor, and the Woodgrove/Marsiling fringe areas that received TOP in 2021 cross their 5-year Minimum Occupation Period in 2026. The cohort is moderate in size — approximately 4,000–5,000 units — materially smaller than the simultaneous supply releases in Sengkang and Punggol. This matters: Woodlands upgraders face less resale competition from identical-vintage neighbours than their D19 counterparts.</p>
+  <p>HDB BTO projects in Woodlands Crescent, Woodlands Glen, the Admiralty Road corridor, and the Woodgrove/Marsiling fringe areas that received TOP in 2021 cross their 5-year Minimum Occupation Period in 2026. The cohort is moderate in size approximately 4,000–5,000 units materially smaller than the simultaneous supply releases in Sengkang and Punggol. This matters: Woodlands upgraders face less resale competition from identical-vintage neighbours than their D19 counterparts.</p>
 
-  <p>Woodlands is District 25 (D25), firmly in the Outside Central Region (OCR). It is served by three Thomson-East Coast Line (TEL) stations — Woodlands North, Woodlands, and Woodlands South — plus the original NS Line station at Woodlands. Having three TEL stations in a single town gives Woodlands better MRT coverage than most people assume when thinking of it as a "far north" estate.</p>
+  <p>Woodlands is District 25 (D25), firmly in the Outside Central Region (OCR). It is served by three Thomson-East Coast Line (TEL) stations Woodlands North, Woodlands, and Woodlands South plus the original NS Line station at Woodlands. Having three TEL stations in a single town gives Woodlands better MRT coverage than most people assume when thinking of it as a "far north" estate.</p>
 
   <p>The defining external factor for 2026 is the RTS Link: the Johor Bahru–Woodlands North MRT rail connection that transforms the Singapore–JB commute from 45–90 minutes by road to under 10 minutes by rail. Its expected completion in 2026–2027 makes Woodlands the most structurally catalysed estate in Singapore's current MOP cycle.</p>
 
   <h2>What Is a Woodlands HDB Worth in 2026?</h2>
 
-  <p>Woodlands 4-room resale prices are among the lowest of the MOP cohorts completing in 2026 — a function of the estate's northern location and, historically, lower demand relative to central or eastern towns. The RTS is beginning to change that narrative, with 2024–2026 seeing above-average price growth in Woodlands relative to the broader OCR market.</p>
+  <p>Woodlands 4-room resale prices are among the lowest of the MOP cohorts completing in 2026 a function of the estate's northern location and, historically, lower demand relative to central or eastern towns. The RTS is beginning to change that narrative, with 2024–2026 seeing above-average price growth in Woodlands relative to the broader OCR market.</p>
 
   <table>
     <thead><tr><th>Sub-estate</th><th>Floor</th><th>Estimated Resale Price (4-room)</th><th>Est. Rental (whole flat)</th></tr></thead>
@@ -128,19 +154,19 @@
     </tbody>
   </table>
 
-  <p>5-room flats add approximately 15–20% to 4-room prices in the same sub-estate. The gap between Woodlands North (near TEL and future RTS terminus) and the Marsiling fringe is meaningful — roughly $100,000 on a 4-room flat — reflecting the connectivity premium that the TEL has already delivered and the RTS premium that is still being priced in.</p>
+  <p>5-room flats add approximately 15–20% to 4-room prices in the same sub-estate. The gap between Woodlands North (near TEL and future RTS terminus) and the Marsiling fringe is meaningful roughly $100,000 on a 4-room flat reflecting the connectivity premium that the TEL has already delivered and the RTS premium that is still being priced in.</p>
 
   <div class="warn">
-    <strong>ABSD if you hold the HDB and buy private simultaneously:</strong> Retaining your Woodlands HDB while purchasing a condo triggers 20% Additional Buyer's Stamp Duty for Singapore Citizens on the condo (second property). On a $1.15M condo, that is $230,000 in cash. The most straightforward path is to sell the HDB first, which resets you to first-time private buyer status at 0% ABSD. The Woodlands upgrade math is attractive precisely because the low HDB exit price is offset by the low private entry price in D25 and D27 — but ABSD destroys that math completely if not managed.
+    <strong>ABSD if you hold the HDB and buy private simultaneously:</strong> Retaining your Woodlands HDB while purchasing a condo triggers 20% Additional Buyer's Stamp Duty for Singapore Citizens on the condo (second property). On a $1.15M condo, that is $230,000 in cash. The most straightforward path is to sell the HDB first, which resets you to first-time private buyer status at 0% ABSD. The Woodlands upgrade math is attractive precisely because the low HDB exit price is offset by the low private entry price in D25 and D27 but ABSD destroys that math completely if not managed.
   </div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
   <h3>Path A: D27 New Launch (Yishun / Sembawang)</h3>
-  <p>New launch supply in D25 itself is extremely limited — developers have not launched meaningfully in Woodlands in recent years. The practical new launch market for Woodlands upgraders is D27 (Yishun, Sembawang), where projects are priced at $1,300–$1,500 PSF with 3-bedroom units starting at approximately $1.25M–$1.4M. North Gaia EC in Yishun (D27) is the standout option for EC-eligible households: at approximately $1,150–$1,350 PSF, it represents a 25–30% discount to equivalent fully private condos, and privatises at 10 years with the same resale profile thereafter. EC eligibility requires household income at or below $16,000 per month and no prior private property ownership for either applicant.</p>
+  <p>New launch supply in D25 itself is extremely limited developers have not launched meaningfully in Woodlands in recent years. The practical new launch market for Woodlands upgraders is D27 (Yishun, Sembawang), where projects are priced at $1,300–$1,500 PSF with 3-bedroom units starting at approximately $1.25M–$1.4M. North Gaia EC in Yishun (D27) is the standout option for EC-eligible households: at approximately $1,150–$1,350 PSF, it represents a 25–30% discount to equivalent fully private condos, and privatises at 10 years with the same resale profile thereafter. EC eligibility requires household income at or below $16,000 per month and no prior private property ownership for either applicant.</p>
 
   <h3>Path B: D25 Resale Condo (Woodlands)</h3>
-  <p>Parc Rosewood, Rosewood Suites, The Woodgrove, and Casablanca are the established D25 resale condo options. These are proven projects with functioning facilities, long lease remaining, and immediate occupation. 3-bedroom units trade at approximately $950,000–$1.2M — the most affordable private 3-bedroom option available to any 2026 MOP cohort in Singapore. For Woodlands families who want to stay in the north, upgrade to private facilities, and avoid a long rental gap, a D25 resale condo is the cleanest path. The relatively thin supply of D25 condos (fewer units, limited new stock) also supports pricing — competition among sellers is low.</p>
+  <p>Parc Rosewood, Rosewood Suites, The Woodgrove, and Casablanca are the established D25 resale condo options. These are proven projects with functioning facilities, long lease remaining, and immediate occupation. 3-bedroom units trade at approximately $950,000–$1.2M the most affordable private 3-bedroom option available to any 2026 MOP cohort in Singapore. For Woodlands families who want to stay in the north, upgrade to private facilities, and avoid a long rental gap, a D25 resale condo is the cleanest path. The relatively thin supply of D25 condos (fewer units, limited new stock) also supports pricing competition among sellers is low.</p>
 
   <h3>Path C: D27 Resale Condo (Yishun)</h3>
   <p>Skies Miltonia, The Alps Residences, and Eight Courtyards in D27 offer newer stock than the older D25 projects, with 3-bedroom units at approximately $1.0M–$1.3M. D27 provides slightly more amenity density than Woodlands (Northpoint City, Yishun Town Garden, Khoo Teck Puat Hospital) and comparable MRT access via the NS Line. For Woodlands upgraders who want newer facilities and are comfortable with a slightly longer commute, D27 resale is a strong value play.</p>
@@ -167,34 +193,34 @@
       <tr><td>Payment structure</td><td>Progressive tranches to TOP</td><td>Full at completion</td></tr>
       <tr><td>Occupation timeline</td><td>2028–2029 (2–3 years)</td><td>Immediate</td></tr>
       <tr><td>Rental gap cost</td><td>~$30,000–$50,000 (18 months)</td><td>Minimal (1–3 months)</td></tr>
-      <tr><td>RTS positioning</td><td>TOP post-RTS opening — already priced in</td><td>Benefit from RTS immediately upon moving in</td></tr>
+      <tr><td>RTS positioning</td><td>TOP post-RTS opening already priced in</td><td>Benefit from RTS immediately upon moving in</td></tr>
       <tr><td>Capital upside</td><td>Developer premium baked in</td><td>More room for negotiation, faster re-rating</td></tr>
     </tbody>
   </table>
 
   <h2>Rental Market: Woodlands in 2026</h2>
 
-  <p>Woodlands rental demand is driven by three distinct tenant segments. The first is industrial workers from Woodlands Industrial Park and Sembawang Shipyard — stable, blue-collar demand that has underpinned Woodlands HDB rental for decades. The second is medical professionals and administrators at Khoo Teck Puat Hospital and Admiralty Medical Centre. The third — and the growth segment — is Malaysian cross-border workers who currently commute via the Causeway or Second Link but will benefit dramatically from the RTS Link.</p>
+  <p>Woodlands rental demand is driven by three distinct tenant segments. The first is industrial workers from Woodlands Industrial Park and Sembawang Shipyard stable, blue-collar demand that has underpinned Woodlands HDB rental for decades. The second is medical professionals and administrators at Khoo Teck Puat Hospital and Admiralty Medical Centre. The third and the growth segment is Malaysian cross-border workers who currently commute via the Causeway or Second Link but will benefit dramatically from the RTS Link.</p>
 
-  <p>Private condo 2-bedroom units in D25 currently rent at $2,600–$3,000 per month. 3-bedroom units are at $3,200–$3,800 per month. These yields — typically 3.5–4.5% gross on a D25 condo purchased at current prices — are among the more attractive in Singapore's OCR market, and the RTS is a structural demand driver that most other districts do not have.</p>
+  <p>Private condo 2-bedroom units in D25 currently rent at $2,600–$3,000 per month. 3-bedroom units are at $3,200–$3,800 per month. These yields typically 3.5–4.5% gross on a D25 condo purchased at current prices are among the more attractive in Singapore's OCR market, and the RTS is a structural demand driver that most other districts do not have.</p>
 
-  <p>For transitioning sellers who need to rent between HDB sale and condo completion, Woodlands 4-room HDB equivalents are leasing at approximately $2,200–$2,600 per month — lower than comparable sizes in Punggol or Sengkang, reflecting the current pre-RTS pricing.</p>
+  <p>For transitioning sellers who need to rent between HDB sale and condo completion, Woodlands 4-room HDB equivalents are leasing at approximately $2,200–$2,600 per month lower than comparable sizes in Punggol or Sengkang, reflecting the current pre-RTS pricing.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
 
-  <div class="flow-step"><strong>Step 1 — Confirm your MOP date.</strong> Log in to HDB MyFlat Dashboard and check the exact date of key collection. MOP is precisely 5 years from that date. Do not estimate based on the BTO exercise year — actual collection dates vary by project phase and contractor progress.</div>
-  <div class="flow-step"><strong>Step 2 — Get a Woodlands HDB valuation.</strong> Use HDB's Resale Flat Prices portal to review recent transactions within your block and storey range. Filter for transactions within the past 6 months and within 2 storeys of your unit. The RTS premium is already beginning to appear in Woodlands North transactions near the TEL — verify whether your block is capturing that premium or not.</div>
-  <div class="flow-step"><strong>Step 3 — Model the RTS timing decision.</strong> The central strategic question for Woodlands upgraders is not just "sell or hold HDB" — it is "buy condo before or after RTS opens." Buying before RTS opens captures pre-RTS private condo pricing; buying after means paying the RTS premium. Run the numbers: if condo prices rise 8–12% post-RTS and you are buying a $1.1M unit, that is $88,000–$132,000 in additional cost by waiting.</div>
-  <div class="flow-step"><strong>Step 4 — Secure an IPA from a bank.</strong> In-Principle Approval anchors your loan quantum before you make any offer. At 75% LTV on a $1.1M D25 condo, the loan is $825,000. At the 4% stress test rate over 30 years, the required qualifying income is approximately $5,000–$6,000 per month combined — achievable for most dual-income Woodlands households.</div>
-  <div class="flow-step"><strong>Step 5 — List the HDB, complete the condo purchase.</strong> Standard HDB resale timeline is 8–12 weeks from listing to completion. Price competitively from day one — in a smaller supply cohort like Woodlands 2026, overpricing by $20,000 can mean sitting unsold for 2–3 months while the market moves. The Woodlands resale buyer pool is thinner than in Sengkang or Tampines, so realistic pricing matters more.</div>
+  <div class="flow-step"><strong>Step 1 Confirm your MOP date.</strong> Log in to HDB MyFlat Dashboard and check the exact date of key collection. MOP is precisely 5 years from that date. Do not estimate based on the BTO exercise year actual collection dates vary by project phase and contractor progress.</div>
+  <div class="flow-step"><strong>Step 2 Get a Woodlands HDB valuation.</strong> Use HDB's Resale Flat Prices portal to review recent transactions within your block and storey range. Filter for transactions within the past 6 months and within 2 storeys of your unit. The RTS premium is already beginning to appear in Woodlands North transactions near the TEL verify whether your block is capturing that premium or not.</div>
+  <div class="flow-step"><strong>Step 3 Model the RTS timing decision.</strong> The central strategic question for Woodlands upgraders is not just "sell or hold HDB" it is "buy condo before or after RTS opens." Buying before RTS opens captures pre-RTS private condo pricing; buying after means paying the RTS premium. Run the numbers: if condo prices rise 8–12% post-RTS and you are buying a $1.1M unit, that is $88,000–$132,000 in additional cost by waiting.</div>
+  <div class="flow-step"><strong>Step 4 Secure an IPA from a bank.</strong> In-Principle Approval anchors your loan quantum before you make any offer. At 75% LTV on a $1.1M D25 condo, the loan is $825,000. At the 4% stress test rate over 30 years, the required qualifying income is approximately $5,000–$6,000 per month combined achievable for most dual-income Woodlands households.</div>
+  <div class="flow-step"><strong>Step 5 List the HDB, complete the condo purchase.</strong> Standard HDB resale timeline is 8–12 weeks from listing to completion. Price competitively from day one in a smaller supply cohort like Woodlands 2026, overpricing by $20,000 can mean sitting unsold for 2–3 months while the market moves. The Woodlands resale buyer pool is thinner than in Sengkang or Tampines, so realistic pricing matters more.</div>
 
   <h2>Key Considerations for Woodlands 2026 Upgraders</h2>
 
   <ul>
-    <li><strong>The RTS Link is the structural catalyst — buy before it opens, not after.</strong> Property markets price infrastructure in 1–2 years before completion. Woodlands condos bought now will likely be worth more the day the RTS opens than any new launch post-opening. The window is narrowing.</li>
-    <li><strong>Woodlands TEL has 3 stations — connectivity is better than most assume.</strong> Woodlands North, Woodlands, and Woodlands South MRT stations give the estate exceptional intra-town coverage. Downtown Line access via Bugis is under 30 minutes from Woodlands MRT. Do not underestimate how much the TEL has already changed Woodlands' commute profile.</li>
-    <li><strong>The affordable upgrade gap is Woodlands' unique advantage.</strong> A Woodlands 4-room exit at $430,000–$470,000 can fund a D25 private condo at $1.0M with minimal additional cash, assuming a standard household income. No other MOP cohort in 2026 offers this low an upgrade gap — Sengkang and Punggol upgraders typically need $100,000–$200,000 more upfront to enter a comparable private unit.</li>
-    <li><strong>D25 private condo supply is thin.</strong> Parc Rosewood, Rosewood Suites, and the other D25 condos have limited unit counts. Thin seller supply relative to growing buyer interest — driven by the RTS catalyst — supports pricing. Do not expect to negotiate a deep discount in a market where the competition for each available unit is increasing.</li>
+    <li><strong>The RTS Link is the structural catalyst buy before it opens, not after.</strong> Property markets price infrastructure in 1–2 years before completion. Woodlands condos bought now will likely be worth more the day the RTS opens than any new launch post-opening. The window is narrowing.</li>
+    <li><strong>Woodlands TEL has 3 stations connectivity is better than most assume.</strong> Woodlands North, Woodlands, and Woodlands South MRT stations give the estate exceptional intra-town coverage. Downtown Line access via Bugis is under 30 minutes from Woodlands MRT. Do not underestimate how much the TEL has already changed Woodlands' commute profile.</li>
+    <li><strong>The affordable upgrade gap is Woodlands' unique advantage.</strong> A Woodlands 4-room exit at $430,000–$470,000 can fund a D25 private condo at $1.0M with minimal additional cash, assuming a standard household income. No other MOP cohort in 2026 offers this low an upgrade gap Sengkang and Punggol upgraders typically need $100,000–$200,000 more upfront to enter a comparable private unit.</li>
+    <li><strong>D25 private condo supply is thin.</strong> Parc Rosewood, Rosewood Suites, and the other D25 condos have limited unit counts. Thin seller supply relative to growing buyer interest driven by the RTS catalyst supports pricing. Do not expect to negotiate a deep discount in a market where the competition for each available unit is increasing.</li>
   </ul>
 
   <h2>Related Reading</h2>
@@ -209,7 +235,7 @@
   <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
     <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Run your own numbers with Winfred</p>
     <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">30-minute Property Portfolio Analysis. Walk away knowing your Woodlands exit price, condo budget, and whether to move before or after RTS opens.</p>
-    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call — 30 min</a>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call 30 min</a>
   </div>
 
   <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is an Associate Marketing Consultant at Crestbrick Pte Ltd, advising Singapore upgraders, investors, and family offices. CEA R073319H. The information on this page is general and does not constitute financial, investment, or mortgage advice. Real estate investments carry risk. Always conduct your own due diligence and consult qualified professionals before making property decisions.</p>
@@ -221,7 +247,7 @@
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -238,11 +264,21 @@
     <picture><source srcset="/img/winfred-hero.avif?v=3" type="image/avif"><source srcset="/img/winfred-hero.webp?v=3" type="image/webp"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek CEA R073319H" loading="lazy" width="80" height="80" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);" /></picture>
     <div>
       <p class="serif text-xl font-semibold mb-1">Winfred Quek</p>
-      <p class="text-sm text-[var(--accent)] mb-2">Director · CEA R073319H · Crestbrick Pte Ltd</p>
+      <p class="text-sm text-[var(--accent)] mb-2">Associate Marketing Consultant · CEA R073319H · Crestbrick Pte Ltd</p>
       <p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p>
     </div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

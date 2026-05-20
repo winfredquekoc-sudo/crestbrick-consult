@@ -47,14 +47,49 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -75,7 +110,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Bukit Batok BTOs Are MOP-Eligible in 2026?</h2>
-  <p>The 2026 MOP cohort in Bukit Batok covers BTOs balloted around 2020–2021 across several estate clusters. The combined cohort runs to an estimated 3,500 to 4,500 units — a moderate volume that creates a manageable level of resale competition without flooding the market.</p>
+  <p>The 2026 MOP cohort in Bukit Batok covers BTOs balloted around 2020–2021 across several estate clusters. The combined cohort runs to an estimated 3,500 to 4,500 units a moderate volume that creates a manageable level of resale competition without flooding the market.</p>
   <table>
     <thead><tr><th>Cluster / Location</th><th>Approx BTO Year</th><th>MOP Year</th><th>Est. 4-Room Resale Value</th></tr></thead>
     <tbody>
@@ -97,18 +132,18 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     </tbody>
   </table>
 
-  <div class="warn"><strong>ABSD reminder:</strong> If you are a Singapore Citizen purchasing your first private property, ABSD is 0%. If you own any other residential property at the point of purchase — including your existing HDB — ABSD is 20% for SC second properties. Most upgraders sell the HDB first (or within the 6-month window) to avoid this charge. Do not sign an OTP on a private property while still owning the HDB unless you have modelled the ABSD exposure.</div>
+  <div class="warn"><strong>ABSD reminder:</strong> If you are a Singapore Citizen purchasing your first private property, ABSD is 0%. If you own any other residential property at the point of purchase including your existing HDB ABSD is 20% for SC second properties. Most upgraders sell the HDB first (or within the 6-month window) to avoid this charge. Do not sign an OTP on a private property while still owning the HDB unless you have modelled the ABSD exposure.</div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1: Altura EC — D23, Income ≤$16K</h3>
-  <p>Altura EC at Bukit Batok West Ave 8 is one of the most closely watched EC launches of this cycle. With approximately 360 units and a TOP expected in 2026 to 2027, it sits directly in the same estate as many MOP sellers — meaning upgraders can stay in the neighbourhood they know. At approximately $1,350 to $1,450 PSF, a 3-bedroom unit prices at roughly $1.30M to $1.45M. EC entry PSF runs 15 to 25 percent below comparable private condos at similar specifications. The critical qualifier: household income must not exceed $16,000 per month at the point of application. This path is unavailable to households above that ceiling.</p>
+  <h3>Path 1: Altura EC D23, Income ≤$16K</h3>
+  <p>Altura EC at Bukit Batok West Ave 8 is one of the most closely watched EC launches of this cycle. With approximately 360 units and a TOP expected in 2026 to 2027, it sits directly in the same estate as many MOP sellers meaning upgraders can stay in the neighbourhood they know. At approximately $1,350 to $1,450 PSF, a 3-bedroom unit prices at roughly $1.30M to $1.45M. EC entry PSF runs 15 to 25 percent below comparable private condos at similar specifications. The critical qualifier: household income must not exceed $16,000 per month at the point of application. This path is unavailable to households above that ceiling.</p>
 
-  <h3>Path 2: Le Quest Resale — D23, Immediately Available</h3>
-  <p>Le Quest (TOP 2021) at Bukit Batok West Ave 6 is the benchmark private condo in Bukit Batok. The integrated development format — Fairprice Finest, F&B outlets, and childcare on the ground floor — makes it one of the most self-contained condos in the western region. A 3-bedroom resale unit trades at roughly $1.20M to $1.40M. Immediate availability removes the TOP waiting risk; the integrated retail base drives consistently low vacancy and a rental premium for family tenants. For Bukit Batok MOP owners who cannot qualify for Altura EC, Le Quest is the natural landing.</p>
+  <h3>Path 2: Le Quest Resale D23, Immediately Available</h3>
+  <p>Le Quest (TOP 2021) at Bukit Batok West Ave 6 is the benchmark private condo in Bukit Batok. The integrated development format Fairprice Finest, F&B outlets, and childcare on the ground floor makes it one of the most self-contained condos in the western region. A 3-bedroom resale unit trades at roughly $1.20M to $1.40M. Immediate availability removes the TOP waiting risk; the integrated retail base drives consistently low vacancy and a rental premium for family tenants. For Bukit Batok MOP owners who cannot qualify for Altura EC, Le Quest is the natural landing.</p>
 
-  <h3>Path 3: D22 Jurong East Corridor — Twin VEW and Resale Pool</h3>
-  <p>Moving one station east along the NS Line opens up the D22 Jurong East corridor. Twin VEW (TOP 2022) and the established J Gateway pool offer 3-bedroom resale units at roughly $1.10M to $1.35M — the most affordable private option for this cohort. These developments benefit from Jurong Lake District (JLD) proximity and EWL connectivity. The trade-off is leaving the Bukit Batok neighbourhood, though the commute back to Bukit Batok is a single NS Line stop.</p>
+  <h3>Path 3: D22 Jurong East Corridor Twin VEW and Resale Pool</h3>
+  <p>Moving one station east along the NS Line opens up the D22 Jurong East corridor. Twin VEW (TOP 2022) and the established J Gateway pool offer 3-bedroom resale units at roughly $1.10M to $1.35M the most affordable private option for this cohort. These developments benefit from Jurong Lake District (JLD) proximity and EWL connectivity. The trade-off is leaving the Bukit Batok neighbourhood, though the commute back to Bukit Batok is a single NS Line stop.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
@@ -129,7 +164,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <tr><td>Entry PSF</td><td>~$1,350–$1,450 PSF</td><td>~$1,200–$1,400 PSF</td></tr>
       <tr><td>Waiting period</td><td>1–2 years (TOP 2026–2027)</td><td>Immediate</td></tr>
       <tr><td>MOP on EC itself</td><td>5 years from TOP (private after 10 years)</td><td>None (already privatised)</td></tr>
-      <tr><td>JRL exposure</td><td>Direct — Tengah Park MRT walking distance</td><td>Indirect — NS Line remains primary</td></tr>
+      <tr><td>JRL exposure</td><td>Direct Tengah Park MRT walking distance</td><td>Indirect NS Line remains primary</td></tr>
       <tr><td>Integrated retail</td><td>None confirmed</td><td>Le Quest: Fairprice Finest + F&B</td></tr>
     </tbody>
   </table>
@@ -143,21 +178,21 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <tr><td>3BR condo</td><td>$3,300–$3,900/mth</td><td>~3.0–3.5%</td><td>Family tenants; Le Quest commands premium</td></tr>
     </tbody>
   </table>
-  <p>Le Quest's integrated retail format commands a 10 to 15 percent rental premium over standalone condos in Bukit Batok — the ground-floor Fairprice Finest and childcare facilities directly reduce tenant churn for families with young children. Vacancy rates at Le Quest have remained below 3% since TOP in 2021.</p>
+  <p>Le Quest's integrated retail format commands a 10 to 15 percent rental premium over standalone condos in Bukit Batok the ground-floor Fairprice Finest and childcare facilities directly reduce tenant churn for families with young children. Vacancy rates at Le Quest have remained below 3% since TOP in 2021.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Get a current valuation.</strong> Engage Winfred 3 to 6 months before your MOP date. Understand your realistic resale price range, the likely CPF refund quantum, and how much cash you will net. This number determines which upgrade path is mathematically available to you.</div>
-  <div class="flow-step"><strong>Step 2 — Model your TDSR at 1.5% (actual) and 4% (stress test).</strong> A $1.30M mortgage at 1.5% over 25 years is approximately $5,200/month. At the 4% stress test, the implied payment is $6,800/month. Your total debt service (including any car loan or other credit facilities) must remain below 55% of gross income at the stress test rate.</div>
-  <div class="flow-step"><strong>Step 3 — Decide: sell HDB first or simultaneous.</strong> Most Bukit Batok upgraders sell the HDB first, rent temporarily for 3 to 6 months, then purchase the condo. This eliminates the 20% ABSD risk and reduces the cash-flow stress of carrying two properties. Altura EC buyers waiting for TOP may need to rent for 12 to 24 months — factor in rental costs when modelling total upgrade cost.</div>
-  <div class="flow-step"><strong>Step 4 — Time the JRL window.</strong> The Tengah Park MRT station opening in 2027 is a priced-in catalyst in progress. Properties within 800m of JRL stations in D23 are already firming. Buying Le Quest or Altura EC before the JRL opens locks in pre-announcement pricing for one of the few remaining infrastructure events in the western corridor.</div>
-  <div class="flow-step"><strong>Step 5 — Execute and manage the rental hold.</strong> If you buy before selling the HDB, confirm HDB is sold within 6 months of completing the condo purchase. If you sell first, negotiate a 3-month leaseback from the buyer to give yourself buffer. Line up your rental unit before the HDB sale completes to avoid a homeless window.</div>
+  <div class="flow-step"><strong>Step 1 Get a current valuation.</strong> Engage Winfred 3 to 6 months before your MOP date. Understand your realistic resale price range, the likely CPF refund quantum, and how much cash you will net. This number determines which upgrade path is mathematically available to you.</div>
+  <div class="flow-step"><strong>Step 2 Model your TDSR at 1.5% (actual) and 4% (stress test).</strong> A $1.30M mortgage at 1.5% over 25 years is approximately $5,200/month. At the 4% stress test, the implied payment is $6,800/month. Your total debt service (including any car loan or other credit facilities) must remain below 55% of gross income at the stress test rate.</div>
+  <div class="flow-step"><strong>Step 3 Decide: sell HDB first or simultaneous.</strong> Most Bukit Batok upgraders sell the HDB first, rent temporarily for 3 to 6 months, then purchase the condo. This eliminates the 20% ABSD risk and reduces the cash-flow stress of carrying two properties. Altura EC buyers waiting for TOP may need to rent for 12 to 24 months factor in rental costs when modelling total upgrade cost.</div>
+  <div class="flow-step"><strong>Step 4 Time the JRL window.</strong> The Tengah Park MRT station opening in 2027 is a priced-in catalyst in progress. Properties within 800m of JRL stations in D23 are already firming. Buying Le Quest or Altura EC before the JRL opens locks in pre-announcement pricing for one of the few remaining infrastructure events in the western corridor.</div>
+  <div class="flow-step"><strong>Step 5 Execute and manage the rental hold.</strong> If you buy before selling the HDB, confirm HDB is sold within 6 months of completing the condo purchase. If you sell first, negotiate a 3-month leaseback from the buyer to give yourself buffer. Line up your rental unit before the HDB sale completes to avoid a homeless window.</div>
 
   <h2>Key Considerations</h2>
   <ul>
-    <li><strong>JRL Tengah Park is the structural catalyst.</strong> Once open in 2027, D23 connectivity improves materially, supporting prices across the estate. This is the last window to buy D23 private property at pre-JRL pricing — the premium is forming now, not after the ribbon is cut.</li>
+    <li><strong>JRL Tengah Park is the structural catalyst.</strong> Once open in 2027, D23 connectivity improves materially, supporting prices across the estate. This is the last window to buy D23 private property at pre-JRL pricing the premium is forming now, not after the ribbon is cut.</li>
     <li><strong>Altura EC for income ≤$16K is the best first move.</strong> EC entry PSF is 15 to 25 percent below comparable private; buyers who qualify and do not take this path are effectively leaving capital appreciation on the table.</li>
-    <li><strong>Le Quest's integrated retail is a durable rental advantage.</strong> Ground-floor Fairprice Finest, F&B, and childcare attract family tenants who stay longer — vacancy risk is structurally lower than standalone condos in Bukit Batok.</li>
-    <li><strong>NS Line connectivity is underrated.</strong> Jurong East in 2 stops, Bishan in 4 stops, Orchard in 7 stops — Bukit Batok on the NS Line is not the western outpost many assume. The JRL adds a second dimension to this connectivity story.</li>
+    <li><strong>Le Quest's integrated retail is a durable rental advantage.</strong> Ground-floor Fairprice Finest, F&B, and childcare attract family tenants who stay longer vacancy risk is structurally lower than standalone condos in Bukit Batok.</li>
+    <li><strong>NS Line connectivity is underrated.</strong> Jurong East in 2 stops, Bishan in 4 stops, Orchard in 7 stops Bukit Batok on the NS Line is not the western outpost many assume. The JRL adds a second dimension to this connectivity story.</li>
   </ul>
 
   <h2>Related reading</h2>
@@ -184,7 +219,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -202,6 +237,16 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-panjang-mop-2026" style="color:var(--accent);">Bukit Panjang MOP 2026: Upgrading on the Downtown Line at an Affordable Entry</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

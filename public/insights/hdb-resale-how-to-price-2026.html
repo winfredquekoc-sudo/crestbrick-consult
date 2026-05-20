@@ -64,14 +64,49 @@
 </script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -86,14 +121,14 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl font-semibold leading-tight mb-6">How to Price Your HDB Flat to Sell in 30 Days (2026)</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 9-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> Pull the last 10 transactions within 500 metres, same flat type, within 6 months from the HDB resale portal. Price at the median of those transactions — or 3–5% below median if you want an offer within 30 days. Overpricing by even 5% typically doubles your days-on-market.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Pull the last 10 transactions within 500 metres, same flat type, within 6 months from the HDB resale portal. Price at the median of those transactions or 3–5% below median if you want an offer within 30 days. Overpricing by even 5% typically doubles your days-on-market.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Why Pricing Is the Only Variable You Control</h2>
-  <p>Location is fixed. Floor level is fixed. Remaining lease is fixed. The one thing you decide is the asking price — and it is the single biggest driver of how quickly a buyer makes an offer. In 2026, HDB resale volume remains healthy but buyers are well-informed. They pull the same transacted-price data you do. If your flat is priced above recent comps without a clear justification, it will sit.</p>
+  <p>Location is fixed. Floor level is fixed. Remaining lease is fixed. The one thing you decide is the asking price and it is the single biggest driver of how quickly a buyer makes an offer. In 2026, HDB resale volume remains healthy but buyers are well-informed. They pull the same transacted-price data you do. If your flat is priced above recent comps without a clear justification, it will sit.</p>
   <p>The HDB Resale Price Index rose approximately 4.8% in 2025 and has moderated in early 2026. In a steady market, the gap between an ambitious price and a realistic price matters more than in a rising one.</p>
 
-  <h2>Step 1 — Pull Your Comparable Transactions</h2>
+  <h2>Step 1 Pull Your Comparable Transactions</h2>
   <p>Go to the HDB Resale Flat Prices portal at <strong>data.gov.sg</strong> or the HDB InfoWEB and filter for:</p>
   <ul>
     <li>Same flat type (e.g., 4-room)</li>
@@ -106,11 +141,11 @@
 
   <h2>The 3 Pricing Strategies</h2>
 
-  <div class="flow-step"><strong>Strategy 1 — Market Rate (median price).</strong> List at the median of your comparable transactions. Attracts buyers who are actively comparing. Typical DOM: 3–6 weeks. Probability of offer in 30 days: ~60–70%.</div>
+  <div class="flow-step"><strong>Strategy 1 Market Rate (median price).</strong> List at the median of your comparable transactions. Attracts buyers who are actively comparing. Typical DOM: 3–6 weeks. Probability of offer in 30 days: ~60–70%.</div>
 
-  <div class="flow-step"><strong>Strategy 2 — Aggressive (−8% to −10% below median).</strong> Price below every recent comp. Creates urgency. Multiple viewings in week one. Typical DOM: under 2 weeks. Probability of offer in 30 days: 90%+. Risk: you leave $30,000–$50,000 on the table on a typical 4-room flat.</div>
+  <div class="flow-step"><strong>Strategy 2 Aggressive (−8% to −10% below median).</strong> Price below every recent comp. Creates urgency. Multiple viewings in week one. Typical DOM: under 2 weeks. Probability of offer in 30 days: 90%+. Risk: you leave $30,000–$50,000 on the table on a typical 4-room flat.</div>
 
-  <div class="flow-step"><strong>Strategy 3 — Premium (+5% above median).</strong> List above comps and wait for an aspirational buyer. Typical DOM: 8–16 weeks. Probability of offer in 30 days: 20–30%. Only viable if your unit has a genuinely differentiated feature — very high floor, full renovation, unobstructed view, or rare proximity to a top-ranked school.</div>
+  <div class="flow-step"><strong>Strategy 3 Premium (+5% above median).</strong> List above comps and wait for an aspirational buyer. Typical DOM: 8–16 weeks. Probability of offer in 30 days: 20–30%. Only viable if your unit has a genuinely differentiated feature very high floor, full renovation, unobstructed view, or rare proximity to a top-ranked school.</div>
 
   <table>
     <thead><tr><th>Strategy</th><th>Relative to Median</th><th>Avg DOM</th><th>Offer in 30 Days</th><th>Risk</th></tr></thead>
@@ -124,15 +159,15 @@
   </table>
 
   <h2>Adjusting for Floor Level and Facing</h2>
-  <p>The HDB transacted price data does not separate units by facing, but you can triangulate. Within the same block, a north-south facing unit on level 18 should command 5–8% more than a south-west facing unit on level 6. Study the outliers in your comparables — units priced significantly above or below the median usually reflect floor level or facing differences.</p>
-  <p>A practical shortcut: for every 5 floors above level 3, add approximately 1.5–2.5% to the base median price. This is a rough guide only — your specific block's transaction history is the better data source.</p>
+  <p>The HDB transacted price data does not separate units by facing, but you can triangulate. Within the same block, a north-south facing unit on level 18 should command 5–8% more than a south-west facing unit on level 6. Study the outliers in your comparables units priced significantly above or below the median usually reflect floor level or facing differences.</p>
+  <p>A practical shortcut: for every 5 floors above level 3, add approximately 1.5–2.5% to the base median price. This is a rough guide only your specific block's transaction history is the better data source.</p>
 
   <h2>Understanding the HDB Valuation and COV</h2>
-  <p>Once you accept an offer, the buyer applies for an HDB valuation. If the agreed transacted price exceeds the HDB valuation, the difference is called <strong>Cash Over Valuation (COV)</strong>. The COV must be paid entirely in cash — the buyer cannot use CPF for it.</p>
+  <p>Once you accept an offer, the buyer applies for an HDB valuation. If the agreed transacted price exceeds the HDB valuation, the difference is called <strong>Cash Over Valuation (COV)</strong>. The COV must be paid entirely in cash the buyer cannot use CPF for it.</p>
   <p>In the current market, COV exists but is more selective than the 2021–2022 peak. In mature estates and popular blocks, COV of $10,000–$50,000 is still common. In estates with high supply of similar flats, valuations tend to track transacted prices closely with minimal COV.</p>
 
   <div class="warn">
-    <strong>COV trap for buyers:</strong> If you are buying a resale flat and the seller is asking above recent comps, budget for COV. A $600,000 agreed price with a $540,000 valuation means $60,000 must come from cash savings — your CPF covers only the $540,000 valuation. Always check recent transacted prices before making an offer to estimate your COV exposure.
+    <strong>COV trap for buyers:</strong> If you are buying a resale flat and the seller is asking above recent comps, budget for COV. A $600,000 agreed price with a $540,000 valuation means $60,000 must come from cash savings your CPF covers only the $540,000 valuation. Always check recent transacted prices before making an offer to estimate your COV exposure.
   </div>
 
   <h2>The Ethnic Integration Policy (EIP) Effect on Your Buyer Pool</h2>
@@ -185,6 +220,16 @@
 </section>
 
 <aside class="max-w-3xl mx-auto px-6 py-10 border-t border-[var(--rule)]"><div class="flex gap-5 items-start"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek CEA R073319H" loading="lazy" width="80" height="80" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);flex-shrink:0;" /><div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property, five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div></div></aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/hdb-bto-vs-resale-first-time-buyer-2026" style="color:var(--accent);">BTO vs Resale HDB 2026: True Cost Comparison for First-Time Couples</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-resale-levy-singapore" style="color:var(--accent);">HDB Resale Levy Singapore 2026: How Much, Who Pays, How to Calculate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-resale-vs-new-launch-condo-2026" style="color:var(--accent);">HDB Resale vs New Launch Condo 2026: Real Numbers for a $1.2M Budget</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/can-i-own-hdb-and-condo-singapore" style="color:var(--accent);">Can I Own HDB and Condo at the Same Time in Singapore? (2026 Rules)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/divorce-hdb-flat-procedure-2026" style="color:var(--accent);">HDB Flat Divorce Procedure 2026</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]"><div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]"><p>© 2026 Winfred Quek · Associate Marketing Consultant, Crestbrick Pte Ltd (CEA L31010886H) · CEA R073319H</p><div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a></div></div><div style="border-top:1px solid rgba(255,255,255,0.08);padding:1.25rem 1.5rem;"><p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</p></div></footer>
 <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20property%20question." style="position:fixed;bottom:1.25rem;right:1.25rem;z-index:50;display:flex;align-items:center;gap:.5rem;background:#25D366;color:#fff;padding:.75rem 1.25rem;border-radius:9999px;font-weight:500;text-decoration:none;box-shadow:0 10px 30px -5px rgba(37,211,102,.4);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span>Chat</span></a>

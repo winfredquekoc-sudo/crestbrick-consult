@@ -66,23 +66,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a>
-      <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
     </div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]">
-    <div class="px-6 py-4 flex flex-col gap-3">
-      <a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
-    </div>
-  </div>
-</header>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -100,7 +126,7 @@
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 10-minute read &middot; Last reviewed May 2026</p>
 
   <div class="quick-answer">
-    <strong>Quick answer:</strong> Selling HDB first means 0% ABSD on the condo but requires a temporary housing solution (bridging facility or rental) during the gap. Buying condo first means paying 20% ABSD upfront — on a $1.5M condo that is $300,000 tied up — but it is fully refunded if you sell the HDB within 6 months of the condo's completion or TOP. For a new launch condo TOPing in 3–4 years, the new launch route (Scenario C) is often the cleanest: buy now, live in HDB during construction, sell HDB in your own time before TOP, and collect the condo keys with 0 ABSD exposure. The right answer depends on whether a resale or new launch condo fits your target.
+    <strong>Quick answer:</strong> Selling HDB first means 0% ABSD on the condo but requires a temporary housing solution (bridging facility or rental) during the gap. Buying condo first means paying 20% ABSD upfront on a $1.5M condo that is $300,000 tied up but it is fully refunded if you sell the HDB within 6 months of the condo's completion or TOP. For a new launch condo TOPing in 3–4 years, the new launch route (Scenario C) is often the cleanest: buy now, live in HDB during construction, sell HDB in your own time before TOP, and collect the condo keys with 0 ABSD exposure. The right answer depends on whether a resale or new launch condo fits your target.
   </div>
 
   <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
@@ -108,11 +134,11 @@
   <div style="background:rgba(198,163,106,0.07);border:1px solid rgba(198,163,106,0.25);border-radius:10px;padding:1.25rem 1.5rem;margin-bottom:2rem;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.75rem;">Key Takeaways</p>
     <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Sell first (Scenario A): 0% ABSD, but you need rental or bridging — typically S$3,000–S$5,000/month rental for 3–6 months while securing the condo.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• Buy resale condo first (Scenario B): S$300K ABSD float on a S$1.5M condo — fully refunded only if HDB is sold within 6 months of condo completion. Miss the deadline and the S$300K is forfeit.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• New launch (Scenario C): Cleanest path — 0% ABSD exposure if you sell HDB any time before TOP; you live in the HDB during the 3–4 year construction window at no extra cost.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• LTV trap: if you have an outstanding HDB loan when buying the condo, LTV drops to 45% — requiring a much larger cash/CPF downpayment on the new property.</li>
-      <li style="font-size:.9rem;color:var(--ink-soft);">• According to IRAS, the 6-month deadline for ABSD remission runs from the date of Temporary Occupation Permit (TOP) or Certificate of Statutory Completion — not the purchase date.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Sell first (Scenario A): 0% ABSD, but you need rental or bridging typically S$3,000–S$5,000/month rental for 3–6 months while securing the condo.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• Buy resale condo first (Scenario B): S$300K ABSD float on a S$1.5M condo fully refunded only if HDB is sold within 6 months of condo completion. Miss the deadline and the S$300K is forfeit.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• New launch (Scenario C): Cleanest path 0% ABSD exposure if you sell HDB any time before TOP; you live in the HDB during the 3–4 year construction window at no extra cost.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• LTV trap: if you have an outstanding HDB loan when buying the condo, LTV drops to 45% requiring a much larger cash/CPF downpayment on the new property.</li>
+      <li style="font-size:.9rem;color:var(--ink-soft);">• According to IRAS, the 6-month deadline for ABSD remission runs from the date of Temporary Occupation Permit (TOP) or Certificate of Statutory Completion not the purchase date.</li>
     </ul>
   </div>
 
@@ -132,7 +158,7 @@
       <tr><td>ABSD payable</td><td>$0 (already sold HDB)</td><td>$300,000 upfront (refunded at TOP)</td></tr>
       <tr><td>BSD</td><td>$44,600</td><td>$44,600</td></tr>
       <tr><td>Cash required at purchase</td><td>$75,000 (5% cash min) + $44,600 BSD = $119,600</td><td>$75,000 (5%) + $44,600 (BSD) + $300,000 (ABSD) = $419,600</td></tr>
-      <tr><td>Housing gap cost</td><td>~$4,000/month rental × 4 months = $16,000</td><td>$0 — stay in HDB until TOP (year 3–4)</td></tr>
+      <tr><td>Housing gap cost</td><td>~$4,000/month rental × 4 months = $16,000</td><td>$0 stay in HDB until TOP (year 3–4)</td></tr>
       <tr><td>ABSD float opportunity cost</td><td>$0</td><td>$300,000 × 1.5% × 3.5 years = $15,750</td></tr>
       <tr><td>Monthly mortgage at possession (75% LTV, 25yr, 1.6%)</td><td>$4,740/month, starts within 12 weeks</td><td>$4,740/month, starts at TOP (year 3)</td></tr>
       <tr><td>Total friction cost vs 0 baseline</td><td>~$16,000 (rental gap)</td><td>~$15,750 (ABSD float)</td></tr>
@@ -147,29 +173,29 @@
   <p>Every HDB upgrader who currently owns an HDB flat and wants to buy private property faces a sequencing decision. There are three distinct paths, each with different ABSD exposure, cash flow profile, and execution risk.</p>
 
   <h3>Scenario A: Sell HDB first, then buy condo</h3>
-  <p>You sell the HDB, complete the sale, receive proceeds, then purchase the condo. Because you no longer own any residential property at the time of condo purchase, it is your <strong>first property</strong> — ABSD = 0%.</p>
+  <p>You sell the HDB, complete the sale, receive proceeds, then purchase the condo. Because you no longer own any residential property at the time of condo purchase, it is your <strong>first property</strong> ABSD = 0%.</p>
 
   <p><strong>The challenge:</strong> There is a gap between HDB sale completion and condo purchase completion. During this gap, you need somewhere to live. Options:</p>
   <ul>
     <li>Stay with family temporarily (no cost, requires family support)</li>
     <li>Rent a private apartment or HDB room short-term ($3,000–$5,000/month for an equivalent space)</li>
     <li>Negotiate a longer stay with the HDB buyer via a deferred completion or leaseback arrangement</li>
-    <li>Use a bridging loan to fund the purchase of the new condo before the HDB sale completes — effectively reducing the gap</li>
+    <li>Use a bridging loan to fund the purchase of the new condo before the HDB sale completes effectively reducing the gap</li>
   </ul>
 
   <p><strong>Bridging loan cost:</strong> Singapore banks offer bridging loans (also called bridging facilities) to cover the gap between buying and selling. Typically priced at 2.5%–3.0% per annum on the overdraft amount drawn. For a $300,000 bridging facility over 3 months: interest = $300,000 × 2.75% × (3/12) = <strong>$2,063</strong>. Very manageable.</p>
 
   <h3>Scenario B: Buy condo first (resale), then sell HDB within 6 months</h3>
-  <p>You purchase the condo while still owning the HDB. This is technically a second property purchase — 20% ABSD applies upfront. However, under the ABSD Married Couple Remission, if both spouses are named on the new condo title and the HDB is sold (completed) within 6 months of the condo's completion date, IRAS refunds the full 20% ABSD.</p>
+  <p>You purchase the condo while still owning the HDB. This is technically a second property purchase 20% ABSD applies upfront. However, under the ABSD Married Couple Remission, if both spouses are named on the new condo title and the HDB is sold (completed) within 6 months of the condo's completion date, IRAS refunds the full 20% ABSD.</p>
 
-  <p><strong>The challenge:</strong> The 6-month clock is tight for a resale condo. You must sell the HDB — get an OTP, go through HDB's resale process, and complete — within 6 months of moving into the new condo. The HDB resale process alone takes 8–12 weeks minimum. This leaves you with roughly 2–4 months of marketing time before you must have a buyer with signed OTP.</p>
+  <p><strong>The challenge:</strong> The 6-month clock is tight for a resale condo. You must sell the HDB get an OTP, go through HDB's resale process, and complete within 6 months of moving into the new condo. The HDB resale process alone takes 8–12 weeks minimum. This leaves you with roughly 2–4 months of marketing time before you must have a buyer with signed OTP.</p>
 
   <p><strong>ABSD float cost:</strong> On a $1.5M condo, 20% ABSD = $300,000 that must be paid upfront at stamping, tied up for up to 6 months, then refunded. Cost of capital at 1.5%/year: $300,000 × 1.5% × (6/12) = <strong>$2,250</strong>. Nearly identical to the Scenario A bridging cost.</p>
 
   <h3>Scenario C: Buy new launch condo, sell HDB before TOP</h3>
-  <p>You book a new launch condo today. The 6-month ABSD remission clock only starts at TOP — which is 3–4 years away. You continue living in your HDB during the construction period, sell the HDB at a time of your choosing within those 3–4 years, and then receive the condo keys at TOP.</p>
+  <p>You book a new launch condo today. The 6-month ABSD remission clock only starts at TOP which is 3–4 years away. You continue living in your HDB during the construction period, sell the HDB at a time of your choosing within those 3–4 years, and then receive the condo keys at TOP.</p>
 
-  <p><strong>The advantage:</strong> You have years — not months — to sell the HDB. You can time the HDB sale optimally. You avoid any housing gap because you stay in the HDB until the condo is ready. You pay 20% ABSD upfront at booking, but the refund risk is very low given the extended sell-down window.</p>
+  <p><strong>The advantage:</strong> You have years not months to sell the HDB. You can time the HDB sale optimally. You avoid any housing gap because you stay in the HDB until the condo is ready. You pay 20% ABSD upfront at booking, but the refund risk is very low given the extended sell-down window.</p>
 
   <p><strong>The constraint:</strong> You must be buying a new launch, not a resale. If your preferred condo is a resale, Scenario C is not available.</p>
 
@@ -186,8 +212,8 @@
       <tr><td>Temporary rental cost</td><td>$3,000–$5,000/month × gap duration</td><td>$0 (stay in HDB)</td><td>$0 (stay in HDB until TOP)</td></tr>
       <tr><td>ABSD float opportunity cost</td><td>$0</td><td>$2,250 (6 months at 1.5%)</td><td>$13,500–$22,500 (3–5 years at 1.5%)</td></tr>
       <tr><td>LTV on condo loan</td><td>75% (no outstanding loans)</td><td>45% (HDB loan still outstanding)</td><td>75% (HDB sold before TOP drawdown)</td></tr>
-      <tr><td>Execution risk</td><td>Low — no deadline pressure</td><td>High — 6 months to sell HDB</td><td>Low — years to sell HDB</td></tr>
-      <tr><td>Housing continuity</td><td>Gap exists — need bridging or rental</td><td>Seamless — stay in HDB until condo ready</td><td>Seamless — stay in HDB throughout construction</td></tr>
+      <tr><td>Execution risk</td><td>Low no deadline pressure</td><td>High 6 months to sell HDB</td><td>Low years to sell HDB</td></tr>
+      <tr><td>Housing continuity</td><td>Gap exists need bridging or rental</td><td>Seamless stay in HDB until condo ready</td><td>Seamless stay in HDB throughout construction</td></tr>
       <tr><td>Best for</td><td>Couples with family accommodation option, or resale condo target</td><td>Couples with high HDB demand, confident of quick sale</td><td>Couples flexible on new launch, want minimal stress</td></tr>
     </tbody>
   </table>
@@ -197,14 +223,14 @@
   <p>When you buy a condo while your HDB loan is still outstanding, your LTV for the new condo drops from 75% to 45%. This has two major consequences:</p>
 
   <ol>
-    <li><strong>Higher downpayment required:</strong> On a $1.5M condo at 45% LTV, the loan is only $675,000. You must fund the remaining $825,000 from CPF and cash — versus $375,000 at 75% LTV. That is $450,000 more you need to have available upfront.</li>
+    <li><strong>Higher downpayment required:</strong> On a $1.5M condo at 45% LTV, the loan is only $675,000. You must fund the remaining $825,000 from CPF and cash versus $375,000 at 75% LTV. That is $450,000 more you need to have available upfront.</li>
     <li><strong>Cash minimum rises:</strong> At 45% LTV, the minimum cash downpayment increases to 25% of purchase price = $375,000 in cash (not CPF). At 75% LTV, minimum cash is just 5% = $75,000.</li>
   </ol>
 
-  <p>For most HDB upgraders, $375,000 in liquid cash is simply not available — making Scenario B (buy resale condo first) practically impossible unless the HDB has been fully paid off (no outstanding HDB loan) and the couple has large savings. If the HDB still has a loan balance, Scenario B is ruled out by LTV constraints even before the ABSD question arises.</p>
+  <p>For most HDB upgraders, $375,000 in liquid cash is simply not available making Scenario B (buy resale condo first) practically impossible unless the HDB has been fully paid off (no outstanding HDB loan) and the couple has large savings. If the HDB still has a loan balance, Scenario B is ruled out by LTV constraints even before the ABSD question arises.</p>
 
   <div class="warn">
-    <strong>Critical caveat — Scenario B only works if the ABSD remission conditions are fully met:</strong> The married couple remission requires (1) at least one SC, (2) both spouses named on the new condo title, (3) all existing properties disposed within 6 months of the new property's completion date. If you miss the deadline by even one day, the full $300,000 ABSD is forfeited with no recourse. Given Singapore's average HDB resale DOM (days on market) of 60–90 days in 2026, plus 8–12 weeks for HDB to process the resale, the 6-month window is genuinely tight for most sellers. Only pursue Scenario B if you are confident in your HDB's saleability and willing to price aggressively if needed.
+    <strong>Critical caveat Scenario B only works if the ABSD remission conditions are fully met:</strong> The married couple remission requires (1) at least one SC, (2) both spouses named on the new condo title, (3) all existing properties disposed within 6 months of the new property's completion date. If you miss the deadline by even one day, the full $300,000 ABSD is forfeited with no recourse. Given Singapore's average HDB resale DOM (days on market) of 60–90 days in 2026, plus 8–12 weeks for HDB to process the resale, the 6-month window is genuinely tight for most sellers. Only pursue Scenario B if you are confident in your HDB's saleability and willing to price aggressively if needed.
   </div>
 
   <h2>Scenario C deep dive: new launch as the "stress free upgrade"</h2>
@@ -212,9 +238,9 @@
   <p>For couples who have flexibility on the type of condo (resale vs new launch) and a 3–5 year horizon, Scenario C is structurally the lowest-risk path. Here is the full timeline:</p>
 
   <div class="flow-step"><strong>Month 0:</strong> Book new launch condo. Pay 5% booking fee ($75,000 on $1.5M). Pay 20% ABSD ($300,000) at S&amp;P signing within 8 weeks.</div>
-  <div class="flow-step"><strong>Month 0 to Month 36–48:</strong> Continue living in HDB. Progressive loan drawdown by bank as construction milestones are hit. You pay only interest on drawn portion — far lower than full mortgage.</div>
+  <div class="flow-step"><strong>Month 0 to Month 36–48:</strong> Continue living in HDB. Progressive loan drawdown by bank as construction milestones are hit. You pay only interest on drawn portion far lower than full mortgage.</div>
   <div class="flow-step"><strong>Any time before TOP:</strong> Market and sell HDB at your chosen timing. No deadline pressure. Can wait for favourable HDB market conditions. Goal: complete HDB sale at least 3 months before estimated TOP date.</div>
-  <div class="flow-step"><strong>After HDB sold:</strong> CPF refund flows back to CPF OA. Cash from HDB sale goes to bank. Now you have the full war chest available and no existing residential property. When the condo TOPs, your mortgage kicks in fully — but you are in the clear on ABSD remission.</div>
+  <div class="flow-step"><strong>After HDB sold:</strong> CPF refund flows back to CPF OA. Cash from HDB sale goes to bank. Now you have the full war chest available and no existing residential property. When the condo TOPs, your mortgage kicks in fully but you are in the clear on ABSD remission.</div>
   <div class="flow-step"><strong>At TOP:</strong> Collect keys to condo. Within 6 months of TOP, submit IRAS remission claim with supporting documents. ABSD refunded to your bank account within 4–8 weeks of submission.</div>
   <div class="flow-step"><strong>Net result:</strong> You lived in HDB rent-free throughout construction, timed your HDB sale well, and recovered the $300,000 ABSD. Total extra cost vs Scenario A: ~$13,500–$22,500 in opportunity cost on the ABSD float (3–5 years at 1.5%). Worth it for most couples given the zero execution risk.</div>
 
@@ -252,14 +278,14 @@
   <div class="flow-step"><strong>Step 1:</strong> Check your HDB loan status. If HDB loan is outstanding, Scenario B is likely off the table (45% LTV, 25% cash downpayment required). Scenario A or C only.</div>
   <div class="flow-step"><strong>Step 2:</strong> Decide: resale condo or new launch? If resale, choose Scenario A or B. If new launch, Scenario C is available and usually preferable.</div>
   <div class="flow-step"><strong>Step 3:</strong> Assess your HDB's liquidity. How fast does your block / street / estate sell? Check HDB resale transaction data at HDB Resale Flat Prices portal. If average DOM in your sub-estate is 3+ months, Scenario B is risky.</div>
-  <div class="flow-step"><strong>Step 4:</strong> Model the ABSD float cost vs bridging cost. Use the formula: ABSD float = purchase price × 20% × 1.5% × (years to TOP). Bridging = bridge amount × 2.75% × (months/12). For most scenarios these costs are similar in absolute terms — the decision driver is execution risk, not cost.</div>
-  <div class="flow-step"><strong>Step 5:</strong> Check your CPF OA balance. For Scenario B or C, you pay 20% ABSD in cash at stamping — CPF cannot be used for ABSD. Confirm you have $300,000+ in liquid cash (for a $1.5M purchase) available before committing to buy-first paths. Use <a href="/tools/absd" style="color:var(--accent);">Winfred's ABSD Calculator</a>.</div>
+  <div class="flow-step"><strong>Step 4:</strong> Model the ABSD float cost vs bridging cost. Use the formula: ABSD float = purchase price × 20% × 1.5% × (years to TOP). Bridging = bridge amount × 2.75% × (months/12). For most scenarios these costs are similar in absolute terms the decision driver is execution risk, not cost.</div>
+  <div class="flow-step"><strong>Step 5:</strong> Check your CPF OA balance. For Scenario B or C, you pay 20% ABSD in cash at stamping CPF cannot be used for ABSD. Confirm you have $300,000+ in liquid cash (for a $1.5M purchase) available before committing to buy-first paths. Use <a href="/tools/absd" style="color:var(--accent);">Winfred's ABSD Calculator</a>.</div>
   <div class="flow-step"><strong>Step 6:</strong> Run affordability at your target condo price. Use <a href="/tools/affordability" style="color:var(--accent);">Winfred's Affordability Calculator</a>. For Scenario A: LTV 75%, standard TDSR. For Scenario B: LTV 45%, both loans in TDSR. Ensure you qualify under the correct scenario's constraints.</div>
   <div class="flow-step"><strong>Step 7:</strong> Book a Portfolio Analysis call. The sequencing decision is the most consequential financial choice in the entire upgrade process. Getting it wrong costs $300,000 in forfeited ABSD or months of expensive temporary rental. Get the numbers validated before signing any OTP.</div>
 
   <div style="background:rgba(198,163,106,0.07);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;padding:1.25rem 1.5rem;margin:2.5rem 0;">
     <p style="font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-weight:600;margin-bottom:.6rem;">Winfred's Take</p>
-    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The question "sell first or buy first?" sounds like a sequencing problem but it is actually a liquidity and risk tolerance test. Scenario B (buy resale condo first, claim remission) looks attractive on paper, but it requires S$300K cash ABSD sitting idle for up to 6 months while you sell the HDB under time pressure — and HDB sellers who feel rushed accept worse offers. For most couples I work with, Scenario C (new launch buffer) wins not because it is cheapest, but because it removes the time pressure entirely and lets you negotiate the HDB sale from a position of strength.</p>
+    <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;margin:0;">The question "sell first or buy first?" sounds like a sequencing problem but it is actually a liquidity and risk tolerance test. Scenario B (buy resale condo first, claim remission) looks attractive on paper, but it requires S$300K cash ABSD sitting idle for up to 6 months while you sell the HDB under time pressure and HDB sellers who feel rushed accept worse offers. For most couples I work with, Scenario C (new launch buffer) wins not because it is cheapest, but because it removes the time pressure entirely and lets you negotiate the HDB sale from a position of strength.</p>
   </div>
 
   <h2>Related reading</h2>
@@ -273,7 +299,7 @@
   <div style="background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
     <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:.5rem;">Want Winfred to run your numbers?</p>
     <p style="color:var(--ink-soft);font-size:.9rem;margin-bottom:1rem;">30-minute Property Portfolio Analysis. Walk away with your exact cost breakdown.</p>
-    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call — 30 min</a>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--accent);color:#0d0f18;padding:.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free call 30 min</a>
   </div>
 
   <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is an Associate Marketing Consultant at Crestbrick Pte Ltd, advising Singapore upgraders, investors, and family offices. CEA R073319H. The information on this page is general and does not constitute financial, investment, or mortgage advice.</p>
@@ -285,7 +311,7 @@
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -307,6 +333,16 @@
     </div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/can-i-own-hdb-and-condo-singapore" style="color:var(--accent);">Can I Own HDB and Condo at the Same Time in Singapore? (2026 Rules)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-bto-vs-resale-first-time-buyer-2026" style="color:var(--accent);">BTO vs Resale HDB 2026: True Cost Comparison for First-Time Couples</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-rent-out-vs-sell-analysis" style="color:var(--accent);">HDB After MOP: Should You Rent It Out or Sell and Upgrade?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-resale-vs-new-launch-condo-2026" style="color:var(--accent);">HDB Resale vs New Launch Condo 2026: Real Numbers for a $1.2M Budget</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-to-ec-vs-hdb-to-condo-2026" style="color:var(--accent);">HDB to EC vs HDB to Condo: Which Costs Less for a Family of 4 in 2026</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

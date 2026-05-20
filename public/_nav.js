@@ -1,9 +1,10 @@
 /* Global navigation injector. Adds consistent header + footer across all pages
- * if they don't already have one. Idempotent ,  skips pages that have wf-nav class.
+ * if they don't already have one. Idempotent — skips pages that already have a
+ * nav (the canonical stamped .topnav header, or a previously-injected .wf-nav).
  */
 (function(){
   'use strict';
-  if (document.querySelector('.wf-nav')) return;
+  if (document.querySelector('.wf-nav') || document.querySelector('header.topnav')) return;
 
   // Skip on the homepage (it has its own custom hero)
   if (window.location.pathname === '/' || window.location.pathname === '/index.html') return;

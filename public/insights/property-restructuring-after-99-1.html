@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,10 +79,10 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Is Restructuring Your Property Still Worth It After the 99-1 Crackdown?</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 9-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> The 99-1 loophole is dead. IRAS will impose ABSD on any arrangement where the primary purpose is stamp duty avoidance. However, genuine arm's-length decoupling — where one spouse transfers their share at full market value for legitimate reasons — remains legal and financially compelling. On a $1.5M investment property, the ABSD saved ($300,000) still far outweighs the decoupling cost (~$28,000–$35,000).</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> The 99-1 loophole is dead. IRAS will impose ABSD on any arrangement where the primary purpose is stamp duty avoidance. However, genuine arm's-length decoupling where one spouse transfers their share at full market value for legitimate reasons remains legal and financially compelling. On a $1.5M investment property, the ABSD saved ($300,000) still far outweighs the decoupling cost (~$28,000–$35,000).</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>For several years, a small number of buyers used the "99-1 arrangement" to circumvent ABSD. The scheme was elegant in its simplicity: one spouse would hold 99% of a property, the other 1%. The 1% holder would then transfer their share to the 99% holder, becoming property-free — and free to buy a second property as a "first-time buyer" at 0% ABSD.</p>
+  <p>For several years, a small number of buyers used the "99-1 arrangement" to circumvent ABSD. The scheme was elegant in its simplicity: one spouse would hold 99% of a property, the other 1%. The 1% holder would then transfer their share to the 99% holder, becoming property-free and free to buy a second property as a "first-time buyer" at 0% ABSD.</p>
 
   <p>IRAS closed this loophole with a targeted enforcement action in early 2023, retrospectively assessing ABSD on hundreds of transactions and clarifying that any arrangement primarily motivated by ABSD avoidance constitutes tax avoidance. The penalties are severe: ABSD plus a 50% surcharge in many cases.</p>
 
@@ -69,10 +104,10 @@
 
   <p>Legal and accepted reasons include:</p>
   <ul>
-    <li>Divorce or legal separation — one spouse takes full ownership as part of matrimonial asset division</li>
-    <li>Estate planning — transferring to a trust or adjusting ownership for succession purposes</li>
-    <li>Business restructuring — genuine separation of personal and commercial assets</li>
-    <li>Full genuine decoupling — where both parties agree on market value and the transfer is documented as arm's length, and where there IS a legitimate future investment objective that would have occurred regardless of ABSD</li>
+    <li>Divorce or legal separation one spouse takes full ownership as part of matrimonial asset division</li>
+    <li>Estate planning transferring to a trust or adjusting ownership for succession purposes</li>
+    <li>Business restructuring genuine separation of personal and commercial assets</li>
+    <li>Full genuine decoupling where both parties agree on market value and the transfer is documented as arm's length, and where there IS a legitimate future investment objective that would have occurred regardless of ABSD</li>
   </ul>
 
   <p>The distinction IRAS draws is between "the dominant purpose of this transaction is to reduce ABSD" vs "this transaction has genuine commercial reasons, and one incidental benefit is a change in ABSD position." The documentation, timing, and conduct of the parties matters enormously.</p>
@@ -85,7 +120,7 @@
   <ul>
     <li><strong>BSD on transferred value:</strong> BSD applies to the purchase price of the share. On a $2M property, 50% = $1M transfer. BSD on $1M = 1% × $180,000 + 2% × $180,000 + 3% × $640,000 = $1,800 + $3,600 + $19,200 = $24,600.</li>
     <li><strong>Legal fees:</strong> approximately $3,000–$5,000 for the transfer and new sole-name mortgage documentation.</li>
-    <li><strong>ABSD on transfer:</strong> 0% — because Spouse B is receiving their first (and only) property as sole owner. No ABSD is triggered if the receiving spouse has no other property.</li>
+    <li><strong>ABSD on transfer:</strong> 0% because Spouse B is receiving their first (and only) property as sole owner. No ABSD is triggered if the receiving spouse has no other property.</li>
     <li><strong>Total decoupling cost:</strong> approximately $28,000–$30,000 for a $2M matrimonial home.</li>
   </ul>
 
@@ -103,37 +138,37 @@
   </table>
   <p style="font-size:0.85rem;color:var(--ink-muted);">Decoupling cost calculated on 50% share transfer of a $2M matrimonial home. ABSD rate assumes SC second property = 20%. BSD computed at standard rates.</p>
 
-  <p>The break-even point is clearly in favour of decoupling for any investment property above approximately $200,000 in value — which covers virtually every Singapore residential property purchase.</p>
+  <p>The break-even point is clearly in favour of decoupling for any investment property above approximately $200,000 in value which covers virtually every Singapore residential property purchase.</p>
 
   <h2>The Right Way to Execute Decoupling in 2026</h2>
 
-  <div class="flow-step"><strong>Step 1:</strong> Obtain a formal property valuation from a licensed appraiser. The transfer must be at market value — not a discounted or nominal amount.</div>
+  <div class="flow-step"><strong>Step 1:</strong> Obtain a formal property valuation from a licensed appraiser. The transfer must be at market value not a discounted or nominal amount.</div>
   <div class="flow-step"><strong>Step 2:</strong> Engage a property lawyer to prepare the transfer deed. Document the genuine reasons for the transfer in the file.</div>
-  <div class="flow-step"><strong>Step 3:</strong> The receiving spouse may need to refinance the mortgage into sole name — the bank will reassess TDSR on a single income. Confirm the single-income TDSR supports the existing loan.</div>
+  <div class="flow-step"><strong>Step 3:</strong> The receiving spouse may need to refinance the mortgage into sole name the bank will reassess TDSR on a single income. Confirm the single-income TDSR supports the existing loan.</div>
   <div class="flow-step"><strong>Step 4:</strong> Pay BSD on the transferred value. This is stamped via IRAS. Legal fees paid to lawyer.</div>
-  <div class="flow-step"><strong>Step 5:</strong> After transfer is complete, the transferring spouse is property-free. They can now buy an investment property — after a reasonable cooling-off period to demonstrate the transactions are not artificially connected.</div>
+  <div class="flow-step"><strong>Step 5:</strong> After transfer is complete, the transferring spouse is property-free. They can now buy an investment property after a reasonable cooling-off period to demonstrate the transactions are not artificially connected.</div>
 
   <h2>Key Risks to Manage</h2>
 
   <h3>The TDSR Qualification Risk</h3>
-  <p>When one spouse takes on sole ownership of the matrimonial home, the bank must approve the single-name mortgage. If the sole owner's income is insufficient to service the full loan under TDSR (55% of gross income), the bank may require partial loan repayment or restructuring. This is a real constraint — run the numbers before committing to decoupling.</p>
+  <p>When one spouse takes on sole ownership of the matrimonial home, the bank must approve the single-name mortgage. If the sole owner's income is insufficient to service the full loan under TDSR (55% of gross income), the bank may require partial loan repayment or restructuring. This is a real constraint run the numbers before committing to decoupling.</p>
 
   <h3>CPF Complications</h3>
-  <p>If the transferring spouse has used CPF for the property, the CPF OA funds used plus accrued interest must be refunded to their CPF account at the point of transfer — not at the eventual sale. This reduces the cash available and increases the net cost of decoupling. Factor this in.</p>
+  <p>If the transferring spouse has used CPF for the property, the CPF OA funds used plus accrued interest must be refunded to their CPF account at the point of transfer not at the eventual sale. This reduces the cash available and increases the net cost of decoupling. Factor this in.</p>
 
   <h3>Timing Between Transactions</h3>
-  <p>IRAS scrutinises the time gap between a decoupling transfer and the subsequent investment property purchase. A very short gap (weeks) will attract closer examination. While there is no fixed waiting period in the regulations, a reasonable gap of 3–6 months — combined with clear documentation of the decoupling's independent rationale — reduces scrutiny risk.</p>
+  <p>IRAS scrutinises the time gap between a decoupling transfer and the subsequent investment property purchase. A very short gap (weeks) will attract closer examination. While there is no fixed waiting period in the regulations, a reasonable gap of 3–6 months combined with clear documentation of the decoupling's independent rationale reduces scrutiny risk.</p>
 
   <h2>When Restructuring Does NOT Make Sense</h2>
   <ul>
-    <li>If the matrimonial home has a large outstanding loan that the sole owner cannot service on their income alone — the TDSR block kills the strategy before it starts.</li>
+    <li>If the matrimonial home has a large outstanding loan that the sole owner cannot service on their income alone the TDSR block kills the strategy before it starts.</li>
     <li>If the couple has already used all their CPF, requiring large cash refunds to CPF at point of transfer.</li>
-    <li>If the intended investment property is less than $500,000 — the break-even on decoupling costs is marginal.</li>
-    <li>If either party is approaching 55 and CPF SA/RA top-ups are the priority — engaging CPF for property may not be optimal.</li>
+    <li>If the intended investment property is less than $500,000 the break-even on decoupling costs is marginal.</li>
+    <li>If either party is approaching 55 and CPF SA/RA top-ups are the priority engaging CPF for property may not be optimal.</li>
   </ul>
 
   <h2>The Bottom Line</h2>
-  <p>Property restructuring in 2026 is not dead — it has simply been cleaned up. The 99-1 scheme was always a loophole exploit that IRAS was always likely to close. What remains available is the legitimate, properly documented, arm's-length transfer of property between spouses or family members for genuine reasons.</p>
+  <p>Property restructuring in 2026 is not dead it has simply been cleaned up. The 99-1 scheme was always a loophole exploit that IRAS was always likely to close. What remains available is the legitimate, properly documented, arm's-length transfer of property between spouses or family members for genuine reasons.</p>
   <p>For a couple with one joint property, no other assets, and a clear plan to build a two-property portfolio, genuine decoupling followed by an independent investment purchase remains one of the most financially efficient moves available to Singapore property investors.</p>
 
   <h2>Related reading</h2>
@@ -166,6 +201,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ownership-restructuring-math" style="color:var(--accent);">The ownership restructuring math nobody shows you</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/restructuring-breakeven" style="color:var(--accent);">Restructuring Property Singapore: The Break-even Math (2026)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/decoupling-singapore" style="color:var(--accent);">Decoupling Singapore 2026: The Definitive Guide</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/adding-child-to-property-title-sg" style="color:var(--accent);">Adding Child to Singapore Property Title 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/australian-buyer-singapore-property-2026" style="color:var(--accent);">Australian Buying Singapore Property 2026: 60% ABSD, No FTA, What to Do</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

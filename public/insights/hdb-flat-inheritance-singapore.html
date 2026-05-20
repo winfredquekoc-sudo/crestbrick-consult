@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,10 +79,10 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Inheriting an HDB Flat in Singapore: Rules, Process, and Decisions</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 9-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> When an HDB flat owner dies, what happens depends on how ownership was held. Joint tenancy: flat passes automatically to the surviving co-owner — no probate needed. Sole ownership or tenancy in common: flat passes through the estate (will or intestacy) with HDB's approval required to retain. The inheriting family member must meet HDB eligibility — if they already own private property, they must sell one within 6 months. CPF used for the flat is a separate matter and passes to CPF nominees, not through the will.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> When an HDB flat owner dies, what happens depends on how ownership was held. Joint tenancy: flat passes automatically to the surviving co-owner no probate needed. Sole ownership or tenancy in common: flat passes through the estate (will or intestacy) with HDB's approval required to retain. The inheriting family member must meet HDB eligibility if they already own private property, they must sell one within 6 months. CPF used for the flat is a separate matter and passes to CPF nominees, not through the will.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>The HDB flat is the largest single asset for most Singaporean families. When an owner passes away, the rules governing what happens to the flat are specific to HDB — different from private property succession — and the interaction with CPF, estate administration, and HDB eligibility rules creates a web that families often only discover at the worst possible time.</p>
+  <p>The HDB flat is the largest single asset for most Singaporean families. When an owner passes away, the rules governing what happens to the flat are specific to HDB different from private property succession and the interaction with CPF, estate administration, and HDB eligibility rules creates a web that families often only discover at the worst possible time.</p>
 
   <p>This guide covers the key scenarios clearly: joint tenancy vs sole ownership, what HDB requires before a flat can be retained or sold, the 6-month rule for inheritors who already own property, and what happens to CPF money that was used to pay for the flat.</p>
 
@@ -55,21 +90,21 @@
   <p>Most HDB couples own their flat under joint tenancy. This means each owner holds the entire flat (not a defined share), and the right of survivorship applies: when one owner dies, the flat passes automatically and immediately to the surviving co-owner.</p>
   <p>Key facts about joint tenancy succession:</p>
   <ul>
-    <li>No Grant of Probate or Letters of Administration is required — the transfer is effected by lodging a Notice of Death with HDB and the Singapore Land Authority</li>
+    <li>No Grant of Probate or Letters of Administration is required the transfer is effected by lodging a Notice of Death with HDB and the Singapore Land Authority</li>
     <li>The process typically takes 4–8 weeks and involves submitting the death certificate, NRIC, and completing HDB's administrative forms</li>
-    <li>The surviving owner does not need to "buy" the deceased's share — they already own the whole flat under joint tenancy</li>
-    <li>The outstanding HDB loan (if any) continues in the surviving owner's name — they must continue servicing it or refinance</li>
+    <li>The surviving owner does not need to "buy" the deceased's share they already own the whole flat under joint tenancy</li>
+    <li>The outstanding HDB loan (if any) continues in the surviving owner's name they must continue servicing it or refinance</li>
   </ul>
 
   <div class="warn">
-    <strong>Joint tenancy vs tenancy in common:</strong> Some HDB flat owners — particularly those who have restructured ownership for estate planning, purchased flats with siblings, or changed ownership after divorce — may own under tenancy in common (each owns a defined share, e.g., 50/50). Tenancy in common does NOT carry the right of survivorship. A deceased owner's share passes through the estate, requiring probate. Check your HDB title deed if you are unsure of your ownership type.
+    <strong>Joint tenancy vs tenancy in common:</strong> Some HDB flat owners particularly those who have restructured ownership for estate planning, purchased flats with siblings, or changed ownership after divorce may own under tenancy in common (each owns a defined share, e.g., 50/50). Tenancy in common does NOT carry the right of survivorship. A deceased owner's share passes through the estate, requiring probate. Check your HDB title deed if you are unsure of your ownership type.
   </div>
 
   <h2>Scenario 2: Sole Ownership or Tenancy in Common</h2>
   <p>If the deceased was the sole owner of the HDB flat, or held a defined share under tenancy in common, that flat (or share) becomes part of the deceased's estate. It passes according to:</p>
   <ul>
     <li><strong>A valid will:</strong> The flat passes to whoever is named in the will, subject to HDB approval and eligibility</li>
-    <li><strong>No will (intestacy):</strong> The flat passes according to the Intestate Succession Act — generally spouse first, then children</li>
+    <li><strong>No will (intestacy):</strong> The flat passes according to the Intestate Succession Act generally spouse first, then children</li>
     <li><strong>Muslim estate:</strong> Governed by Faraid (Islamic inheritance law) administered by the Syariah Court and the Registry of Muslim Marriages</li>
   </ul>
 
@@ -78,7 +113,7 @@
   <table>
     <thead><tr><th>Inheritor Profile</th><th>Can Retain?</th><th>Conditions</th></tr></thead>
     <tbody>
-      <tr><td>Surviving spouse (SC/PR), no other HDB flat</td><td>Yes</td><td>Standard — straightforward transfer</td></tr>
+      <tr><td>Surviving spouse (SC/PR), no other HDB flat</td><td>Yes</td><td>Standard straightforward transfer</td></tr>
       <tr><td>Child (SC), no other HDB or private property</td><td>Yes</td><td>Must form a family nucleus or be ≥35 years old (single)</td></tr>
       <tr><td>Child (SC), already owns private property</td><td>No (without disposal)</td><td>Must sell HDB flat or private property within 6 months of HDB approval</td></tr>
       <tr><td>Child (SC), already owns another HDB flat</td><td>No (without disposal)</td><td>Must sell one flat within 6 months</td></tr>
@@ -88,22 +123,22 @@
   </table>
 
   <h2>The Estate Administration Process</h2>
-  <div class="flow-step"><strong>Step 1 — Obtain death certificate:</strong> Issued by the Registry of Births and Deaths within a few days of death registration. Required for all subsequent steps.</div>
-  <div class="flow-step"><strong>Step 2 — Apply for Grant of Probate or Letters of Administration:</strong> If there is a will, the executor applies for Grant of Probate. If no will, the next-of-kin applies for Letters of Administration. This process takes 3–6 months for straightforward estates and longer if contested. Legal fees typically $3,000–$8,000 for a simple HDB estate.</div>
-  <div class="flow-step"><strong>Step 3 — HDB flat valuation:</strong> HDB will arrange a valuation of the flat. This valuation is used for CPF refund computation and as a reference for the estate.</div>
-  <div class="flow-step"><strong>Step 4 — HDB application to retain or sell:</strong> The administrator of the estate applies to HDB to either transfer the flat to an eligible beneficiary (retain) or to sell. HDB issues an approval letter outlining conditions and timelines.</div>
-  <div class="flow-step"><strong>Step 5 — Transfer or sale:</strong> If retaining, title is transferred to the eligible beneficiary. If selling, the flat is listed on the open market, proceeds settle the outstanding HDB loan, CPF refund is computed, and net proceeds go to the estate.</div>
+  <div class="flow-step"><strong>Step 1 Obtain death certificate:</strong> Issued by the Registry of Births and Deaths within a few days of death registration. Required for all subsequent steps.</div>
+  <div class="flow-step"><strong>Step 2 Apply for Grant of Probate or Letters of Administration:</strong> If there is a will, the executor applies for Grant of Probate. If no will, the next-of-kin applies for Letters of Administration. This process takes 3–6 months for straightforward estates and longer if contested. Legal fees typically $3,000–$8,000 for a simple HDB estate.</div>
+  <div class="flow-step"><strong>Step 3 HDB flat valuation:</strong> HDB will arrange a valuation of the flat. This valuation is used for CPF refund computation and as a reference for the estate.</div>
+  <div class="flow-step"><strong>Step 4 HDB application to retain or sell:</strong> The administrator of the estate applies to HDB to either transfer the flat to an eligible beneficiary (retain) or to sell. HDB issues an approval letter outlining conditions and timelines.</div>
+  <div class="flow-step"><strong>Step 5 Transfer or sale:</strong> If retaining, title is transferred to the eligible beneficiary. If selling, the flat is listed on the open market, proceeds settle the outstanding HDB loan, CPF refund is computed, and net proceeds go to the estate.</div>
 
   <h2>CPF and the HDB Flat: Separate Streams</h2>
   <p>This is widely misunderstood. When an HDB flat owner dies, there are two separate asset streams:</p>
   <ol>
-    <li><strong>The HDB flat itself</strong> — passes through joint tenancy (automatic) or the estate (probate/intestacy), as described above</li>
-    <li><strong>CPF monies</strong> — CPF savings (including the amount used for the flat, which is tracked as a notional refund) pass to CPF nominees, not through the estate or will</li>
+    <li><strong>The HDB flat itself</strong> passes through joint tenancy (automatic) or the estate (probate/intestacy), as described above</li>
+    <li><strong>CPF monies</strong> CPF savings (including the amount used for the flat, which is tracked as a notional refund) pass to CPF nominees, not through the estate or will</li>
   </ol>
   <p>The CPF accrued interest trap: when the flat is eventually sold (whether by the surviving owner or the estate), CPF OA principal plus accrued interest at 2.5% per annum must be refunded to the deceased's CPF account before distribution to nominees. If the flat was bought 30 years ago with $100,000 CPF, the accrued interest alone could be $80,000–$120,000, reducing the net cash proceeds available to the estate or inheritors.</p>
 
   <h2>ABSD on Inherited HDB Property</h2>
-  <p>Inheritance of HDB property is not itself a purchase transaction and does not trigger ABSD. However, the inherited flat now counts as a property in the inheritor's name for ABSD purposes on any future purchase. If an inheriting child already owns a condo (purchased as their first private property at 0% ABSD), the inherited HDB flat means their next purchase will incur 20% ABSD as a third property — unless they dispose of either the HDB or the condo within 6 months of HDB approval.</p>
+  <p>Inheritance of HDB property is not itself a purchase transaction and does not trigger ABSD. However, the inherited flat now counts as a property in the inheritor's name for ABSD purposes on any future purchase. If an inheriting child already owns a condo (purchased as their first private property at 0% ABSD), the inherited HDB flat means their next purchase will incur 20% ABSD as a third property unless they dispose of either the HDB or the condo within 6 months of HDB approval.</p>
 
   <h2>Key Decisions for Inheriting Families</h2>
   <ul>
@@ -133,6 +168,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/divorce-hdb-flat-procedure-2026" style="color:var(--accent);">HDB Flat Divorce Procedure 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-5-room-vs-executive-flat" style="color:var(--accent);">HDB 5-Room vs Executive Flat 2026: Which Holds Value Better?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/can-i-own-hdb-and-condo-singapore" style="color:var(--accent);">Can I Own HDB and Condo at the Same Time in Singapore? (2026 Rules)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-bto-vs-resale-first-time-buyer-2026" style="color:var(--accent);">BTO vs Resale HDB 2026: True Cost Comparison for First-Time Couples</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-ethnic-integration-policy-2026" style="color:var(--accent);">HDB Ethnic Integration Policy 2026: How the Quota Affects Your Resale Price</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

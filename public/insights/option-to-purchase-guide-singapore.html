@@ -25,14 +25,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -50,7 +85,7 @@
   <div class="quick-answer"><strong>Quick answer:</strong> The Option to Purchase (OTP) is the first binding legal document in any Singapore private property transaction. The buyer pays a 1% option fee in cash; the seller grants an exclusive right to buy for 14 calendar days (private resale) or 21 days (HDB resale). If the buyer does not exercise within the period, the 1% is forfeited to the seller. Exercise requires a further 4% payment. BSD is due within 14 days of exercise.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Before any Singapore property changes hands, there is an Option to Purchase. Whether you are buying a resale condo, a landed home, or an HDB flat, the OTP is the document that transforms an informal agreement to transact into a legally enforceable right. Understanding every clause, deadline, and consequence of the OTP is not optional for any serious buyer — it is the foundation of the entire transaction.</p>
+  <p>Before any Singapore property changes hands, there is an Option to Purchase. Whether you are buying a resale condo, a landed home, or an HDB flat, the OTP is the document that transforms an informal agreement to transact into a legally enforceable right. Understanding every clause, deadline, and consequence of the OTP is not optional for any serious buyer it is the foundation of the entire transaction.</p>
 
   <p>First-time buyers often treat the OTP as a formality. Experienced buyers treat it as the moment the deal becomes real and irreversible. The difference in approach explains why some buyers lose 1% option fees unnecessarily, and why some sellers walk away from deals they could have been legally compelled to complete.</p>
 
@@ -60,7 +95,7 @@
     <thead><tr><th>Stage</th><th>Action</th><th>Amount</th><th>Deadline</th><th>Notes</th></tr></thead>
     <tbody>
       <tr><td>OTP granted</td><td>Buyer pays option fee to seller</td><td>1% of purchase price (cash)</td><td>On agreement day</td><td>Cheque made to seller. Non-refundable if not exercised.</td></tr>
-      <tr><td>Option period</td><td>Buyer arranges financing, confirms purchase</td><td>—</td><td>14 calendar days</td><td>Buyer can extend by mutual consent. Seller cannot sell to anyone else during this period.</td></tr>
+      <tr><td>Option period</td><td>Buyer arranges financing, confirms purchase</td><td> </td><td>14 calendar days</td><td>Buyer can extend by mutual consent. Seller cannot sell to anyone else during this period.</td></tr>
       <tr><td>Exercise OTP</td><td>Buyer exercises the OTP</td><td>4% of purchase price (cash or CPF)</td><td>Within 14 days of grant</td><td>Total paid so far: 5% (1% + 4%). Balance 95% due at completion.</td></tr>
       <tr><td>BSD payment</td><td>Pay Buyer's Stamp Duty to IRAS</td><td>Varies (see formula)</td><td>Within 14 days of exercise</td><td>BSD can be paid from CPF OA.</td></tr>
       <tr><td>Completion</td><td>Full payment, keys handed over</td><td>Remaining 95%</td><td>8–10 weeks from exercise</td><td>Lawyers handle conveyancing. Mortgage drawn in full.</td></tr>
@@ -71,15 +106,15 @@
   <p>The HDB resale OTP process has additional safeguards and a different sequencing from the private resale process:</p>
   <ul>
     <li><strong>HDB Flat Eligibility (HFE) letter required first:</strong> Before a buyer can receive an HDB resale OTP, they must hold a valid HFE letter from HDB confirming eligibility to buy an HDB resale flat, and (if applicable) the CPF grants and HDB loan they qualify for. Without the HFE letter, the transaction cannot proceed.</li>
-    <li><strong>Option fee:</strong> Negotiated between buyer and seller — from as low as $1 to a maximum of $1,000 (HDB caps the option fee at $1,000, unlike private resale where 1% is typical).</li>
+    <li><strong>Option fee:</strong> Negotiated between buyer and seller from as low as $1 to a maximum of $1,000 (HDB caps the option fee at $1,000, unlike private resale where 1% is typical).</li>
     <li><strong>Exercise period:</strong> 21 calendar days (vs 14 for private resale).</li>
     <li><strong>Exercise fee:</strong> Up to $5,000 (agreed between parties), not the 4% typical for private resale.</li>
-    <li><strong>Resale application:</strong> After exercising the OTP, buyer and seller submit a joint resale application to HDB. HDB processes and approves the sale — there is no conveyancing solicitor equivalent in HDB resale (HDB handles the legal transfer).</li>
+    <li><strong>Resale application:</strong> After exercising the OTP, buyer and seller submit a joint resale application to HDB. HDB processes and approves the sale there is no conveyancing solicitor equivalent in HDB resale (HDB handles the legal transfer).</li>
     <li><strong>No cooling period:</strong> Unlike some countries, Singapore HDB resale has no statutory cooling-off period. Once the OTP is exercised, both parties are bound.</li>
   </ul>
 
   <div class="warn">
-    <strong>HDB OTP trap — do not grant OTP without HFE:</strong> Sellers sometimes accept a buyer before confirming the buyer holds a valid HFE letter. If the buyer subsequently cannot obtain an HFE (e.g., they are ineligible, or their HDB loan is less than expected), the deal collapses and both parties waste time. Always confirm the buyer's HFE status before granting the OTP.
+    <strong>HDB OTP trap do not grant OTP without HFE:</strong> Sellers sometimes accept a buyer before confirming the buyer holds a valid HFE letter. If the buyer subsequently cannot obtain an HFE (e.g., they are ineligible, or their HDB loan is less than expected), the deal collapses and both parties waste time. Always confirm the buyer's HFE status before granting the OTP.
   </div>
 
   <h2>BSD on Exercise: What You Owe IRAS Within 14 Days</h2>
@@ -98,7 +133,7 @@
   <div class="flow-step"><strong>Day 1–2:</strong> Submit OTP to your bank for formal loan approval (if you have in-principle approval, this accelerates to 3–5 days for formal letter). Confirm your CPF OA balance for the exercise payment.</div>
   <div class="flow-step"><strong>Day 2–5:</strong> Engage a conveyancing lawyer. They will review the OTP, conduct title searches, and prepare the exercise documentation. For resale private property, use a lawyer experienced in Singapore residential conveyancing.</div>
   <div class="flow-step"><strong>Day 5–10:</strong> Receive bank's formal Letter of Offer. Review terms. Confirm the loan quantum covers your intended purchase at TDSR and LTV limits.</div>
-  <div class="flow-step"><strong>Day 10–14:</strong> Exercise the OTP if proceeding. Your lawyer submits the exercise notice and 4% exercise fee. If not proceeding, let the OTP lapse — the 1% is forfeited.</div>
+  <div class="flow-step"><strong>Day 10–14:</strong> Exercise the OTP if proceeding. Your lawyer submits the exercise notice and 4% exercise fee. If not proceeding, let the OTP lapse the 1% is forfeited.</div>
 
   <h2>What Happens If You Don't Exercise?</h2>
   <p>If you decide not to proceed after receiving an OTP, you simply do not exercise it. The OTP expires at the end of the option period. The seller retains your 1% option fee as compensation for the exclusivity period and the inconvenience of having their property off the market. You cannot recover this fee.</p>
@@ -110,7 +145,7 @@
   <h2>Common OTP Mistakes by Singapore Buyers</h2>
   <ul>
     <li><strong>Paying the option fee before securing in-principle loan approval:</strong> If your bank subsequently declines the loan, you lose the 1% option fee and cannot proceed. Get IPA first, then pay option fee.</li>
-    <li><strong>Not checking CPF OA availability for the 4% exercise payment:</strong> The 4% exercise payment can come from CPF OA, but CPF Board processing takes 2–5 working days. Plan in advance — do not wait until Day 13 to request CPF withdrawal.</li>
+    <li><strong>Not checking CPF OA availability for the 4% exercise payment:</strong> The 4% exercise payment can come from CPF OA, but CPF Board processing takes 2–5 working days. Plan in advance do not wait until Day 13 to request CPF withdrawal.</li>
     <li><strong>Assuming 14 days means 14 business days:</strong> It is 14 calendar days, including weekends and public holidays. A Saturday grant date means the OTP expires on the second Saturday, regardless of intervening holidays.</li>
     <li><strong>Not engaging a lawyer immediately:</strong> Some buyers wait until Day 7 or 8 to find a solicitor. With title searches, loan documentation, and exercise paperwork all due before Day 14, this leaves dangerously little time for complications.</li>
   </ul>
@@ -136,6 +171,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/absd-singapore" style="color:var(--accent);">ABSD Singapore 2026: The Hub</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cooling-measures" style="color:var(--accent);">Singapore Cooling Measures 2026: What They Really Mean</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/ccr-rcr-ocr-framework" style="color:var(--accent);">CCR vs RCR vs OCR: The 2026 Investor Framework</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/new-launch-vs-resale" style="color:var(--accent);">New Launch vs Resale Condo Singapore</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/freehold-vs-leasehold" style="color:var(--accent);">Freehold vs 99-Year Leasehold Singapore</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

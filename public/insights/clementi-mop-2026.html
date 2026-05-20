@@ -47,14 +47,49 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -71,11 +106,11 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Clementi MOP 2026: Singapore's Highest-Value HDB Upgrade Cohort</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 8-minute read &middot; Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Clementi MOP 2026 is the rarest and most valuable HDB upgrade event in the OCR. BTO supply in Clementi is extremely limited — the MOP cohort is small, meaning less seller competition and a genuine seller's market. Clementi 4-room prices reach $600,000 to $800,000 and 5-room up to $950,000 and above. Upgraders access Parc Clematis, Clavon, and Clement Canopy — three of the best-performing OCR projects in Singapore — with rental yields driven by NUS and one-north.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Clementi MOP 2026 is the rarest and most valuable HDB upgrade event in the OCR. BTO supply in Clementi is extremely limited the MOP cohort is small, meaning less seller competition and a genuine seller's market. Clementi 4-room prices reach $600,000 to $800,000 and 5-room up to $950,000 and above. Upgraders access Parc Clematis, Clavon, and Clement Canopy three of the best-performing OCR projects in Singapore with rental yields driven by NUS and one-north.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Clementi BTOs Are MOP-Eligible in 2026?</h2>
-  <p>Clementi is a mature estate with extremely limited BTO activity. Unlike high-supply towns such as Punggol or Sengkang, Clementi has not received large BTO launches in recent years. The 2026 MOP cohort is estimated at fewer than 2,000 units total — the smallest of any Singapore town — drawn from fringe clusters in Clementi Ave 1, Ave 3, and Ave 4. This supply constraint is the single most important fact for sellers: you are not competing with 6,000 neighbours. Buyers who want Clementi have very few MOP resale options to choose from.</p>
+  <p>Clementi is a mature estate with extremely limited BTO activity. Unlike high-supply towns such as Punggol or Sengkang, Clementi has not received large BTO launches in recent years. The 2026 MOP cohort is estimated at fewer than 2,000 units total the smallest of any Singapore town drawn from fringe clusters in Clementi Ave 1, Ave 3, and Ave 4. This supply constraint is the single most important fact for sellers: you are not competing with 6,000 neighbours. Buyers who want Clementi have very few MOP resale options to choose from.</p>
   <table>
     <thead><tr><th>Cluster / Location</th><th>Approx BTO Year</th><th>MOP Year</th><th>Est. 4-Room Resale Value</th></tr></thead>
     <tbody>
@@ -97,18 +132,18 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     </tbody>
   </table>
 
-  <div class="warn"><strong>ABSD reminder:</strong> Singapore Citizens buying their first private property pay 0% ABSD. If you still own the HDB at the point of completing the condo purchase, you are treated as owning two residential properties and ABSD rises to 20% on the condo. The standard approach is to sell the HDB first, or ensure the HDB sale completes within 6 months of the condo purchase. At Clementi price levels, a 20% ABSD on a $1.75M condo is $350,000 — an error that cannot be unwound.</div>
+  <div class="warn"><strong>ABSD reminder:</strong> Singapore Citizens buying their first private property pay 0% ABSD. If you still own the HDB at the point of completing the condo purchase, you are treated as owning two residential properties and ABSD rises to 20% on the condo. The standard approach is to sell the HDB first, or ensure the HDB sale completes within 6 months of the condo purchase. At Clementi price levels, a 20% ABSD on a $1.75M condo is $350,000 an error that cannot be unwound.</div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1: Parc Clematis — D5's Largest and Most Liquid Project</h3>
-  <p>Parc Clematis (TOP 2023, 1,468 units, Jalan Lempeng) is the dominant private condo in D5. With 1,468 units across multiple blocks and configurations, it offers the most liquid resale market of any D5 project — meaning tighter bid-ask spreads and faster exit when needed. A 3-bedroom resale unit trades at roughly $1.60M to $1.90M, or $1,700 to $1,900 PSF. NUS is a 10-minute walk; one-north is a single CC Line stop from Commonwealth MRT. Full resort facilities including multiple pools, tennis courts, and club rooms. For Clementi upgraders who want the largest pool of future buyers when they eventually exit, Parc Clematis is the obvious choice.</p>
+  <h3>Path 1: Parc Clematis D5's Largest and Most Liquid Project</h3>
+  <p>Parc Clematis (TOP 2023, 1,468 units, Jalan Lempeng) is the dominant private condo in D5. With 1,468 units across multiple blocks and configurations, it offers the most liquid resale market of any D5 project meaning tighter bid-ask spreads and faster exit when needed. A 3-bedroom resale unit trades at roughly $1.60M to $1.90M, or $1,700 to $1,900 PSF. NUS is a 10-minute walk; one-north is a single CC Line stop from Commonwealth MRT. Full resort facilities including multiple pools, tennis courts, and club rooms. For Clementi upgraders who want the largest pool of future buyers when they eventually exit, Parc Clematis is the obvious choice.</p>
 
-  <h3>Path 2: Clavon — Smaller, More Intimate, MRT-Walking</h3>
-  <p>Clavon (TOP 2023, 640 units, Clementi Ave 1) sits closer to Clementi MRT — approximately 6 minutes on foot — and offers a more intimate community at roughly half the unit count of Parc Clematis. A 3-bedroom resale unit trades at $1.50M to $1.75M. The smaller development creates a tighter owners' community and reduces the potential competition from within the same development when reselling. For Clementi HDB upgraders who prioritise MRT walkability over facility scale, Clavon is the stronger fit.</p>
+  <h3>Path 2: Clavon Smaller, More Intimate, MRT-Walking</h3>
+  <p>Clavon (TOP 2023, 640 units, Clementi Ave 1) sits closer to Clementi MRT approximately 6 minutes on foot and offers a more intimate community at roughly half the unit count of Parc Clematis. A 3-bedroom resale unit trades at $1.50M to $1.75M. The smaller development creates a tighter owners' community and reduces the potential competition from within the same development when reselling. For Clementi HDB upgraders who prioritise MRT walkability over facility scale, Clavon is the stronger fit.</p>
 
-  <h3>Path 3: Clement Canopy — Established Track Record, Lower Entry</h3>
-  <p>Clement Canopy (TOP 2019, 505 units) is the older choice — units have been occupied for several years, track record is established, and the resale price of $1.40M to $1.65M for a 3-bedroom represents the most affordable entry into D5 private. Buyers who entered at launch are sitting on 30 to 40 percent gains, validating the D5 capital appreciation thesis. For upgraders with slightly tighter budgets or who want the comfort of known comparable transactions, Clement Canopy provides both.</p>
+  <h3>Path 3: Clement Canopy Established Track Record, Lower Entry</h3>
+  <p>Clement Canopy (TOP 2019, 505 units) is the older choice units have been occupied for several years, track record is established, and the resale price of $1.40M to $1.65M for a 3-bedroom represents the most affordable entry into D5 private. Buyers who entered at launch are sitting on 30 to 40 percent gains, validating the D5 capital appreciation thesis. For upgraders with slightly tighter budgets or who want the comfort of known comparable transactions, Clement Canopy provides both.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
@@ -125,17 +160,17 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <table>
     <thead><tr><th>Factor</th><th>New Launch (if any)</th><th>Parc Clematis / Clavon / Clement Canopy (Resale)</th></tr></thead>
     <tbody>
-      <tr><td>Supply</td><td>Near zero — no major new launches in D5 pipeline</td><td>Active resale market across 3 projects</td></tr>
+      <tr><td>Supply</td><td>Near zero no major new launches in D5 pipeline</td><td>Active resale market across 3 projects</td></tr>
       <tr><td>Waiting period</td><td>N/A (no launches imminent)</td><td>Immediate</td></tr>
-      <tr><td>Price trend</td><td>—</td><td>Parc Clematis +8% YoY on resale; Clavon +6% YoY</td></tr>
-      <tr><td>NUS proximity</td><td>—</td><td>All 3 within 1km of NUS main gate</td></tr>
-      <tr><td>Rental demand</td><td>—</td><td>One-north biotech/media cluster drives consistent expat demand</td></tr>
-      <tr><td>Exit liquidity</td><td>—</td><td>Parc Clematis highest (1,468 units); Clavon moderate; Clement Canopy moderate</td></tr>
+      <tr><td>Price trend</td><td> </td><td>Parc Clematis +8% YoY on resale; Clavon +6% YoY</td></tr>
+      <tr><td>NUS proximity</td><td> </td><td>All 3 within 1km of NUS main gate</td></tr>
+      <tr><td>Rental demand</td><td> </td><td>One-north biotech/media cluster drives consistent expat demand</td></tr>
+      <tr><td>Exit liquidity</td><td> </td><td>Parc Clematis highest (1,468 units); Clavon moderate; Clement Canopy moderate</td></tr>
     </tbody>
   </table>
 
   <h2>Rental Market</h2>
-  <p>Clementi has the strongest rental demand fundamentals of any OCR district in Singapore. The structural drivers are: NUS with 13,000-plus undergraduates and a substantial international faculty and graduate community; one-north with 50,000-plus professionals across Biopolis, Fusionopolis, and Mediapolis; and Clementi Mall's catchment anchoring day-to-day convenience. These are recession-resistant demand sources — NUS enrolment does not fall in downturns, and biotech hiring in Singapore is on a multi-year upswing.</p>
+  <p>Clementi has the strongest rental demand fundamentals of any OCR district in Singapore. The structural drivers are: NUS with 13,000-plus undergraduates and a substantial international faculty and graduate community; one-north with 50,000-plus professionals across Biopolis, Fusionopolis, and Mediapolis; and Clementi Mall's catchment anchoring day-to-day convenience. These are recession-resistant demand sources NUS enrolment does not fall in downturns, and biotech hiring in Singapore is on a multi-year upswing.</p>
   <table>
     <thead><tr><th>Unit Type</th><th>Monthly Rental</th><th>Estimated Gross Yield</th><th>Notes</th></tr></thead>
     <tbody>
@@ -143,21 +178,21 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <tr><td>3BR condo (D5)</td><td>$4,500–$5,500/mth</td><td>~3.0–3.5%</td><td>Family tenants; international school proximity premium</td></tr>
     </tbody>
   </table>
-  <p>Gross rental yield on Parc Clematis at current resale prices is approximately 3.2 to 3.6 percent — among the highest for a large OCR development. Vacancy rates across all three D5 projects have remained below 4% since TOP, reflecting the structural depth of the rental pool.</p>
+  <p>Gross rental yield on Parc Clematis at current resale prices is approximately 3.2 to 3.6 percent among the highest for a large OCR development. Vacancy rates across all three D5 projects have remained below 4% since TOP, reflecting the structural depth of the rental pool.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Establish your net proceeds figure.</strong> Get a CPF statement showing total CPF used plus accrued interest. Add to your outstanding HDB loan balance. Subtract both from your expected resale price. The remainder is your starting capital — this, plus CPF OA refund, is what you apply against the 25% downpayment on the condo.</div>
-  <div class="flow-step"><strong>Step 2 — Run TDSR at 1.5% and 4% stress test.</strong> For a $1.60M condo with 75% LTV ($1.20M loan) over 25 years at 1.5%, monthly repayment is approximately $4,800. At the 4% stress test rate, the equivalent payment is $6,300. This must remain below 55% of gross monthly income when all other debt obligations are included.</div>
-  <div class="flow-step"><strong>Step 3 — Decide your sequencing.</strong> The Clementi market strongly favours sell-first, given the premium prices achievable. Sell first, bank the proceeds, rent for 3 to 6 months (Clementi rental is $3,100–$4,200/mth for comparable HDB or condo), then execute the condo purchase with full capital clarity and zero ABSD risk.</div>
-  <div class="flow-step"><strong>Step 4 — Negotiate from a position of strength.</strong> Your Clementi HDB is a rare commodity. With fewer than 2,000 units in the MOP cohort and no comparable BTO supply coming, buyers have limited alternatives. Do not offer a discount to accelerate the sale — price correctly and let scarcity work for you. Expect 3 to 6 viewings before a serious offer in a normalised market.</div>
-  <div class="flow-step"><strong>Step 5 — Close the condo purchase within the tax-optimal window.</strong> Once the HDB sale is completed, you have 6 months to purchase a replacement property without incurring ABSD (SC first private, 0%). If you need more time, you can take longer — ABSD for SC first private is 0% regardless of timing — but CPF OA interest on the refunded sum begins accumulating immediately, so there is a carrying cost to delay.</div>
+  <div class="flow-step"><strong>Step 1 Establish your net proceeds figure.</strong> Get a CPF statement showing total CPF used plus accrued interest. Add to your outstanding HDB loan balance. Subtract both from your expected resale price. The remainder is your starting capital this, plus CPF OA refund, is what you apply against the 25% downpayment on the condo.</div>
+  <div class="flow-step"><strong>Step 2 Run TDSR at 1.5% and 4% stress test.</strong> For a $1.60M condo with 75% LTV ($1.20M loan) over 25 years at 1.5%, monthly repayment is approximately $4,800. At the 4% stress test rate, the equivalent payment is $6,300. This must remain below 55% of gross monthly income when all other debt obligations are included.</div>
+  <div class="flow-step"><strong>Step 3 Decide your sequencing.</strong> The Clementi market strongly favours sell-first, given the premium prices achievable. Sell first, bank the proceeds, rent for 3 to 6 months (Clementi rental is $3,100–$4,200/mth for comparable HDB or condo), then execute the condo purchase with full capital clarity and zero ABSD risk.</div>
+  <div class="flow-step"><strong>Step 4 Negotiate from a position of strength.</strong> Your Clementi HDB is a rare commodity. With fewer than 2,000 units in the MOP cohort and no comparable BTO supply coming, buyers have limited alternatives. Do not offer a discount to accelerate the sale price correctly and let scarcity work for you. Expect 3 to 6 viewings before a serious offer in a normalised market.</div>
+  <div class="flow-step"><strong>Step 5 Close the condo purchase within the tax-optimal window.</strong> Once the HDB sale is completed, you have 6 months to purchase a replacement property without incurring ABSD (SC first private, 0%). If you need more time, you can take longer ABSD for SC first private is 0% regardless of timing but CPF OA interest on the refunded sum begins accumulating immediately, so there is a carrying cost to delay.</div>
 
   <h2>Key Considerations</h2>
   <ul>
-    <li><strong>Tiny MOP cohort means exceptional seller leverage.</strong> You are not competing with 8,000 Sengkang neighbours on the resale market. Clementi's supply-constrained environment means buyers of your flat face genuine competition — price accordingly and do not discount prematurely.</li>
+    <li><strong>Tiny MOP cohort means exceptional seller leverage.</strong> You are not competing with 8,000 Sengkang neighbours on the resale market. Clementi's supply-constrained environment means buyers of your flat face genuine competition price accordingly and do not discount prematurely.</li>
     <li><strong>NUS rental is recession-proof.</strong> University enrolment does not fall in economic downturns; Clementi condo vacancies are among the lowest in Singapore. If you need to lease out the condo before occupying, D5 is the easiest market to do so.</li>
     <li><strong>One-north is Singapore's fastest-growing employment cluster.</strong> Biotech and media companies are hiring aggressively; expat demand for Clementi proximity is rising year on year. The structural rental thesis here is stronger than almost any OCR district.</li>
-    <li><strong>D5 has delivered exceptional 10-year capital appreciation.</strong> Clement Canopy buyers who entered at launch are sitting on 30 to 40 percent gains. Parc Clematis and Clavon launched at higher PSFs but into a deeper demand pool — the long-run appreciation thesis is intact.</li>
+    <li><strong>D5 has delivered exceptional 10-year capital appreciation.</strong> Clement Canopy buyers who entered at launch are sitting on 30 to 40 percent gains. Parc Clematis and Clavon launched at higher PSFs but into a deeper demand pool the long-run appreciation thesis is intact.</li>
   </ul>
 
   <h2>Related reading</h2>
@@ -184,7 +219,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -202,6 +237,16 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

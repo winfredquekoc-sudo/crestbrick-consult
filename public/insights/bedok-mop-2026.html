@@ -18,14 +18,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,11 +79,11 @@
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Bedok's Property Landscape in 2026</h2>
-  <p>Bedok occupies District 16 in the east of Singapore, classified as Outside Central Region (OCR). It is one of Singapore's most established mature estates, with an exceptionally strong community, a full-service town centre (Bedok Mall, Bedok North hawker, Bedok Interchange Hawker Centre), and direct access to East Coast Park — one of Singapore's most beloved recreational corridors.</p>
-  <p>Bedok MRT is a dual-line interchange serving both the East-West Line (EWL) and the Downtown Line (DTL). This makes it one of the more connected OCR nodes in Singapore — commuters can reach Raffles Place in approximately 25 minutes via EWL, or reach Buona Vista and one-north via DTL. The MRT interchange status commands a meaningful price premium over non-interchange OCR stations.</p>
+  <p>Bedok occupies District 16 in the east of Singapore, classified as Outside Central Region (OCR). It is one of Singapore's most established mature estates, with an exceptionally strong community, a full-service town centre (Bedok Mall, Bedok North hawker, Bedok Interchange Hawker Centre), and direct access to East Coast Park one of Singapore's most beloved recreational corridors.</p>
+  <p>Bedok MRT is a dual-line interchange serving both the East-West Line (EWL) and the Downtown Line (DTL). This makes it one of the more connected OCR nodes in Singapore commuters can reach Raffles Place in approximately 25 minutes via EWL, or reach Buona Vista and one-north via DTL. The MRT interchange status commands a meaningful price premium over non-interchange OCR stations.</p>
 
   <h2>Bedok BTO 2021 TOP → 2026 MOP</h2>
-  <p>HDB BTO flats that received Temporary Occupation Permit (TOP) in 2021 are now eligible for resale from 2026. Key BTO projects in the Bedok area that received TOP around 2021 include projects in Bedok North and Bedok Reservoir corridors. These flats — typically 4-room and 5-room units — form the supply of new-to-resale HDB stock entering the market in 2026.</p>
+  <p>HDB BTO flats that received Temporary Occupation Permit (TOP) in 2021 are now eligible for resale from 2026. Key BTO projects in the Bedok area that received TOP around 2021 include projects in Bedok North and Bedok Reservoir corridors. These flats typically 4-room and 5-room units form the supply of new-to-resale HDB stock entering the market in 2026.</p>
   <p>MOP completion in 2026 means these owners are now free to: sell on the open market, rent out the entire flat, or buy a private property (while retaining the HDB to rent out, if eligible, or selling first before upgrading).</p>
 
   <h2>Bedok HDB Resale Prices 2026</h2>
@@ -68,14 +103,14 @@
 
   <h2>Three Upgrade Paths for Bedok MOP Owners</h2>
 
-  <h3>Path A — D16 OCR Resale Condo (Stay in Bedok)</h3>
+  <h3>Path A D16 OCR Resale Condo (Stay in Bedok)</h3>
   <p>Upgrading within D16 is the most accessible option. The trade-off: you stay in a familiar neighbourhood with excellent amenities and East Coast Park access, but OCR condos in Bedok typically appreciate at OCR rates rather than the RCR/CCR premium.</p>
 
-  <h3>Path B — D15 RCR New Launch or Resale (East Coast Heritage Premium)</h3>
-  <p>D15 covers Marine Parade, Katong, Joo Chiat, and the East Coast corridor — classified as Rest of Central Region (RCR). This area commands a heritage and lifestyle premium. New launches along the East Coast stretch have historically achieved strong resale appreciation. The premium over D16: approximately $300–$500 PSF more at equivalent unit sizes. A 3-BR in D15 typically starts at $1.8M vs $1.3M in D16.</p>
+  <h3>Path B D15 RCR New Launch or Resale (East Coast Heritage Premium)</h3>
+  <p>D15 covers Marine Parade, Katong, Joo Chiat, and the East Coast corridor classified as Rest of Central Region (RCR). This area commands a heritage and lifestyle premium. New launches along the East Coast stretch have historically achieved strong resale appreciation. The premium over D16: approximately $300–$500 PSF more at equivalent unit sizes. A 3-BR in D15 typically starts at $1.8M vs $1.3M in D16.</p>
 
-  <h3>Path C — D19 OCR New Launch (Further Inland, Better Value)</h3>
-  <p>Sengkang/Punggol/Hougang (D19) new launches typically offer the best price-to-size value in the eastern corridor — larger units at lower PSF. The trade-off: further from the coast, newer estates with less established community, and typically 99-year leasehold. For families prioritising space over location prestige, D19 can be compelling.</p>
+  <h3>Path C D19 OCR New Launch (Further Inland, Better Value)</h3>
+  <p>Sengkang/Punggol/Hougang (D19) new launches typically offer the best price-to-size value in the eastern corridor larger units at lower PSF. The trade-off: further from the coast, newer estates with less established community, and typically 99-year leasehold. For families prioritising space over location prestige, D19 can be compelling.</p>
 
   <h2>Upgrade Cost Comparison: D16 vs D15 vs D19</h2>
   <table>
@@ -110,9 +145,9 @@
 
   <h2>Related reading</h2>
   <ul>
-    <li><a href="/insights/hdb-mop-upgrade-timeline">HDB MOP upgrade timeline — what to do 6 months before</a></li>
+    <li><a href="/insights/hdb-mop-upgrade-timeline">HDB MOP upgrade timeline what to do 6 months before</a></li>
     <li><a href="/insights/seller-net-proceeds-guide-singapore">How to calculate your net proceeds when selling Singapore property</a></li>
-    <li><a href="/insights/tampines-mop-2026">Tampines MOP 2026 — East upgrader's guide</a></li>
+    <li><a href="/insights/tampines-mop-2026">Tampines MOP 2026 East upgrader's guide</a></li>
     <li><a href="/insights/new-launch-vs-resale-by-district-2026">New launch vs resale by district 2026</a></li>
   </ul>
 
@@ -131,6 +166,16 @@
 </section>
 
 <aside class="max-w-3xl mx-auto px-6 py-10 border-t border-[var(--rule)]"><div class="flex gap-5 items-start"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek CEA R073319H" loading="lazy" width="80" height="80" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);flex-shrink:0;" /><div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property, five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div></div></aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-panjang-mop-2026" style="color:var(--accent);">Bukit Panjang MOP 2026: Upgrading on the Downtown Line at an Affordable Entry</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]"><div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]"><p>© 2026 Winfred Quek · Associate Marketing Consultant, Crestbrick Pte Ltd (CEA L31010886H) · CEA R073319H</p><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a></div><div style="border-top:1px solid rgba(255,255,255,0.08);padding:1.25rem 1.5rem;"><p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</p></div></footer>
 <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20property%20question." style="position:fixed;bottom:1.25rem;right:1.25rem;z-index:50;display:flex;align-items:center;gap:.5rem;background:#25D366;color:#fff;padding:.75rem 1.25rem;border-radius:9999px;font-weight:500;text-decoration:none;box-shadow:0 8px 25px -5px rgba(37,211,102,.4);"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span>Chat</span></a>

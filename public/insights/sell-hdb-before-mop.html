@@ -116,13 +116,13 @@
 </head>
 <body>
 
-    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -137,11 +137,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -186,7 +186,7 @@
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Sell HDB before MOP: the 4 legitimate early-exit paths and when they beat waiting</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek · 12-minute read · Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Selling an HDB flat before the 5-year Minimum Occupation Period is generally not permitted. The four HDB-approved early exit paths are: divorce proceedings (court-ordered sale), financial hardship (HDB assessment required), owners taking up private property (allowed after 5 years — not an early exit), and overseas relocation with HDB approval. Each path has strict eligibility and the financial consequences typically include CPF refund plus accrued interest and loss of future CPF housing grant eligibility.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Selling an HDB flat before the 5-year Minimum Occupation Period is generally not permitted. The four HDB-approved early exit paths are: divorce proceedings (court-ordered sale), financial hardship (HDB assessment required), owners taking up private property (allowed after 5 years not an early exit), and overseas relocation with HDB approval. Each path has strict eligibility and the financial consequences typically include CPF refund plus accrued interest and loss of future CPF housing grant eligibility.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
   <p class="text-xs text-[var(--ink-muted)] mb-8" style="font-family:ui-monospace,SFMono-Regular,Menlo,monospace;">Last updated 2026-04-20</p>
 
@@ -257,10 +257,10 @@
   <table>
     <thead><tr><th>Early-Exit Path</th><th>Who Approves</th><th>Open-Market Sale Allowed?</th><th>Financial Outcome</th></tr></thead>
     <tbody>
-      <tr><td>Financial hardship</td><td>HDB (case-by-case)</td><td>No — HDB repurchase only</td><td>Below market value; CPF accrued interest returned</td></tr>
+      <tr><td>Financial hardship</td><td>HDB (case-by-case)</td><td>No HDB repurchase only</td><td>Below market value; CPF accrued interest returned</td></tr>
       <tr><td>Medical reasons</td><td>HDB (case-by-case)</td><td>Only if transfer not feasible</td><td>Varies; documentation-heavy approval</td></tr>
       <tr><td>Divorce / separation</td><td>Court order</td><td>Yes, if court orders sale</td><td>Market value minus CPF accrued interest obligations</td></tr>
-      <tr><td>SERS / compulsory acquisition</td><td>HDB / government</td><td>N/A — government-initiated</td><td>Market value compensation + resettlement package</td></tr>
+      <tr><td>SERS / compulsory acquisition</td><td>HDB / government</td><td>N/A government-initiated</td><td>Market value compensation + resettlement package</td></tr>
     </tbody>
   </table>
   <p class="text-xs text-[var(--ink-muted)] mb-6">As of May 2026. Standard 5-year MOP applies to all HDB flats (BTO and resale). EC MOP is 5 years for resale to Singaporeans, 10 years for new EC units launched from 2024.</p>
@@ -360,7 +360,7 @@
     </button>
   </form>
 <script>
-if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
+if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}
 </script>
 </div>
 </article>
@@ -401,6 +401,16 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 </aside>
 <!-- /author-bio-block -->
 
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-rent-out-vs-sell-analysis" style="color:var(--accent);">HDB After MOP: Should You Rent It Out or Sell and Upgrade?</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-rental-after-mop-guide" style="color:var(--accent);">Renting Out Your HDB After MOP: Rules, Tax and What Landlords Actually Earn (2026)</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/sell-hdb-first-buy-condo-2026" style="color:var(--accent);">Sell HDB First or Buy Condo First? ABSD Maths in 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/can-i-own-hdb-and-condo-singapore" style="color:var(--accent);">Can I Own HDB and Condo at the Same Time in Singapore? (2026 Rules)</a></li>
+  </ul>
+</section>
 </main>
 
 <footer class="divider bg-[var(--bg)]">

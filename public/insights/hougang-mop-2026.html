@@ -23,14 +23,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -47,11 +82,11 @@
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Hougang MOP 2026: Upgrading in the Mature Heartland with Less Competition</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 8-minute read &middot; Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Hougang BTOs reaching MOP in 2026 benefit from a smaller cohort than Sengkang and Punggol — meaning less simultaneous seller competition and stronger resale pricing power. Hougang 4-room HDB prices sit at $500,000–$640,000 and 5-room at $620,000–$760,000. With NE Line connectivity and an established mature amenity ring, Hougang upgraders target D19 resale condos in the Serangoon/Kovan corridor or stretch to D26 new launches along the Thomson-East Coast Line.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Hougang BTOs reaching MOP in 2026 benefit from a smaller cohort than Sengkang and Punggol meaning less simultaneous seller competition and stronger resale pricing power. Hougang 4-room HDB prices sit at $500,000–$640,000 and 5-room at $620,000–$760,000. With NE Line connectivity and an established mature amenity ring, Hougang upgraders target D19 resale condos in the Serangoon/Kovan corridor or stretch to D26 new launches along the Thomson-East Coast Line.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Hougang BTOs Are MOP-Eligible in 2026?</h2>
-  <p>Hougang BTO projects that received their Temporary Occupation Permit (TOP) in 2021 cross their Minimum Occupation Period (MOP) in 2026. Key clusters include developments along Hougang Ave 8, Hougang Ave 3/5, Hougang Central, and fringe areas bordering Buangkok. The Hougang cohort is meaningfully smaller than the mass-market BTO launches in Sengkang and Punggol from the same period — typically 3,000–4,000 units total versus 6,000–8,000 in the newer towns.</p>
+  <p>Hougang BTO projects that received their Temporary Occupation Permit (TOP) in 2021 cross their Minimum Occupation Period (MOP) in 2026. Key clusters include developments along Hougang Ave 8, Hougang Ave 3/5, Hougang Central, and fringe areas bordering Buangkok. The Hougang cohort is meaningfully smaller than the mass-market BTO launches in Sengkang and Punggol from the same period typically 3,000–4,000 units total versus 6,000–8,000 in the newer towns.</p>
   <p>To confirm your exact MOP date, log in to HDB MyFlat Portal and check your key collection date. MOP runs 5 years from key collection, not from the BTO application or estimated possession date. Any period during which you sublet the entire flat does not count toward MOP.</p>
 
   <h2>What Is a Hougang HDB Worth in 2026?</h2>
@@ -66,27 +101,27 @@
   <p>Pricing is based on URA REALIS and HDB resale transaction data for 2025–2026. Floor level, block orientation, and walking distance to MRT are the primary valuation drivers in Hougang. Proximity to Serangoon interchange (CC + NE) pushes values toward the upper band.</p>
 
   <div class="warn">
-    <strong>ABSD rule for upgraders:</strong> If you purchase a private property while still owning your HDB flat, 20% ABSD applies on the private purchase price — upfront, in cash. You can claim a remission of this 20% only if you sell your HDB within 6 months of completing the private property purchase. Most upgraders sell the HDB first to eliminate this cash flow burden entirely.
+    <strong>ABSD rule for upgraders:</strong> If you purchase a private property while still owning your HDB flat, 20% ABSD applies on the private purchase price upfront, in cash. You can claim a remission of this 20% only if you sell your HDB within 6 months of completing the private property purchase. Most upgraders sell the HDB first to eliminate this cash flow burden entirely.
   </div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1 — D26 TEL New Launch (Lentor Hills)</h3>
-  <p>Lentor Hills Residences (D26, TEL Lentor station) recently TOPed and is now transacting on the resale market at approximately $2,000–$2,200 PSF. For Hougang upgraders willing to move north-west, the TEL connection is a genuine lifestyle upgrade — Lentor to Orchard is 6 stops. This is a stretch in absolute price terms (3BR at approximately $1.8M) but the structural demand from TEL connectivity is a strong medium-term tailwind. New launches in the Lentor/Springleaf corridor command a premium over their OCR designation because of this connectivity.</p>
+  <h3>Path 1 D26 TEL New Launch (Lentor Hills)</h3>
+  <p>Lentor Hills Residences (D26, TEL Lentor station) recently TOPed and is now transacting on the resale market at approximately $2,000–$2,200 PSF. For Hougang upgraders willing to move north-west, the TEL connection is a genuine lifestyle upgrade Lentor to Orchard is 6 stops. This is a stretch in absolute price terms (3BR at approximately $1.8M) but the structural demand from TEL connectivity is a strong medium-term tailwind. New launches in the Lentor/Springleaf corridor command a premium over their OCR designation because of this connectivity.</p>
 
-  <h3>Path 2 — D19 Resale Condo (Serangoon/Kovan)</h3>
-  <p>The Kovan and Serangoon stretch is the natural home base for Hougang upgraders who want to stay close to their community while stepping into private property. Key projects: Kovan Regency (NE Line MRT-integrated), The Scala (TOP 2013, D19, strong leasehold remaining), and Poiz Residences (TOP 2019, Potong Pasir MRT-integrated, slightly further). 3BR resale in this corridor: $1.2M–$1.45M. These are genuine NE Line MRT-adjacent units with a scarcity premium — D19 condo supply is constrained relative to demand.</p>
+  <h3>Path 2 D19 Resale Condo (Serangoon/Kovan)</h3>
+  <p>The Kovan and Serangoon stretch is the natural home base for Hougang upgraders who want to stay close to their community while stepping into private property. Key projects: Kovan Regency (NE Line MRT-integrated), The Scala (TOP 2013, D19, strong leasehold remaining), and Poiz Residences (TOP 2019, Potong Pasir MRT-integrated, slightly further). 3BR resale in this corridor: $1.2M–$1.45M. These are genuine NE Line MRT-adjacent units with a scarcity premium D19 condo supply is constrained relative to demand.</p>
 
-  <h3>Path 3 — D19 Resale Condo (Hougang/Sengkang OCR)</h3>
+  <h3>Path 3 D19 Resale Condo (Hougang/Sengkang OCR)</h3>
   <p>For upgraders prioritising budget efficiency, resale condos in the Hougang/Sengkang OCR corridor offer better price-per-sqft. Rivervale Crest, A Treasure Trove, and Parc Centros are established 99LH developments with full facilities trading at 3BR prices of $1.1M–$1.35M. The trade-off: these are not MRT-integrated and are priced as standard OCR stock, but yields are solid given proximity to the Sengkang/Hougang heartland rental market.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
     <thead><tr><th>Path</th><th>Entry Price (3BR)</th><th>ABSD (SC 1st)</th><th>BSD</th><th>Upfront Cash+CPF Est.</th><th>Timeline</th></tr></thead>
     <tbody>
-      <tr><td>Path 1 — Lentor Hills (D26 TEL)</td><td>~$1,800,000</td><td>0%</td><td>~$56,600</td><td>$150,000 – $200,000 after HDB proceeds</td><td>Available now (recent TOP)</td></tr>
-      <tr><td>Path 2 — Kovan/Serangoon resale (D19)</td><td>~$1,350,000</td><td>0%</td><td>~$35,100</td><td>$80,000 – $130,000 after HDB proceeds</td><td>Immediate</td></tr>
-      <tr><td>Path 3 — Hougang/Sengkang resale (D19 OCR)</td><td>~$1,200,000</td><td>0%</td><td>~$32,600</td><td>$50,000 – $100,000 after HDB proceeds</td><td>Immediate</td></tr>
+      <tr><td>Path 1 Lentor Hills (D26 TEL)</td><td>~$1,800,000</td><td>0%</td><td>~$56,600</td><td>$150,000 – $200,000 after HDB proceeds</td><td>Available now (recent TOP)</td></tr>
+      <tr><td>Path 2 Kovan/Serangoon resale (D19)</td><td>~$1,350,000</td><td>0%</td><td>~$35,100</td><td>$80,000 – $130,000 after HDB proceeds</td><td>Immediate</td></tr>
+      <tr><td>Path 3 Hougang/Sengkang resale (D19 OCR)</td><td>~$1,200,000</td><td>0%</td><td>~$32,600</td><td>$50,000 – $100,000 after HDB proceeds</td><td>Immediate</td></tr>
     </tbody>
   </table>
   <p>BSD calculation reference: first $180K at 1% = $1,800; next $180K at 2% = $3,600; next $640K at 3% = $19,200; remainder at 4%. For $1.2M: $1,800 + $3,600 + $19,200 + $14,400 = $39,000. Path 3 BSD above is for $1.2M (Path 3 entry). Path 2 BSD for $1.35M: $1,800 + $3,600 + $19,200 + $10,500 = $35,100. Path 1 BSD for $1.8M: $1,800 + $3,600 + $19,200 + $32,000 = $56,600. All figures indicative.</p>
@@ -96,45 +131,45 @@
     <thead><tr><th>Factor</th><th>New Launch (Lentor/D26)</th><th>Resale Condo (D19)</th></tr></thead>
     <tbody>
       <tr><td>Entry PSF</td><td>$2,000 – $2,200</td><td>$1,100 – $1,500</td></tr>
-      <tr><td>Immediate occupancy</td><td>Available (recently TOPed)</td><td>Yes — typically 8–12 weeks to completion</td></tr>
+      <tr><td>Immediate occupancy</td><td>Available (recently TOPed)</td><td>Yes typically 8–12 weeks to completion</td></tr>
       <tr><td>Rental income timing</td><td>Immediate (post TOP)</td><td>Immediate</td></tr>
-      <tr><td>Connectivity premium</td><td>TEL — 6 stops to Orchard</td><td>NE Line — 8–10 stops to Dhoby Ghaut</td></tr>
+      <tr><td>Connectivity premium</td><td>TEL 6 stops to Orchard</td><td>NE Line 8–10 stops to Dhoby Ghaut</td></tr>
       <tr><td>Capital appreciation driver</td><td>TEL infrastructure, Lentor masterplan</td><td>Constrained D19 supply, Serangoon interchange</td></tr>
       <tr><td>Community / familiarity</td><td>New neighbourhood</td><td>Same NE corridor, familiar area</td></tr>
     </tbody>
   </table>
 
   <h2>Rental Market: Why Hougang Attracts Established Family Tenants</h2>
-  <p>Hougang and the broader D19 corridor attract professional families, expatriates serving the Stamford American International School (SAIS) and other international schools in the Serangoon catchment, and NE Line commuters who work in the CBD or one-north. The rental profile is relatively stable — mature estate, established community, NEX mall (one of Singapore's largest regional malls) at Serangoon interchange, and multiple hawker centres.</p>
+  <p>Hougang and the broader D19 corridor attract professional families, expatriates serving the Stamford American International School (SAIS) and other international schools in the Serangoon catchment, and NE Line commuters who work in the CBD or one-north. The rental profile is relatively stable mature estate, established community, NEX mall (one of Singapore's largest regional malls) at Serangoon interchange, and multiple hawker centres.</p>
   <ul>
     <li>2BR resale condo (Hougang/Serangoon): $3,100 – $3,600/mth</li>
     <li>3BR resale condo (Kovan/Serangoon): $3,900 – $4,600/mth</li>
     <li>Indicative gross rental yield on a $1.35M unit at $4,000/mth: 3.6% gross</li>
     <li>International school proximity (SAIS, Hillside World Academy nearby): adds 5–10% rental premium for units with direct bus access</li>
   </ul>
-  <p>The Serangoon interchange MRT hub (CC + NE interchange) drives the rental premium in this corridor. Tenants who work across the island value the flexibility of switching between the Circle Line and North-East Line without changing platforms — a meaningfully stronger connectivity argument than a single-line MRT station.</p>
+  <p>The Serangoon interchange MRT hub (CC + NE interchange) drives the rental premium in this corridor. Tenants who work across the island value the flexibility of switching between the Circle Line and North-East Line without changing platforms a meaningfully stronger connectivity argument than a single-line MRT station.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Confirm your MOP date.</strong> Log in to HDB MyFlat Portal. Your MOP date is exactly 5 years from your key collection date. Confirm this before making any plans.</div>
-  <div class="flow-step"><strong>Step 2 — Get a property valuation and CPF statement (3–6 months before MOP).</strong> Book an HDB-registered valuer for a formal valuation. Separately, download your CPF property statement from my.cpf.gov.sg to understand how much you must refund upon sale (principal + accrued interest at 2.5%).</div>
-  <div class="flow-step"><strong>Step 3 — Engage a salesperson and list your HDB.</strong> Once MOP is crossed, market your HDB. In Hougang's smaller-cohort environment, you have a structural advantage: fewer simultaneous MOP sellers means less competition for buyers. Price competitively, not desperately.</div>
-  <div class="flow-step"><strong>Step 4 — Exercise OTP on your condo target and align timelines.</strong> Once you have a buyer for your HDB, you can safely exercise an Option to Purchase on your target condo. Coordinate completion dates: HDB completion typically 8–10 weeks; condo resale completion 10–12 weeks. The gap is manageable with short-term rental of 1–3 months.</div>
-  <div class="flow-step"><strong>Step 5 — Complete both transactions and deploy CPF refund into new property.</strong> Upon HDB completion, your CPF refund goes back to your OA automatically. You can then direct it toward the condo downpayment. Ensure your banker has a valid In-Principle Approval (IPA) aligned to your revised financial position post-HDB sale.</div>
+  <div class="flow-step"><strong>Step 1 Confirm your MOP date.</strong> Log in to HDB MyFlat Portal. Your MOP date is exactly 5 years from your key collection date. Confirm this before making any plans.</div>
+  <div class="flow-step"><strong>Step 2 Get a property valuation and CPF statement (3–6 months before MOP).</strong> Book an HDB-registered valuer for a formal valuation. Separately, download your CPF property statement from my.cpf.gov.sg to understand how much you must refund upon sale (principal + accrued interest at 2.5%).</div>
+  <div class="flow-step"><strong>Step 3 Engage a salesperson and list your HDB.</strong> Once MOP is crossed, market your HDB. In Hougang's smaller-cohort environment, you have a structural advantage: fewer simultaneous MOP sellers means less competition for buyers. Price competitively, not desperately.</div>
+  <div class="flow-step"><strong>Step 4 Exercise OTP on your condo target and align timelines.</strong> Once you have a buyer for your HDB, you can safely exercise an Option to Purchase on your target condo. Coordinate completion dates: HDB completion typically 8–10 weeks; condo resale completion 10–12 weeks. The gap is manageable with short-term rental of 1–3 months.</div>
+  <div class="flow-step"><strong>Step 5 Complete both transactions and deploy CPF refund into new property.</strong> Upon HDB completion, your CPF refund goes back to your OA automatically. You can then direct it toward the condo downpayment. Ensure your banker has a valid In-Principle Approval (IPA) aligned to your revised financial position post-HDB sale.</div>
 
   <h2>Key Considerations for Hougang MOP 2026 Upgraders</h2>
   <ul>
     <li><strong>Smaller cohort is a structural advantage.</strong> Hougang's 2026 MOP supply is 3,000–4,000 units versus Sengkang's 6,000–8,000. This means you face less direct competition from identical-vintage HDB resale units, supporting your asking price and reducing time-on-market risk.</li>
     <li><strong>Serangoon interchange premium is persistent.</strong> The CC + NE interchange at Serangoon has consistently commanded a 10–15% price premium over non-interchange OCR comparable condos. Buying in the Kovan/Serangoon corridor captures this premium as both an owner-occupier and future landlord.</li>
-    <li><strong>D19 condo supply is genuinely constrained.</strong> Unlike Sengkang/Punggol where new launches periodically reset PSF benchmarks, D19 mature estate condos have very limited new supply. Resale units in this corridor benefit from this scarcity — buyers have few alternatives at similar PSF and location.</li>
-    <li><strong>Evaluate the TEL stretch to D26 honestly.</strong> Lentor Hills and the Lentor corridor offer genuine TEL upside, but the jump from a $610K HDB to a $1.8M condo is the largest absolute gap of any Hougang upgrade path. Model your TDSR carefully: combined household income of $12,000/mth supporting a $1.4M mortgage at 30yr = ~$4,900/mth instalment, which is 41% of income — feasible, but stress-test at 4% (TDSR rate).</li>
+    <li><strong>D19 condo supply is genuinely constrained.</strong> Unlike Sengkang/Punggol where new launches periodically reset PSF benchmarks, D19 mature estate condos have very limited new supply. Resale units in this corridor benefit from this scarcity buyers have few alternatives at similar PSF and location.</li>
+    <li><strong>Evaluate the TEL stretch to D26 honestly.</strong> Lentor Hills and the Lentor corridor offer genuine TEL upside, but the jump from a $610K HDB to a $1.8M condo is the largest absolute gap of any Hougang upgrade path. Model your TDSR carefully: combined household income of $12,000/mth supporting a $1.4M mortgage at 30yr = ~$4,900/mth instalment, which is 41% of income feasible, but stress-test at 4% (TDSR rate).</li>
   </ul>
 
   <h2>Related reading</h2>
   <ul>
-    <li><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent)">HDB MOP upgrade timeline — what to do 6 months before MOP</a></li>
-    <li><a href="/insights/sengkang-mop-2026" style="color:var(--accent)">Sengkang MOP 2026 — upgrade guide</a></li>
-    <li><a href="/insights/punggol-mop-2026" style="color:var(--accent)">Punggol MOP 2026 — upgrade guide</a></li>
-    <li><a href="/insights/hdb-upgrader-guide" style="color:var(--accent)">HDB upgrader guide — the full process</a></li>
+    <li><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent)">HDB MOP upgrade timeline what to do 6 months before MOP</a></li>
+    <li><a href="/insights/sengkang-mop-2026" style="color:var(--accent)">Sengkang MOP 2026 upgrade guide</a></li>
+    <li><a href="/insights/punggol-mop-2026" style="color:var(--accent)">Punggol MOP 2026 upgrade guide</a></li>
+    <li><a href="/insights/hdb-upgrader-guide" style="color:var(--accent)">HDB upgrader guide the full process</a></li>
     <li><a href="/insights/sell-hdb-first-buy-condo-2026" style="color:var(--accent)">Sell HDB first or buy condo first in 2026?</a></li>
   </ul>
 
@@ -153,7 +188,7 @@
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -171,6 +206,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

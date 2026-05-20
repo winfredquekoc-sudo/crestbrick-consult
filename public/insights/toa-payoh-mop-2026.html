@@ -47,14 +47,49 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/pricing">Pricing</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link" href="/sell">Sell</a><a class="nav-link" href="/listings">Listings</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -71,11 +106,11 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">Toa Payoh MOP 2026: Upgrading from Singapore's Most Central Mature Estate</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek &middot; CEA R073319H &middot; 8-minute read &middot; Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> Toa Payoh is one of Singapore's oldest and most centrally located HDB towns. Its 2026 MOP cohort is among the rarest in Singapore — extremely limited BTO supply means almost no competing MOP sellers. Toa Payoh 4-room prices reach $600,000 to $800,000 and 5-room up to $950,000 and above. Upgraders have direct NS Line access to Bishan condos and CCR-fringe D11 options. Toa Payoh MOP sellers are in one of the strongest negotiating positions of any cohort in 2026.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Toa Payoh is one of Singapore's oldest and most centrally located HDB towns. Its 2026 MOP cohort is among the rarest in Singapore extremely limited BTO supply means almost no competing MOP sellers. Toa Payoh 4-room prices reach $600,000 to $800,000 and 5-room up to $950,000 and above. Upgraders have direct NS Line access to Bishan condos and CCR-fringe D11 options. Toa Payoh MOP sellers are in one of the strongest negotiating positions of any cohort in 2026.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
   <h2>Which Toa Payoh BTOs Are MOP-Eligible in 2026?</h2>
-  <p>Toa Payoh has received almost no new BTO supply in the past decade. This is a mature, fully built-out estate with no more land for large HDB developments. The 2026 MOP cohort is estimated at fewer than 1,500 units, drawn from small pockets along Lorong 1A, Lorong 2, Kim Keat Avenue, and Toa Payoh Lorong 8. This is the smallest possible scale for any Singapore HDB town's MOP cohort — it is not a market event, it is a trickle.</p>
+  <p>Toa Payoh has received almost no new BTO supply in the past decade. This is a mature, fully built-out estate with no more land for large HDB developments. The 2026 MOP cohort is estimated at fewer than 1,500 units, drawn from small pockets along Lorong 1A, Lorong 2, Kim Keat Avenue, and Toa Payoh Lorong 8. This is the smallest possible scale for any Singapore HDB town's MOP cohort it is not a market event, it is a trickle.</p>
   <table>
     <thead><tr><th>Cluster / Location</th><th>Approx BTO Year</th><th>MOP Year</th><th>Est. 4-Room Resale Value</th></tr></thead>
     <tbody>
@@ -87,7 +122,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <p style="font-size:.85rem;color:var(--ink-muted);">Estimates based on URA REALIS transaction data for comparable Toa Payoh resale transactions. Actual values depend on floor level, unit aspect, and proximity to Toa Payoh MRT hub.</p>
 
   <h2>What Is a Toa Payoh HDB Worth in 2026?</h2>
-  <p>Toa Payoh's central position on the NS Line — between Novena and Bishan — and its mature estate amenities (Toa Payoh Hub mall, Toa Payoh Stadium, Toa Payoh Town Park, Toa Payoh Public Library) make it one of the most liveable heartland towns in Singapore. Tan Tock Seng Hospital is 5 minutes away by NS Line, creating steady demand from medical workers. Rental rates for HDB flats in Toa Payoh are among the highest in the RCR-adjacent heartland.</p>
+  <p>Toa Payoh's central position on the NS Line between Novena and Bishan and its mature estate amenities (Toa Payoh Hub mall, Toa Payoh Stadium, Toa Payoh Town Park, Toa Payoh Public Library) make it one of the most liveable heartland towns in Singapore. Tan Tock Seng Hospital is 5 minutes away by NS Line, creating steady demand from medical workers. Rental rates for HDB flats in Toa Payoh are among the highest in the RCR-adjacent heartland.</p>
   <table>
     <thead><tr><th>Location</th><th>4-Room Resale Range</th><th>Rental (4-Room)</th><th>Notes</th></tr></thead>
     <tbody>
@@ -97,18 +132,18 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     </tbody>
   </table>
 
-  <div class="warn"><strong>ABSD reminder:</strong> Singapore Citizens buying their first private property pay 0% ABSD — regardless of the price of the private property. However, if you complete the condo purchase while still legally owning the HDB flat, you are a two-property owner and ABSD becomes 20% on the condo. On a $1.75M Gem Residences unit, that is $350,000 in avoidable stamp duty. Sequence your transactions carefully — sell HDB first, or ensure OTP to HDB buyer is exercised and completion is aligned.</div>
+  <div class="warn"><strong>ABSD reminder:</strong> Singapore Citizens buying their first private property pay 0% ABSD regardless of the price of the private property. However, if you complete the condo purchase while still legally owning the HDB flat, you are a two-property owner and ABSD becomes 20% on the condo. On a $1.75M Gem Residences unit, that is $350,000 in avoidable stamp duty. Sequence your transactions carefully sell HDB first, or ensure OTP to HDB buyer is exercised and completion is aligned.</div>
 
   <h2>Your 3 Upgrade Paths in 2026</h2>
 
-  <h3>Path 1: Gem Residences — D12, The Only Private Option in Toa Payoh</h3>
-  <p>Gem Residences (TOP 2021, 578 units, Toa Payoh Rise) is a unique situation: it is essentially the only private condo with a recent TOP in District 12. Private condo supply in D12 is extraordinarily thin — Toa Payoh has historically been a public housing estate with minimal private residential development. This scarcity makes Gem Residences highly defensible on pricing. Buyers who specifically want to live in D12 or Toa Payoh have almost no choice. A 3-bedroom unit trades at roughly $1.60M to $1.90M, and the PSF has held firm precisely because of this supply constraint. For Toa Payoh upgraders who want to stay in the estate, this is the only meaningful option.</p>
+  <h3>Path 1: Gem Residences D12, The Only Private Option in Toa Payoh</h3>
+  <p>Gem Residences (TOP 2021, 578 units, Toa Payoh Rise) is a unique situation: it is essentially the only private condo with a recent TOP in District 12. Private condo supply in D12 is extraordinarily thin Toa Payoh has historically been a public housing estate with minimal private residential development. This scarcity makes Gem Residences highly defensible on pricing. Buyers who specifically want to live in D12 or Toa Payoh have almost no choice. A 3-bedroom unit trades at roughly $1.60M to $1.90M, and the PSF has held firm precisely because of this supply constraint. For Toa Payoh upgraders who want to stay in the estate, this is the only meaningful option.</p>
 
-  <h3>Path 2: Sky Vue or Sky Habitat — D20 Bishan, The Natural NS Line Landing</h3>
-  <p>The most natural upgrade path from Toa Payoh is one or two NS Line stops to Bishan (D20). Sky Vue (TOP 2016, 694 units) and Sky Habitat (TOP 2015, 509 units) are both immediately adjacent to Bishan MRT, which sits on both the NS Line and CC Line — a dual-line intersection that commands a structural connectivity premium. Three-bedroom resale units trade at $1.50M to $1.80M. The Bishan school catchment includes Raffles Institution (secondary), Catholic High, and ACS — among the most sought-after primary schools in Singapore. For families with school-going children, the D20 Bishan upgrade path is arguably the most rational on the island.</p>
+  <h3>Path 2: Sky Vue or Sky Habitat D20 Bishan, The Natural NS Line Landing</h3>
+  <p>The most natural upgrade path from Toa Payoh is one or two NS Line stops to Bishan (D20). Sky Vue (TOP 2016, 694 units) and Sky Habitat (TOP 2015, 509 units) are both immediately adjacent to Bishan MRT, which sits on both the NS Line and CC Line a dual-line intersection that commands a structural connectivity premium. Three-bedroom resale units trade at $1.50M to $1.80M. The Bishan school catchment includes Raffles Institution (secondary), Catholic High, and ACS among the most sought-after primary schools in Singapore. For families with school-going children, the D20 Bishan upgrade path is arguably the most rational on the island.</p>
 
-  <h3>Path 3: CCR-Fringe D11 Novena Vicinity — The Stretch Move</h3>
-  <p>Toa Payoh's central location means genuinely CCR-adjacent living is closer than most upgraders realise. D11 (Newton, Novena) is two NS Line stops from Toa Payoh. Projects in the Novena vicinity — The Venue Residences, Trilight, and comparable — offer 3-bedroom units at roughly $1.80M to $2.20M. At $2.0M, this is a stretch from a Toa Payoh HDB platform, but for households with combined income above $14,000 per month and significant CPF built up, the TDSR is workable. The Novena Medical Hub concentration, proximity to Singapore's private hospital cluster, and CCR-lite prestige make this a compelling long-run hold.</p>
+  <h3>Path 3: CCR-Fringe D11 Novena Vicinity The Stretch Move</h3>
+  <p>Toa Payoh's central location means genuinely CCR-adjacent living is closer than most upgraders realise. D11 (Newton, Novena) is two NS Line stops from Toa Payoh. Projects in the Novena vicinity The Venue Residences, Trilight, and comparable offer 3-bedroom units at roughly $1.80M to $2.20M. At $2.0M, this is a stretch from a Toa Payoh HDB platform, but for households with combined income above $14,000 per month and significant CPF built up, the TDSR is workable. The Novena Medical Hub concentration, proximity to Singapore's private hospital cluster, and CCR-lite prestige make this a compelling long-run hold.</p>
 
   <h2>Three Paths: Indicative Cost Comparison</h2>
   <table>
@@ -125,11 +160,11 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
   <table>
     <thead><tr><th>Factor</th><th>New Launch in D12</th><th>Resale Options (Gem / Sky Vue / D11)</th></tr></thead>
     <tbody>
-      <tr><td>Availability</td><td>None — no new launches in D12 pipeline</td><td>All three immediately available</td></tr>
+      <tr><td>Availability</td><td>None no new launches in D12 pipeline</td><td>All three immediately available</td></tr>
       <tr><td>D12 private supply</td><td>Essentially zero new units coming</td><td>Gem Residences is the only stock</td></tr>
       <tr><td>D20 Bishan school premium</td><td>N/A</td><td>Sky Vue / Habitat in RI, Catholic High catchment</td></tr>
       <tr><td>CCR access</td><td>N/A</td><td>D11 is 2 NS stops from Toa Payoh</td></tr>
-      <tr><td>Rental demand driver</td><td>—</td><td>TTSH (D12), Raffles schools (D20), Novena hospitals (D11)</td></tr>
+      <tr><td>Rental demand driver</td><td> </td><td>TTSH (D12), Raffles schools (D20), Novena hospitals (D11)</td></tr>
     </tbody>
   </table>
 
@@ -142,21 +177,21 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <tr><td>3BR condo (D12/D20)</td><td>$4,800–$5,800/mth</td><td>~3.2–3.6%</td><td>Top school catchment drives family demand</td></tr>
     </tbody>
   </table>
-  <p>The rental yield-to-price ratio in the D12/D20 corridor is among the best for RCR-adjacent districts — a function of central location, school catchment, and limited new private supply keeping vacancy rates structurally low.</p>
+  <p>The rental yield-to-price ratio in the D12/D20 corridor is among the best for RCR-adjacent districts a function of central location, school catchment, and limited new private supply keeping vacancy rates structurally low.</p>
 
   <h2>The MOP Upgrade Timeline</h2>
-  <div class="flow-step"><strong>Step 1 — Get a precise CPF statement and valuation.</strong> Toa Payoh flats, given their age and location, may have substantial CPF accrued interest accumulated. Request a CPF statement from the CPF Board and combine it with a professional valuation before making any upgrade commitment. The net proceeds figure drives everything downstream.</div>
-  <div class="flow-step"><strong>Step 2 — Model TDSR at 1.5% actual and 4% stress test.</strong> For a $1.75M Gem Residences unit with 75% LTV ($1.31M loan) over 25 years at 1.5%, monthly repayment is approximately $5,200. At the 4% stress test, the implied payment is $6,900. Total debt obligations including any car loan must remain below 55% of gross monthly income at the stress test rate.</div>
-  <div class="flow-step"><strong>Step 3 — List the HDB and use scarcity to your advantage.</strong> With under 1,500 units in the MOP cohort and very limited Toa Payoh HDB resale supply generally, you are in a seller's market. Price at the upper end of the comparable range, not the middle. Buyers looking for Toa Payoh HDB have few options and will pay for the right unit.</div>
-  <div class="flow-step"><strong>Step 4 — Sequence for zero-ABSD execution.</strong> Sell HDB first. Bank proceeds. Rent for 3 to 6 months (Toa Payoh condo rental is $3,800–$4,500/mth; HDB rental is lower if you need budget buffer). Then purchase the target condo as SC first private property at 0% ABSD. This removes the single largest financial risk in the upgrade process.</div>
-  <div class="flow-step"><strong>Step 5 — Consider the CCR stretch at $2M-plus.</strong> If your Toa Payoh HDB fetches $780K to $800K and CPF OA refund is substantial, some upgraders will have the financial profile to target D9/D10 (River Valley, Holland Village fringe) at $2.0M to $2.5M. This is worth modelling — the differential between D11/D20 and CCR narrows significantly at the 3-bedroom level when you account for long-run appreciation.</div>
+  <div class="flow-step"><strong>Step 1 Get a precise CPF statement and valuation.</strong> Toa Payoh flats, given their age and location, may have substantial CPF accrued interest accumulated. Request a CPF statement from the CPF Board and combine it with a professional valuation before making any upgrade commitment. The net proceeds figure drives everything downstream.</div>
+  <div class="flow-step"><strong>Step 2 Model TDSR at 1.5% actual and 4% stress test.</strong> For a $1.75M Gem Residences unit with 75% LTV ($1.31M loan) over 25 years at 1.5%, monthly repayment is approximately $5,200. At the 4% stress test, the implied payment is $6,900. Total debt obligations including any car loan must remain below 55% of gross monthly income at the stress test rate.</div>
+  <div class="flow-step"><strong>Step 3 List the HDB and use scarcity to your advantage.</strong> With under 1,500 units in the MOP cohort and very limited Toa Payoh HDB resale supply generally, you are in a seller's market. Price at the upper end of the comparable range, not the middle. Buyers looking for Toa Payoh HDB have few options and will pay for the right unit.</div>
+  <div class="flow-step"><strong>Step 4 Sequence for zero-ABSD execution.</strong> Sell HDB first. Bank proceeds. Rent for 3 to 6 months (Toa Payoh condo rental is $3,800–$4,500/mth; HDB rental is lower if you need budget buffer). Then purchase the target condo as SC first private property at 0% ABSD. This removes the single largest financial risk in the upgrade process.</div>
+  <div class="flow-step"><strong>Step 5 Consider the CCR stretch at $2M-plus.</strong> If your Toa Payoh HDB fetches $780K to $800K and CPF OA refund is substantial, some upgraders will have the financial profile to target D9/D10 (River Valley, Holland Village fringe) at $2.0M to $2.5M. This is worth modelling the differential between D11/D20 and CCR narrows significantly at the 3-bedroom level when you account for long-run appreciation.</div>
 
   <h2>Key Considerations</h2>
   <ul>
     <li><strong>Rarest seller cohort in Singapore.</strong> Fewer than 1,500 units hitting MOP in D12 in 2026. Buyers of your Toa Payoh flat will compete. Do not undervalue a flat in one of Singapore's most central, most amenity-rich mature estates.</li>
-    <li><strong>D12 private condo supply is effectively zero.</strong> Gem Residences is the only meaningful private option in Toa Payoh — buyers who specifically want to stay in D12 private have almost no alternatives, creating durable pricing support.</li>
-    <li><strong>Bishan condos are the natural NS Line landing.</strong> Sky Vue and Sky Habitat give you the same NS Line commute, top school catchment, and proven capital appreciation — with a slightly larger D20 supply pool providing better liquidity than D12.</li>
-    <li><strong>At $2M-plus, genuine CCR becomes accessible.</strong> Some Toa Payoh upgraders have the financial profile for D9 or D10 River Valley / Holland Village fringe properties. Running the TDSR on this scenario is worth 30 minutes — the gap between D11 and CCR is smaller than most assume at the 3-bedroom level.</li>
+    <li><strong>D12 private condo supply is effectively zero.</strong> Gem Residences is the only meaningful private option in Toa Payoh buyers who specifically want to stay in D12 private have almost no alternatives, creating durable pricing support.</li>
+    <li><strong>Bishan condos are the natural NS Line landing.</strong> Sky Vue and Sky Habitat give you the same NS Line commute, top school catchment, and proven capital appreciation with a slightly larger D20 supply pool providing better liquidity than D12.</li>
+    <li><strong>At $2M-plus, genuine CCR becomes accessible.</strong> Some Toa Payoh upgraders have the financial profile for D9 or D10 River Valley / Holland Village fringe properties. Running the TDSR on this scenario is worth 30 minutes the gap between D11 and CCR is smaller than most assume at the 3-bedroom level.</li>
   </ul>
 
   <h2>Related reading</h2>
@@ -183,7 +218,7 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
       <input type="email" name="email" placeholder="your@email.com" required style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule);background:var(--bg);color:var(--ink);font-size:.95rem;min-width:220px;">
       <button type="submit" style="padding:.65rem 1.4rem;background:var(--accent);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;">Subscribe</button>
     </form>
-    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}</script>
+    <script>if(!window._nl){window._nl=true;window.submitNL=async function(e,f){e.preventDefault();var b=f.querySelector('button'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}</script>
   </div>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
@@ -201,6 +236,16 @@ th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:1
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis methodology for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/ang-mo-kio-mop-2026" style="color:var(--accent);">Ang Mo Kio MOP 2026: Upgrading from Singapore's Most Connected Mature Estate</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bedok-mop-2026" style="color:var(--accent);">Bedok HDB MOP 2026: East Coast Upgrader's Guide to D16</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bishan-mop-2026" style="color:var(--accent);">Bishan HDB MOP 2026: Upgrading From the Central Core When CCR and RCR Are Next Door</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/bukit-batok-mop-2026" style="color:var(--accent);">Bukit Batok MOP 2026: Upgrading Before the Jurong Region Line Opens</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/hdb-mop-upgrade-timeline" style="color:var(--accent);">HDB MOP to Condo Upgrade: The Full Timeline, Cost, and Cashflow Map (2026)</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">

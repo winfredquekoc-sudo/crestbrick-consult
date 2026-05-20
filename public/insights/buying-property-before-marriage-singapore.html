@@ -22,14 +22,49 @@
   <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
 </head>
 <body>
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2"><span class="serif font-semibold text-lg">Winfred Quek</span></a>
-    <div class="hidden lg:flex items-center gap-6"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/about">About</a><a class="nav-link" href="/services">Services</a><a class="nav-link" href="/tools">Tools</a><a class="nav-link active" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Portfolio Analysis</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a></div>
-    <button id="menu-toggle" class="lg:hidden p-2"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-  </nav>
-  <div id="mobile-menu" style="display:none;" class="border-t border-[var(--rule)] bg-[var(--bg)]"><div class="px-6 py-4 flex flex-col gap-3"><a class="nav-link" href="/">Home</a><a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/contact">Contact</a><a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a></div></div>
-</header>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
 <main>
 <section style="position:relative;overflow:hidden;background:#1a1a1a;padding:5rem 1.5rem 4rem;">
   <div style="position:absolute;inset:0;opacity:0.08;background:linear-gradient(135deg,#c6a36a 0%,transparent 60%);pointer-events:none;"></div>
@@ -44,13 +79,13 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">Buying Property as an Unmarried Couple in Singapore: ABSD, Ownership, and What Changes After Marriage</h1>
   <p class="text-[var(--ink-muted)] text-sm mb-8">By Winfred Quek · CEA R073319H · 8-minute read · Last reviewed May 2026</p>
-  <div class="quick-answer"><strong>Quick answer:</strong> Unmarried couples can freely purchase Singapore private property together — no marriage requirement applies to private residential purchases. Each buyer's ABSD is assessed individually: if both are SC first-time buyers, 0% ABSD each. The structural question is joint name vs one name, because this choice determines your ABSD flexibility when you want to buy a second property after marriage. Joint purchase as first-timers is simple. Planning a future second property while unmarried? One-name purchase preserves the other partner's first-timer status.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> Unmarried couples can freely purchase Singapore private property together no marriage requirement applies to private residential purchases. Each buyer's ABSD is assessed individually: if both are SC first-time buyers, 0% ABSD each. The structural question is joint name vs one name, because this choice determines your ABSD flexibility when you want to buy a second property after marriage. Joint purchase as first-timers is simple. Planning a future second property while unmarried? One-name purchase preserves the other partner's first-timer status.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <p>Young couples in Singapore often find themselves at a crossroads: you want to live together, property prices are rising, and waiting until marriage feels like leaving money on the table. The good news is that Singapore private property has no marriage requirement — you can buy a condo with a partner, friend, or sibling without being married. The important work is understanding how ownership structure today affects your ABSD options tomorrow.</p>
+  <p>Young couples in Singapore often find themselves at a crossroads: you want to live together, property prices are rising, and waiting until marriage feels like leaving money on the table. The good news is that Singapore private property has no marriage requirement you can buy a condo with a partner, friend, or sibling without being married. The important work is understanding how ownership structure today affects your ABSD options tomorrow.</p>
 
   <h2>The Basics: Private Property Has No Marriage Requirement</h2>
-  <p>Unlike HDB flats — which require a family nucleus (married couple, parent and child, siblings) or a single SC aged 35 and above — Singapore private residential property can be purchased by any combination of eligible buyers regardless of their relationship status.</p>
+  <p>Unlike HDB flats which require a family nucleus (married couple, parent and child, siblings) or a single SC aged 35 and above Singapore private residential property can be purchased by any combination of eligible buyers regardless of their relationship status.</p>
   <p>Two unmarried SC individuals can:</p>
   <ul>
     <li>Purchase a private condo together under joint tenancy or tenancy in common</li>
@@ -60,10 +95,10 @@
   </ul>
 
   <h2>ABSD Assessment for Unmarried Co-Purchasers</h2>
-  <p>ABSD is assessed on each purchaser's profile individually, based on their residential status and existing property count at the time of purchase. For a joint purchase, each owner is assessed on their proportionate share — but in practice, IRAS applies the higher-profile rate to the entire purchase if any owner attracts ABSD.</p>
+  <p>ABSD is assessed on each purchaser's profile individually, based on their residential status and existing property count at the time of purchase. For a joint purchase, each owner is assessed on their proportionate share but in practice, IRAS applies the higher-profile rate to the entire purchase if any owner attracts ABSD.</p>
 
   <div class="warn">
-    <strong>Key ABSD rule for joint purchases:</strong> If Partner A is a SC first-time buyer (0% ABSD) and Partner B already owns one property (20% ABSD as SC second purchase), the joint purchase is assessed at the higher rate — 20% ABSD applies to the entire purchase price, not just Partner B's share. Mixing ABSD profiles in a joint purchase is costly. Before buying jointly, confirm both partners' current ABSD status.
+    <strong>Key ABSD rule for joint purchases:</strong> If Partner A is a SC first-time buyer (0% ABSD) and Partner B already owns one property (20% ABSD as SC second purchase), the joint purchase is assessed at the higher rate 20% ABSD applies to the entire purchase price, not just Partner B's share. Mixing ABSD profiles in a joint purchase is costly. Before buying jointly, confirm both partners' current ABSD status.
   </div>
 
   <h2>Ownership Structures: Which to Choose</h2>
@@ -77,17 +112,17 @@
   </table>
 
   <h3>The 99/1 Structure for Unmarried Couples</h3>
-  <p>A tenancy in common with 99% to one partner and 1% to the other is sometimes used to give both partners nominal ownership while minimising the ABSD exposure of the 1% owner for future purchases. Note: IRAS has scrutinised 99/1 arrangements where the 1% owner later buys another property — if IRAS determines the 99/1 was structured to artificially preserve first-timer status, they may re-assess ABSD. Seek legal and tax advice before using this structure as an ABSD planning tool.</p>
+  <p>A tenancy in common with 99% to one partner and 1% to the other is sometimes used to give both partners nominal ownership while minimising the ABSD exposure of the 1% owner for future purchases. Note: IRAS has scrutinised 99/1 arrangements where the 1% owner later buys another property if IRAS determines the 99/1 was structured to artificially preserve first-timer status, they may re-assess ABSD. Seek legal and tax advice before using this structure as an ABSD planning tool.</p>
 
   <h2>What Changes After Marriage</h2>
-  <p>Marriage itself does not trigger ABSD, stamp duty, or any automatic change to your property title. Your ownership structure the day before marriage is identical to the day after. What changes is the ABSD remission available to you — and how your combined property count affects future purchases.</p>
+  <p>Marriage itself does not trigger ABSD, stamp duty, or any automatic change to your property title. Your ownership structure the day before marriage is identical to the day after. What changes is the ABSD remission available to you and how your combined property count affects future purchases.</p>
 
   <h3>ABSD Remission for Married SC Couples</h3>
-  <p>If a married SC couple buys a second property (incurring 20% ABSD) and then sells their first property within 6 months of purchasing the second, they can apply to IRAS for an ABSD refund. This remission is only available to married couples — it was not available if the purchase was made while unmarried, even if you subsequently married.</p>
+  <p>If a married SC couple buys a second property (incurring 20% ABSD) and then sells their first property within 6 months of purchasing the second, they can apply to IRAS for an ABSD refund. This remission is only available to married couples it was not available if the purchase was made while unmarried, even if you subsequently married.</p>
 
-  <div class="flow-step"><strong>Scenario A — Both buy jointly before marriage (both first-timers):</strong> 0% ABSD. After marriage, you jointly own one property. Next purchase = both carry a property count, 20% ABSD unless you sell the first. ABSD remission available post-marriage on the second purchase if first is sold within 6 months.</div>
-  <div class="flow-step"><strong>Scenario B — One partner buys in sole name before marriage:</strong> 0% ABSD for sole owner. Other partner retains first-timer status. After marriage, jointly you own one property. If other partner now buys in their sole name, they are a first-timer — 0% ABSD on their first purchase. This creates two separate first-property holdings for the couple.</div>
-  <div class="flow-step"><strong>Scenario C — One partner already owns property, both want to buy together:</strong> The existing property owner causes the joint purchase to be assessed at 20% ABSD. Consider buying in the non-owner's sole name only, with 0% ABSD, then <a href="/insights/decoupling-singapore">decoupling or restructuring</a> later if needed.</div>
+  <div class="flow-step"><strong>Scenario A Both buy jointly before marriage (both first-timers):</strong> 0% ABSD. After marriage, you jointly own one property. Next purchase = both carry a property count, 20% ABSD unless you sell the first. ABSD remission available post-marriage on the second purchase if first is sold within 6 months.</div>
+  <div class="flow-step"><strong>Scenario B One partner buys in sole name before marriage:</strong> 0% ABSD for sole owner. Other partner retains first-timer status. After marriage, jointly you own one property. If other partner now buys in their sole name, they are a first-timer 0% ABSD on their first purchase. This creates two separate first-property holdings for the couple.</div>
+  <div class="flow-step"><strong>Scenario C One partner already owns property, both want to buy together:</strong> The existing property owner causes the joint purchase to be assessed at 20% ABSD. Consider buying in the non-owner's sole name only, with 0% ABSD, then <a href="/insights/decoupling-singapore">decoupling or restructuring</a> later if needed.</div>
 
   <h2>CPF Usage for Unmarried Co-Purchasers</h2>
   <p>Each co-purchaser can use their own CPF OA for the purchase. CPF usage is governed by the individual CPF member's account, not the relationship status of the buyers. The CPF withdrawal limit is based on the Valuation Limit (lower of purchase price or valuation), pro-rated by ownership share for tenancy in common, or at the full limit for joint tenancy (each member can use CPF up to the full Valuation Limit).</p>
@@ -97,9 +132,9 @@
   <ul>
     <li><strong>Confirm both partners' ABSD status:</strong> Check existing property ownership for each individually. One existing property triggers 20% ABSD on a joint purchase.</li>
     <li><strong>Decide on ownership structure before signing OTP:</strong> Joint tenancy vs tenancy in common (and what split) affects both ABSD and succession. Changes after purchase require a separate legal transfer and stamp duty.</li>
-    <li><strong>Consider a co-ownership agreement:</strong> An unmarried couple should document: what happens to the property if you break up, how mortgage is split, who manages rental income, and exit mechanisms. This is a private agreement — HDB or URA do not require it for private property, but it protects both parties.</li>
-    <li><strong>Mortgage assessment:</strong> Banks assess the loan on both borrowers' income (Total Debt Servicing Ratio — TDSR at 55% of gross income). Both will be co-borrowers on the mortgage, which affects each person's future borrowing capacity.</li>
-    <li><strong>CPF nomination:</strong> If one partner dies, their CPF (used for the mortgage) goes to their CPF nominees — which may not be you if you are unmarried. Make a CPF nomination if you want your partner to receive your CPF balance.</li>
+    <li><strong>Consider a co-ownership agreement:</strong> An unmarried couple should document: what happens to the property if you break up, how mortgage is split, who manages rental income, and exit mechanisms. This is a private agreement HDB or URA do not require it for private property, but it protects both parties.</li>
+    <li><strong>Mortgage assessment:</strong> Banks assess the loan on both borrowers' income (Total Debt Servicing Ratio TDSR at 55% of gross income). Both will be co-borrowers on the mortgage, which affects each person's future borrowing capacity.</li>
+    <li><strong>CPF nomination:</strong> If one partner dies, their CPF (used for the mortgage) goes to their CPF nominees which may not be you if you are unmarried. Make a CPF nomination if you want your partner to receive your CPF balance.</li>
   </ul>
 
   <h2>Related reading</h2>
@@ -131,6 +166,16 @@
     <div><p class="serif text-xl font-semibold mb-1">Winfred Quek</p><p class="text-sm text-[var(--accent)] mb-2">Property advisor · CEA R073319H · Crestbrick</p><p class="text-sm text-[var(--ink-soft)]">Nine years in Singapore property. Five properties before 30. Property Portfolio Analysis for upgraders, investors, and family offices.</p></div>
   </div>
 </aside>
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/adding-child-to-property-title-sg" style="color:var(--accent);">Adding Child to Singapore Property Title 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/divorce-property-singapore-2026" style="color:var(--accent);">Divorce and Singapore Property 2026</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/gift-of-property-singapore-2026" style="color:var(--accent);">Gifting Property in Singapore: ABSD, BSD, and the Tax Reality</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/intestacy-property-singapore" style="color:var(--accent);">Dying Without a Will in Singapore Property</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/lasting-power-of-attorney-property-sg" style="color:var(--accent);">LPA and Property in Singapore 2026</a></li>
+  </ul>
+</section>
 </main>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
