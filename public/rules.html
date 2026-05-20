@@ -80,29 +80,45 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</a>
-      <div class="hidden lg:flex items-center gap-6">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/about">About</a>
-        <a class="nav-link" href="/data">Data</a>
-        <a class="nav-link active" href="/rules">Rules</a>
-        <a class="nav-link" href="/faq">FAQ</a>
-        <a class="nav-link" href="/insights">Insights</a>
-        <a class="nav-link" href="/contact">Contact</a>
-        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/data">Data</a>
-        <a class="nav-link active" href="/rules">Rules</a>
-        <a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
       </div>
     </div>
@@ -114,7 +130,7 @@
   <div style="max-width:72rem;margin:0 auto;">
     <p class="section-label" style="margin-bottom:.75rem;">Legal Reference · Singapore Property 2026</p>
     <h1 class="serif balance" style="font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:.75rem;">Singapore Property Rules: Complete Reference 2026</h1>
-    <p style="color:var(--ink-soft);max-width:65ch;margin-bottom:1rem;">Every operative rule — stated precisely with the applicable number, who it applies to, and the source authority. Dense reference format. Updated May 2026.</p>
+    <p style="color:var(--ink-soft);max-width:65ch;margin-bottom:1rem;">Every operative rule stated precisely with the applicable number, who it applies to, and the source authority. Dense reference format. Updated May 2026.</p>
     <p style="font-size:.85rem;color:var(--ink-muted);">Compiled by Winfred Quek · CEA R073319H · Crestbrick Pte Ltd</p>
     <div class="jump-nav">
       <a href="#absd-rules" class="jump-btn">ABSD Rules</a>
@@ -148,7 +164,7 @@
           <tr><td>Foreigner (general)</td><td>60%</td><td>60%</td><td>60%</td></tr>
           <tr><td>FTA nationals (US, CH, NO, IS, LI)</td><td>0%</td><td>20%</td><td>30%</td></tr>
           <tr><td>Entity (company, LLP, trustee)</td><td>65%</td><td>65%</td><td>65%</td></tr>
-          <tr><td>Housing Developer (with remission)</td><td>5% + 5%/yr if unsold after 5 yrs</td><td>—</td><td>—</td></tr>
+          <tr><td>Housing Developer (with remission)</td><td>5% + 5%/yr if unsold after 5 yrs</td><td> </td><td> </td></tr>
         </tbody>
       </table>
     </div>
@@ -157,12 +173,12 @@
     <div class="rule-item"><span class="rule-key">Calculation basis</span><span class="rule-val">Flat rate on full purchase price (not marginal/bracketed). $2M property at 20% ABSD = $400,000 ABSD.</span></div>
     <div class="rule-item"><span class="rule-key">Payment deadline</span><span class="rule-val">14 days from OTP exercise date. No grace period. Late payment attracts penalties.</span></div>
     <div class="rule-item"><span class="rule-key">Property count</span><span class="rule-val">Counts all residential properties worldwide owned by the buyer at time of OTP exercise, including partial interests (1% or more), properties held on trust, and properties under HDB ownership.</span></div>
-    <div class="rule-item"><span class="rule-key">FTA exemption</span><span class="rule-val">Nationals of US, Switzerland, Norway, Iceland, Liechtenstein pay SC-equivalent rates under FTA/EFTA agreements. Must purchase in personal name — entity purchase forfeits FTA benefit.</span></div>
+    <div class="rule-item"><span class="rule-key">FTA exemption</span><span class="rule-val">Nationals of US, Switzerland, Norway, Iceland, Liechtenstein pay SC-equivalent rates under FTA/EFTA agreements. Must purchase in personal name entity purchase forfeits FTA benefit.</span></div>
     <div class="rule-item"><span class="rule-key">Matrimonial home remission</span><span class="rule-val">Full ABSD refund for SC-married couples (at least one SC) buying replacement matrimonial home. Conditions: (1) both on title; (2) existing matrimonial home sold within 6 months of new property's completion/TOP; (3) neither owns other property at time of purchase.</span></div>
     <div class="rule-item"><span class="rule-key">Trust surcharge</span><span class="rule-val">Living trusts acquiring residential property pay 65% ABSD upfront (since May 2022). Refundable to beneficiary's individual rate if trust has named, identifiable beneficiaries at purchase point.</span></div>
     <div class="rule-item"><span class="rule-key">General Anti-Avoidance</span><span class="rule-val">Section 33A Stamp Duties Act. IRAS actively applies GAAR to artificial ownership arrangements. Post-2023 enforcement: share-allocation structures on new purchases without economic substance are at material audit risk.</span></div>
     <div class="rule-item"><span class="rule-key">Refund eligibility</span><span class="rule-val">Matrimonial home remission; trust individual-rate remission; housing developer build-and-sell remission. No other refund pathways.</span></div>
-    <p class="source" style="margin-top:1rem;">Source: IRAS — Additional Buyer's Stamp Duty (absd). Rates in force since 27 April 2023.</p>
+    <p class="source" style="margin-top:1rem;">Source: IRAS Additional Buyer's Stamp Duty (absd). Rates in force since 27 April 2023.</p>
   </div>
 
   <!-- BSD -->
@@ -187,13 +203,13 @@
     </div>
 
     <h3>Key Rules</h3>
-    <div class="rule-item"><span class="rule-key">Applies to</span><span class="rule-val">All buyers without exception — SC, PR, foreigner, entity. No exemptions based on citizenship or ownership count.</span></div>
-    <div class="rule-item"><span class="rule-key">Calculation</span><span class="rule-val">Progressive — each tier applies only to the portion within that band. A $1.5M property: 1%×$180K + 2%×$180K + 3%×$640K + 4%×$500K = $44,600.</span></div>
+    <div class="rule-item"><span class="rule-key">Applies to</span><span class="rule-val">All buyers without exception SC, PR, foreigner, entity. No exemptions based on citizenship or ownership count.</span></div>
+    <div class="rule-item"><span class="rule-key">Calculation</span><span class="rule-val">Progressive each tier applies only to the portion within that band. A $1.5M property: 1%×$180K + 2%×$180K + 3%×$640K + 4%×$500K = $44,600.</span></div>
     <div class="rule-item"><span class="rule-key">Basis</span><span class="rule-val">Higher of purchase price or IRAS-assessed market value. If IRAS assesses a $900K purchase at $950K market value, BSD is on $950K.</span></div>
     <div class="rule-item"><span class="rule-key">Refundability</span><span class="rule-val">Not refundable on completed transactions. May be refunded on aborted transactions via IRAS application with evidence of rescission.</span></div>
     <div class="rule-item"><span class="rule-key">Gift transfers</span><span class="rule-val">Treated as transfer at market value. BSD applies to recipient on market value at date of transfer.</span></div>
     <div class="rule-item"><span class="rule-key">Inheritance</span><span class="rule-val">Properties transferred via will or intestacy are exempt from BSD on that transfer. No ABSD on the transfer itself.</span></div>
-    <p class="source" style="margin-top:1rem;">Source: IRAS — Buyer's Stamp Duty. 5% and 6% tiers introduced February 2023 for amounts above $1.5M and $3M respectively.</p>
+    <p class="source" style="margin-top:1rem;">Source: IRAS Buyer's Stamp Duty. 5% and 6% tiers introduced February 2023 for amounts above $1.5M and $3M respectively.</p>
   </div>
 
   <!-- SSD -->
@@ -216,13 +232,13 @@
     </div>
 
     <h3>Key Rules</h3>
-    <div class="rule-item"><span class="rule-key">Clock start</span><span class="rule-val">OTP exercise date of the purchase — not TOP, not key collection. New launch buyers whose OTP was exercised 3+ years before TOP are already SSD-free at handover.</span></div>
+    <div class="rule-item"><span class="rule-key">Clock start</span><span class="rule-val">OTP exercise date of the purchase not TOP, not key collection. New launch buyers whose OTP was exercised 3+ years before TOP are already SSD-free at handover.</span></div>
     <div class="rule-item"><span class="rule-key">Basis</span><span class="rule-val">Higher of sale price or market value at date of sale. Seller cannot argue a below-market sale to reduce SSD.</span></div>
     <div class="rule-item"><span class="rule-key">Applies to</span><span class="rule-val">Residential property only. Commercial and industrial property are not subject to SSD.</span></div>
     <div class="rule-item"><span class="rule-key">Restructuring</span><span class="rule-val">A spousal share transfer (restructuring) within 3 years of original purchase triggers SSD on the transferred share at the applicable rate for that year. Factor SSD into restructuring break-even analysis.</span></div>
     <div class="rule-item"><span class="rule-key">Inherited property</span><span class="rule-val">If an inherited property is sold within 3 years of the deceased's original purchase, SSD may apply. The holding period runs from the deceased's acquisition date.</span></div>
     <div class="rule-item"><span class="rule-key">HDB flats</span><span class="rule-val">HDB flats cannot be sold on open market within the 5-year MOP regardless of SSD. SSD as a separate concept applies primarily to private residential property.</span></div>
-    <p class="source" style="margin-top:1rem;">Source: IRAS — Seller's Stamp Duty. Holding period measured from OTP exercise date of purchase to OTP exercise date of sale.</p>
+    <p class="source" style="margin-top:1rem;">Source: IRAS Seller's Stamp Duty. Holding period measured from OTP exercise date of purchase to OTP exercise date of sale.</p>
   </div>
 
   <!-- TDSR / MSR / LTV -->
@@ -231,17 +247,17 @@
     <h2>TDSR, MSR &amp; LTV Rules</h2>
     <div class="rule-summary">MAS-mandated rules governing how much Singapore financial institutions may lend against residential property. Apply to all bank and finance company loans. HDB concessionary loans governed by HDB's own rules.</div>
 
-    <h3>TDSR — Total Debt Servicing Ratio</h3>
+    <h3>TDSR Total Debt Servicing Ratio</h3>
     <div class="rule-item"><span class="rule-key">Cap</span><span class="rule-val">55% of gross monthly income. All monthly debt obligations (mortgage, car, student, credit card) must total ≤55% of gross monthly income at the stress-test rate.</span></div>
     <div class="rule-item"><span class="rule-key">Stress test rate</span><span class="rule-val">4% per annum (MAS medium-term rate floor). Banks must assess TDSR using 4% regardless of actual prevailing rate.</span></div>
     <div class="rule-item"><span class="rule-key">Income haircuts</span><span class="rule-val">Variable income (commissions, bonuses, rental) typically haircut 30%. Foreign-sourced income: 30% haircut.</span></div>
     <div class="rule-item"><span class="rule-key">TDSR exemption</span><span class="rule-val">Owner-occupier refinancing (no cash-out) of an existing residential property loan is exempt from TDSR if the loan amount does not increase.</span></div>
 
-    <h3>MSR — Mortgage Servicing Ratio</h3>
+    <h3>MSR Mortgage Servicing Ratio</h3>
     <div class="rule-item"><span class="rule-key">Cap</span><span class="rule-val">30% of gross monthly income. Applies only to HDB flats and Executive Condominiums purchased from developers. Tighter than TDSR and usually the binding constraint.</span></div>
     <div class="rule-item"><span class="rule-key">Applies to</span><span class="rule-val">Bank loans for HDB and EC purchases. HDB concessionary loans have their own affordability rules but a similar instalment-to-income concept.</span></div>
 
-    <h3>LTV — Loan-to-Value Limits</h3>
+    <h3>LTV Loan-to-Value Limits</h3>
     <div class="table-wrap">
       <table>
         <thead><tr><th>Loan Scenario</th><th>Max LTV</th><th>Min Cash Down</th><th>Min Cash+CPF Down</th></tr></thead>
@@ -249,13 +265,13 @@
           <tr><td>1st property loan (no outstanding loans)</td><td>75%</td><td>5%</td><td>25%</td></tr>
           <tr><td>2nd property loan (1 outstanding)</td><td>55%</td><td>25%</td><td>45%</td></tr>
           <tr><td>3rd+ property loan (2+ outstanding)</td><td>45%</td><td>25%</td><td>55%</td></tr>
-          <tr><td>HDB concessionary loan</td><td>80%</td><td>—</td><td>20%</td></tr>
+          <tr><td>HDB concessionary loan</td><td>80%</td><td> </td><td>20%</td></tr>
         </tbody>
       </table>
     </div>
     <div class="rule-item"><span class="rule-key">Loan tenure</span><span class="rule-val">Max 30 years (private property bank loan); 25 years (HDB concessionary loan). Loan cannot extend past borrower's age 65 for HDB; 65–75 for private (bank-dependent).</span></div>
     <div class="rule-item"><span class="rule-key">Outstanding loan count</span><span class="rule-val">Counts all outstanding residential property loans worldwide in the borrower's name, including HDB loans, co-borrower positions, and guarantor obligations that are on-balance-sheet.</span></div>
-    <p class="source" style="margin-top:1rem;">Source: MAS Notice 632 (property loans); MAS Notice 645 (housing loans for individuals). HDB concessionary loan: HDB — Financial Matters.</p>
+    <p class="source" style="margin-top:1rem;">Source: MAS Notice 632 (property loans); MAS Notice 645 (housing loans for individuals). HDB concessionary loan: HDB Financial Matters.</p>
   </div>
 
   <!-- HDB -->
@@ -279,7 +295,7 @@
     <div class="rule-item"><span class="rule-key">15-month wait-out</span><span class="rule-val">Private property sellers (or transferors) must wait 15 months from legal transfer date before buying HDB resale flat. BTO application unaffected.</span></div>
     <div class="rule-item"><span class="rule-key">HDB resale levy</span><span class="rule-val">$15,000–$55,000 (based on sold flat type) payable when subsidised flat household buys second subsidised flat. Paid from CPF OA or cash.</span></div>
     <div class="rule-item"><span class="rule-key">Ethnic Integration Policy</span><span class="rule-val">Block and neighbourhood ethnic quotas. Seller cannot sell to buyer of same ethnicity if quota is reached. Affects resale liquidity in affected blocks.</span></div>
-    <p class="source" style="margin-top:1rem;">Source: HDB — Eligibility Conditions; Housing and Development Act (Cap. 129).</p>
+    <p class="source" style="margin-top:1rem;">Source: HDB Eligibility Conditions; Housing and Development Act (Cap. 129).</p>
   </div>
 
   <!-- CPF -->
@@ -296,13 +312,13 @@
     <h3>Accrued Interest &amp; Refund</h3>
     <div class="rule-item"><span class="rule-key">Accrued interest rate</span><span class="rule-val">2.5% per annum compounding on all CPF OA principal withdrawn for property.</span></div>
     <div class="rule-item"><span class="rule-key">Refund upon sale</span><span class="rule-val">Full CPF principal used + all accrued interest refunded to OA from sale proceeds. Automatic via conveyancer at legal completion.</span></div>
-    <div class="rule-item"><span class="rule-key">Insufficient proceeds</span><span class="rule-val">If sale proceeds are insufficient, only available net proceeds are refunded. Shortfall is not personally payable — it reduces CPF balance.</span></div>
+    <div class="rule-item"><span class="rule-key">Insufficient proceeds</span><span class="rule-val">If sale proceeds are insufficient, only available net proceeds are refunded. Shortfall is not personally payable it reduces CPF balance.</span></div>
 
     <h3>Retirement Sum Requirements (age 55+)</h3>
-    <div class="rule-item"><span class="rule-key">Full Retirement Sum (FRS) 2026</span><span class="rule-val">$213,000. Must be set aside in CPF Retirement Account before using OA for additional property after age 55.</span></div>
-    <div class="rule-item"><span class="rule-key">Basic Retirement Sum (BRS) 2026</span><span class="rule-val">$106,500. Minimum set-aside if property is pledged as retirement security.</span></div>
+    <div class="rule-item"><span class="rule-key">Full Retirement Sum (FRS) 2026</span><span class="rule-val">$220,400. Must be set aside in CPF Retirement Account before using OA for additional property after age 55.</span></div>
+    <div class="rule-item"><span class="rule-key">Basic Retirement Sum (BRS) 2026</span><span class="rule-val">$110,200. Minimum set-aside if property is pledged as retirement security.</span></div>
     <div class="rule-item"><span class="rule-key">OA interest rate</span><span class="rule-val">2.5% p.a. (base). Additional 1% on first $60,000 combined CPF balances (capped $20,000 from OA).</span></div>
-    <p class="source" style="margin-top:1rem;">Source: CPF Board — Housing Schemes; Central Provident Fund Act (Cap. 36). Retirement sums indexed annually; verify current year amounts at cpf.gov.sg.</p>
+    <p class="source" style="margin-top:1rem;">Source: CPF Board Housing Schemes; Central Provident Fund Act (Cap. 36). Retirement sums indexed annually; verify current year amounts at cpf.gov.sg.</p>
   </div>
 
   <!-- Foreign Ownership -->
@@ -320,22 +336,22 @@
     <div class="rule-item"><span class="rule-key">Landed (Sentosa Cove)</span><span class="rule-val">Permitted. 60% ABSD applies. SLA approval not required (Sentosa Cove is a designated residential enclave open to foreigners).</span></div>
     <div class="rule-item"><span class="rule-key">Commercial / industrial</span><span class="rule-val">Yes, freely. No ABSD on non-residential property.</span></div>
 
-    <h3>FTA Nationals — SC-Equivalent ABSD Rates</h3>
+    <h3>FTA Nationals SC-Equivalent ABSD Rates</h3>
     <div class="rule-item"><span class="rule-key">Qualifying countries</span><span class="rule-val">United States (US citizens); Switzerland (Swiss nationals); Norway (Norwegian nationals); Iceland (Icelandic nationals); Liechtenstein (Liechtenstein nationals).</span></div>
     <div class="rule-item"><span class="rule-key">Effective ABSD</span><span class="rule-val">0% on 1st property, 20% on 2nd, 30% on 3rd+. Same as SC rate card.</span></div>
-    <div class="rule-item"><span class="rule-key">Conditions</span><span class="rule-val">Personal name purchase only. Must be a national (citizen) of the qualifying country — not just a resident or PR. Entity purchase forfeits FTA benefit.</span></div>
+    <div class="rule-item"><span class="rule-key">Conditions</span><span class="rule-val">Personal name purchase only. Must be a national (citizen) of the qualifying country not just a resident or PR. Entity purchase forfeits FTA benefit.</span></div>
 
     <h3>Financing</h3>
     <div class="rule-item"><span class="rule-key">Bank loans</span><span class="rule-val">Available to foreigners from most Singapore banks. 30% income haircut on foreign-sourced income. LTV same as locals (75% first loan). Some banks restrict non-resident lending.</span></div>
     <div class="rule-item"><span class="rule-key">HDB loan</span><span class="rule-val">Not available to foreigners (no HDB purchase available).</span></div>
-    <p class="source" style="margin-top:1rem;">Source: Singapore Land Authority — Residential Property Act; MAS — Property Loan Guidelines.</p>
+    <p class="source" style="margin-top:1rem;">Source: Singapore Land Authority Residential Property Act; MAS Property Loan Guidelines.</p>
   </div>
 
   <!-- Property Tax -->
   <div class="rules-section" id="proptax-rules">
     <span class="tag tag-active">Active · Property Tax Act</span>
     <h2>Property Tax Rules</h2>
-    <div class="rule-summary">Property tax is an annual tax levied by IRAS on all property in Singapore, based on Annual Value (AV) — IRAS's assessment of the property's annual rental potential. Owner-occupiers receive lower rates than landlords and investors.</div>
+    <div class="rule-summary">Property tax is an annual tax levied by IRAS on all property in Singapore, based on Annual Value (AV) IRAS's assessment of the property's annual rental potential. Owner-occupiers receive lower rates than landlords and investors.</div>
 
     <h3>Rate Structure</h3>
     <div class="table-wrap">
@@ -356,13 +372,13 @@
     <div class="rule-item"><span class="rule-key">Payment</span><span class="rule-val">Payable annually by 31 January. IRAS issues bills in December for the following year. Payment by GIRO, PayNow, or AXS.</span></div>
     <div class="rule-item"><span class="rule-key">Non-OO rate (investment property)</span><span class="rule-val">Progressive from 12% to 20% for AV above $100,000. Revised January 2024 (previously 10%–20%). Materially increases holding cost for high-AV investment properties.</span></div>
     <div class="rule-item"><span class="rule-key">HDB flats</span><span class="rule-val">Lower AV typically; owner-occupier rates apply. Most HDB owners pay minimal property tax ($0–$500/year).</span></div>
-    <p class="source" style="margin-top:1rem;">Source: IRAS — Property Tax; Property Tax Act (Cap. 254). Non-OO progressive rate structure effective 1 January 2024.</p>
+    <p class="source" style="margin-top:1rem;">Source: IRAS Property Tax; Property Tax Act (Cap. 254). Non-OO progressive rate structure effective 1 January 2024.</p>
   </div>
 
   <!-- Cooling Measures -->
   <div class="rules-section" id="cooling-rules">
     <span class="tag tag-active">Active · Current as of May 2026</span>
-    <h2>Cooling Measures — Current Active Set</h2>
+    <h2>Cooling Measures Current Active Set</h2>
     <div class="rule-summary">Singapore's property cooling measures are a coordinated set of demand-side and supply-side tools managed by MND, MAS, and HDB. All measures below are currently active as of May 2026.</div>
 
     <h3>Demand-Side Measures</h3>

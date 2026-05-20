@@ -82,28 +82,45 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</a>
-      <div class="hidden lg:flex items-center gap-6">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/about">About</a>
-        <a class="nav-link" href="/data">Data</a>
-        <a class="nav-link" href="/faq">FAQ</a>
-        <a class="nav-link" href="/insights">Insights</a>
-        <a class="nav-link" href="/contact">Contact</a>
-        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/about">About</a>
-        <a class="nav-link" href="/faq">FAQ</a>
-        <a class="nav-link" href="/insights">Insights</a>
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
       </div>
     </div>
@@ -123,7 +140,7 @@
 <article class="max-w-4xl mx-auto px-6 pt-10 pb-24">
 
   <h2>The Core Trade-off in One Sentence</h2>
-  <p>Freehold costs 15–25% more at entry but holds its value indefinitely. Leasehold is cheaper to enter and typically yields higher on a gross basis — but lease decay becomes a material drag beyond the 60-year mark and imposes hard restrictions on CPF usage and bank financing as the lease shortens.</p>
+  <p>Freehold costs 15–25% more at entry but holds its value indefinitely. Leasehold is cheaper to enter and typically yields higher on a gross basis but lease decay becomes a material drag beyond the 60-year mark and imposes hard restrictions on CPF usage and bank financing as the lease shortens.</p>
 
   <h2>Side-by-Side Comparison Table</h2>
   <div class="table-wrap">
@@ -146,7 +163,7 @@
         </tr>
         <tr>
           <td><strong>Capital preservation (long-term)</strong></td>
-          <td>No theoretical ceiling — value tracks land and market. No lease decay drag.</td>
+          <td>No theoretical ceiling value tracks land and market. No lease decay drag.</td>
           <td>Stable for first 40–50 years. Accelerating decay below 60 years remaining. Sharp discount below 40 years.</td>
           <td class="win-fh">Freehold</td>
         </tr>
@@ -158,13 +175,13 @@
         </tr>
         <tr>
           <td><strong>CPF usage (standard)</strong></td>
-          <td>Full CPF OA usable — freehold covers buyer to age 95 by definition.</td>
+          <td>Full CPF OA usable freehold covers buyer to age 95 by definition.</td>
           <td>Full CPF OA usable if remaining lease covers youngest buyer to age 95. Restrictions begin when this threshold is not met.</td>
           <td class="win-fh">Freehold (no future restriction risk)</td>
         </tr>
         <tr>
           <td><strong>CPF usage (&lt;30 years remaining)</strong></td>
-          <td>N/A — freehold has no expiry.</td>
+          <td>N/A freehold has no expiry.</td>
           <td>CPF OA cannot be used if remaining lease is below 20 years. Severely restricted between 20–30 years. Materially impacts resale buyer pool.</td>
           <td class="win-fh">Freehold</td>
         </tr>
@@ -176,13 +193,13 @@
         </tr>
         <tr>
           <td><strong>En-bloc potential</strong></td>
-          <td>Often higher — freehold land is more valuable for developers. Owners have more negotiating power on reserve price.</td>
+          <td>Often higher freehold land is more valuable for developers. Owners have more negotiating power on reserve price.</td>
           <td>En-bloc still possible but developer pays less for depreciating leasehold land. Reserve price ceiling is lower.</td>
           <td class="win-fh">Freehold</td>
         </tr>
         <tr>
           <td><strong>Resale buyer pool</strong></td>
-          <td>No restrictions — all buyers (SC, PR, foreigner) eligible with no CPF or financing constraints from tenure.</td>
+          <td>No restrictions all buyers (SC, PR, foreigner) eligible with no CPF or financing constraints from tenure.</td>
           <td>Buyer pool narrows as lease shortens. CPF restrictions, bank financing limits, and psychological discount all reduce liquidity in later lease years.</td>
           <td class="win-fh">Freehold</td>
         </tr>
@@ -200,13 +217,13 @@
         </tr>
         <tr>
           <td><strong>Long-term hold (20+ years)</strong></td>
-          <td>Clear advantage — no lease drag, no CPF restriction risk, full bank financing for future buyers. Suitable for generational transfer.</td>
-          <td>A 99-year leasehold purchased today has ~73–80 years remaining in 2026. At 20+ year hold, the property will have 50–60 years remaining — approaching the zone where buyer pool begins narrowing.</td>
+          <td>Clear advantage no lease drag, no CPF restriction risk, full bank financing for future buyers. Suitable for generational transfer.</td>
+          <td>A 99-year leasehold purchased today has ~73–80 years remaining in 2026. At 20+ year hold, the property will have 50–60 years remaining approaching the zone where buyer pool begins narrowing.</td>
           <td class="win-fh">Freehold (for long holds)</td>
         </tr>
         <tr>
           <td><strong>Generational transfer</strong></td>
-          <td>Ideal. No lease expiry — children and grandchildren inherit a perpetual asset. No deterioration in financing or CPF terms over time.</td>
+          <td>Ideal. No lease expiry children and grandchildren inherit a perpetual asset. No deterioration in financing or CPF terms over time.</td>
           <td>Problematic for very long-term planning. A property with 40 years remaining when transferred to children will have severe financing and CPF restrictions for the next generation.</td>
           <td class="win-fh">Freehold</td>
         </tr>
@@ -215,7 +232,7 @@
   </div>
 
   <h2>The Lease Decay Problem: What Actually Happens</h2>
-  <p>Lease decay is not linear in its impact. A 99-year property losing its first 20 years of lease (from 99 to 79 remaining) barely moves the needle on value — the market discounts it minimally. The real impact accelerates at three distinct thresholds:</p>
+  <p>Lease decay is not linear in its impact. A 99-year property losing its first 20 years of lease (from 99 to 79 remaining) barely moves the needle on value the market discounts it minimally. The real impact accelerates at three distinct thresholds:</p>
 
   <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin:1.5rem 0;">
     <div class="decay-card">
@@ -235,19 +252,19 @@
     </div>
   </div>
 
-  <p>A buyer who purchases a 1990-built leasehold condo in 2026 (36 years old, ~63 years remaining) is already at Threshold 1. In 10 years, that property will have ~53 years remaining. In 20 years, ~43 years — into Threshold 2 territory. The buyer pool at that point will be materially smaller than at purchase.</p>
+  <p>A buyer who purchases a 1990-built leasehold condo in 2026 (36 years old, ~63 years remaining) is already at Threshold 1. In 10 years, that property will have ~53 years remaining. In 20 years, ~43 years into Threshold 2 territory. The buyer pool at that point will be materially smaller than at purchase.</p>
 
   <h2>The CPF Restriction in Detail</h2>
-  <p>CPF Board rules state that CPF OA funds can only be used for property purchase if the remaining lease covers the youngest buyer to age 95. For a 30-year-old buyer: remaining lease must be at least 65 years (95 − 30). For a 45-year-old: at least 50 years. If the remaining lease is shorter, CPF usage is pro-rated — calculated as (remaining lease) / (95 − age of youngest buyer) × valuation. Below 20 years remaining lease, CPF OA withdrawal is not permitted at all.</p>
+  <p>CPF Board rules state that CPF OA funds can only be used for property purchase if the remaining lease covers the youngest buyer to age 95. For a 30-year-old buyer: remaining lease must be at least 65 years (95 − 30). For a 45-year-old: at least 50 years. If the remaining lease is shorter, CPF usage is pro-rated calculated as (remaining lease) / (95 − age of youngest buyer) × valuation. Below 20 years remaining lease, CPF OA withdrawal is not permitted at all.</p>
 
   <p>This creates a compounding problem for short-lease leasehold owners who try to sell: their future buyer (who may be in their 30s or 40s) will have severely restricted or zero CPF access, forcing a cash purchase and dramatically shrinking the buyer pool and achievable price.</p>
 
   <h2>The Freehold Premium: Is It Worth Paying?</h2>
   <p>The 15–25% freehold premium is always worth modelling against your specific hold period. The framework:</p>
 
-  <p><strong>If your hold is under 10 years:</strong> The leasehold wins on yield and ROI. At 99 years less 10, you have 89 years remaining — no meaningful decay has occurred. The 15–25% premium paid for freehold will not be recovered through capital appreciation in a 10-year window unless the freehold location dramatically outperforms the market. Buy leasehold, hold for the medium term, exit cleanly.</p>
+  <p><strong>If your hold is under 10 years:</strong> The leasehold wins on yield and ROI. At 99 years less 10, you have 89 years remaining no meaningful decay has occurred. The 15–25% premium paid for freehold will not be recovered through capital appreciation in a 10-year window unless the freehold location dramatically outperforms the market. Buy leasehold, hold for the medium term, exit cleanly.</p>
 
-  <p><strong>If your hold is 15–25 years:</strong> The answer becomes location-dependent. A well-located leasehold in a proven district may still outperform a fringe-located freehold. But a like-for-like comparison of the same district — freehold vs 99-year — starts to favour freehold as the remaining lease of the leasehold begins approaching the 60-year threshold near the end of the hold.</p>
+  <p><strong>If your hold is 15–25 years:</strong> The answer becomes location-dependent. A well-located leasehold in a proven district may still outperform a fringe-located freehold. But a like-for-like comparison of the same district freehold vs 99-year starts to favour freehold as the remaining lease of the leasehold begins approaching the 60-year threshold near the end of the hold.</p>
 
   <p><strong>If your hold is 30+ years or generational:</strong> Freehold is correct almost unconditionally. The compounding disadvantage of lease decay, CPF restrictions, and buyer pool narrowing on a long-held leasehold makes freehold the structurally superior asset for preservation. The premium paid at entry is amortised over decades and becomes negligible relative to the avoided discount at exit.</p>
 
@@ -268,13 +285,13 @@
   <div class="profile-rec">
     <span class="rec-fh">Recommend: Freehold</span>
     <h3>Generational wealth transfer</h3>
-    <p>If the property is intended to be held across generations — for children or grandchildren — only freehold makes structural sense. A leasehold transferred to children in 30 years will have CPF restrictions and bank financing limitations that a freehold will never face. The premium paid today is insurance against future asset quality erosion.</p>
+    <p>If the property is intended to be held across generations for children or grandchildren only freehold makes structural sense. A leasehold transferred to children in 30 years will have CPF restrictions and bank financing limitations that a freehold will never face. The premium paid today is insurance against future asset quality erosion.</p>
   </div>
 
   <div class="profile-rec">
     <span class="rec-lh">Recommend: Leasehold (new 99-year)</span>
     <h3>HDB upgrader, first private property, typical owner-occupier horizon</h3>
-    <p>Most owner-occupiers live in their condo for 10–15 years before the next upgrade or downsize decision. A new 99-year leasehold purchased today has 85+ years remaining at a typical first exit — well above all CPF, bank, and decay thresholds. The freehold premium in this scenario is difficult to justify for an owner-occupier with a standard upgrade timeline.</p>
+    <p>Most owner-occupiers live in their condo for 10–15 years before the next upgrade or downsize decision. A new 99-year leasehold purchased today has 85+ years remaining at a typical first exit well above all CPF, bank, and decay thresholds. The freehold premium in this scenario is difficult to justify for an owner-occupier with a standard upgrade timeline.</p>
   </div>
 
   <div class="profile-rec">

@@ -79,28 +79,45 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="/" class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</a>
-      <div class="hidden lg:flex items-center gap-6">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/about">About</a>
-        <a class="nav-link" href="/data">Data</a>
-        <a class="nav-link" href="/faq">FAQ</a>
-        <a class="nav-link" href="/insights">Insights</a>
-        <a class="nav-link" href="/contact">Contact</a>
-        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
-        <a class="nav-link" href="/">Home</a>
-        <a class="nav-link" href="/about">About</a>
-        <a class="nav-link" href="/faq">FAQ</a>
-        <a class="nav-link" href="/insights">Insights</a>
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
       </div>
     </div>
@@ -112,7 +129,7 @@
   <div style="max-width:72rem;margin:0 auto;">
     <p class="section-label" style="margin-bottom:.5rem;"><a href="/compare/" style="color:var(--accent);">Compare</a></p>
     <h1 class="serif balance" style="font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:.75rem;">HDB vs Condo Singapore 2026: Complete Comparison</h1>
-    <p style="color:var(--ink-soft);max-width:60ch;margin-bottom:1rem;">Every dimension that matters to a Singapore property buyer — side by side. With Winfred's recommendation for each buyer profile.</p>
+    <p style="color:var(--ink-soft);max-width:60ch;margin-bottom:1rem;">Every dimension that matters to a Singapore property buyer side by side. With Winfred's recommendation for each buyer profile.</p>
     <p style="font-size:.85rem;color:var(--ink-muted);">By Winfred Quek · CEA R073319H · Updated May 2026</p>
   </div>
 </section>
@@ -222,32 +239,32 @@
 
   <h2>Narrative Analysis</h2>
 
-  <p><strong>On price:</strong> HDB resale flats in mature estates (Bishan, Toa Payoh, Queenstown) now routinely transact between $600K and $900K for 4-room and 5-room units. Mass-market private condos in the OCR start at $1M–$1.5M. The price gap exists — but it has narrowed significantly over the past decade. For the same quantum, an HDB buyer in a mature estate often gets more floor space than a comparable condo buyer in the same area.</p>
+  <p><strong>On price:</strong> HDB resale flats in mature estates (Bishan, Toa Payoh, Queenstown) now routinely transact between $600K and $900K for 4-room and 5-room units. Mass-market private condos in the OCR start at $1M–$1.5M. The price gap exists but it has narrowed significantly over the past decade. For the same quantum, an HDB buyer in a mature estate often gets more floor space than a comparable condo buyer in the same area.</p>
 
-  <p><strong>On ABSD:</strong> For a first-time SC buyer, HDB is ABSD-free on the purchase. The ABSD complexity begins at the upgrade stage — retaining the HDB while buying a condo triggers 20% ABSD on the condo. The 6-month matrimonial home remission is the most commonly used tool to avoid this, but it requires selling the HDB within 6 months of the condo's TOP. For investors already owning a condo, ABSD on a second condo is 20%; on a third property it is 30% — the same math regardless of whether the first property is HDB or condo.</p>
+  <p><strong>On ABSD:</strong> For a first-time SC buyer, HDB is ABSD-free on the purchase. The ABSD complexity begins at the upgrade stage retaining the HDB while buying a condo triggers 20% ABSD on the condo. The 6-month matrimonial home remission is the most commonly used tool to avoid this, but it requires selling the HDB within 6 months of the condo's TOP. For investors already owning a condo, ABSD on a second condo is 20%; on a third property it is 30% the same math regardless of whether the first property is HDB or condo.</p>
 
-  <p><strong>On capital appreciation:</strong> Well-located HDB flats in mature estates have appreciated significantly. Bishan 5-roomers that transacted at $400K in 2010 now sell at $800K+. But lease decay becomes material below 60 years, bank financing gets harder below 40 years, and CPF restrictions tighten as remaining lease falls. Private condos — especially freehold or well-located 99-year — have less of this structural ceiling. For a 30-year investment horizon, private is generally the safer capital-preservation bet.</p>
+  <p><strong>On capital appreciation:</strong> Well-located HDB flats in mature estates have appreciated significantly. Bishan 5-roomers that transacted at $400K in 2010 now sell at $800K+. But lease decay becomes material below 60 years, bank financing gets harder below 40 years, and CPF restrictions tighten as remaining lease falls. Private condos especially freehold or well-located 99-year have less of this structural ceiling. For a 30-year investment horizon, private is generally the safer capital-preservation bet.</p>
 
-  <p><strong>On cashflow:</strong> HDB wins on monthly outgoings. Lower maintenance, lower property tax, lower mortgage rate (HDB loan), and higher LTV on first purchase. A $600K HDB on HDB loan at 2.6% over 25 years costs approximately $2,700/month. A $1.5M condo at 3.5% bank rate over 30 years costs approximately $6,700/month. The cashflow gap is real — and it is one of the two or three most important inputs into any upgrade decision.</p>
+  <p><strong>On cashflow:</strong> HDB wins on monthly outgoings. Lower maintenance, lower property tax, lower mortgage rate (HDB loan), and higher LTV on first purchase. A $600K HDB on HDB loan at 2.6% over 25 years costs approximately $2,700/month. A $1.5M condo at 3.5% bank rate over 30 years costs approximately $6,700/month. The cashflow gap is real and it is one of the two or three most important inputs into any upgrade decision.</p>
 
   <h2>Winfred's Recommendation by Buyer Profile</h2>
 
   <div class="profile-rec">
     <span class="rec-hdb">Recommend: HDB</span>
     <h3>Young couples buying their first home</h3>
-    <p>BTO or resale HDB. Lower entry cost, HDB loan option, grants available, no ABSD. The HDB is the base from which the upgrade strategy is built. Buy well — location and flat type determine how cleanly you can exit at MOP.</p>
+    <p>BTO or resale HDB. Lower entry cost, HDB loan option, grants available, no ABSD. The HDB is the base from which the upgrade strategy is built. Buy well location and flat type determine how cleanly you can exit at MOP.</p>
   </div>
 
   <div class="profile-rec">
     <span class="rec-condo">Recommend: Condo</span>
     <h3>HDB owners post-MOP considering upgrade</h3>
-    <p>Run the upgrade math. For most families with household income $8K–$15K and one HDB, the upgrade to a condo is viable — either sell-first (cleanest, avoids ABSD) or retain HDB and trigger remission at condo TOP. Condo wins on long-term appreciation and exit flexibility.</p>
+    <p>Run the upgrade math. For most families with household income $8K–$15K and one HDB, the upgrade to a condo is viable either sell-first (cleanest, avoids ABSD) or retain HDB and trigger remission at condo TOP. Condo wins on long-term appreciation and exit flexibility.</p>
   </div>
 
   <div class="profile-rec">
     <span class="rec-condo">Recommend: Condo (investment)</span>
     <h3>Property investors building a portfolio</h3>
-    <p>Once an HDB is in the portfolio, the second purchase should be private — broader resale market, foreign buyer eligible, no MOP constraints on rental. ABSD at 20% (SC second property) must be absorbed into the investment case. If the yield and capital appreciation math work post-ABSD, proceed.</p>
+    <p>Once an HDB is in the portfolio, the second purchase should be private broader resale market, foreign buyer eligible, no MOP constraints on rental. ABSD at 20% (SC second property) must be absorbed into the investment case. If the yield and capital appreciation math work post-ABSD, proceed.</p>
   </div>
 
   <div class="profile-rec">
@@ -259,12 +276,12 @@
   <div class="profile-rec">
     <span class="rec-condo">Recommend: Condo</span>
     <h3>Foreign buyers and PR-only households</h3>
-    <p>Not eligible for HDB. Private condo is the only option. Run the ABSD and yield analysis carefully — at 60% ABSD for foreigners, the long-term capital case must be very strong. US/Swiss/Norwegian/Icelandic/Liechtenstein nationals should verify their FTA eligibility before purchase.</p>
+    <p>Not eligible for HDB. Private condo is the only option. Run the ABSD and yield analysis carefully at 60% ABSD for foreigners, the long-term capital case must be very strong. US/Swiss/Norwegian/Icelandic/Liechtenstein nationals should verify their FTA eligibility before purchase.</p>
   </div>
 
   <div style="background:rgba(198,163,106,0.08);border:1px solid rgba(198,163,106,0.3);border-radius:12px;padding:2rem;text-align:center;margin:3rem 0;">
     <p class="section-label" style="margin-bottom:.5rem;">FREE · 30 MINUTES · NO COMMITMENT</p>
-    <p class="serif" style="font-size:1.35rem;font-weight:600;color:var(--ink);margin-bottom:.75rem;">HDB or condo — run your specific numbers with Winfred</p>
+    <p class="serif" style="font-size:1.35rem;font-weight:600;color:var(--ink);margin-bottom:.75rem;">HDB or condo run your specific numbers with Winfred</p>
     <p style="color:var(--ink-soft);font-size:.9rem;max-width:52ch;margin:0 auto 1.5rem;">The comparison table is the framework. Your income, CPF, existing property, and timeline determine which path is right. Winfred does the full analysis in 30 minutes.</p>
     <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;">
       <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--ink);color:var(--bg);padding:.9rem 2rem;border-radius:4px;font-weight:500;text-decoration:none;">Book a free 30-min call</a>

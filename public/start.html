@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Start your strategy track · Winfred Quek</title>
-<meta name="description" content="Pick your Singapore property strategy track ,  Empire, Equity, or Reinvest. 10 free emails over 14 days. By Winfred Quek (CEA R073319H, Crestbrick).">
+<meta name="description" content="Pick your Singapore property strategy track: Empire, Equity, or Reinvest. 10 free emails over 14 days. By Winfred Quek (CEA R073319H, Crestbrick).">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link rel="canonical" href="https://winfredquek.com/start">
 <meta property="og:title" content="Pick your SG property strategy track">
@@ -73,7 +73,7 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
     <label class="track" data-track="equity">
       <input type="radio" name="track" value="equity" required>
       <h3>Equity</h3>
-      <p>Pulling trapped equity out of your current property ,  safely.</p>
+      <p>Pulling trapped equity out of your current property, safely.</p>
       <div class="meta">For HDB upgraders · 10 emails</div>
     </label>
     <label class="track" data-track="reinvest">
@@ -139,9 +139,9 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
     });
   });
 
-  // Pre-fill track from URL ?t=empire
+  // Pre-fill track from URL — accept ?track= (Instagram DM Catcher links) or ?t=
   const params = new URLSearchParams(location.search);
-  const preselect = params.get('t');
+  const preselect = params.get('track') || params.get('t');
   if (preselect && ['empire','equity','reinvest'].includes(preselect)) {
     const card = document.querySelector(`.track[data-track="${preselect}"]`);
     if (card) {
@@ -190,7 +190,7 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
         btn.disabled = false; btn.textContent = 'Start the track';
       }
     } catch (err) {
-      setMsg('Network error ,  try again.', 'err');
+      setMsg('Network error. Please try again.', 'err');
       btn.disabled = false; btn.textContent = 'Start the track';
     }
   });
