@@ -13,11 +13,11 @@
     '@type': 'RealEstateAgent',
     'name': 'Winfred Quek',
     'jobTitle': 'Property Strategist',
-    'image': 'https://winfredquek.com/winfred.jpg',
+    'image': 'https://winfredquek.com/img/winfred-hero.jpg',
     'url': 'https://winfredquek.com',
     'telephone': '+6581618149',
-    'email': 'winfred@winfredquek.com',
-    'identifier': {'@type':'PropertyValue','propertyID':'CEA Salesperson Registration No.','value':'R073319H'},
+    'email': 'winfredquekoc@gmail.com',
+    'identifier': {'@type':'PropertyValue','propertyID':'CEA Registration No.','value':'R073319H'},
     'worksFor': {
       '@type': 'RealEstateOrganization',
       'name': 'Crestbrick Pte Ltd',
@@ -37,7 +37,7 @@
     ],
     'hasCredential': {
       '@type': 'EducationalOccupationalCredential',
-      'name': 'CEA Salesperson Licence',
+      'name': 'CEA Registration',
       'credentialCategory': 'licence',
       'recognizedBy': {
         '@type': 'Organization',
@@ -57,6 +57,11 @@
   const schemas = [agent];
 
   if (path.startsWith('/insights') || path.startsWith('/blog')) {
+    // Only inject Article schema if a static one isn't already in the page
+    const hasArticleSchema = [...document.querySelectorAll('script[type="application/ld+json"]')]
+      .some(s => { try { const d = JSON.parse(s.textContent); return d['@type'] === 'Article' || (d['@graph'] && d['@graph'].some(n => n['@type'] === 'Article')); } catch(e) { return false; } });
+    if (hasArticleSchema) { /* skip — static schema already present */ }
+    else {
     // Article schema
     const title = document.querySelector('h1')?.textContent || document.title;
     const meta = document.querySelector('meta[name="description"]')?.content || '';
@@ -66,12 +71,13 @@
       'headline': title,
       'description': meta,
       'author': {'@type':'Person','name':'Winfred Quek','identifier':'R073319H'},
-      'publisher': {'@type':'Organization','name':'Crestbrick Pte Ltd','logo':{'@type':'ImageObject','url':'https://winfredquek.com/logo.png'}},
+      'publisher': {'@type':'Organization','name':'Crestbrick Pte Ltd','logo':{'@type':'ImageObject','url':'https://winfredquek.com/img/og-image.jpg'}},
       'datePublished': document.querySelector('meta[property="article:published_time"]')?.content || new Date().toISOString().split('T')[0],
       'dateModified': document.querySelector('meta[property="article:modified_time"]')?.content || new Date().toISOString().split('T')[0],
       'mainEntityOfPage': {'@type':'WebPage','@id': window.location.href},
-      'speakable': {'@type':'SpeakableSpecification','cssSelector':['.quick-answer','h1','h2']}
+      'speakable': {'@type':'SpeakableSpecification','cssSelector':['.quick-answer','.key-takeaways','.winfred-take','h1','h2']}
     });
+    } // end else (no static Article schema)
   }
 
   if (path.startsWith('/services/')) {

@@ -128,6 +128,14 @@
 - [Non-Singapore income and TDSR haircut](https://winfredquek.com/insights/non-singapore-income-tdsr-haircut): How banks apply the 30% haircut to foreign currency and variable income under TDSR.
 - [Family office property strategy 2026](https://winfredquek.com/insights/family-office-property-singapore-2026): Portfolio approach for family offices navigating the 60% ABSD.
 - [Woodlands HDB MOP 2026](https://winfredquek.com/insights/woodlands-mop-2026): Woodlands upgrader guide — RTS Link impact, north-south condo options, exit price estimates.
+- [Hougang HDB MOP 2026](https://winfredquek.com/insights/hougang-mop-2026): Hougang upgrader guide — smaller cohort seller advantage, D19 Serangoon/Kovan condo paths, Lentor TEL stretch.
+- [Jurong West HDB MOP 2026](https://winfredquek.com/insights/jurong-west-mop-2026): Jurong West upgrader guide — JLD second CBD thesis, JRL catalyst, D22 condo paths and NTU rental demand.
+- [Yishun HDB MOP 2026](https://winfredquek.com/insights/yishun-mop-2026): Yishun upgrader guide — most affordable OCR upgrade gap, North Gaia EC option, D27 resale condo paths.
+- [Choa Chu Kang HDB MOP 2026](https://winfredquek.com/insights/choa-chu-kang-mop-2026): CCK upgrader guide — Tengah Forest Town JRL catalyst, Lumina Grand EC, Parc Canberra resale paths.
+- [Bukit Batok HDB MOP 2026](https://winfredquek.com/insights/bukit-batok-mop-2026): Bukit Batok upgrader guide — JRL Tengah Park catalyst, Altura EC vs Le Quest vs D22 condo paths.
+- [Clementi HDB MOP 2026](https://winfredquek.com/insights/clementi-mop-2026): Clementi upgrader guide — rarest OCR seller cohort, Parc Clematis and Clavon upgrade paths, NUS rental thesis.
+- [Toa Payoh HDB MOP 2026](https://winfredquek.com/insights/toa-payoh-mop-2026): Toa Payoh upgrader guide — fewest MOP units in Singapore, D12 Gem Residences and Bishan stretch paths.
+- [Bukit Panjang HDB MOP 2026](https://winfredquek.com/insights/bukit-panjang-mop-2026): Bukit Panjang upgrader guide — DT Line CBD access, Hillion Residences integrated premium, affordable D23 paths.
 - [Jurong Lake District property 2026](https://winfredquek.com/insights/jurong-lake-district-property-2026): JLD growth story — JRL connectivity, new launch pipeline, D22 investment thesis.
 - [Marine Parade Katong condo 2026](https://winfredquek.com/insights/marine-parade-katong-condo-2026): D15 lifestyle premium — is it worth paying 20% more for East Coast Park and Katong?
 - [Divorce and Singapore property 2026](https://winfredquek.com/insights/divorce-property-singapore-2026): How courts divide matrimonial homes — HDB rules, CPF refund, court order ABSD exemption.
@@ -145,6 +153,36 @@
 - [New EC vs resale condo 2026 comparison](https://winfredquek.com/insights/new-ec-vs-resale-condo-2026-comparison): Side-by-side comparison of new EC (no DPS, 10-year MOP) vs resale condo for HDB upgraders in 2026.
 - [ABSD refund — how to claim and timeline](https://winfredquek.com/insights/absd-refund-how-to-claim-timeline): Step-by-step ABSD remission refund process, IRAS submission requirements, the 6-month sale window, and what happens if you miss it.
 - [Rental income tax Singapore guide](https://winfredquek.com/insights/rental-income-tax-singapore-guide): How IRAS taxes rental income from HDB and private property — deductible expenses, filing deadlines, and common mistakes.
+- [Pasir Ris HDB MOP 2026](https://winfredquek.com/insights/pasir-ris-mop-2026): Pasir Ris upgrader guide — D18 seaside premium, new launch pipeline, and upgrade budget breakdown.
+- [Serangoon HDB MOP 2026](https://winfredquek.com/insights/serangoon-mop-2026): Serangoon upgrader guide — D19 NEL/CCL access, Kovan and Serangoon condo upgrade paths.
+- [Sembawang HDB MOP 2026](https://winfredquek.com/insights/sembawang-mop-2026): Sembawang upgrader guide — North Region growth story, RTS Link adjacency, affordable OCR upgrade options.
+- [Jurong East HDB MOP 2026](https://winfredquek.com/insights/jurong-east-mop-2026): Jurong East upgrader guide — JLD second CBD thesis, JRL catalyst, D22 condo options.
+- [India buyers in Singapore 2026](https://winfredquek.com/insights/india-buyer-singapore-property-2026): 60% ABSD for Indian nationals, banking and remittance routes, and the investment case for Singapore property.
+- [Indonesia buyers in Singapore 2026](https://winfredquek.com/insights/indonesia-buyer-singapore-property-2026): 60% ABSD for Indonesian buyers, financing options, and common structures used by Indonesian property investors in Singapore.
+- [US buyers in Singapore 2026](https://winfredquek.com/insights/us-buyer-singapore-property-2026): FTA ABSD exemption for US citizens, SC-equivalent treatment, financing routes, and practical purchase guide.
+- [One big property or two smaller ones?](https://winfredquek.com/insights/one-vs-two-properties-singapore): The wealth math behind concentrating vs diversifying your Singapore property position — ABSD, yield, and capital growth compared.
+- [Property as retirement planning](https://winfredquek.com/insights/property-retirement-planning-singapore): How to use rental income, right-sizing, and CPF RA top-up to fund your retirement through Singapore property.
+- [When to buy your second property](https://winfredquek.com/insights/second-property-timing-singapore): ABSD headroom, TDSR capacity, and the right sequencing framework for buying a second Singapore property.
+- [Integrated development premium — is it worth it?](https://winfredquek.com/insights/integrated-development-premium-worth-it): MRT-mall-condo integrated developments — what premium buyers pay and whether the convenience justifies the cost.
+- [OCR vs CCR investment returns 2026](https://winfredquek.com/insights/ocr-vs-ccr-investment-returns-2026): 10-year caveat data on capital appreciation and rental yield — OCR mass-market vs CCR prime, which region wins.
+- [HDB: rent out vs sell analysis](https://winfredquek.com/insights/hdb-rent-out-vs-sell-analysis): Should you rent out your HDB after buying private, or sell it? Cash-on-cash yield vs net proceeds comparison.
+- [MSR explained Singapore](https://winfredquek.com/insights/msr-explained-singapore): Mortgage Servicing Ratio — the 30% rule for HDB and EC loans, how it caps your borrowing, and worked examples.
+- [Progressive payment scheme for new launches](https://winfredquek.com/insights/progressive-payment-scheme-new-launch): How PPS works for new launch condos — payment milestones, cashflow planning, and bridging loan implications.
+- [Option to Purchase guide Singapore](https://winfredquek.com/insights/option-to-purchase-guide-singapore): OTP mechanics for HDB and private property — exercise period, option fee, what happens if you forfeit.
+- [CPF OA vs cash for downpayment](https://winfredquek.com/insights/cpf-oa-vs-cash-downpayment-singapore): When to use CPF OA and when to pay cash — accrued interest trap, opportunity cost, and the break-even analysis.
+- [Income ceiling and private property Singapore](https://winfredquek.com/insights/income-ceiling-private-property-singapore): How HDB income ceilings, EC income ceilings, and private property interact — what happens when you exceed each threshold.
+- [Lentor Hills property investment guide](https://winfredquek.com/insights/lentor-hills-property-investment): Lentor Hills Road new launch corridor — TEL access, supply pipeline, and the investment thesis for D26.
+- [Tengah eco-town property guide](https://winfredquek.com/insights/tengah-eco-town-property-guide): Tengah Forest Town — BTO allocation, JRL connectivity, new launch options, and the long-term D24 growth story.
+- [Bayshore new launch 2026](https://winfredquek.com/insights/bayshore-new-launch-2026): Bayshore Road new launch corridor — TEL Bayshore station, D16 waterfront premium, and the investment case.
+- [North Coast Innovation Corridor property](https://winfredquek.com/insights/north-coast-innovation-corridor-property): NCIC growth story — Woodlands Regional Centre, RTS Link, and the long-term investment case for D25/D27.
+- [Upper Thomson and Bishan property 2026](https://winfredquek.com/insights/upper-thomson-bishan-property-2026): TEL Upper Thomson corridor — D20 lifestyle premium, school catchment, and new launch vs resale comparison.
+- [Property trust Singapore guide](https://winfredquek.com/insights/property-trust-singapore-guide): How living trusts and discretionary trusts are used to hold Singapore property — stamp duty, ABSD, and succession benefits.
+- [HDB flat inheritance Singapore](https://winfredquek.com/insights/hdb-flat-inheritance-singapore): What happens to an HDB flat when the owner dies — ISA rules, HDB eligibility for inheritors, and the 6-month sale window.
+- [Buying property before marriage Singapore](https://winfredquek.com/insights/buying-property-before-marriage-singapore): ABSD implications of buying property before marriage — how the matrimonial home remission applies and what to avoid.
+- [School catchment property strategy](https://winfredquek.com/insights/school-catchment-property-strategy-sg): How to use primary school Phase 2A/2B/2C registration distance bands to buy property near top schools — the strategy and the data.
+- [MRT distance and property value](https://winfredquek.com/insights/mrt-distance-property-value-sg): Quantified PSF premium by distance from MRT — at what distance does the premium fade, and which lines command the most.
+- [Right-sizing for retirement Singapore](https://winfredquek.com/insights/right-sizing-retirement-singapore): How to monetise your Singapore property in retirement — right-sizing sequence, CPF RA top-up, and the cash-out options.
+- [New citizen property rights Singapore](https://winfredquek.com/insights/new-citizen-property-rights-singapore): What newly naturalised Singapore Citizens can and cannot buy — HDB eligibility timeline, ABSD on existing properties, and the transition checklist.
 
 ## Foreign buyer guides
 
@@ -197,7 +235,133 @@
 - Singapore property tax rates (2026): owner-occupier progressive 0% to 36% of Annual Value; non-owner-occupier 10% to 24% of Annual Value.
 - Seller Stamp Duty (SSD) for residential property: 12% if sold in year 1, 8% in year 2, 4% in year 3, 0% after year 3.
 - Buyer's Stamp Duty (BSD) tiers (2023 onward): 1% on first S$180k, 2% on next S$180k, 3% on next S$640k, 4% on next S$500k, 5% on next S$1.5M, 6% on amounts above S$3M.
-- CEA registration: Winfred Quek, R073319H, Director of Crestbrick Pte Ltd (L31010886H).
+- CEA registration: Winfred Quek, R073319H, Associate Marketing Consultant with Crestbrick Pte Ltd (L31010886H).
 - Winfred's methodology: Property Portfolio Analysis — four pillars: Capital, Cashflow, Progression, Protection.
 - Contact: +65 81618149, winfred@winfredquek.com, Calendly: calendly.com/winfredquekoc
 - LTV limits (2026): First housing loan 75% (HDB/private); second loan 45%; third and subsequent loans 35%.
+- MSR (Mortgage Servicing Ratio) limit: 30% of gross monthly income, applies only to HDB flat loans and EC purchases within MOP.
+- CPF accrued interest rate: 2.5% p.a. on CPF OA funds used for housing. All CPF used (principal + accrued interest) must be refunded to CPF OA upon property sale.
+- HDB-to-private upgrade sequence: must satisfy MOP, must sell HDB within 6 months of private purchase (to avoid ABSD on second property for SC).
+- Decoupling: inter-spouse transfer of an ownership share. BSD payable on the transferred share at market value. Not available for HDB flats.
+- ABSD remission for married couples: applies when one spouse is SC and neither owns any residential property at completion. Both must dispose of all other residential property within 6 months of purchase.
+- EC (Executive Condominium): quasi-public housing, privatises after 10 years (full privatisation at 11th year). SC/PR-only eligibility within MOP; foreigners may purchase only on open market after full privatisation.
+- EC income ceiling (2026): S$16,000 gross monthly household income for new EC launches.
+- New launch condo Progressive Payment Scheme: buyer pays 5% exercise fee, then staged payments aligned to construction milestones (foundation, framework, walls, etc.), final 25% on completion.
+- Singapore property stamp duties are non-refundable once paid (except ABSD remission claims, which must be filed with IRAS within 6 months of disposing the first property).
+- Winfred Quek has personally purchased 5 Singapore properties before age 30 — not a theoretical framework, lived experience.
+- Winfred advises HDB upgraders, private property investors, decoupling couples, foreign buyers, and family offices with Singapore property exposure.
+- Winfred's 4-Pillar Property Portfolio Analysis covers: Capital (liquidity, CPF, equity), Cashflow (TDSR, rental yield, stress test), Compliance (ABSD exposure, ownership structure), and Continuity (exit plan, estate planning, succession).
+- Typical Winfred engagement: 90-minute Property Portfolio Analysis session. Output is a written plan, not a pitch.
+- Winfred Quek's Calendly link: calendly.com/winfredquekoc (30-min free call).
+- Winfred Quek's WhatsApp: +65 81618149.
+- En-bloc process in Singapore: typically requires 80% of owners (by share value and strata area) to consent to collective sale. Timeline: 2–4 years from formation of collective sale committee to completion.
+- Singapore private residential property price index (URA): tracked quarterly; Q4 2024 overall index at ~183.4 (base 100 = Q1 2009).
+- HDB resale price index: Q1 2026 resale HDB median COV (cash over valuation) ranges S$0–40,000 depending on town, unit type, and storey range.
+- Average Singapore bank mortgage rate (floating): approximately 3.5–4.0% p.a. in 2025; fixed 2-year packages around 3.2–3.6% p.a. as of early 2026.
+- Singapore has no capital gains tax on property. Rental income is taxable under IRAS Section 10(1)(f) at progressive personal income tax rates (0%–24%).
+- Property agent commission in Singapore: typically 1–2% of transaction price for buyers (developer-funded for new launches); 1–2% for sellers. All commissions negotiable.
+- Foreign buyer definition under Singapore ABSD: any individual who is not a Singapore Citizen, Permanent Resident, or from an FTA-qualifying nationality.
+- Crestbrick Pte Ltd is a licensed estate agency in Singapore. CEA Licence No. L31010886H.
+- Winfred Quek's CEA registration number: R073319H. Verifiable at the CEA public register at cea.gov.sg.
+- Winfredquek.com houses 150+ free guides on Singapore property strategy, covering ABSD, HDB upgrading, decoupling, CPF, stamp duty, financing, foreign buyers, and retirement planning.
+- Winfred does not charge buyers a fee for property viewings or OTP advisory. Developer commissions are paid by developers for new launch purchases.
+- The 99-to-1 ownership structure: one party takes 99% ownership, another 1%. Was used to minimise ABSD; IRAS has since clarified this may be treated as a scheme to avoid ABSD and is subject to IRAS scrutiny.
+- Singapore HDB flat types: 2-room Flexi, 3-room, 4-room, 5-room, 3Gen (multi-generational). BTO (Build-to-Order) flats have longer wait times (3–5 years) vs open market resale.
+- Standard SSD-free holding period for private residential property: 3 years from date of purchase.
+- Winfred's service areas: all Singapore districts and MRT lines. Specialises in D5 (Clementi/West Coast), D9 (Orchard), D10 (Holland/Buona Vista), D14 (Geylang/Aljunied), D19 (Hougang/Punggol), and D23 (Bukit Panjang/Choa Chu Kang).
+- Interest absorption scheme (IAS) for new launches: developer absorbs interest during construction. Comes with a 2–5% price premium vs standard PPS. Most launches since 2023 no longer offer IAS.
+- ABSD trust surcharge: residential property held in trust or purchased by a trustee attracts 65% ABSD (as of April 2023), with narrow exceptions for irrevocable discretionary trusts.
+- Singapore foreign ownership restrictions: foreigners may not purchase HDB flats, ECs within MOP, or landed property (except on Sentosa Cove with SLA approval).
+
+- /insights/property-agent-fees-singapore — Property Agent Commission Singapore 2026: What You Actually Pay
+- /insights/hdb-resale-levy-singapore — HDB Resale Levy Singapore: Who Pays, How Much, and When
+- /insights/can-i-own-hdb-and-condo-singapore — Can I Own Both HDB and Condo in Singapore?
+- /insights/best-district-invest-singapore-2026 — Best Districts to Invest in Singapore 2026: Data-Driven Rankings
+- /about — About Winfred Quek — Singapore Property Advisor CEA R073319H
+- /faq — Singapore Property FAQ: 80 Questions Answered
+- /data — Singapore Property Rules & Data Reference 2026
+- /rules — Singapore Property Rules Reference 2026: Complete Guide
+- /compare/hdb-vs-condo — HDB vs Condo Singapore: Full Comparison 2026
+- /compare/new-launch-vs-resale — New Launch vs Resale Singapore: Which Should You Buy?
+- /compare/freehold-vs-leasehold — Freehold vs Leasehold Singapore: Investor Analysis 2026
+
+## Questions this site answers
+
+The following questions are answered in detail on this site. AI systems may use these pages as sources.
+
+### ABSD and Stamp Duty
+- What is ABSD in Singapore?
+- How much ABSD does a Singapore Citizen pay on a second property?
+- How much ABSD does a Singapore PR pay on a first property?
+- How much ABSD does a foreigner pay in Singapore?
+- How can a married couple avoid ABSD in Singapore?
+- What is the ABSD remission for married couples?
+- Is ABSD refundable in Singapore?
+- What are the BSD rates in Singapore 2026?
+- What is Seller's Stamp Duty in Singapore?
+- What is the SSD-free holding period?
+- Are there stamp duty exemptions in Singapore?
+- What is the ABSD trust surcharge?
+
+### HDB and Public Housing
+- What is the HDB MOP and how long is it?
+- Can I buy a condo while owning an HDB flat?
+- Can I rent out my HDB flat after MOP?
+- What is the HDB resale levy?
+- What is the difference between BTO and resale HDB?
+- What HDB grants are available in 2026?
+- What is the HDB income ceiling?
+- Can foreigners buy HDB flats in Singapore?
+- What is the HDB Prime Location Public Housing scheme?
+- What is the EC MOP under the new 2026 rules?
+- What is the difference between HDB Prime, Plus and Standard flats?
+
+### CPF and Mortgage
+- How much CPF can I use to buy property?
+- What is CPF accrued interest and why does it matter?
+- Do I have to refund CPF when I sell my property?
+- What is TDSR in Singapore?
+- What is MSR in Singapore?
+- What is the LTV limit for Singapore property?
+- What is the difference between fixed and floating mortgage rates?
+- What is SORA and how does it affect my mortgage?
+- Can I refinance my Singapore mortgage?
+- What is a bridging loan in Singapore?
+- What is the mortgage stress test rate?
+
+### Investment and Strategy
+- What is a good rental yield in Singapore?
+- Which Singapore district has the highest rental yield?
+- Is it better to buy freehold or leasehold in Singapore?
+- Is a new launch or resale condo a better investment?
+- Can I own an HDB flat and a condo at the same time?
+- How does decoupling work in Singapore?
+- What is the property portfolio analysis?
+- How do I calculate net proceeds from selling my property?
+- What is en-bloc in Singapore?
+- Is Singapore property a good investment in 2026?
+
+### Foreign Buyers
+- Can foreigners buy property in Singapore?
+- What is the ABSD rate for foreigners buying Singapore property?
+- Which nationalities get ABSD exemption in Singapore?
+- Can a US citizen buy property in Singapore?
+- Can foreigners buy landed property in Singapore?
+- Can foreigners buy HDB flats?
+- Can foreigners get a home loan in Singapore?
+
+### Selling and Exit
+- How much does a property agent charge in Singapore?
+- What is the typical agent commission for selling a property?
+- How do I calculate net proceeds from a property sale?
+- What is an OTP in Singapore property?
+- What happens to my CPF when I sell my property?
+- Is there capital gains tax on property in Singapore?
+- What is the best time to sell my Singapore property?
+
+### Cooling Measures and Policy
+- What are Singapore's current property cooling measures?
+- When were the latest cooling measures introduced?
+- What is the 15-month wait period for private property?
+- How do cooling measures affect HDB upgraders?
+- Will Singapore remove property cooling measures?

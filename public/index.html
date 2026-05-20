@@ -5,15 +5,15 @@
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Singapore Property Advisor | Winfred Quek CEA R073319H</title>
-  <meta name="description" content="Singapore property investor advisor: portfolio-first approach, 9 years, 5 properties before 30, and the Property Portfolio Analysis methodology. CEA R073319H." />
+  <meta name="description" content="Singapore property advisor: portfolio-first approach, 9 years, 5 properties before 30, and the Property Portfolio Analysis methodology. CEA R073319H." />
 
   <meta property="og:title" content="Winfred Quek, Investor-minded property advisor" />
   <meta property="og:description" content="Your next move deserves more than a good agent. Book a 30-min strategy call, zero commitment." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="/img/og-image.jpg" />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
   <link rel="canonical" href="https://winfredquek.com/" />
 
   <link rel="preload" as="image" href="/img/winfred-hero.jpg?v=3" />
@@ -129,6 +129,14 @@
         "url": "https://winfredquek.com/",
         "name": "Winfred Quek, Crestbrick",
         "publisher": { "@id": "https://winfredquek.com/#agent" }
+      },
+      {
+        "@type": "LocalBusiness",
+        "@id": "https://winfredquek.com/#crestbrick",
+        "name": "Crestbrick Pte Ltd",
+        "description": "Property investment advisory for Singapore HDB upgraders and private property investors",
+        "url": "https://winfredquek.com",
+        "areaServed": { "@type": "Country", "name": "Singapore" }
       }
     ]
   }
@@ -256,47 +264,7 @@
   <link rel="stylesheet" href="/motion.css">
   <script defer src="/motion.js"></script>
 
-  <!-- JSON-LD: Person + LocalBusiness (Crestbrick entity confirmation) -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "Person",
-        "@id": "https://winfredquek.com/#winfred",
-        "name": "Winfred Quek",
-        "jobTitle": "Property Investment Advisor",
-        "identifier": {
-          "@type": "PropertyValue",
-          "name": "CEA Registration",
-          "value": "R073319H"
-        },
-        "url": "https://winfredquek.com",
-        "sameAs": [
-          "https://www.linkedin.com/in/winfredquek",
-          "https://www.instagram.com/winfredquek"
-        ],
-        "worksFor": {
-          "@id": "https://winfredquek.com/#crestbrick"
-        }
-      },
-      {
-        "@type": "LocalBusiness",
-        "@id": "https://winfredquek.com/#crestbrick",
-        "name": "Crestbrick",
-        "description": "Property investment advisory for Singapore HDB upgraders and private property investors",
-        "url": "https://winfredquek.com",
-        "areaServed": {
-          "@type": "Country",
-          "name": "Singapore"
-        },
-        "founder": {
-          "@id": "https://winfredquek.com/#winfred"
-        }
-      }
-    ]
-  }
-  </script>
+  <!-- LocalBusiness merged into main @graph above -->
 
   <!-- GA4, replace G-T6C46CFKCM with your measurement ID from analytics.google.com -->
   <!-- TODO: Create GA4 property at analytics.google.com Admin Create Property get Measurement ID -->
@@ -314,8 +282,8 @@
   <link rel="stylesheet" href="/animations.css">
   <script defer src="/animations.js"></script>
   <script defer src="/site-enhancements.js"></script>
-  <script defer src="/_vercel/insights/script.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_search.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_search.js"></script><link rel="alternate" type="application/rss+xml" title="Winfred Quek Singapore Property Insights" href="/feed.xml">
+</head>
 
 <body class="has-bg-video">
 
@@ -332,13 +300,13 @@
   <div class="page-bg-overlay" aria-hidden="true"></div>
 
   <!-- ===== TOP NAV ===== -->
-      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+        <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -353,11 +321,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -404,7 +372,7 @@
 
         <blockquote class="reveal-fade mt-8 border-l-2 pl-4" style="border-color:var(--accent);">
           <p class="text-sm text-[var(--ink-soft)] italic leading-relaxed">"Winfred mapped out our CPF, cash, and mortgage picture in one session. We didn't know we had enough. We collected $178k and moved into our condo within 8 months."</p>
-          <cite class="text-xs text-[var(--ink-muted)] not-italic mt-1 block">— HDB upgrader, Sengkang, 2024</cite>
+          <cite class="text-xs text-[var(--ink-muted)] not-italic mt-1 block"> HDB upgrader, Sengkang, 2024</cite>
         </blockquote>
 
         <p class="reveal-fade text-xs text-[var(--ink-muted)] mt-6 uppercase tracking-widest">
@@ -583,6 +551,75 @@
     </div>
   </section>
 
+  <!-- ===== STRATEGY LIBRARY ===== -->
+  <section class="max-w-6xl mx-auto px-6 py-20 fade-up reveal-fade scroll-reveal">
+    <p class="section-label mb-4 text-center">Free strategy library</p>
+    <h2 class="serif text-2xl md:text-3xl font-semibold text-center balance leading-tight mb-4 max-w-2xl mx-auto">
+      The guides most clients wish they had read first
+    </h2>
+    <p class="text-sm text-[var(--ink-soft)] text-center mb-12 max-w-xl mx-auto">Practical, numbers-first frameworks for every stage of the Singapore property journey. No fluff, no selling.</p>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
+
+      <!-- HDB Upgrader Track -->
+      <a href="/insights/hdb-mop-upgrade-timeline" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">HDB Upgrader</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">MOP Upgrade Timeline</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">The exact sequence of steps, costs, and decisions from MOP to condo keys.</p>
+      </a>
+
+      <a href="/insights/sell-hdb-first-buy-condo-2026" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">HDB Upgrader</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">Sell HDB First or Buy Condo First?</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">The sequencing question that trips up most upgraders and the framework to answer it.</p>
+      </a>
+
+      <!-- Investor Track -->
+      <a href="/insights/one-vs-two-properties-singapore" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Investor</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">One Big Property or Two Smaller Ones?</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">The wealth math behind concentrating vs diversifying your Singapore property position.</p>
+      </a>
+
+      <a href="/insights/second-property-timing-singapore" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Investor</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">When to Buy Your Second Property</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">ABSD, TDSR headroom, and the right sequence the decision framework most agents skip.</p>
+      </a>
+
+      <!-- Stamp Duty & Tax Track -->
+      <a href="/insights/absd-singapore-2026" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Stamp Duty</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">ABSD 2026: Complete Rate Guide</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">Every ABSD rate by buyer type, all remission scenarios, and how to minimise the hit legally.</p>
+      </a>
+
+      <a href="/insights/decoupling-singapore" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Restructuring</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">Ownership Restructuring Explained</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">How couples legally restructure property ownership to expand their portfolio without full ABSD.</p>
+      </a>
+
+      <!-- Foreign Buyer + Retirement -->
+      <a href="/insights/foreign-buyer-60-absd-strategy" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Foreign Buyer</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">60% ABSD Strategy for Foreign Buyers</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">How foreign buyers and expats legally navigate the 60% ABSD to build a Singapore property position.</p>
+      </a>
+
+      <a href="/insights/property-retirement-planning-singapore" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Retirement</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">Property as Retirement Planning</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">How to use rental income, right-sizing, and CPF RA top-up to fund your retirement through property.</p>
+      </a>
+
+    </div>
+
+    <div class="text-center">
+      <a href="/insights" class="btn btn-ghost" style="border-color:var(--accent);color:var(--accent);">View all 150+ free guides &rsaquo;</a>
+    </div>
+  </section>
+
   <div class="divider max-w-5xl mx-auto"></div>
 
   <!-- ===== CREDIBILITY ===== -->
@@ -702,7 +739,7 @@
         <div class="flex gap-4">
           <a href="/privacy.html" class="link-underline hover:text-[var(--ink)]">Privacy / PDPA</a>
           <span>·</span>
-          <span>Winfred Quek is a licensed real estate salesperson and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</span>
+          <span>Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</span>
         </div>
       </div>
     </div>

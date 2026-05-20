@@ -57,7 +57,7 @@ export default async function handler(req, res) {
     fetch(N8N_WEBHOOK, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: lead.name, email: lead.email, phone: lead.phone, track: lead.track })
+      body: JSON.stringify({ name: lead.name, first_name: lead.name.split(' ')[0], email: lead.email, phone: lead.phone, track: lead.track })
     }).catch(e => ({ error: 'n8n_failed', detail: String(e).slice(0, 100) }))
   );
 

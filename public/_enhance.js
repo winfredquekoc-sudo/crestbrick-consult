@@ -28,10 +28,10 @@
   function initThemeToggle() {
     const saved = localStorage.getItem('wf_theme') || 'dark';
     document.documentElement.setAttribute('data-theme', saved);
-    // Inject toggle button in top-right
+    // Inject toggle button in bottom-left (clears the top nav CTAs)
     const btn = document.createElement('button');
     btn.setAttribute('aria-label','Toggle dark/light mode');
-    btn.style.cssText = 'position:fixed;top:14px;right:14px;background:#1a1610;border:1px solid rgba(180,140,80,0.3);color:#b48c50;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:50;font-size:14px;';
+    btn.style.cssText = 'position:fixed;bottom:16px;left:16px;background:#1a1610;border:1px solid rgba(180,140,80,0.3);color:#b48c50;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:50;font-size:14px;';
     btn.textContent = saved === 'dark' ? '☀' : '☾';
     btn.onclick = () => {
       const cur = document.documentElement.getAttribute('data-theme');
@@ -83,7 +83,7 @@
     if (!window.location.pathname.startsWith('/insights') && !window.location.pathname.startsWith('/tools')) return;
     const btn = document.createElement('button');
     btn.setAttribute('aria-label','Bookmark this page');
-    btn.style.cssText = 'position:fixed;top:14px;right:60px;background:#1a1610;border:1px solid rgba(180,140,80,0.3);color:#b48c50;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:50;font-size:14px;';
+    btn.style.cssText = 'position:fixed;bottom:64px;left:16px;background:#1a1610;border:1px solid rgba(180,140,80,0.3);color:#b48c50;width:36px;height:36px;border-radius:50%;cursor:pointer;z-index:50;font-size:14px;';
     const KEY = 'wf_bookmarks';
     const saved = JSON.parse(localStorage.getItem(KEY) || '[]');
     const isSaved = () => saved.some(b => b.url === window.location.pathname);
@@ -128,7 +128,7 @@
     // Add "share this scenario" button
     const shareBtn = document.createElement('button');
     shareBtn.textContent = '🔗 Share this scenario';
-    shareBtn.style.cssText = 'position:fixed;bottom:14px;left:14px;background:#1a1610;border:1px solid rgba(180,140,80,0.3);color:#b48c50;padding:8px 14px;border-radius:20px;cursor:pointer;z-index:40;font-size:12px;';
+    shareBtn.style.cssText = 'position:fixed;bottom:112px;left:14px;background:#1a1610;border:1px solid rgba(180,140,80,0.3);color:#b48c50;padding:8px 14px;border-radius:20px;cursor:pointer;z-index:40;font-size:12px;';
     shareBtn.onclick = async () => {
       const url = new URL(window.location.href);
       url.search = '';
@@ -205,6 +205,19 @@
     } catch(e){}
   }
 
+
+  // ============================================================
+  // RSS autodiscovery link (injected on all pages)
+  // ============================================================
+  function injectRSSLink() {
+    if (document.querySelector('link[type="application/rss+xml"]')) return;
+    var l = document.createElement('link');
+    l.rel = 'alternate';
+    l.type = 'application/rss+xml';
+    l.title = 'Winfred Quek — Singapore Property Insights';
+    l.href = '/feed.xml';
+    document.head.appendChild(l);
+  }
   // ============================================================
   // Init all on DOMContentLoaded
   // ============================================================
@@ -218,10 +231,26 @@
     initGeoCTA();
     trackVisit();
     initConsent(); // last so it appears on top
+    injectRSSLink();
   }
+  // ============================================================
+  // GA4 — inject on pages that don't already have it (insight articles)
+  // ============================================================
+  function initGA4() {
+    if (document.querySelector('script[src*="googletagmanager"]')) return;
+    var s = document.createElement('script');
+    s.async = true;
+    s.src = 'https://www.googletagmanager.com/gtag/js?id=G-T6C46CFKCM';
+    document.head.appendChild(s);
+    window.dataLayer = window.dataLayer || [];
+    window.gtag = function(){ window.dataLayer.push(arguments); };
+    window.gtag('js', new Date());
+    window.gtag('config', 'G-T6C46CFKCM');
+  }
+
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
+    document.addEventListener('DOMContentLoaded', function(){ init(); initGA4(); });
   } else {
-    init();
+    init(); initGA4();
   }
 })();
