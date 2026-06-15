@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Start your strategy track · Winfred Quek</title>
-<meta name="description" content="Pick your Singapore property strategy track: Empire, Equity, or Reinvest. 10 free emails over 14 days. By Winfred Quek (CEA R073319H, Crestbrick).">
+<meta name="description" content="Pick your Singapore property investor strategy: Empire (portfolio build), Equity (upgrade), or Reinvest (en-bloc/exit). 10 free emails, zero commitment. Winfred Quek, CEA R073319H.">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link rel="canonical" href="https://winfredquek.com/start">
 <meta property="og:title" content="Pick your SG property strategy track">
@@ -139,7 +139,7 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
     });
   });
 
-  // Pre-fill track from URL — accept ?track= (Instagram DM Catcher links) or ?t=
+  // Pre-fill track from URL  --  accept ?track= (Instagram DM Catcher links) or ?t=
   const params = new URLSearchParams(location.search);
   const preselect = params.get('track') || params.get('t');
   if (preselect && ['empire','equity','reinvest'].includes(preselect)) {
