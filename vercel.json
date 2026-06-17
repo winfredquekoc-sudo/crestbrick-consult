@@ -63,6 +63,11 @@
       "permanent": true
     },
     {
+      "source": "/lentor",
+      "destination": "/LentorGardensResidences",
+      "permanent": true
+    },
+    {
       "source": "/links",
       "destination": "/links.html",
       "permanent": false
