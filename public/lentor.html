@@ -660,8 +660,22 @@
     var syncSticky=function(){stickybar.classList.toggle('show',pastHero&&!regVisible)};
     if(hero){new IntersectionObserver(function(es){es.forEach(function(e){pastHero=!e.isIntersecting;syncSticky()})},{threshold:0}).observe(hero)}
     if(reg){new IntersectionObserver(function(es){es.forEach(function(e){regVisible=e.isIntersecting;syncSticky()})},{threshold:0}).observe(reg)}
-    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
-    document.querySelectorAll('.ios').forEach(function(el){io.observe(el)});
+    var iosEls=document.querySelectorAll('.ios');
+    var revealAll=function(){iosEls.forEach(function(el){el.classList.add('in')})};
+    if('IntersectionObserver' in window){
+      var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:0.08,rootMargin:'0px 0px -40px 0px'});
+      iosEls.forEach(function(el){io.observe(el)});
+      // Failsafe: in-app browsers (Instagram, Facebook, WhatsApp webviews) and anchor jumps can
+      // stall the observer. A conversion page must never leave its form invisible, so force-reveal
+      // anything still hidden shortly after load and again if it becomes visible without firing.
+      var sweep=function(){iosEls.forEach(function(el){if(!el.classList.contains('in')&&el.getBoundingClientRect().top<window.innerHeight){el.classList.add('in')}})};
+      window.addEventListener('scroll',sweep,{passive:true});
+      window.addEventListener('hashchange',function(){setTimeout(sweep,60)});
+      sweep();
+      setTimeout(revealAll,2000);
+    } else {
+      revealAll();
+    }
     document.querySelectorAll('form[data-magnet]').forEach(function(form){
       form.addEventListener('submit',async function(e){
         e.preventDefault();
