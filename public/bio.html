@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en-SG">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Winfred Quek Wei Lun · Singapore Property Advisor</title>
+<meta name="description" content="Most agents sell units. Winfred Quek Wei Lun helps you build portfolios, with a 4 pillar analysis before you buy, sell or upgrade. Licensed CEA R073319H." />
+<meta name="theme-color" content="#13243d" />
+<link rel="canonical" href="https://winfredquek.com/bio" />
+
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Winfred Quek Wei Lun · Singapore Property Advisor" />
+<meta property="og:description" content="Most agents sell units. I help you build portfolios. A 4 pillar analysis before you buy, sell or upgrade." />
+<meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+<meta property="og:url" content="https://winfredquek.com/bio" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+<style>
+  :root{
+    --navy:#13243d;
+    --navy-deep:#0e1b2e;
+    --navy-soft:#46566e;
+    --cream:#f7f1e4;
+    --cream-2:#f1e9d8;
+    --surface:#fffdf7;
+    --gold:#c6a36a;
+    --gold-deep:#b08e54;
+    --gold-soft:rgba(198,163,106,.16);
+    --rule:rgba(19,36,61,.12);
+    --rule-light:rgba(247,241,228,.16);
+    --shadow-sm:0 6px 20px -12px rgba(19,36,61,.4);
+    --shadow:0 22px 50px -28px rgba(19,36,61,.55);
+    --radius:18px;
+    --maxw:1140px;
+    --ease:cubic-bezier(.22,.61,.36,1);
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  html{
+    -webkit-text-size-adjust:100%;
+    scroll-behavior:smooth;
+    scroll-padding-top:84px;
+  }
+  body{
+    font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background:var(--cream);
+    color:var(--navy);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  img{max-width:100%;display:block}
+  a{color:inherit}
+
+  .container{max-width:var(--maxw);margin:0 auto;padding:0 22px}
+  section{padding:clamp(58px,9vw,108px) 0}
+
+  .eyebrow{
+    display:inline-block;
+    font-size:.74rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--gold-deep);margin-bottom:16px;
+  }
+  h2.sec-title{
+    font-size:clamp(1.8rem,4.6vw,2.7rem);
+    font-weight:800;letter-spacing:-.02em;line-height:1.12;
+  }
+  .sec-head{max-width:640px;margin-bottom:clamp(34px,5vw,52px)}
+  .sec-head p{margin-top:14px;color:var(--navy-soft);font-size:1.06rem}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    padding:14px 24px;border-radius:999px;
+    font-weight:700;font-size:.96rem;text-decoration:none;cursor:pointer;
+    border:1.6px solid transparent;
+    transition:transform .2s var(--ease),box-shadow .2s var(--ease),background .2s,color .2s,border-color .2s;
+    white-space:nowrap;
+  }
+  .btn svg{width:18px;height:18px}
+  .btn-gold{
+    background:linear-gradient(135deg,var(--gold),var(--gold-deep));
+    color:var(--navy-deep);
+    box-shadow:0 14px 28px -14px rgba(198,163,106,.75);
+  }
+  .btn-gold:hover{transform:translateY(-2px);box-shadow:0 20px 34px -14px rgba(198,163,106,.85)}
+  .btn-navy{background:var(--navy);color:var(--cream)}
+  .btn-navy:hover{transform:translateY(-2px);background:var(--navy-deep)}
+  .btn-outline{border-color:rgba(19,36,61,.28);color:var(--navy);background:transparent}
+  .btn-outline:hover{background:var(--navy);color:var(--cream);border-color:var(--navy)}
+  .btn-ghost{border-color:var(--rule-light);color:var(--cream);background:transparent}
+  .btn-ghost:hover{background:rgba(247,241,228,.1);transform:translateY(-2px)}
+  .btn:active{transform:translateY(0) scale(.99)}
+
+  /* ---------- sticky nav ---------- */
+  .nav{
+    position:sticky;top:0;z-index:50;
+    background:rgba(247,241,228,.82);
+    backdrop-filter:saturate(160%) blur(12px);
+    -webkit-backdrop-filter:saturate(160%) blur(12px);
+    border-bottom:1px solid transparent;
+    transition:border-color .25s,box-shadow .25s,background .25s;
+  }
+  .nav.scrolled{border-bottom-color:var(--rule);box-shadow:0 8px 24px -20px rgba(19,36,61,.6)}
+  .nav-inner{
+    max-width:var(--maxw);margin:0 auto;padding:12px 22px;
+    display:flex;align-items:center;justify-content:space-between;gap:18px;
+  }
+  .brand{
+    font-weight:800;font-size:1.12rem;letter-spacing:-.02em;text-decoration:none;color:var(--navy);
+    display:inline-flex;align-items:center;gap:9px;
+  }
+  .brand .dot{width:9px;height:9px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
+  .nav-links{display:flex;align-items:center;gap:30px}
+  .nav-links a{
+    text-decoration:none;color:var(--navy-soft);font-weight:600;font-size:.93rem;
+    position:relative;transition:color .2s;
+  }
+  .nav-links a::after{
+    content:"";position:absolute;left:0;bottom:-6px;width:0;height:2px;background:var(--gold);transition:width .25s var(--ease);
+  }
+  .nav-links a:hover{color:var(--navy)}
+  .nav-links a:hover::after{width:100%}
+  .nav-cta{padding:11px 20px;font-size:.9rem}
+
+  /* ---------- hero ---------- */
+  .hero{position:relative;padding-top:clamp(40px,6vw,68px)}
+  .hero-grid{
+    display:grid;grid-template-columns:1.05fr .95fr;gap:clamp(32px,5vw,64px);align-items:center;
+  }
+  .hero h1{
+    font-size:clamp(2.1rem,5.6vw,3.5rem);font-weight:800;letter-spacing:-.03em;line-height:1.06;
+  }
+  .hero h1 .hl{color:var(--gold-deep)}
+  .hero-lead{margin-top:22px;font-size:clamp(1.04rem,1.6vw,1.18rem);color:var(--navy-soft);max-width:35ch}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:13px;margin-top:30px}
+  .hero-trust{
+    display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;margin-top:30px;
+    font-size:.85rem;color:var(--navy-soft);font-weight:600;
+  }
+  .hero-trust .chip{display:inline-flex;align-items:center;gap:7px}
+  .hero-trust svg{width:16px;height:16px;color:var(--gold-deep)}
+
+  .hero-photo{position:relative;justify-self:center;width:100%;max-width:430px}
+  .hero-photo::before{
+    content:"";position:absolute;inset:auto -16px -18px 24px;height:88%;border-radius:26px;
+    background:linear-gradient(150deg,var(--gold),var(--gold-soft));opacity:.9;z-index:0;
+  }
+  .hero-photo::after{
+    content:"";position:absolute;top:-22px;right:-12px;width:120px;height:120px;border-radius:50%;
+    border:1.5px dashed rgba(198,163,106,.5);z-index:0;
+  }
+  .hero-photo img{
+    position:relative;z-index:1;width:100%;border-radius:22px;
+    aspect-ratio:4/5;object-fit:cover;object-position:50% 22%;
+    box-shadow:var(--shadow);border:5px solid var(--surface);
+  }
+  .hero-badge{
+    position:absolute;z-index:2;left:-10px;bottom:26px;
+    background:var(--surface);border:1px solid var(--rule);border-radius:14px;
+    padding:12px 16px;box-shadow:var(--shadow);
+    display:flex;align-items:center;gap:12px;
+  }
+  .hero-badge b{font-size:1.35rem;font-weight:800;color:var(--navy);line-height:1}
+  .hero-badge span{font-size:.74rem;color:var(--navy-soft);font-weight:600}
+  .hero-badge .bdot{width:38px;height:38px;border-radius:11px;background:var(--gold-soft);display:grid;place-items:center;color:var(--gold-deep)}
+
+  /* ---------- listings ---------- */
+  .listings-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,360px));gap:22px;justify-content:center;
+  }
+  .listing{
+    background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);overflow:hidden;
+    text-decoration:none;color:var(--navy);box-shadow:var(--shadow-sm);
+    transition:transform .32s var(--ease),box-shadow .32s var(--ease),border-color .32s var(--ease);
+    display:flex;flex-direction:column;
+  }
+  .listing:hover{transform:translateY(-8px);box-shadow:var(--shadow);border-color:rgba(198,163,106,.55)}
+  .listing-img{position:relative;aspect-ratio:4/3;overflow:hidden;background:var(--cream-2)}
+  .listing-img img{width:100%;height:100%;object-fit:cover;transition:transform .55s var(--ease)}
+  .listing:hover .listing-img img{transform:scale(1.07)}
+  .listing-status{
+    position:absolute;top:12px;left:12px;z-index:2;
+    font-size:.68rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    padding:6px 11px;border-radius:999px;background:rgba(14,27,46,.86);color:var(--cream);
+    backdrop-filter:blur(4px);
+  }
+  .listing-status.sale{background:rgba(176,142,84,.94);color:var(--navy-deep)}
+  .listing-body{padding:18px 18px 20px;display:flex;flex-direction:column;gap:9px;flex:1}
+  .listing-price{font-size:1.32rem;font-weight:800;letter-spacing:-.01em}
+  .listing-title{font-weight:700;font-size:1rem}
+  .listing-loc{display:flex;align-items:center;gap:6px;color:var(--navy-soft);font-size:.86rem;font-weight:500}
+  .listing-loc svg{width:15px;height:15px;color:var(--gold-deep);flex:0 0 auto}
+  .listing-specs{
+    display:flex;flex-wrap:wrap;gap:14px;margin-top:4px;padding-top:13px;border-top:1px solid var(--rule);
+    color:var(--navy-soft);font-size:.83rem;font-weight:600;
+  }
+  .listing-specs .s{display:inline-flex;align-items:center;gap:6px}
+  .listing-specs svg{width:16px;height:16px;color:var(--gold-deep)}
+  .listing-more{
+    margin-top:auto;padding-top:13px;display:inline-flex;align-items:center;gap:6px;
+    color:var(--gold-deep);font-weight:700;font-size:.88rem;
+  }
+  .listing-more svg{width:16px;height:16px;transition:transform .25s var(--ease)}
+  .listing:hover .listing-more svg{transform:translateX(4px)}
+
+  /* ---------- lead magnet bands ---------- */
+  .band-navy{background:var(--navy);color:var(--cream);position:relative;overflow:hidden}
+  .band-navy::before{
+    content:"";position:absolute;top:-120px;right:-80px;width:360px;height:360px;border-radius:50%;
+    background:radial-gradient(circle,rgba(198,163,106,.18),transparent 68%);
+  }
+  .lead-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(30px,5vw,60px);align-items:center;position:relative;z-index:1}
+  .lead-copy h2{font-size:clamp(1.7rem,4vw,2.4rem);font-weight:800;letter-spacing:-.02em;line-height:1.14}
+  .band-navy .eyebrow{color:var(--gold)}
+  .lead-copy .sub{margin-top:14px;font-size:1.05rem;color:rgba(247,241,228,.82);max-width:42ch}
+  .lead-list{list-style:none;margin-top:24px;display:flex;flex-direction:column;gap:13px}
+  .lead-list li{display:flex;align-items:flex-start;gap:12px;font-size:.98rem;color:rgba(247,241,228,.92)}
+  .lead-list .tick{
+    flex:0 0 24px;width:24px;height:24px;border-radius:50%;background:var(--gold-soft);
+    display:grid;place-items:center;color:var(--gold);margin-top:1px;
+  }
+  .lead-list .tick svg{width:14px;height:14px}
+
+  .form-card{
+    background:var(--surface);color:var(--navy);border-radius:var(--radius);
+    padding:clamp(24px,3.4vw,34px);box-shadow:var(--shadow);border:1px solid var(--rule);
+  }
+  .form-card.on-cream{background:var(--surface)}
+  .form-card h3{font-size:1.22rem;font-weight:800;letter-spacing:-.01em}
+  .form-card .fc-sub{margin-top:6px;color:var(--navy-soft);font-size:.9rem;margin-bottom:20px}
+  .field{margin-bottom:14px}
+  .field label{display:block;font-size:.8rem;font-weight:700;margin-bottom:7px;color:var(--navy)}
+  .field input,.field select{
+    width:100%;padding:13px 15px;border-radius:12px;border:1.5px solid var(--rule);
+    background:#fff;color:var(--navy);font:inherit;font-size:.95rem;transition:border-color .2s,box-shadow .2s;
+  }
+  .field input::placeholder{color:#9aa3b0}
+  .field input:focus,.field select:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--gold-soft)}
+  .form-card .btn{width:100%;margin-top:6px}
+  .form-msg{margin-top:14px;font-size:.88rem;font-weight:600;color:var(--gold-deep);text-align:center}
+  .form-fine{margin-top:12px;font-size:.74rem;color:var(--navy-soft);text-align:center}
+
+  /* sellers band (cream variant) */
+  .band-cream2{background:var(--cream-2)}
+  .lead-grid.reverse .lead-copy{order:2}
+  .lead-grid.reverse .form-wrap{order:1}
+
+  /* ---------- reviews ---------- */
+  .reviews-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:22px}
+  .review{
+    background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);
+    padding:28px 26px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;
+    transition:transform .3s var(--ease),box-shadow .3s var(--ease);
+  }
+  .review:hover{transform:translateY(-5px);box-shadow:var(--shadow)}
+  .stars{display:flex;gap:3px;color:var(--gold);margin-bottom:16px}
+  .stars svg{width:18px;height:18px}
+  .review blockquote{font-size:1.02rem;line-height:1.62;color:var(--navy);font-weight:500}
+  .review-by{display:flex;align-items:center;gap:13px;margin-top:22px;padding-top:20px;border-top:1px solid var(--rule)}
+  .avatar{
+    width:46px;height:46px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
+    background:linear-gradient(135deg,var(--navy),var(--navy-soft));color:var(--gold);
+  }
+  .avatar svg{width:22px;height:22px;display:block}
+  .review-by b{display:block;font-size:.95rem;font-weight:700}
+  .review-by span{display:block;font-size:.8rem;color:var(--navy-soft);font-weight:500}
+
+  /* ---------- story ---------- */
+  .story-grid{display:grid;grid-template-columns:.92fr 1.08fr;gap:clamp(32px,5vw,64px);align-items:center}
+  .story-photo{position:relative;max-width:430px;justify-self:center;width:100%}
+  .story-photo img{width:100%;border-radius:22px;aspect-ratio:4/5;object-fit:cover;object-position:50% 25%;box-shadow:var(--shadow);border:5px solid var(--surface)}
+  .story-photo::before{content:"";position:absolute;inset:auto 26px -16px -16px;height:80%;border-radius:24px;background:var(--cream-2);z-index:0}
+  .story-photo img{position:relative;z-index:1}
+  .story-copy p{color:var(--navy-soft);font-size:1.05rem;margin-top:16px}
+  .story-copy p strong{color:var(--navy);font-weight:700}
+  .pillars{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:26px 0}
+  .pillars li{display:flex;align-items:center;gap:11px;font-weight:700;font-size:.95rem}
+  .pillars .pn{
+    flex:0 0 34px;width:34px;height:34px;border-radius:10px;background:var(--gold-soft);color:var(--gold-deep);
+    display:grid;place-items:center;font-size:.85rem;font-weight:800;
+  }
+  .creds{display:inline-block;margin-top:6px;font-size:.85rem;color:var(--navy-soft);font-weight:600;border-left:3px solid var(--gold);padding-left:13px}
+
+  /* ---------- booking ---------- */
+  .book-head{text-align:center;max-width:620px;margin:0 auto clamp(28px,4vw,40px)}
+  .book-head .sec-title{font-size:clamp(1.8rem,4.4vw,2.6rem)}
+  .band-navy .book-head .sec-title{color:var(--cream)}
+  .book-head p{margin-top:14px;color:rgba(247,241,228,.82);font-size:1.06rem}
+  .calendly-shell{
+    background:var(--surface);border-radius:var(--radius);padding:8px;
+    box-shadow:var(--shadow);max-width:920px;margin:0 auto;border:1px solid var(--rule);
+  }
+  .calendly-inline-widget{min-width:320px;height:700px;border-radius:12px;overflow:hidden}
+
+  /* ---------- footer ---------- */
+  .footer{background:var(--navy-deep);color:var(--cream);padding:clamp(48px,6vw,72px) 0 30px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:36px;margin-bottom:42px}
+  .foot-brand .brand{color:var(--cream);font-size:1.3rem}
+  .foot-brand p{margin-top:14px;color:rgba(247,241,228,.66);font-size:.92rem;max-width:34ch}
+  .socials{display:flex;gap:12px;margin-top:22px}
+  .socials a{
+    width:44px;height:44px;border-radius:12px;display:grid;place-items:center;
+    background:rgba(247,241,228,.07);border:1px solid var(--rule-light);color:var(--cream);
+    transition:transform .22s var(--ease),background .22s,color .22s,border-color .22s;
+  }
+  .socials a:hover{transform:translateY(-3px);background:var(--gold);color:var(--navy-deep);border-color:var(--gold)}
+  .socials svg{width:20px;height:20px}
+  .foot-col h4{font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+  .foot-col a{display:block;text-decoration:none;color:rgba(247,241,228,.72);font-size:.92rem;margin-bottom:11px;transition:color .2s,padding-left .2s}
+  .foot-col a:hover{color:var(--cream);padding-left:4px}
+  .foot-bottom{
+    border-top:1px solid var(--rule-light);padding-top:24px;
+    display:flex;flex-wrap:wrap;gap:8px 18px;justify-content:space-between;align-items:center;
+    font-size:.8rem;color:rgba(247,241,228,.6);
+  }
+  .foot-bottom a{color:rgba(247,241,228,.78);text-decoration:none}
+
+  /* ---------- reveal-on-scroll ---------- */
+  .ios{opacity:0;transform:translateY(22px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+  .ios.in{opacity:1;transform:none}
+
+  /* ---------- responsive ---------- */
+  @media (max-width:920px){
+    .hero-grid{grid-template-columns:1fr;text-align:center}
+    .hero-lead{margin-inline:auto}
+    .hero-cta,.hero-trust{justify-content:center}
+    .hero-photo{order:-1;max-width:330px}
+    .lead-grid,.story-grid{grid-template-columns:1fr}
+    .lead-grid.reverse .lead-copy,.lead-grid.reverse .form-wrap{order:0}
+    .story-photo{order:-1;max-width:340px}
+    .foot-grid{grid-template-columns:1fr 1fr}
+    .foot-brand{grid-column:1 / -1}
+  }
+  @media (max-width:680px){
+    .nav-links{display:none}
+    .pillars{grid-template-columns:1fr}
+    .foot-grid{grid-template-columns:1fr}
+    .listing-price{font-size:1.22rem}
+  }
+
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    *{transition:none!important;animation:none!important}
+    .ios{opacity:1;transform:none}
+  }
+</style>
+</head>
+<body id="top">
+
+  <!-- ===================== STICKY NAV ===================== -->
+  <header class="nav" id="nav">
+    <div class="nav-inner">
+      <a class="brand" href="#top"><span class="dot"></span>Winfred Quek</a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#listings">Listings</a>
+        <a href="#buyers">Buyers</a>
+        <a href="#sellers">Sellers</a>
+        <a href="#reviews">Reviews</a>
+        <a href="#story">About</a>
+      </nav>
+      <a class="btn btn-gold nav-cta" href="#book">Book a Call</a>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===================== 1 · HERO ===================== -->
+    <section class="hero" id="home">
+      <div class="container hero-grid">
+        <div class="hero-copy ios">
+          <span class="eyebrow">Singapore Property Advisor · CEA R073319H</span>
+          <h1>Most agents sell units. I help you <span class="hl">build portfolios</span>.</h1>
+          <p class="hero-lead">I am Winfred Quek Wei Lun, an investor minded property advisor. Before you buy, sell or upgrade, I run a 4 pillar analysis so the move fits your bigger picture, not just this one deal.</p>
+          <div class="hero-cta">
+            <a class="btn btn-gold" href="#book">Book a free strategy call</a>
+            <a class="btn btn-outline" href="#listings">View listings</a>
+          </div>
+          <div class="hero-trust">
+            <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 12 2 2 4-4"/><circle cx="12" cy="12" r="9"/></svg>Licensed CEA R073319H</span>
+            <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg>20+ families advised</span>
+            <span class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.5 8 11 4.6-2.5 8-6 8-11V5z"/></svg>Independent advisory</span>
+          </div>
+        </div>
+
+        <div class="hero-photo ios">
+          <picture>
+            <source srcset="/img/winfred-hero.avif" type="image/avif" />
+            <source srcset="/img/winfred-hero.webp" type="image/webp" />
+            <img src="/img/winfred-hero.jpg" alt="Winfred Quek, Singapore property advisor" width="430" height="538" />
+          </picture>
+          <div class="hero-badge">
+            <span class="bdot"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 5-6"/></svg></span>
+            <div><b>10 yrs</b><span>as a property investor</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 2 · ACTIVE LISTINGS ===================== -->
+    <!-- Card images/prices/specs are placeholders (PropertyGuru and 99.co block automated extraction). Cards and the buttons below link to Winfred's real agent profiles, which always show his live listings. Replace card details with real listings if you want them hardcoded. -->
+    <section id="listings">
+      <div class="container">
+        <div class="sec-head ios">
+          <span class="eyebrow">Active Listing</span>
+          <h2 class="sec-title">On the market now</h2>
+          <p>Screened through the same 4 pillar lens I use for my own portfolio. See my full list on the portals below.</p>
+        </div>
+
+        <div class="listings-grid">
+
+          <a class="listing ios" href="https://www.propertyguru.com.sg/agent/winfred-quek-11069860" target="_blank" rel="noopener">
+            <div class="listing-img">
+              <span class="listing-status">New Launch</span>
+              <picture><source srcset="/img/launches/lentor-gardens-residences.avif" type="image/avif" /><source srcset="/img/launches/lentor-gardens-residences.webp" type="image/webp" /><img src="/img/launches/lentor-gardens-residences.jpg" alt="Lentor Gardens Residences, District 26 Lentor" loading="lazy" /></picture>
+            </div>
+            <div class="listing-body">
+              <div class="listing-price">From ~S$2,200 psf</div>
+              <div class="listing-title">Lentor Gardens Residences</div>
+              <div class="listing-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-6.3-7-11a7 7 0 0 1 14 0c0 4.7-7 11-7 11Z"/><circle cx="12" cy="10" r="2.5"/></svg>District 26 &middot; Lentor &middot; by Kingsford</div>
+              <div class="listing-specs">
+                <span class="s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9h18M8 2.5v4M16 2.5v4"/></svg>99 yr leasehold</span>
+                <span class="s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="1.5"/><path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01M9 15h6v6"/></svg>499 units</span>
+                <span class="s"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="8" r="5"/><path d="m11.5 11.5 8 8M16 16l2-2"/></svg>TOP 2029</span>
+              </div>
+              <span class="listing-more">View on PropertyGuru <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6 6 6-6 6"/></svg></span>
+            </div>
+          </a>
+</div>
+        <div style="display:flex;flex-wrap:wrap;gap:13px;justify-content:center;margin-top:36px">
+          <a class="btn btn-navy" href="https://www.propertyguru.com.sg/agent/winfred-quek-11069860" target="_blank" rel="noopener">View all my listings on PropertyGuru</a>
+          <a class="btn btn-outline" href="https://www.99.co/singapore/agents/R073319H-winfred-quek" target="_blank" rel="noopener">Browse on 99.co</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 3 · BUYER LEAD MAGNET ===================== -->
+    <section id="buyers" class="band-navy">
+      <div class="container lead-grid">
+        <div class="lead-copy ios">
+          <span class="eyebrow">For Buyers</span>
+          <h2>Know the full cost before you sign</h2>
+          <p class="sub">The Singapore Buyer's Playbook breaks down every dollar of a purchase, so you never get surprised at the closing table.</p>
+          <ul class="lead-list">
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span>The full transaction stack: BSD, ABSD, legal, commission and reno</li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span>How to read TDSR and loan headroom before you fall in love with a unit</li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span>The 4 pillar analysis I run on every deal</li>
+          </ul>
+        </div>
+        <div class="form-wrap ios">
+          <div class="form-card">
+            <h3>Get the Buyer's Playbook</h3>
+            <p class="fc-sub">Free PDF, sent straight to your inbox.</p>
+            <form data-magnet="buyer-playbook" novalidate>
+              <div class="field">
+                <label for="b-name">Name</label>
+                <input id="b-name" name="name" type="text" placeholder="Your name" autocomplete="name" required />
+              </div>
+              <div class="field">
+                <label for="b-email">Email</label>
+                <input id="b-email" name="email" type="email" placeholder="you@email.com" autocomplete="email" required />
+              </div>
+              <button class="btn btn-gold" type="submit">Send me the playbook</button>
+              <p class="form-msg" hidden></p>
+              <p class="form-fine">No spam. Unsubscribe anytime.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 4 · SELLER LEAD MAGNET ===================== -->
+    <section id="sellers" class="band-cream2">
+      <div class="container lead-grid reverse">
+        <div class="lead-copy ios">
+          <span class="eyebrow">For Sellers</span>
+          <h2 class="sec-title" style="font-size:clamp(1.7rem,4vw,2.4rem)">What will you actually walk away with?</h2>
+          <p class="sub" style="color:var(--navy-soft)">The Seller's Net Proceeds Guide shows you the real number after every deduction, so you can plan your next move with confidence.</p>
+          <ul class="lead-list">
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span><span style="color:var(--navy)">Outstanding loan, SSD window and CPF refund with accrued interest</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span><span style="color:var(--navy)">Commission and legal fees laid out line by line</span></li>
+            <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span><span style="color:var(--navy)">Your true war chest for the upgrade or reinvestment</span></li>
+          </ul>
+        </div>
+        <div class="form-wrap ios">
+          <div class="form-card on-cream">
+            <h3>Get the Net Proceeds Guide</h3>
+            <p class="fc-sub">Free PDF, plus a quick estimate for your property.</p>
+            <form data-magnet="seller-valuation" novalidate>
+              <div class="field">
+                <label for="s-name">Name</label>
+                <input id="s-name" name="name" type="text" placeholder="Your name" autocomplete="name" required />
+              </div>
+              <div class="field">
+                <label for="s-email">Email</label>
+                <input id="s-email" name="email" type="email" placeholder="you@email.com" autocomplete="email" required />
+              </div>
+              <div class="field">
+                <label for="s-type">Property type</label>
+                <select id="s-type" name="property_type">
+                  <option value="">Select one</option>
+                  <option>HDB flat</option>
+                  <option>Private condominium</option>
+                  <option>Landed property</option>
+                  <option>Executive condominium</option>
+                </select>
+              </div>
+              <button class="btn btn-gold" type="submit">Send me the guide</button>
+              <p class="form-msg" hidden></p>
+              <p class="form-fine">No spam. Unsubscribe anytime.</p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 5 · REVIEWS ===================== -->
+    <!-- Real testimonials, pulled from winfredquek.com/testimonials (anonymized, shared with client consent). -->
+    <section id="reviews">
+      <div class="container">
+        <div class="sec-head ios" style="margin-inline:auto;text-align:center">
+          <span class="eyebrow">Client Reviews</span>
+          <h2 class="sec-title">Trusted by families who hate being sold to</h2>
+        </div>
+        <div class="reviews-grid">
+
+          <article class="review ios">
+            <div class="stars" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg>
+            </div>
+            <blockquote>"Winfred told us NOT to buy. A year later we transacted on better terms. I still don't know any other agent who would have done that."</blockquote>
+            <div class="review-by"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.6 7C6.5 7 4 9.5 4 12.6V18h5.6v-5.6H7.3c0-1.3 1-2.3 2.3-2.3V7Zm9 0C15.5 7 13 9.5 13 12.6V18h5.6v-5.6h-2.3c0-1.3 1-2.3 2.3-2.3V7Z"/></svg></span><div><b>Rachel Lui</b><span>Dual income couple, District 19</span></div></div>
+          </article>
+
+          <article class="review ios">
+            <div class="stars" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg>
+            </div>
+            <blockquote>"We'd been listed 45 days with another agent before Winfred repositioned it. Sold 17 days after the relaunch, 1.8% above original ask. Same unit, different strategy."</blockquote>
+            <div class="review-by"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.6 7C6.5 7 4 9.5 4 12.6V18h5.6v-5.6H7.3c0-1.3 1-2.3 2.3-2.3V7Zm9 0C15.5 7 13 9.5 13 12.6V18h5.6v-5.6h-2.3c0-1.3 1-2.3 2.3-2.3V7Z"/></svg></span><div><b>Simon Wong</b><span>Private property seller</span></div></div>
+          </article>
+
+          <article class="review ios">
+            <div class="stars" aria-label="5 out of 5 stars">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg><svg viewBox="0 0 24 24" fill="currentColor"><path d="m12 2 3 6.3 6.9.9-5 4.8 1.2 6.8L12 17.8 5.9 20.8 7.1 14 2 9.2l6.9-.9z"/></svg>
+            </div>
+            <blockquote>"I've worked with five agents over ten years. Winfred is the first one who acted like my CFO, not my salesperson."</blockquote>
+            <div class="review-by"><span class="avatar" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.6 7C6.5 7 4 9.5 4 12.6V18h5.6v-5.6H7.3c0-1.3 1-2.3 2.3-2.3V7Zm9 0C15.5 7 13 9.5 13 12.6V18h5.6v-5.6h-2.3c0-1.3 1-2.3 2.3-2.3V7Z"/></svg></span><div><b>Swathi</b><span>Repeat investor, 3 transactions</span></div></div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 6 · MY STORY ===================== -->
+    <section id="story" class="band-cream2">
+      <div class="container story-grid">
+        <div class="story-photo ios">
+          <picture>
+            <source srcset="/img/winfred-credibility.avif" type="image/avif" />
+            <source srcset="/img/winfred-credibility.webp" type="image/webp" />
+            <img src="/img/winfred-credibility.jpg" alt="Winfred Quek advising a client" width="430" height="538" />
+          </picture>
+        </div>
+        <div class="story-copy ios">
+          <span class="eyebrow">My Story</span>
+          <h2 class="sec-title">An investor first, an agent second</h2>
+          <p>I built a five property portfolio before turning 30, through Singapore's most active years of cooling measures. Every structure, every strategy and every mistake I made is now part of the methodology I use with clients.</p>
+          <p><strong>Most agents show you a listing. I show you a 4 pillar analysis</strong> that determines whether the deal makes sense for your specific situation, before you sign anything.</p>
+          <ul class="pillars">
+            <li><span class="pn">1</span>Full Cost</li>
+            <li><span class="pn">2</span>Cashflow</li>
+            <li><span class="pn">3</span>Rules &amp; Compliance</li>
+            <li><span class="pn">4</span>Exit Strategy</li>
+          </ul>
+          <span class="creds">CEA R073319H · One year of licensed advisory · Crestbrick Pte Ltd (L31010886H)</span>
+          <div style="margin-top:28px">
+            <a class="btn btn-navy" href="#book">Book a call with me</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 7 · BOOK A CALL (CALENDLY) ===================== -->
+    <section id="book" class="band-navy">
+      <div class="container">
+        <div class="book-head ios">
+          <span class="eyebrow">Book a Call</span>
+          <h2 class="sec-title">Let's map your next move</h2>
+          <p>Grab a free 30 minute strategy call. No obligation, no pressure, just a clear read on your situation.</p>
+        </div>
+        <div class="calendly-shell ios">
+          <div class="calendly-inline-widget" data-url="https://calendly.com/winfredquekoc/30min?hide_gdpr_banner=1&background_color=fffdf7&text_color=13243d&primary_color=c6a36a" data-auto-load="false"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ===================== 8 · FOOTER ===================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="foot-grid">
+        <div class="foot-brand">
+          <a class="brand" href="#top"><span class="dot"></span>Winfred Quek</a>
+          <p>Investor minded property advisory for Singapore families and investors. A clear plan before you sign anything.</p>
+          <div class="socials">
+            <a href="https://www.instagram.com/imwinfred" target="_blank" rel="noopener" aria-label="Instagram @imwinfred"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5.5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r="1.1" fill="currentColor" stroke="none"/></svg></a>
+            <a href="https://www.linkedin.com/in/winfredquek" target="_blank" rel="noopener" aria-label="LinkedIn"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6.94 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0ZM3.3 8.5h3.3V21H3.3zM9.4 8.5h3.16v1.7h.05c.44-.83 1.5-1.7 3.1-1.7 3.32 0 3.93 2.18 3.93 5.02V21h-3.3v-5.5c0-1.31-.02-3-1.83-3-1.83 0-2.11 1.43-2.11 2.9V21H9.4z"/></svg></a>
+            <a href="https://wa.me/6581618149" target="_blank" rel="noopener" aria-label="WhatsApp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 0 0 4.79 1.22c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0 0 12.04 2Zm5.77 14.06c-.24.68-1.4 1.3-1.92 1.34-.49.04-.94.21-3.18-.66-2.69-1.06-4.39-3.79-4.52-3.97-.13-.18-1.08-1.44-1.08-2.75 0-1.31.69-1.95.93-2.22.24-.27.52-.34.7-.34l.5.01c.16 0 .38-.06.59.45.24.58.81 2 .88 2.14.07.14.12.31.02.49-.09.18-.14.29-.27.45-.14.16-.29.36-.41.48-.14.14-.28.29-.12.56.16.27.72 1.18 1.54 1.91 1.06.94 1.95 1.24 2.22 1.38.27.14.43.12.59-.07.16-.18.68-.79.86-1.06.18-.27.36-.22.6-.13.25.09 1.57.74 1.84.87.27.14.45.2.52.32.07.11.07.66-.17 1.34Z"/></svg></a>
+            <a href="https://t.me/winwithwinfred" target="_blank" rel="noopener" aria-label="Telegram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21.94 4.6 18.6 20.3c-.25 1.1-.91 1.37-1.84.86l-5.1-3.76-2.46 2.37c-.27.27-.5.5-1.02.5l.36-5.18 9.42-8.5c.41-.36-.09-.57-.63-.2L5.06 13.1l-5-1.57c-1.09-.34-1.11-1.09.23-1.61l19.55-7.53c.9-.34 1.69.2 1.1 2.21Z"/></svg></a>
+          </div>
+        </div>
+        <div class="foot-col">
+          <h4>Explore</h4>
+          <a href="#listings">Active Listings</a>
+          <a href="#buyers">For Buyers</a>
+          <a href="#sellers">For Sellers</a>
+          <a href="#reviews">Reviews</a>
+          <a href="#story">About Winfred</a>
+        </div>
+        <div class="foot-col">
+          <h4>Get in touch</h4>
+          <a href="#book">Book a Call</a>
+          <a href="https://wa.me/6581618149" target="_blank" rel="noopener">WhatsApp</a>
+          <a href="https://t.me/winwithwinfred" target="_blank" rel="noopener">Telegram channel</a>
+          <a href="https://winfredquek.com" target="_blank" rel="noopener">winfredquek.com</a>
+        </div>
+      </div>
+      <div class="foot-bottom">
+        <span>&copy; 2026 Winfred Quek Wei Lun · Crestbrick Pte Ltd</span>
+        <span>CEA Registration R073319H · Licence No. L31010886H</span>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Calendly inline embed -->
+  <script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+
+  <script>
+    // Sticky-nav shadow on scroll
+    var nav = document.getElementById('nav');
+    var onScroll = function(){ nav.classList.toggle('scrolled', window.scrollY > 8); };
+    onScroll(); window.addEventListener('scroll', onScroll, {passive:true});
+
+    // Reveal on scroll
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+    }, {threshold:0.12, rootMargin:'0px 0px -40px 0px'});
+    document.querySelectorAll('.ios').forEach(function(el){ io.observe(el); });
+
+    // Load Calendly inline widget once its script is ready (data-auto-load=false avoids double init)
+    (function initCalendly(){
+      var el = document.querySelector('.calendly-inline-widget');
+      if (window.Calendly && el){ window.Calendly.initInlineWidget({url: el.getAttribute('data-url'), parentElement: el}); }
+      else { setTimeout(initCalendly, 300); }
+    })();
+
+    // Lead-magnet forms -> /api/lead-magnet (matches existing site endpoint)
+    document.querySelectorAll('form[data-magnet]').forEach(function(form){
+      form.addEventListener('submit', async function(e){
+        e.preventDefault();
+        var btn = form.querySelector('button[type=submit]');
+        var msg = form.querySelector('.form-msg');
+        var email = (form.elements['email'].value || '').trim();
+        var name = (form.elements['name'] ? form.elements['name'].value : '').trim();
+        if (!email){ form.elements['email'].focus(); return; }
+        var original = btn.textContent;
+        btn.disabled = true; btn.textContent = 'Sending...';
+        try{
+          await fetch('/api/lead-magnet', {
+            method:'POST', headers:{'Content-Type':'application/json'},
+            body: JSON.stringify({ name: name, email: email, magnet: form.dataset.magnet, source: 'bio-landing' })
+          });
+          form.reset();
+          msg.hidden = false; msg.textContent = 'Check your inbox. Your guide is on the way.';
+          btn.textContent = 'Sent ✓';
+        }catch(err){
+          msg.hidden = false;
+          msg.innerHTML = 'Something went wrong. <a href="https://wa.me/6581618149" target="_blank" rel="noopener" style="color:var(--gold-deep);text-decoration:underline">WhatsApp me</a> and I will send it directly.';
+          btn.disabled = false; btn.textContent = original;
+        }
+      });
+    });
+  </script>
+</body>
+</html>
