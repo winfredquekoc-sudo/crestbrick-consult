@@ -58,6 +58,11 @@
   ],
   "redirects": [
     {
+      "source": "/LentorGardenResidences",
+      "destination": "/LentorGardensResidences",
+      "permanent": true
+    },
+    {
       "source": "/links",
       "destination": "/links.html",
       "permanent": false
