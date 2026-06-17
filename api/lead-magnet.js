@@ -8,9 +8,9 @@
 // POST { email, magnet, source } → JSON { ok: true, ebook_url, title }
 import crypto from 'crypto';
 
-const N8N_LEAD_MAGNET_WEBHOOK =
-  process.env.N8N_LEAD_MAGNET_WEBHOOK ||
-  'https://winfredquekoc.app.n8n.cloud/webhook/lead-magnet';
+// Hardcoded to the live leads->Sheet webhook. (A stale N8N_LEAD_MAGNET_WEBHOOK
+// env var was overriding this with a dead URL, so site leads never reached the sheet.)
+const N8N_LEAD_MAGNET_WEBHOOK = 'https://winfredquekoc.app.n8n.cloud/webhook/lead-magnet';
 
 // Lentor leads also enter the 10-touch Gmail drip (one workflow per lead).
 const N8N_LENTOR_DRIP_WEBHOOK =
