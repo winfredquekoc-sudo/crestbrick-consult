@@ -28,19 +28,28 @@ const MAGNETS = {
     url: '/ebooks/foreign-buyer-guide',
   },
   'newsletter': { title: 'Newsletter subscription', url: null },
+  'lentor-gardens-guide': {
+    title: 'Lentor Gardens Residences: The Investor Case',
+    url: '/launches/briefs/lentor-gardens-residences',
+  },
 };
 
-async function notifyTelegram(email, magnet_title, source) {
+async function notifyTelegram(lead) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chat = process.env.TELEGRAM_WINFRED_CHAT_ID;
   if (!token || !chat) return false;
   try {
     const esc = s => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const text = `📥 <b>eBook download</b>\n\n<b>${esc(magnet_title)}</b>\n<code>${email}</code>\nSource: ${esc(source)}`;
+    const lines = ['📥 <b>New lead</b>', '', `<b>${esc(lead.magnet_title)}</b>`];
+    if (lead.name) lines.push(`Name: ${esc(lead.name)}`);
+    lines.push(`<code>${esc(lead.email)}</code>`);
+    if (lead.phone) lines.push(`Mobile: ${esc(lead.phone)}`);
+    if (lead.intent) lines.push(`Goal: ${esc(lead.intent)}`);
+    lines.push(`Source: ${esc(lead.source)}`);
     await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chat, text, parse_mode: 'HTML' }),
+      body: JSON.stringify({ chat_id: chat, text: lines.join('\n'), parse_mode: 'HTML' }),
     });
     return true;
   } catch { return false; }
@@ -92,7 +101,7 @@ export default async function handler(req, res) {
   }
   if (req.method !== 'POST') return res.status(405).json({ ok: false });
 
-  const { email, magnet, source } = (typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {}));
+  const { email, magnet, source, name, phone, intent } = (typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {}));
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
     return res.status(400).json({ ok: false, error: 'invalid_email' });
   }
@@ -101,9 +110,13 @@ export default async function handler(req, res) {
 
   // Fan out — none of these block on each other failing.
   const [tg, n8n, resend] = await Promise.all([
-    notifyTelegram(email, m.title, src),
+    notifyTelegram({ email, name, phone, intent, magnet_title: m.title, source: src }),
     notifyN8n({
-      email, magnet,
+      email,
+      name: name || null,
+      phone: phone || null,
+      intent: intent || null,
+      magnet,
       magnet_title: m.title,
       magnet_url: m.url ? `https://winfredquek.com${m.url}` : null,
       source: src,
