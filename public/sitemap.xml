@@ -955,7 +955,7 @@
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://winfredquek.com/lentor</loc>
+    <loc>https://winfredquek.com/LentorGardenResidences</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
@@ -3762,4 +3762,5 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url><loc>https://winfredquek.com/insights/walk-up-apartments-singapore</loc><lastmod>2026-06-18</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 </urlset>
