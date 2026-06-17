@@ -12,6 +12,22 @@ const N8N_LEAD_MAGNET_WEBHOOK =
   process.env.N8N_LEAD_MAGNET_WEBHOOK ||
   'https://winfredquekoc.app.n8n.cloud/webhook/lead-magnet';
 
+// Lentor leads also enter the 10-touch Gmail drip (one workflow per lead).
+const N8N_LENTOR_DRIP_WEBHOOK =
+  process.env.N8N_LENTOR_DRIP_WEBHOOK ||
+  'https://winfredquekoc.app.n8n.cloud/webhook/lentor-funnel';
+
+async function startLentorDrip(payload) {
+  try {
+    const r = await fetch(N8N_LENTOR_DRIP_WEBHOOK, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
 // eBooks live as HTML pages with a Print/Save-as-PDF button — instant access
 // without needing the actual PDF file present.
 const MAGNETS = {
@@ -109,7 +125,7 @@ export default async function handler(req, res) {
   const src = source || 'resources_page';
 
   // Fan out — none of these block on each other failing.
-  const [tg, n8n, resend] = await Promise.all([
+  const [tg, n8n, resend, drip] = await Promise.all([
     notifyTelegram({ email, name, phone, intent, magnet_title: m.title, source: src }),
     notifyN8n({
       email,
@@ -123,6 +139,9 @@ export default async function handler(req, res) {
       ts: new Date().toISOString(),
     }),
     notifyResend(email, m, src),
+    magnet === 'lentor-gardens-guide'
+      ? startLentorDrip({ email, name: name || '', phone: phone || '', intent: intent || '', magnet, source: src, ts: new Date().toISOString() })
+      : Promise.resolve(false),
   ]);
 
   // Always succeed. The eBook URL is in the response so the page can redirect/show it.
@@ -130,6 +149,6 @@ export default async function handler(req, res) {
     ok: true,
     ebook_url: m.url,
     title: m.title,
-    delivery: { telegram: tg, n8n, resend },
+    delivery: { telegram: tg, n8n, resend, drip },
   });
 }
