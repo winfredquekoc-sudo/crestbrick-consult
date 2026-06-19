@@ -48,11 +48,11 @@ a1 = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still ava
 ok("first enquiry -> SEND_FORM", a1 and a1["type"]=="SEND_FORM")
 ok("SEND_FORM is TWO messages (unit info, then form)", a1 and len(a1.get("texts",[]))==2)
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
-ok("message 2 is the form with the 10 fields", all(x in a1["texts"][1] for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax:","Intended Move in Date:","Preferred Lease Term:","Budget:"]))
+ok("message 2 is the form with the 10 fields", all(x in a1["texts"][1] for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax","Move in Date","Lease Term","Budget"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("same msg id replayed -> None (event dedup)", a1b is None)
 a2 = E.handle_event(st, {"jid":jid,"msg_id":"m2","text":"Name: Raj\nNationality: Indian\nGender: Male","is_from_me":0})
-ok("incomplete profile -> internal FLAG_HUMAN, NO prospect message", a2 and a2["type"]=="FLAG_HUMAN" and a2.get("text") is None)
+ok("incomplete profile -> ONE nudge to prospect (almost there)", a2 and a2["type"]=="NUDGE_INCOMPLETE" and a2.get("text") and "almost there" in a2["text"].lower())
 ok("form NOT resent on 2nd inbound", st["conversations"]["6591234567"]["form_sent"] is True and a2["type"]!="SEND_FORM")
 # blast 5 more inbound at this prospect: the FORM must never go out again, no prospect message
 forms_after=0; prospect_msgs=0
@@ -61,7 +61,7 @@ for i in range(5):
     if z and z.get("type")=="SEND_FORM": forms_after+=1
     if z and z.get("text"): prospect_msgs+=1
 ok("intake form sent EXACTLY once, never re-sent under repeated messages", forms_after==0)
-ok("no prospect-facing message sent while waiting for the form", prospect_msgs==0)
+ok("no FURTHER prospect message after the single nudge", prospect_msgs==0)
 # now complete profile -> Indian on caspian -> REDIRECT
 a3 = E.handle_event(st, {"jid":jid,"msg_id":"m3","text":"Ethnicity: Indian\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nMove in Date: 1 Aug\nLease: 12 months\nBudget: 1200","is_from_me":0})
 ok("Indian completes profile on caspian -> REDIRECT (not sent to landlord)", a3 and a3["type"]=="REDIRECT")
@@ -93,7 +93,7 @@ for j in jids:
             E.handle_event(st,{"jid":j,"msg_id":str(mid),"text":content or "","is_from_me":1,"engine":True}); continue
         a=E.handle_event(st,{"jid":j,"msg_id":str(mid),"text":content or "","is_from_me":0,"listing_key":None})
         if a: c[a["type"]]+=1
-    proactive = c["SEND_FORM"]+c["ASK_FIELDS"]+c["OFFER_VIEWING"]+c["REDIRECT"]+c["ASK_ONE"]+c["FLAG_HUMAN"]
+    proactive = c["SEND_FORM"]+c["ASK_FIELDS"]+c["OFFER_VIEWING"]+c["REDIRECT"]+c["ASK_ONE"]+c["FLAG_HUMAN"]+c["NUDGE_INCOMPLETE"]
     reactive_total += c["ANSWER_QUESTION"]+c["CONFIRM_VIEWING"]
     worst_proactive=max(worst_proactive,proactive)
     max_forms=max(max_forms,c["SEND_FORM"]); max_views=max(max_views,c["OFFER_VIEWING"]); max_redirect=max(max_redirect,c["REDIRECT"])
@@ -295,7 +295,7 @@ ok("opposite-sex couple on female_only + couple_ok FALSE -> DISQUALIFIED",
 ok("_to_int huge number -> None (no crash)", E._to_int("999999999999999999999") is None)
 ok("extract_profile on a giant pasted number does not crash", isinstance(E.extract_profile("budget 999999999999999999999999"), dict))
 # PDPA consent line on the form
-ok("INTAKE_FORM has the field labels and NO CEA signoff", "• Name:" in E.INTAKE_FORM and "• Budget:" in E.INTAKE_FORM and "R073319H" not in E.INTAKE_FORM)
+ok("INTAKE_FORM has the field labels and NO CEA signoff", "• Name:" in E.INTAKE_FORM and "• Budget (" in E.INTAKE_FORM and "R073319H" not in E.INTAKE_FORM)
 
 print("== 14. CYCLE-3 HARDENING regressions ==")
 # offered slot must be future-floored (no past-dated slot offered/confirmed)
@@ -350,7 +350,7 @@ ok("known landlord under manual takeover -> NO co-pilot verdict (excluded)", aLr
 print("== 17. FORM: Preferred Location captured + NO CEA signoff in any tenant-facing copy ==")
 ok("INTAKE_FORM includes a Preferred Location field", "Preferred Location" in E.INTAKE_FORM)
 ok("INTAKE_FORM still has all 10 required field labels",
-   all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax:","Intended Move in Date:","Preferred Lease Term:","Budget:"]))
+   all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax","Move in Date","Lease Term","Budget"]))
 ok("extract_profile captures preferred_location", E.extract_profile("Preferred Location: Tampines").get("preferred_location")=="Tampines")
 ok("preferred_location is NOT a required field (does not gate qualify)", "preferred_location" not in E.REQUIRED_FIELDS)
 ok("INTAKE_FORM has no CEA signoff", "R073319H" not in E.INTAKE_FORM)
@@ -360,6 +360,22 @@ ok("redirect text has no CEA signoff", "R073319H" not in E._redirect_text([], {}
 ok("needs-info text has no CEA signoff", "R073319H" not in E._needs_info_text(["budget"]))
 _svt=E.handle_event({"version":1,"conversations":{"6590111222":{"pn":"6590111222","listing_key":"caspian","stage":"VIEWING_OFFERED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":False,"status":"viewing_offered","offered_slot_id":"s1"}}},{"jid":"6590111222@s.whatsapp.net","msg_id":"vt1","text":"I can do Saturday 3pm","is_from_me":0})
 ok("VIEWING_TIME_PROPOSED text has no CEA signoff", _svt and "R073319H" not in (_svt.get("text") or ""))
+
+print("== 18. FORMAT HINTS + COMPLETION NUDGE ==")
+ok("hinted budget filled -> parsed cleanly", E.extract_profile("• Budget (S$ per month): 1300").get("budget")==1300)
+ok("hinted move-in filled -> parsed cleanly", E.extract_profile("• Intended Move in Date (e.g. 1 Aug): 15 Aug").get("move_in_date")=="15 Aug")
+ok("blank hinted field -> hint NOT captured as a value", E.extract_profile("• Budget (S$ per month):").get("budget") is None)
+ok("blank INTAKE_FORM still yields zero required fields", E.missing_required(E.extract_profile(E.INTAKE_FORM))==E.REQUIRED_FIELDS)
+sn={"version":1,"conversations":{}}; jn="6590778899@s.whatsapp.net"
+E.handle_event(sn,{"jid":jn,"msg_id":"n1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
+an=E.handle_event(sn,{"jid":jn,"msg_id":"n2","text":"Name: Mei\nBudget: 1300","is_from_me":0})
+ok("partial profile -> NUDGE_INCOMPLETE to prospect", an and an["type"]=="NUDGE_INCOMPLETE" and an.get("text"))
+ok("nudge names a missing field, no CEA", an and "nationality" in an["text"].lower() and "R073319H" not in an["text"])
+an2=E.handle_event(sn,{"jid":jn,"msg_id":"n3","text":"still thinking","is_from_me":0})
+ok("nudge fires once only, then silent", an2 is None)
+# completing the profile after a nudge still flows to qualify (REDIRECT here: Indian on caspian)
+an3=E.handle_event(sn,{"jid":jn,"msg_id":"n4","text":"Nationality: Indian\nEthnicity: Indian\nGender: Female\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nMove in: 1 Aug\nLease: 12 months","is_from_me":0})
+ok("profile completed after nudge -> engine proceeds (not stuck silent)", an3 is not None)
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
