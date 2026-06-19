@@ -46,9 +46,7 @@ INTAKE_FORM = (
     "• Intended Move in Date:\n"
     "• Preferred Lease Term:\n"
     "• Budget:\n"
-    "\n"
-    "By sharing these details you agree for me to pass them to the landlord for this "
-    "rental enquiry only. Winfred Quek | CEA R073319H"
+    "• Preferred Location:"
 )
 
 # ---------- identity ----------
@@ -229,6 +227,8 @@ def extract_profile(text):
         if mdec and (b is None or b < 100):
             b = int(float(mdec.group(1)) * 1000)
         if b and 200 < b < 20000: p["budget"]=b
+    loc = grab(r"preferred location|preferred area|location")
+    if loc: p["preferred_location"]=loc.strip()
     return {k:v for k,v in p.items() if v not in (None,"")}
 
 def missing_required(profile):
@@ -245,12 +245,11 @@ def listing_unit_message(listing_key):
             head = msg[:i].rstrip() if i > 0 else msg.rstrip()
             # drop the template's generic viewing line so the live slot is the single source
             head = re.sub(r'\s*(?:\U0001F5D3️|\U0001F5D3)?\s*viewing slots?:[^\n]*', '', head, flags=re.I).rstrip()
+            # strip any CEA signoff baked into the template (no CEA in tenant-facing DMs)
+            head = re.sub(r'\s*Winfred Quek\s*\|\s*CEA\s*R073319H', '', head, flags=re.I).rstrip()
             slot = next_future_slot(listing_key)
             avail = ("\n\nAvailable viewing: " + slot["label"]) if (slot and slot.get("label")) else ""
-            # CEA identity must be on the FIRST outbound message too (compliance), in case the
-            # second message (the form) fails to send.
-            ident = "" if "R073319H" in head else "\n\nWinfred Quek | CEA R073319H"
-            return head + avail + ident
+            return head + avail
     return None
 
 def listing_message(listing_key):
@@ -355,7 +354,7 @@ def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
 
-EXCLUDE_NAMES = ("wanni","shaw","madeleine","darren","amanda")
+EXCLUDE_NAMES = ("wanni","shaw","madeleine","darren","amanda","don chuang")
 def _contact_names(pn):
     """Returns (names_list, db_ok). db_ok is False if the contact DB read FAILED (e.g. lock),
     so the caller can fail-closed rather than treat a locked DB as 'no name = not excluded'."""
@@ -572,6 +571,15 @@ def handle_event(state, ev):
     """
     pn = resolve_pn(ev["jid"])
     if not pn: return None
+    # A known landlord must never become a tenant-intake record. On an outbound-first chat
+    # (Winfred messaging them) manual_takeover would otherwise latch below, BEFORE the Stage-1
+    # exclusion gate is ever reached, quietly re-polluting the funnel. Drop any stray record and
+    # stay out, in either direction. (Unknown-name landlords are still caught at Stage 1 on an
+    # inbound enquiry, and the nightly purge sweeps the rest.)
+    if pn in _landlord_pn_set():
+        if isinstance(state.get("conversations"), dict):
+            state["conversations"].pop(pn, None)
+        return None
     rec = _rec(state, pn)
 
     # ----- our own / human outbound -----
@@ -714,7 +722,7 @@ def handle_event(state, ev):
         rec["status"] = "viewing_time_proposed"
         # acknowledge the prospect so they are not left silent, AND ping Winfred to confirm.
         return {"type":"VIEWING_TIME_PROPOSED", "pn":pn, "when":ev.get("text"), "notify":True,
-                "text":"Got it, let me confirm that slot with the owner and revert to you shortly. Winfred Quek | CEA R073319H"}
+                "text":"Got it, let me confirm that slot with the owner and revert to you shortly."}
     # a question is handled as a question FIRST, so "can I view on Tuesday?" is not read as
     # a confirmation. 'can' is dropped from the affirmative set (too easily embedded).
     if "?" in (ev.get("text") or ""):
@@ -724,7 +732,7 @@ def handle_event(state, ev):
     if not rec["viewing_confirmed"] and re.search(r"\b(yes|yep|yes please|ok|okay|confirm(?:ed)?|sure|deal)\b", txt):
         rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
         return {"type":"CONFIRM_VIEWING", "pn":pn, "slot_id":rec.get("offered_slot_id"), "notify":True,
-                "text":"Great, your viewing is confirmed. I will share the exact unit and meeting point closer to the time. Winfred Quek | CEA R073319H"}
+                "text":"Great, your viewing is confirmed. I will share the exact unit and meeting point closer to the time."}
     return None
 
 def _has_viewing_time(t):
@@ -743,23 +751,20 @@ def _ask_text(fields):
              "no_of_pax":"how many people will stay","move_in_date":"your move in date",
              "lease_term_months":"your preferred lease term","budget":"your monthly budget"}
     asks = ", ".join(label.get(f,f) for f in fields)
-    return "Thanks. Just need a couple more details to send to the landlord: " + asks + ". " \
-           "Winfred Quek | CEA R073319H"
+    return "Thanks. Just need a couple more details to send to the landlord: " + asks + "."
 
 def _needs_info_text(why):
-    return "Almost there. " + "; ".join(why) + ". Could you confirm this so I can send your profile to the landlord? " \
-           "Winfred Quek | CEA R073319H"
+    return "Almost there. " + "; ".join(why) + ". Could you confirm this so I can send your profile to the landlord?"
 
 CHANNEL = "https://whatsapp.com/channel/0029VbCoWRs4inomDhoAAv0G"
 def _redirect_text(why, profile, reqs):
     # never reveal the reason or any protected attribute. kind note + channel referral.
     return ("Thanks for sending this :) Sorry, the profile does not match for this unit. "
-            "You may find other rooms that suit you on my Singapore rental channel here: " + CHANNEL + "\n"
-            "Winfred Quek | CEA R073319H")
+            "You may find other rooms that suit you on my Singapore rental channel here: " + CHANNEL)
 
 def _viewing_text(slot):
     if slot:
         return "Thanks, you fit what the landlord is looking for. I will send your profile over now. " \
-               "The next viewing is " + slot["label"] + ". Reply YES to take this slot. Winfred Quek | CEA R073319H"
+               "The next viewing is " + slot["label"] + ". Reply YES to take this slot."
     return "Thanks, you fit what the landlord is looking for. I will send your profile over now. " \
-           "When are you able to view? Winfred Quek | CEA R073319H"
+           "When are you able to view?"
