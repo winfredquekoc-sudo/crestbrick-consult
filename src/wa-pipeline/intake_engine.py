@@ -42,11 +42,11 @@ INTAKE_FORM = (
     "• Gender:\n"
     "• Age:\n"
     "• Type of Pass (PR/EP/S Pass/STP/SC etc):\n"
-    "• No. of Pax:\n"
-    "• Intended Move in Date:\n"
-    "• Preferred Lease Term:\n"
-    "• Budget:\n"
-    "• Preferred Location:"
+    "• No. of Pax (how many staying):\n"
+    "• Intended Move in Date (e.g. 1 Aug):\n"
+    "• Preferred Lease Term (e.g. 12 or 24 months):\n"
+    "• Budget (S$ per month):\n"
+    "• Preferred Location (area or MRT):"
 )
 
 # ---------- identity ----------
@@ -183,6 +183,12 @@ def extract_profile(text):
         if not m:
             return None
         val = m.group(1).strip().lstrip("•").strip()
+        # if a format hint sits between the label and the value (e.g. "Date (e.g. 1 Aug): 15 Aug"),
+        # take what follows the LAST colon, then drop a leading "(...)" hint. A blank field that only
+        # echoes the hint then collapses to empty -> None, so a hint is never read as a real value.
+        if ":" in val:
+            val = val.split(":")[-1].strip()
+        val = re.sub(r"^\([^)]*\)\s*", "", val).strip()
         # reject an empty value or one that is itself another field label
         if not val or re.match(r"^(name|nationality|ethnic|gender|sex|age|type\s+of\s+pass|pass|visa|"
                                r"no\.?\s*of|pax|occupant|intended|move|preferred|lease|budget|rent)\b", val, re.I):
@@ -677,12 +683,14 @@ def handle_event(state, ev):
     if not rec["viewing_asked"] and not rec.get("terminal"):
         miss = missing_required(rec["profile"])
         if miss:
-            # do NOT message the prospect again. log what we have, flag to Winfred once.
-            if rec.get("flagged_incomplete"): return None
-            rec["flagged_incomplete"] = True
+            # nudge the prospect ONCE with the fields still missing (recovers partial fillers and
+            # people who replied without using the form), then go silent. Anti-spam: one nudge.
+            if rec.get("nudged_incomplete"): return None
+            rec["nudged_incomplete"] = True
             rec["stage"] = "PROFILE_PENDING"; rec["status"] = "incomplete"
-            return {"type":"FLAG_HUMAN", "pn":pn,
-                    "reason":"incomplete profile, missing " + ", ".join(miss), "text":None}
+            return {"type":"NUDGE_INCOMPLETE", "pn":pn,
+                    "reason":"incomplete profile, missing " + ", ".join(miss),
+                    "text":_nudge_text(miss)}
         # profile complete
         # service policy: never match a profile the landlords will not take. Kind referral, once.
         pol = policy_excluded(rec["profile"], rec.get("last_inbound",""))
@@ -752,6 +760,16 @@ def _ask_text(fields):
              "lease_term_months":"your preferred lease term","budget":"your monthly budget"}
     asks = ", ".join(label.get(f,f) for f in fields)
     return "Thanks. Just need a couple more details to send to the landlord: " + asks + "."
+
+_NUDGE_LABELS = {"name":"name","nationality":"nationality","ethnicity":"ethnicity",
+                 "gender":"gender","age":"age","pass_type":"type of pass (PR/EP/S Pass/SC etc)",
+                 "no_of_pax":"number of people staying","move_in_date":"move in date",
+                 "lease_term_months":"preferred lease term","budget":"monthly budget (S$)",
+                 "preferred_location":"preferred location"}
+def _nudge_text(miss):
+    fields = ", ".join(_NUDGE_LABELS.get(f, f) for f in miss)
+    return ("Almost there :) To send your profile to the landlord I still need: " + fields +
+            ". Could you fill these in?")
 
 def _needs_info_text(why):
     return "Almost there. " + "; ".join(why) + ". Could you confirm this so I can send your profile to the landlord?"
