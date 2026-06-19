@@ -62,6 +62,22 @@ Result: **160 tenant conversations** remain. Backup: `intake-state.json.bak-2026
 - `tests/wa-pipeline/test_intake_engine.py`: **129 passed, 0 failed** (added section 16 for co-pilot; existing manual-takeover and landlord-exclusion tests still green).
 - Live runner ran once post-change: `processed N new messages, 0 engine actions, DRY_RUN=False`, exit 0.
 
+## Update — made self-maintaining (same day)
+
+The cleanup above was one-time, and within ~90 minutes 8 landlord records had already
+re-accumulated (outbound-first chats latch `manual_takeover` before the exclusion gate). Closed
+the loop so it does not rot back:
+
+- **Engine source-guard:** `handle_event` now drops / never creates a record for any phone in
+  `_landlord_pn_set()`, in either direction — the outbound-first re-pollution vector is closed.
+  Verified: 0 re-pollution after a runner tick (was 8 in 90 min).
+- **Nightly sweep + visibility:** `clean_intake_state_landlords.py` gained a `--quiet` funnel-health
+  mode and is now invoked from the **existing** `~/.claude/bin/refresh-rental-dbs.sh` 00:00 job
+  (no new launchd job). It `--apply`s the purge *after* the landlord DB is refreshed and Telegrams
+  a one-line digest: `Active | Manual% | Qualified | Viewing | Incomplete | Forms sent`, plus
+  purge counts and a count of landlords detected-but-not-in-the-DB (so they can be saved as
+  contacts). Tests: 130 pass.
+
 ## Recommendations / follow-ups
 
 1. **Watch the Telegram co-pilot pings for a few days.** If volume is high, tighten to QUALIFIED-only.

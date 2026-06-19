@@ -1,25 +1,30 @@
 #!/usr/bin/env python3
 """
 clean_intake_state_landlords.py — purge non-tenant conversations from the live tenant intake
-state (intake-state.json).
+state (intake-state.json), and (in --quiet mode) emit a funnel-health summary for the nightly
+Telegram digest.
 
-Why: the intake state accumulated landlords (Winfred messaging them first latched
-manual_takeover BEFORE the exclusion gate was ever reached) plus a few agents. They are not
-prospective tenants and should never sit in tenant intake — they inflate the "not qualifying"
-denominator and can (pre-fix) have been screened.
+Why: the intake state accumulates landlords (Winfred messaging them first latched
+manual_takeover BEFORE the exclusion gate) plus the odd agent. They are not prospective tenants
+and should never sit in tenant intake. The engine now blocks KNOWN landlords at source; this
+script is the recurring sweep that also catches landlords not yet in the landlord DB (detected
+by Winfred's own landlord-side outbound phrasing) and reports them so they can be saved.
 
 Safe on the LIVE runner:
   - acquires the SAME flock the runner uses, so there is no read/modify/write race; the
-    runner's next 120s tick simply skips while we hold it.
+    runner's next 120s tick simply skips while we hold it (exit 2 if the runner holds it now).
   - backs up intake-state.json before writing.
   - removal criteria are HIGH PRECISION only:
       1. pn (or lid) in the authoritative landlord DB
       2. status starts with 'excluded:'  (agent/colleague/landlord already flagged)
       3. Winfred's OWN outbound contains a landlord-side phrase a tenant message never has
          ('screen tenants', 'your property details', 'photos of your room', 'help me market'...)
-  - prints a full, auditable report; nothing is silent.
 
-DRY RUN by default. Pass --apply to actually write.
+Modes:
+  (default)        DRY RUN, verbose: lists every conversation that would be removed.
+  --apply          Commit the removal (with backup).
+  --quiet          Suppress the per-row list; print a short funnel-health + purge summary
+                   (intended for the nightly Telegram digest). Combine with --apply nightly.
 """
 import os, re, json, sys, fcntl, sqlite3, datetime, importlib.util, collections
 
@@ -33,6 +38,7 @@ MSG   = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 WA    = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/whatsapp.db")
 
 APPLY = "--apply" in sys.argv
+QUIET = "--quiet" in sys.argv
 
 # Phrases Winfred only ever says to a LANDLORD (never to a tenant). Deliberately does NOT match
 # the bot's "send your profile to the landlord" (that contains "profile", not "property").
@@ -74,17 +80,22 @@ def outbound_landlord_signal(pn):
     finally:
         mc.close()
 
-def main():
-    lf = open(LOCK, "a+")
-    try:
-        fcntl.flock(lf, fcntl.LOCK_EX | fcntl.LOCK_NB)
-    except OSError:
-        print("runner holds the lock right now; retry in a few seconds"); sys.exit(2)
+def funnel_health(keep):
+    """Read-only snapshot of the ACTIVE tenant funnel (post-purge), for the nightly digest."""
+    active = len(keep)
+    manual = sum(1 for r in keep.values() if r.get("manual_takeover"))
+    qualified = sum(1 for r in keep.values() if (r.get("qualify") or {}).get("verdict") == "QUALIFIED")
+    viewing = sum(1 for r in keep.values() if r.get("status") in
+                  ("viewing_offered", "viewing_confirmed", "viewing_time_proposed"))
+    incomplete = sum(1 for r in keep.values()
+                     if r.get("status") == "incomplete" or r.get("stage") == "PROFILE_PENDING")
+    forms = sum(1 for r in keep.values() if r.get("form_sent"))
+    pct = round(100 * manual / active) if active else 0
+    return dict(active=active, manual_pct=pct, qualified=qualified,
+                viewing=viewing, incomplete=incomplete, forms=forms)
 
-    s = json.load(open(STATE))
-    conv = s.get("conversations", {})
+def classify(conv):
     landlord_set = E._landlord_pn_set()
-
     remove = {}  # pn -> reason
     for pn, r in conv.items():
         st = str(r.get("status", ""))
@@ -95,32 +106,66 @@ def main():
         sig = outbound_landlord_signal(pn)
         if sig:
             remove[pn] = "landlord_conversation: " + sig; continue
-
     keep = {pn: r for pn, r in conv.items() if pn not in remove}
+    return remove, keep
+
+def main():
+    lf = open(LOCK, "a+")
+    try:
+        fcntl.flock(lf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+    except OSError:
+        print("runner holds the lock right now; retry in a few seconds"); sys.exit(2)
+
+    s = json.load(open(STATE))
+    conv = s.get("conversations", {})
+    remove, keep = classify(conv)
+
+    bak = None
+    if APPLY:
+        ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        bak = STATE + ".bak-" + ts
+        with open(bak, "w") as f:
+            json.dump(s, f, indent=1, ensure_ascii=False)
+        s["conversations"] = keep
+        tmp = STATE + ".tmp"
+        with open(tmp, "w") as f:
+            json.dump(s, f, indent=1, ensure_ascii=False)
+        os.replace(tmp, STATE)
+
+    rc = collections.Counter(v.split(":")[0] for v in remove.values())
+    unlisted = sum(1 for v in remove.values() if v.startswith("landlord_conversation"))
+
+    if QUIET:
+        # compact summary for the nightly Telegram digest
+        h = funnel_health(keep)
+        verb = "Purged" if APPLY else "Would purge"
+        lines = [
+            "Tenant funnel auto-maintenance:",
+            f"Active: {h['active']} | Manual: {h['manual_pct']}% | Qualified: {h['qualified']} | "
+            f"Viewing: {h['viewing']} | Incomplete: {h['incomplete']} | Forms sent: {h['forms']}",
+            f"{verb} {len(remove)} non-tenant records "
+            f"(landlord_db {rc.get('landlord_db', 0)}, conversation {rc.get('landlord_conversation', 0)}, "
+            f"excluded {rc.get('status_excluded', 0)}).",
+        ]
+        if unlisted:
+            lines.append(f"{unlisted} landlord(s) detected by conversation are NOT in landlord-db.json "
+                         f"— save them as 'Landlord' contacts so the nightly refresh adds them.")
+        print("\n".join(lines))
+        return
+
+    # verbose (manual/dry-run) output
     print(f"TOTAL conversations : {len(conv)}")
     print(f"TO REMOVE           : {len(remove)}")
     print(f"KEEP                : {len(keep)}")
-    rc = collections.Counter(v.split(":")[0] for v in remove.values())
     print("removal reasons     :", dict(rc))
     print()
     for pn, why in sorted(remove.items()):
         nm = (conv[pn].get("profile", {}) or {}).get("name") or ""
         label = ("[" + nm + "]") if nm else ""
         print(f"  - {pn:16} {label:24} {why[:92]}")
-
     if not APPLY:
         print("\nDRY RUN (no changes written). Re-run with --apply to commit.")
         return
-
-    ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-    bak = STATE + ".bak-" + ts
-    with open(bak, "w") as f:
-        json.dump(s, f, indent=1, ensure_ascii=False)
-    s["conversations"] = keep
-    tmp = STATE + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump(s, f, indent=1, ensure_ascii=False)
-    os.replace(tmp, STATE)
     print(f"\nAPPLIED. backup: {bak}")
     print(f"removed {len(remove)}, kept {len(keep)}")
 

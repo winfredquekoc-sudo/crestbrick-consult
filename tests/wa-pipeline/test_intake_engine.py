@@ -145,7 +145,11 @@ ok("is_enquiry false for chit chat", not E.is_enquiry("hi how are you bro"))
 # a landlord who sends an enquiry-looking message still gets NO form
 sL={"version":1,"conversations":{}}
 aL=E.handle_event(sL,{"jid":"6500000000@s.whatsapp.net","msg_id":"L1","text":"is the room still available","is_from_me":0,"listing_key":"bayshore"})
-ok("landlord -> FLAG_HUMAN, no message sent", aL and aL["type"]=="FLAG_HUMAN" and aL.get("text") is None)
+ok("known landlord -> silent, no tenant record created (never messaged)", aL is None and "6500000000" not in sL["conversations"])
+# a landlord we message FIRST (outbound) must also never become a tenant record
+sLo={"version":1,"conversations":{}}
+E.handle_event(sLo,{"jid":"6500000000@s.whatsapp.net","msg_id":"Lo1","text":"hi, following up on your unit","is_from_me":1,"engine":False})
+ok("known landlord outbound-first -> no record (pollution vector closed)", "6500000000" not in sLo["conversations"])
 # a non-enquiry first message -> no form
 sN={"version":1,"conversations":{}}
 aN=E.handle_event(sN,{"jid":"6590001111@s.whatsapp.net","msg_id":"N1","text":"hello bro long time","is_from_me":0})
@@ -291,7 +295,7 @@ ok("opposite-sex couple on female_only + couple_ok FALSE -> DISQUALIFIED",
 ok("_to_int huge number -> None (no crash)", E._to_int("999999999999999999999") is None)
 ok("extract_profile on a giant pasted number does not crash", isinstance(E.extract_profile("budget 999999999999999999999999"), dict))
 # PDPA consent line on the form
-ok("INTAKE_FORM carries a PDPA consent + CEA identity", "agree" in E.INTAKE_FORM.lower() and "R073319H" in E.INTAKE_FORM)
+ok("INTAKE_FORM has the field labels and NO CEA signoff", "• Name:" in E.INTAKE_FORM and "• Budget:" in E.INTAKE_FORM and "R073319H" not in E.INTAKE_FORM)
 
 print("== 14. CYCLE-3 HARDENING regressions ==")
 # offered slot must be future-floored (no past-dated slot offered/confirmed)
@@ -305,7 +309,7 @@ ok("couple_ok caps pax: a 'couple' of 4 on max_pax 2 -> DISQUALIFIED",
 ok("couple of 2 on max_pax 1 + couple_ok -> allowed (cap is max(mx,2))",
    E.qualify({"gender":"any","couple_ok":True,"max_pax":1,"budget_floor":1000}, {"gender":"Male and Female","no_of_pax":2,"lease_term_months":12,"budget":1200})[0]!="DISQUALIFIED")
 # CEA identity on message 1 (unit info)
-ok("listing_unit_message carries CEA identity", "R073319H" in (E.listing_unit_message("caspian") or ""))
+ok("listing_unit_message has NO CEA signoff", "R073319H" not in (E.listing_unit_message("caspian") or ""))
 # unit-info echo is recognised (bot-only markers) but a genuine 'still available' enquiry is not
 ok("unit-info message 1 echo recognised as our echo", RNR._is_our_echo(E.listing_unit_message("caspian") or "✅ Suits: x") is True)
 ok("genuine 'still available?' enquiry is NOT an echo (still served)", RNR._is_our_echo("Hi is Caspian still available?") is False)
@@ -342,6 +346,20 @@ E.handle_event(slr,{"jid":jlr,"msg_id":"lr1","text":"hi can you confirm","is_fro
 E.handle_event(slr,{"jid":jlr,"msg_id":"lr2","text":_full,"is_from_me":0,"listing_key":"caspian"})
 aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_full,"is_from_me":0,"listing_key":"caspian"})
 ok("known landlord under manual takeover -> NO co-pilot verdict (excluded)", aLr is None)
+
+print("== 17. FORM: Preferred Location captured + NO CEA signoff in any tenant-facing copy ==")
+ok("INTAKE_FORM includes a Preferred Location field", "Preferred Location" in E.INTAKE_FORM)
+ok("INTAKE_FORM still has all 10 required field labels",
+   all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax:","Intended Move in Date:","Preferred Lease Term:","Budget:"]))
+ok("extract_profile captures preferred_location", E.extract_profile("Preferred Location: Tampines").get("preferred_location")=="Tampines")
+ok("preferred_location is NOT a required field (does not gate qualify)", "preferred_location" not in E.REQUIRED_FIELDS)
+ok("INTAKE_FORM has no CEA signoff", "R073319H" not in E.INTAKE_FORM)
+ok("viewing text (no slot) has no CEA signoff", "R073319H" not in E._viewing_text(None))
+ok("viewing text (with slot) has no CEA signoff", "R073319H" not in E._viewing_text({"label":"Sat 3pm"}))
+ok("redirect text has no CEA signoff", "R073319H" not in E._redirect_text([], {}, {}))
+ok("needs-info text has no CEA signoff", "R073319H" not in E._needs_info_text(["budget"]))
+_svt=E.handle_event({"version":1,"conversations":{"6590111222":{"pn":"6590111222","listing_key":"caspian","stage":"VIEWING_OFFERED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":False,"status":"viewing_offered","offered_slot_id":"s1"}}},{"jid":"6590111222@s.whatsapp.net","msg_id":"vt1","text":"I can do Saturday 3pm","is_from_me":0})
+ok("VIEWING_TIME_PROPOSED text has no CEA signoff", _svt and "R073319H" not in (_svt.get("text") or ""))
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

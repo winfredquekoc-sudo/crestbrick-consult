@@ -71,7 +71,7 @@ def _guard_reserve(jid):
 
 # Filled-profile detection: a prospect's COMPLETED form contains values after the labels,
 # unlike the blank form the bot sends (which the bridge sometimes echoes as is_from_me=0).
-_FILLED_RE = re.compile(r"(name|nationality|ethnicity|gender|age|pass|budget|occupation)\s*[:：]\s*\S", re.I)
+_FILLED_RE = re.compile(r"(name|nationality|ethnicity|gender|age|pass|budget|occupation)\s*[:：][^\S\n]*\S", re.I)
 # Phrases ONLY the bot ever sends — a prospect would never type these.
 _OUTBOUND_ONLY = (
     "your viewing is confirmed", "you fit what the landlord", "the next viewing is",
@@ -192,7 +192,7 @@ def run():
                     ap[lk2] = today
                     notify_winfred("New tenant enquiry for " + lk2 + ", but no upcoming viewing "
                         "slot is captured for it. Reply with the landlord's next available viewing "
-                        "time so I can offer it to qualified prospects.\nWinfred Quek | CEA R073319H")
+                        "time so I can offer it to qualified prospects.")
             # an action may carry 1 or 2 messages (SEND_FORM = unit info + form, sent once).
             texts = a.get("texts") or ([a["text"]] if a.get("text") else [])
             if not texts:
