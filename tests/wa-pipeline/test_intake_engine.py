@@ -325,27 +325,38 @@ ok("on the day itself it still offers that day", E._fixed_viewing_slot("bayshore
 ok("next_future_slot returns the fixed slot (overrides the availability file)", (E.next_future_slot("bayshore") or {}).get("fixed") is True)
 ok("a listing with NO fixed rule is unaffected", E._fixed_viewing_slot("caspian","2026-06-17") is None)
 
-print("== 16. CO-PILOT under manual takeover (screen silently, notify Winfred, never message prospect) ==")
+print("== 16. CO-PILOT under manual takeover (screen; auto-offer viewing when QUALIFIED + slot) ==")
+# manual takeover + incomplete profile -> engine stays silent
 scp={"version":1,"conversations":{}}; jcp="6590221100@s.whatsapp.net"
 E.handle_event(scp,{"jid":jcp,"msg_id":"cp1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 E.handle_event(scp,{"jid":jcp,"msg_id":"cp2","text":"let me check with the landlord ah","is_from_me":1,"engine":False})  # Winfred by hand
 ok("manual takeover latched", scp["conversations"]["6590221100"]["manual_takeover"] is True)
 aI=E.handle_event(scp,{"jid":jcp,"msg_id":"cp3","text":"Name: Mei","is_from_me":0})
-ok("incomplete profile under manual takeover -> still silent (no co-pilot yet)", aI is None)
-_full="Name: Mei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 30\nType of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 1300"
-aC=E.handle_event(scp,{"jid":jcp,"msg_id":"cp4","text":_full,"is_from_me":0})
-ok("complete profile under manual takeover -> COPILOT_VERDICT", aC and aC["type"]=="COPILOT_VERDICT")
-ok("co-pilot notifies Winfred", aC and aC.get("notify") is True)
-ok("co-pilot NEVER messages the prospect (text is None)", aC and aC.get("text") is None)
-ok("co-pilot carries a screening verdict", aC and aC.get("verdict") in ("QUALIFIED","NEEDS_INFO","DISQUALIFIED"))
-aC2=E.handle_event(scp,{"jid":jcp,"msg_id":"cp5","text":"you there?","is_from_me":0})
-ok("co-pilot fires once per verdict (no repeat ping on same verdict)", aC2 is None)
-# a known landlord (Example Landlord) under manual takeover with a complete profile -> NO co-pilot
+ok("incomplete profile under manual takeover -> still silent", aI is None)
+# manual takeover + DISQUALIFIED (Indian on caspian) -> COPILOT_VERDICT, NO prospect message
+sdq={"version":1,"conversations":{}}; jdq="6590222200@s.whatsapp.net"
+E.handle_event(sdq,{"jid":jdq,"msg_id":"dq1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
+E.handle_event(sdq,{"jid":jdq,"msg_id":"dq2","text":"let me check ah","is_from_me":1,"engine":False})
+_dqf="Name: Raj\nNationality: Indian\nEthnicity: Indian\nGender: Male\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 1200"
+aDq=E.handle_event(sdq,{"jid":jdq,"msg_id":"dq3","text":_dqf,"is_from_me":0})
+ok("DISQUALIFIED under manual -> COPILOT_VERDICT (notify), no prospect message", aDq and aDq["type"]=="COPILOT_VERDICT" and aDq.get("notify") is True and aDq.get("text") is None)
+# manual takeover + QUALIFIED + open slot (bayshore has a fixed weekly slot) -> AUTO-OFFER viewing
+_qf="Name: Mei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 30\nType of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 1500"
+sql={"version":1,"conversations":{}}; jql="6590223300@s.whatsapp.net"
+E.handle_event(sql,{"jid":jql,"msg_id":"q1","text":"Hi is the Bayshore room still available?","is_from_me":0,"listing_key":"bayshore"})
+E.handle_event(sql,{"jid":jql,"msg_id":"q2","text":"let me check with owner ah","is_from_me":1,"engine":False})
+aQ=E.handle_event(sql,{"jid":jql,"msg_id":"q3","text":_qf,"is_from_me":0})
+ok("QUALIFIED under manual + slot -> AUTO-OFFER viewing to prospect", aQ and aQ["type"]=="OFFER_VIEWING" and aQ.get("text"))
+ok("auto-offer also pings Winfred (copilot + notify)", aQ and aQ.get("copilot") is True and aQ.get("notify") is True)
+ok("auto-offer fires once (no second offer)", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"you there?","is_from_me":0}) is None)
+aYes=E.handle_event(sql,{"jid":jql,"msg_id":"q5","text":"yes sounds good","is_from_me":0})
+ok("prospect YES after auto-offer -> ping Winfred, no auto-confirm to prospect", aYes and aYes["type"]=="VIEWING_TIME_PROPOSED" and aYes.get("notify") is True and aYes.get("text") is None)
+# a known landlord (Example Landlord) under manual takeover -> NO co-pilot / no auto-offer
 slr={"version":1,"conversations":{}}; jlr="6500000000@s.whatsapp.net"
-E.handle_event(slr,{"jid":jlr,"msg_id":"lr1","text":"hi can you confirm","is_from_me":1,"engine":False})  # outbound-first -> manual
-E.handle_event(slr,{"jid":jlr,"msg_id":"lr2","text":_full,"is_from_me":0,"listing_key":"caspian"})
-aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_full,"is_from_me":0,"listing_key":"caspian"})
-ok("known landlord under manual takeover -> NO co-pilot verdict (excluded)", aLr is None)
+E.handle_event(slr,{"jid":jlr,"msg_id":"lr1","text":"hi can you confirm","is_from_me":1,"engine":False})
+E.handle_event(slr,{"jid":jlr,"msg_id":"lr2","text":_qf,"is_from_me":0,"listing_key":"bayshore"})
+aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_qf,"is_from_me":0,"listing_key":"bayshore"})
+ok("known landlord under manual takeover -> NO co-pilot/auto-offer", aLr is None)
 
 print("== 17. FORM: Preferred Location captured + NO CEA signoff in any tenant-facing copy ==")
 ok("INTAKE_FORM includes a Preferred Location field", "Preferred Location" in E.INTAKE_FORM)
