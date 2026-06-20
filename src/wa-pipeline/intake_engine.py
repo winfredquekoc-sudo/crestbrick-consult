@@ -23,6 +23,7 @@ No hyphens or dashes in any tenant-facing copy (per Winfred's standing rule).
 import json, os, re, sqlite3, functools
 
 DRY_RUN = False  # LIVE 2026-06-17: restored after form_sent crash fix (backlog already drained in preview)
+MAX_PROSPECT_MSGS = 10  # hard cap: at most this many prospect-facing messages per person (per qualification attempt)
 
 WA_DB   = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/whatsapp.db")
 IDX     = os.path.expanduser("~/.claude/state/listing-templates/listing-index.json")
@@ -581,8 +582,29 @@ def _copilot_verdict(rec):
     return {"type": "COPILOT_VERDICT", "pn": rec.get("pn"), "notify": True, "text": None,
             "verdict": verdict, "why": why, "listing_key": lk}
 
-# ---------- core handler: returns at most ONE action ----------
+# ---------- core handler: entry point enforces the per-prospect message cap ----------
 def handle_event(state, ev):
+    """Entry point: run the engine, then enforce a hard cap of MAX_PROSPECT_MSGS prospect-facing
+    messages per person across the whole qualification attempt. Beyond the cap the bot stops
+    messaging them and pings Winfred once (CAP_REACHED). Notify-only actions (FLAG_HUMAN /
+    COPILOT_VERDICT / ANSWER_QUESTION) carry no prospect text, so they never count and are never
+    capped — a real back-and-forth that needs Winfred can still surface."""
+    a = _handle_event_inner(state, ev)
+    if a and (a.get("text") or a.get("texts")):
+        rec = state.get("conversations", {}).get(a.get("pn"))
+        if rec is not None:
+            if rec.get("sent_count", 0) >= MAX_PROSPECT_MSGS:
+                if rec.get("cap_flagged"):
+                    return None                       # already flagged once -> stay silent
+                rec["cap_flagged"] = True
+                return {"type": "CAP_REACHED", "pn": a.get("pn"), "notify": True, "text": None,
+                        "listing_key": rec.get("listing_key"),
+                        "reason": "reached the " + str(MAX_PROSPECT_MSGS) + " message cap"}
+            rec["sent_count"] = rec.get("sent_count", 0) + len(a.get("texts") or [a.get("text")])
+    return a
+
+# ---------- inner handler: returns at most ONE action ----------
+def _handle_event_inner(state, ev):
     """
     ev = {jid, msg_id, text, is_from_me, listing_key (optional)}
     Returns an action dict {type, pn, text?} or None. At most one per inbound.

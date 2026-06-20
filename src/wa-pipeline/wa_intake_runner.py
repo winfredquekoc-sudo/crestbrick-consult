@@ -184,6 +184,8 @@ def run():
                         notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) does NOT fit {lk}. Reason: {'; '.join(why)}.")
                 elif a["type"] == "OFFER_VIEWING" and a.get("copilot"):
                     notify_winfred(f"Co-pilot offered a viewing (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}, so I sent them the next slot and asked them to reply YES. Step in if you want to take it from here.")
+                elif a["type"] == "CAP_REACHED":
+                    notify_winfred(f"Auto-message cap ({E.MAX_PROSPECT_MSGS}) reached for {nm} ({a['pn']}) on {lk}. The bot will stop messaging them now — take over by hand if you want to keep going.")
             # at first enquiry for a listing with no captured viewing slot, ask Winfred for the
             # landlord's availability (once per listing per day, so it never spams).
             if a.get("type") == "SEND_FORM" and a.get("capture_availability"):
