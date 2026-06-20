@@ -565,6 +565,19 @@ def _copilot_verdict(rec):
         return None                       # already surfaced this exact verdict to Winfred
     rec["copilot_sig"] = sig
     rec["qualify"] = {"verdict": verdict, "why": why}
+    # Under manual takeover, a QUALIFIED prospect with an open slot gets the viewing offered
+    # AUTOMATICALLY (the source-aware guard now lets the engine's own follow-up through). Winfred
+    # is still pinged so he can step in. Fires once (viewing_asked latch).
+    if verdict == "QUALIFIED" and not rec.get("viewing_asked"):
+        slot = next_slot(lk)
+        if slot:
+            rec["viewing_asked"] = True
+            rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
+            rec["offered_slot_id"] = slot.get("slot_id")
+            return {"type": "OFFER_VIEWING", "pn": rec.get("pn"), "slot": slot,
+                    "slot_id": rec["offered_slot_id"], "text": _viewing_text(slot),
+                    "notify": True, "copilot": True, "listing_key": lk, "verdict": verdict}
+    # NEEDS_INFO / DISQUALIFIED, or QUALIFIED with no open slot -> notify Winfred only (he handles).
     return {"type": "COPILOT_VERDICT", "pn": rec.get("pn"), "notify": True, "text": None,
             "verdict": verdict, "why": why, "listing_key": lk}
 
@@ -616,9 +629,17 @@ def handle_event(state, ev):
         rec["listing_key"] = ev["listing_key"]; new_data = True
     if rec["manual_takeover"]:
         rec["status"] = "manual"
-        # CO-PILOT: stay silent to the PROSPECT, but still screen a complete profile and surface
-        # the verdict to Winfred (Telegram only) so a qualified tenant he is handling by hand is
-        # never missed. Returns None unless there is a fresh, screenable verdict.
+        # If the co-pilot already auto-offered a viewing and the prospect now gives a time or says
+        # yes, ping Winfred to confirm with the landlord (do not auto-confirm to the prospect while
+        # he is handling the chat). Fires once.
+        if rec.get("viewing_asked") and not rec.get("viewing_confirmed"):
+            _t = (ev.get("text") or "").lower()
+            if _has_viewing_time(_t) or re.search(r"\b(yes|yep|ok|okay|confirm(?:ed)?|sure|deal)\b", _t):
+                rec["viewing_confirmed"] = True
+                return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "when": ev.get("text"),
+                        "notify": True, "text": None, "copilot": True}
+        # CO-PILOT: otherwise stay silent to the prospect but screen a complete profile; if QUALIFIED
+        # with an open slot, auto-offer the viewing (and ping Winfred). Else notify only.
         return _copilot_verdict(rec)
 
     reqs = listing_reqs()
