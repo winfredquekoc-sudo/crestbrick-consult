@@ -388,5 +388,25 @@ ok("nudge fires once only, then silent", an2 is None)
 an3=E.handle_event(sn,{"jid":jn,"msg_id":"n4","text":"Nationality: Indian\nEthnicity: Indian\nGender: Female\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nMove in: 1 Aug\nLease: 12 months","is_from_me":0})
 ok("profile completed after nudge -> engine proceeds (not stuck silent)", an3 is not None)
 
+print("== 19. 10-MESSAGE CAP per prospect ==")
+ok("MAX_PROSPECT_MSGS is 10", E.MAX_PROSPECT_MSGS == 10)
+def _vo_cap(pn, n):
+    return {"version":1,"conversations":{pn:{"pn":pn,"listing_key":"caspian","stage":"VIEWING_OFFERED",
+            "profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],
+            "viewing_asked":True,"viewing_confirmed":False,"manual_takeover":False,
+            "status":"viewing_offered","offered_slot_id":"s1","sent_count":n}}}
+su=_vo_cap("6590333400",3)
+aU=E.handle_event(su,{"jid":"6590333400@s.whatsapp.net","msg_id":"u1","text":"saturday 3pm works","is_from_me":0})
+ok("under cap -> prospect message still sent", aU and aU.get("text"))
+ok("counter increments after a send", su["conversations"]["6590333400"].get("sent_count")==4)
+sc=_vo_cap("6590333300",10)
+aCap=E.handle_event(sc,{"jid":"6590333300@s.whatsapp.net","msg_id":"c1","text":"I can view saturday 3pm","is_from_me":0})
+ok("at 10-message cap -> CAP_REACHED, no prospect text, ping Winfred", aCap and aCap["type"]=="CAP_REACHED" and aCap.get("text") is None and aCap.get("notify") is True)
+aCap2=E.handle_event(sc,{"jid":"6590333300@s.whatsapp.net","msg_id":"c2","text":"3pm please","is_from_me":0})
+ok("past the cap -> silent (flagged once only)", aCap2 is None)
+sq=_vo_cap("6590333600",10)
+aQ=E.handle_event(sq,{"jid":"6590333600@s.whatsapp.net","msg_id":"qq1","text":"is there wifi?","is_from_me":0})
+ok("notify-only action (question) is NOT capped at 10", aQ and aQ["type"]=="ANSWER_QUESTION" and aQ.get("text") is None)
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
