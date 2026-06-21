@@ -348,9 +348,12 @@ E.handle_event(sql,{"jid":jql,"msg_id":"q2","text":"let me check with owner ah",
 aQ=E.handle_event(sql,{"jid":jql,"msg_id":"q3","text":_qf,"is_from_me":0})
 ok("QUALIFIED under manual + slot -> AUTO-OFFER viewing to prospect", aQ and aQ["type"]=="OFFER_VIEWING" and aQ.get("text"))
 ok("auto-offer also pings Winfred (copilot + notify)", aQ and aQ.get("copilot") is True and aQ.get("notify") is True)
-ok("auto-offer fires once (no second offer)", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"you there?","is_from_me":0}) is None)
+ok("auto-offer not repeated on a neutral reply", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"hmm let me think about it","is_from_me":0}) is None)
 aYes=E.handle_event(sql,{"jid":jql,"msg_id":"q5","text":"yes sounds good","is_from_me":0})
-ok("prospect YES after auto-offer -> ping Winfred, no auto-confirm to prospect", aYes and aYes["type"]=="VIEWING_TIME_PROPOSED" and aYes.get("notify") is True and aYes.get("text") is None)
+ok("prospect YES after auto-offer -> bot CONFIRMS the viewing + pings Winfred", aYes and aYes["type"]=="CONFIRM_VIEWING" and aYes.get("text") and aYes.get("notify") is True)
+sqn={"version":1,"conversations":{"6590224400":{"pn":"6590224400","listing_key":"bayshore","stage":"VIEWING_OFFERED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":True,"status":"manual","offered_slot_id":"s1"}}}
+aQn=E.handle_event(sqn,{"jid":"6590224400@s.whatsapp.net","msg_id":"qn1","text":"is parking included?","is_from_me":0})
+ok("question after auto-offer (manual) -> ANSWER_QUESTION ping, no auto-answer", aQn and aQn["type"]=="ANSWER_QUESTION" and aQn.get("notify") is True and aQn.get("text") is None)
 # a known landlord (Example Landlord) under manual takeover -> NO co-pilot / no auto-offer
 slr={"version":1,"conversations":{}}; jlr="6500000000@s.whatsapp.net"
 E.handle_event(slr,{"jid":jlr,"msg_id":"lr1","text":"hi can you confirm","is_from_me":1,"engine":False})
