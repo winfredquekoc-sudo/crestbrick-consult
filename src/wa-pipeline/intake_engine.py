@@ -307,6 +307,53 @@ def is_tenant_enquiry(text, listing_key=None):
             return True
     return False
 
+# ---------- prospect withdrawal: "found another place" / "no longer renting" ----------
+# An ACTIVE prospect who tells us they have found somewhere else, or no longer want to rent,
+# should be closed immediately (terminal) so the bot never messages them again and Winfred is
+# told once. HIGH PRECISION on purpose: only unambiguous withdrawal phrasing matches, and any
+# sign of continued interest in OUR unit vetoes the close (a comparison shopper stays open).
+_KEEP_OPEN = (
+    "still keen","still interested","still want","still looking at","can i still","is it still available",
+    "still available","want to view","like to view","can i view","can we view","i'll take","ill take",
+    "i will take","want to proceed","keen to proceed","when can i view",
+)
+_WITHDRAW_PHRASES = (
+    # found another / elsewhere
+    "found another place","found another unit","found another room","found another apartment","found another flat",
+    "found a new place","found a new unit","found a new room","found a new apartment",
+    "found a place already","found a unit already","found a room already",
+    "found somewhere else","found something else","found somewhere","found elsewhere","found one already",
+    "already found a place","already found a room","already found a unit","already found somewhere","already found another",
+    # secured / rented / booked / signed somewhere else
+    "already got a place","already got another place","already secured a place","already secured another",
+    "already booked a place","already booked another","i already rented","i've already rented","ive already rented",
+    "already rented a place","already rented another","already rented somewhere","already signed",
+    "rented another","secured another","booked another","signed another","took another place","went with another","going with another",
+    # no longer renting / not interested anymore
+    "no longer looking","no longer renting","no longer interested","no longer keen","no longer require",
+    "not looking anymore","not renting anymore","not interested anymore","not keen anymore","not looking any more","not renting any more",
+    "do not wish to rent","don't wish to rent","dont wish to rent","do not want to rent","don't want to rent","dont want to rent",
+    "no longer wish to rent","no longer want to rent","decided not to rent",
+    # not moving / staying put / withdrawing
+    "not moving anymore","no longer moving","not relocating anymore",
+    "renew my current","renewing my current","extend my current","extending my current","staying at my current","stay at my current","staying put",
+    "sorted out my housing","sorted my housing","settled on another","decided on another",
+    "thanks anyway","thank you anyway","withdraw my","withdrawing my","like to withdraw","wish to withdraw",
+)
+def withdrawal_signal(text):
+    """True if an active prospect clearly signals they found another place or no longer wish to
+    rent. A continued-interest marker vetoes the close (precision over recall by design)."""
+    low = (text or "").lower()
+    if not low:
+        return False
+    if any(k in low for k in _KEEP_OPEN):
+        return False
+    # a question about the LANDLORD/owner ("is the landlord still renting?") is an availability
+    # query, not the prospect withdrawing -> never auto-close on it.
+    if "?" in low and ("landlord" in low or "owner" in low):
+        return False
+    return any(p in low for p in _WITHDRAW_PHRASES)
+
 # ---------- transaction type: RENT vs SALE (two entirely different flows) ----------
 # A rental tenant enquiry and a sale buyer enquiry are different things and must not be
 # conflated: only a RENT enquiry should ever get the tenant intake form. Signals come
@@ -658,6 +705,14 @@ def _handle_event_inner(state, ev):
     rec["last_inbound"] = ev.get("text")
     if rec.get("terminal"):
         return None                      # closed / terminal conversation -> engine never acts again
+    if withdrawal_signal(ev.get("text")):
+        rec["terminal"] = True; rec["stage"] = "WITHDRAWN"
+        rec["status"] = "closed (found elsewhere)"
+        rec["closed_reason"] = "auto: prospect signalled they found another place / no longer renting"
+        return {"type": "AUTO_CLOSED", "pn": pn, "notify": True, "text": None,
+                "listing_key": rec.get("listing_key"),
+                "reason": "said they found another place / no longer renting",
+                "quote": (ev.get("text") or "")[:160]}
 
     # always merge any profile data, even under manual takeover (log once).
     # track whether THIS inbound added a new required field (drives state change).
