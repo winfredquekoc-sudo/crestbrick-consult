@@ -336,21 +336,29 @@ _WITHDRAW_PHRASES = (
     "no longer wish to rent","no longer want to rent","decided not to rent",
     # not moving / staying put / withdrawing
     "not moving anymore","no longer moving","not relocating anymore",
-    "renew my current","renewing my current","extend my current","extending my current","staying at my current","stay at my current","staying put",
+    "renew my current","renewing my current","extend my current","extending my current","staying at my current","stay at my current",
     "sorted out my housing","sorted my housing","settled on another","decided on another",
-    "thanks anyway","thank you anyway","withdraw my","withdrawing my","like to withdraw","wish to withdraw",
+    "withdraw my","withdrawing my","like to withdraw","wish to withdraw",
 )
+# "no longer looking AT THE EAST" / "keen ON THE MASTER room" = narrowing the search to a place
+# or a room, NOT withdrawing. Negative lookahead keeps real withdrawals ("...in renting", "...a place").
+_NARROW_RE = re.compile(
+    r"no longer (?:looking|keen|interested)\s+(?:at|in|on|around)\s+"
+    r"(?!rent|a place|a unit|a room|the unit|the room|the place|the rental)", re.I)
 def withdrawal_signal(text):
     """True if an active prospect clearly signals they found another place or no longer wish to
-    rent. A continued-interest marker vetoes the close (precision over recall by design)."""
+    rent. Several vetoes keep precision high (a comparison shopper / search-narrower stays open)."""
     low = (text or "").lower()
     if not low:
         return False
     if any(k in low for k in _KEEP_OPEN):
         return False
-    # a question about the LANDLORD/owner ("is the landlord still renting?") is an availability
-    # query, not the prospect withdrawing -> never auto-close on it.
-    if "?" in low and ("landlord" in low or "owner" in low):
+    # a question about OUR unit ("is the landlord still renting?", "similar to yours?") is an
+    # availability/comparison query, not the prospect withdrawing -> never auto-close on it.
+    if "?" in low and ("landlord" in low or "owner" in low or "yours" in low
+                       or "your unit" in low or "your place" in low or "your room" in low or "your listing" in low):
+        return False
+    if _NARROW_RE.search(low):
         return False
     return any(p in low for p in _WITHDRAW_PHRASES)
 
