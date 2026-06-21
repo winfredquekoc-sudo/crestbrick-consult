@@ -656,6 +656,8 @@ def _handle_event_inner(state, ev):
         return None                      # event dedup: read once
     if mid: rec["processed_ids"].append(mid)
     rec["last_inbound"] = ev.get("text")
+    if rec.get("terminal"):
+        return None                      # closed / terminal conversation -> engine never acts again
 
     # always merge any profile data, even under manual takeover (log once).
     # track whether THIS inbound added a new required field (drives state change).

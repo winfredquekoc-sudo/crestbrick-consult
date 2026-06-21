@@ -411,5 +411,12 @@ sq=_vo_cap("6590333600",10)
 aQ=E.handle_event(sq,{"jid":"6590333600@s.whatsapp.net","msg_id":"qq1","text":"is there wifi?","is_from_me":0})
 ok("notify-only action (question) is NOT capped at 10", aQ and aQ["type"]=="ANSWER_QUESTION" and aQ.get("text") is None)
 
+print("== 20. CLOSED / terminal conversations stay fully silent ==")
+st_term={"version":1,"conversations":{"6590555500":{"pn":"6590555500","listing_key":"caspian","stage":"DISQUALIFIED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":True,"status":"closed (found elsewhere)","terminal":True}}}
+ok("terminal conversation -> engine silent even on 'yes 3pm'", E.handle_event(st_term,{"jid":"6590555500@s.whatsapp.net","msg_id":"tm1","text":"yes 3pm works","is_from_me":0}) is None)
+ok("terminal status NOT overwritten to manual", st_term["conversations"]["6590555500"]["status"]=="closed (found elsewhere)")
+st_term2={"version":1,"conversations":{"6590555600":{"pn":"6590555600","listing_key":"caspian","stage":"DISQUALIFIED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":False,"status":"disqualified","terminal":True}}}
+ok("terminal + non-manual + 'yes' -> still silent (no stray CONFIRM_VIEWING)", E.handle_event(st_term2,{"jid":"6590555600@s.whatsapp.net","msg_id":"tm2","text":"yes please","is_from_me":0}) is None)
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
