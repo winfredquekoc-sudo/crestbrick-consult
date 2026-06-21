@@ -582,6 +582,25 @@ def _copilot_verdict(rec):
     return {"type": "COPILOT_VERDICT", "pn": rec.get("pn"), "notify": True, "text": None,
             "verdict": verdict, "why": why, "listing_key": lk}
 
+# ---------- stage 3 reaction (shared: autonomous flow + manual co-pilot after an auto-offer) ----------
+def _viewing_reaction(rec, ev, pn):
+    """After a viewing has been offered, react to ONE prospect reply — confirm the slot, acknowledge a
+    proposed time, or flag a question to Winfred. Used by the autonomous flow AND by the manual-takeover
+    co-pilot once it has auto-offered, so a qualified tenant gets booked end-to-end. Every branch
+    notifies Winfred so he can step in."""
+    txt = (ev.get("text") or "").lower()
+    if not rec["viewing_confirmed"] and _has_viewing_time(txt):
+        rec["status"] = "viewing_time_proposed"
+        return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "when": ev.get("text"), "notify": True,
+                "text": "Got it, let me confirm that slot with the owner and revert to you shortly."}
+    if "?" in (ev.get("text") or ""):
+        return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": None}
+    if not rec["viewing_confirmed"] and re.search(r"\b(yes|yep|yes please|ok|okay|confirm(?:ed)?|sure|deal)\b", txt):
+        rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
+        return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"), "notify": True,
+                "text": "Great, your viewing is confirmed. I will share the exact unit and meeting point closer to the time."}
+    return None
+
 # ---------- core handler: entry point enforces the per-prospect message cap ----------
 def handle_event(state, ev):
     """Entry point: run the engine, then enforce a hard cap of MAX_PROSPECT_MSGS prospect-facing
@@ -651,17 +670,12 @@ def _handle_event_inner(state, ev):
         rec["listing_key"] = ev["listing_key"]; new_data = True
     if rec["manual_takeover"]:
         rec["status"] = "manual"
-        # If the co-pilot already auto-offered a viewing and the prospect now gives a time or says
-        # yes, ping Winfred to confirm with the landlord (do not auto-confirm to the prospect while
-        # he is handling the chat). Fires once.
-        if rec.get("viewing_asked") and not rec.get("viewing_confirmed"):
-            _t = (ev.get("text") or "").lower()
-            if _has_viewing_time(_t) or re.search(r"\b(yes|yep|ok|okay|confirm(?:ed)?|sure|deal)\b", _t):
-                rec["viewing_confirmed"] = True
-                return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "when": ev.get("text"),
-                        "notify": True, "text": None, "copilot": True}
-        # CO-PILOT: otherwise stay silent to the prospect but screen a complete profile; if QUALIFIED
-        # with an open slot, auto-offer the viewing (and ping Winfred). Else notify only.
+        # Once the co-pilot has auto-offered a viewing, it OWNS the rest of that flow: it reacts to the
+        # prospect's reply (confirm the slot / acknowledge a proposed time / flag a question) exactly
+        # like the autonomous path, while still pinging Winfred. Before any auto-offer it stays silent
+        # to the prospect and only screens (and auto-offers once QUALIFIED + a slot exists).
+        if rec.get("viewing_asked"):
+            return _viewing_reaction(rec, ev, pn)
         return _copilot_verdict(rec)
 
     reqs = listing_reqs()
@@ -766,25 +780,8 @@ def _handle_event_inner(state, ev):
         return {"type":"OFFER_VIEWING", "pn":pn, "slot":slot,
                 "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot)}
 
-    # STAGE 3: viewing offered -> react one reply per inbound (no cap)
-    txt = (ev.get("text") or "").lower()
-    # the one thing Winfred wants to hear about: a prospect giving a date or time to view.
-    if not rec["viewing_confirmed"] and _has_viewing_time(txt):
-        rec["status"] = "viewing_time_proposed"
-        # acknowledge the prospect so they are not left silent, AND ping Winfred to confirm.
-        return {"type":"VIEWING_TIME_PROPOSED", "pn":pn, "when":ev.get("text"), "notify":True,
-                "text":"Got it, let me confirm that slot with the owner and revert to you shortly."}
-    # a question is handled as a question FIRST, so "can I view on Tuesday?" is not read as
-    # a confirmation. 'can' is dropped from the affirmative set (too easily embedded).
-    if "?" in (ev.get("text") or ""):
-        # a prospect question after a viewing offer: ping Winfred to answer by hand rather than
-        # drop it silently (the engine has no answer content of its own).
-        return {"type":"ANSWER_QUESTION", "pn":pn, "notify":True, "question":ev.get("text"), "text":None}
-    if not rec["viewing_confirmed"] and re.search(r"\b(yes|yep|yes please|ok|okay|confirm(?:ed)?|sure|deal)\b", txt):
-        rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
-        return {"type":"CONFIRM_VIEWING", "pn":pn, "slot_id":rec.get("offered_slot_id"), "notify":True,
-                "text":"Great, your viewing is confirmed. I will share the exact unit and meeting point closer to the time."}
-    return None
+    # STAGE 3: viewing offered -> react to one reply per inbound (shared with the manual co-pilot path)
+    return _viewing_reaction(rec, ev, pn)
 
 def _has_viewing_time(t):
     """True if the prospect's reply names a day or a time to view."""
