@@ -326,7 +326,7 @@ _WITHDRAW_PHRASES = (
     "already found a place","already found a room","already found a unit","already found somewhere","already found another",
     # secured / rented / booked / signed somewhere else
     "already got a place","already got another place","already secured a place","already secured another",
-    "already booked a place","already booked another","i already rented","i've already rented","ive already rented",
+    "already booked a place","already booked another",
     "already rented a place","already rented another","already rented somewhere","already signed",
     "rented another","secured another","booked another","signed another","took another place","went with another","going with another",
     # no longer renting / not interested anymore
@@ -339,12 +339,31 @@ _WITHDRAW_PHRASES = (
     "renew my current","renewing my current","extend my current","extending my current","staying at my current","stay at my current",
     "sorted out my housing","sorted my housing","settled on another","decided on another",
     "withdraw my","withdrawing my","like to withdraw","wish to withdraw",
+    # singlish / colloquial
+    "found liao","settled liao","rented liao","got already","already got a place liao",
+    "no need already","dun need already","dont need already","don't need already",
+    # indirect: buying (as an alternative to renting) / passing -- "buy" alone is too broad
+    "buy instead","buying instead","buy our own","buying our own","buy a place instead",
+    "i'll pass","pass on this","give it a miss","give this a pass","give it a pass",
+    # other languages (zh / ms)
+    "租到了","已经租到","找到房","不租了","不找了","sudah dapat","dah dapat","dah jumpa",
 )
 # "no longer looking AT THE EAST" / "keen ON THE MASTER room" = narrowing the search to a place
 # or a room, NOT withdrawing. Negative lookahead keeps real withdrawals ("...in renting", "...a place").
 _NARROW_RE = re.compile(
     r"no longer (?:looking|keen|interested)\s+(?:at|in|on|around)\s+"
     r"(?!rent|a place|a unit|a room|the unit|the room|the place|the rental)", re.I)
+# tokens that, inside a QUESTION, mean the prospect is asking about OUR unit / weighing options
+# (availability, comparison, buy-vs-rent) rather than withdrawing.
+_Q_TOKENS = ("yours","your unit","your place","your room","your listing","landlord","owner",
+             "available","still got","got already","vacant","liao","buy")
+# match ASCII phrases on WORD BOUNDARIES so "will pass" never trips "ill pass" and "forgot
+# already" never trips "got already". CJK has no word boundaries -> matched as plain substrings.
+_ASCII_PHRASES = tuple(p for p in _WITHDRAW_PHRASES if p.isascii())
+_CJK_PHRASES   = tuple(p for p in _WITHDRAW_PHRASES if not p.isascii())
+_PHRASE_RE = re.compile(r"(?<![a-z])(?:" + "|".join(re.escape(p) for p in _ASCII_PHRASES) + r")(?![a-z])", re.I)
+def _phrase_hit(low):
+    return bool(_PHRASE_RE.search(low)) or any(p in low for p in _CJK_PHRASES)
 def withdrawal_signal(text):
     """True if an active prospect clearly signals they found another place or no longer wish to
     rent. Several vetoes keep precision high (a comparison shopper / search-narrower stays open)."""
@@ -353,14 +372,19 @@ def withdrawal_signal(text):
         return False
     if any(k in low for k in _KEEP_OPEN):
         return False
-    # a question about OUR unit ("is the landlord still renting?", "similar to yours?") is an
-    # availability/comparison query, not the prospect withdrawing -> never auto-close on it.
-    if "?" in low and ("landlord" in low or "owner" in low or "yours" in low
-                       or "your unit" in low or "your place" in low or "your room" in low or "your listing" in low):
+    # renting OUT one's own place (an upgrader) is not withdrawing from ours.
+    if "rented out" in low or "renting out" in low or "rent out" in low:
+        return False
+    # a Chinese question particle, or an availability/comparison/buy question about OUR unit
+    # ("similar to yours?", "got already or not?"), is interest -> never auto-close on it.
+    if "吗" in low:
+        return False
+    is_q = ("?" in low) or ("or not" in low)
+    if is_q and any(t in low for t in _Q_TOKENS):
         return False
     if _NARROW_RE.search(low):
         return False
-    return any(p in low for p in _WITHDRAW_PHRASES)
+    return _phrase_hit(low)
 
 # ---------- transaction type: RENT vs SALE (two entirely different flows) ----------
 # A rental tenant enquiry and a sale buyer enquiry are different things and must not be
