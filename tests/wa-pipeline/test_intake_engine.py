@@ -418,5 +418,27 @@ ok("terminal status NOT overwritten to manual", st_term["conversations"]["659055
 st_term2={"version":1,"conversations":{"6590555600":{"pn":"6590555600","listing_key":"caspian","stage":"DISQUALIFIED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":False,"status":"disqualified","terminal":True}}}
 ok("terminal + non-manual + 'yes' -> still silent (no stray CONFIRM_VIEWING)", E.handle_event(st_term2,{"jid":"6590555600@s.whatsapp.net","msg_id":"tm2","text":"yes please","is_from_me":0}) is None)
 
+print("== 21. WITHDRAWAL auto-close (found another place / no longer renting) ==")
+def _wstate(pn, manual=False):
+    return {"version":1,"conversations":{pn:{"pn":pn,"listing_key":"caspian","stage":"NEEDS_INFO","profile":{"name":"W"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":manual,"status":("manual" if manual else "needs_info"),"sent_count":1}}}
+s1=_wstate("6590010001"); a1=E.handle_event(s1,{"jid":"6590010001@s.whatsapp.net","msg_id":"w1","text":"Hi, I found another place already. Thank you!","is_from_me":0})
+ok("'found another place' -> AUTO_CLOSED, no prospect text", a1 and a1.get("type")=="AUTO_CLOSED" and a1.get("text") is None)
+ok("'found another place' -> terminal set", s1["conversations"]["6590010001"].get("terminal") is True)
+s2=_wstate("6590010002"); a2=E.handle_event(s2,{"jid":"6590010002@s.whatsapp.net","msg_id":"w2","text":"sorry, i do not wish to rent anymore","is_from_me":0})
+ok("'do not wish to rent anymore' -> AUTO_CLOSED", a2 and a2.get("type")=="AUTO_CLOSED")
+s3=_wstate("6590010003"); a3=E.handle_event(s3,{"jid":"6590010003@s.whatsapp.net","msg_id":"w3","text":"no longer looking, thanks anyway","is_from_me":0})
+ok("'no longer looking' -> AUTO_CLOSED", a3 and a3.get("type")=="AUTO_CLOSED")
+s4=_wstate("6590010004",manual=True); a4=E.handle_event(s4,{"jid":"6590010004@s.whatsapp.net","msg_id":"w4","text":"we went with another unit in the end","is_from_me":0})
+ok("withdrawal closes even under MANUAL takeover", a4 and a4.get("type")=="AUTO_CLOSED" and s4["conversations"]["6590010004"].get("terminal") is True)
+s5=_wstate("6590010005"); a5=E.handle_event(s5,{"jid":"6590010005@s.whatsapp.net","msg_id":"w5","text":"found another place but is yours still available?","is_from_me":0})
+ok("keep-open veto: 'still available' does NOT auto-close", not (a5 and a5.get("type")=="AUTO_CLOSED") and s5["conversations"]["6590010005"].get("terminal") is not True)
+s6=_wstate("6590010006"); a6=E.handle_event(s6,{"jid":"6590010006@s.whatsapp.net","msg_id":"w6","text":"i found the place a bit small to be honest","is_from_me":0})
+ok("unit feedback 'found the place small' does NOT auto-close", not (a6 and a6.get("type")=="AUTO_CLOSED") and s6["conversations"]["6590010006"].get("terminal") is not True)
+a4b=E.handle_event(s4,{"jid":"6590010004@s.whatsapp.net","msg_id":"w4b","text":"yes 3pm works","is_from_me":0})
+ok("after withdrawal-close, later 'yes 3pm' stays silent", a4b is None)
+ok("withdrawal_signal direct: positive", E.withdrawal_signal("i already rented somewhere else") is True)
+ok("withdrawal_signal direct: negative (plain enquiry)", E.withdrawal_signal("hi is the room still available to rent?") is False)
+ok("withdrawal_signal direct: landlord availability question is NOT a withdrawal", E.withdrawal_signal("so the landlord still not going to rent?") is False)
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
