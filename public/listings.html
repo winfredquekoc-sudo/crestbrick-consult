@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="robots" content="index,follow,max-image-preview:large" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Active Listings, Exclusive + Co-Broke Opportunities | Winfred Quek, Crestbrick</title>
+  <title>Active Property Listings Singapore | Winfred Quek, Crestbrick</title>
   <meta name="description" content="Exclusive listings and co-broke opportunities from Winfred Quek, investor-minded advisor at Crestbrick. HDB, condo, landed, each one selected for the portfolio story, not just the photo. CEA R073319H." />
   <meta property="og:title" content="Active Listings, Exclusive + Co-Broke Opportunities | Winfred Quek, Crestbrick" />
   <meta property="og:description" content="Exclusive listings and co-broke opportunities. HDB, condo, landed, each one chosen for a portfolio story. CEA R073319H." />
@@ -69,7 +69,7 @@
 <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
@@ -97,17 +97,17 @@
     <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
-        <a class="nav-link" href="/about.html">About</a>
-        <a class="nav-link" href="/services.html">Services</a>
-        <a class="nav-link" href="/listings.html">Listings</a>
-        <a class="nav-link" href="/new-launches.html">New Launches</a>
-        <a class="nav-link" href="/districts.html">Districts</a>
-        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
-        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
-        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
-        <a class="nav-link" href="/track-record.html">Track Record</a>
-        <a class="nav-link" href="/testimonials.html">Testimonials</a>
-        <a class="nav-link" href="/contact.html">Contact</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/new-launches">New Launches</a>
+        <a class="nav-link" href="/districts">Districts</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/track-record">Track Record</a>
+        <a class="nav-link" href="/testimonials">Testimonials</a>
+        <a class="nav-link" href="/contact">Contact</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
       </div>
     </div>
@@ -226,7 +226,7 @@ function buildOffMarketWA(e) {
     const listings = (data.listings || []).filter(l => l.source !== 'skeleton');
 
     if (!listings.length) {
-      grid.innerHTML = '<p class="col-span-full text-center text-[var(--ink-muted)] py-12">Listings refreshing, check back shortly, or message me on WhatsApp for off-market options. <a href="/contact.html" class="underline hover:text-[var(--ink)]">Submit a listing enquiry</a></p>';
+      grid.innerHTML = '<p class="col-span-full text-center text-[var(--ink-muted)] py-12">Listings refreshing, check back shortly, or message me on WhatsApp for off-market options. <a href="/contact" class="underline hover:text-[var(--ink)]">Submit a listing enquiry</a></p>';
       return;
     }
 
@@ -269,7 +269,7 @@ function buildOffMarketWA(e) {
       const wa = l.wa_text || `Hi%20Winfred%2C%20enquiring%20about%20${encodeURIComponent(l.title)}.`;
       const dataType = (l.type || '').toLowerCase();
       const img = l.image
-        ? `<img src="${l.image}" alt="${l.title}" class="aspect-[16/10] w-full object-cover" loading="lazy" />`
+        ? `<img src="${l.image}" alt="${l.title}" width="640" height="400" class="aspect-[16/10] w-full object-cover" loading="lazy" />`
         : `<div class="aspect-[16/10] bg-[var(--rule)] flex items-center justify-center text-[var(--ink-muted)] serif italic">Photo</div>`;
       const highlights = (l.highlights && l.highlights.length)
         ? `<ul class="text-xs text-[var(--ink-muted)] mt-3 space-y-1">${l.highlights.map(h => `<li>· ${h}</li>`).join('')}</ul>`
@@ -318,7 +318,7 @@ function buildOffMarketWA(e) {
   <p class="text-[var(--ink-soft)] mb-8">Budget, area, timeline, portfolio fit, the more you share, the sharper the shortlist.</p>
   <div class="flex flex-wrap justify-center gap-3">
     <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20specific%20property%20brief%20I%27d%20like%20to%20share." class="btn btn-primary">Send me your brief </a>
-    <a href="/contact.html" class="btn btn-ghost">Submit a listing enquiry</a>
+    <a href="/contact" class="btn btn-ghost">Submit a listing enquiry</a>
   </div>
 </section>
 </main>
@@ -333,14 +333,14 @@ function buildOffMarketWA(e) {
     <div>
       <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Quick links</p>
       <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
-        <li><a href="/about.html" class="hover:text-[var(--ink)]">About Winfred</a></li>
-        <li><a href="/services.html" class="hover:text-[var(--ink)]">Services</a></li>
-        <li><a href="/listings.html" class="hover:text-[var(--ink)]">Listings</a></li>
-        <li><a href="/buyers-guide.html" class="hover:text-[var(--ink)]">Buyers Guide</a></li>
-        <li><a href="/sellers-guide.html" class="hover:text-[var(--ink)]">Sellers Guide</a></li>
-        <li><a href="/insights.html" class="hover:text-[var(--ink)]">Insights</a></li>
-        <li><a href="/testimonials.html" class="hover:text-[var(--ink)]">Testimonials</a></li>
-        <li><a href="/contact.html" class="hover:text-[var(--ink)]">Contact</a></li>
+        <li><a href="/about" class="hover:text-[var(--ink)]">About Winfred</a></li>
+        <li><a href="/services" class="hover:text-[var(--ink)]">Services</a></li>
+        <li><a href="/listings" class="hover:text-[var(--ink)]">Listings</a></li>
+        <li><a href="/buyers-guide" class="hover:text-[var(--ink)]">Buyers Guide</a></li>
+        <li><a href="/sellers-guide" class="hover:text-[var(--ink)]">Sellers Guide</a></li>
+        <li><a href="/insights" class="hover:text-[var(--ink)]">Insights</a></li>
+        <li><a href="/testimonials" class="hover:text-[var(--ink)]">Testimonials</a></li>
+        <li><a href="/contact" class="hover:text-[var(--ink)]">Contact</a></li>
       </ul>
     </div>
     <div>
@@ -356,7 +356,7 @@ function buildOffMarketWA(e) {
   <div class="border-t border-[var(--rule)]">
     <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-[var(--ink-muted)]">
       <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H · All rights reserved.</p>
-      <div class="flex gap-4"><a href="/privacy.html" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</span></div>
+      <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>·</span><span>Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</span></div>
     </div>
   </div>
 
