@@ -238,7 +238,30 @@ def extract_profile(text):
     if loc: p["preferred_location"]=loc.strip()
     return {k:v for k,v in p.items() if v not in (None,"")}
 
-def missing_required(profile):
+def _open_intake(listing):
+    """True if a listing accepts all profiles (owner takes everyone) — only baby + the listing's
+    own ethnicity/nationality gate apply, and enquirers get a short form straight to the viewing."""
+    r = ((listing or {}).get("requirements") or (listing or {}))
+    return bool(r.get("open_intake"))
+
+OPEN_INTAKE_FORM = (
+    "Happy to set up a viewing :) Just drop me:\n"
+    "• Name:\n"
+    "• Nationality:\n"
+    "• No. of Pax (how many staying, and any infants):\n\n"
+    "Then I will lock in your slot."
+)
+
+def missing_required(profile, listing=None):
+    r = (((listing or {}).get("requirements") or (listing or {})) if listing else {})
+    if r.get("open_intake"):
+        # owner accepts everyone -> only the fields needed to screen baby (pax) and, if the
+        # listing keeps a nationality gate, nationality. Name to address them.
+        req = ["name", "no_of_pax"]
+        np = r.get("nationality_pref", {}) or {}
+        if np.get("mode") in ("exclude", "only") and np.get("list"):
+            req.append("nationality")
+        return [f for f in req if profile.get(f) in (None, "")]
     return [f for f in REQUIRED_FIELDS if profile.get(f) in (None,"")]
 
 def listing_unit_message(listing_key):
@@ -505,6 +528,27 @@ def excluded_reason(pn, text=""):
 # ---------- qualify (corrected, honours every mode) ----------
 def qualify(req, profile):
     r = req.get("requirements", req)
+    if r.get("open_intake"):
+        # owner accepts ALL profiles. Keep ONLY this listing's ethnicity/nationality gate
+        # (baby is screened by policy_excluded). No gender/pax/lease/age/occupation/budget gate.
+        er = r.get("ethnicity_rule", {}) or {}
+        emode, elst = er.get("mode", "any"), [x.lower() for x in (er.get("list") or [])]
+        eth = (profile.get("ethnicity") or "").lower()
+        if eth and emode == "exclude" and elst and any(x in eth for x in elst):
+            return "DISQUALIFIED", ["ethnicity not accepted by landlord"]
+        if eth and emode == "only" and elst and not any(x in eth for x in elst):
+            return "DISQUALIFIED", ["landlord accepts only " + ", ".join(er.get("list"))]
+        np = r.get("nationality_pref", {}) or {}
+        nmode, nlst = np.get("mode", "any"), [x.lower() for x in (np.get("list") or [])]
+        nat = (profile.get("nationality") or "").lower()
+        if nmode == "exclude" and nlst:
+            if nat and any(x in nat for x in nlst): return "DISQUALIFIED", ["nationality not accepted by landlord"]
+            if not nat: return "NEEDS_INFO", ["nationality"]
+        elif nmode == "only" and nlst:
+            if nat and any(x in nat for x in nlst): pass
+            elif nat: return "DISQUALIFIED", ["landlord accepts only " + ", ".join(np.get("list"))]
+            else: return "NEEDS_INFO", ["nationality"]
+        return "QUALIFIED", []
     fails, unknown = [], []
     pax = profile.get("no_of_pax")
     tg = (profile.get("gender") or "").lower()
@@ -603,19 +647,19 @@ def _rec(state, pn):
 
 SERVE_EXCLUDE_NAT = ("indian", "india", "indian (india)")
 _KIDRE = re.compile(r"\b(baby|babies|infant|toddler|newborn|child|children|kid|kids)\b", re.I)
-def policy_excluded(profile, text=""):
+def policy_excluded(profile, text="", open_intake=False):
     """Winfred's service policy: profiles his landlords will never take a room with, so do
     not serve or match them. Returns a short internal reason if excluded, else None. The
     reason is NEVER shown to the prospect (the redirect is the kind, neutral channel note).
-      - nationality India
-      - 3 pax or more on a budget under 1400 (cannot fit a single room)
-      - 2 pax or more that includes a child or baby
+      - nationality India          (SKIPPED for open_intake listings; gated per listing instead)
+      - 3 pax or more on a budget under 1400 (cannot fit a single room; SKIPPED for open_intake)
+      - 2 pax or more that includes a child or baby   (ALWAYS enforced, incl. open_intake)
     """
     nat = (profile.get("nationality") or "").strip().lower()
-    if nat in SERVE_EXCLUDE_NAT: return "nationality"
+    if not open_intake and nat in SERVE_EXCLUDE_NAT: return "nationality"
     pax = _to_int(profile.get("no_of_pax"))
     bud = _to_int(profile.get("budget"))
-    if pax and pax >= 3 and bud is not None and bud < 1400: return "pax_budget"
+    if not open_intake and pax and pax >= 3 and bud is not None and bud < 1400: return "pax_budget"
     blob = " ".join([text or "", profile.get("gender") or "", profile.get("occupation") or "",
                      str(profile.get("no_of_pax") or "")])
     if _KIDRE.search(blob) and pax and pax >= 2: return "family"
@@ -632,13 +676,13 @@ def _copilot_verdict(rec):
     lk = rec.get("listing_key")
     if not lk:
         return None
-    if missing_required(rec.get("profile", {})):
-        return None                       # cheap gate first: wait for the full profile
-    if excluded_reason(rec.get("pn")) in ("landlord", "agent", "colleague", "db_error"):
-        return None                       # never co-pilot a landlord/agent (or on a locked contact DB)
     listing = listing_reqs().get(lk)
     if not listing:
         return None
+    if missing_required(rec.get("profile", {}), listing):
+        return None                       # cheap gate first: wait for the (minimal) profile
+    if excluded_reason(rec.get("pn")) in ("landlord", "agent", "colleague", "db_error"):
+        return None                       # never co-pilot a landlord/agent (or on a locked contact DB)
     verdict, why = qualify(listing, rec["profile"])
     sig = verdict + "|" + ",".join(why)
     if rec.get("copilot_sig") == sig:
@@ -807,7 +851,7 @@ def _handle_event_inner(state, ev):
                         "reason":"enquiry on a " + st0 + " listing (" + lk0 + "); room no longer available", "text":None}
         # service policy: if the opening message already reveals an excluded profile, do
         # not even send the form. Kind referral, once, no reason ever given.
-        pol = policy_excluded(rec["profile"], ev.get("text",""))
+        pol = policy_excluded(rec["profile"], ev.get("text",""), open_intake=_open_intake(reqs.get(lk0)))
         if pol:
             rec["form_sent"] = True; rec["terminal"] = True
             rec["stage"] = "POLICY_EXCLUDED"; rec["status"] = "policy_excluded:" + pol
@@ -818,7 +862,10 @@ def _handle_event_inner(state, ev):
         lk = rec.get("listing_key")
         # TWO messages, once only: (1) unit info + available viewing slot, (2) the intake form.
         unit = listing_unit_message(lk)
-        texts = [unit, INTAKE_FORM] if unit else [INTAKE_FORM]
+        # open_intake listings (owner accepts all) get a SHORT form so enquirers are funnelled
+        # straight to the viewing with minimal friction.
+        form = OPEN_INTAKE_FORM if _open_intake(reqs.get(lk)) else INTAKE_FORM
+        texts = [unit, form] if unit else [form]
         # capture landlord availability at first enquiry: flag if this listing has no
         # upcoming viewing slot yet, so Winfred can grab the landlord's next slot.
         need_avail = bool(lk) and not _has_open_future_slot(lk)
@@ -827,7 +874,7 @@ def _handle_event_inner(state, ev):
 
     # STAGE 2: have form, not yet offered a viewing. Emit ONLY on a state change.
     if not rec["viewing_asked"] and not rec.get("terminal"):
-        miss = missing_required(rec["profile"])
+        miss = missing_required(rec["profile"], reqs.get(rec.get("listing_key")))
         if miss:
             # nudge the prospect ONCE with the fields still missing (recovers partial fillers and
             # people who replied without using the form), then go silent. Anti-spam: one nudge.
@@ -839,7 +886,7 @@ def _handle_event_inner(state, ev):
                     "text":_nudge_text(miss)}
         # profile complete
         # service policy: never match a profile the landlords will not take. Kind referral, once.
-        pol = policy_excluded(rec["profile"], rec.get("last_inbound",""))
+        pol = policy_excluded(rec["profile"], rec.get("last_inbound",""), open_intake=_open_intake(reqs.get(rec.get("listing_key"))))
         if pol:
             rec["terminal"] = True; rec["stage"] = "POLICY_EXCLUDED"; rec["status"] = "policy_excluded:" + pol
             return {"type":"REDIRECT", "pn":pn, "reason":pol,

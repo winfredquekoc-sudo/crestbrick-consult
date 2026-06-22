@@ -317,7 +317,8 @@ ok("genuine 'still available?' enquiry is NOT an echo (still served)", RNR._is_o
 print("== 15. FIXED (hard-coded) viewing slot ==")
 _fx = E._fixed_viewing_slot("bayshore", "2026-06-17")
 ok("bayshore has a fixed_viewing rule", _fx is not None)
-ok("fixed slot is the configured time (15:00-16:00, marked fixed)", _fx and _fx["start"]=="15:00" and _fx["end"]=="16:00" and _fx.get("fixed"))
+_fxcfg = (E.listing_reqs().get("bayshore",{}) or {}); _fxcfg = _fxcfg.get("fixed_viewing") or (_fxcfg.get("requirements",{}) or {}).get("fixed_viewing") or {}
+ok("fixed slot matches the configured time, marked fixed", _fx and _fx["start"]==_fxcfg.get("start") and _fx["end"]==_fxcfg.get("end") and _fx.get("fixed"))
 ok("fixed slot lands on the configured weekday (Sat)", _fx and __import__("datetime").date(*map(int,_fx["date"].split("-"))).weekday()==5)
 ok("from a Wed -> offers the COMING Saturday (06-20)", _fx and _fx["date"]=="2026-06-20")
 ok("rolls to next week once that Saturday passes", E._fixed_viewing_slot("bayshore","2026-06-22")["date"]=="2026-06-27")
@@ -445,6 +446,29 @@ ok("FP fixed: 'staying put for the viewing' stays open", E.withdrawal_signal("im
 ok("FP fixed: 'thanks anyway, can you send the other unit' stays open", E.withdrawal_signal("thanks anyway, can you send the other unit") is False)
 ok("no over-correction: 'no longer interested in renting' still closes", E.withdrawal_signal("no longer interested in renting, sorry") is True)
 ok("no over-correction: 'found another place' still closes", E.withdrawal_signal("hi i found another place already") is True)
+
+print("== 22. OPEN_INTAKE (owner accepts all except baby; + kept ethnicity/nationality gate) ==")
+_BAY={"requirements":{"open_intake":True,"ethnicity_rule":{"mode":"any","list":[]},"nationality_pref":{"mode":"any","list":[]}}}
+_EAS={"requirements":{"open_intake":True,"ethnicity_rule":{"mode":"exclude","list":["Indian"]},"nationality_pref":{"mode":"exclude","list":["India","Indian"]}}}
+ok("open: name+pax alone -> QUALIFIED", E.qualify(_BAY,{"name":"A","no_of_pax":1})[0]=="QUALIFIED")
+ok("open: accepts all nationalities incl Indian", E.qualify(_BAY,{"name":"A","no_of_pax":1,"nationality":"Indian"})[0]=="QUALIFIED")
+ok("open: ignores budget/occupation/lease/age", E.qualify(_BAY,{"name":"A","no_of_pax":1,"budget":1,"occupation":"student","lease_term_months":1,"age":18})[0]=="QUALIFIED")
+ok("open+kept gate: eastpoint India -> DISQUALIFIED", E.qualify(_EAS,{"name":"A","no_of_pax":1,"nationality":"India"})[0]=="DISQUALIFIED")
+ok("open+kept gate: eastpoint non-India -> QUALIFIED", E.qualify(_EAS,{"name":"A","no_of_pax":1,"nationality":"Singaporean"})[0]=="QUALIFIED")
+ok("open+kept gate: eastpoint no nationality -> NEEDS_INFO", E.qualify(_EAS,{"name":"A","no_of_pax":1})[0]=="NEEDS_INFO")
+ok("open missing_required: just name+pax for bayshore", E.missing_required({"name":"A","no_of_pax":1},_BAY)==[])
+ok("open missing_required: eastpoint also needs nationality", E.missing_required({"name":"A","no_of_pax":1},_EAS)==["nationality"])
+ok("open: baby ALWAYS blocked", E.policy_excluded({"no_of_pax":2},"coming with a baby",open_intake=True)=="family")
+ok("open: India NOT blocked by global policy (per-listing instead)", E.policy_excluded({"nationality":"India"},"",open_intake=True) is None)
+ok("non-open regression: India still globally blocked", E.policy_excluded({"nationality":"India"},"",open_intake=False)=="nationality")
+ok("non-open regression: full form still required", set(E.missing_required({"name":"A"}))>= {"nationality","budget"})
+# end to end: open listing enquiry -> SHORT form -> brief reply -> viewing offered
+_so={"version":1,"conversations":{"6590999009":{"pn":"6590999009","listing_key":"bayshore","stage":"NEW","profile":{},"processed_ids":[],"form_sent":False,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":False,"status":"new","last_inbound":None}}}
+_so1=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o1","text":"hi is the bayshore room available to rent?","is_from_me":0})
+_form=(_so1.get("texts") or [_so1.get("text") or ""])[-1]
+ok("open enquiry -> SEND_FORM with the SHORT form", _so1.get("type")=="SEND_FORM" and "Name:" in _form and "Budget" not in _form and "Occupation" not in _form)
+_so2=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o2","text":"Name: John\nNationality: Malaysian\nNo. of Pax: 1","is_from_me":0})
+ok("open brief reply -> OFFER_VIEWING", _so2.get("type")=="OFFER_VIEWING")
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
