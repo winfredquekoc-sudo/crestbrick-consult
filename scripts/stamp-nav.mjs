@@ -16,8 +16,10 @@ const DRY = process.argv.includes('--dry-run');
 const nav = readFileSync(TEMPLATE, 'utf8').trimEnd();
 
 // Match <header class="topnav...">...</header> non-greedy across newlines.
-// Using a literal regex compiled with the 's' flag (dotAll) so . matches \n.
-const HEADER_RE = /<header class="topnav[^"]*"[^>]*>[\s\S]*?<\/header>/i;
+// Leading [ \t]* on the header line is consumed so re-runs don't accumulate
+// indentation (the template already carries its own 2-space indent) — keeps the
+// stamp idempotent.
+const HEADER_RE = /[ \t]*<header class="topnav[^"]*"[^>]*>[\s\S]*?<\/header>/i;
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {

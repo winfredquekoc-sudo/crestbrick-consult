@@ -68,6 +68,11 @@
       "permanent": true
     },
     {
+      "source": "/lentorgardensresidences",
+      "destination": "/LentorGardensResidences",
+      "permanent": true
+    },
+    {
       "source": "/links",
       "destination": "/links.html",
       "permanent": false
@@ -347,6 +352,96 @@
     {
       "source": "/launches",
       "destination": "/new-launches",
+      "permanent": true
+    },
+    {
+      "source": "/calculators",
+      "destination": "/tools",
+      "permanent": true
+    },
+    {
+      "source": "/calculators/stamp-duty-calculator",
+      "destination": "/tools/bsd",
+      "permanent": true
+    },
+    {
+      "source": "/calculators/tdsr-calculator",
+      "destination": "/tools/affordability",
+      "permanent": true
+    },
+    {
+      "source": "/tools/tdsr",
+      "destination": "/tools/tdsr-scenarios",
+      "permanent": true
+    },
+    {
+      "source": "/tools/stamp-duty",
+      "destination": "/tools/bsd",
+      "permanent": true
+    },
+    {
+      "source": "/tools/cpf",
+      "destination": "/insights/cpf-accrued-interest-calculator-singapore",
+      "permanent": true
+    },
+    {
+      "source": "/compare",
+      "destination": "/insights",
+      "permanent": true
+    },
+    {
+      "source": "/compare/",
+      "destination": "/insights",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d1-marina-bay",
+      "destination": "/districts/d1-raffles-place-marina",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d10-bukit-timah",
+      "destination": "/districts/d10-bukit-timah-holland",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d11-newton-novena",
+      "destination": "/districts/d11-novena-newton",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d16-upper-east-coast",
+      "destination": "/districts/d16-bedok-upper-east-coast",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d18-tampines",
+      "destination": "/districts/d18-tampines-pasir-ris",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d19-serangoon-hougang",
+      "destination": "/districts/d19-serangoon-hougang-punggol",
+      "permanent": true
+    },
+    {
+      "source": "/districts/d27-sembawang-yishun",
+      "destination": "/districts/d27-yishun-sembawang",
+      "permanent": true
+    },
+    {
+      "source": "/insights/cpf-refund-decoupling",
+      "destination": "/insights/cpf-refund-decoupling-singapore",
+      "permanent": true
+    },
+    {
+      "source": "/insights/australia-buyer-singapore-property-2026",
+      "destination": "/insights/australian-buyer-singapore-property-2026",
+      "permanent": true
+    },
+    {
+      "source": "/insights/cpf-accrued-interest-calculator",
+      "destination": "/insights/cpf-accrued-interest-calculator-singapore",
       "permanent": true
     }
   ],
