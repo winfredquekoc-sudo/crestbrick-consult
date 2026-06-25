@@ -1,0 +1,152 @@
+{
+  "tools/hdb-eip-checker.html": {
+    "quickAnswer": "Two quotas govern an HDB resale flat: the Ethnic Integration Policy (EIP) and the SPR quota, set per block and neighbourhood. If a buyer's group is already at the block cap, the sale cannot proceed regardless of price. This tool gives a directional read; verify against the live HDB EIP eMap before listing.",
+    "faqs": [
+      {
+        "q": "What is the HDB Ethnic Integration Policy (EIP)?",
+        "a": "The EIP keeps each HDB block and neighbourhood within set ethnic proportions so estates stay racially balanced. HDB caps the maximum percentage per group at block and neighbourhood level. When a block hits the limit for one ethnicity, no buyer from that group can buy a resale flat there until a same group seller sells and frees space."
+      },
+      {
+        "q": "Does the EIP affect my resale sale if my buyer is the same ethnic group as me?",
+        "a": "Generally no. If your buyer is the same ethnic group as you, the block already counts your household in that group's quota, so transferring within the group does not change the count. The EIP becomes the live issue mainly on a cross ethnic sale, where the buyer's group may already sit at the block or neighbourhood cap."
+      },
+      {
+        "q": "What are the EIP quota limits per block?",
+        "a": "The published EIP limits are Chinese 84 percent block and 87 percent neighbourhood, Malay 22 percent block and 25 percent neighbourhood, and Indian or Other 12 percent block and 15 percent neighbourhood. A block at the limit for a group blocks new resale buyers of that group. Always confirm the live position on the HDB EIP eMap before you commit."
+      },
+      {
+        "q": "How does the SPR quota differ from the EIP?",
+        "a": "The SPR quota is a separate limit for non Malaysian Singapore Permanent Resident families, set at 5 percent per block and 8 percent per neighbourhood. It applies on top of the EIP. If the SPR quota at the block is full, an SPR buyer is blocked even when the EIP position is fine, so both checks must clear for the sale to proceed."
+      },
+      {
+        "q": "Should I check EIP before listing my HDB flat?",
+        "a": "Yes. Knowing your block's EIP and SPR position before you list tells you which buyer pool you can realistically sell to, which shapes pricing and marketing. A flat that can only sell to one ethnic group has a thinner buyer pool. Winfred Quek can verify a specific block on the live HDB eMap before you go to market."
+      }
+    ]
+  },
+  "tools/hdb-grant-eligibility.html": {
+    "quickAnswer": "Five HDB grants can stack: the CPF Housing Grant, the Enhanced CPF Housing Grant (EHG), the Step Up CPF Grant, the Proximity Housing Grant, and the Family Grant. Most first timers qualify for three or four. This checker gives an indicative read; confirm final eligibility and amounts on the HDB website.",
+    "faqs": [
+      {
+        "q": "Which HDB grants can a first timer couple stack?",
+        "a": "A first timer family buying resale can often combine the CPF Housing Grant, the income tiered Enhanced CPF Housing Grant, the Family Grant, and the Proximity Housing Grant if buying near parents. The exact mix depends on income, citizenship setup, flat type, and whether you buy resale or BTO. The checker shows which apply to your inputs."
+      },
+      {
+        "q": "How does the Enhanced CPF Housing Grant (EHG) work?",
+        "a": "The EHG is income tiered for first timer families and applies to both BTO and resale flats. The lowest income tier receives the maximum, and the amount steps down as monthly household income rises through the bands. Higher income households receive less or none. The checker estimates your tier; confirm the exact figure on the HDB website."
+      },
+      {
+        "q": "What is the Proximity Housing Grant?",
+        "a": "The Proximity Housing Grant rewards families who buy a resale flat to live near or with their parents or children. Buying within the qualifying distance attracts the grant, and living in the same flat attracts a higher amount. It is one of the more commonly missed grants because buyers do not realise proximity to family qualifies them."
+      },
+      {
+        "q": "Do grants differ between resale and BTO purchases?",
+        "a": "Yes. The CPF Housing Grant and the Family Grant apply to resale flats, while the EHG applies to both BTO and resale. The Step Up CPF Grant is narrow, aimed at second timers moving from a 2 room to a 3 room flat. Switching your purchase path can change your grant stack, so it is worth modelling both."
+      },
+      {
+        "q": "Is this HDB grant checker accurate enough to rely on?",
+        "a": "Treat it as a directional check, not a final figure. Grant amounts, income ceilings, and conditions are set by HDB and change over time, so the real entitlement must be confirmed on the HDB website during your application. Winfred Quek can walk through your situation and confirm which grants you can realistically stack."
+      }
+    ]
+  },
+  "tools/hdb-mop-countdown.html": {
+    "quickAnswer": "The HDB Minimum Occupation Period (MOP) is 5 years, counted from your key collection date. Until it ends you generally cannot sell on the open market, sublet the whole flat, or buy private property using the flat. This countdown tool shows the days remaining so you can plan your next move ahead of time.",
+    "faqs": [
+      {
+        "q": "When does my HDB MOP start counting?",
+        "a": "The standard MOP is 5 years and runs from your key collection date, not from your application or option date. This tool projects the end date from the key collection date you enter. The same 5 year period applies to a BTO, a resale flat bought with a grant, and an Executive Condominium, each measured from when you take keys."
+      },
+      {
+        "q": "What can I do once my HDB MOP ends?",
+        "a": "After MOP you can sell on the open resale market, sublet the whole flat, or sell and upgrade to private property. Each path has different maths around proceeds, financing, and timing. The tool flags that most upgraders begin planning six to nine months before MOP rather than waiting for the date to pass."
+      },
+      {
+        "q": "Why should I plan before my MOP date arrives?",
+        "a": "Because the steps that unlock a clean upgrade take time. The planning window the tool highlights is roughly six to nine months out, when you refresh a valuation, get an approval in principle from two or three banks, and shortlist your target. Starting early means you can act the moment MOP clears rather than scrambling afterwards."
+      },
+      {
+        "q": "Can I sell my HDB flat before the MOP is over?",
+        "a": "In ordinary cases no. The MOP must be fulfilled before you can sell on the open market or sublet the whole flat. Limited exceptions exist for specific circumstances and require HDB approval. If your situation is unusual, confirm directly with HDB rather than assuming, since selling early without approval is not permitted."
+      },
+      {
+        "q": "How does knowing my MOP date help my upgrade decision?",
+        "a": "Your MOP end date is the trigger for the upgrade maths. Once you know it, you can work backwards: estimate your post MOP equity, test affordability on a target property, and decide whether selling and upgrading beats holding. The countdown gives you the date; Winfred Quek can run the equity and affordability numbers around it."
+      }
+    ]
+  },
+  "tools/resale-levy-calculator.html": {
+    "quickAnswer": "A resale levy applies when you took a subsidised flat (BTO, SBF, or a grant) and then buy a second subsidised flat, such as another BTO, SBF, or a new Executive Condominium. The amount depends on your first flat type. Buying a resale HDB flat or private property does not trigger a levy.",
+    "faqs": [
+      {
+        "q": "When does the HDB resale levy apply?",
+        "a": "The resale levy applies when you have already enjoyed a housing subsidy on your first flat and then buy a second subsidised flat from HDB, such as another BTO, an SBF unit, or a new Executive Condominium. It is HDB's way of recovering part of the subsidy so it is not received twice. Resale and private purchases do not trigger it."
+      },
+      {
+        "q": "How much is the resale levy?",
+        "a": "The levy is a fixed amount tied to your first subsidised flat type rather than a percentage of your sale price, so larger first flats carry a higher levy than smaller ones. Select your first flat type in the tool to see the figure. It is payable to HDB at the second flat purchase, settled in cash or CPF."
+      },
+      {
+        "q": "Do I pay a resale levy if I buy a resale HDB flat or private property?",
+        "a": "No. The levy is only triggered by a second subsidised purchase from HDB. If you sell your subsidised flat and buy a resale HDB flat on the open market, or buy private property, no resale levy applies. This often makes the resale or private route worth comparing against a second BTO when you weigh total cost."
+      },
+      {
+        "q": "Can the resale levy be paid from CPF?",
+        "a": "The levy is payable to HDB at the point of the second flat purchase and can be settled in cash or from CPF, depending on your situation. Because it is a non recoverable cost rather than an investment, it should be built into your upgrade maths upfront when comparing a second BTO path against a resale or private path."
+      },
+      {
+        "q": "Should the resale levy change my upgrade strategy?",
+        "a": "It can. The levy is money you do not get back, so on a second subsidised purchase it adds directly to your true cost. Comparing a levy bearing BTO route against a levy free resale or private route sometimes flips the better answer. Winfred Quek can fold the levy into a full upgrade comparison so you see the net position."
+      }
+    ]
+  },
+  "tools/upgrade-roi.html": {
+    "quickAnswer": "This tool models 5, 10, and 15 year equity curves for staying in your HDB flat versus selling and upgrading to a condo, factoring in leverage and your appreciation assumptions. It assumes a sell first upgrade, so ABSD does not apply. The right answer is rarely always upgrade; it depends on your numbers.",
+    "faqs": [
+      {
+        "q": "What does the HDB to condo upgrade ROI tool actually compare?",
+        "a": "It projects two equity paths side by side over 5, 10, and 15 years: staying put in your HDB flat, versus selling it and buying a condo with the proceeds plus cash and a new loan. You enter current values, loan balances, a target condo price, and appreciation assumptions, and it shows the equity gap between the two paths."
+      },
+      {
+        "q": "Does upgrading to a condo always beat staying in HDB?",
+        "a": "No, and the tool is built to show that. Upgrading adds leverage and upfront costs such as Buyer's Stamp Duty and legal fees, so it only pulls ahead if the condo appreciates enough to outweigh them. With modest appreciation assumptions the HDB path can stay competitive. The honest answer depends on your figures, not a blanket rule."
+      },
+      {
+        "q": "Will I pay ABSD when I upgrade from HDB to a condo?",
+        "a": "This model assumes you sell your HDB flat first and then buy the condo, so Additional Buyer's Stamp Duty does not apply. ABSD is triggered when you keep the HDB flat and buy the condo as a second property at the same time. If you intend to hold both, the upgrade maths changes materially and should be modelled separately."
+      },
+      {
+        "q": "What costs does the upgrade ROI tool include and exclude?",
+        "a": "It accounts for upfront upgrade costs such as Buyer's Stamp Duty and legal fees, and applies your appreciation assumptions to both properties. It deliberately excludes the cashflow gap during the transition between selling and buying, which should be modelled on its own. So treat the equity curves as a strategic comparison, not a complete cashflow plan."
+      },
+      {
+        "q": "Is the projected equity a guaranteed return?",
+        "a": "No. The figures are projections driven entirely by the appreciation rates you input, and property prices can rise or fall, so actual outcomes will differ. The value is in comparing the two paths under the same assumptions and stress testing them. Winfred Quek can run your specific numbers, including the cashflow gap the tool leaves out."
+      }
+    ]
+  },
+  "tools/bto-ballot-probability.html": {
+    "quickAnswer": "This estimator gives a rough probability of being shortlisted in a BTO ballot, based on historical 2023 to 2025 oversubscription rates by town tier, flat type, and priority scheme. It estimates your odds of being shortlisted, not of getting a specific unit you want, and is most useful for the BTO versus resale decision.",
+    "faqs": [
+      {
+        "q": "How does the BTO ballot probability estimator work?",
+        "a": "It applies historical 2023 to 2025 oversubscription patterns to your inputs: the town tier you pick, the flat type, and any priority scheme you qualify for. Mature central towns are far more competitive than quieter non mature towns, and priority schemes lift your odds. The output is an indicative shortlisting probability, not a precise forecast for the current exercise."
+      },
+      {
+        "q": "Does being shortlisted in a BTO ballot mean I get the flat?",
+        "a": "No, and this distinction matters. The estimate is your chance of being shortlisted to select a unit, not of securing a specific flat you want. The ballot is random after priority filtering, and actual unit selection happens months later, by which point your preferred stack or floor may be taken. Shortlisting is the first hurdle, not the finish line."
+      },
+      {
+        "q": "How do priority schemes change my BTO odds?",
+        "a": "Priority schemes such as the Married Parent Priority or schemes for seniors and multi generation families set aside a share of units, which improves your shortlisting odds compared with a first timer applying without a scheme. Second timers face tighter allocation and lower odds. The tool adjusts the estimate based on the scheme you select to reflect this."
+      },
+      {
+        "q": "When should I choose resale over waiting for a BTO?",
+        "a": "When the estimated odds are low and your timeline is tight. If the tool shows a slim shortlisting chance, you may face several application cycles plus the build wait, which can stretch years. Buyers who cannot wait often find resale faster, even at a higher price. The estimator is built to inform exactly this BTO versus resale call."
+      },
+      {
+        "q": "How reliable are these BTO probability estimates?",
+        "a": "Treat them as directional. They are based on historical 2023 to 2025 application rates, and each new exercise can subscribe very differently depending on location, supply, and demand at that moment. Always check the current cycle's subscription figures from HDB before deciding. Winfred Quek can help weigh a specific BTO project against the resale alternative for your situation."
+      }
+    ]
+  }
+}
