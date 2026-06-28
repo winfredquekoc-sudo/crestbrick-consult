@@ -125,8 +125,10 @@ export default async function handler(req, res) {
   const src = source || 'resources_page';
 
   // Fan out — none of these block on each other failing.
+  // Per-lead Telegram ping intentionally disabled — leads are summarised by the
+  // daily lead-magnet-digest cron instead of pinging on every submission.
   const [tg, n8n, resend, drip] = await Promise.all([
-    notifyTelegram({ email, name, phone, intent, magnet_title: m.title, source: src }),
+    Promise.resolve(false),
     notifyN8n({
       email,
       name: name || null,
