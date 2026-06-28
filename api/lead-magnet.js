@@ -7,6 +7,7 @@
 // instantly even if no email channel is configured. No more 503.
 // POST { email, magnet, source } → JSON { ok: true, ebook_url, title }
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 // Hardcoded to the live leads->Sheet webhook. (A stale N8N_LEAD_MAGNET_WEBHOOK
 // env var was overriding this with a dead URL, so site leads never reached the sheet.)
@@ -82,23 +83,32 @@ async function notifyN8n(payload) {
   } catch { return false; }
 }
 
-async function notifyResend(email, m, source) {
-  const RESEND = process.env.RESEND_API_KEY;
-  if (!RESEND) return false;
+// Deliver the eBook email. PRIMARY = Gmail SMTP (GMAIL_USER + GMAIL_APP_PASSWORD, which are
+// set and working); FALLBACK = Resend (only if a valid key is configured). Resend was returning
+// resend:false in prod (empty/unverified), so Gmail is now the reliable path.
+async function notifyEmail(email, m, source) {
   const html = `<p>Hi,</p><p>Your free copy of <b>${m.title}</b>:</p><p><a href="https://winfredquek.com${m.url}">Open eBook →</a></p><p>If you find it useful, the way I work with paying clients is at <a href="https://winfredquek.com/services/property-portfolio-analysis">winfredquek.com/services/property-portfolio-analysis</a>.</p><p>— Winfred</p><p style="font-size:11px;color:#999;">You requested this via ${source}. Reply STOP to unsubscribe.</p>`;
-  try {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Winfred Quek <winfred@winfredquek.com>',
-        to: [email],
-        subject: `Your copy of ${m.title}`,
-        html,
-      }),
-    });
-    return r.ok;
-  } catch { return false; }
+  const subject = `Your copy of ${m.title}`;
+  const user = process.env.GMAIL_USER, pass = process.env.GMAIL_APP_PASSWORD;
+  if (user && pass) {
+    try {
+      const t = nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
+      await t.sendMail({ from: `Winfred Quek <${user}>`, to: email, subject, html });
+      return true;
+    } catch { /* fall through to Resend */ }
+  }
+  const RESEND = process.env.RESEND_API_KEY;
+  if (RESEND) {
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: 'Winfred Quek <winfred@winfredquek.com>', to: [email], subject, html }),
+      });
+      return r.ok;
+    } catch { return false; }
+  }
+  return false;
 }
 
 export default async function handler(req, res) {
@@ -127,7 +137,7 @@ export default async function handler(req, res) {
   // Fan out — none of these block on each other failing.
   // Per-lead Telegram ping intentionally disabled — leads are summarised by the
   // daily lead-magnet-digest cron instead of pinging on every submission.
-  const [tg, n8n, resend, drip] = await Promise.all([
+  const [tg, n8n, emailed, drip] = await Promise.all([
     Promise.resolve(false),
     notifyN8n({
       email,
@@ -140,7 +150,7 @@ export default async function handler(req, res) {
       source: src,
       ts: new Date().toISOString(),
     }),
-    notifyResend(email, m, src),
+    notifyEmail(email, m, src),
     magnet === 'lentor-gardens-guide'
       ? startLentorDrip({ email, name: name || '', phone: phone || '', intent: intent || '', magnet, source: src, ts: new Date().toISOString() })
       : Promise.resolve(false),
@@ -151,6 +161,6 @@ export default async function handler(req, res) {
     ok: true,
     ebook_url: m.url,
     title: m.title,
-    delivery: { telegram: tg, n8n, resend, drip },
+    delivery: { telegram: tg, n8n, email: emailed, drip },
   });
 }
