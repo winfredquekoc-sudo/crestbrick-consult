@@ -817,4 +817,52 @@
       <news:keywords>Singapore property, New launch</news:keywords>
     </news:news>
   </url>
+  <url>
+    <loc>https://winfredquek.com/insights/dunearn-house-vs-watten-house-dunearn-386</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-07</news:publication_date>
+      <news:title>Dunearn House vs Watten House vs Dunearn 386: New 99 Year Launch Against Freehold Resale</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/dunearn-house-vs-reserve-residences</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-07</news:publication_date>
+      <news:title>Dunearn House vs The Reserve Residences: The Beauty World Ceiling Question</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/dunearn-house-entry-price-exit-math</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-07</news:publication_date>
+      <news:title>The Fourth Avenue Residences Lesson: Why Entry Price Decides Your Dunearn House Exit</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/cross-island-line-crl-property-guide</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-07</news:publication_date>
+      <news:title>The Cross Island Line and Property Values: What CRL Phase 2 Means for Turf City and Beyond</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
 </urlset>
