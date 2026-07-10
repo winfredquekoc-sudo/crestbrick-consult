@@ -949,4 +949,40 @@
       <news:keywords>Singapore property, New launch</news:keywords>
     </news:news>
   </url>
+  <url>
+    <loc>https://winfredquek.com/insights/hdb-to-condo-upgrade-affordability</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-10</news:publication_date>
+      <news:title>Can I Afford to Upgrade From HDB to Condo? The Honest Math</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/hidden-costs-first-time-buyers-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-10</news:publication_date>
+      <news:title>The 7 Hidden Costs First-Time Buyers Always Miss in Singapore</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/how-much-house-can-i-afford-salary-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-10</news:publication_date>
+      <news:title>How Much House Can I Afford on an $8k, $12k or $15k Salary in Singapore?</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
 </urlset>
