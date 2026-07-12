@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Property Purchase Timeline Singapore 2026 · Winfred Quek</title>
+<meta name="description" content="Singapore property purchase timeline: private resale, new launch or HDB resale. Dated milestones from OTP to key collection. Free tool, Winfred Quek, CEA R073319H.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/purchase-timeline">
+<style>
+:root{--bg:#0e0c08;--ink:#f0e9d8;--ink-soft:#a89980;--ink-muted:#7a6c54;--accent:#b48c50;--rule:rgba(180,140,80,0.2);--highlight:#1a1610;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:32px 16px;line-height:1.6;}
+.wrap{max-width:760px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
+.lead{color:var(--ink-soft);margin:8px 0 28px;line-height:1.6;}
+.card{background:var(--highlight);border:1px solid var(--rule);border-radius:12px;padding:24px;margin-bottom:18px;}
+label{display:block;margin-bottom:14px;}
+label span{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px;}
+input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--rule);border-radius:6px;color:var(--ink);font-size:15px;}
+.row{display:flex;gap:14px;flex-wrap:wrap;}
+.row label{flex:1;min-width:180px;}
+.btn{background:var(--accent);color:var(--bg);padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;margin-top:24px;}
+.result.show{display:block;}
+.tlhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px;}
+.tlhead h2{font-family:'Fraunces',serif;font-weight:400;font-size:20px;}
+.tlhead .badge{font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--rule);border-radius:20px;padding:4px 12px;}
+.timeline{position:relative;padding-left:34px;}
+.timeline::before{content:'';position:absolute;left:9px;top:6px;bottom:6px;width:2px;background:var(--rule);}
+.tl-item{position:relative;padding-bottom:26px;}
+.tl-item:last-child{padding-bottom:0;}
+.tl-item::before{content:'';position:absolute;left:-34px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);}
+.tl-item.milestone::before{background:var(--accent);}
+.tl-date{font-size:12px;color:var(--accent);letter-spacing:0.03em;font-weight:600;margin-bottom:2px;}
+.tl-title{font-size:15.5px;color:var(--ink);font-weight:500;margin-bottom:3px;}
+.tl-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
+.tl-note{font-size:12px;color:var(--ink-muted);margin-top:4px;font-style:italic;}
+.cta{margin-top:24px;text-align:center;}
+.cta a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+.print-btn{display:inline-block;margin-top:10px;background:transparent;color:var(--ink-soft);border:1px solid var(--rule);border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;}
+@media print{
+  body{background:#fff;color:#111;padding:0;}
+  .card:first-of-type, .btn, .print-btn, .cta, .disclaimer-block{display:none !important;}
+  .card{background:#fff;border:1px solid #ccc;}
+  .timeline::before{background:#999;}
+  .tl-item::before{border-color:#333;background:#fff;}
+  .tl-item.milestone::before{background:#333;}
+  .tl-date{color:#333;}
+  .tl-title{color:#111;}
+  .tl-desc{color:#333;}
+  a{color:#111;text-decoration:underline;}
+}
+</style>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Property Purchase Timeline Singapore 2026 · Winfred Quek","item":"https://winfredquek.com/tools/purchase-timeline"}]}
+</script>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Property Purchase Timeline Singapore 2026 · Winfred Quek","url":"https://winfredquek.com/tools/purchase-timeline","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Plan your Singapore property purchase timeline: private resale, new launch, or HDB resale. Get dated milestones from OTP to key collection. Free tool, Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about"}}
+</script>
+</head><body><div class="wrap">
+<h1>Property Purchase Timeline</h1>
+<div class="lead">Pick your property type and your OTP (or booking) date, and see every dated milestone from option to keys — so nothing catches you out with a deadline.</div>
+
+<div class="card">
+<div class="row">
+<label><span>Property type</span>
+<select id="ptype">
+<option value="private" selected>Private resale</option>
+<option value="new-launch">New launch (developer sale)</option>
+<option value="hdb">HDB resale</option>
+</select>
+</label>
+<label><span>OTP / booking date</span><input id="startdate" type="date"/></label>
+</div>
+<button class="btn" onclick="render()">Generate my timeline</button>
+</div>
+
+<div id="result" class="result">
+<div class="card">
+<div class="tlhead">
+<h2 id="tlTitle"></h2>
+<span class="badge" id="tlBadge"></span>
+</div>
+<div class="timeline" id="timeline"></div>
+<button class="print-btn" onclick="window.print()">Print / save this timeline</button>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20mapped%20out%20my%20purchase%20timeline%20and%20want%20to%20talk%20through%20the%20next%20steps.">Want me to walk this timeline with you? WA me →</a></div>
+</div>
+
+<script>
+function addDays(dateStr, days){
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + days);
+  return d;
+}
+function fmtDate(d){
+  return d.toLocaleDateString('en-SG', {day:'numeric', month:'short', year:'numeric'});
+}
+
+function buildPrivateResale(start){
+  return {
+    title: 'Private Resale Timeline',
+    steps: [
+      {days:0, title:'OTP granted', desc:'Seller grants you the Option to Purchase. You pay the option fee, typically 1% of the price.', milestone:true},
+      {days:14, title:'Exercise the OTP (deadline)', desc:'Exercise within 14 days of the OTP date. You pay the exercise fee, typically a further 4% (5% total paid so far).', milestone:true},
+      {days:28, title:'BSD / ABSD payable (deadline)', desc:"Buyer's Stamp Duty and, if applicable, Additional Buyer's Stamp Duty are due within 14 days of exercising the OTP.", milestone:true},
+      {days:70, title:'Completion window opens (~8 weeks from exercise)', desc:'Lawyers complete conveyancing, your loan is disbursed, and the balance price is paid. Typical completion is 8 to 12 weeks after exercise.'},
+      {days:98, title:'Completion window closes (~12 weeks from exercise)', desc:'Latest typical completion date. Actual date depends on your solicitor and financing timeline.'},
+      {days:98, title:'Key collection', desc:'Completion and key collection usually happen on the same day, once the balance price and duties are settled.', milestone:true}
+    ]
+  };
+}
+
+function buildNewLaunch(start){
+  return {
+    title: 'New Launch Timeline',
+    steps: [
+      {days:0, title:'Booking fee paid', desc:'You book the unit and pay a booking fee, typically 5% of the purchase price.', milestone:true},
+      {days:21, title:'Sale & Purchase Agreement (S&P) signed', desc:'Developer issues the S&P Agreement, to be signed within 3 weeks of booking.', milestone:true},
+      {days:56, title:'20% payment due (from booking)', desc:'Under the standard Progressive Payment Scheme, a further 15% is due on S&P signing, bringing total paid to 20% within 8 weeks of booking.', milestone:true},
+      {days:56, title:'Progressive payment stages begin', desc:'From here, payments follow construction milestones, roughly: Foundation 10%, Reinforced concrete framework 10%, Partition walls 5%, Roof/ceiling 5%, Doors, windows, wiring, plumbing 5%, Car park, roads, drains 5%.'},
+      {days:1095, title:'Temporary Occupation Permit, TOP (indicative)', desc:'A further 25% is payable on TOP. TOP typically lands around 3 to 4 years after launch — this date is indicative only and depends on construction progress.'},
+      {days:1460, title:'Certificate of Statutory Completion, CSC (indicative)', desc:'Final 15% payable on CSC, typically about a year after TOP. Indicative only.'}
+    ]
+  };
+}
+
+function buildHdbResale(start){
+  return {
+    title: 'HDB Resale Timeline',
+    steps: [
+      {days:0, title:'OTP granted', desc:'Seller grants the Option to Purchase. Option fee is a token amount, S$1 to S$1,000 by mutual agreement.', milestone:true},
+      {days:21, title:'Exercise the OTP (deadline)', desc:'You must exercise the OTP within 21 days of the OTP date.', milestone:true},
+      {days:28, title:'Submit HDB resale application', desc:'Buyer and seller submit the resale application together, typically within 7 days of exercising the OTP.', milestone:true},
+      {days:84, title:'Completion appointment', desc:'HDB schedules the completion appointment roughly 8 weeks after the resale application is accepted. You collect keys at this appointment.', milestone:true}
+    ]
+  };
+}
+
+function render(){
+  const ptype = document.getElementById('ptype').value;
+  let startVal = document.getElementById('startdate').value;
+  if (!startVal) {
+    const today = new Date();
+    startVal = today.toISOString().slice(0,10);
+    document.getElementById('startdate').value = startVal;
+  }
+
+  let data, badge;
+  if (ptype === 'private') { data = buildPrivateResale(startVal); badge = 'Private resale'; }
+  else if (ptype === 'new-launch') { data = buildNewLaunch(startVal); badge = 'New launch'; }
+  else { data = buildHdbResale(startVal); badge = 'HDB resale'; }
+
+  document.getElementById('tlTitle').textContent = data.title;
+  document.getElementById('tlBadge').textContent = badge;
+
+  const tl = document.getElementById('timeline');
+  tl.innerHTML = data.steps.map(s => {
+    const d = addDays(startVal, s.days);
+    const indicative = s.days > 365 ? '<div class="tl-note">Indicative date — actual timing depends on construction progress.</div>' : '';
+    return `<div class="tl-item${s.milestone?' milestone':''}">
+      <div class="tl-date">${fmtDate(d)}${s.days>0 ? ' · Day '+s.days : ' · Day 0'}</div>
+      <div class="tl-title">${s.title}</div>
+      <div class="tl-desc">${s.desc}</div>
+      ${indicative}
+    </div>`;
+  }).join('');
+
+  document.getElementById('result').classList.add('show');
+}
+
+(function(){
+  const today = new Date();
+  document.getElementById('startdate').value = today.toISOString().slice(0,10);
+})();
+render();
+</script>
+</div>
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
+</body></html>
