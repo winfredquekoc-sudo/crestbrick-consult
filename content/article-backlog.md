@@ -330,3 +330,150 @@
 
 - [ ] **100. Property Management Singapore: DIY vs Hiring a Manager**
   Query: "property management singapore". What a property manager does, typical fees, and the break-even for a landlord with one vs several units.
+
+---
+
+## Batch 4 — 110 machine generated gap topics (queued 2026-07-13, drips 3/day 15 Jul – 20 Aug 2026)
+
+Generated overnight on Winfred's instruction ("generate over 100 new content, publish 2-3 a day"). Deduped against all 358 live/queued slugs. Queued in ~/.claude/state/insights-drip/manifest.json (ids 45-154); the daily insights-drip launchd job publishes them. NOTE: statuses in the sections above are stale — 92 of the 100 "unstarted" topics above were already built and published.
+
+
+### buying-process (12)
+
+- [~] **What Is a Mortgagee Sale in Singapore?** — `mortgagee-sale-property-singapore-guide` · drips 2026-07-15
+- [~] **How to Buy Property at Auction in Singapore** — `buying-property-at-auction-singapore` · drips 2026-07-18
+- [~] **What Happens If You Forfeit Your OTP Deposit?** — `otp-forfeiture-losing-deposit-singapore` · drips 2026-07-21
+- [~] **Your Home Loan Got Rejected After Exercising the OTP: Now What?** — `loan-rejected-after-otp-exercised-singapore` · drips 2026-07-25
+- [~] **Can a Seller Back Out After Accepting an Offer?** — `seller-backs-out-of-sale-singapore` · drips 2026-07-28
+- [~] **How Bank Valuers Actually Value Your Property** — `panel-valuer-bank-valuation-process-singapore` · drips 2026-07-31
+- [~] **How Much Money Do I Need to Buy a House in Singapore?** — `total-upfront-cash-to-buy-property-singapore` · drips 2026-08-04
+- [~] **Private Treaty, Tender, or Auction: How Singapore Properties Are Sold** — `private-treaty-vs-tender-vs-auction-sale-singapore` · drips 2026-08-07
+- [~] **HDB Resale vs Private Property: How the Buying Process Actually Differs** — `resale-hdb-vs-private-buying-process-differences` · drips 2026-08-10
+- [~] **What a Title Search and Requisitions Actually Uncover** — `requisition-title-search-explained-singapore` · drips 2026-08-12
+- [~] **What Happens on Completion Day When Buying Property** — `completion-day-what-happens-property-singapore` · drips 2026-08-15
+- [~] **Gazumping in Singapore: Can a Seller Accept a Higher Offer After Yours?** — `gazumping-backing-out-after-verbal-offer-singapore` · drips 2026-08-17
+
+### condo-living (12)
+
+- [~] **MCST AGMs: How Condo Governance Actually Works** — `mcst-agm-how-it-works-singapore` · drips 2026-07-15
+- [~] **Sinking Fund vs Management Fund: What Your Condo Fees Pay For** — `sinking-fund-vs-management-fund-singapore` · drips 2026-07-18
+- [~] **Condo By-Laws: What You Can Be Fined For** — `condo-by-laws-violations-singapore` · drips 2026-07-22
+- [~] **Running For or Voting In Your MCST Council** — `mcst-council-election-guide-singapore` · drips 2026-07-25
+- [~] **Getting Renovation Approved by Your MCST** — `condo-renovation-approval-process-singapore` · drips 2026-07-28
+- [~] **When Condo Facility Bookings Go Wrong** — `condo-facility-booking-disputes-singapore` · drips 2026-08-01
+- [~] **Water Leak From the Unit Above: Who's Liable?** — `water-leak-between-units-liability-singapore` · drips 2026-08-04
+- [~] **How MCSTs Catch and Penalise Illegal Short Term Rentals** — `condo-short-term-rental-enforcement-singapore` · drips 2026-08-07
+- [~] **Pet Rules in Singapore Condos: What's Actually Allowed** — `condo-pet-policy-rules-singapore` · drips 2026-08-10
+- [~] **Common Property vs Your Unit: Who Pays for What Repair** — `common-property-repair-responsibility-singapore` · drips 2026-08-13
+- [~] **The Defects Liability Period: What New Launch Buyers Should Know** — `defects-liability-period-new-launch-singapore` · drips 2026-08-15
+- [~] **MCST vs JMB: Strata Living for Condos vs Landed Estates** — `condo-vs-landed-strata-jmb-differences-singapore` · drips 2026-08-17
+
+### districts-areas (12)
+
+- [~] **Mount Pleasant: The Old Police Academy Site's Masterplan Future** — `mount-pleasant-old-police-academy-masterplan-singapore` · drips 2026-07-15
+- [~] **Holland Village: Property Outlook for a Quiet Prime Pocket** — `holland-village-property-outlook-singapore` · drips 2026-07-19
+- [~] **Woodlands Regional Centre: The North's Second CBD** — `woodlands-regional-centre-property-2026` · drips 2026-07-22
+- [~] **Bukit Merah and Alexandra: The Quiet Rejuvenation Zone** — `bukit-merah-alexandra-property-outlook-singapore` · drips 2026-07-25
+- [~] **The Jurong Region Line Corridor: What Gets Unlocked** — `jurong-region-line-jrl-corridor-guide-singapore` · drips 2026-07-29
+- [~] **Downtown Line Extension: Which Areas Benefit** — `downtown-line-extension-property-impact-singapore` · drips 2026-08-01
+- [~] **Novena and the Health City Cluster: Property Outlook** — `novena-health-city-property-outlook-singapore` · drips 2026-08-04
+- [~] **Toa Payoh Town Centre: The Original New Town's Second Act** — `toa-payoh-town-centre-redevelopment-singapore` · drips 2026-08-07
+- [~] **Bendemeer, Kolam Ayer, and Whampoa: The Quiet Central Fringe** — `bendemeer-kolam-ayer-whampoa-property-outlook-singapore` · drips 2026-08-10
+- [~] **Beauty World: Bukit Timah's Integrated Transport Hub Redevelopment** — `beauty-world-bukit-timah-redevelopment-singapore` · drips 2026-08-13
+- [~] **Marina South: Singapore's Newest Downtown Residential District** — `marina-south-property-outlook-singapore` · drips 2026-08-16
+- [~] **Tampines North and Punggol Coast: Singapore's Newest HDB Towns** — `tampines-north-punggol-coast-new-towns-singapore` · drips 2026-08-18
+
+### financing (14)
+
+- [~] **Term Loan vs Mortgage Loan: What's the Difference for Property?** — `term-loan-vs-mortgage-loan-singapore` · drips 2026-07-16
+- [~] **Mortgage Insurance in Singapore: Do You Actually Need It?** — `mortgage-insurance-singapore-guide` · drips 2026-07-19
+- [~] **How Commercial Property Loans Differ From Residential** — `commercial-property-loan-basics-singapore` · drips 2026-07-22
+- [~] **Mortgage Broker vs Going Direct to the Bank: Does It Matter?** — `mortgage-broker-vs-direct-bank-singapore` · drips 2026-07-26
+- [~] **Making a Partial Mortgage Prepayment: Rules and Penalties** — `partial-loan-prepayment-penalty-singapore` · drips 2026-07-29
+- [~] **Using a Guarantor for a Home Loan in Singapore** — `guarantor-home-loan-singapore` · drips 2026-08-01
+- [~] **Mortgage Risk for Buyers Paid in Foreign Currency** — `foreign-currency-income-mortgage-risk-singapore` · drips 2026-08-05
+- [~] **Can You Take a Second Loan on the Same Property in Singapore?** — `second-mortgage-subordinate-financing-singapore` · drips 2026-08-08
+- [~] **Topping Up Your Mortgage for Renovation: Is It Worth It?** — `mortgage-top-up-for-renovation-singapore` · drips 2026-08-11
+- [~] **Green Mortgages in Singapore: What They Actually Require** — `green-sustainability-linked-mortgage-singapore` · drips 2026-08-13
+- [~] **What Happens to the Mortgage When One Co-Borrower Wants Out** — `joint-tenancy-mortgage-co-borrower-exit-singapore` · drips 2026-08-16
+- [~] **Interest Rate Caps and Step-Up Loans: Are They Worth the Premium?** — `interest-rate-cap-step-up-loan-singapore` · drips 2026-08-18
+- [~] **Breaking Your Mortgage Lock-In Early: When the Math Still Works** — `breaking-lock-in-early-cost-benefit-singapore` · drips 2026-08-19
+- [~] **Financing a Landed Property Rebuild: How Construction Loans Work** — `construction-loan-landed-property-rebuild-singapore` · drips 2026-08-20
+
+### hdb (14)
+
+- [~] **The 2-Room Flexi Scheme: Who It's For and How It Works** — `two-room-flexi-scheme-guide-singapore` · drips 2026-07-16
+- [~] **Jumbo Flats: The Combined HDB Units Still on the Resale Market** — `jumbo-flat-hdb-guide-singapore` · drips 2026-07-19
+- [~] **Corner Terrace HDB Flats: Why They Command a Premium** — `corner-terrace-hdb-guide-singapore` · drips 2026-07-23
+- [~] **DBSS Flats Explained: The Privately Built HDB Hybrid** — `dbss-flats-explained-singapore` · drips 2026-07-26
+- [~] **Buying a Resale EC After Privatisation: What Changes** — `ec-resale-after-privatisation-singapore` · drips 2026-07-29
+- [~] **HUDC Estates: Singapore's Privatised Public Housing** — `hudc-estates-privatised-singapore` · drips 2026-08-02
+- [~] **Studio Apartments for Seniors: Singapore's Small Format HDB** — `studio-apartment-elderly-hdb-singapore` · drips 2026-08-05
+- [~] **3Gen Flats: Eligibility and Why Demand Is Rising** — `3gen-flat-eligibility-singapore` · drips 2026-08-08
+- [~] **HDB Maisonettes: The Two Storey Flats Still on the Resale Market** — `maisonette-hdb-guide-singapore` · drips 2026-08-11
+- [~] **HDB Ballot Priority Schemes: How They Actually Improve Your Odds** — `hdb-ballot-priority-schemes-singapore` · drips 2026-08-14
+- [~] **Why HDB Loan Applications Get Rejected** — `why-hdb-loan-rejected-singapore` · drips 2026-08-16
+- [~] **Ground Floor HDB Units: Resale Value and Buyer Considerations** — `ground-floor-hdb-unit-value-singapore` · drips 2026-08-18
+- [~] **Does Unit Position Within a Block Affect an HDB Flat's Value?** — `corridor-vs-lift-lobby-hdb-value-singapore` · drips 2026-08-19
+- [~] **SERS Explained: What Happens If Your HDB Block Is Selected** — `sers-scheme-explained-singapore` · drips 2026-08-20
+
+### investing-frameworks (6)
+
+- [~] **Walk Up Apartments: The Overlooked Value Play in Singapore** — `walk-up-apartment-investment-singapore` · drips 2026-07-16
+- [~] **PSF vs Quantum: Which Number Should Drive Your Decision** — `psf-vs-quantum-what-matters-more-singapore` · drips 2026-07-20
+- [~] **Understanding URA Rental Transaction Data: What It Does and Doesn't Tell You** — `understanding-rental-transaction-data-singapore` · drips 2026-07-23
+- [~] **Floor Plan Efficiency Ratio: Why Two 800 sqft Units Can Feel Different** — `floor-plan-efficiency-ratio-explained-singapore` · drips 2026-07-26
+- [~] **Diversifying a Property Portfolio Across Asset Classes in Singapore** — `property-portfolio-diversification-asset-class-singapore` · drips 2026-07-30
+- [~] **Reading the Supply Pipeline: How Investors Should Interpret Upcoming Launches** — `reading-supply-pipeline-data-investor-singapore` · drips 2026-08-02
+
+### landlord (12)
+
+- [~] **Evicting a Tenant in Singapore: The Legal Process** — `landlord-eviction-process-singapore` · drips 2026-07-17
+- [~] **Tenant Not Paying Rent: A Landlord's Legal Options** — `rent-arrears-non-payment-tenant-singapore` · drips 2026-07-20
+- [~] **Do Singapore Landlords Need Landlord Insurance?** — `landlord-insurance-singapore-guide` · drips 2026-07-23
+- [~] **Negotiating a Lease Renewal: A Landlord's Playbook** — `lease-renewal-negotiation-landlord-singapore` · drips 2026-07-27
+- [~] **Corporate Leases vs Individual Tenancies: What Changes for Landlords** — `corporate-lease-vs-individual-tenancy-singapore` · drips 2026-07-30
+- [~] **The Real Cost of Holding a Vacant Rental Unit** — `vacant-unit-holding-cost-landlord-singapore` · drips 2026-08-02
+- [~] **Small Claims Tribunal for Landlords: When and How to File** — `landlord-small-claims-tribunal-guide-singapore` · drips 2026-08-05
+- [~] **Subletting a Room vs the Whole Unit: Rules for Private Property Owners** — `subletting-rooms-vs-whole-unit-condo-singapore` · drips 2026-08-08
+- [~] **Rental Income Tax Filing: Deadlines and Common Landlord Mistakes** — `landlord-tax-filing-deadlines-singapore` · drips 2026-08-11
+- [~] **Co Tenancy Agreements: Protecting Yourself When Renting With Roommates** — `co-tenancy-roommate-agreement-singapore` · drips 2026-08-14
+- [~] **The Move Out Inventory Checklist That Protects Your Deposit Claim** — `move-out-inventory-checklist-landlord-singapore` · drips 2026-08-17
+- [~] **Renew the Existing Tenant or Re List? A Landlord's Decision Framework** — `renew-vs-relist-rental-unit-singapore` · drips 2026-08-19
+
+### life-events (10)
+
+- [~] **Retrenched With a Mortgage: What Relief Options Exist** — `retrenchment-mortgage-relief-options-singapore` · drips 2026-07-17
+- [~] **What Happens to Your Property If You're Declared Bankrupt** — `bankruptcy-and-your-property-singapore` · drips 2026-07-20
+- [~] **Emigrating From Singapore: Sell, Rent Out, or Keep Your Property?** — `emigrating-what-to-do-with-your-property-singapore` · drips 2026-07-24
+- [~] **When a Joint Owner Dies: The Practical Steps for Survivorship** — `death-of-joint-owner-survivorship-singapore` · drips 2026-07-27
+- [~] **Critical Illness and Your Property: The CPF and Mortgage Questions** — `critical-illness-cpf-property-impact-singapore` · drips 2026-07-30
+- [~] **Taking a Career Break: How It Affects Your Mortgage Affordability** — `career-break-sabbatical-mortgage-affordability-singapore` · drips 2026-08-03
+- [~] **Growing Family: When Does Upsizing Actually Make Sense** — `growing-family-when-to-upsize-singapore` · drips 2026-08-06
+- [~] **Aging Parents Moving In: Multi-Generational Living Options** — `aging-parents-multigenerational-living-options-singapore` · drips 2026-08-09
+- [~] **Using Your Property as Collateral to Start a Business** — `starting-a-business-using-property-as-collateral-singapore` · drips 2026-08-12
+- [~] **Remarriage and Blended Families: Property Planning Considerations** — `remarriage-blended-family-property-planning-singapore` · drips 2026-08-14
+
+### selling (10)
+
+- [~] **How to Avoid a Mortgagee Sale Before It's Too Late** — `how-to-avoid-a-mortgagee-sale-singapore` · drips 2026-07-17
+- [~] **Selling an HDB Flat With an Outstanding HDB Loan** — `selling-hdb-with-outstanding-hdb-loan-singapore` · drips 2026-07-21
+- [~] **How an En Bloc Sale Committee Actually Runs the Process** — `en-bloc-sale-committee-process-singapore` · drips 2026-07-24
+- [~] **How Sellers Can Vet a Buyer's Financing Before Accepting an Offer** — `seller-due-diligence-buyer-financing-singapore` · drips 2026-07-27
+- [~] **Selling a Condo Unit With Outstanding MCST Arrears** — `selling-condo-with-mcst-arrears-singapore` · drips 2026-07-31
+- [~] **What to Do When a Co-Owner Refuses to Sell** — `co-owner-refuses-to-sell-singapore` · drips 2026-08-03
+- [~] **Selling Property to a Related Party: The IRAS Market Value Rule** — `selling-property-to-a-related-party-singapore` · drips 2026-08-06
+- [~] **Exclusive vs Open Listing: Which Gets Your Property Sold Faster** — `exclusive-vs-open-listing-agent-singapore` · drips 2026-08-09
+- [~] **The Handover Checklist Every Seller Should Complete** — `handover-checklist-selling-property-singapore` · drips 2026-08-12
+- [~] **Seller Concessions: When to Offer a Repair Credit Instead of a Price Cut** — `seller-concessions-repair-credits-singapore` · drips 2026-08-15
+
+### tax-policy (8)
+
+- [~] **IRAS Property Tax: Payment Methods, Deadlines and GIRO** — `property-tax-payment-methods-deadlines-singapore` · drips 2026-07-18
+- [~] **Property Tax on Vacant Land and Undeveloped Sites** — `vacant-land-property-tax-singapore` · drips 2026-07-21
+- [~] **Service and Conservancy Charges: What HDB Owners Actually Pay For** — `service-conservancy-charges-hdb-singapore` · drips 2026-07-24
+- [~] **How to Get a Property Tax Refund for Overpayment** — `property-tax-refund-overpayment-singapore` · drips 2026-07-28
+- [~] **What Happens If You Don't Pay Property Tax** — `property-tax-arrears-consequences-singapore` · drips 2026-07-31
+- [~] **Is GST Charged on Property Agent Commission?** — `gst-property-agent-commission-singapore` · drips 2026-08-03
+- [~] **Stamp Duty When Assigning or Subselling an OTP** — `stamp-duty-otp-assignment-subsale-singapore` · drips 2026-08-06
+- [~] **How to e-Stamp a Document With IRAS: A Walkthrough** — `iras-estamping-portal-guide-singapore` · drips 2026-08-09
