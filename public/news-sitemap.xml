@@ -1333,4 +1333,40 @@
       <news:keywords>Singapore property, New launch</news:keywords>
     </news:news>
   </url>
+  <url>
+    <loc>https://winfredquek.com/insights/psf-vs-quantum-what-matters-more-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-20</news:publication_date>
+      <news:title>PSF vs Quantum: Which Number Should Drive Your Decision</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/rent-arrears-non-payment-tenant-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-20</news:publication_date>
+      <news:title>Tenant Not Paying Rent: A Landlord's Legal Options</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/bankruptcy-and-your-property-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-20</news:publication_date>
+      <news:title>What Happens to Your Property If You're Declared Bankrupt</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
 </urlset>
