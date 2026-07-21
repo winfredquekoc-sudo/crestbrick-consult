@@ -254,6 +254,9 @@
 
 ## New launch reviews and property guides (2026)
 <!-- insights-general -->
+- [What Happens If You Forfeit Your OTP Deposit?](https://winfredquek.com/insights/otp-forfeiture-losing-deposit-singapore): What triggers forfeiture of the option fee or exercised deposit, what's recoverable and what isn't, and how a buyer defaulting differs from a seller defaulting.
+- [Property Tax on Vacant Land and Undeveloped Sites](https://winfredquek.com/insights/vacant-land-property-tax-singapore): Vacant land in Singapore is also assessed for property tax based on annual value.
+- [Selling an HDB Flat With an Outstanding HDB Loan](https://winfredquek.com/insights/selling-hdb-with-outstanding-hdb-loan-singapore): How the outstanding HDB loan balance is settled at completion, the CPF refund sequencing, and how it differs from selling with a bank loan instead.
 - [What Happens to Your Property If You're Declared Bankrupt](https://winfredquek.com/insights/bankruptcy-and-your-property-singapore): A bankruptcy order changes who controls your property.
 - [Tenant Not Paying Rent: A Landlord's Legal Options](https://winfredquek.com/insights/rent-arrears-non-payment-tenant-singapore): What to do when a Singapore tenant stops paying rent: formal demand, deposit deduction, the Small Claims Tribunal, and when it escalates to eviction.
 - [PSF vs Quantum: Which Number Should Drive Your Decision](https://winfredquek.com/insights/psf-vs-quantum-what-matters-more-singapore): When PSF is the right comparison metric, when total quantum matters more, and how to read Singapore property listings and transaction data without being misled.
