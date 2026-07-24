@@ -254,6 +254,9 @@
 
 ## New launch reviews and property guides (2026)
 <!-- insights-general -->
+- [Service and Conservancy Charges: What HDB Owners Actually Pay For](https://winfredquek.com/insights/service-conservancy-charges-hdb-singapore): What HDB Service and Conservancy Charges fund, cleaning, lift maintenance, town council services, how the amount is set by flat type, and rebate mechanisms.
+- [How an En Bloc Sale Committee Actually Runs the Process](https://winfredquek.com/insights/en-bloc-sale-committee-process-singapore): How a Singapore en bloc sale committee runs the process: the 80/90 percent consent thresholds, the tender, and the Strata Titles Board's role when owners object.
+- [Emigrating From Singapore: Sell, Rent Out, or Keep Your Property?](https://winfredquek.com/insights/emigrating-what-to-do-with-your-property-singapore): Leaving Singapore for good?
 - [Do Singapore Landlords Need Landlord Insurance?](https://winfredquek.com/insights/landlord-insurance-singapore-guide): What landlord insurance covers beyond a standard fire policy in Singapore, and how to weigh the cost against your exposure as a single or multi unit landlord.
 - [Understanding URA Rental Transaction Data: What It Does and Doesn't Tell You](https://winfredquek.com/insights/understanding-rental-transaction-data-singapore): How to read Singapore's published rental transaction data properly: what contract rent includes, the reporting lag, and why small samples can mislead.
 - [Corner Terrace HDB Flats: Why They Command a Premium](https://winfredquek.com/insights/corner-terrace-hdb-guide-singapore): What agents mean by a corner terrace HDB unit, why extra windows and space push up the price, and whether the premium matches the actual living difference.
