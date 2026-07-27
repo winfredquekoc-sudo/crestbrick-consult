@@ -1585,4 +1585,40 @@
       <news:keywords>Singapore property, New launch</news:keywords>
     </news:news>
   </url>
+  <url>
+    <loc>https://winfredquek.com/insights/lease-renewal-negotiation-landlord-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-27</news:publication_date>
+      <news:title>Negotiating a Lease Renewal: A Landlord's Playbook</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/death-of-joint-owner-survivorship-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-27</news:publication_date>
+      <news:title>When a Joint Owner Dies: The Practical Steps for Survivorship</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/seller-due-diligence-buyer-financing-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-27</news:publication_date>
+      <news:title>How Sellers Can Vet a Buyer's Financing Before Accepting an Offer</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
 </urlset>
