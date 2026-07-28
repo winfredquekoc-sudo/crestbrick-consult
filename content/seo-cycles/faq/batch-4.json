@@ -1,0 +1,152 @@
+{
+  "tools/decoupling-breakeven.html": {
+    "quickAnswer": "This break even calculator weighs the cost of restructuring ownership (BSD on the transferred share plus legal fees) against the ABSD you would save on your next purchase. A positive net benefit means the move may pay for itself, but CPF refunds, SSD, and holding period all still matter.",
+    "faqs": [
+      {
+        "q": "How does this restructuring break even calculator work?",
+        "a": "You enter your current property value, outstanding loan, CPF used by the transferring spouse, years held, your next property price, and the ABSD rate you face. It estimates BSD on the transferred share, legal fees, and the ABSD you would save, then shows the net benefit so you can see if restructuring is worth it."
+      },
+      {
+        "q": "What is property restructuring (decoupling) in Singapore?",
+        "a": "Restructuring is when one co owner transfers their share of a jointly held property to the other. This frees up the exiting owner to buy a second property as a first time buyer, sidestepping the higher ABSD that applies to a second home. It involves BSD on the transferred share, legal fees, and a fresh loan."
+      },
+      {
+        "q": "What costs does restructuring actually involve?",
+        "a": "The main cash costs are Buyer Stamp Duty on the share being transferred, legal and conveyancing fees for both parties, and arranging a fresh loan for the buying spouse. CPF used must also be refunded to the CPF account with accrued interest. These costs are weighed against the ABSD you would otherwise pay."
+      },
+      {
+        "q": "Does a positive net benefit mean I should restructure?",
+        "a": "Not automatically. The calculator gives an indicative figure, but it does not capture everything. CPF accrued interest must be refunded, SSD may apply if you are still inside the holding period, and the buying spouse needs to qualify for the new loan on a single income. Treat the result as a starting point, not a decision."
+      },
+      {
+        "q": "Is restructuring still allowed, and is it watched by IRAS?",
+        "a": "Restructuring between co owners remains a legitimate move, but IRAS has increased scrutiny since 2023. The arrangement should reflect a genuine transfer, not a purely tax driven paper exercise. Winfred Quek (CEA R073319H) models the full picture and works with your solicitor so the transaction holds up. Book a consult before committing."
+      }
+    ]
+  },
+  "tools/restructuring.html": {
+    "quickAnswer": "This calculator runs the honest math on restructuring (decoupling): the BSD on the transferred share plus legal cost, against the ABSD saved on your next purchase. A Citizen avoids 20 percent ABSD on a second home; a PR avoids 30 percent. Positive net means the transfer may make sense, before CPF and SSD adjustments.",
+    "faqs": [
+      {
+        "q": "What does the restructuring break even calculator compare?",
+        "a": "It compares two numbers. First, the cost to restructure: Buyer Stamp Duty on the 50 percent share being transferred plus legal and conveyancing fees. Second, the ABSD you would save by buying your next property as a first time owner instead of a second property buyer. The difference is your net benefit."
+      },
+      {
+        "q": "How much ABSD does restructuring help me avoid?",
+        "a": "A Singapore Citizen pays 20 percent ABSD on a second residential property and nothing on a first. A PR pays 30 percent on a second and 5 percent on a first. Restructuring shifts the buying spouse back to first timer rates, which is where the saving comes from. The calculator applies the rate matching your profile."
+      },
+      {
+        "q": "Why does the tool say to factor in CPF accrued interest?",
+        "a": "When the buying spouse uses CPF for the transfer, any CPF previously withdrawn for the property must be refunded to the CPF account with accrued interest at the prevailing rate. That refund is real money locked back into CPF, not free cash. The calculator does not model it, so add it before you decide."
+      },
+      {
+        "q": "What if I am still within the Seller Stamp Duty window?",
+        "a": "If the existing property has not cleared the SSD holding period, transferring a share can trigger SSD on that share. That is an extra cost the basic break even does not include. Add it to the cost side, because it can swing a marginal case from worth it to not worth it. Check the holding date carefully."
+      },
+      {
+        "q": "Should I restructure even if the numbers look neutral?",
+        "a": "Sometimes. A near neutral result means the decision turns on non cash factors: your purchase timeline, future flexibility, estate planning, or a divorce settlement. These can justify restructuring even without a clear dollar saving. Winfred Quek (CEA R073319H) reads the full picture with your solicitor. Book a 30 minute consult before you commit."
+      }
+    ]
+  },
+  "tools/should-i-sell.html": {
+    "quickAnswer": "Answer five questions on holding period, motivation, equity, your next move, and cashflow, and this tool returns a clear verdict: SELL, WAIT, RESTRUCTURE, or RENT OUT. It is built to give an honest read, including when selling is the most expensive way to reach your goal.",
+    "faqs": [
+      {
+        "q": "How does the Should I Sell tool decide?",
+        "a": "It weighs five inputs: how long you have held (SSD exposure), your motivation, whether you are in profit or negative equity, whether you have a next property lined up, and whether you could hold another 12 months if rates rose. The combination points to SELL, WAIT, RESTRUCTURE, or RENT OUT, with the reasoning shown."
+      },
+      {
+        "q": "Why does the tool tell some people to restructure instead of sell?",
+        "a": "If your reason for selling is to avoid ABSD on your next purchase, selling is often the costly route. Restructuring, where one co owner buys out the other share, can free up ABSD capacity for a fraction of the cost. BSD on the transferred share is typically far below the ABSD on a fresh second purchase."
+      },
+      {
+        "q": "What if I am still inside the Seller Stamp Duty period?",
+        "a": "If you have held less than the SSD window and do not urgently need cash, the tool usually says WAIT. Selling inside SSD means handing a slice of your sale price to IRAS for no strategic gain. Unless cashflow forces your hand, holding until SSD expires protects your proceeds."
+      },
+      {
+        "q": "When does selling actually make sense?",
+        "a": "Selling tends to make sense when you are stretched on cashflow and need to de risk, or when you are upgrading with a specific target, can carry both properties briefly, and can sequence the moves to limit ABSD. Outside those cases, renting out or restructuring often beats an outright sale on the numbers."
+      },
+      {
+        "q": "Is this verdict enough to act on?",
+        "a": "It is a fast directional read, not a full plan. Your actual numbers, including stamp duty, CPF refunds, loan terms, and market timing, decide the outcome. Use the verdict to frame the conversation, then have Winfred Quek (CEA R073319H) run your real figures before you list, restructure, or rent."
+      }
+    ]
+  },
+  "tools/seller-motivation-scorer.html": {
+    "quickAnswer": "This scorer reads eight signals, from days on market to price cuts to whether the seller has already bought their next home, and returns a motivation score out of 41. The higher the score, the more leverage you hold, and the tool tells you how aggressively to open.",
+    "faqs": [
+      {
+        "q": "What does the seller motivation score measure?",
+        "a": "It estimates how much pressure a seller is under to close, scored out of 41 across eight signals: days on market, price reductions, whether they have already bought their next home, their stated reason, property condition, marketing intensity, any ABSD or SSD deadline, and how quickly they respond. A higher score means more negotiating leverage for you."
+      },
+      {
+        "q": "Why does a seller buying their next home raise their motivation?",
+        "a": "A seller who has already committed to their next purchase often faces bridging pressure: two properties, possibly two loans, and a clock running. That urgency makes them more willing to negotiate. The tool weights this heavily because it is one of the strongest tells that a seller needs the deal done."
+      },
+      {
+        "q": "How aggressively should I open based on the score?",
+        "a": "A very high score (roughly 28 and above) supports opening 8 to 12 percent below asking. A moderate score supports 5 to 8 percent below. A balanced result suggests 3 to 5 percent and building rapport. A low score means the seller holds leverage, so pay close to asking or move on rather than lowball."
+      },
+      {
+        "q": "What does an ABSD or SSD deadline tell me about a seller?",
+        "a": "A seller racing an ABSD remission deadline, for example needing to sell their previous home within the disposal window to reclaim ABSD, has a hard date. As that deadline nears, their flexibility drops and their motivation climbs. Spotting it lets you time your offer and negotiate from a stronger position."
+      },
+      {
+        "q": "Can I rely on the score alone to negotiate?",
+        "a": "Treat it as a read on leverage, not a guarantee. Signals can mislead, and the right offer still depends on comparable sales, the unit, and your own walk away number. Use the score to set your stance, then pair it with the walk away calculator and concession ladder. Winfred Quek (CEA R073319H) can sit on the negotiation."
+      }
+    ]
+  },
+  "tools/walk-away-calculator.html": {
+    "quickAnswer": "This calculator sets the maximum price you will pay before you ever enter the negotiation. It blends the last comparable sale, how long you would wait for the next deal, your carrying cost, and a hard financing cap, so your discipline holds when emotion takes over in the room.",
+    "faqs": [
+      {
+        "q": "What is a walk away price and why set one first?",
+        "a": "Your walk away price is the most you will pay before the seller has to find a new buyer. You set it before negotiating because once you are emotionally invested in a unit, your judgment slips and you overpay. Locking the number in advance keeps the discipline that wins the negotiation."
+      },
+      {
+        "q": "How does the calculator work out my walk away number?",
+        "a": "It starts from the last comparable sale, then adds a patience premium based on how long you would happily wait for the next deal and your annual carrying cost versus renting. It applies a portion of that as a ceiling, adjusts for any emotional factor you enter, and caps everything at your hard financing max."
+      },
+      {
+        "q": "What is the patience premium in this tool?",
+        "a": "The patience premium reflects that waiting for the next suitable property has a cost: more months of carrying or renting. If you would wait a long time and waiting is expensive, you can justify paying a little more for the right unit now. The tool adds only a fraction of that as headroom, deliberately conservative."
+      },
+      {
+        "q": "Why does the tool include a hard max constraint?",
+        "a": "Your hard max is the ceiling set by cash plus financing, including stamp duty and CPF limits. No matter how attractive a property feels, you cannot exceed what you can actually fund and service. The calculator caps your walk away at this figure so the number stays realistic, not aspirational."
+      },
+      {
+        "q": "How do I use the gap between asking and my walk away?",
+        "a": "The difference between the asking price and your walk away number is your negotiation room. It tells you how far you are trying to move the seller and frames your opening offer. Pair it with the concession ladder to give ground in shrinking steps, and have Winfred Quek (CEA R073319H) pressure test the figure first."
+      }
+    ]
+  },
+  "tools/concession-ladder.html": {
+    "quickAnswer": "This generator turns your opening offer and walk away price into a five step concession ladder with shrinking increments. Diminishing steps signal to the seller that you are nearing your ceiling, while flat, equal raises only invite them to keep pushing for more.",
+    "faqs": [
+      {
+        "q": "What is a concession ladder in property negotiation?",
+        "a": "A concession ladder is a planned sequence of price increases you make as you move from your opening offer toward your walk away number. Mapping it before you negotiate keeps you from raising too fast or too far. The tool builds five steps so each move is deliberate rather than reactive in the moment."
+      },
+      {
+        "q": "Why should concessions get smaller each round?",
+        "a": "Shrinking increments send a signal: you are running out of room. If you raise by a smaller amount each time, the seller reads that you are approaching your ceiling and is more likely to settle. Equal sized raises suggest there is always more to give, which encourages them to keep pushing."
+      },
+      {
+        "q": "How does the tool build my ladder?",
+        "a": "You enter your opening offer and your walk away price. The gap between them is your total room. The generator splits that room across five steps using diminishing percentages, so the first concession is the largest and each subsequent one is smaller, ending right at your walk away figure."
+      },
+      {
+        "q": "Where should my walk away number come from?",
+        "a": "Set it before you build the ladder, because the ladder is only as sound as its ceiling. Base your walk away on comparable sales, your financing cap, and carrying costs. The walk away calculator does exactly this. Feeding in a disciplined number keeps the whole ladder honest rather than wishful."
+      },
+      {
+        "q": "Does following the ladder guarantee I win the negotiation?",
+        "a": "No. The ladder is a structure for giving ground intelligently, but outcomes also hinge on the seller motivation, the unit, and timing. Use it alongside the seller motivation scorer to calibrate your stance. For a high stakes purchase, Winfred Quek (CEA R073319H) can run the negotiation strategy with you end to end."
+      }
+    ]
+  }
+}

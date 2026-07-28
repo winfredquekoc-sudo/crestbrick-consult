@@ -59,17 +59,17 @@
     <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
-        <a class="nav-link" href="/about.html">About</a>
-        <a class="nav-link" href="/services.html">Services</a>
-        <a class="nav-link" href="/listings.html">Listings</a>
-        <a class="nav-link" href="/new-launches.html">New Launches</a>
-        <a class="nav-link" href="/districts.html">Districts</a>
-        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
-        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
-        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
-        <a class="nav-link" href="/track-record.html">Track Record</a>
-        <a class="nav-link" href="/testimonials.html">Testimonials</a>
-        <a class="nav-link" href="/contact.html">Contact</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/new-launches">New Launches</a>
+        <a class="nav-link" href="/districts">Districts</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/track-record">Track Record</a>
+        <a class="nav-link" href="/testimonials">Testimonials</a>
+        <a class="nav-link" href="/contact">Contact</a>
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
       </div>
     </div>
@@ -77,6 +77,8 @@
 <main class="max-w-5xl mx-auto px-6 pt-12 pb-20">
   <p class="section-label mb-4"><a href="/tools" class="hover:text-[var(--ink)]">All tools</a></p>
   <h1 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-4">Singapore Mortgage Rates, <span class="italic text-[var(--accent)]">Live 2026</span></h1>
+<div class="geo-quick-answer" style="max-width:48rem;margin:1.25rem auto;padding:1rem 1.25rem;background:#1a1c24;border:1px solid #252830;border-left:3px solid #c6a36a;border-radius:8px;color:#f0ede6;font-size:1.02rem;line-height:1.7;"><strong style="color:#c6a36a;">Quick answer:</strong> This page lists current fixed and floating mortgage packages from major Singapore banks, refreshed daily, alongside the latest SORA 3M benchmark, so you can compare standard walk in rates for a typical private property loan in one view.</div>
+
   <p class="text-[var(--ink-soft)] leading-relaxed mb-6 max-w-2xl">Current fixed + floating packages from the major SG banks. Updated daily at 06:00 SGT via scrape. Not a promo aggregator, these reflect standard walk-in rates for typical private-property loans with ~S$500k+ quantum.</p>
   <p id="last-updated" class="text-xs text-[var(--ink-muted)] mb-8 uppercase tracking-widest">Loading...</p>
   <div id="rates-host"><p class="text-center text-[var(--ink-muted)] py-8">Loading rates...</p></div>
@@ -119,6 +121,30 @@
 <!-- related-tools:END -->
 
 </main>
+
+<section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How often are these Singapore mortgage rates updated?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">The table refreshes daily, with a scrape running around 06:00 Singapore time. Each load shows the last updated timestamp and the current SORA 3M reading. Rates still move between updates and bank desks can quote differently by quantum and profile, so always confirm the live figure with the bank before you commit.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What is the difference between a fixed and a floating package?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">A fixed package locks your rate for a set period, often two years, then reverts to a floating rate, usually SORA plus a spread. A floating package moves with its benchmark from day one. Fixed buys payment certainty during the lock in, while floating can be cheaper when rates ease but exposes you to increases.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What does SORA 3M mean on this page?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">SORA is the Singapore Overnight Rate Average, the benchmark that replaced SIBOR for home loans. SORA 3M is the compounded three month average that most floating packages price off, shown as benchmark plus a bank spread. When SORA 3M moves, floating instalments follow at the next reset, so it is the number to watch for floating loans.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Why do these rates differ from the promo rates on aggregator sites?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">Aggregator headline rates often apply to new launches, specific quantum bands or limited promotions. This table reflects standard walk in packages for a typical private property loan of roughly 500,000 dollars or more. Treat any quoted rate as indicative and verify the exact package and conditions directly with the bank before deciding.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How do I choose the right package for my situation?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">It depends on your cashflow, how long you plan to hold, your view on the rate cycle and your appetite for payment swings. The lowest headline rate is not always the best fit once lock in terms and reversion spreads are weighed. Winfred Quek can map the package to your profile in a rate consultation.</p>
+  </div>
+</section>
 <footer class="divider bg-[var(--bg)]">
   <div class="max-w-6xl mx-auto px-6 py-8 text-center text-xs text-[var(--ink-muted)]">
     © 2026 Winfred Quek · Crestbrick · CEA R073319H · Rates are indicative; confirm with banks directly.
