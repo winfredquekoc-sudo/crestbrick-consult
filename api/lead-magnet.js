@@ -47,12 +47,12 @@ async function startLentorDrip(payload) {
 // without needing the actual PDF file present.
 const MAGNETS = {
   'property-portfolio-blueprint': {
-    title: 'The Property Portfolio Blueprint',
-    url: '/ebooks/4-pillar-framework',
+    title: 'The Move Framework',
+    url: '/ebooks/money-timing-safety-framework',
   },
   '4-pillar-ebook': { // backward-compat
-    title: 'The Property Portfolio Blueprint',
-    url: '/ebooks/4-pillar-framework',
+    title: 'The Move Framework',
+    url: '/ebooks/money-timing-safety-framework',
   },
   'foreign-buyer-guide': {
     title: 'Foreign Buyer Survival Guide',
@@ -62,7 +62,7 @@ const MAGNETS = {
   'seller-valuation': { title: 'Seller Valuation Report request', url: null },
   'progression-score': {
     title: 'The Property Portfolio Blueprint',
-    url: '/ebooks/4-pillar-framework',
+    url: '/ebooks/money-timing-safety-framework',
   },
   'lentor-gardens-guide': {
     title: 'Lentor Gardens Residences: The Investor Case',

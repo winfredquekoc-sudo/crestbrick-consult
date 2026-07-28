@@ -166,7 +166,7 @@
   }
 
   // ============================================================
-  // #280 Exit-intent capture (offer free Property Portfolio Blueprint eBook)
+  // #280 Exit-intent capture (offer free Move Framework eBook)
   // ============================================================
   function initExitIntent() {
     if (sessionStorage.getItem('wf_exit_shown')) return;
