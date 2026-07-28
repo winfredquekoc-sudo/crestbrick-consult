@@ -99,7 +99,6 @@ function buildSummary(a) {
 async function pingTelegram(body, result) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chatId = process.env.TELEGRAM_WINFRED_CHAT_ID;
-  if (!token || !chatId) return;
 
   const s = result.summary;
   const notes = result.prep_notes.map((n, i) => `${i+1}. ${n}`).join('\n');
@@ -140,13 +139,34 @@ CONTEXT
 🔥 PREP NOTES
 ${notes}`;
 
-  try {
-    await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text })
-    });
-  } catch (err) { /* non-blocking */ }
+  let sent = false;
+  if (token && chatId) {
+    try {
+      const tgResp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: chatId, text })
+      });
+      const tgJson = await tgResp.json();
+      sent = !!tgJson.ok;
+    } catch (err) { /* fall through to email */ }
+  }
+
+  // Email fallback: this is the highest-intent lead on the site — never lose it silently.
+  if (!sent && process.env.RESEND_API_KEY) {
+    try {
+      await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Winfred Quek <winfred@winfredquek.com>',
+          to: ['winfredquekoc@gmail.com'],
+          subject: `Portfolio analysis lead (Telegram down): ${body.full_name || body.name || 'Anon'}`,
+          text,
+        }),
+      });
+    } catch (err) { /* non-blocking */ }
+  }
 }
 
 export default async function handler(req, res) {

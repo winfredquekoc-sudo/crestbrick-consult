@@ -200,8 +200,7 @@ var NONRES=[
   {label:'1% on first S$180k', cap:180000, rate:0.01},
   {label:'2% on next S$180k', cap:180000, rate:0.02},
   {label:'3% on next S$640k', cap:640000, rate:0.03},
-  {label:'4% on next S$500k', cap:500000, rate:0.04},
-  {label:'5% above S$1.5M', cap:Infinity, rate:0.05}
+  {label:'4% on remainder above S$1M', cap:Infinity, rate:0.04}
 ];
 
 function fmt(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
