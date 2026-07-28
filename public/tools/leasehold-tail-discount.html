@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="UTF-8"><title>99-Year Leasehold Tail Discount · Winfred Quek</title>
-<meta name="description" content="Singapore leasehold tail discount: model Bala's curve haircut for any remaining tenure. Know the real value before buying or selling resale. Winfred Quek, CEA R073319H.">
+<meta name="description" content="Leasehold tail discount calculator: model the Bala's curve haircut for any remaining lease and spot the 35 year financing and CPF pressure points before buying.">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <link rel="canonical" href="https://winfredquek.com/tools/leasehold-tail-discount">
 <style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:-apple-system,system-ui,sans-serif;background:#0e0c08;color:#f0e9d8;min-height:100vh;padding:32px 16px;line-height:1.6;}.wrap{max-width:560px;margin:0 auto;}h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;margin:6px 0 16px;}.lead{color:#a89980;margin-bottom:24px;}.card{background:#1a1610;border:1px solid rgba(180,140,80,0.2);border-radius:12px;padding:24px;margin-bottom:18px;}label{display:block;margin-bottom:14px;}label span{display:block;font-size:13px;color:#a89980;margin-bottom:4px;}input{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;}.row{display:flex;gap:14px;}.row label{flex:1;}.btn{background:#b48c50;color:#0e0c08;padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;}.result{display:none;margin-top:24px;padding:20px;background:#171410;border-left:4px solid #b48c50;border-radius:8px;}.result.show{display:block;}table{width:100%;border-collapse:collapse;font-size:14px;}th{padding:8px;text-align:left;color:#b48c50;font-size:12px;letter-spacing:0.05em;background:#1a1610;}td{padding:10px 8px;border-bottom:1px solid rgba(180,140,80,0.1);}.cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}</style>
@@ -13,6 +13,8 @@
 </script>
 </head><body><div class="wrap">
 <h1>99-Year Leasehold Tail Discount</h1>
+<div class="geo-quick-answer" style="max-width:48rem;margin:1.25rem auto;padding:1rem 1.25rem;background:#1a1c24;border:1px solid #252830;border-left:3px solid #c6a36a;border-radius:8px;color:#f0ede6;font-size:1.02rem;line-height:1.7;"><strong style="color:#c6a36a;">Quick answer:</strong> This tool models how a 99 year leasehold property loses value as the lease shortens, using a Bala's table approximation against a freehold equivalent value. It also flags two financing pressure points: the 35 year financing rule for banks and tighter CPF use once the lease runs low.</div>
+
 <div class="lead">As remaining lease shortens, two things decay: bank-financing eligibility (35-year rule) and Bala's table valuation. Quick model.</div>
 <div class="card">
 <label><span>Property name / address</span><input id="addr" placeholder="e.g. The Sail @ Marina Bay"/></label>
@@ -95,4 +97,28 @@ calc();
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+
+<section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What is leasehold tail discount in Singapore?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">It is the value gap between a leasehold property and its freehold equivalent that widens as the remaining lease shortens. Bala's table assigns a percentage of freehold value for each remaining tenure. This tool applies that approximation so you can see the implied value at future checkpoints before you buy or sell.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Why does the lease decay accelerate later in the tail?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">Decay is gradual while a healthy lease remains, then steepens roughly from the 60 years remaining mark. As the tail shortens, the buyer pool narrows and financing tightens, so each year lost knocks off proportionally more value. The tool shows this curve so you can plan an exit before the steep part bites.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How does a short lease affect my bank loan?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">Banks restrict mortgages once the property tenure plus the borrower's age pushes past about 95, and financing tightens sharply below 35 years remaining. A shorter lease means a smaller buyer pool able to borrow against it, which feeds back into a lower resale price. The tool flags when you enter that critical zone.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Can I use CPF to buy an old leasehold property?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">CPF usage rules tighten as the remaining lease falls, with meaningful restrictions once the lease drops below 30 years. That further shrinks the pool of buyers who can fund a purchase using CPF. The tool notes these CPF and financing effects so you treat them as part of the real value picture.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Is the Bala's table figure in this tool exact?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">No, it is a directional approximation based on the SLA leasehold table, interpolated between key milestones. Use it for thinking through the decay trend, not as a formal valuation. Bank, CPF and market conditions also move the real number, so confirm with a proper valuation and speak with Winfred Quek on exit timing.</p>
+  </div>
+</section>
 </body></html>

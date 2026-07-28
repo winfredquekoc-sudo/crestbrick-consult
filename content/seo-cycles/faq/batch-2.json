@@ -1,0 +1,152 @@
+{
+  "tools/affordability.html": {
+    "quickAnswer": "This calculator shows the maximum loan and purchase price a Singapore bank can legally offer you, stress tested at the MAS 4 percent floor under TDSR 55 percent for private property or MSR 30 percent for HDB and EC.",
+    "faqs": [
+      {
+        "q": "How does this affordability calculator work out my maximum loan?",
+        "a": "It takes your gross monthly income, caps total debt servicing at 55 percent under TDSR, deducts your existing debts, then works backwards from that monthly ceiling using the MAS 4 percent stress rate and your loan tenure to find the largest loan that fits. For HDB or EC it also applies the 30 percent MSR limit."
+      },
+      {
+        "q": "Why does the tool use a 4 percent rate instead of my actual mortgage rate?",
+        "a": "MAS requires every Singapore bank to underwrite home loans against a medium term stress rate, with 4 percent as the floor, even when your promotional rate is lower. The calculator mirrors this because that is the figure the bank assesses you against, so your real approved amount tracks the stress test, not the headline rate."
+      },
+      {
+        "q": "Is the maximum purchase price the same as my budget?",
+        "a": "No. The result is your legal ceiling, not a comfortable budget. Winfred Quek treats it as an upper bound only. Your workable budget should also absorb stamp duty, CPF drawn down, legal fees, renovation and several months of reserves, which usually puts a sensible target well below the calculated maximum."
+      },
+      {
+        "q": "How do my existing car loan and credit card debts affect the result?",
+        "a": "Every monthly obligation reduces your TDSR room dollar for dollar. Since TDSR caps total monthly debt at 55 percent of gross income, a car loan, personal loan, student loan or credit card minimum directly shrinks the room left for a new mortgage instalment, which in turn lowers your maximum loan and purchase price."
+      },
+      {
+        "q": "What LTV should I enter for my first property?",
+        "a": "For a first private housing loan with no other outstanding home loans, the LTV limit is typically 75 percent, which the tool uses by default. Second and subsequent loans face tighter LTV limits, so you would lower this figure. The loan amount also still has to clear the TDSR or MSR check, whichever binds first."
+      }
+    ]
+  },
+  "tools/mortgage-rates.html": {
+    "quickAnswer": "This page lists current fixed and floating mortgage packages from major Singapore banks, refreshed daily, alongside the latest SORA 3M benchmark, so you can compare standard walk in rates for a typical private property loan in one view.",
+    "faqs": [
+      {
+        "q": "How often are these Singapore mortgage rates updated?",
+        "a": "The table refreshes daily, with a scrape running around 06:00 Singapore time. Each load shows the last updated timestamp and the current SORA 3M reading. Rates still move between updates and bank desks can quote differently by quantum and profile, so always confirm the live figure with the bank before you commit."
+      },
+      {
+        "q": "What is the difference between a fixed and a floating package?",
+        "a": "A fixed package locks your rate for a set period, often two years, then reverts to a floating rate, usually SORA plus a spread. A floating package moves with its benchmark from day one. Fixed buys payment certainty during the lock in, while floating can be cheaper when rates ease but exposes you to increases."
+      },
+      {
+        "q": "What does SORA 3M mean on this page?",
+        "a": "SORA is the Singapore Overnight Rate Average, the benchmark that replaced SIBOR for home loans. SORA 3M is the compounded three month average that most floating packages price off, shown as benchmark plus a bank spread. When SORA 3M moves, floating instalments follow at the next reset, so it is the number to watch for floating loans."
+      },
+      {
+        "q": "Why do these rates differ from the promo rates on aggregator sites?",
+        "a": "Aggregator headline rates often apply to new launches, specific quantum bands or limited promotions. This table reflects standard walk in packages for a typical private property loan of roughly 500,000 dollars or more. Treat any quoted rate as indicative and verify the exact package and conditions directly with the bank before deciding."
+      },
+      {
+        "q": "How do I choose the right package for my situation?",
+        "a": "It depends on your cashflow, how long you plan to hold, your view on the rate cycle and your appetite for payment swings. The lowest headline rate is not always the best fit once lock in terms and reversion spreads are weighed. Winfred Quek can map the package to your profile in a rate consultation."
+      }
+    ]
+  },
+  "tools/mortgage-qa-bot.html": {
+    "quickAnswer": "This is a free instant Q and A tool that answers Singapore mortgage questions on TDSR, MSR, SORA packages, lock in penalties and refinancing timing, drawing on current market data, with a direct WhatsApp line to Winfred Quek for anything it cannot fully resolve.",
+    "faqs": [
+      {
+        "q": "What kinds of mortgage questions can this tool answer?",
+        "a": "It handles common Singapore home loan topics: the difference between TDSR and MSR, how SORA pegged packages work, when refinancing makes sense, how lock in penalties are calculated and the fixed versus floating trade off. It draws on current SORA and bank rate context plus the playbook Winfred Quek uses with clients."
+      },
+      {
+        "q": "Are the answers personalised financial advice?",
+        "a": "No. The tool gives general educational answers based on prevailing rules and market data, not tailored financial or mortgage advice. Your actual loan outcome depends on your income, existing debts, property count and the bank's own credit assessment. For a decision specific to your numbers, message Winfred Quek directly through the WhatsApp link."
+      },
+      {
+        "q": "How does the tool explain TDSR versus MSR?",
+        "a": "It explains that TDSR caps your total monthly debt, including the new mortgage, at 55 percent of gross income and applies to all property types. MSR is a tighter 30 percent cap on housing loan instalments alone and applies only to HDB flats and Executive Condominiums. For HDB and EC, both checks must be satisfied."
+      },
+      {
+        "q": "Can it tell me whether I should refinance now?",
+        "a": "It can walk you through the factors that matter, such as your current rate versus prevailing packages, whether you are still inside a lock in period and how soon repricing or refinancing is worthwhile. It gives general guidance rather than a verdict on your specific loan. For a tailored call, reach Winfred Quek on WhatsApp."
+      },
+      {
+        "q": "What happens if the tool cannot answer my question?",
+        "a": "If a question falls outside its scope or needs your personal figures, the tool points you to message Winfred Quek directly on WhatsApp for a human answer. Edge cases like complex restructuring, decoupling interactions or unusual income structures are usually better handled in a direct conversation than by an automated tool."
+      }
+    ]
+  },
+  "tdsr-calculator.html": {
+    "quickAnswer": "This calculator works out your TDSR headroom, maximum loan quantum and estimated monthly instalment under MAS rules, applying the 55 percent TDSR limit, the 30 percent MSR check for HDB and EC, and the 4 percent stress rate, plus LTV limits by property count.",
+    "faqs": [
+      {
+        "q": "What does the TDSR calculator actually compute?",
+        "a": "It calculates your TDSR ceiling at 55 percent of gross income, subtracts existing debts to find your headroom, then derives the maximum loan that fits using the 4 percent stress rate and your tenure. It also applies the LTV limit for your property count and runs the 30 percent MSR check when the purchase is an HDB flat or EC."
+      },
+      {
+        "q": "Why does it use 4 percent for the loan but 3.5 percent for the instalment?",
+        "a": "The maximum loan is sized against the MAS 4 percent stress rate floor, because that is the rate banks must underwrite affordability at. The estimated monthly instalment is shown at a 3.5 percent reference rate as a current market ballpark, giving you a closer sense of likely real payments while the loan ceiling stays conservatively stress tested."
+      },
+      {
+        "q": "How do the LTV limits change with property count?",
+        "a": "The tool applies 75 percent LTV for a first housing loan, 45 percent for a second and 35 percent for a third or more, in line with MAS limits. A higher property count means a larger cash and CPF down payment and a smaller loan, so your binding constraint can shift from TDSR to the LTV cap."
+      },
+      {
+        "q": "When does MSR apply instead of just TDSR?",
+        "a": "MSR applies on top of TDSR only for HDB flats and Executive Condominiums bought with a bank loan. It caps the housing instalment alone at 30 percent of gross income, which is usually stricter than the 55 percent TDSR limit. For these property types the calculator shows both checks, and the tighter one governs your maximum loan."
+      },
+      {
+        "q": "How much cash do I need for the down payment?",
+        "a": "For a first property the down payment is at least 25 percent, of which a minimum of 5 percent must be cash paid at the option stage, with the remaining 20 percent payable from CPF Ordinary Account or cash. For a second or subsequent property the cash component is larger. The calculator estimates the cash and CPF split for you."
+      }
+    ]
+  },
+  "tools/tdsr-scenarios.html": {
+    "quickAnswer": "This tool holds your income and debts fixed and compares your loan across four rate environments, showing that your qualifying loan is set by the MAS stress rate while your actual monthly payment changes if rates rise, so you can pressure test whether you could still hold.",
+    "faqs": [
+      {
+        "q": "Why does my qualifying loan stay the same across all four scenarios?",
+        "a": "Because banks size your loan against the MAS stress rate, not today's promotional rate. The tool uses a 4 percent stress rate for private property and 3 percent for HDB and EC, so the qualifying loan is constant. What changes between scenarios is the actual monthly payment you would face if prevailing rates move up or down."
+      },
+      {
+        "q": "What is the point of modelling rate shock scenarios?",
+        "a": "Passing the stress test tells you what you can borrow, but not whether the payments stay comfortable if rates climb. The plus one and plus two percentage point cards show your monthly instalment under higher rates, letting you ask honestly whether you could still service the loan if SORA rose, before you commit rather than after."
+      },
+      {
+        "q": "How does TDSR differ from MSR in this comparison?",
+        "a": "TDSR caps your total monthly debt at 55 percent of gross income and applies to every property type. MSR is a tighter 30 percent cap on housing debt alone and applies only to HDB and EC. For HDB and EC the tool uses the lower of the two limits to set your monthly availability, since the stricter rule binds."
+      },
+      {
+        "q": "Why is the stress rate lower for HDB than for private property?",
+        "a": "The tool applies a 3 percent stress assumption for HDB and EC and 4 percent for private property, reflecting the different medium term rate floors used in assessing these loans. Combined with the 30 percent MSR cap, this shapes how much an HDB or EC buyer qualifies for compared with a private buyer on the same income."
+      },
+      {
+        "q": "Does a higher monthly payment in the shock scenarios mean I cannot afford the property?",
+        "a": "Not necessarily. It shows the payment you would carry if rates rose to that level, so you can judge the cushion in your budget. If the higher figure looks tight against your income and reserves, that is a signal to borrow more conservatively or build a buffer. Winfred Quek can help you set a rate lock and holding strategy."
+      }
+    ]
+  },
+  "tools/property-vs-equities.html": {
+    "quickAnswer": "This tool compares deploying the same starting cash into leveraged Singapore property, using a 75 percent loan, against fully invested equities over 10 to 20 years, factoring appreciation, net rental yield and mortgage cost, to show how much leverage and liquidity each path trades off.",
+    "faqs": [
+      {
+        "q": "How does this tool compare property against equities?",
+        "a": "It starts both paths with the same cash. Property uses that cash as a 25 percent down payment and borrows the rest at 75 percent LTV, then compounds appreciation and net rental income while deducting mortgage cost. Equities invest the full cash amount at your assumed return. It then shows the net position at years 5, 10, 15, 20 and 25."
+      },
+      {
+        "q": "Why does leverage make such a difference to property returns?",
+        "a": "With a 75 percent loan, your cash controls an asset roughly four times its size, so appreciation is earned on the full property value rather than just your deposit. That magnifies gains when prices rise, but it also magnifies losses if values fall, and it adds mortgage interest as an ongoing cost. Leverage is the main reason the two paths diverge."
+      },
+      {
+        "q": "What assumptions can I change in the comparison?",
+        "a": "You can adjust the cash deployed, annual property appreciation, net rental yield, expected equity return and the mortgage rate. As a rough historical reference, Singapore property has tended toward low single digit annual appreciation plus a few percent yield, while broad equity indices have shown higher nominal returns, though none of these outcomes are guaranteed."
+      },
+      {
+        "q": "Does the model account for ABSD and holding costs?",
+        "a": "The model centres on leverage, appreciation, net rental yield and mortgage cost over the holding period. Real outcomes are also shaped by stamp duties such as ABSD on additional property, vacancy, maintenance, refinancing windows and cooling measure changes. Treat the result as a directional comparison and layer in your own transaction and holding costs before deciding."
+      },
+      {
+        "q": "Which is the better choice, property or equities?",
+        "a": "There is no single answer. Property's edge is leverage and a tangible income producing asset, while equities offer liquidity and easy diversification. The right mix depends on your capital, time horizon, cashflow stability and tolerance for illiquidity and rate risk. Winfred Quek can help you read the numbers against your own goals rather than in the abstract."
+      }
+    ]
+  }
+}
