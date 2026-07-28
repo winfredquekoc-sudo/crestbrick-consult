@@ -25,6 +25,10 @@
         {
           "key": "Permissions-Policy",
           "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://www.google-analytics.com https://*.google-analytics.com; frame-src https://calendly.com; media-src 'self'"
         }
       ]
     },
@@ -58,12 +62,47 @@
   ],
   "redirects": [
     {
+      "source": "/insights/absd-singapore",
+      "destination": "/insights/absd-singapore-2026",
+      "permanent": true
+    },
+    {
+      "source": "/tools/tdsr",
+      "destination": "/tools/affordability",
+      "permanent": true
+    },
+    {
+      "source": "/calculators/tdsr-calculator",
+      "destination": "/tools/affordability",
+      "permanent": true
+    },
+    {
+      "source": "/tools/stamp-duty",
+      "destination": "/tools/bsd",
+      "permanent": true
+    },
+    {
+      "source": "/calculators/stamp-duty-calculator",
+      "destination": "/tools/bsd",
+      "permanent": true
+    },
+    {
+      "source": "/calculators",
+      "destination": "/tools",
+      "permanent": true
+    },
+    {
       "source": "/LentorGardenResidences",
       "destination": "/LentorGardensResidences",
       "permanent": true
     },
     {
       "source": "/lentor",
+      "destination": "/LentorGardensResidences",
+      "permanent": true
+    },
+    {
+      "source": "/lentorgardensresidences",
       "destination": "/LentorGardensResidences",
       "permanent": true
     },

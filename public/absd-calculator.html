@@ -103,6 +103,8 @@
     }
     .calc-card select:focus,
     .calc-card input[type="number"]:focus {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
       border-color: var(--accent);
     }
     .calc-card select {
@@ -194,7 +196,7 @@
     #wa-float.wa-pulsing { animation: wa-pulse 1s ease-out 2; }
   </style>
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"ABSD Calculator Singapore 2026 Winfred Quek","item":"https://winfredquek.com/absd-calculator"}]}
 </script>
@@ -205,7 +207,7 @@
 <body>
 
   <!-- TOP NAV -->
-            <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
@@ -330,6 +332,7 @@
         <!-- ABSD Rate Reference Table -->
         <div style="background:#14161c; border:1px solid var(--rule); border-radius:12px; padding:1.75rem;">
           <p class="section-label mb-4">2026 ABSD Rate Reference</p>
+          <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
           <table class="rate-table">
             <thead>
               <tr>
@@ -366,6 +369,7 @@
               </tr>
             </tbody>
           </table>
+          </div>
 
           <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--rule);">
             <p style="color:var(--ink-soft); font-size:13px; line-height:1.6; margin-bottom:0.75rem;">
@@ -379,11 +383,11 @@
           <div style="margin-top:1.5rem; padding-top:1.25rem; border-top:1px solid var(--rule);">
             <p class="section-label mb-3">Also useful</p>
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
-              <a href="/stamp-duty-calculator" style="color:var(--accent); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
+              <a href="/tools/bsd" style="color:var(--accent); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 BSD + ABSD Combined Calculator
               </a>
-              <a href="/tdsr-calculator" style="color:var(--accent); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
+              <a href="/tools/affordability" style="color:var(--accent); font-size:14px; text-decoration:none; display:flex; align-items:center; gap:0.5rem;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                 TDSR / Affordability Calculator
               </a>

@@ -13,322 +13,322 @@
 
 ## Category 1 — Affordability & Getting Started
 
-- [ ] **1. Singapore Bank Mortgage Rates 2026: Full Comparison**
+- [x] **1. Singapore Bank Mortgage Rates 2026: Full Comparison** — `bank-mortgage-rates-singapore-2026`
   Query: "best home loan singapore 2026", "mortgage rate comparison singapore". Side-by-side comparison of fixed-rate vs floating (SORA) packages at current ~1.5% rates — lock-in periods, free conversion, legal subsidy clawback, and how to choose. The "comparison" article. A comparison table is a strong GEO asset because AI engines preferentially cite structured side-by-sides.
 
-- [ ] **2. Is It Better to Rent or Buy in Singapore 2026?**
+- [x] **2. Is It Better to Rent or Buy in Singapore 2026?** — `rent-vs-buy-singapore-2026`
   Query: "rent vs buy singapore". Breakeven math — at what holding period buying beats renting, factoring stamp duty, the ~1.5% mortgage, CPF accrued interest, and opportunity cost. Ends with a clear decision rule, not a fence-sit.
 
-- [ ] **3. How Much Money Do I Need to Buy a House in Singapore?**
+- [~] **3. How Much Money Do I Need to Buy a House in Singapore?** — `total-upfront-cash-to-buy-property-singapore`
   Query: "how much to buy a house singapore", "cash needed to buy property". The full upfront cash stack — downpayment cash portion, BSD, legal, valuation, mortgage stamp duty — with a worked example at $1M / $1.5M / $2M.
 
-- [ ] **4. What Salary Do You Need to Buy a Condo in Singapore?**
+- [x] **4. What Salary Do You Need to Buy a Condo in Singapore?** — `salary-needed-condo-singapore`
   Query: "what salary to buy a condo", "income to buy property singapore". Reverse-engineers minimum income from TDSR for each price band. Table: price → loan → min monthly income required.
 
-- [ ] **5. Can I Afford to Upgrade From HDB to Condo? The Honest Math**
+- [x] **5. Can I Afford to Upgrade From HDB to Condo? The Honest Math** — `hdb-to-condo-upgrade-affordability`
   Query: "can i afford to upgrade to condo". Walks an upgrader through sale proceeds, CPF refund, new downpayment, ABSD timing, and the cashflow gap. Honest — sometimes the answer is "not yet".
 
-- [ ] **6. Is Now a Good Time to Buy Property in Singapore?**
+- [x] **6. Is Now a Good Time to Buy Property in Singapore?** — `good-time-to-buy-property-singapore`
   Query: "is now a good time to buy property singapore". A decision framework (personal readiness, holding horizon, rate outlook) rather than a market call — evergreen, won't date.
 
-- [ ] **7. What's the Cheapest Way Onto the Property Ladder in Singapore?**
+- [x] **7. What's the Cheapest Way Onto the Property Ladder in Singapore?** — `cheapest-way-property-ladder-singapore`
   Query: "cheapest way to buy property singapore". 2-room Flexi, BTO in non-mature estates, resale with grants — ranked by total cash outlay for a first-timer.
 
-- [ ] **8. How Much House Can I Afford on an $8k / $12k / $15k Salary?**
+- [x] **8. How Much House Can I Afford on an $8k / $12k / $15k Salary?** — `how-much-house-can-i-afford-salary-singapore`
   Query: "how much house can i afford singapore". Three concrete salary scenarios, each with max loan, realistic price range, and what type of property it buys.
 
-- [ ] **9. Buying Your First Home in Your 20s vs 30s vs 40s**
+- [x] **9. Buying Your First Home in Your 20s vs 30s vs 40s** — `first-home-20s-30s-40s-singapore`
   Query: "best age to buy property singapore". How loan tenure caps (age + tenure ≤ 65 for best LTV), CPF runway, and life stage change the optimal first purchase by decade.
 
-- [ ] **10. The 7 Hidden Costs First-Time Buyers Always Miss**
+- [x] **10. The 7 Hidden Costs First-Time Buyers Always Miss** — `hidden-costs-first-time-buyers-singapore`
   Query: "hidden costs buying property singapore". Valuation fees, mortgage stamp duty, fire insurance, MCST move-in deposit, renovation, HDB upgrading levy, conveyancing disbursements.
 
 ## Category 2 — Stamp Duty & Property Tax
 
-- [ ] **11. Stamp Duty Calculator Singapore 2026: BSD + ABSD Worked Examples**
+- [x] **11. Stamp Duty Calculator Singapore 2026: BSD + ABSD Worked Examples** — `stamp-duty-calculator-singapore-2026`
   Query: "stamp duty calculator singapore", "how to calculate ABSD". Step-by-step BSD tier calculation plus ABSD by profile, with 6+ worked examples. Numbers-heavy = high AI citation value.
 
-- [ ] **12. Do You Pay ABSD on Inherited Property in Singapore?**
+- [x] **12. Do You Pay ABSD on Inherited Property in Singapore?** — `absd-inherited-property-singapore`
   Query: "absd on inherited property". Inheritance vs purchase, how an inherited property counts toward your property count for a future purchase, and the will vs intestacy angle.
 
-- [ ] **13. ABSD on Commercial & Mixed-Use Property: What Applies**
+- [x] **13. ABSD on Commercial & Mixed-Use Property: What Applies** — `absd-commercial-mixed-use-property-singapore`
   Query: "absd commercial property singapore". Clarifies that ABSD is residential-only, how mixed-use (shophouse) is apportioned, and the stamp duty that does apply to commercial.
 
-- [ ] **14. ABSD Trust Structures: The 65% Rate Explained**
+- [x] **14. ABSD Trust Structures: The 65% Rate Explained** — `absd-trust-structures-65-percent-singapore`
   Query: "absd trust singapore", "65% absd". Why property bought on trust attracts 65% ABSD, the living-trust-for-a-child scenario, and the remission conditions.
 
-- [ ] **15. How to Legally Reduce Your ABSD in Singapore**
+- [x] **15. How to Legally Reduce Your ABSD in Singapore** — `how-to-legally-reduce-absd-singapore`
   Query: "how to avoid absd singapore". Legitimate routes only — buying under one name, decoupling, the remission for married couples, timing the sale of an existing home. Clear that aggressive schemes are caught.
 
-- [ ] **16. Property Tax vs Stamp Duty: What's the Difference?**
+- [x] **16. Property Tax vs Stamp Duty: What's the Difference?** — `property-tax-vs-stamp-duty-singapore`
   Query: "property tax vs stamp duty singapore". Plain-English clarifier — one-time transaction tax vs recurring annual tax — for buyers who conflate the two.
 
-- [ ] **17. How to Appeal Your IRAS Property Tax Assessment**
+- [x] **17. How to Appeal Your IRAS Property Tax Assessment** — `appeal-iras-property-tax-assessment-singapore`
   Query: "appeal property tax singapore". The 30-day objection window, what evidence works (comparable rentals), and Winfred's view on when an appeal is worth it.
 
-- [ ] **18. Annual Value Explained: How IRAS Values Your Property**
+- [x] **18. Annual Value Explained: How IRAS Values Your Property** — `annual-value-explained-singapore`
   Query: "what is annual value singapore", "how is annual value calculated". What AV is, how IRAS derives it from market rentals, and why it's not your actual rent.
 
-- [ ] **19. Stamp Duty on a Tenancy Agreement: Who Pays and How Much**
+- [x] **19. Stamp Duty on a Tenancy Agreement: Who Pays and How Much** — `tenancy-agreement-stamp-duty-singapore`
   Query: "tenancy agreement stamp duty singapore". The 0.4% rate, who pays, the 14-day deadline, and how to stamp via the IRAS portal.
 
-- [ ] **20. Additional Conveyance Duty (ACD): Buying Property Through a Company**
+- [x] **20. Additional Conveyance Duty (ACD): Buying Property Through a Company** — `additional-conveyance-duty-singapore`
   Query: "additional conveyance duty singapore". Niche but high-intent — how ACD targets significant property-holding entities, and who it catches.
 
 ## Category 3 — HDB Deep-Dives
 
-- [ ] **21. HDB Income Ceiling 2026: BTO, Resale, EC Side-by-Side**
+- [x] **21. HDB Income Ceiling 2026: BTO, Resale, EC Side-by-Side** — `hdb-income-ceiling-2026`
   Query: "hdb income ceiling 2026". One table comparing every ceiling — 2-room Flexi, 3/4/5-room BTO, resale, EC, 3Gen. Resolves constant confusion.
 
-- [ ] **22. Can Single Singaporeans Buy Property? The Age 35 Rule**
+- [x] **22. Can Single Singaporeans Buy Property? The Age 35 Rule** — `can-single-singaporeans-buy-property-age-35`
   Query: "can singles buy hdb singapore". Single Singapore Citizen Scheme, the 35 threshold, 2-room Flexi BTO vs resale, and the private-property option for singles.
 
-- [ ] **23. HDB BTO Waiting Time 2026: How Long Until You Get Keys?**
+- [x] **23. HDB BTO Waiting Time 2026: How Long Until You Get Keys?** — `hdb-bto-waiting-time-2026`
   Query: "hdb bto waiting time", "how long to wait for bto". Realistic timelines by project type, including shorter-wait and SBF options.
 
-- [ ] **24. Sale of Balance Flats (SBF) vs BTO: Which Should You Apply For?**
+- [x] **24. Sale of Balance Flats (SBF) vs BTO: Which Should You Apply For?** — `sale-of-balance-flats-sbf-vs-bto`
   Query: "sbf vs bto". Pros/cons — wait time, location, flat selection, balloting odds — with a decision rule.
 
-- [ ] **25. Buying an HDB Resale Flat With a Short Lease: The Real Risk**
+- [x] **25. Buying an HDB Resale Flat With a Short Lease: The Real Risk** — `buying-hdb-resale-short-lease-risk`
   Query: "buying old hdb flat short lease". Lease decay, CPF usage restrictions on flats that can't cover the youngest buyer to age 95, and financing limits.
 
-- [ ] **26. HDB Proximity Housing Grant: Are You Leaving $30k on the Table?**
+- [x] **26. HDB Proximity Housing Grant: Are You Leaving $30k on the Table?** — `hdb-proximity-housing-grant`
   Query: "proximity housing grant singapore". Who qualifies, the live-with vs live-near tiers, and stacking with other grants.
 
-- [ ] **27. What Happens to Your HDB Flat If Your Citizenship Status Changes?**
+- [x] **27. What Happens to Your HDB Flat If Your Citizenship Status Changes?** — `hdb-flat-citizenship-status-change`
   Query: "hdb flat pr to citizen", "hdb foreign spouse". Status-change scenarios — PR to citizen, citizen to PR, divorce involving a non-citizen — and the ownership consequences.
 
-- [ ] **28. HDB Prime, Plus, Standard: How the New Framework Changes Resale**
+- [x] **28. HDB Prime, Plus, Standard: How the New Framework Changes Resale** — `hdb-prime-plus-standard-resale`
   Query: "hdb prime plus standard resale". The resale restrictions, subsidy clawback, and 10-year MOP on Prime/Plus flats — and what it means for resale value.
 
-- [ ] **29. Renovating an HDB Flat 2026: Permits, Rules, and Budgeting**
+- [x] **29. Renovating an HDB Flat 2026: Permits, Rules, and Budgeting** — `renovating-hdb-flat-2026`
   Query: "hdb renovation rules singapore". HDB renovation permit list, what's not allowed (hacking structural walls), noise/timing rules, and a realistic budget range.
 
-- [ ] **30. HDB Upgrading Within Public Housing: 3-Room to 4 to 5**
+- [x] **30. HDB Upgrading Within Public Housing: 3-Room to 4 to 5** — `hdb-upgrading-3-room-to-4-to-5`
   Query: "upgrade hdb flat size". The within-HDB upgrade path — when a bigger flat beats jumping to private, resale levy interaction, financing.
 
 ## Category 4 — Mortgage & Financing
 
-- [ ] **31. How Much Can I Borrow for a House in Singapore?**
+- [x] **31. How Much Can I Borrow for a House in Singapore?** — `how-much-can-i-borrow-home-loan-singapore`
   Query: "how much can i borrow home loan singapore". TDSR + MSR + LTV walkthrough with worked examples; how income, age, and existing debt set the ceiling.
 
-- [ ] **32. Home Loan Eligibility Singapore: Will the Bank Approve You?**
+- [x] **32. Home Loan Eligibility Singapore: Will the Bank Approve You?** — `home-loan-eligibility-singapore`
   Query: "home loan eligibility singapore". The factors banks assess — income docs, credit bureau record, existing commitments, variable-income haircut — and how to strengthen an application.
 
-- [ ] **33. What Is a Mortgage Lock-In Period and Should You Avoid It?**
+- [x] **33. What Is a Mortgage Lock-In Period and Should You Avoid It?** — `mortgage-lock-in-period-singapore`
   Query: "mortgage lock-in period singapore". How lock-ins work, the clawback on legal subsidies, and when a no-lock-in package is worth a slightly higher rate.
 
-- [ ] **34. Cash-Out Refinancing in Singapore: Unlocking Property Equity**
+- [x] **34. Cash-Out Refinancing in Singapore: Unlocking Property Equity** — `cash-out-refinancing-singapore`
   Query: "cash out refinancing singapore", "equity term loan". How equity term loans work on private property (not HDB), LTV limits, and sensible vs risky uses.
 
-- [ ] **35. SORA Explained: How Singapore's Floating Rate Benchmark Works**
+- [x] **35. SORA Explained: How Singapore's Floating Rate Benchmark Works** — `sora-explained-singapore`
   Query: "what is sora", "sora rate explained". What SORA is, how 1M/3M compounded SORA feeds a floating mortgage, and how it differs from the old SIBOR.
 
-- [ ] **36. Should You Take a 25-Year or 30-Year Home Loan?**
+- [x] **36. Should You Take a 25-Year or 30-Year Home Loan?** — `25-vs-30-year-home-loan-singapore`
   Query: "25 vs 30 year home loan singapore". Total-interest vs monthly-cashflow trade-off, the age + tenure ≤ 65 LTV rule, worked at ~1.5%.
 
-- [ ] **37. What Happens If You Can't Pay Your Mortgage in Singapore?**
+- [x] **37. What Happens If You Can't Pay Your Mortgage in Singapore?** — `cant-pay-mortgage-singapore`
   Query: "cant pay mortgage singapore". The realistic sequence — late fees, bank restructuring options, mortgagee sale — and what to do early. Sensitive, factual, no scaremongering.
 
-- [ ] **38. Home Loan Repricing vs Refinancing: What's the Difference?**
+- [x] **38. Home Loan Repricing vs Refinancing: What's the Difference?** — `repricing-vs-refinancing-singapore`
   Query: "repricing vs refinancing singapore". Staying with your bank (reprice) vs switching (refinance) — costs, timing, and which saves more.
 
-- [ ] **39. Decoupling and the Mortgage: How Loan Restructuring Works**
+- [x] **39. Decoupling and the Mortgage: How Loan Restructuring Works** — `decoupling-mortgage-singapore`
   Query: "decoupling mortgage singapore". The financing mechanics of a part-share transfer — discharging and re-taking a loan, the remaining owner's TDSR, refinancing during decoupling.
 
-- [ ] **40. Bank Valuation Came in Low: What Are Your Options?**
+- [x] **40. Bank Valuation Came in Low: What Are Your Options?** — `bank-valuation-lower-than-purchase-price`
   Query: "bank valuation lower than purchase price". Why it happens, the cash-over-valuation gap, renegotiation, and protecting yourself with the OTP financing window.
 
 ## Category 5 — CPF & Property
 
-- [ ] **41. How Much CPF Can I Use to Buy a House in Singapore?**
+- [x] **41. How Much CPF Can I Use to Buy a House in Singapore?** — `how-much-cpf-can-i-use-to-buy-a-house-singapore`
   Query: "how much cpf can i use for property". OA usable for downpayment and instalments, the $20k retention rule, HDB vs private differences.
 
-- [ ] **42. CPF Valuation Limit & Withdrawal Limit Explained**
+- [x] **42. CPF Valuation Limit & Withdrawal Limit Explained** — `cpf-valuation-limit-withdrawal-limit-explained-singapore`
   Query: "cpf valuation limit withdrawal limit". The two limits on private property, when CPF stops covering instalments, and how to plan around it.
 
-- [ ] **43. Should You Use Cash or CPF for Your Monthly Mortgage?**
+- [x] **43. Should You Use Cash or CPF for Your Monthly Mortgage?** — `cash-or-cpf-monthly-mortgage-singapore`
   Query: "pay mortgage with cash or cpf". The accrued-interest trade-off — paying with CPF compounds a 2.5% liability vs preserving cash; a clear framework.
 
-- [ ] **44. CPF Accrued Interest Calculator: What You'll Owe When You Sell**
+- [x] **44. CPF Accrued Interest Calculator: What You'll Owe When You Sell** — `cpf-accrued-interest-calculator-singapore`
   Query: "cpf accrued interest calculator". Worked examples of the compounding 2.5% liability over 5/10/20 years, and how it shrinks net sale proceeds.
 
-- [ ] **45. Topping Up CPF vs Paying Down Your Mortgage: Which Wins?**
+- [x] **45. Topping Up CPF vs Paying Down Your Mortgage: Which Wins?** — `topping-up-cpf-vs-paying-down-mortgage-singapore`
   Query: "cpf top up vs pay off mortgage". Comparing a guaranteed CPF return against a ~1.5% mortgage rate — and why the answer flips at low rates.
 
-- [ ] **46. What Happens to Your CPF If You Sell Your Property at a Loss?**
+- [x] **46. What Happens to Your CPF If You Sell Your Property at a Loss?** — `sell-property-at-a-loss-cpf-singapore`
   Query: "sell property at a loss cpf". Negative-sale mechanics — the shortfall rule, when you don't have to top up cash, and the negative-equity scenario.
 
-- [ ] **47. Using CPF for a Second Property: Rules and Restrictions**
+- [x] **47. Using CPF for a Second Property: Rules and Restrictions** — `cpf-second-property-rules-restrictions-singapore`
   Query: "cpf for second property singapore". The Basic Retirement Sum set-aside rule before OA can fund a second property, and how it limits investors.
 
-- [ ] **48. CPF and Private Property: What You Can and Can't Pay For**
+- [x] **48. CPF and Private Property: What You Can and Can't Pay For** — `cpf-private-property-what-you-can-pay-for-singapore`
   Query: "cpf private property rules". OA for purchase/instalments yes; maintenance fees, property tax, reno — no. A clean do/don't list.
 
-- [ ] **49. The CPF Retirement Sum and Your Property: How They Interact**
+- [x] **49. The CPF Retirement Sum and Your Property: How They Interact** — `cpf-retirement-sum-and-your-property-singapore`
   Query: "cpf retirement sum property pledge". How a property can be pledged for up to half the retirement sum, and the trade-off at 55.
 
-- [ ] **50. CPF Refund on Decoupling: The Numbers Most Couples Miss**
+- [x] **50. CPF Refund on Decoupling: The Numbers Most Couples Miss** — `cpf-refund-decoupling-singapore`
   Query: "cpf refund decoupling". The outgoing spouse's CPF refund (principal + accrued interest) on a part-share transfer, and how it changes decoupling math.
 
 ## Category 6 — Buying Process & Legal
 
-- [ ] **51. How Long Does It Take to Buy a Condo in Singapore? Full Timeline**
+- [x] **51. How Long Does It Take to Buy a Condo in Singapore? Full Timeline** — `how-long-to-buy-a-condo-singapore-timeline`
   Query: "how long to buy a condo singapore". Week-by-week from viewing to keys for resale and for new launch (BUC).
 
-- [ ] **52. What Is a Sale & Purchase Agreement (S&P)? Buyer's Guide**
+- [x] **52. What Is a Sale & Purchase Agreement (S&P)? Buyer's Guide** — `sale-and-purchase-agreement-singapore-buyers-guide`
   Query: "what is s&p agreement singapore". What the S&P covers, how it differs from the OTP, and the standard timeline to completion.
 
-- [ ] **53. What Happens After You Exercise the OTP? The Next 8 Weeks**
+- [x] **53. What Happens After You Exercise the OTP? The Next 8 Weeks** — `after-exercising-otp-singapore`
   Query: "after exercising otp singapore". The post-OTP sequence — lawyer appointment, loan documentation, valuation, completion — so buyers know what's coming.
 
-- [ ] **54. Conveyancing in Singapore: What Your Property Lawyer Does**
+- [x] **54. Conveyancing in Singapore: What Your Property Lawyer Does** — `conveyancing-singapore-property-lawyer`
   Query: "conveyancing singapore", "what does property lawyer do". Title search, requisitions, CPF and loan coordination, completion — and typical legal fees.
 
-- [ ] **55. How to Check a Property's Past Transactions (URA Caveat Guide)**
+- [x] **55. How to Check a Property's Past Transactions (URA Caveat Guide)** — `how-to-check-property-transaction-history-singapore`
   Query: "how to check property transaction history singapore". Using URA caveat data and HDB resale data to research price — a practical, screenshot-style how-to.
 
-- [ ] **56. Buying Property Under Construction (BUC): Progressive Payment Risks**
+- [x] **56. Buying Property Under Construction (BUC): Progressive Payment Risks** — `buying-under-construction-property-progressive-payment`
   Query: "buying under construction property singapore". The Progressive Payment Scheme drawdown, build-delay risk, and interest-during-construction cashflow.
 
-- [ ] **57. Buying a Property That Already Has a Tenant**
+- [x] **57. Buying a Property That Already Has a Tenant** — `buying-property-with-existing-tenant-singapore`
   Query: "buying property with existing tenant singapore". Inheriting a tenancy, the existing lease's binding effect, and due diligence on the tenancy agreement.
 
-- [ ] **58. Buying Property With a Sibling or Parent: Co-Ownership Guide**
+- [x] **58. Buying Property With a Sibling or Parent: Co-Ownership Guide** — `buying-property-with-sibling-or-parent-co-ownership`
   Query: "buy property with sibling singapore", "co-own property with parent". ABSD count implications, manner of holding, financing, and exit/dispute planning.
 
-- [ ] **59. What Is a Caveat and Why Does It Matter When Buying?**
+- [x] **59. What Is a Caveat and Why Does It Matter When Buying?** — `what-is-a-caveat-property-singapore`
   Query: "what is a caveat property singapore". Lodging a caveat to protect your interest after the OTP, and what a caveat search reveals.
 
-- [ ] **60. Common Mistakes That Delay a Property Completion**
+- [x] **60. Common Mistakes That Delay a Property Completion** — `common-mistakes-that-delay-property-completion`
   Query: "property completion delay singapore". CPF shortfalls, late loan documents, valuation gaps, title issues — and how to avoid each.
 
 ## Category 7 — Selling & Exit Strategy
 
-- [ ] **61. When Is the Best Time to Sell Your Property in Singapore?**
+- [x] **61. When Is the Best Time to Sell Your Property in Singapore?** — `best-time-to-sell-property-singapore`
   Query: "best time to sell property singapore". SSD window, MOP, market timing vs personal timing — a framework, not a market call.
 
-- [ ] **62. How to Sell Your Condo: Net Proceeds, Commission, SSD Explained**
+- [x] **62. How to Sell Your Condo: Net Proceeds, Commission, SSD Explained** — `how-to-sell-your-condo-singapore`
   Query: "how to sell a condo singapore". The full seller process and a worked net-proceeds calculation after loan, CPF refund, commission, SSD.
 
-- [ ] **63. How to Sell Your Property Fast in a Slow Market**
+- [x] **63. How to Sell Your Property Fast in a Slow Market** — `sell-property-fast-slow-market-singapore`
   Query: "sell property fast singapore". Pricing, presentation, marketing, and the realistic trade-off between speed and price.
 
-- [ ] **64. Selling Your Property Yourself vs Using an Agent**
+- [x] **64. Selling Your Property Yourself vs Using an Agent** — `selling-property-yourself-vs-agent-singapore`
   Query: "sell property without agent singapore". What an agent actually does, DIY risks, and a break-even view of the commission.
 
-- [ ] **65. Pricing Your Property to Sell: Setting the Right Asking Price**
+- [x] **65. Pricing Your Property to Sell: Setting the Right Asking Price** — `pricing-your-property-to-sell-singapore`
   Query: "how to price my property singapore". Using comparables, valuation, and buyer psychology to set an asking price that sells without leaving money behind.
 
-- [ ] **66. How to Stage and Photograph Your Property for a Faster Sale**
+- [x] **66. How to Stage and Photograph Your Property for a Faster Sale** — `stage-photograph-property-faster-sale-singapore`
   Query: "home staging singapore", "property photos sell". Low-cost staging, decluttering, lighting, and listing-photo basics that measurably shorten days-on-market.
 
-- [ ] **67. Selling an Inherited Property in Singapore: Tax and Process**
+- [x] **67. Selling an Inherited Property in Singapore: Tax and Process** — `selling-inherited-property-singapore`
   Query: "selling inherited property singapore". Grant of probate, the SSD position on inherited property, and the sale process for executors.
 
-- [ ] **68. What to Do If Your Property Won't Sell**
+- [x] **68. What to Do If Your Property Won't Sell** — `what-to-do-property-wont-sell-singapore`
   Query: "property not selling singapore". Diagnosing price vs presentation vs marketing vs market, and the rent-instead option.
 
-- [ ] **69. Sell First or Buy First? The Upgrader's Sequencing Dilemma**
+- [x] **69. Sell First or Buy First? The Upgrader's Sequencing Dilemma** — `sell-first-or-buy-first-singapore`
   Query: "sell first or buy first singapore". The ABSD, timeline, and cashflow trade-offs of each sequence, with a decision rule by situation.
 
-- [ ] **70. Capital Gains on Property in Singapore: Is Your Profit Taxed?**
+- [x] **70. Capital Gains on Property in Singapore: Is Your Profit Taxed?** — `capital-gains-tax-property-singapore`
   Query: "capital gains tax property singapore". No general CGT, but when IRAS treats gains as taxable trading income — the badges-of-trade test.
 
 ## Category 8 — Investment Strategy & Analysis
 
-- [ ] **71. Negative Cash Flow Property: When It Still Makes Sense**
+- [x] **71. Negative Cash Flow Property: When It Still Makes Sense** — `negative-cash-flow-property-singapore`
   Query: "negative cash flow property singapore". When paying to hold can be rational (appreciation thesis, CPF use, holding power) — and when it's a trap.
 
-- [ ] **72. Rental Yield by Property Type: HDB vs Condo vs Landed vs Shophouse**
+- [x] **72. Rental Yield by Property Type: HDB vs Condo vs Landed vs Shophouse** — `rental-yield-by-property-type-singapore`
   Query: "rental yield by property type singapore". A comparison table of typical gross and net yields, with the trade-offs of each asset class.
 
-- [ ] **73. How to Spot a Property With En-Bloc Potential Early**
+- [x] **73. How to Spot a Property With En-Bloc Potential Early** — `how-to-spot-en-bloc-potential-early`
   Query: "en bloc potential how to spot". Plot ratio headroom, age, tenure, owner profile, location — the signals before a development goes to market.
 
-- [ ] **74. How to Analyse a Property Investment in 5 Steps**
+- [x] **74. How to Analyse a Property Investment in 5 Steps** — `how-to-analyse-property-investment-singapore`
   Query: "how to analyse property investment singapore". A repeatable framework — location, entry price vs comps, yield, holding cost, exit liquidity.
 
-- [ ] **75. Small Unit vs Big Unit: Which Is the Better Investment?**
+- [x] **75. Small Unit vs Big Unit: Which Is the Better Investment?** — `small-unit-vs-big-unit-investment-singapore`
   Query: "small vs big unit investment singapore". PSF, yield, tenant pool, and resale liquidity trade-offs between a 1-bedder and a 3-bedder.
 
-- [ ] **76. What Makes a Property Appreciate? The 6 Real Drivers**
+- [x] **76. What Makes a Property Appreciate? The 6 Real Drivers** — `what-makes-property-appreciate-singapore`
   Query: "what makes property appreciate singapore". Location/infrastructure, supply, tenure, project quality, entry price, macro — explained with Singapore examples.
 
-- [ ] **77. How to Calculate the True ROI of a Property Investment**
+- [x] **77. How to Calculate the True ROI of a Property Investment** — `how-to-calculate-property-roi-singapore`
   Query: "property roi calculator singapore". Cash-on-cash, total return including leverage, and why gross yield overstates reality once tax and costs are in.
 
-- [ ] **78. Buying Property in a Downturn: Risk or Opportunity?**
+- [x] **78. Buying Property in a Downturn: Risk or Opportunity?** — `buying-property-in-a-downturn-singapore`
   Query: "buy property in a recession singapore". How holding power, financing, and time horizon determine whether a downturn is a buying window.
 
-- [ ] **79. When to Sell an Investment Property: 5 Exit Signals**
+- [x] **79. When to Sell an Investment Property: 5 Exit Signals** — `when-to-sell-investment-property-singapore`
   Query: "when to sell investment property singapore". Lease decay tipping point, yield compression, better redeployment, life change, policy shift.
 
-- [ ] **80. How to Build a 2-Property Portfolio Without Overleveraging**
+- [x] **80. How to Build a 2-Property Portfolio Without Overleveraging** — `how-to-build-2-property-portfolio-singapore`
   Query: "how to own 2 properties singapore". Sequencing, ABSD, decoupling vs paying ABSD, and keeping a cash buffer — a realistic build path.
 
 ## Category 9 — Foreign Buyers, PR & Citizenship
 
-- [ ] **81. Foreigners Buying Singapore Property: The Complete 2026 Rulebook**
+- [x] **81. Foreigners Buying Singapore Property: The Complete 2026 Rulebook** — `foreigners-buying-singapore-property-2026-rulebook`
   Query: "can foreigners buy property in singapore". The master reference — what foreigners can/can't buy, 60% ABSD, landed restrictions, financing.
 
-- [ ] **82. Can PRs Buy Landed Property in Singapore?**
+- [x] **82. Can PRs Buy Landed Property in Singapore?** — `can-pr-buy-landed-property-singapore`
   Query: "can pr buy landed property singapore". The Residential Property Act, LDAU approval, the Sentosa Cove exception, and realistic approval odds.
 
-- [ ] **83. Sentosa Cove: Where Foreigners Can Buy Landed Property**
+- [x] **83. Sentosa Cove: Where Foreigners Can Buy Landed Property** — `sentosa-cove-foreigner-landed-property`
   Query: "sentosa cove foreigner landed". The only area foreigners can buy landed (with approval), the rules, and the market reality.
 
-- [ ] **84. China Buyer Singapore Property 2026: Rules & ABSD**
+- [x] **84. China Buyer Singapore Property 2026: Rules & ABSD** — `china-buyer-singapore-property-2026`
   Query: "china buyer singapore property". Country-specific guide — 60% ABSD, financing, remittance, and common questions from Chinese buyers. (No China page exists yet.)
 
-- [ ] **85. UK Buyer Singapore Property 2026: What Applies**
+- [x] **85. UK Buyer Singapore Property 2026: What Applies** — `uk-buyer-singapore-property-2026`
   Query: "uk buyer singapore property". Country-specific guide — ABSD, financing, tax-residency interaction for British buyers. (No UK page exists yet.)
 
-- [ ] **86. New PR Buying a First Property: What's Different vs Citizens**
+- [x] **86. New PR Buying a First Property: What's Different vs Citizens** — `new-pr-buying-first-property-singapore`
   Query: "new pr buying property singapore". 5% ABSD on first property, HDB resale eligibility and the 3-year wait, financing differences.
 
-- [ ] **87. From PR to Citizen: How Your Property Options Change**
+- [x] **87. From PR to Citizen: How Your Property Options Change** — `pr-to-citizen-property-options-singapore`
   Query: "pr to citizen property singapore". What unlocks on citizenship — ABSD-free first property, BTO access, grants — and timing a purchase around it.
 
-- [ ] **88. Buying Singapore Property From Overseas: A Remote Buyer's Guide**
+- [x] **88. Buying Singapore Property From Overseas: A Remote Buyer's Guide** — `buying-singapore-property-from-overseas`
   Query: "buy singapore property from overseas". Viewing remotely, power of attorney, remote conveyancing, financing without being onshore.
 
-- [ ] **89. ABSD and Free Trade Agreements: Which Nationalities Are Exempt**
+- [x] **89. ABSD and Free Trade Agreements: Which Nationalities Are Exempt** — `absd-free-trade-agreements-nationalities-exempt`
   Query: "absd fta exemption nationalities". The US, Iceland, Liechtenstein, Norway, Switzerland nationals treated as citizens for ABSD — the precise rule and proof needed.
 
-- [ ] **90. Rent vs Buy for Expats in Singapore: The Real Numbers**
+- [x] **90. Rent vs Buy for Expats in Singapore: The Real Numbers** — `rent-vs-buy-expats-singapore`
   Query: "expat rent or buy singapore". The 60% ABSD changes the math entirely — when buying still makes sense for a long-stay expat, and when renting wins.
 
 ## Category 10 — Rental, Landlord & Niche Assets
 
-- [ ] **91. Tenancy Agreement Singapore: The Must-Have Clauses**
+- [x] **91. Tenancy Agreement Singapore: The Must-Have Clauses** — `tenancy-agreement-clauses-singapore`
   Query: "tenancy agreement clauses singapore". The clauses every landlord/tenant needs — deposit, diplomatic clause, minor repairs, reinstatement — with why each matters.
 
-- [ ] **92. The Diplomatic Clause Explained: Breaking a Lease Early**
+- [x] **92. The Diplomatic Clause Explained: Breaking a Lease Early** — `diplomatic-clause-singapore`
   Query: "diplomatic clause singapore". How it works, the usual 12-month minimum and 2-month notice, and what triggers it.
 
-- [ ] **93. Airbnb in Singapore: Why Short-Term Rentals Are Illegal**
+- [x] **93. Airbnb in Singapore: Why Short-Term Rentals Are Illegal** — `is-airbnb-legal-in-singapore`
   Query: "is airbnb legal in singapore". The 3-month minimum stay for private homes, the HDB 6-month rule, penalties — a definitive explainer.
 
-- [ ] **94. Security Deposit Disputes: Landlord and Tenant Rights**
+- [x] **94. Security Deposit Disputes: Landlord and Tenant Rights** — `security-deposit-disputes-singapore`
   Query: "security deposit dispute singapore". What can/can't be deducted, the Small Claims Tribunal route, and how to document a handover.
 
-- [ ] **95. How to Find and Screen Good Tenants in Singapore**
+- [x] **95. How to Find and Screen Good Tenants in Singapore** — `how-to-screen-tenants-singapore`
   Query: "how to screen tenants singapore". Listing, viewings, income and employment checks, tenant references, and the legal limits on screening.
 
-- [ ] **96. Cluster Housing & Strata Landed: The In-Between Asset Class**
+- [x] **96. Cluster Housing & Strata Landed: The In-Between Asset Class** — `cluster-housing-strata-landed-singapore`
   Query: "what is cluster housing singapore", "strata landed". Landed living with condo facilities and MCST — eligibility, pros/cons, and how it's valued.
 
-- [ ] **97. Walk-Up Apartments Singapore: The Overlooked Value Play**
+- [~] **97. Walk-Up Apartments Singapore: The Overlooked Value Play** — `walk-up-apartment-investment-singapore`
   Query: "walk up apartment singapore investment". Older low-rise no-lift blocks — entry price, en-bloc angle, rental demand, and the real downsides.
 
-- [ ] **98. Freehold vs 999-Year Leasehold: Is There Really a Difference?**
+- [x] **98. Freehold vs 999-Year Leasehold: Is There Really a Difference?** — `freehold-vs-999-year-leasehold-singapore`
   Query: "freehold vs 999 year leasehold singapore". Whether the practical and price difference between freehold and 999-year tenure is real or psychological.
 
-- [ ] **99. Co-Living Investment in Singapore: Does the Yield Work?**
+- [x] **99. Co-Living Investment in Singapore: Does the Yield Work?** — `co-living-investment-singapore`
   Query: "co-living investment singapore". The co-living model, regulatory limits (minimum stay, occupancy caps), and whether the yield premium survives the rules.
 
-- [ ] **100. Property Management Singapore: DIY vs Hiring a Manager**
+- [x] **100. Property Management Singapore: DIY vs Hiring a Manager** — `property-management-singapore`
   Query: "property management singapore". What a property manager does, typical fees, and the break-even for a landlord with one vs several units.
 
 ---

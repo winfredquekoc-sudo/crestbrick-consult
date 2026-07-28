@@ -27,10 +27,13 @@
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"HowTo","name":"How to use the Decoupling / Restructuring Break-Even Calculator","description":"Step-by-step instructions to model whether decoupling saves money on a planned second property purchase.","step":[{"@type":"HowToStep","position":1,"name":"Enter the existing property value","text":"Use a fresh valuation. The calculator computes BSD on the share to be transferred."},{"@type":"HowToStep","position":2,"name":"Enter the share to transfer (typically 50%)","text":"Standard decoupling transfers one spouse's 50% share to the other."},{"@type":"HowToStep","position":3,"name":"Enter the planned second property price","text":"ABSD savings depend on the second-purchase amount and applicable rate."},{"@type":"HowToStep","position":4,"name":"Specify buyer profile","text":"SC vs PR determines the ABSD rate avoided (20% SC vs 30% PR for 2nd property)."},{"@type":"HowToStep","position":5,"name":"Review break-even","text":"Calculator shows BSD on transfer + legal vs ABSD savings. Positive net = decoupling makes sense."}]}
 </script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "WebApplication", "name": "Decoupling Calculator Singapore 2026, Restructuring Break-Even | Winfred Quek", "url": "https://winfredquek.com/tools/restructuring", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "description": "Decoupling (a.k.a. property restructuring) calculator for Singapore couples. Compare BSD + legal cost of the transfer vs ABSD saved on your next purchase. Honest break-even math by Winfred Quek (CEA R073319H).", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "SGD"}, "isAccessibleForFree": true, "publisher": {"@type": "Organization", "name": "Crestbrick Pte Ltd", "identifier": "L31010886H"}, "creator": {"@type": "Person", "name": "Winfred Quek", "identifier": "CEA R073319H", "url": "https://winfredquek.com/about"}}
+</script>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
@@ -163,6 +166,20 @@
   </div>
 </aside>
 
+
+
+<!-- related-tools:START -->
+<aside class="max-w-3xl mx-auto px-6 my-12">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-3">Related tools</p>
+  <h3 class="serif text-2xl font-semibold mb-5">Keep going.</h3>
+  <div class="grid md:grid-cols-3 gap-3">
+      <a href="/tools/decoupling-breakeven" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Tool</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Restructuring Break-even</p><p class="text-xs text-[var(--ink-muted)] mt-1">BSD transfer cost vs ABSD saved, with CPF</p></a>
+      <a href="/tools/absd" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Tool</p><p class="serif text-[var(--ink)] font-semibold leading-snug">ABSD Calculator</p><p class="text-xs text-[var(--ink-muted)] mt-1">Full stamp duty for 2nd+ property buyers</p></a>
+      <a href="/tools/affordability" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Tool</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Affordability Calculator</p><p class="text-xs text-[var(--ink-muted)] mt-1">Max loan under TDSR / MSR</p></a>
+  </div>
+</aside>
+<!-- related-tools:END -->
+
 </main>
 
 <footer class="divider bg-[var(--bg)]">
@@ -229,7 +246,7 @@ function recalc(){
   if(net > 0){
     vBox.style.background='#c6a36a';
     document.getElementById('verdict-label').textContent='Net benefit  --  restructuring wins';
-    vText.innerHTML = 'Restructuring saves <strong style="color:#fff;">'+fmt(net)+'</strong>. Still factor in CPF accrued interest, SSD if applicable, and loan restructuring fees before committing. Book the property portfolio analysis for the full-stack read.';
+    vText.innerHTML = 'Restructuring saves <strong style="color:#fff;">'+fmt(net)+'</strong>. Still factor in CPF accrued interest, SSD if applicable, and loan restructuring fees before committing. Book the Property Portfolio Analysis for the full-stack read.';
   } else if(net < 0){
     vBox.style.background='#8b2f2f';
     document.getElementById('verdict-label').textContent='Net cost  --  restructuring not worth it';

@@ -55,4 +55,3 @@ User-agent: Bytespider
 Allow: /
 
 Sitemap: https://winfredquek.com/sitemap.xml
-Sitemap: https://winfredquek.com/news-sitemap.xml

@@ -22,7 +22,14 @@
       '@type': 'RealEstateOrganization',
       'name': 'Crestbrick Pte Ltd',
       'identifier': {'@type':'PropertyValue','propertyID':'CEA Estate Agency Licence No.','value':'L31010886H'},
-      'address': {'@type':'PostalAddress','addressCountry':'SG'}
+      'address': {
+        '@type': 'PostalAddress',
+        'streetAddress': '62 Ubi Road 1, #05-04 Oxley BizHub 2',
+        'addressLocality': 'Singapore',
+        'postalCode': '408734',
+        'addressCountry': 'SG'
+      },
+      'geo': {'@type':'GeoCoordinates','latitude': 1.331994, 'longitude': 103.89194}
     },
     'areaServed': {'@type':'Country','name':'Singapore'},
     'knowsAbout': [

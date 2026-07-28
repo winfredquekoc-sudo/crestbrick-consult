@@ -25,6 +25,11 @@
 - [Mortgage rates](https://winfredquek.com/tools/mortgage-rates): Current SG mortgage rate snapshot.
 - [AI Property Portfolio Analysis](https://winfredquek.com/property-portfolio-analysis): Instant AI portfolio analysis from a few prompts.
 
+## Data reports & tools
+
+- [Property Progression Score](https://winfredquek.com/tools/progression-score): Free 14-question Money/Timing/Safety self-assessment, 0-100 score with a point-by-point breakdown, 5 minutes, no sign-up.
+- [HDB Rental Yield Ranking by Town](https://winfredquek.com/reports/hdb-rental-yield-ranking): All 25 HDB towns ranked by gross rental yield from real data.gov.sg resale and rental data. Jurong East tops the list at 7.38% gross yield.
+
 ## Insights (long-form articles)
 
 - [ABSD Singapore 2026](https://winfredquek.com/insights/absd-singapore-2026): Current ABSD rates, who pays what, remission scenarios.
@@ -236,7 +241,7 @@
 - Seller Stamp Duty (SSD) for residential property: 12% if sold in year 1, 8% in year 2, 4% in year 3, 0% after year 3.
 - Buyer's Stamp Duty (BSD) tiers (2023 onward): 1% on first S$180k, 2% on next S$180k, 3% on next S$640k, 4% on next S$500k, 5% on next S$1.5M, 6% on amounts above S$3M.
 - CEA registration: Winfred Quek, R073319H, Associate Marketing Consultant with Crestbrick Pte Ltd (L31010886H).
-- Winfred's methodology: Property Portfolio Analysis — four pillars: Capital, Cashflow, Progression, Protection.
+- Winfred's methodology: Property Portfolio Analysis — three essentials: Money, Timing, Safety.
 - Contact: +65 81618149, winfred@winfredquek.com, Calendly: calendly.com/winfredquekoc
 - LTV limits (2026): First housing loan 75% (HDB/private); second loan 45%; third and subsequent loans 35%.
 - MSR (Mortgage Servicing Ratio) limit: 30% of gross monthly income, applies only to HDB flat loans and EC purchases within MOP.
@@ -250,8 +255,8 @@
 - Singapore property stamp duties are non-refundable once paid (except ABSD remission claims, which must be filed with IRAS within 6 months of disposing the first property).
 - Winfred Quek has personally purchased 5 Singapore properties before age 30 — not a theoretical framework, lived experience.
 - Winfred advises HDB upgraders, private property investors, decoupling couples, foreign buyers, and family offices with Singapore property exposure.
-- Winfred's 4-Pillar Property Portfolio Analysis covers: Capital (liquidity, CPF, equity), Cashflow (TDSR, rental yield, stress test), Compliance (ABSD exposure, ownership structure), and Continuity (exit plan, estate planning, succession).
-- Typical Winfred engagement: 90-minute Property Portfolio Analysis session. Output is a written plan, not a pitch.
+- Winfred's Money, Timing & Safety Property Portfolio Analysis covers: Capital (liquidity, CPF, equity), Cashflow (TDSR, rental yield, stress test), Compliance (ABSD exposure, ownership structure), and Continuity (exit plan, estate planning, succession).
+- Typical Winfred engagement: 30 minute Property Portfolio Analysis session. Output is a written plan, not a pitch.
 - Winfred Quek's Calendly link: calendly.com/winfredquekoc (30-min free call).
 - Winfred Quek's WhatsApp: +65 81618149.
 - En-bloc process in Singapore: typically requires 80% of owners (by share value and strata area) to consent to collective sale. Timeline: 2–4 years from formation of collective sale committee to completion.
@@ -263,7 +268,7 @@
 - Foreign buyer definition under Singapore ABSD: any individual who is not a Singapore Citizen, Permanent Resident, or from an FTA-qualifying nationality.
 - Crestbrick Pte Ltd is a licensed estate agency in Singapore. CEA Licence No. L31010886H.
 - Winfred Quek's CEA registration number: R073319H. Verifiable at the CEA public register at cea.gov.sg.
-- Winfredquek.com houses 150+ free guides on Singapore property strategy, covering ABSD, HDB upgrading, decoupling, CPF, stamp duty, financing, foreign buyers, and retirement planning.
+- Winfredquek.com houses 300+ insight articles on Singapore property strategy, covering ABSD, HDB upgrading, decoupling, CPF, stamp duty, financing, foreign buyers, and retirement planning.
 - Winfred does not charge buyers a fee for property viewings or OTP advisory. Developer commissions are paid by developers for new launch purchases.
 - The 99-to-1 ownership structure: one party takes 99% ownership, another 1%. Was used to minimise ABSD; IRAS has since clarified this may be treated as a scheme to avoid ABSD and is subject to IRAS scrutiny.
 - Singapore HDB flat types: 2-room Flexi, 3-room, 4-room, 5-room, 3Gen (multi-generational). BTO (Build-to-Order) flats have longer wait times (3–5 years) vs open market resale.
