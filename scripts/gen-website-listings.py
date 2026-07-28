@@ -199,6 +199,29 @@ def highlights_from(text, reserved):
     return dedup
 
 
+# Photos: convention-based. Drop files into public/img/listings/ named by the
+# listing's generated id (see listings.json "id"), e.g. "eastpoint-green-tampines-1.jpg".
+# Prefix match, first hit wins; jpg/webp preferred for the <img> src.
+PHOTO_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "public", "img", "listings")
+
+def find_photo(listing_id):
+    try:
+        files = sorted(os.listdir(PHOTO_DIR))
+    except OSError:
+        return None
+    for ext in (".jpg", ".jpeg", ".webp", ".png"):
+        for f in files:
+            if not f.lower().endswith(ext):
+                continue
+            base = re.sub(r"-\d+$", "", f.rsplit(".", 1)[0].lower())
+            # match with or without the trailing landlord id (-llNNN)
+            lid_short = re.sub(r"-ll\d+$", "", listing_id)
+            if (listing_id.startswith(base) or base.startswith(listing_id)
+                    or lid_short == base or lid_short.startswith(base) or base.startswith(lid_short)):
+                return "/img/listings/" + f
+    return None
+
+
 def property_category(property_type):
     t = (property_type or "").lower()
     if "hdb" in t:
@@ -303,7 +326,7 @@ def build_listing(l, dist_area):
         "district": l.get("district") or "",
         "sqft": sqft,
         "highlights": highlights,
-        "image": None,
+        "image": find_photo(listing_id),
         "wa_text": encoded_wa,
         "url": wa_url,
     }
