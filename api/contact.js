@@ -36,8 +36,7 @@ export default async function handler(req, res) {
   const chatId = process.env.TELEGRAM_WINFRED_CHAT_ID;
   let telegramOk = false;
 
-  if (token && chatId) {
-    const text =
+  const text =
 `📩 NEW WEBSITE BRIEF
 From: ${name}
 Email: ${email}
@@ -49,6 +48,7 @@ ${message}
 
 (received via winfredquek.com /api/contact)`;
 
+  if (token && chatId) {
     try {
       const tgResp = await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
         method: 'POST',
@@ -62,6 +62,28 @@ ${message}
     }
   }
 
+  // Email fallback so a dead Telegram token can never silently swallow a lead.
+  let emailOk = false;
+  if (!telegramOk && process.env.RESEND_API_KEY) {
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${process.env.RESEND_API_KEY}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          from: 'Winfred Quek <winfred@winfredquek.com>',
+          to: ['winfredquekoc@gmail.com'],
+          reply_to: email,
+          subject: `Website lead (Telegram down): ${name} · ${type}`,
+          text,
+        }),
+      });
+      emailOk = r.ok;
+    } catch (err) {
+      emailOk = false;
+    }
+  }
+
+  const delivered = telegramOk || emailOk;
   const wantsHtml = (req.headers['content-type'] || '').includes('form-urlencoded')
     || (req.headers['accept'] || '').includes('text/html');
 
@@ -69,5 +91,8 @@ ${message}
     res.writeHead(302, { Location: '/contact?sent=1' });
     return res.end();
   }
-  return res.status(200).json({ ok: true, telegram: telegramOk });
+  if (!delivered) {
+    return res.status(500).json({ ok: false, error: 'delivery_failed' });
+  }
+  return res.status(200).json({ ok: true, telegram: telegramOk, email: emailOk });
 }

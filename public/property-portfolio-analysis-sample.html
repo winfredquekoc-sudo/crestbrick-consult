@@ -66,11 +66,16 @@
   <p class="section-label mb-4">Lead magnet · I84</p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight mb-6">See an property portfolio analysis before you commit to one.</h1>
   <p class="text-lg text-[var(--ink-soft)] mb-10 leading-relaxed">
-    The Property Portfolio Analysis is what turns a curious prospect into a paying client. You get a sanitised real property portfolio analysis (with the client's permission) so you know exactly what you're signing up for. Inbox in 60 seconds.
+    The Property Portfolio Analysis is what turns a curious prospect into a paying client. You get a sanitised real property portfolio analysis (with the client's permission) so you know exactly what you're signing up for. Winfred sends it to you personally, usually within the day.
   </p>
 
   <div class="bg-[var(--rule)] rounded-xl p-8">
-    <form id="audit-sample-form" action="/api/property-portfolio-analysis-sample-request" method="POST" class="space-y-4">
+    <form id="audit-sample-form" action="/api/contact" method="POST" class="space-y-4"
+          onsubmit="var s=document.getElementById('situation');this.querySelector('[name=message]').value='Requesting the sample Property Portfolio Analysis PDF. Situation: '+s.options[s.selectedIndex].text;">
+      <input type="hidden" name="name" value="Sample PDF request" />
+      <input type="hidden" name="type" value="Sample analysis request" />
+      <input type="hidden" name="message" value="Requesting the sample Property Portfolio Analysis PDF." />
+      <input type="text" name="company" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;height:0;width:0;opacity:0;" aria-hidden="true" />
       <div>
         <label for="email" class="block text-sm font-medium mb-1">Email</label>
         <input type="email" id="email" name="email" required class="w-full px-4 py-3 rounded-lg border border-[var(--rule)] bg-[#1c1e26] text-[var(--ink)]" placeholder="you@example.com">
