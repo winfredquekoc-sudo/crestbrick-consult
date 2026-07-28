@@ -49,7 +49,7 @@
     'sameAs': [
       'https://www.linkedin.com/in/winfredquek',
       'https://www.instagram.com/winfredquek',
-      'https://t.me/winwithwinfred'
+      'https://t.me/imwinfred'
     ]
   };
 
