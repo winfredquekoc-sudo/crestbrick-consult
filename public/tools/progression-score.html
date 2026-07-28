@@ -1,0 +1,859 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Property Progression Score | Free Money, Timing & Safety Self-Assessment | Winfred Quek</title>
+  <meta property="og:title" content="Property Progression Score | Free Money, Timing & Safety Self-Assessment | Winfred Quek" />
+  <meta name="description" content="Free 5 minute Property Progression Score. Answer 14 questions across Money, Timing and Safety and get your 0 to 100 score plus a point by point breakdown, instantly, no sign up required. Winfred Quek, CEA R073319H." />
+  <link rel="canonical" href="https://winfredquek.com/tools/progression-score" />
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0f1117" />
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <style>
+    :root {
+      --bg:#0f1117;--highlight:#1a1c24;
+      --ink:#f0ede6;
+      --ink-soft:#b8b4aa;
+      --ink-muted:#706c64;
+      --accent:#c6a36a;
+      --rule:#252830;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-feature-settings: 'ss01', 'kern';
+      -webkit-font-smoothing: antialiased;
+    }
+    .serif { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; }
+    .balance { text-wrap: balance; }
+    .divider { border-top: 1px solid var(--rule); }
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.6rem;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.15s ease;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--ink); color: var(--bg); }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-ghost { color: var(--ink); border: 1px solid var(--rule); background: transparent; }
+    .btn-ghost:hover { border-color: var(--ink); }
+    .topnav a.nav-link { color: var(--ink-soft); font-size: 14px; font-weight: 500; transition: color .15s ease; }
+    .topnav a.nav-link:hover { color: var(--ink); }
+    .topnav a.nav-link.active { color: var(--ink); }
+    .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+    .crest-card {
+      background: #14161c;
+      border: 1px solid rgba(255,255,255,0.08);
+      color: var(--ink);
+    }
+
+    /* Quiz card (light, matches calc-card conventions site-wide) */
+    .calc-card {
+      background: #faf8f4;
+      color: #1a1a1a;
+      border-radius: 12px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.35);
+    }
+    .pillar-block { margin-bottom: 2rem; }
+    .pillar-block:last-child { margin-bottom: 0; }
+    .pillar-head {
+      display: flex;
+      align-items: baseline;
+      gap: 0.6rem;
+      margin-bottom: 1.1rem;
+      padding-bottom: 0.6rem;
+      border-bottom: 1.5px solid #e7e2d8;
+    }
+    .pillar-num {
+      font-family: 'Fraunces', serif;
+      font-size: 0.85rem;
+      color: var(--accent);
+      font-weight: 700;
+    }
+    .pillar-name {
+      font-family: 'Fraunces', serif;
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .pillar-sub { font-size: 12.5px; color: #7a756c; }
+    .q-block { margin-bottom: 1.4rem; }
+    .q-block:last-child { margin-bottom: 0; }
+    .q-text {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: #33312c;
+      margin-bottom: 0.6rem;
+      line-height: 1.45;
+    }
+    .q-options { display: grid; gap: 0.5rem; }
+    .q-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.65rem;
+      padding: 0.7rem 0.9rem;
+      border: 1.5px solid #d8d4ce;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+      background: #fff;
+    }
+    .q-option:hover { border-color: var(--accent); }
+    .q-option.selected { border-color: var(--accent); background: rgba(198,163,106,0.08); }
+    .q-option input { margin-top: 3px; accent-color: var(--accent); flex-shrink: 0; }
+    .q-option span { font-size: 13.5px; color: #45423c; line-height: 1.45; }
+    .calc-btn {
+      width: 100%;
+      padding: 1rem;
+      background: #1a1a1a;
+      color: #faf8f4;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background 0.15s;
+      letter-spacing: 0.02em;
+    }
+    .calc-btn:hover { background: var(--accent); color: #1a1a1a; }
+    .calc-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .progress-note { font-size: 12.5px; color: #8a8578; text-align: center; margin-top: 0.75rem; }
+
+    .result-panel {
+      background: #1a1a1a;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-top: 1.5rem;
+      display: none;
+    }
+    .result-panel.visible { display: block; }
+    .dial-wrap { display: flex; flex-direction: column; align-items: center; margin-bottom: 1.75rem; }
+    .dial-num { font-family: 'Fraunces', serif; font-size: 2.75rem; font-weight: 700; fill: var(--ink); }
+    .dial-max { font-family: 'Inter', sans-serif; font-size: 0.95rem; fill: var(--ink-muted); }
+    .tier-badge {
+      margin-top: 0.75rem;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+      color: var(--accent);
+      border: 1px solid rgba(198,163,106,0.4);
+      border-radius: 20px;
+      padding: 5px 14px;
+      background: rgba(198,163,106,0.08);
+    }
+    .pillar-bars { display: grid; gap: 0.9rem; margin-bottom: 1.5rem; }
+    .pbar-row { }
+    .pbar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 5px; }
+    .pbar-label .name { color: var(--ink-soft); font-weight: 600; }
+    .pbar-label .score { color: var(--ink); font-weight: 700; }
+    .pbar-track { height: 8px; border-radius: 5px; background: rgba(255,255,255,0.08); overflow: hidden; }
+    .pbar-fill { height: 100%; border-radius: 5px; background: linear-gradient(90deg, #8a6d3f, var(--accent)); transition: width .6s ease; }
+    .obs-list { display: grid; gap: 0.7rem; margin-bottom: 1.5rem; }
+    .obs-item {
+      font-size: 13.5px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+      padding: 0.9rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border-left: 2px solid var(--accent);
+      border-radius: 0 6px 6px 0;
+    }
+    .capture-row {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .capture-row input[type="email"] {
+      flex: 1 1 220px;
+      padding: 0.75rem 0.9rem;
+      border-radius: 8px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.04);
+      color: var(--ink);
+      font-size: 14px;
+      outline: none;
+    }
+    .capture-row input[type="email"]:focus { border-color: var(--accent); }
+    .capture-row button {
+      padding: 0.75rem 1.1rem;
+      font-size: 13.5px;
+      white-space: nowrap;
+    }
+    .capture-note { font-size: 12px; color: var(--ink-muted); margin-top: 0.5rem; }
+    .capture-status { font-size: 12.5px; margin-top: 0.5rem; min-height: 1em; }
+    .result-actions { display: flex; gap: 0.75rem; flex-wrap: wrap; }
+    .note-box {
+      background: rgba(198,163,106,0.1);
+      border: 1px solid rgba(198,163,106,0.3);
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin-top: 1.25rem;
+      font-size: 13px;
+      color: #7a6a50;
+      line-height: 1.55;
+    }
+    .disclaimer {
+      font-size: 12px;
+      color: #999;
+      margin-top: 1.25rem;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .cta-strip {
+      background: linear-gradient(135deg, #14161c 0%, #1e2030 100%);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    @keyframes wa-pulse {
+      0%, 100% { box-shadow: 0 10px 30px -5px rgba(37,211,102,0.4), 0 0 0 0 rgba(37,211,102,0.55); }
+      50%       { box-shadow: 0 10px 30px -5px rgba(37,211,102,0.4), 0 0 0 14px rgba(37,211,102,0); }
+    }
+    #wa-float.wa-pulsing { animation: wa-pulse 1s ease-out 2; }
+  </style>
+  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Property Progression Score","item":"https://winfredquek.com/tools/progression-score"}]}
+</script>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Property Progression Score | Winfred Quek","url":"https://winfredquek.com/tools/progression-score","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Free 5 minute Property Progression Score. Answer 14 questions across Money, Timing and Safety and get your 0 to 100 score plus a point by point breakdown, instantly, no sign up required. Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about"}}
+</script>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section style="padding: 4rem 1.5rem 2rem;">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="section-label mb-3">Free Money, Timing &amp; Safety Self-Assessment</p>
+        <h1 class="serif" style="font-size:clamp(2rem,5vw,3rem); font-weight:700; line-height:1.15; margin-bottom:1rem;">
+          Property Progression Score
+        </h1>
+        <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.7; max-width:600px; margin:0 auto;">
+          Answer 14 quick questions across Money, Timing and Safety.
+          Get your score out of 100 and a point by point breakdown instantly. No sign up, no gate.
+        </p>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section style="padding: 0 1.5rem 4rem;">
+      <div class="max-w-3xl mx-auto">
+
+        <form id="pscore-form" class="calc-card" style="padding: 2rem 2rem 1.75rem;">
+
+          <!-- MONEY (merged: was Capital + Cashflow) -->
+          <div class="pillar-block">
+            <div class="pillar-head">
+              <span class="pillar-num">01</span>
+              <span class="pillar-name">Money</span>
+              <span class="pillar-sub">— can you afford it: equity, CPF, cash, income, TDSR headroom</span>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">1. How would you describe the equity in your current property (value minus outstanding loan)?</p>
+              <div class="q-options" data-q="q1">
+                <label class="q-option"><input type="radio" name="q1" value="0"><span>Not sure, or mostly loan with little equity built up</span></label>
+                <label class="q-option"><input type="radio" name="q1" value="1"><span>Some equity, roughly 20 to 40% of the property value</span></label>
+                <label class="q-option"><input type="radio" name="q1" value="2"><span>Solid equity, roughly 40 to 60% of the property value</span></label>
+                <label class="q-option"><input type="radio" name="q1" value="3"><span>Substantial equity, over 60%, or the property is fully paid up</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">2. What is your combined CPF Ordinary Account and Special Account balance available for property or investment?</p>
+              <div class="q-options" data-q="q2">
+                <label class="q-option"><input type="radio" name="q2" value="0"><span>Under S$50,000</span></label>
+                <label class="q-option"><input type="radio" name="q2" value="1"><span>S$50,000 to S$150,000</span></label>
+                <label class="q-option"><input type="radio" name="q2" value="2"><span>S$150,000 to S$300,000</span></label>
+                <label class="q-option"><input type="radio" name="q2" value="3"><span>Over S$300,000</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">3. How many months of expenses does your cash savings buffer, outside CPF, cover?</p>
+              <div class="q-options" data-q="q3">
+                <label class="q-option"><input type="radio" name="q3" value="0"><span>Under 3 months</span></label>
+                <label class="q-option"><input type="radio" name="q3" value="1"><span>3 to 6 months</span></label>
+                <label class="q-option"><input type="radio" name="q3" value="2"><span>6 to 12 months</span></label>
+                <label class="q-option"><input type="radio" name="q3" value="3"><span>Over 12 months</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">4. Beyond property and CPF, do you hold other liquid assets (stocks, bonds, unit trusts, fixed deposits)?</p>
+              <div class="q-options" data-q="q4">
+                <label class="q-option"><input type="radio" name="q4" value="0"><span>None to speak of</span></label>
+                <label class="q-option"><input type="radio" name="q4" value="1"><span>A modest amount, under S$50,000</span></label>
+                <label class="q-option"><input type="radio" name="q4" value="2"><span>A moderate amount, S$50,000 to S$200,000</span></label>
+                <label class="q-option"><input type="radio" name="q4" value="3"><span>A substantial amount, over S$200,000</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">5. How would you describe your household income stability?</p>
+              <div class="q-options" data-q="q5">
+                <label class="q-option"><input type="radio" name="q5" value="0"><span>Single income, variable or commission based</span></label>
+                <label class="q-option"><input type="radio" name="q5" value="1"><span>Single income, stable and salaried</span></label>
+                <label class="q-option"><input type="radio" name="q5" value="2"><span>Dual income, with one income variable</span></label>
+                <label class="q-option"><input type="radio" name="q5" value="3"><span>Dual income, both stable and salaried</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">6. Roughly how much headroom do you have under the TDSR 55% cap?</p>
+              <div class="q-options" data-q="q6">
+                <label class="q-option"><input type="radio" name="q6" value="0"><span>Little headroom, close to or above the cap</span></label>
+                <label class="q-option"><input type="radio" name="q6" value="1"><span>Some headroom, but debt commitments are significant</span></label>
+                <label class="q-option"><input type="radio" name="q6" value="2"><span>Comfortable headroom, moderate commitments</span></label>
+                <label class="q-option"><input type="radio" name="q6" value="3"><span>Large headroom, minimal existing debt</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">7. Do you carry other regular commitments (car loan, personal loan, credit card balances, family support)?</p>
+              <div class="q-options" data-q="q7">
+                <label class="q-option"><input type="radio" name="q7" value="0"><span>Several sizeable commitments</span></label>
+                <label class="q-option"><input type="radio" name="q7" value="1"><span>One or two moderate commitments</span></label>
+                <label class="q-option"><input type="radio" name="q7" value="2"><span>Minimal commitments</span></label>
+                <label class="q-option"><input type="radio" name="q7" value="3"><span>No other regular commitments</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="money">
+              <p class="q-text">8. How would you describe your monthly budget after all commitments, including dependents?</p>
+              <div class="q-options" data-q="q8">
+                <label class="q-option"><input type="radio" name="q8" value="0"><span>Tight, little left over most months</span></label>
+                <label class="q-option"><input type="radio" name="q8" value="1"><span>Manageable, small buffer most months</span></label>
+                <label class="q-option"><input type="radio" name="q8" value="2"><span>Comfortable, healthy buffer</span></label>
+                <label class="q-option"><input type="radio" name="q8" value="3"><span>Very comfortable, substantial buffer</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- TIMING (was Progression) -->
+          <div class="pillar-block">
+            <div class="pillar-head">
+              <span class="pillar-num">02</span>
+              <span class="pillar-name">Timing</span>
+              <span class="pillar-sub">— current property, timeline, upgrade intent</span>
+            </div>
+
+            <div class="q-block" data-pillar="timing">
+              <p class="q-text">9. What best describes your current property situation?</p>
+              <div class="q-options" data-q="q9">
+                <label class="q-option"><input type="radio" name="q9" value="0"><span>HDB flat, still within the Minimum Occupation Period</span></label>
+                <label class="q-option"><input type="radio" name="q9" value="1"><span>HDB flat, MOP reached, not yet upgraded</span></label>
+                <label class="q-option"><input type="radio" name="q9" value="2"><span>Private property, first purchase</span></label>
+                <label class="q-option"><input type="radio" name="q9" value="3"><span>Multiple properties, actively building a portfolio</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="timing">
+              <p class="q-text">10. What is your timeline for your next property move, if any?</p>
+              <div class="q-options" data-q="q10">
+                <label class="q-option"><input type="radio" name="q10" value="0"><span>No plans at the moment, just observing the market</span></label>
+                <label class="q-option"><input type="radio" name="q10" value="1"><span>Within 3 to 5 years</span></label>
+                <label class="q-option"><input type="radio" name="q10" value="2"><span>Within 1 to 3 years</span></label>
+                <label class="q-option"><input type="radio" name="q10" value="3"><span>Under 1 year, actively looking now</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="timing">
+              <p class="q-text">11. How clear is your progression pathway (for example HDB to EC to private, or hold versus upgrade versus right size)?</p>
+              <div class="q-options" data-q="q11">
+                <label class="q-option"><input type="radio" name="q11" value="0"><span>Have not thought about it yet</span></label>
+                <label class="q-option"><input type="radio" name="q11" value="1"><span>A rough idea, nothing mapped out</span></label>
+                <label class="q-option"><input type="radio" name="q11" value="2"><span>A general direction in mind</span></label>
+                <label class="q-option"><input type="radio" name="q11" value="3"><span>A clear, mapped out pathway</span></label>
+              </div>
+            </div>
+          </div>
+
+          <!-- SAFETY (was Protection) -->
+          <div class="pillar-block">
+            <div class="pillar-head">
+              <span class="pillar-num">03</span>
+              <span class="pillar-name">Safety</span>
+              <span class="pillar-sub">— rate exposure, lock in, insurance, contingency</span>
+            </div>
+
+            <div class="q-block" data-pillar="safety">
+              <p class="q-text">12. Where do you stand on your mortgage rate and lock in period?</p>
+              <div class="q-options" data-q="q12">
+                <label class="q-option"><input type="radio" name="q12" value="0"><span>Floating rate, or lock in ending soon, not reviewed recently</span></label>
+                <label class="q-option"><input type="radio" name="q12" value="1"><span>Lock in ending within the next 12 months, not yet reviewed</span></label>
+                <label class="q-option"><input type="radio" name="q12" value="2"><span>Reviewed within the last year, reasonably competitive</span></label>
+                <label class="q-option"><input type="radio" name="q12" value="3"><span>Actively monitored, ready to refinance if terms improve</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="safety">
+              <p class="q-text">13. How would you describe your insurance coverage tied to the property (mortgage reducing term, life, critical illness)?</p>
+              <div class="q-options" data-q="q13">
+                <label class="q-option"><input type="radio" name="q13" value="0"><span>Little to no coverage in place</span></label>
+                <label class="q-option"><input type="radio" name="q13" value="1"><span>Partial coverage, gaps likely</span></label>
+                <label class="q-option"><input type="radio" name="q13" value="2"><span>Reasonable coverage, not reviewed recently</span></label>
+                <label class="q-option"><input type="radio" name="q13" value="3"><span>Adequate coverage, reviewed within the last year</span></label>
+              </div>
+            </div>
+
+            <div class="q-block" data-pillar="safety">
+              <p class="q-text">14. If mortgage rates rose by 1 to 2 percentage points, how would your household be affected?</p>
+              <div class="q-options" data-q="q14">
+                <label class="q-option"><input type="radio" name="q14" value="0"><span>Very tight, real financial strain</span></label>
+                <label class="q-option"><input type="radio" name="q14" value="1"><span>Manageable, but uncomfortable</span></label>
+                <label class="q-option"><input type="radio" name="q14" value="2"><span>Comfortable, minor adjustment</span></label>
+                <label class="q-option"><input type="radio" name="q14" value="3"><span>Little to no impact, well buffered</span></label>
+              </div>
+            </div>
+          </div>
+
+          <button type="submit" class="calc-btn" id="submit-btn" disabled>See my Progression Score</button>
+          <p class="progress-note" id="progress-note">0 of 14 answered</p>
+
+          <p class="disclaimer">This score is an educational self assessment, not financial advice. For illustration only. CEA R073319H.</p>
+        </form>
+
+        <!-- RESULTS -->
+        <div class="result-panel" id="pscore-result">
+
+          <div class="dial-wrap">
+            <svg width="180" height="180" viewBox="0 0 180 180">
+              <circle cx="90" cy="90" r="78" fill="none" stroke="rgba(255,255,255,0.08)" stroke-width="12"/>
+              <circle id="dial-arc" cx="90" cy="90" r="78" fill="none" stroke="#c6a36a" stroke-width="12"
+                stroke-linecap="round" stroke-dasharray="490" stroke-dashoffset="490"
+                transform="rotate(-90 90 90)" style="transition: stroke-dashoffset 1s ease;"/>
+              <text x="90" y="88" text-anchor="middle" class="dial-num" id="dial-score">0</text>
+              <text x="90" y="112" text-anchor="middle" class="dial-max">out of 100</text>
+            </svg>
+            <span class="tier-badge" id="tier-badge">Foundation</span>
+          </div>
+
+          <div class="pillar-bars" id="pillar-bars"></div>
+
+          <div class="obs-list" id="obs-list"></div>
+
+          <p style="font-size:12px; color:var(--ink-muted); text-align:center; margin-bottom:1rem;">
+            This score is an educational self assessment, not financial advice. It does not constitute a recommendation to buy, sell, or refinance.
+          </p>
+
+          <form class="capture-row" id="capture-form">
+            <input type="email" id="capture-email" placeholder="Optional: your email for the full PDF report" />
+            <button type="submit" class="btn btn-ghost">Email me my full report</button>
+          </form>
+          <p class="capture-note">Optional. Your score and breakdown above stay fully visible either way, no email required.</p>
+          <p class="capture-status" id="capture-status"></p>
+
+          <div class="result-actions">
+            <a href="https://calendly.com/winfredquekoc" class="btn btn-primary" style="flex:1 1 auto; justify-content:center;">
+              Book the free Property Portfolio Analysis
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+            <button type="button" class="btn btn-ghost" id="copy-score-btn" style="flex:0 0 auto;">Copy my score</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- CTA Strip -->
+    <section style="padding: 0 1.5rem 5rem;">
+      <div class="max-w-3xl mx-auto">
+        <div class="cta-strip">
+          <p class="section-label mb-3">Want the full picture?</p>
+          <h3 class="serif" style="font-size:1.6rem; font-weight:600; margin-bottom:0.75rem;">
+            A score is a snapshot. The Property Portfolio Analysis is the full picture.
+          </h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem; margin-bottom:1.5rem; line-height:1.6;">
+            The Progression Score gives you a directional read in 5 minutes. The full Property Portfolio Analysis goes deeper,
+            covering your actual numbers across Money, Timing and Safety, with Winfred, at no cost.
+          </p>
+          <a href="https://calendly.com/winfredquekoc" class="btn btn-primary" style="font-size:15px;">
+            Book the free Property Portfolio Analysis
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="divider bg-[var(--bg)]">
+    <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
+      <div>
+        <p class="serif font-semibold text-lg mb-3">Winfred Quek</p>
+        <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">
+          Investor minded property advisor, Singapore. I help professionals, families,
+          and investors build property portfolios not just buy units.
+        </p>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">
+          Salesperson of <strong class="text-[var(--ink-soft)]">Crestbrick Pte Ltd</strong> (CEA Licence No. L31010886H)<br />
+          CEA Registration No.: <strong class="text-[var(--ink-soft)]">R073319H</strong>
+        </p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Quick links</p>
+        <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
+          <li><a href="/about" class="hover:text-[var(--ink)]">About Winfred</a></li>
+          <li><a href="/services" class="hover:text-[var(--ink)]">Services</a></li>
+          <li><a href="/listings" class="hover:text-[var(--ink)]">Listings</a></li>
+          <li><a href="/buyers-guide" class="hover:text-[var(--ink)]">Buyers Guide</a></li>
+          <li><a href="/sellers-guide" class="hover:text-[var(--ink)]">Sellers Guide</a></li>
+          <li><a href="/insights" class="hover:text-[var(--ink)]">Insights</a></li>
+          <li><a href="/testimonials" class="hover:text-[var(--ink)]">Testimonials</a></li>
+          <li><a href="/contact" class="hover:text-[var(--ink)]">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Contact</p>
+        <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
+          <li><a href="https://wa.me/6581618149" class="hover:text-[var(--ink)]">WhatsApp · +65 8161 8149</a></li>
+          <li><a href="tel:+6581618149" class="hover:text-[var(--ink)]">Phone · +65 8161 8149</a></li>
+          <li><a href="mailto:winfredquekoc@gmail.com" class="hover:text-[var(--ink)]">winfredquekoc@gmail.com</a></li>
+          <li><a href="https://calendly.com/winfredquekoc" class="hover:text-[var(--ink)]">Book via Calendly</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[var(--rule)]">
+      <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-[var(--ink-muted)]">
+        <p>© 2026 Winfred Quek · Crestbrick · CEA R073319H · All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a>
+          <span>·</span>
+          <span>Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. Information on this site is general and does not constitute financial, investment, or mortgage advice.</span>
+        </div>
+      </div>
+    </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
+</footer>
+
+  <!-- Floating WhatsApp CTA -->
+  <a id="wa-float"
+    href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20did%20the%20Property%20Progression%20Score%20and%20want%20to%20talk%20through%20my%20result."
+    aria-label="Message Winfred on WhatsApp"
+    class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200"
+    style="box-shadow: 0 10px 30px -5px rgba(37, 211, 102, 0.4);">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span class="hidden sm:inline">Chat</span>
+  </a>
+
+  <script>
+    // Mobile menu
+    (function(){
+      var t = document.getElementById('menu-toggle');
+      var m = document.getElementById('mobile-menu');
+      if(t && m){ t.addEventListener('click', function(){ m.classList.toggle('open'); }); }
+    })();
+
+    // WhatsApp pulse
+    (function(){
+      var btn = document.getElementById('wa-float');
+      if (!btn) return;
+      var fired = false;
+      function pulse() {
+        if (fired) return; fired = true;
+        btn.classList.add('wa-pulsing');
+        setTimeout(function(){ btn.classList.remove('wa-pulsing'); }, 2200);
+        window.removeEventListener('scroll', pulse);
+      }
+      window.addEventListener('scroll', pulse, { passive: true });
+    })();
+
+    // ---------------------------------------------------------------
+    // Property Progression Score
+    // ---------------------------------------------------------------
+    var QUESTIONS = ['q1','q2','q3','q4','q5','q6','q7','q8','q9','q10','q11','q12','q13','q14'];
+
+    var DIMENSIONS = {
+      money:  { label: 'Money',  qs: ['q1','q2','q3','q4','q5','q6','q7','q8'], max: 24 },
+      timing: { label: 'Timing', qs: ['q9','q10','q11'],                        max: 9  },
+      safety: { label: 'Safety', qs: ['q12','q13','q14'],                       max: 9  }
+    };
+    var DIMENSION_ORDER = ['money','timing','safety'];
+
+    var OBSERVATIONS = {
+      money: {
+        low:  "Your Money score points to relatively limited equity, CPF balance, cash buffer or income headroom under the TDSR cap relative to typical profiles at your stage. This is often worth reviewing with an advisor before taking on new financing.",
+        mid:  "Your Money position looks moderate, with some equity, reserves and TDSR headroom built up. Profiles like this often benefit from a closer look at how CPF, cash, equity and income are allocated relative to your goals.",
+        high: "Your Money score is strong, reflecting solid equity, CPF balances, liquid reserves and comfortable headroom under the TDSR cap. This generally supports more flexibility in timing and structuring future property decisions."
+      },
+      timing: {
+        low:  "Your Timing score suggests your pathway forward, whether to hold, upgrade or restructure, is not yet clearly mapped. This is a common starting point and often a useful area to clarify with an advisor.",
+        mid:  "Your Timing score shows a general direction, though the specific pathway and timeline could be sharpened further.",
+        high: "Your Timing score reflects a clear, well mapped pathway for your next property move, which generally supports better timing decisions."
+      },
+      safety: {
+        low:  "Your Safety score suggests possible gaps in rate exposure management or insurance coverage relative to your mortgage. This is often worth a closer look, particularly around lock in timing and coverage adequacy.",
+        mid:  "Your Safety score is moderate. It may be worth reviewing your rate exposure and insurance coverage, especially as your lock in period approaches expiry.",
+        high: "Your Safety score reflects strong rate monitoring and coverage already in place, which generally provides more resilience against rate or income shocks."
+      }
+    };
+
+    var TIER_NOTES = {
+      Foundation: "Overall, your profile sits in the Foundation stage. This typically reflects an earlier point in the property journey, where building your money position, timing clarity and safety buffers tend to be the natural next areas of focus.",
+      Building:   "Overall, your profile sits in the Building stage, with a reasonable base across most areas. Profiles like this often benefit from tightening up one or two specific areas before the next move.",
+      Optimising: "Overall, your profile sits in the Optimising stage, reflecting a solid position across most areas. This is often a good point to review structuring and timing decisions in more detail.",
+      Advanced:   "Overall, your profile sits in the Advanced stage, reflecting strength across money, timing and safety. Profiles like this often focus on fine tuning structure and timing rather than foundational gaps."
+    };
+
+    function tierFor(score) {
+      if (score <= 25) return 'Foundation';
+      if (score <= 50) return 'Building';
+      if (score <= 75) return 'Optimising';
+      return 'Advanced';
+    }
+
+    function band(pct) {
+      if (pct < 0.4) return 'low';
+      if (pct < 0.75) return 'mid';
+      return 'high';
+    }
+
+    var lastScore = 0;
+
+    // Selected-option highlight + progress tracking
+    function updateProgress() {
+      var answered = 0;
+      QUESTIONS.forEach(function(q){
+        var checked = document.querySelector('input[name="'+q+'"]:checked');
+        if (checked) answered++;
+      });
+      document.getElementById('progress-note').textContent = answered + ' of 14 answered';
+      document.getElementById('submit-btn').disabled = (answered < QUESTIONS.length);
+    }
+
+    document.querySelectorAll('.q-options').forEach(function(group){
+      group.addEventListener('change', function(e){
+        group.querySelectorAll('.q-option').forEach(function(opt){ opt.classList.remove('selected'); });
+        var chosen = e.target.closest('.q-option');
+        if (chosen) chosen.classList.add('selected');
+        updateProgress();
+      });
+    });
+
+    function computeScore() {
+      var raw = {};
+      QUESTIONS.forEach(function(q){
+        var el = document.querySelector('input[name="'+q+'"]:checked');
+        raw[q] = el ? parseInt(el.value, 10) : 0;
+      });
+
+      var dimScores = {};
+      var totalRaw = 0;
+      var totalMax = 0;
+      DIMENSION_ORDER.forEach(function(key){
+        var d = DIMENSIONS[key];
+        var sum = 0;
+        d.qs.forEach(function(q){ sum += raw[q]; });
+        var pct = sum / d.max;
+        var scaled = Math.round(pct * 100);
+        dimScores[key] = { raw: sum, max: d.max, pct: pct, scaled: scaled };
+        totalRaw += sum;
+        totalMax += d.max;
+      });
+      var total = Math.round((totalRaw / totalMax) * 100);
+      if (total > 100) total = 100;
+
+      return { dimScores: dimScores, total: total };
+    }
+
+    function renderResult(result) {
+      lastScore = result.total;
+      var tier = tierFor(result.total);
+
+      document.getElementById('dial-score').textContent = result.total;
+      document.getElementById('tier-badge').textContent = tier;
+
+      var circumference = 2 * Math.PI * 78;
+      var arc = document.getElementById('dial-arc');
+      arc.setAttribute('stroke-dasharray', circumference.toFixed(0));
+      var offset = circumference * (1 - result.total / 100);
+      // Force reflow so the transition animates from full to target
+      arc.style.strokeDashoffset = circumference.toFixed(0);
+      requestAnimationFrame(function(){
+        arc.style.strokeDashoffset = offset.toFixed(0);
+      });
+
+      // Dimension bars
+      var barsEl = document.getElementById('pillar-bars');
+      barsEl.innerHTML = '';
+      DIMENSION_ORDER.forEach(function(key){
+        var d = DIMENSIONS[key];
+        var s = result.dimScores[key];
+        var row = document.createElement('div');
+        row.className = 'pbar-row';
+        row.innerHTML =
+          '<div class="pbar-label"><span class="name">' + d.label + '</span><span class="score">' + s.scaled + ' / 100</span></div>' +
+          '<div class="pbar-track"><div class="pbar-fill" style="width:0%"></div></div>';
+        barsEl.appendChild(row);
+        var fill = row.querySelector('.pbar-fill');
+        requestAnimationFrame(function(){
+          fill.style.width = Math.min(100, Math.max(0, s.scaled)) + '%';
+        });
+      });
+
+      // Observations: one or two weakest dimensions + one overall tier note
+      var ranked = DIMENSION_ORDER.slice().sort(function(a,b){
+        return result.dimScores[a].pct - result.dimScores[b].pct;
+      });
+      var obsList = document.getElementById('obs-list');
+      obsList.innerHTML = '';
+      ranked.slice(0,2).forEach(function(key){
+        var pct = result.dimScores[key].pct;
+        var text = OBSERVATIONS[key][band(pct)];
+        var div = document.createElement('div');
+        div.className = 'obs-item';
+        div.textContent = text;
+        obsList.appendChild(div);
+      });
+      var overallDiv = document.createElement('div');
+      overallDiv.className = 'obs-item';
+      overallDiv.textContent = TIER_NOTES[tier];
+      obsList.appendChild(overallDiv);
+
+      document.getElementById('pscore-result').classList.add('visible');
+      document.getElementById('pscore-result').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    document.getElementById('pscore-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      var result = computeScore();
+      renderResult(result);
+    });
+
+    // Optional email capture — soft, non-gating
+    document.getElementById('capture-form').addEventListener('submit', function(e){
+      e.preventDefault();
+      var emailEl = document.getElementById('capture-email');
+      var statusEl = document.getElementById('capture-status');
+      var email = emailEl.value.trim();
+      if (!email) { statusEl.textContent = 'Enter an email above, or skip this, your score stays visible either way.'; statusEl.style.color = 'var(--ink-muted)'; return; }
+      statusEl.textContent = 'Sending…';
+      statusEl.style.color = 'var(--ink-muted)';
+      fetch('/api/lead-magnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, magnet: 'progression-score', source: 'progression-score' })
+      }).then(function(r){ return r.json(); }).then(function(d){
+        if (d && d.ok) {
+          statusEl.textContent = 'Sent. Check your inbox shortly.';
+          statusEl.style.color = 'var(--accent)';
+        } else {
+          statusEl.textContent = 'Could not send right now, please try again later.';
+          statusEl.style.color = 'var(--ink-muted)';
+        }
+      }).catch(function(){
+        statusEl.textContent = 'Could not send right now, please try again later.';
+        statusEl.style.color = 'var(--ink-muted)';
+      });
+    });
+
+    // Copy my score
+    document.getElementById('copy-score-btn').addEventListener('click', function(){
+      var text = 'I scored ' + lastScore + '/100 on the Property Progression Score — winfredquek.com/tools/progression-score';
+      var btn = this;
+      var reset = function(label, delay){ setTimeout(function(){ btn.textContent = 'Copy my score'; }, delay); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function(){
+          btn.textContent = 'Copied ✓';
+          reset('Copy my score', 1800);
+        }).catch(function(){
+          btn.textContent = 'Copy failed';
+          reset('Copy my score', 1800);
+        });
+      } else {
+        btn.textContent = 'Copy failed';
+        reset('Copy my score', 1800);
+      }
+    });
+
+    updateProgress();
+  </script>
+</body>
+</html>

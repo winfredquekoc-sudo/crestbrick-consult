@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Understanding URA Rental Transaction Data: What It Does and Doesn't Tell You | Winfred Quek</title>
+  <meta name="description" content="How to read Singapore's published rental transaction data properly: what contract rent includes, the reporting lag, and why small samples can mislead." />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Understanding URA Rental Transaction Data: What It Does and Doesn't Tell You" />
+  <meta property="og:description" content="Published rental data looks precise. It is contract rent, reported with a lag, on samples that are often smaller than they appear. Here is how to read it properly." />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/insights/understanding-rental-transaction-data-singapore" />
+  <meta property="article:published_time" content="2026-07-13" />
+  <meta property="article:modified_time" content="2026-07-13" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://winfredquek.com/insights/understanding-rental-transaction-data-singapore" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Article","headline":"Understanding URA Rental Transaction Data: What It Does and Doesn't Tell You","description":"How to read Singapore's published rental transaction data correctly: what is included in contract rent versus what is excluded, the reporting lag, and why median rent figures can mislead when the underlying sample size is small.","image":"https://winfredquek.com/img/og-image.jpg","author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Associate Marketing Consultant","identifier":"CEA R073319H"},"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"datePublished":"2026-07-13","dateModified":"2026-07-13","wordCount":1800,"mainEntityOfPage":"https://winfredquek.com/insights/understanding-rental-transaction-data-singapore","speakable":{"@type":"SpeakableSpecification","cssSelector":[".quick-answer","h1","h2"]}}
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},
+      {"@type":"ListItem","position":2,"name":"Insights","item":"https://winfredquek.com/insights"},
+      {"@type":"ListItem","position":3,"name":"Understanding Rental Transaction Data","item":"https://winfredquek.com/insights/understanding-rental-transaction-data-singapore"}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Does published rental data include utilities and agent fees?","acceptedAnswer":{"@type":"Answer","text":"No. Published rental transaction figures reflect contract rent, the base monthly rent agreed in the tenancy agreement, and generally exclude utilities, internet, cleaning, agent commission and any other costs bundled separately between landlord and tenant. Two units with an identical published rent figure can have quite different all in costs for the tenant depending on what else is included in the lease. Treat the published number as a starting point for comparison, not the full economic picture."}},
+    {"@type":"Question","name":"How current is the rental data I see on property portals or URA?","acceptedAnswer":{"@type":"Answer","text":"There is a reporting lag between when a tenancy agreement is signed and when it appears in official data, since the transaction has to be reported and processed before publication. This means the most recent period shown is typically not yet complete and can understate actual leasing activity, and the freshest figures you see are a snapshot in progress rather than a final count. Always check the data's as of date and treat the very latest period with more caution than the several periods before it."}},
+    {"@type":"Question","name":"Why can median rent for a project be misleading?","acceptedAnswer":{"@type":"Answer","text":"A median or average calculated from a small number of transactions in a given period can swing significantly based on just one or two atypical leases, a large penthouse, a short term diplomatic lease, or a unit with unusual terms. Developments with low rental transaction volume in a given month or quarter are especially prone to this. Before trusting a median figure, check how many transactions it is actually based on, and be more skeptical of any figure drawn from a handful of data points than one drawn from dozens."}},
+    {"@type":"Question","name":"Where can I check actual rental transactions for a specific project in Singapore?","acceptedAnswer":{"@type":"Answer","text":"URA publishes private residential rental contract data, searchable by project, through its REALIS platform and related data services, showing individual rental contracts including unit size band, floor level range, lease commencement and rent. HDB publishes separate rental statistics for public housing flats. Both are the authoritative sources; property portal estimates and agent quoted comparables should be checked against this official data rather than relied on alone."}}
+  ]}
+  </script>
+
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f1117;--highlight:#1a1c24;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .topnav a.nav-link.active::after{content:"";display:block;height:1px;background:var(--accent);margin-top:4px;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    article p{font-size:1.05rem;line-height:1.75;color:var(--ink-soft);margin-bottom:1.1em;}
+    article h2{font-family:'Fraunces',Georgia,serif;font-size:1.75rem;font-weight:600;margin:2em 0 .6em;color:var(--ink);}
+    article h3{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;margin:1.4em 0 .4em;color:var(--ink);}
+    article ul,article ol{padding-left:1.4em;color:var(--ink-soft);margin-bottom:1.1em;}
+    article ul{list-style:disc;} article ol{list-style:decimal;}
+    article ul li,article ol li{margin-bottom:.35em;}
+    .quick-answer{background:#1a1c24;border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:1.1rem 1.35rem;color:var(--ink);margin:0 0 1rem;font-size:1.02rem;line-height:1.7;}
+    .quick-answer strong{color:var(--accent);}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:1em 0;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    .cta-block{background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
+    .warn{background:#fdf6ec;border:1px solid #e6d3a1;border-radius:10px;padding:1rem 1.25rem;color:#3a3a3a;margin:1.4em 0;font-size:.95rem;}
+    .warn strong{color:#1a1a1a;}
+    .badge-green{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .badge-red{display:inline-block;background:#fdecea;color:#b71c1c;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .badge-amber{display:inline-block;background:#fff8e1;color:#e65100;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .deep-dive{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.5rem 1.75rem;margin:1.5rem 0;}
+    .deep-dive h3{margin-top:0;}
+    .faq-q{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;color:var(--ink);margin:1.5rem 0 .4rem;}
+    .article-cta{background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  </style>
+  <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
+</head>
+<body>
+
+      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline active" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/insights">Insights</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+<main>
+
+<!-- HERO -->
+<section style="position:relative;overflow:hidden;background:#1e2d4a;padding:5rem 1.5rem 4rem;">
+  <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.14;" preserveAspectRatio="xMidYMid slice" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+    <polyline points="180,300 260,270 340,285 420,230 500,240 580,180 660,200 740,150" fill="none" stroke="#c6a36a" stroke-width="2.5" opacity=".6"/>
+    <circle cx="260" cy="270" r="5" fill="#c6a36a" opacity=".7"/>
+    <circle cx="420" cy="230" r="5" fill="#c6a36a" opacity=".7"/>
+    <circle cx="580" cy="180" r="5" fill="#c6a36a" opacity=".7"/>
+    <circle cx="740" cy="150" r="5" fill="#faf8f4" opacity=".8"/>
+    <text x="640" y="130" font-size="12" fill="#faf8f4" opacity=".6" font-family="sans-serif">latest = incomplete</text>
+  </svg>
+  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1e2d4a 0%,#c6a36a 50%,#1e2d4a 100%);pointer-events:none;"></div>
+  <div style="position:relative;max-width:72rem;margin:0 auto;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#c6a36a;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#c6a36a;text-decoration:none;">All insights</a></p>
+    <span style="display:inline-block;border:1px solid #c6a36a;color:#c6a36a;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">Investing framework &middot; 2026</span>
+    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:27ch;text-wrap:balance;margin-bottom:1.25rem;">Understanding rental transaction data: what it does and doesn't tell you</h1>
+    <p style="color:#a8bcd4;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 8 minute read &middot; Published 13 July 2026</p>
+  </div>
+</section>
+
+<article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+  <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Investing framework &middot; Data literacy</p>
+  <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6" aria-hidden="true">Understanding rental transaction data: what it does and doesn't tell you</h1>
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek, Associate Marketing Consultant &middot; CEA R073319H &middot; Crestbrick Pte Ltd (L31010886H) &middot; Published 13 July 2026</p>
+
+  <div class="quick-answer"><strong>Quick answer:</strong> Singapore's published rental transaction data, whether from URA for private property or HDB for public flats, is genuinely useful but narrower than it looks. It reports contract rent, the base monthly figure in the tenancy agreement, excluding utilities, agent fees and any other costs bundled into the arrangement between landlord and tenant. There is a reporting lag between when a lease is signed and when it appears in the data, so the most recent period is typically incomplete and understates real activity. And median or average figures calculated from a small number of transactions in a given period can be swung significantly by one or two atypical leases. None of this makes the data unreliable, it makes it a tool that needs to be read with its limitations in mind, not taken at face value as the full picture of achievable rent.</p>
+  <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.4rem;margin-bottom:1.5rem;">Facts verified: 13 July 2026 &middot; No specific rental figures cited &middot; Sources attributed below</p>
+
+  <p>Rental data is the number landlords and tenants both reach for first, because it looks precise, official and reassuringly objective compared to an agent's verbal comparable or a portal listing's asking price. That precision is partly an illusion. The data is real and the source is authoritative, but what it actually captures, and what it leaves out, matters enormously for anyone using it to price a lease or evaluate a rental yield. I want to walk through exactly what is in the number, what is not, and how to read it without being misled by its apparent exactness.</p>
+
+  <h2>What "contract rent" actually captures</h2>
+
+  <p>Published rental transaction data reflects contract rent, the base monthly figure agreed and stated in the tenancy agreement between landlord and tenant. It does not, as a rule, capture what else might be bundled into that arrangement: utilities, internet, cleaning services, furniture packages, or agent commission arrangements that vary by deal. Two leases showing an identical contract rent in the published data can represent quite different total costs for the tenant and different net proceeds for the landlord, depending on what else is included.</p>
+
+  <p>This matters most when you are comparing your own unit's rental readiness against published comparables. If nearby transactions show a certain contract rent but you know from experience that fully furnished units in that development typically carry a premium, or that landlords there commonly absorb utilities as part of the deal, the raw contract rent figure alone will understate or overstate what you should actually expect. For the full mechanics of computing what a unit really nets you after these costs, see my <a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent);">rental yield versus appreciation guide</a>.</p>
+
+  <h2>The reporting lag: why the latest period looks softer than it is</h2>
+
+  <p>There is an inherent lag between when a tenancy agreement is actually signed and when the transaction appears in published data, because the lease has to be reported and processed before it shows up in the dataset. The practical effect is that the most recent period shown, whether that is the latest month or quarter, is almost always incomplete at the point you are viewing it, with more transactions still to be added as processing catches up. Reading a dip in the newest period as a genuine cooling in the rental market is a common and avoidable mistake, when it may simply be a data completeness issue that resolves itself over the following weeks as more contracts are recorded.</p>
+
+  <div class="warn">
+    <strong>Always check the as of date.</strong> Treat the most recent one or two periods shown in any rental dataset with more caution than the established trend before them, and never draw a strong conclusion, especially a pricing decision, from the newest data point in isolation.
+  </div>
+
+  <h2>Why a small sample can mislead you badly</h2>
+
+  <p>A median or average rent figure is only as reliable as the number of transactions behind it. For a development or unit type with high rental turnover, dozens of transactions in a given period, the median is a genuinely informative number, smoothing out individual outliers. For a smaller or less liquid segment, a boutique development, an unusual unit type, or simply a quiet month, the same calculation might be based on a handful of transactions, and a single atypical lease, a large penthouse, a short diplomatic posting lease with unusual terms, or a related party transaction, can swing the reported median substantially.</p>
+
+  <p>The practical habit worth building is to always check the transaction count behind any median or average you are relying on, not just the headline figure. A median built from three transactions deserves far less confidence than one built from thirty, even though both are presented with the same apparent precision on a chart or table. This same discipline applies when reading sale transaction data, and my <a href="/insights/how-to-check-property-transaction-history-singapore" style="color:var(--accent);">guide to checking property transaction history</a> covers the sale side of the same underlying issue.</p>
+
+  <h2>What the data does not tell you about unit condition or terms</h2>
+
+  <p>Contract rent is a single number that compresses a lot of unstated context: the unit's renovation state, whether it came furnished or unfurnished, the lease length and any rent free fitting out period, whether a diplomatic clause was included, and the specific negotiating dynamics between that particular landlord and tenant. A transaction at a below average rent might reflect a landlord eager for a quick let, a unit in original, dated condition, or simply a longer lease term traded for a lower monthly figure. None of that context survives into the published number.</p>
+
+  <p>This is the same reason two seemingly identical units in the same stack can command genuinely different achievable rents in practice, something I cover in more depth in my <a href="/insights/rental-yield-by-property-type-singapore" style="color:var(--accent);">rental yield by property type guide</a>. Published data gives you a starting range, not a guaranteed number, and the gap between the two is exactly the value an experienced eye on the ground adds when pricing a specific unit.</p>
+
+  <h2>How to actually use the data well</h2>
+
+  <ol>
+    <li><strong>Pull the underlying transaction count</strong>, not just the summary median, before trusting any rental benchmark for a specific development or unit type.</li>
+    <li><strong>Discount the most recent one to two periods</strong> for reporting lag, and look at the established trend rather than the freshest single data point.</li>
+    <li><strong>Treat contract rent as a base, not a full cost comparison</strong>, and ask what else, utilities, furniture, agent fees, is typically bundled in your specific market segment.</li>
+    <li><strong>Widen your comparable set</strong> across a few similar developments and adjacent periods when a single development's own data is thin, rather than anchoring to one small sample.</li>
+    <li><strong>Cross check against what agents and landlords on the ground are actually seeing</strong>, since real time market feedback often reflects conditions faster than published data can catch up to.</li>
+  </ol>
+
+  <h2>Frequently asked questions</h2>
+
+  <p class="faq-q">Does published rental data include utilities and agent fees?</p>
+  <p>No. Published rental transaction figures reflect contract rent, the base monthly rent in the tenancy agreement, and generally exclude utilities, agent commission and other bundled costs. Two units with the same published rent can have different all in costs depending on what else is included in the lease.</p>
+
+  <p class="faq-q">How current is the rental data I see on property portals or URA?</p>
+  <p>There is a reporting lag between a tenancy agreement being signed and appearing in official data, so the most recent period shown is typically incomplete and can understate actual leasing activity. Always check the data's as of date and treat the very latest period with more caution.</p>
+
+  <p class="faq-q">Why can median rent for a project be misleading?</p>
+  <p>A median calculated from a small number of transactions can swing significantly based on one or two atypical leases. Developments with low rental transaction volume in a given period are especially prone to this. Check how many transactions a median is based on before trusting it.</p>
+
+  <p class="faq-q">Where can I check actual rental transactions for a specific project in Singapore?</p>
+  <p>URA publishes private residential rental contract data, searchable by project, through its REALIS platform, showing individual contracts including unit size band, floor level range and rent. HDB publishes separate statistics for public housing flats. Check both against portal estimates or agent quoted comparables rather than relying on either alone.</p>
+
+  <div class="article-cta">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;">Pricing a lease or checking a rental yield?</p>
+    <p style="color:#4a4a4a;margin-bottom:1.25rem;">Reading published rental data properly, adjusted for sample size, lag and what is actually included, is the difference between an accurate yield model and a misleading one. A <a href="/services/property-portfolio-analysis" style="color:#c6a36a;font-weight:600;">Property Portfolio Analysis</a> grounds your numbers in a properly read comparable set.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Book a free analysis call</a>
+  </div>
+
+  <h2>Sources &amp; references</h2>
+  <ul>
+    <li><a href="https://www.ura.gov.sg/reis/index" style="color:var(--accent);">URA REALIS &mdash; private residential rental contract data</a></li>
+    <li><a href="https://www.hdb.gov.sg/residential/renting-a-flat-or-bedspace/renting-from-the-open-market/renting-out-your-flat-bedrooms" style="color:var(--accent);">HDB &mdash; renting out a flat, rules and statistics</a></li>
+  </ul>
+
+  <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is Associate Marketing Consultant at Crestbrick Pte Ltd, advising Singapore upgraders, investors and families. CEA R073319H. The information on this page is general and does not constitute investment or financial advice. No specific rental figures are cited or implied. Verify current data via official sources before pricing any lease or making any investment decision.</p>
+
+</article>
+
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/rental-yield-by-property-type-singapore" style="color:var(--accent);">Rental yield by property type</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/singapore-rental-market-landlord-2026" style="color:var(--accent);">The Singapore rental market: a landlord's guide</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent);">Rental yield versus appreciation</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/how-to-check-property-transaction-history-singapore" style="color:var(--accent);">How to check property transaction history</a></li>
+  </ul>
+</section>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
+    <p>&#169; 2026 Winfred Quek &middot; Crestbrick &middot; CEA R073319H</p>
+    <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>&middot;</span><span>Not legal or financial advice.</span></div>
+  </div>
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:2rem;padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">
+      The information and insights on this page are for informational purposes only. No specific rental figures are cited or implied. Rental transaction data, reporting timelines and sample sizes vary by development and period; verify current data via official sources before pricing any lease. This page is not investment or financial advice.
+    </p>
+  </div>
+</footer>
+
+<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20discuss%20rental%20transaction%20data%20for%20my%20property." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="hidden sm:inline">Chat</span>
+</a>
+<script>(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+</body>
+</html>

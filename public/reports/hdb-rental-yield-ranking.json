@@ -1,0 +1,292 @@
+{
+  "generated_at_utc": "2026-07-27T20:32:25Z",
+  "resale_data_window": {
+    "resource_id": "d_8b84c4ee58e3cfc0ece0d773c8ca6abc",
+    "months": [
+      "2026-07",
+      "2026-06",
+      "2026-05",
+      "2026-04",
+      "2026-03",
+      "2026-02",
+      "2026-01",
+      "2025-12",
+      "2025-11",
+      "2025-10",
+      "2025-09",
+      "2025-08"
+    ]
+  },
+  "rental_data_window": {
+    "resource_id": "d_c9f57187485a850908655db0e8cfe651",
+    "months": [
+      "2026-06",
+      "2026-05",
+      "2026-04",
+      "2026-03",
+      "2026-02",
+      "2026-01",
+      "2025-12",
+      "2025-11",
+      "2025-10",
+      "2025-09",
+      "2025-08",
+      "2025-07"
+    ]
+  },
+  "as_of_period_label": "resale 2025-08\u20132026-07, rental 2025-07\u20132026-06",
+  "methodology": "Gross rental yield = (median monthly rent x 12) / median resale price, computed per HDB town over the trailing ~12 months of transactions. Median resale price and median monthly rent are each computed independently across all flat types transacted in that town in the window (not matched unit-for-unit), so this is a town-level approximation, not a same-unit yield. Gross yield excludes property tax, MCST/conservancy charges, maintenance, agent commission, and vacancy periods -- actual net yield is materially lower.",
+  "min_sample_size": 20,
+  "towns": [
+    {
+      "town": "Jurong East",
+      "median_resale_price": 520000,
+      "median_monthly_rent": 3200,
+      "median_annual_rent": 38400,
+      "gross_yield_pct": 7.38,
+      "n_resale": 455,
+      "n_rental": 1025,
+      "rank": 1
+    },
+    {
+      "town": "Jurong West",
+      "median_resale_price": 565000,
+      "median_monthly_rent": 3450,
+      "median_annual_rent": 41400,
+      "gross_yield_pct": 7.33,
+      "n_resale": 1453,
+      "n_rental": 2714,
+      "rank": 2
+    },
+    {
+      "town": "Marine Parade",
+      "median_resale_price": 565000,
+      "median_monthly_rent": 3200,
+      "median_annual_rent": 38400,
+      "gross_yield_pct": 6.8,
+      "n_resale": 130,
+      "n_rental": 381,
+      "rank": 3
+    },
+    {
+      "town": "Ang Mo Kio",
+      "median_resale_price": 516900,
+      "median_monthly_rent": 2900,
+      "median_annual_rent": 34800,
+      "gross_yield_pct": 6.73,
+      "n_resale": 882,
+      "n_rental": 2027,
+      "rank": 4
+    },
+    {
+      "town": "Yishun",
+      "median_resale_price": 540000,
+      "median_monthly_rent": 3000,
+      "median_annual_rent": 36000,
+      "gross_yield_pct": 6.67,
+      "n_resale": 1529,
+      "n_rental": 2018,
+      "rank": 5
+    },
+    {
+      "town": "Bedok",
+      "median_resale_price": 545000,
+      "median_monthly_rent": 3000,
+      "median_annual_rent": 36000,
+      "gross_yield_pct": 6.61,
+      "n_resale": 1196,
+      "n_rental": 2118,
+      "rank": 6
+    },
+    {
+      "town": "Choa Chu Kang",
+      "median_resale_price": 590888,
+      "median_monthly_rent": 3150,
+      "median_annual_rent": 37800,
+      "gross_yield_pct": 6.4,
+      "n_resale": 982,
+      "n_rental": 1322,
+      "rank": 7
+    },
+    {
+      "town": "Woodlands",
+      "median_resale_price": 590000,
+      "median_monthly_rent": 3100,
+      "median_annual_rent": 37200,
+      "gross_yield_pct": 6.31,
+      "n_resale": 1760,
+      "n_rental": 1844,
+      "rank": 8
+    },
+    {
+      "town": "Geylang",
+      "median_resale_price": 580000,
+      "median_monthly_rent": 3000,
+      "median_annual_rent": 36000,
+      "gross_yield_pct": 6.21,
+      "n_resale": 663,
+      "n_rental": 1095,
+      "rank": 9
+    },
+    {
+      "town": "Sembawang",
+      "median_resale_price": 600000,
+      "median_monthly_rent": 3100,
+      "median_annual_rent": 37200,
+      "gross_yield_pct": 6.2,
+      "n_resale": 866,
+      "n_rental": 978,
+      "rank": 10
+    },
+    {
+      "town": "Clementi",
+      "median_resale_price": 620000,
+      "median_monthly_rent": 3200,
+      "median_annual_rent": 38400,
+      "gross_yield_pct": 6.19,
+      "n_resale": 526,
+      "n_rental": 1378,
+      "rank": 11
+    },
+    {
+      "town": "Bukit Panjang",
+      "median_resale_price": 608000,
+      "median_monthly_rent": 3055,
+      "median_annual_rent": 36660,
+      "gross_yield_pct": 6.03,
+      "n_resale": 772,
+      "n_rental": 954,
+      "rank": 12
+    },
+    {
+      "town": "Hougang",
+      "median_resale_price": 628000,
+      "median_monthly_rent": 3100,
+      "median_annual_rent": 37200,
+      "gross_yield_pct": 5.92,
+      "n_resale": 1217,
+      "n_rental": 1769,
+      "rank": 13
+    },
+    {
+      "town": "Bukit Batok",
+      "median_resale_price": 618000,
+      "median_monthly_rent": 3000,
+      "median_annual_rent": 36000,
+      "gross_yield_pct": 5.83,
+      "n_resale": 1325,
+      "n_rental": 1596,
+      "rank": 14
+    },
+    {
+      "town": "Pasir Ris",
+      "median_resale_price": 720000,
+      "median_monthly_rent": 3500,
+      "median_annual_rent": 42000,
+      "gross_yield_pct": 5.83,
+      "n_resale": 707,
+      "n_rental": 1041,
+      "rank": 15
+    },
+    {
+      "town": "Sengkang",
+      "median_resale_price": 660000,
+      "median_monthly_rent": 3200,
+      "median_annual_rent": 38400,
+      "gross_yield_pct": 5.82,
+      "n_resale": 1709,
+      "n_rental": 2476,
+      "rank": 16
+    },
+    {
+      "town": "Serangoon",
+      "median_resale_price": 661888,
+      "median_monthly_rent": 3200,
+      "median_annual_rent": 38400,
+      "gross_yield_pct": 5.8,
+      "n_resale": 365,
+      "n_rental": 841,
+      "rank": 17
+    },
+    {
+      "town": "Punggol",
+      "median_resale_price": 675000,
+      "median_monthly_rent": 3200,
+      "median_annual_rent": 38400,
+      "gross_yield_pct": 5.69,
+      "n_resale": 1548,
+      "n_rental": 1795,
+      "rank": 18
+    },
+    {
+      "town": "Tampines",
+      "median_resale_price": 710000,
+      "median_monthly_rent": 3350,
+      "median_annual_rent": 40200,
+      "gross_yield_pct": 5.66,
+      "n_resale": 1853,
+      "n_rental": 2464,
+      "rank": 19
+    },
+    {
+      "town": "Kallang/Whampoa",
+      "median_resale_price": 725000,
+      "median_monthly_rent": 3300,
+      "median_annual_rent": 39600,
+      "gross_yield_pct": 5.46,
+      "n_resale": 708,
+      "n_rental": 1459,
+      "rank": 20
+    },
+    {
+      "town": "Bukit Merah",
+      "median_resale_price": 790000,
+      "median_monthly_rent": 3500,
+      "median_annual_rent": 42000,
+      "gross_yield_pct": 5.32,
+      "n_resale": 896,
+      "n_rental": 2137,
+      "rank": 21
+    },
+    {
+      "town": "Bishan",
+      "median_resale_price": 840444,
+      "median_monthly_rent": 3600,
+      "median_annual_rent": 43200,
+      "gross_yield_pct": 5.14,
+      "n_resale": 380,
+      "n_rental": 765,
+      "rank": 22
+    },
+    {
+      "town": "Toa Payoh",
+      "median_resale_price": 780000,
+      "median_monthly_rent": 3100,
+      "median_annual_rent": 37200,
+      "gross_yield_pct": 4.77,
+      "n_resale": 983,
+      "n_rental": 1588,
+      "rank": 23
+    },
+    {
+      "town": "Queenstown",
+      "median_resale_price": 838714,
+      "median_monthly_rent": 3300,
+      "median_annual_rent": 39600,
+      "gross_yield_pct": 4.72,
+      "n_resale": 692,
+      "n_rental": 1587,
+      "rank": 24
+    },
+    {
+      "town": "Bukit Timah",
+      "median_resale_price": 990000,
+      "median_monthly_rent": 3500,
+      "median_annual_rent": 42000,
+      "gross_yield_pct": 4.24,
+      "n_resale": 57,
+      "n_rental": 114,
+      "rank": 25
+    }
+  ]
+}

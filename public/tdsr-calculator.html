@@ -249,7 +249,23 @@
     .info-item .ii-desc  { color: var(--ink-soft); font-size: 13px; line-height: 1.55; margin-top: 3px; }
   </style>
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"TDSR &amp; Affordability Calculator Singapore Winfred Quek","item":"https://winfredquek.com/tdsr-calculator"}]}
+</script>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"TDSR &amp; Affordability Calculator Singapore Winfred Quek, Crestbrick","url":"https://winfredquek.com/tdsr-calculator","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Calculate your TDSR headroom, max loan quantum, and monthly installment under Singapore MAS rules. Includes MSR check for HDB and EC. By Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about"}}
+</script>
+  <!-- geo-faq (auto) -->
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does the TDSR calculator actually compute?","acceptedAnswer":{"@type":"Answer","text":"It calculates your TDSR ceiling at 55 percent of gross income, subtracts existing debts to find your headroom, then derives the maximum loan that fits using the 4 percent stress rate and your tenure. It also applies the LTV limit for your property count and runs the 30 percent MSR check when the purchase is an HDB flat or EC."}},{"@type":"Question","name":"Why does it use 4 percent for the loan but 3.5 percent for the instalment?","acceptedAnswer":{"@type":"Answer","text":"The maximum loan is sized against the MAS 4 percent stress rate floor, because that is the rate banks must underwrite affordability at. The estimated monthly instalment is shown at a 3.5 percent reference rate as a current market ballpark, giving you a closer sense of likely real payments while the loan ceiling stays conservatively stress tested."}},{"@type":"Question","name":"How do the LTV limits change with property count?","acceptedAnswer":{"@type":"Answer","text":"The tool applies 75 percent LTV for a first housing loan, 45 percent for a second and 35 percent for a third or more, in line with MAS limits. A higher property count means a larger cash and CPF down payment and a smaller loan, so your binding constraint can shift from TDSR to the LTV cap."}},{"@type":"Question","name":"When does MSR apply instead of just TDSR?","acceptedAnswer":{"@type":"Answer","text":"MSR applies on top of TDSR only for HDB flats and Executive Condominiums bought with a bank loan. It caps the housing instalment alone at 30 percent of gross income, which is usually stricter than the 55 percent TDSR limit. For these property types the calculator shows both checks, and the tighter one governs your maximum loan."}},{"@type":"Question","name":"How much cash do I need for the down payment?","acceptedAnswer":{"@type":"Answer","text":"For a first property the down payment is at least 25 percent, of which a minimum of 5 percent must be cash paid at the option stage, with the remaining 20 percent payable from CPF Ordinary Account or cash. For a second or subsequent property the cash component is larger. The calculator estimates the cash and CPF split for you."}}]}
+</script>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebPage","url":"https://winfredquek.com/tdsr-calculator","speakable":{"@type":"SpeakableSpecification","cssSelector":[".geo-quick-answer",".geo-faq-q"]}}
+</script>
+  <meta property="og:site_name" content="Winfred Quek" />
+  <meta property="og:locale" content="en_SG" />
+</head>
 <body>
 
   <!-- TOP NAV -->
@@ -305,6 +321,8 @@
         <h1 class="serif" style="font-size:clamp(2rem,5vw,3rem); font-weight:700; line-height:1.15; margin-bottom:1rem;">
           TDSR &amp; Affordability Calculator
         </h1>
+<div class="geo-quick-answer" style="max-width:48rem;margin:1.25rem auto;padding:1rem 1.25rem;background:#1a1c24;border:1px solid #252830;border-left:3px solid #c6a36a;border-radius:8px;color:#f0ede6;font-size:1.02rem;line-height:1.7;"><strong style="color:#c6a36a;">Quick answer:</strong> This calculator works out your TDSR headroom, maximum loan quantum and estimated monthly instalment under MAS rules, applying the 55 percent TDSR limit, the 30 percent MSR check for HDB and EC, and the 4 percent stress rate, plus LTV limits by property count.</div>
+
         <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.7; max-width:600px; margin:0 auto;">
           Work out your maximum loan quantum, monthly installment, and TDSR headroom under Singapore MAS rules. Includes MSR check for HDB and EC purchases.
         </p>
@@ -565,7 +583,31 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="divider bg-[var(--bg)]">
+  
+<section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What does the TDSR calculator actually compute?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">It calculates your TDSR ceiling at 55 percent of gross income, subtracts existing debts to find your headroom, then derives the maximum loan that fits using the 4 percent stress rate and your tenure. It also applies the LTV limit for your property count and runs the 30 percent MSR check when the purchase is an HDB flat or EC.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Why does it use 4 percent for the loan but 3.5 percent for the instalment?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">The maximum loan is sized against the MAS 4 percent stress rate floor, because that is the rate banks must underwrite affordability at. The estimated monthly instalment is shown at a 3.5 percent reference rate as a current market ballpark, giving you a closer sense of likely real payments while the loan ceiling stays conservatively stress tested.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How do the LTV limits change with property count?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">The tool applies 75 percent LTV for a first housing loan, 45 percent for a second and 35 percent for a third or more, in line with MAS limits. A higher property count means a larger cash and CPF down payment and a smaller loan, so your binding constraint can shift from TDSR to the LTV cap.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">When does MSR apply instead of just TDSR?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">MSR applies on top of TDSR only for HDB flats and Executive Condominiums bought with a bank loan. It caps the housing instalment alone at 30 percent of gross income, which is usually stricter than the 55 percent TDSR limit. For these property types the calculator shows both checks, and the tighter one governs your maximum loan.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How much cash do I need for the down payment?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">For a first property the down payment is at least 25 percent, of which a minimum of 5 percent must be cash paid at the option stage, with the remaining 20 percent payable from CPF Ordinary Account or cash. For a second or subsequent property the cash component is larger. The calculator estimates the cash and CPF split for you.</p>
+  </div>
+</section>
+<footer class="divider bg-[var(--bg)]">
     <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
       <div>
         <p class="serif font-semibold text-lg mb-3">Winfred Quek</p>
