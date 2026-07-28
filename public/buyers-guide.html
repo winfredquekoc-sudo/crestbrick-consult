@@ -60,7 +60,7 @@
     .matrix-intro{font-size:15px;color:var(--ink-soft);line-height:1.7;max-width:680px;margin-bottom:2rem;}
     .bronze-rule{border:none;border-top:1px solid var(--rule);margin:3rem 0;}
   </style>
-  <link rel="stylesheet" href="/motion.css">
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
   <script type="application/ld+json">
   {
@@ -73,7 +73,7 @@
     "telephone": "+65-8161-8149",
     "email": "winfredquekoc@gmail.com",
     "areaServed": { "@type": "Country", "name": "Singapore" },
-    "address": { "@type": "PostalAddress", "addressCountry": "SG" },
+    "address":{"@type":"PostalAddress","streetAddress":"62 Ubi Road 1, #05-04 Oxley BizHub 2","addressLocality":"Singapore","postalCode":"408734","addressCountry":"SG"},
     "identifier": { "@type": "PropertyValue", "propertyID": "CEA", "value": "R073319H" },
     "sameAs": [
       "https://www.linkedin.com/in/winfredquek",
@@ -82,10 +82,10 @@
     ]
   }
   </script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
@@ -468,7 +468,7 @@
     as a bolt-on, but as the baseline of buyer representation.
   </p>
 
-  <!-- FOUR DD PILLARS -->
+  <!-- DUE DILIGENCE STACK -->
   <div class="grid md:grid-cols-2 gap-6 mb-10">
 
     <!-- 1. Seller verification -->
@@ -557,9 +557,9 @@
       </div>
       <div class="flex flex-wrap gap-3 mt-6">
         <a href="/tools/affordability" class="btn btn-ghost">Run the affordability calculator</a>
-        <a href="/tdsr-calculator" class="btn btn-ghost">Check your TDSR headroom</a>
+        <a href="/tools/affordability" class="btn btn-ghost">Check your TDSR headroom</a>
         <a href="/absd-calculator" class="btn btn-ghost">Calculate your ABSD exposure</a>
-        <a href="/stamp-duty-calculator" class="btn btn-ghost">Full stamp duty breakdown</a>
+        <a href="/tools/bsd" class="btn btn-ghost">Full stamp duty breakdown</a>
         <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20help%20with%20financing%20readiness%20and%20a%20mortgage%20broker%20intro." class="btn btn-ghost">Start financing review</a>
       </div>
     </div>

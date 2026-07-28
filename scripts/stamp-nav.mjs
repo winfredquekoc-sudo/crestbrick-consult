@@ -16,8 +16,10 @@ const DRY = process.argv.includes('--dry-run');
 const nav = readFileSync(TEMPLATE, 'utf8').trimEnd();
 
 // Match <header class="topnav...">...</header> non-greedy across newlines.
-// Using a literal regex compiled with the 's' flag (dotAll) so . matches \n.
-const HEADER_RE = /<header class="topnav[^"]*"[^>]*>[\s\S]*?<\/header>/i;
+// Leading [ \t]* on the header line is consumed so re-runs don't accumulate
+// indentation (the template already carries its own 2-space indent) — keeps the
+// stamp idempotent.
+const HEADER_RE = /[ \t]*<header class="topnav[^"]*"[^>]*>[\s\S]*?<\/header>/i;
 
 function* walk(dir) {
   for (const name of readdirSync(dir)) {
@@ -35,7 +37,7 @@ for (const file of walk(PUBLIC)) {
   scanned++;
   const before = readFileSync(file, 'utf8');
   if (!HEADER_RE.test(before)) { noheader++; continue; }
-  const after = before.replace(HEADER_RE, nav);
+  const after = before.replace(HEADER_RE, () => nav); // replacer fn: $-sequences in the template stay literal
   if (after === before) continue;
   changed++;
   if (!DRY) writeFileSync(file, after);

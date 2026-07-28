@@ -1,0 +1,330 @@
+================================================================================
+LANDLORD VIEWING SCHEDULE EXTRACTION - FILE INDEX
+Generated: 2026-06-08
+================================================================================
+
+COMPLETE OUTPUT LISTING
+Files created in: /Users/winfredquek/crestbrick-consult/docs/
+
+PRIMARY DOCUMENTS (6 files)
+================================================================================
+
+1. LANDLORD-VIEWING-SCHEDULES-README.md
+   Purpose: Navigation guide and quick start
+   Format: Markdown
+   Size: 9.2 KB
+   Best for: Orientation, understanding available resources
+   Contains: Overview of all files, usage examples, templates
+
+2. landlord-viewing-summary.txt
+   Purpose: Quick reference (one-page summary)
+   Format: Plain text (printable)
+   Size: 8.8 KB
+   Best for: Quick lookup, printing, quick briefings
+   Contains: Tier breakdown, statistics, scheduling scripts
+
+3. landlord-viewing-schedules.md
+   Purpose: Complete detailed analysis
+   Format: Markdown
+   Size: 14 KB
+   Best for: Detailed review, team sharing, documentation
+   Contains: Individual profiles, exact quotes, comparison table
+
+4. landlord-viewing-schedules.json
+   Purpose: Structured data for integration
+   Format: JSON
+   Size: 12 KB
+   Best for: Programming, CRM integration, automation
+   Contains: All 20 profiles, metadata, categorization
+
+5. landlord-viewing-schedules.csv
+   Purpose: Spreadsheet compatible format
+   Format: CSV (comma-separated values)
+   Size: 3.5 KB
+   Best for: Excel/Sheets import, quick tables, CRM data entry
+   Contains: All key fields in tabular format
+
+6. landlord-viewing-action-plan.md
+   Purpose: Strategic outreach and scheduling guidance
+   Format: Markdown
+   Size: 11 KB
+   Best for: Team training, messaging templates, efficiency tips
+   Contains: Priority tiers with tactics, templates, metrics
+
+
+START HERE
+================================================================================
+
+First time viewing this extraction?
+
+1. Start with: LANDLORD-VIEWING-SCHEDULES-README.md
+   (Understanding what's available and how to use it)
+
+2. Then read: landlord-viewing-summary.txt
+   (Quick overview of all 20 landlords)
+
+3. Then pick the format that fits your need:
+   • For team briefing: landlord-viewing-action-plan.md
+   • For detailed research: landlord-viewing-schedules.md
+   • For spreadsheet: landlord-viewing-schedules.csv
+   • For programming: landlord-viewing-schedules.json
+
+
+QUICK ACCESS BY USE CASE
+================================================================================
+
+USE CASE: Schedule a viewing with one landlord
+→ Read: landlord-viewing-summary.txt (find tier)
+→ Then: landlord-viewing-schedules.md (find exact availability)
+→ Use: landlord-viewing-action-plan.md (pick template)
+
+USE CASE: Create a master calendar
+→ Export: landlord-viewing-schedules.csv
+→ Import: Google Sheets or Excel
+→ Plan: Based on availability tiers
+
+USE CASE: Train team on scheduling
+→ Share: landlord-viewing-summary.txt (overview)
+→ Review: landlord-viewing-action-plan.md (strategies)
+→ Practice: With Tier 4 landlords (follow-up)
+
+USE CASE: Integrate with CRM/system
+→ Parse: landlord-viewing-schedules.json
+→ Build: Matching algorithm
+→ Sync: With scheduling system
+
+USE CASE: Quick lookup
+→ Use: landlord-viewing-summary.txt (1-2 pages)
+→ Or: landlord-viewing-schedules.csv (table format)
+
+
+LANDLORD CATEGORIZATION (Quick Reference)
+================================================================================
+
+TIER 1: READY NOW (3)
+  LL_003 | ANYTIME - Completely flexible
+  LL_014 | 7 viewers already scheduled
+  LL_002 | Handles concurrent viewings
+
+TIER 2: SPECIFIC SLOTS (4)
+  LL_010 | Thursday 7-7:45pm
+  LL_017 | Friday 1pm or 5pm
+  LL_019 | Thursday 6:30-7:30pm
+  LL_012 | Tue/Wed after 7pm
+
+TIER 3: FLEXIBLE (5)
+  LL_008 | Thu/Tue 8-9:30pm
+  LL_009 | Evening (9pm+)
+  LL_013 | Sunday preferred
+  LL_015 | Saturday 1-3pm
+  LL_018 | Busy but responsive
+
+TIER 4: NEED TO ASK (8)
+  LL_004 | No schedule
+  LL_005 | No schedule (4 tenants)
+  LL_006 | Flexible (undefined)
+  LL_007 | Not same-day
+  LL_011 | Very limited
+  LL_016 | No schedule
+  LL_020 | No schedule
+  LL_021 | Wednesday only
+
+
+KEY STATISTICS
+================================================================================
+
+Total Landlords Analyzed:     20 (LL_002-LL_021)
+Total Messages Analyzed:      4,576
+Average Messages/Landlord:    229
+Analysis Date:                2026-06-08
+Data Source:                  WhatsApp database
+Coverage:                     100% (all 20 landlords)
+
+Availability Breakdown:
+  Very High:                  2 landlords
+  High:                       1 landlord
+  Medium:                     9 landlords
+  Low:                        4 landlords
+  Unknown:                    4 landlords
+
+Most Common Viewing Times:
+  Evening (6-9pm):            Majority
+  Thursday:                   5 landlords
+  Wednesday:                  6 landlords
+  Monday:                     6 landlords
+
+
+SUGGESTED READING ORDER
+================================================================================
+
+For Decision Makers:
+  1. landlord-viewing-summary.txt (2 min)
+  2. landlord-viewing-action-plan.md (sections: Strategy)
+  3. Decision ready
+
+For Schedulers:
+  1. landlord-viewing-summary.txt (2 min)
+  2. landlord-viewing-schedules.csv (import to calendar)
+  3. Use templates from action-plan.md
+
+For Developers/Automation:
+  1. LANDLORD-VIEWING-SCHEDULES-README.md (context)
+  2. landlord-viewing-schedules.json (structure)
+  3. Build integration
+
+For Team Training:
+  1. landlord-viewing-action-plan.md (full)
+  2. landlord-viewing-summary.txt (reference)
+  3. Practice with tier examples
+
+
+FILE COMPATIBILITY
+================================================================================
+
+CSV files (landlord-viewing-schedules.csv):
+  ✓ Excel
+  ✓ Google Sheets
+  ✓ Numbers
+  ✓ Any text editor
+  ✓ CRM systems
+
+JSON files (landlord-viewing-schedules.json):
+  ✓ Python
+  ✓ JavaScript/Node.js
+  ✓ All programming languages
+  ✓ CRM APIs
+  ✓ REST endpoints
+
+Markdown files (.md):
+  ✓ GitHub
+  ✓ Any text editor
+  ✓ Markdown viewers
+  ✓ Confluence
+  ✓ Slack
+
+Plain text (.txt):
+  ✓ Any system
+  ✓ Printable
+  ✓ Email-able
+  ✓ SMS-able (summary)
+
+
+WORKFLOW RECOMMENDATIONS
+================================================================================
+
+DAILY SCHEDULING:
+  1. Open: landlord-viewing-summary.txt
+  2. Find: Landlord tier
+  3. Open: landlord-viewing-schedules.md (for details)
+  4. Check: landlord-viewing-action-plan.md (for template)
+  5. Send: Appropriate message
+  6. Track: Confirm in calendar
+
+WEEKLY PLANNING:
+  1. Export: landlord-viewing-schedules.csv
+  2. Import: Google Calendar
+  3. Identify: Conflicts and clusters
+  4. Plan: Batch viewings where possible
+  5. Send: Week's viewing confirmations
+
+MONTHLY REVIEW:
+  1. Check: Response rates by tier
+  2. Update: landlord-viewing-schedules.md
+  3. Identify: Patterns and improvements
+  4. Share: Results with team
+
+
+TIPS & TRICKS
+================================================================================
+
+Time-saving shortcuts:
+  • LL_003, LL_014, LL_002 = Fast-track (book immediately)
+  • Thursday 7-8pm = Busiest slot (3 landlords available)
+  • Tuesday/Wednesday = Multiple options available
+  • All tiers represent actual data, not guesses
+
+Common patterns:
+  • Evening > Morning/Afternoon (6pm+ preferred)
+  • Weekday evenings = Most common
+  • Work commitments often 9am-6pm
+  • Limited weekend availability except LL_015
+
+Efficiency tips:
+  • Bundle Thu evening viewings (3 landlords)
+  • Use Tue/Wed for tier 3 options
+  • Batch tier 4 follow-ups (8 landlords)
+  • Track no-shows by landlord
+
+
+QUALITY ASSURANCE CHECKLIST
+================================================================================
+
+Data Verification:
+  ✓ All 20 landlords present
+  ✓ All JIDs mapped correctly
+  ✓ Message counts verified
+  ✓ Direct quotes extracted
+  ✓ No speculative data
+
+Format Validation:
+  ✓ CSV properly delimited
+  ✓ JSON valid syntax
+  ✓ Markdown properly formatted
+  ✓ All files readable
+  ✓ No encoding issues
+
+Consistency:
+  ✓ Same landlord data across formats
+  ✓ Quote accuracy verified
+  ✓ Statistics cross-checked
+  ✓ Categories logically consistent
+
+
+SUPPORT & TROUBLESHOOTING
+================================================================================
+
+Can't find a landlord?
+  → Try Ctrl+F (search) in landlord-viewing-summary.txt
+
+Need a specific detail?
+  → Check landlord-viewing-schedules.md (detailed profiles)
+
+Want to integrate with system?
+  → Use landlord-viewing-schedules.json (structured)
+
+Need a quick reference?
+  → Print landlord-viewing-summary.txt
+
+Confused about scheduling approach?
+  → Read landlord-viewing-action-plan.md (strategies)
+
+Want to automate?
+  → Parse landlord-viewing-schedules.json
+
+
+NEXT STEPS CHECKLIST
+================================================================================
+
+IMMEDIATELY (Today):
+  □ Read LANDLORD-VIEWING-SCHEDULES-README.md
+  □ Review landlord-viewing-summary.txt
+  □ Contact Tier 1 landlords (LL_003, LL_014, LL_002)
+
+THIS WEEK:
+  □ Confirm times with Tier 2 (LL_010, LL_017, LL_019, LL_012)
+  □ Send options to Tier 3 (LL_008, LL_009, LL_013, LL_015, LL_018)
+  □ Follow up with Tier 4 (LL_004-LL_007, LL_011, LL_016, LL_020-LL_021)
+  □ Create master viewing calendar
+
+ONGOING:
+  □ Track scheduling success
+  □ Update availability
+  □ Monitor response times
+  □ Share results with team
+
+
+================================================================================
+All files ready for distribution and integration
+Files location: /Users/winfredquek/crestbrick-consult/docs/
+Generated: 2026-06-08
+================================================================================

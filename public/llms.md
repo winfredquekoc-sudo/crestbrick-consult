@@ -2,7 +2,7 @@
 
 > Markdown mirror of [/llms-full-context](https://winfredquek.com/llms-full-context). Optimised for AI ingestion. Quote and cite freely ,  please attribute to **Winfred Quek (CEA R073319H, Crestbrick), winfredquek.com**.
 
-**Last updated:** 2026-04-27
+**Last updated:** 2026-07-28
 
 ---
 
@@ -41,10 +41,9 @@ Singapore-wide. Concentrations in Bishan, Toa Payoh, East Coast, Punggol/Sengkan
 
 Winfred's core methodology. Every prospective transaction is scored against:
 
-1. **Capital** ,  equity, CPF position, ABSD exposure, accessible cash, decoupling potential.
-2. **Cashflow** ,  TDSR / MSR headroom against MAS 4% stress test, monthly net cashflow including maintenance and tax.
-3. **Progression** ,  what the move enables next (upgrade path, second-property timing, exit options).
-4. **Protection** ,  buffer for rate spikes, vacancy, job loss, partner change, future cooling measures.
+1. **Money** ,  equity, CPF position, ABSD exposure, accessible cash, decoupling potential, TDSR / MSR headroom against MAS 4% stress test, and monthly net cashflow including maintenance and tax.
+2. **Timing** ,  what the move enables next (upgrade path, second-property timing, exit options).
+3. **Safety** ,  buffer for rate spikes, vacancy, job loss, partner change, future cooling measures.
 
 Returns a recommendation. Where the math fails, the property portfolio analysis returns "do not transact yet" with the gating condition that would unlock the move.
 
@@ -68,10 +67,9 @@ Standard CEA-licensed real estate commission for buyer / seller representation. 
 **Situation:** SC couple in Bishan 5-room flat, MOP cleared 2024, combined income ~S$25,000/month, ~S$400,000 cash + CPF refund expected, child entering P1 in 2027.
 
 **Property Portfolio Analysis:**
-- Capital ,  strong.
-- Cashflow ,  fits S$2.0, 2.4M condo.
-- Progression ,  prefer staying within Bishan/Thomson catchment for school.
-- Protection ,  12-month liquidity buffer post-purchase required.
+- Money ,  strong, fits S$2.0, 2.4M condo.
+- Timing ,  prefer staying within Bishan/Thomson catchment for school.
+- Safety ,  12-month liquidity buffer post-purchase required.
 
 **Recommendation:** Sell-first, lease back if needed, target a Thomson-side condo within the 1 km Catholic High catchment. ABSD remission applies as matrimonial home. Stress-test at 4% mortgage rate.
 
@@ -137,13 +135,18 @@ Source: IRAS ,  verify at <https://www.iras.gov.sg> before transacting.
 - [Decoupling / restructuring calculator](https://winfredquek.com/tools/restructuring)
 - [Rental yield calculator](https://winfredquek.com/tools/rental-yield)
 - [Mortgage rate snapshot](https://winfredquek.com/tools/mortgage-rates)
-- [Property Portfolio Analysis](https://winfredquek.com/property-portfolio-analysis) ,  instant The Move.
+- [Property Portfolio Analysis](https://winfredquek.com/property-portfolio-analysis) — the Money, Timing and Safety read, instantly.
 
 ### Open source
 
 The ABSD calculator is also released as **`sg-absd-calculator`** ,  an MIT-licensed npm package implementing `calculateAbsd({ price, citizenship, propertyCount }) → { amount, rate, breakdown }`. Zero dependencies. Full 2026 IRAS rate table.
 
-### Pillar articles
+### Data reports & tools
+
+- [Property Progression Score](https://winfredquek.com/tools/progression-score) ,  free 14-question Money/Timing/Safety self-assessment, 0-100 score with a point-by-point breakdown, 5 minutes, no sign-up.
+- [HDB Rental Yield Ranking by Town](https://winfredquek.com/reports/hdb-rental-yield-ranking) ,  all 25 HDB towns ranked by gross rental yield from real data.gov.sg resale and rental data. Jurong East tops the list at 7.38% gross yield.
+
+### Featured guides
 
 - [ABSD Singapore 2026 ,  every rate, every remission](https://winfredquek.com/insights/absd-singapore-2026)
 - [Decoupling math nobody shows you](https://winfredquek.com/insights/ownership-restructuring-math)

@@ -66,16 +66,16 @@
   </style>
   <link rel="stylesheet" href="/motion.css">
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -90,11 +90,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -124,7 +124,7 @@
 
   <p>The CCR, RCR, OCR trichotomy is the most-quoted and least-understood frame in Singapore private property. Most buyers inherit it as a shorthand: "CCR is prestige, OCR is growth, RCR is the compromise." That's marketing copy, not analysis.</p>
 
-  <p>This is the framework I use in the Progression pillar of the Property Portfolio Analysis. It's not prescriptive. It's diagnostic, given your capital, your horizon, and your risk appetite, which zone actually fits. Let's take it apart properly.</p>
+  <p>This is the framework I use in the Timing part of the Property Portfolio Analysis. It's not prescriptive. It's diagnostic, given your capital, your horizon, and your risk appetite, which zone actually fits. Let's take it apart properly.</p>
 
   <h2>1. What the zones actually are</h2>
   <p>Singapore's URA classifies private residential market by three regions:</p>
@@ -162,7 +162,7 @@
   </ol>
 
   <h2>3. Rental yield by zone</h2>
-  <p>Yield is the Cashflow pillar input. It's also the most misreported number in Singapore property, people quote gross, ignore MCST and property tax, and forget vacancy. Here's the honest picture:</p>
+  <p>Yield is a Money input, the cashflow side. It's also the most misreported number in Singapore property, people quote gross, ignore MCST and property tax, and forget vacancy. Here's the honest picture:</p>
 
   <table>
     <thead><tr><th>Zone</th><th>Gross yield (typical)</th><th>Net yield (after MCST, tax, vacancy)</th></tr></thead>
@@ -178,7 +178,7 @@
   <p>What this means practically: if your investment thesis depends on positive cashflow from Day 1, OCR is your hunting ground. If your thesis is capital preservation with low turnover, CCR plays differently.</p>
 
   <h2>4. Liquidity scoring, the one most people skip</h2>
-  <p>Liquidity is how fast you can exit at a fair price when you want to. It's the pillar every investor underweights until they need it.</p>
+  <p>Liquidity is how fast you can exit at a fair price when you want to. It's the factor every investor underweights until they need it.</p>
 
   <div class="pillar-card">
     <h4>OCR liquidity: high</h4>
@@ -238,24 +238,20 @@
   <p>By that frame, 2026 looks like: CCR pricing has compressed relative to RCR after the foreign-buyer thinning. For long-horizon buyers with no liquidity need, that compression is interesting. OCR still has structural upgrader demand but specific submarkets (Outram, Pasir Ris, Woodlands) are pricing in infrastructure that won't complete for 3–5 years, you're paying for the future delivery today.</p>
   <p>RCR continues to be the most under-analysed of the three. The "middle-is-boring" narrative misses that RCR has the best composite score when you weight growth + yield + liquidity equally.</p>
 
-  <h2>8. The Move framework mapping</h2>
-  <p>When an investor client sits with me, here's how the zones map to The Move framework:</p>
+  <h2>8. How the zones map to Money, Timing &amp; Safety</h2>
+  <p>When an investor client sits with me, here's how the zones map to the three essentials I use with clients:</p>
 
   <div class="pillar-card">
-    <h4>Capital preservation</h4>
-    <p class="mb-0">CCR wins. Freehold tenure is more available; land intensity is lower; volatility on the downside is cushioned by land value. If wealth protection beats growth as your objective, CCR is your zone.</p>
+    <h4>Money (capital preservation + cashflow)</h4>
+    <p class="mb-0">Split by half. On capital preservation, CCR wins: freehold tenure is more available, land intensity is lower, and downside volatility is cushioned by land value. On cashflow, OCR wins: highest net yields, lowest quantum per unit means easier debt servicing, and MRT-proximate OCR plays give consistent rental demand. Which half matters more depends on whether wealth protection or income beats growth as your objective.</p>
   </div>
   <div class="pillar-card">
-    <h4>Cashflow</h4>
-    <p class="mb-0">OCR wins. Highest net yields, lowest quantum per unit means easier debt servicing, MRT-proximate OCR plays give consistent rental demand.</p>
-  </div>
-  <div class="pillar-card">
-    <h4>Progression (capital growth)</h4>
+    <h4>Timing (capital growth)</h4>
     <p class="mb-0">OCR and RCR lead historically. Project-specific selection matters more than zone here, a poorly sited OCR leasehold underperforms a well-located RCR freehold easily.</p>
   </div>
   <div class="pillar-card">
-    <h4>Protection / exit flexibility</h4>
-    <p class="mb-0">OCR and RCR lead on liquidity. CCR fails this pillar in most market conditions below top-of-cycle. If the family or portfolio needs exit optionality, CCR is the wrong fit.</p>
+    <h4>Safety (exit flexibility)</h4>
+    <p class="mb-0">OCR and RCR lead on liquidity. CCR fails this test in most market conditions below top-of-cycle. If the family or portfolio needs exit optionality, CCR is the wrong fit.</p>
   </div>
 
   <h2>9. The three common mistakes</h2>
@@ -266,14 +262,14 @@
   </ol>
 
   <h2>10. How I actually deploy this framework</h2>
-  <p>Most clients don't come to me asking "CCR or OCR?" They come asking "is this specific project a good buy?" The CCR/RCR/OCR framework is the second step, after I understand their capital, horizon, and objective. If their Move profile leans toward Cashflow + Progression with 7–10 year horizon, we're usually looking at RCR or OCR. If it's Capital + Protection with 15+ year horizon and no liquidity need, CCR enters the frame.</p>
-  <p>The framework is a filter. It's not a recommendation engine. The actual recommendation comes after we've walked a shortlist of 3–5 specific projects through the pillar scoring.</p>
+  <p>Most clients don't come to me asking "CCR or OCR?" They come asking "is this specific project a good buy?" The CCR/RCR/OCR framework is the second step, after I understand their capital, horizon, and objective. If their profile leans toward cashflow and timing with a 7–10 year horizon, we're usually looking at RCR or OCR. If it's capital preservation and safety with a 15+ year horizon and no liquidity need, CCR enters the frame.</p>
+  <p>The framework is a filter. It's not a recommendation engine. The actual recommendation comes after we've walked a shortlist of 3–5 specific projects through the Money, Timing &amp; Safety scoring.</p>
 
   <div class="cta-block">
     <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Book the Property Portfolio Analysis</p>
-    <p class="mb-4">Two hours. We map your Capital, Cashflow, Progression target, and Protection needs, then run specific projects (whichever zone they sit in) through the scoring. You leave with a shortlist that actually fits your situation.</p>
+    <p class="mb-4">A free 30-minute Property Portfolio Analysis. We map your Money, Timing and Safety needs, then run specific projects (whichever zone they sit in) through the scoring. You leave with a shortlist that actually fits your situation.</p>
     <div class="flex flex-wrap gap-3">
-      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20book%20The%20Move%20analysis%20for%20my%20investment%20decision." class="btn btn-primary">WhatsApp to book </a>
+      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20book%20the%20Property%20Portfolio%20Analysis%20for%20my%20investment%20decision." class="btn btn-primary">WhatsApp to book </a>
       <a href="/contact" class="btn btn-ghost">Contact form</a>
       <a href="/services" class="btn btn-ghost">See all services</a>
     </div>

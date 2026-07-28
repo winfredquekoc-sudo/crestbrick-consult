@@ -41,7 +41,7 @@
     @keyframes wa-pulse{0%,100%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4),0 0 0 0 rgba(37,211,102,.55);}50%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4),0 0 0 14px rgba(37,211,102,0);}}
     #wa-float.wa-pulsing{animation:wa-pulse 1s ease-out 2;}
   </style>
-  <link rel="stylesheet" href="/motion.css">
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-T6C46CFKCM"></script>
@@ -54,11 +54,11 @@
     function trackFormSubmit(type) { gtag('event','form_submit',{form_type:type}); }
   </script>
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
   <!-- TOP NAV -->
-        <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
@@ -115,6 +115,15 @@
         Before you list, you need to know exactly what you'll walk away with, after CPF refund, agent fees, loan clearance, and taxes. Most sellers find out at the end. We start there.
       </p>
     </section>
+
+    <!-- Free valuation report banner -->
+    <section class="max-w-5xl mx-auto px-6 py-6">
+      <a href="/sell-with-winfred" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:linear-gradient(135deg,#1a1610,#221c12);border:1px solid rgba(198,163,106,0.35);border-radius:12px;padding:1.25rem 1.5rem;text-decoration:none;">
+        <span style="color:var(--ink);font-weight:600;">Thinking of selling? Get your free valuation report, prepared personally within 24 hours.</span>
+        <span class="btn btn-primary" style="white-space:nowrap;">Get your free valuation &rarr;</span>
+      </a>
+    </section>
+
 
     <div class="divider max-w-5xl mx-auto"></div>
 
