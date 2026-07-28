@@ -86,6 +86,10 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
 </div>
 
 <script>
+function pad2(n){ return String(n).padStart(2,'0'); }
+function localISODate(d){
+  return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+}
 function addDays(dateStr, days){
   const d = new Date(dateStr + 'T00:00:00');
   d.setDate(d.getDate() + days);
@@ -139,8 +143,7 @@ function render(){
   const ptype = document.getElementById('ptype').value;
   let startVal = document.getElementById('startdate').value;
   if (!startVal) {
-    const today = new Date();
-    startVal = today.toISOString().slice(0,10);
+    startVal = localISODate(new Date());
     document.getElementById('startdate').value = startVal;
   }
 
@@ -168,8 +171,7 @@ function render(){
 }
 
 (function(){
-  const today = new Date();
-  document.getElementById('startdate').value = today.toISOString().slice(0,10);
+  document.getElementById('startdate').value = localISODate(new Date());
 })();
 render();
 </script>
