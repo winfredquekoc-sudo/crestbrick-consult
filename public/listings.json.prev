@@ -1,7 +1,7 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-07-29T07:14:14+08:00",
+  "synced_at": "2026-07-29T07:42:50+08:00",
   "count": 17,
   "listings": [
     {
@@ -31,7 +31,7 @@
     },
     {
       "id": "private-room-balestier-ll087",
-      "title": "Private Room — Balestier (Toa Payoh)",
+      "title": "Private Room — Balestier",
       "type": "Condo",
       "transaction": "rent",
       "price": 2500,
@@ -60,7 +60,7 @@
     },
     {
       "id": "common-room-bayshore-park-ll070",
-      "title": "Common Room — Bayshore Park (Bedok)",
+      "title": "Common Room — Bayshore Park",
       "type": "Condo",
       "transaction": "rent",
       "price": 1300,
@@ -72,7 +72,7 @@
     },
     {
       "id": "master-room-26-bayshore-road-ll001",
-      "title": "Master Room — 26 Bayshore Road (Bedok)",
+      "title": "Master Room — 26 Bayshore Road",
       "type": "Condo",
       "transaction": "rent",
       "price": 2300,
