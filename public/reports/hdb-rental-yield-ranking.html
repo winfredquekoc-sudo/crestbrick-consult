@@ -1,0 +1,567 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDB Rental Yield Ranking by Town (Singapore 2026) | Winfred Quek</title>
+  <meta property="og:title" content="HDB Rental Yield Ranking by Town (Singapore 2026) | Winfred Quek" />
+  <meta name="description" content="HDB towns ranked by gross rental yield using real data.gov.sg resale and rental data, resale 2025-08–2026-07, rental 2025-07–2026-06. See which towns offer the best rent-to-price ratio in Singapore." />
+  <link rel="canonical" href="https://winfredquek.com/reports/hdb-rental-yield-ranking" />
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <meta name="theme-color" content="#0f1117" />
+  <script defer src="/_vercel/insights/script.js"></script>
+  <style>
+    :root {
+      --bg:#0f1117;--highlight:#1a1c24;
+      --ink:#f0ede6;
+      --ink-soft:#b8b4aa;
+      --ink-muted:#706c64;
+      --accent:#c6a36a;
+      --rule:#252830;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-feature-settings: 'ss01', 'kern';
+      -webkit-font-smoothing: antialiased;
+    }
+    .serif { font-family: 'Fraunces', Georgia, serif; font-feature-settings: 'ss01'; }
+    .balance { text-wrap: balance; }
+    .divider { border-top: 1px solid var(--rule); }
+    .section-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.9rem 1.6rem;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 15px;
+      transition: all 0.15s ease;
+    }
+    .btn-primary { background: var(--ink); color: var(--bg); }
+    .btn-primary:hover { background: var(--accent); }
+    .btn-ghost { color: var(--ink); border: 1px solid var(--rule); }
+    .btn-ghost:hover { border-color: var(--ink); }
+    .topnav a.nav-link { color: var(--ink-soft); font-size: 14px; font-weight: 500; transition: color .15s ease; }
+    .topnav a.nav-link:hover { color: var(--ink); }
+    .topnav a.nav-link.active { color: var(--ink); }
+    .topnav a.nav-link.active::after { content:""; display:block; height:1px; background: var(--accent); margin-top:4px; }
+    #mobile-menu { display: none; }
+    #mobile-menu.open { display: block; }
+    .report-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .report-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      color: var(--ink-soft);
+      font-weight: 600;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      user-select: none;
+      white-space: nowrap;
+    }
+    .report-table th:hover { color: var(--ink); }
+    .report-table th.sorted::after { content: " \25BE"; color: var(--accent); }
+    .report-table td { padding: 9px 14px; color: var(--ink-soft); border-bottom: 1px solid var(--rule); }
+    .report-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .report-table td.accent { color: var(--accent); font-weight: 600; }
+    .report-table tr:first-child td { color: var(--ink); }
+    .cta-strip {
+      background: linear-gradient(135deg, #14161c 0%, #1e2030 100%);
+      border: 1px solid var(--rule);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+    .citation-box {
+      background: rgba(198,163,106,0.08);
+      border: 1px solid rgba(198,163,106,0.25);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      font-size: 13px;
+      color: var(--ink-soft);
+      line-height: 1.6;
+    }
+    .methodology-box {
+      background: #14161c;
+      border: 1px solid var(--rule);
+      border-radius: 10px;
+      padding: 1.5rem 1.75rem;
+      font-size: 14px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+    @keyframes wa-pulse {
+      0%, 100% { box-shadow: 0 10px 30px -5px rgba(37,211,102,0.4), 0 0 0 0 rgba(37,211,102,0.55); }
+      50%       { box-shadow: 0 10px 30px -5px rgba(37,211,102,0.4), 0 0 0 14px rgba(37,211,102,0); }
+    }
+    #wa-float.wa-pulsing { animation: wa-pulse 1s ease-out 2; }
+  </style>
+  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+  <script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [{"@type": "ListItem", "position": 1, "name": "Home", "item": "https://winfredquek.com/"}, {"@type": "ListItem", "position": 2, "name": "Reports", "item": "https://winfredquek.com/reports"}, {"@type": "ListItem", "position": 3, "name": "HDB Rental Yield Ranking", "item": "https://winfredquek.com/reports/hdb-rental-yield-ranking"}]}
+  </script>
+  <script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Dataset", "name": "HDB Rental Yield Ranking by Town (Singapore, resale 2025-08\u20132026-07, rental 2025-07\u20132026-06)", "description": "Gross rental yield for every Singapore HDB town, ranked, computed from median resale prices and median rents over the trailing 12 months of HDB transactions.", "url": "https://winfredquek.com/reports/hdb-rental-yield-ranking", "keywords": ["HDB", "rental yield", "Singapore", "resale price", "median rent", "property investment"], "creator": {"@type": "Person", "name": "Winfred Quek", "identifier": "CEA R073319H"}, "publisher": {"@type": "Organization", "name": "Crestbrick Pte Ltd", "identifier": "L31010886H"}, "temporalCoverage": "resale 2025-08\u20132026-07, rental 2025-07\u20132026-06", "license": "https://data.gov.sg/open-data-licence", "isBasedOn": [{"@type": "Dataset", "name": "HDB Resale Prices", "identifier": "d_8b84c4ee58e3cfc0ece0d773c8ca6abc", "url": "https://data.gov.sg/datasets/d_8b84c4ee58e3cfc0ece0d773c8ca6abc/view"}, {"@type": "Dataset", "name": "Renting Out of Flats", "identifier": "d_c9f57187485a850908655db0e8cfe651", "url": "https://data.gov.sg/datasets/d_c9f57187485a850908655db0e8cfe651/view"}], "distribution": {"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "https://winfredquek.com/reports/hdb-rental-yield-ranking.json"}}
+  </script>
+  <script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "Article", "headline": "HDB Rental Yield Ranking by Town (Singapore, resale 2025-08\u20132026-07, rental 2025-07\u20132026-06)", "description": "Jurong East leads 25 ranked HDB towns with a gross rental yield of 7.38%, against a low of 4.24% in Bukit Timah. Gross yield is annual rent divided by resale price -- it excludes property tax, maintenance, agent commission and vacancy, so real net yield will be lower.", "image": "https://winfredquek.com/img/og-image.jpg", "author": {"@type": "Person", "name": "Winfred Quek", "url": "https://winfredquek.com/about", "jobTitle": "Associate Marketing Consultant", "identifier": "CEA R073319H"}, "publisher": {"@type": "Organization", "name": "Crestbrick Pte Ltd", "identifier": "L31010886H"}, "datePublished": "2026-07-27", "dateModified": "2026-07-27", "mainEntityOfPage": "https://winfredquek.com/reports/hdb-rental-yield-ranking"}
+  </script>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about.html">About</a>
+        <a class="nav-link" href="/services.html">Services</a>
+        <a class="nav-link" href="/listings.html">Listings</a>
+        <a class="nav-link" href="/new-launches.html">New Launches</a>
+        <a class="nav-link" href="/districts.html">Districts</a>
+        <a class="nav-link" href="/buyers-guide.html">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide.html">Sellers Guide</a>
+        <a class="nav-link" href="/insights.html">Insights</a><a class="nav-link" href="/faq.html">FAQ</a>
+        <a class="nav-link" href="/track-record.html">Track Record</a>
+        <a class="nav-link" href="/testimonials.html">Testimonials</a>
+        <a class="nav-link" href="/contact.html">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section style="padding: 4rem 1.5rem 2rem;">
+      <div class="max-w-3xl mx-auto text-center">
+        <p class="section-label mb-3">Singapore Property Data Report</p>
+        <h1 class="serif" style="font-size:clamp(1.8rem,4.5vw,2.75rem); font-weight:700; line-height:1.2; margin-bottom:1rem;">
+          HDB Rental Yield Ranking by Town
+        </h1>
+        <p style="color:var(--ink-soft); font-size:1.05rem; line-height:1.7; max-width:640px; margin:0 auto;">
+          Jurong East leads 25 ranked HDB towns with a gross rental yield of 7.38%, against a low of 4.24% in Bukit Timah. Gross yield is annual rent divided by resale price -- it excludes property tax, maintenance, agent commission and vacancy, so real net yield will be lower.
+        </p>
+      </div>
+    </section>
+
+    <!-- Table -->
+    <section style="padding: 0 1.5rem 3rem;">
+      <div class="max-w-5xl mx-auto" style="overflow-x:auto; background:#14161c; border:1px solid var(--rule); border-radius:12px; padding:1.5rem;">
+        <p class="section-label mb-3">Ranked by gross rental yield &middot; click a column to sort</p>
+        <table class="report-table" id="yield-table">
+          <thead>
+            <tr>
+              <th data-key="rank" class="sorted">Rank</th>
+              <th data-key="town">Town</th>
+              <th data-key="price">Median Resale Price</th>
+              <th data-key="rent">Median Annual Rent</th>
+              <th data-key="yield">Gross Yield</th>
+              <th data-key="n">Sample Size</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td data-sort="1">1</td>
+              <td data-sort="Jurong East">Jurong East</td>
+              <td data-sort="520000">S$520,000</td>
+              <td data-sort="38400">S$38,400</td>
+              <td data-sort="7.38" class="accent">7.38%</td>
+              <td data-sort="1480">455 resale / 1025 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="2">2</td>
+              <td data-sort="Jurong West">Jurong West</td>
+              <td data-sort="565000">S$565,000</td>
+              <td data-sort="41400">S$41,400</td>
+              <td data-sort="7.33" class="accent">7.33%</td>
+              <td data-sort="4167">1453 resale / 2714 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="3">3</td>
+              <td data-sort="Marine Parade">Marine Parade</td>
+              <td data-sort="565000">S$565,000</td>
+              <td data-sort="38400">S$38,400</td>
+              <td data-sort="6.8" class="accent">6.80%</td>
+              <td data-sort="511">130 resale / 381 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="4">4</td>
+              <td data-sort="Ang Mo Kio">Ang Mo Kio</td>
+              <td data-sort="516900">S$516,900</td>
+              <td data-sort="34800">S$34,800</td>
+              <td data-sort="6.73" class="accent">6.73%</td>
+              <td data-sort="2909">882 resale / 2027 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="5">5</td>
+              <td data-sort="Yishun">Yishun</td>
+              <td data-sort="540000">S$540,000</td>
+              <td data-sort="36000">S$36,000</td>
+              <td data-sort="6.67" class="accent">6.67%</td>
+              <td data-sort="3547">1529 resale / 2018 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="6">6</td>
+              <td data-sort="Bedok">Bedok</td>
+              <td data-sort="545000">S$545,000</td>
+              <td data-sort="36000">S$36,000</td>
+              <td data-sort="6.61" class="accent">6.61%</td>
+              <td data-sort="3314">1196 resale / 2118 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="7">7</td>
+              <td data-sort="Choa Chu Kang">Choa Chu Kang</td>
+              <td data-sort="590888">S$590,888</td>
+              <td data-sort="37800">S$37,800</td>
+              <td data-sort="6.4" class="accent">6.40%</td>
+              <td data-sort="2304">982 resale / 1322 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="8">8</td>
+              <td data-sort="Woodlands">Woodlands</td>
+              <td data-sort="590000">S$590,000</td>
+              <td data-sort="37200">S$37,200</td>
+              <td data-sort="6.31" class="accent">6.31%</td>
+              <td data-sort="3604">1760 resale / 1844 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="9">9</td>
+              <td data-sort="Geylang">Geylang</td>
+              <td data-sort="580000">S$580,000</td>
+              <td data-sort="36000">S$36,000</td>
+              <td data-sort="6.21" class="accent">6.21%</td>
+              <td data-sort="1758">663 resale / 1095 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="10">10</td>
+              <td data-sort="Sembawang">Sembawang</td>
+              <td data-sort="600000">S$600,000</td>
+              <td data-sort="37200">S$37,200</td>
+              <td data-sort="6.2" class="accent">6.20%</td>
+              <td data-sort="1844">866 resale / 978 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="11">11</td>
+              <td data-sort="Clementi">Clementi</td>
+              <td data-sort="620000">S$620,000</td>
+              <td data-sort="38400">S$38,400</td>
+              <td data-sort="6.19" class="accent">6.19%</td>
+              <td data-sort="1904">526 resale / 1378 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="12">12</td>
+              <td data-sort="Bukit Panjang">Bukit Panjang</td>
+              <td data-sort="608000">S$608,000</td>
+              <td data-sort="36660">S$36,660</td>
+              <td data-sort="6.03" class="accent">6.03%</td>
+              <td data-sort="1726">772 resale / 954 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="13">13</td>
+              <td data-sort="Hougang">Hougang</td>
+              <td data-sort="628000">S$628,000</td>
+              <td data-sort="37200">S$37,200</td>
+              <td data-sort="5.92" class="accent">5.92%</td>
+              <td data-sort="2986">1217 resale / 1769 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="14">14</td>
+              <td data-sort="Bukit Batok">Bukit Batok</td>
+              <td data-sort="618000">S$618,000</td>
+              <td data-sort="36000">S$36,000</td>
+              <td data-sort="5.83" class="accent">5.83%</td>
+              <td data-sort="2921">1325 resale / 1596 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="15">15</td>
+              <td data-sort="Pasir Ris">Pasir Ris</td>
+              <td data-sort="720000">S$720,000</td>
+              <td data-sort="42000">S$42,000</td>
+              <td data-sort="5.83" class="accent">5.83%</td>
+              <td data-sort="1748">707 resale / 1041 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="16">16</td>
+              <td data-sort="Sengkang">Sengkang</td>
+              <td data-sort="660000">S$660,000</td>
+              <td data-sort="38400">S$38,400</td>
+              <td data-sort="5.82" class="accent">5.82%</td>
+              <td data-sort="4185">1709 resale / 2476 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="17">17</td>
+              <td data-sort="Serangoon">Serangoon</td>
+              <td data-sort="661888">S$661,888</td>
+              <td data-sort="38400">S$38,400</td>
+              <td data-sort="5.8" class="accent">5.80%</td>
+              <td data-sort="1206">365 resale / 841 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="18">18</td>
+              <td data-sort="Punggol">Punggol</td>
+              <td data-sort="675000">S$675,000</td>
+              <td data-sort="38400">S$38,400</td>
+              <td data-sort="5.69" class="accent">5.69%</td>
+              <td data-sort="3343">1548 resale / 1795 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="19">19</td>
+              <td data-sort="Tampines">Tampines</td>
+              <td data-sort="710000">S$710,000</td>
+              <td data-sort="40200">S$40,200</td>
+              <td data-sort="5.66" class="accent">5.66%</td>
+              <td data-sort="4317">1853 resale / 2464 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="20">20</td>
+              <td data-sort="Kallang/Whampoa">Kallang/Whampoa</td>
+              <td data-sort="725000">S$725,000</td>
+              <td data-sort="39600">S$39,600</td>
+              <td data-sort="5.46" class="accent">5.46%</td>
+              <td data-sort="2167">708 resale / 1459 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="21">21</td>
+              <td data-sort="Bukit Merah">Bukit Merah</td>
+              <td data-sort="790000">S$790,000</td>
+              <td data-sort="42000">S$42,000</td>
+              <td data-sort="5.32" class="accent">5.32%</td>
+              <td data-sort="3033">896 resale / 2137 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="22">22</td>
+              <td data-sort="Bishan">Bishan</td>
+              <td data-sort="840444">S$840,444</td>
+              <td data-sort="43200">S$43,200</td>
+              <td data-sort="5.14" class="accent">5.14%</td>
+              <td data-sort="1145">380 resale / 765 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="23">23</td>
+              <td data-sort="Toa Payoh">Toa Payoh</td>
+              <td data-sort="780000">S$780,000</td>
+              <td data-sort="37200">S$37,200</td>
+              <td data-sort="4.77" class="accent">4.77%</td>
+              <td data-sort="2571">983 resale / 1588 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="24">24</td>
+              <td data-sort="Queenstown">Queenstown</td>
+              <td data-sort="838714">S$838,714</td>
+              <td data-sort="39600">S$39,600</td>
+              <td data-sort="4.72" class="accent">4.72%</td>
+              <td data-sort="2279">692 resale / 1587 rental</td>
+            </tr>
+            <tr>
+              <td data-sort="25">25</td>
+              <td data-sort="Bukit Timah">Bukit Timah</td>
+              <td data-sort="990000">S$990,000</td>
+              <td data-sort="42000">S$42,000</td>
+              <td data-sort="4.24" class="accent">4.24%</td>
+              <td data-sort="171">57 resale / 114 rental</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Methodology -->
+    <section style="padding: 0 1.5rem 2rem;">
+      <div class="max-w-5xl mx-auto methodology-box">
+        <p class="section-label mb-3">Methodology</p>
+        <p>Gross rental yield = (median monthly rent x 12) / median resale price, computed per HDB town over the trailing ~12 months of transactions. Median resale price and median monthly rent are each computed independently across all flat types transacted in that town in the window (not matched unit-for-unit), so this is a town-level approximation, not a same-unit yield. Gross yield excludes property tax, MCST/conservancy charges, maintenance, agent commission, and vacancy periods -- actual net yield is materially lower.</p>
+        <p style="margin-top:0.75rem;">Minimum sample size: 20 transactions on each side (resale and rental) per town, over the window shown below. Towns below this threshold are excluded from the ranking rather than shown with an unreliable figure.</p>
+      </div>
+    </section>
+
+    <!-- Citation -->
+    <section style="padding: 0 1.5rem 3rem;">
+      <div class="max-w-5xl mx-auto citation-box">
+        Source: data.gov.sg (HDB) &mdash; HDB Resale Flat Prices (dataset ID <code>d_8b84c4ee58e3cfc0ece0d773c8ca6abc</code>) and Renting Out of Flats (dataset ID <code>d_c9f57187485a850908655db0e8cfe651</code>). As of resale 2025-08–2026-07, rental 2025-07–2026-06. Report generated 2026-07-27T20:32:25Z.
+      </div>
+    </section>
+
+    <!-- CTA Strip -->
+    <section style="padding: 0 1.5rem 5rem;">
+      <div class="max-w-3xl mx-auto">
+        <div class="cta-strip">
+          <p class="section-label mb-3">Yield is one input, not the whole picture</p>
+          <h3 class="serif" style="font-size:1.5rem; font-weight:600; margin-bottom:0.75rem;">
+            See how yield fits your portfolio &mdash; book the free Property Portfolio Analysis
+          </h3>
+          <p style="color:var(--ink-soft); font-size:0.95rem; margin-bottom:1.5rem; line-height:1.6;">
+            A high headline yield does not automatically mean a good investment for your situation.
+            The Property Portfolio Analysis looks at financing, CPF, tax, and exit strategy alongside yield.
+          </p>
+          <a href="https://calendly.com/winfredquekoc" class="btn btn-primary" style="font-size:15px;">
+            Book the free Property Portfolio Analysis
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="divider bg-[var(--bg)]">
+    <div class="max-w-6xl mx-auto px-6 py-14 grid md:grid-cols-3 gap-10">
+      <div>
+        <p class="serif font-semibold text-lg mb-3">Winfred Quek</p>
+        <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">
+          Investor minded property advisor, Singapore. I help professionals, families,
+          and investors build property portfolios not just buy units.
+        </p>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">
+          Salesperson of <strong class="text-[var(--ink-soft)]">Crestbrick Pte Ltd</strong> (CEA Licence No. L31010886H)<br />
+          CEA Registration No.: <strong class="text-[var(--ink-soft)]">R073319H</strong>
+        </p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Quick links</p>
+        <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
+          <li><a href="/about" class="hover:text-[var(--ink)]">About Winfred</a></li>
+          <li><a href="/services" class="hover:text-[var(--ink)]">Services</a></li>
+          <li><a href="/listings" class="hover:text-[var(--ink)]">Listings</a></li>
+          <li><a href="/insights" class="hover:text-[var(--ink)]">Insights</a></li>
+          <li><a href="/contact" class="hover:text-[var(--ink)]">Contact</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Contact</p>
+        <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
+          <li><a href="https://wa.me/6581618149" class="hover:text-[var(--ink)]">WhatsApp &middot; +65 8161 8149</a></li>
+          <li><a href="tel:+6581618149" class="hover:text-[var(--ink)]">Phone &middot; +65 8161 8149</a></li>
+          <li><a href="mailto:winfredquekoc@gmail.com" class="hover:text-[var(--ink)]">winfredquekoc@gmail.com</a></li>
+          <li><a href="https://calendly.com/winfredquekoc" class="hover:text-[var(--ink)]">Book via Calendly</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-[var(--rule)]">
+      <div class="max-w-6xl mx-auto px-6 py-6 flex flex-col md:flex-row justify-between gap-3 text-xs text-[var(--ink-muted)]">
+        <p>&copy; 2026 Winfred Quek &middot; Crestbrick &middot; CEA R073319H &middot; All rights reserved.</p>
+        <div class="flex gap-4">
+          <a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a>
+          <span>&middot;</span>
+          <span>Winfred Quek (CEA R073319H) is an Associate Marketing Consultant with Crestbrick Pte Ltd (CEA Licence No. L31010886H) and is not a licensed financial adviser or mortgage broker. This report is a factual presentation of public data and does not constitute financial, investment, or property advice.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Disclaimer -->
+    <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+      <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+        Figures on this page are computed from public HDB transaction data published by data.gov.sg and are provided for informational purposes only.
+        Gross rental yield excludes property tax, MCST/conservancy charges, maintenance, agent commission, and vacancy periods, and is not a forecast
+        of future returns. Past transaction data is not indicative of future performance. This report does not constitute investment, financial, or
+        professional advice and should not be relied upon as such. Readers should conduct their own due diligence and seek advice from qualified
+        professionals before making any investment decisions.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Floating WhatsApp CTA -->
+  <a id="wa-float"
+    href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20saw%20the%20HDB%20rental%20yield%20ranking%20report."
+    aria-label="Message Winfred on WhatsApp"
+    class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200"
+    style="box-shadow: 0 10px 30px -5px rgba(37, 211, 102, 0.4);">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+    </svg>
+    <span class="hidden sm:inline">Chat</span>
+  </a>
+
+  <script>
+    (function(){
+      var t = document.getElementById('menu-toggle');
+      var m = document.getElementById('mobile-menu');
+      if(t && m){ t.addEventListener('click', function(){ m.classList.toggle('open'); }); }
+    })();
+    (function(){
+      var btn = document.getElementById('wa-float');
+      if (!btn) return;
+      var fired = false;
+      function pulse() {
+        if (fired) return; fired = true;
+        btn.classList.add('wa-pulsing');
+        setTimeout(function(){ btn.classList.remove('wa-pulsing'); }, 2200);
+        window.removeEventListener('scroll', pulse);
+      }
+      window.addEventListener('scroll', pulse, { passive: true });
+    })();
+
+    // Sortable table
+    (function(){
+      var table = document.getElementById('yield-table');
+      if (!table) return;
+      var ths = table.querySelectorAll('th');
+      var tbody = table.querySelector('tbody');
+      var colIndex = { rank:0, town:1, price:2, rent:3, yield:4, n:5 };
+      var dirState = { rank: 1 };
+      ths.forEach(function(th){
+        th.addEventListener('click', function(){
+          var key = th.getAttribute('data-key');
+          var idx = colIndex[key];
+          var dir = dirState[key] === 1 ? -1 : 1;
+          Object.keys(dirState).forEach(function(k){ delete dirState[k]; });
+          dirState[key] = dir;
+          ths.forEach(function(h){ h.classList.remove('sorted'); });
+          th.classList.add('sorted');
+          var rows = Array.prototype.slice.call(tbody.querySelectorAll('tr'));
+          rows.sort(function(a, b){
+            var av = a.children[idx].getAttribute('data-sort');
+            var bv = b.children[idx].getAttribute('data-sort');
+            var an = parseFloat(av), bn = parseFloat(bv);
+            if (!isNaN(an) && !isNaN(bn)) return dir * (an - bn);
+            return dir * String(av).localeCompare(String(bv));
+          });
+          rows.forEach(function(r){ tbody.appendChild(r); });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
