@@ -1,0 +1,27 @@
+district,area,sourcing_priority,unmatched_waiting,waiting_active,active_listings,total_interested,budget_band,sample_tenants
+D22,"Jurong, Boon Lay, Lakeside",HIGH source now,27,31,0,51,800 to 3700 (median 1200),"Shaunak Ahluwalia, Syed Waqar, Chloe (Xu Xiaohui), Yaobo Liu"
+D5,"Clementi, Buona Vista, NUS, Dover",HIGH source now,19,20,0,41,900 to 2000 (median 1300),"Vera and Chenyu, Marcus, Vera, Fang Yu"
+D23,"Bukit Batok, Choa Chu Kang, Hillview",HIGH source now,14,15,0,29,900 to 1500 (median 1225),"Ms Kuo, Xiangyu, TN142, Yaobo Liu"
+D18,"Tampines, Pasir Ris, Simei",HIGH source now,13,46,1,79,700 to 3700 (median 1200),"Linda Emilia Shalash, Alisha, Li Tang, Jhasmine Kaye Zamora"
+D16,"Bedok, Bayshore",HIGH source now,12,25,1,53,850 to 2500 (median 1200),"Dee, Alisha, Kim Nayoung, TN195"
+D8,"Lavender, Farrer Park, Jellicoe, Little India",HIGH source now,11,11,0,15,1100 to 1400 (median 1200),"Ann and Kai, Thazin Win, Sim Tian Rong, Jerry Low"
+D15,"Katong, Marine Parade, East Coast",HIGH source now,7,19,0,37,850 to 2500 (median 1175),"Li Tang, Jhasmine Kaye Zamora, Tracy, Shawn"
+D9,"Orchard, River Valley",HIGH source now,5,5,0,7,900 to 1500 (median 1300),"Jiayee and TuckJian, Angelina, Kim Nayoung, Ryssa"
+D14,"Geylang, Paya Lebar, Eunos",HIGH source now,5,5,0,6,900 to 1400 (median 1100),"Thazin Win, Sim Tian Rong, Ryssa, Kevin"
+D10,"Bukit Timah, Holland, Tanglin",MEDIUM,4,4,0,7,900 to 1500 (median 1250),"Xinyi, Angelina, Ryssa, Dhibasri Chandrakumar"
+D11,"Newton, Novena, Thomson",MEDIUM,4,4,0,6,900 to 1400 (median 1050),"Angelina, Ryssa, China Andallo, Dhibasri Chandrakumar"
+D19,"Hougang, Sengkang, Punggol",MEDIUM,4,7,1,11,850 to 1300 (median 1100),"Ong Mei Xin, Aaron and Amanda, Qinghua Du and Ke Feng, Tang Hao"
+D3,"Tiong Bahru, Queenstown, Redhill",MEDIUM,3,4,0,5,900 to 1600 (median 1200),"Sheryl and Joo, Dhibasri Chandrakumar, Yvonne"
+D27,"Yishun, Sembawang",MEDIUM,3,3,0,7,800 to 849 (median 824),"Nur Syaqirah, Nick (Malaysian), TN153"
+D21,"Clementi Park, Ulu Pandan",MEDIUM,3,3,0,4,1200 to 2000 (median 1800),"Marcus, Chuah Qi Xuan and Calvin Oscar Hampry, Saung Hnin Phyu"
+D24,"Tengah, Lim Chu Kang",MEDIUM,3,3,0,5,900 to 900 (median 900),"TN339, Kai, YY"
+D1,"City, Marina, Raffles",LOW,2,2,0,3,1300 to 1500 (median 1400),"Jiayu, Oscar"
+D17,"Changi, Loyang",LOW,2,3,0,4,980 to 1000 (median 990),"Amgelynn, XIE"
+D25,"Woodlands, Admiralty",LOW,2,2,0,4,1400 to 2000 (median 1700),"Syed Waqar, Loh Zhang Zhan"
+D12,"Toa Payoh, Balestier, Kallang",LOW,2,2,0,4,900 to 1400 (median 1150),"Thazin Win, Roy Chong"
+D7,"Bugis, Beach Road",LOW,2,2,0,2,1200 to 1400 (median 1300),"Thazin Win, Sim Tian Rong"
+D20,"Bishan, Ang Mo Kio, Upper Thomson",LOW,1,1,0,3,,Wai Phyo Aung
+D4,"Harbourfront, Sentosa, Telok Blangah",LOW,1,1,0,1,1200 to 1200 (median 1200),Saung Hnin Phyu
+D6,City Hall,LOW,1,1,0,2,,Wai Phyo Aung
+D2,"Tanjong Pagar, Shenton",LOW,1,1,0,1,1300 to 1300 (median 1300),Yvonne Tan
+D13,"Macpherson, Potong Pasir",no active demand,0,0,0,1,,

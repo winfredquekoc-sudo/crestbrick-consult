@@ -16,11 +16,11 @@ if [ "$HOUR" -ge 23 ] || [ "$HOUR" -lt 8 ]; then
   exit 0
 fi
 
-# Hourly cadence: 6h lookback overlaps fine; first run after quiet hours
-# needs 10h to cover messages that arrived 23:00-02:00
+# Runs at 08/11/14/17/20; 6h lookback overlaps the 3h gap. The 08:00 run
+# must cover the overnight gap since the 20:00 sync, so 13h there.
 LOOKBACK="6 hours"
 if [ "$HOUR" -eq 8 ]; then
-  LOOKBACK="10 hours"
+  LOOKBACK="13 hours"
 fi
 
 echo "" >> "$LOG_FILE"

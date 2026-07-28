@@ -91,12 +91,12 @@
     details.faq[open] summary .plus{transform:rotate(45deg);}
     details.faq .answer{padding:0 1.3rem 1.2rem;font-size:14px;color:var(--ink-soft);line-height:1.7;}
   </style>
-  <link rel="stylesheet" href="/motion.css">
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-          <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
@@ -415,27 +415,22 @@
 <div class="divider max-w-5xl mx-auto"></div>
 
 <section class="max-w-5xl mx-auto px-6 py-12">
-  <p class="section-label mb-4">The Move framework</p>
-  <h2 class="serif text-3xl font-semibold balance leading-tight mb-6">How I'd think about D5 through the framework.</h2>
-  <div class="grid md:grid-cols-2 gap-6">
+  <p class="section-label mb-4">Money, Timing &amp; Safety</p>
+  <h2 class="serif text-3xl font-semibold balance leading-tight mb-6">How I'd think about D5 through Money, Timing and Safety.</h2>
+  <div class="grid md:grid-cols-3 gap-6">
     <div>
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h3 class="serif text-xl font-semibold mb-2">Capital</h3>
-      <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Accessible band, grant eligibility, sequencing, and TDSR headroom matter as much as headline affordability.</p>
+      <h3 class="serif text-xl font-semibold mb-2">Money</h3>
+      <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Accessible band, grant eligibility, sequencing, and TDSR headroom matter as much as headline affordability. Healthier yield band, more room for investor thesis. Understand the tenant pool (who, why) before leaning on the top end of the range.</p>
     </div>
     <div>
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">02</p>
-      <h3 class="serif text-xl font-semibold mb-2">Cashflow</h3>
-      <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Healthier yield band, more room for investor thesis. Understand the tenant pool (who, why) before leaning on the top end of the range.</p>
-    </div>
-    <div>
-      <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h3 class="serif text-xl font-semibold mb-2">Progression</h3>
+      <h3 class="serif text-xl font-semibold mb-2">Timing</h3>
       <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Where D5 sits in your portfolio depends on what you're progressing FROM and TO. Entry without a planned exit is speculation, <a href="/insights/property-exit-strategy" class="underline hover:text-[var(--ink)]">see exit strategy</a>.</p>
     </div>
     <div>
-      <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">04</p>
-      <h3 class="serif text-xl font-semibold mb-2">Protection</h3>
+      <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
+      <h3 class="serif text-xl font-semibold mb-2">Safety</h3>
       <p class="text-[var(--ink-soft)] text-sm leading-relaxed">Stress test interest-rate doubling, 6-month vacancy, MCST special levy on older stock. Mature estates tend to hold better in downturns than upturns reward aggressively.</p>
     </div>
   </div>
@@ -512,8 +507,8 @@
   <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-6">Thinking about D5?</h2>
   <p class="text-[var(--ink-soft)] max-w-xl mx-auto mb-8">Let's run the Property Portfolio Analysis on your specific numbers, not the district's averages.</p>
   <div class="flex flex-wrap justify-center gap-3">
-    <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book the property portfolio analysis </a>
-    <a href="/audit" class="btn btn-ghost">Try the AI Property Portfolio Analysis</a>
+    <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book the Property Portfolio Analysis →</a>
+    <a href="/property-portfolio-analysis" class="btn btn-ghost">Try the AI Property Portfolio Analysis</a>
   </div>
 </section>
 </main>
@@ -528,7 +523,7 @@
     <div>
       <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-4">Quick links</p>
       <ul class="space-y-2 text-sm text-[var(--ink-soft)]">
-        <li><a href="/about" class="hover:text-[var(--ink)]">About Winfred</a></li><li><a href="/services" class="hover:text-[var(--ink)]">Services</a></li><li><a href="/pricing" class="hover:text-[var(--ink)]">Pricing</a></li><li><a href="/tools" class="hover:text-[var(--ink)]">Tools</a></li><li><a href="/audit" class="hover:text-[var(--ink)]">AI Property Portfolio Analysis</a></li><li><a href="/insights" class="hover:text-[var(--ink)]">Insights</a></li><li><a href="/districts" class="hover:text-[var(--ink)]">Districts</a></li>
+        <li><a href="/about" class="hover:text-[var(--ink)]">About Winfred</a></li><li><a href="/services" class="hover:text-[var(--ink)]">Services</a></li><li><a href="/pricing" class="hover:text-[var(--ink)]">Pricing</a></li><li><a href="/tools" class="hover:text-[var(--ink)]">Tools</a></li><li><a href="/property-portfolio-analysis" class="hover:text-[var(--ink)]">AI Property Portfolio Analysis</a></li><li><a href="/insights" class="hover:text-[var(--ink)]">Insights</a></li><li><a href="/districts" class="hover:text-[var(--ink)]">Districts</a></li>
       <li><a href="/area" class="hover:text-[var(--ink)]">MRT × school areas</a></li></ul>
     </div>
     <div>

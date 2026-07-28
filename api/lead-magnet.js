@@ -18,15 +18,29 @@ const N8N_LENTOR_DRIP_WEBHOOK =
   process.env.N8N_LENTOR_DRIP_WEBHOOK ||
   'https://winfredquekoc.app.n8n.cloud/webhook/lentor-funnel';
 
+// Foolproof fetch: hard timeout + one retry. A hung n8n must never hold the function
+// open, and a transient blip must never lose a lead.
+async function postJson(url, payload, { timeoutMs = 8000, retries = 1 } = {}) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (r.ok) return true;
+    } catch { clearTimeout(timer); }
+    if (attempt < retries) await new Promise(r => setTimeout(r, 1500));
+  }
+  return false;
+}
+
 async function startLentorDrip(payload) {
-  try {
-    const r = await fetch(N8N_LENTOR_DRIP_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    return r.ok;
-  } catch { return false; }
+  return postJson(N8N_LENTOR_DRIP_WEBHOOK, payload);
 }
 
 // eBooks live as HTML pages with a Print/Save-as-PDF button — instant access
@@ -45,6 +59,11 @@ const MAGNETS = {
     url: '/ebooks/foreign-buyer-guide',
   },
   'newsletter': { title: 'Newsletter subscription', url: null },
+  'seller-valuation': { title: 'Seller Valuation Report request', url: null },
+  'progression-score': {
+    title: 'The Property Portfolio Blueprint',
+    url: '/ebooks/4-pillar-framework',
+  },
   'lentor-gardens-guide': {
     title: 'Lentor Gardens Residences: The Investor Case',
     url: '/launches/briefs/lentor-gardens-residences',
@@ -73,14 +92,7 @@ async function notifyTelegram(lead) {
 }
 
 async function notifyN8n(payload) {
-  try {
-    const r = await fetch(N8N_LEAD_MAGNET_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    return r.ok;
-  } catch { return false; }
+  return postJson(N8N_LEAD_MAGNET_WEBHOOK, payload);
 }
 
 // Deliver the eBook email. PRIMARY = Gmail SMTP (GMAIL_USER + GMAIL_APP_PASSWORD, which are
@@ -137,8 +149,8 @@ export default async function handler(req, res) {
   // Fan out — none of these block on each other failing.
   // Per-lead Telegram ping intentionally disabled — leads are summarised by the
   // daily lead-magnet-digest cron instead of pinging on every submission.
-  const [tg, n8n, emailed, drip] = await Promise.all([
-    Promise.resolve(false),
+  const wantDrip = magnet === 'lentor-gardens-guide';
+  const [n8n, emailed, drip] = await Promise.all([
     notifyN8n({
       email,
       name: name || null,
@@ -151,10 +163,28 @@ export default async function handler(req, res) {
       ts: new Date().toISOString(),
     }),
     notifyEmail(email, m, src),
-    magnet === 'lentor-gardens-guide'
+    wantDrip
       ? startLentorDrip({ email, name: name || '', phone: phone || '', intent: intent || '', magnet, source: src, ts: new Date().toISOString() })
       : Promise.resolve(false),
   ]);
+
+  // FAILSAFE: a lead must NEVER be silently lost. If the Sheet webhook (the system of
+  // record), the email, or an expected drip start failed, ping Telegram WITH the full
+  // lead payload so it is always recoverable by hand. This ping fires ONLY on failure,
+  // so the quiet-inbox intent of the digest is preserved on the happy path.
+  let tg = false;
+  const failures = [];
+  if (!n8n) failures.push('sheet webhook');
+  if (!emailed) failures.push('ebook email');
+  if (wantDrip && !drip) failures.push('lentor drip');
+  if (failures.length) {
+    tg = await notifyTelegram({
+      magnet_title: `⚠️ LEAD DELIVERY FAILED (${failures.join(' + ')}) — record this lead by hand`,
+      email, name, phone, intent, source: src,
+    });
+  }
+  console.log(JSON.stringify({ lead_magnet: true, email, magnet, source: src,
+    delivery: { n8n, email: emailed, drip, fallback_tg: tg } }));
 
   // Always succeed. The eBook URL is in the response so the page can redirect/show it.
   return res.status(200).json({

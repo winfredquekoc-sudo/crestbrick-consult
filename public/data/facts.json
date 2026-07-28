@@ -1,0 +1,310 @@
+{
+  "generated_at_utc": "2026-07-29T00:00:00Z",
+  "methodology": "Each fact is drawn verbatim from a live winfredquek.com page, which in turn cites the named primary government/statutory source. Facts are atomic (one number, one condition) so they can be quoted or cited in isolation. Re-verify before relying on any figure, as rates and grants are revised periodically.",
+  "facts": [
+    {
+      "fact": "ABSD rate for a Singapore Citizen buying a second residential property",
+      "value": 20,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/absd-singapore-2026",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "ABSD rate for a Singapore Citizen buying a third or subsequent residential property",
+      "value": 30,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/absd-singapore-2026",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "ABSD rate for a Permanent Resident buying a first residential property",
+      "value": 5,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/absd-singapore-2026",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "ABSD rate for a Permanent Resident buying a second or subsequent residential property",
+      "value": 30,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/absd-singapore-2026",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "ABSD rate for a foreigner buying any residential property (non-FTA nationality)",
+      "value": 60,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/foreign-buyer-60-absd-strategy",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "ABSD rate for an entity or living trust acquiring residential property",
+      "value": 65,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/absd-trust-structures-65-percent-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Number of nationalities granted Singapore-Citizen-equivalent ABSD treatment under Free Trade Agreements (US, Switzerland, Liechtenstein, Norway, Iceland)",
+      "value": 5,
+      "unit": "count",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/absd-free-trade-agreements-nationalities-exempt",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Buyer's Stamp Duty top marginal rate, applied to the portion of price above S$3,000,000",
+      "value": 6,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/stamp-duty-calculator-singapore-2026",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Buyer's Stamp Duty rate on the first S$180,000 of any property purchase",
+      "value": 1,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/stamp-duty-calculator-singapore-2026",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Seller's Stamp Duty rate for a residential property sold within year 1 of purchase",
+      "value": 12,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Seller's Stamp Duty rate for a residential property sold within year 2 of purchase",
+      "value": 8,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Seller's Stamp Duty rate for a residential property sold within year 3 of purchase",
+      "value": 4,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Total Debt Servicing Ratio cap on all monthly debt repayments as a share of gross monthly income",
+      "value": 55,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/how-much-can-i-borrow-home-loan-singapore",
+      "primary_source": "MAS"
+    },
+    {
+      "fact": "Mortgage Servicing Ratio cap on the housing instalment for HDB flats and Executive Condominiums",
+      "value": 30,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/how-much-can-i-borrow-home-loan-singapore",
+      "primary_source": "MAS"
+    },
+    {
+      "fact": "Loan-to-Value limit for a first housing loan with no other outstanding mortgage",
+      "value": 75,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/downpayment-condo-singapore-2026",
+      "primary_source": "MAS"
+    },
+    {
+      "fact": "Loan-to-Value limit for a second housing loan while a first housing loan is still outstanding",
+      "value": 45,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/downpayment-condo-singapore-2026",
+      "primary_source": "MAS"
+    },
+    {
+      "fact": "Minimum Occupation Period for HDB flats and Executive Condominiums before open-market sale or subletting the whole unit",
+      "value": 5,
+      "unit": "years",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/sell-hdb-before-mop",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "CPF Ordinary Account interest rate, and the accrued-interest rate charged back when OA funds used for property are refunded on sale",
+      "value": 2.5,
+      "unit": "percent per annum",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/cpf-accrued-interest-calculator-singapore",
+      "primary_source": "CPF Board"
+    },
+    {
+      "fact": "CPF Special Account / Retirement Account interest rate",
+      "value": 4,
+      "unit": "percent per annum",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/topping-up-cpf-vs-paying-down-mortgage-singapore",
+      "primary_source": "CPF Board"
+    },
+    {
+      "fact": "CPF Basic Retirement Sum (BRS) for members turning 55",
+      "value": 110200,
+      "unit": "SGD",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/cpf-retirement-sum-and-your-property-singapore",
+      "primary_source": "CPF Board"
+    },
+    {
+      "fact": "CPF Full Retirement Sum (FRS) for members turning 55",
+      "value": 220400,
+      "unit": "SGD",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/cpf-retirement-sum-and-your-property-singapore",
+      "primary_source": "CPF Board"
+    },
+    {
+      "fact": "CPF Enhanced Retirement Sum (ERS) for members turning 55",
+      "value": 440800,
+      "unit": "SGD",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/cpf-retirement-sum-and-your-property-singapore",
+      "primary_source": "CPF Board"
+    },
+    {
+      "fact": "Typical Singapore bank home loan interest rate, fixed and floating packages",
+      "value": 1.5,
+      "unit": "percent per annum",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/bank-mortgage-rates-singapore-2026",
+      "primary_source": "Winfred Quek market survey of bank packages"
+    },
+    {
+      "fact": "HDB concessionary loan interest rate",
+      "value": 2.6,
+      "unit": "percent per annum",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/hdb-upgrading-3-room-to-4-to-5",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "HDB monthly household income ceiling for 4-room and 5-room BTO flats",
+      "value": 14000,
+      "unit": "SGD per month",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/hdb-income-ceiling-2026",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "HDB monthly household income ceiling for 2-room and 3-room BTO flats",
+      "value": 7000,
+      "unit": "SGD per month",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/hdb-income-ceiling-2026",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "Household income ceiling for Executive Condominium (EC) purchase",
+      "value": 16000,
+      "unit": "SGD per month",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/ec-vs-condo-singapore",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "Maximum Enhanced Housing Grant (EHG) for eligible first-timer households at or below S$9,000 monthly income",
+      "value": 120000,
+      "unit": "SGD",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/hdb-proximity-housing-grant",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "Typical wait from BTO application to key collection for a standard (non shorter-wait) launch",
+      "value": "4-5",
+      "unit": "years",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/bto-application-guide-singapore-2026",
+      "primary_source": "HDB"
+    },
+    {
+      "fact": "Date the HDB 15-month wait-out period for former private property owners buying HDB resale flats was removed",
+      "value": "2026-07-28",
+      "unit": "date",
+      "as_of": "2026-07-28",
+      "source_url": "https://winfredquek.com/insights/hdb-15-month-wait-out-period-removed-2026",
+      "primary_source": "Ministry of National Development (Minister Chee Hong Tat, 11th Singapore Economic Review Conference)"
+    },
+    {
+      "fact": "Highest gross HDB rental yield among Singapore towns, Jurong East",
+      "value": 7.38,
+      "unit": "percent",
+      "as_of": "2026-07",
+      "source_url": "https://winfredquek.com/reports/hdb-rental-yield-ranking",
+      "primary_source": "data.gov.sg (HDB resale and rental transaction data)"
+    },
+    {
+      "fact": "Lowest gross HDB rental yield among Singapore towns, Bukit Timah",
+      "value": 4.24,
+      "unit": "percent",
+      "as_of": "2026-07",
+      "source_url": "https://winfredquek.com/reports/hdb-rental-yield-ranking",
+      "primary_source": "data.gov.sg (HDB resale and rental transaction data)"
+    },
+    {
+      "fact": "Typical discount at which an Executive Condominium (EC) transacts versus a comparable private condo at launch",
+      "value": "20-30",
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/ec-vs-condo-singapore",
+      "primary_source": "Winfred Quek analysis of new-launch transaction data"
+    },
+    {
+      "fact": "Owner consent threshold required for an en-bloc (collective) sale",
+      "value": 80,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/glossary",
+      "primary_source": "Land Titles (Strata) Act, Singapore Land Authority / Strata Titles Board"
+    },
+    {
+      "fact": "Owner consent threshold for an en-bloc sale of a development under 10 years old",
+      "value": 90,
+      "unit": "percent",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/glossary",
+      "primary_source": "Land Titles (Strata) Act, Singapore Land Authority / Strata Titles Board"
+    },
+    {
+      "fact": "Portion of a property's Annual Value taxed at 0% for owner-occupied residential property tax",
+      "value": 12000,
+      "unit": "SGD Annual Value",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/property-tax-vs-stamp-duty-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Typical early-redemption penalty during a Singapore mortgage lock-in period",
+      "value": 1.5,
+      "unit": "percent of outstanding loan",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/mortgage-lock-in-period-singapore",
+      "primary_source": "Winfred Quek market survey of bank loan packages"
+    },
+    {
+      "fact": "Typical Singapore bridging loan interest rate for a 6-12 month tenure",
+      "value": "3.5-5",
+      "unit": "percent per annum",
+      "as_of": "2026",
+      "source_url": "https://winfredquek.com/insights/bridging-loan-singapore-playbook",
+      "primary_source": "Winfred Quek market survey of bank bridging packages"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "deny": [
+      "mcp__whatsapp__send_message",
+      "mcp__whatsapp__send_file",
+      "mcp__whatsapp__send_audio_message",
+      "Bash(curl*localhost:8080*)",
+      "Bash(curl*api/send*)",
+      "Bash(launchctl*)",
+      "Bash(git push*main*)"
+    ],
+    "defaultMode": "default"
+  }
+}

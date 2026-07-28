@@ -87,16 +87,16 @@
     details summary{cursor:pointer;font-weight:600;color:var(--ink);font-family:'Fraunces',Georgia,serif;font-size:1.05rem;}
     details[open] summary{margin-bottom:.5rem;}
   </style>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
-    <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
     <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="/" class="flex items-center gap-2 whitespace-nowrap">
         <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
       </a>
 
-      <div class="hidden lg:flex items-center gap-6">
+      <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
@@ -111,11 +111,11 @@
         <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
       </div>
 
-      <button id="menu-toggle" class="lg:hidden p-2" aria-label="Open menu">
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
       </button>
     </nav>
-    <div id="mobile-menu" class="lg:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
         <a class="nav-link" href="/about.html">About</a>
@@ -175,14 +175,14 @@
     <thead><tr><th>Line item</th><th>Without decoupling</th><th>With decoupling</th></tr></thead>
     <tbody>
       <tr><td>Existing property value</td><td class="num">S$1,600,000</td><td class="num">S$1,600,000</td></tr>
-      <tr><td>Spouse A's share transferred (50%)</td><td>, </td><td class="num">S$800,000</td></tr>
+      <tr><td>Spouse A's share transferred (50%)</td><td></td><td class="num">S$800,000</td></tr>
       <tr><td>BSD on transfer (tiered, ~3.0%)</td><td class="num">S$0</td><td class="num">S$18,600</td></tr>
       <tr><td>Legal + valuation</td><td class="num">S$0</td><td class="num">S$5,000</td></tr>
       <tr><td>Second property purchase</td><td class="num">S$2,000,000</td><td class="num">S$2,000,000</td></tr>
       <tr><td>ABSD on second purchase</td><td class="num">S$400,000 (20%)</td><td class="num">S$0 (1st property)</td></tr>
       <tr><td>BSD on second purchase</td><td class="num">S$64,600</td><td class="num">S$64,600</td></tr>
       <tr><td><strong>Total transaction cost</strong></td><td class="num"><strong>S$464,600</strong></td><td class="num"><strong>S$88,200</strong></td></tr>
-      <tr><td><strong>Net saving from decoupling</strong></td><td>, </td><td class="num"><strong>S$376,400</strong></td></tr>
+      <tr><td><strong>Net saving from decoupling</strong></td><td></td><td class="num"><strong>S$376,400</strong></td></tr>
     </tbody>
   </table>
   <p>The break-even on this scenario is overwhelming. The S$23,600 of decoupling costs unlocks S$400,000 of ABSD savings, a 17× return on the structural spend.</p>
@@ -196,7 +196,7 @@
       <tr><td>Legal + valuation</td><td class="num">S$0</td><td class="num">S$5,000</td></tr>
       <tr><td>Second property purchase</td><td class="num">S$1,100,000</td><td class="num">S$1,100,000</td></tr>
       <tr><td>ABSD on second purchase</td><td class="num">S$220,000 (20%)</td><td class="num">S$0 (1st property)</td></tr>
-      <tr><td><strong>Net saving from decoupling</strong></td><td>, </td><td class="num"><strong>S$202,400</strong></td></tr>
+      <tr><td><strong>Net saving from decoupling</strong></td><td></td><td class="num"><strong>S$202,400</strong></td></tr>
     </tbody>
   </table>
   <p>Still strongly positive. The math only starts breaking down when the existing property is high-value (high BSD on the 50% transfer) and the second purchase is small. <a href="/tools/restructuring" style="color:var(--accent);text-decoration:underline;">Run your own numbers in the restructuring calculator</a>.</p>
@@ -270,12 +270,12 @@
   <p>Decoupling between unmarried co-owners (siblings, parent-child, business partners) is legally possible but operationally more complicated. The transfer is treated as an arms-length sale, with normal BSD tiers, no spousal exemption from any rules, and CPF refund obligations identical to spousal decoupling. The ABSD logic still works, the transferor frees their ABSD-free slot, but the relationship dynamics make these arrangements rarer.</p>
 
   <h2>10. How decoupling fits into the Property Portfolio Analysis</h2>
-  <p>When I run the property portfolio analysis, decoupling is a Capital-pillar question: does the structural cost (BSD, legal, CPF refund timing) buy enough ABSD reduction to make the second purchase work at acceptable post-tax IRR? It's not a tactic in isolation. It's one move on a multi-period sequencing plan that also covers timing of the second purchase, CPF strategy, mortgage structuring, and exit planning.</p>
+  <p>When I run the property portfolio analysis, decoupling is a Money-side question: does the structural cost (BSD, legal, CPF refund timing) buy enough ABSD reduction to make the second purchase work at acceptable post-tax IRR? It's not a tactic in isolation. It's one move on a multi-period sequencing plan that also covers timing of the second purchase, CPF strategy, mortgage structuring, and exit planning.</p>
   <p>The clients I see most successful with decoupling are SC couples in their early-to-mid forties, with one matrimonial property fully recovered from SSD risk, both spouses individually loan-capable, and a clear thesis for the second purchase (rental yield play, capital growth thesis, or generational holding). The clients I most often advise against decoupling are HDB owners (where it's not allowed), couples where one spouse is income-marginal for the new mortgage, and couples whose "second property" idea is still hypothetical.</p>
 
   <div class="cta-block">
     <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Run your decoupling math with Winfred</p>
-    <p class="mb-4">A 90-minute working session: we model your specific BSD, SSD risk, CPF refund obligation, and second-purchase ABSD savings. You leave with a written decision and a timeline, not a sales pitch.</p>
+    <p class="mb-4">A free 30-minute Property Portfolio Analysis: we model your specific BSD, SSD risk, CPF refund obligation, and second-purchase ABSD savings. You leave with a written decision and a timeline, not a sales pitch.</p>
     <div class="flex flex-wrap gap-3">
       <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20run%20the%20decoupling%20numbers%20for%20our%20situation." class="btn btn-primary">WhatsApp to book </a>
       <a href="/tools/restructuring" class="btn btn-ghost">Try the calculator</a>
