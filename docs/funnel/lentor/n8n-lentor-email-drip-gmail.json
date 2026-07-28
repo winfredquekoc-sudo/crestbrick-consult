@@ -1,0 +1,710 @@
+{
+  "name": "Lentor Email Drip (Gmail)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lentor-funnel",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "webhook",
+      "name": "New Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ],
+      "webhookId": "lentor-funnel"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.email }}"
+            },
+            {
+              "id": "a1",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.body.name }}"
+            },
+            {
+              "id": "a2",
+              "name": "calendlyUrl",
+              "type": "string",
+              "value": "https://calendly.com/winfredquekoc/30min"
+            },
+            {
+              "id": "a3",
+              "name": "guideUrl",
+              "type": "string",
+              "value": "https://winfredquek.com/LentorGardensResidences"
+            }
+          ]
+        }
+      },
+      "id": "config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "The 38.9% land gap, and the catch",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nYour Lentor Gardens Residences investor guide is here: {{ $('Config').first().json.guideUrl }}.\n\nOne number in it is worth more than every render in the showflat, and you can verify it tonight before the 4 July preview.\n\nLentor Gardens sits on land that cost about S$920 psf ppr. Kingsford Development won that site. The very next parcel in the same cluster, Lentor Central, went to GuocoLand at about S$1,278 psf ppr. That is a 38.9 percent jump in the land cost under the next launch, right next door. Analysts project that neighbour breaks even near S$2,378 psf. Lentor Gardens is tracking about S$2,250 psf on an indicative basis, with official pricing released on 4 July. You would be entering before the reset, not after it.\n\nThe scarcity is structural, not staged. Across the whole enclave about 2,926 units have already sold, leaving roughly 28 unsold as of May 2026. This is effectively the last meaningful entry into a cluster the market has already voted on.\n\nNow the question a careful buyer asks. If it is this underpriced, what is the catch. Kingsford has delivered over 3,500 homes in Singapore, and also carried a no sale licence on Normanton Park in 2019 to 2020. I do not bury that. I manage it through build quality due diligence and snagging, openly, with you.\n\nEach day this week I will unpack one more piece, so you can weigh it calmly rather than under a clock.\n\nIf you would rather hold these numbers against your own portfolio now, book a free 30 minute private session and we map it together, no pitch: {{ $('Config').first().json.calendlyUrl }}.\n\nNot the right fit? Reply stop and I will quietly close the loop.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email1",
+      "name": "Email Day 1",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        680,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait2",
+      "name": "Wait Day 2",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        900,
+        300
+      ],
+      "webhookId": "wait-2"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "The bill cash quietly pays every year",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost allocators I speak with hold a meaningful balance in cash or short bonds right now. It earns a little, it feels safe, and it waits for a clearer signal before committing to a hard asset. Safe is the word worth pausing on.\n\nThree forces are quietly compounding underneath that balance while it sits.\n\nInflation, first. MAS and MTI project core inflation of about 1.5 to 2.5 percent for 2026, with the bias to the upside. Idle cash gives up close to that in real terms every year, with no statement that ever shows the loss.\n\nReplacement cost, second. The Singapore Contractors Association reports building material prices up about 20 percent. A home standing today cannot be rebuilt for what it cost a few years ago, and that rising floor sits under everything already built.\n\nPipeline, third. BCA projects about S$47 to 53 billion of construction contracts in 2026 alone, across more than ten mega projects including Changi T5, Tuas Port, the North South Corridor, the Jurong Region Line and the Cross Island Line. A multi year build programme is one of the cleaner signals of sustained housing and rental demand in the precincts it reaches.\n\nNow the honest caveat a sharp reader is already forming. None of this lifts the price of one specific home. It sets a floor under the asset class, not a guarantee under a single unit. Which unit, which location, which entry price, that is the real work, and it is exactly what a quiet conversation is for.\n\nIf it would help to read your own position against this backdrop, I keep a few free 30 minute private sessions open each week, no obligation: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this no longer serves you, reply stop and I will remove you quietly.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email2",
+      "name": "Email Day 2",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1120,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait3",
+      "name": "Wait Day 3",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1340,
+        300
+      ],
+      "webhookId": "wait-3"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "Same MRT stop, two land prices",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nLet me put the question you are already holding on the table. If Lentor Gardens looks underpriced, where is the catch? Land that cheap usually hides a defect.\n\nHere is the honest answer. It is not a flaw, it is timing.\n\nLand is bought years before a home is sold, and your launch price is anchored to what the ground cost back then. Kingsford secured this site at about S$920 psf ppr. The adjacent Lentor Central plot, won later by GuocoLand, cost S$1,278 psf ppr. Same MRT stop, two land prices, a 38.9 percent gap. Nothing is wrong here. The two parcels simply transacted at different moments in the cycle.\n\nThat gap does not stay buried. On GuocoLand's higher basis, analysts project the next launch must break even near S$2,378 psf just to make commercial sense. Lentor Gardens carries an indicative average near S$2,250 psf, inside an indicative S$2,100 to S$2,400 band. Every figure here is indicative, with official pricing on 4 July.\n\nSo you are not buying a low number. You are buying the distance between two land costs, fixed before either building rose.\n\nOne caveat I keep in front of you, never behind. This is primarily a capital and progression play. The yields here are moderate, not spectacular.\n\nThe clean way to read this is against your own cost basis and exit math. In a free 30 minute private session I will walk your numbers through that gap with you, before pricing firms up on 4 July. You can book a time that suits you here: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this is not the right moment, reply stop and I will quietly step back.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email3",
+      "name": "Email Day 3",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1560,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait4",
+      "name": "Wait Day 4",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1780,
+        300
+      ],
+      "webhookId": "wait-4"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "Two quiet questions before 4 July",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nPicture the gallery on 4 July. You like a stack. The agent asks which bedroom and what budget, and you realise two things were never settled in private. Am I paying too much near a top. And can I actually carry this once I want it.\n\nBetter to answer both now, calmly, than under bright lights with a queue forming behind you.\n\nOn overpaying, the evidence leans the other way. Six neighbours on this exact MRT stop sold roughly 91 to 100 percent: Lentor Modern, Lentor Hills, Hillock Green, Lentoria, Lentor Mansion and Lentor Central Residences. This cluster did not clear once by chance, it cleared again and again. And the adjacent Lentor Central parcel was tendered at S$1,278 psf ppr against Lentor Gardens land near S$920, a 38.9 percent gap. The next launch is projected to break even close to S$2,378 psf, which is why today's indicative working average near S$2,250 psf reads underpriced rather than toppy. Official pricing releases 4 July.\n\nOne honest note on history. Buyers in the 2022 Mayflower and Lentor launches realised roughly 13 to 27 percent gains by 2026 over about 3.3 to 3.7 years. Those are past, realised outcomes of other projects. Past performance is not indicative of future results, and nothing here is promised for Lentor Gardens. I show the range so you can weigh it, not lean on it.\n\nOn carrying it, indicative entry: a 2 bedroom from about S$1.32m suggests roughly S$8,800 monthly income and S$369k cash plus CPF. A 3 bedroom from about S$1.87m suggests about S$12,500 income and S$521k cash plus CPF.\n\nA table cannot tell you which line is yours. A quiet 30 minutes with me can. Book your free private session and we will settle both before 4 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf you would rather I stop sending these, just reply stop.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email4",
+      "name": "Email Day 4",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2000,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait5",
+      "name": "Wait Day 5",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2220,
+        300
+      ],
+      "webhookId": "wait-5"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "The land gap that already reached you",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThis is the last of the five, so I want to answer the question you are actually holding, not the one a brochure answers for you.\n\nYou already believe the Lentor story. The quiet doubt that remains is simpler. Every agent says the next launch will cost more. So why would the land gap here reach you rather than become the developer's margin?\n\nFair question. Land is the floor a developer prices up from, not a discount anyone chooses to share. Lentor Gardens sits on land bought at about S$920 psf ppr. The adjacent Lentor Central parcel was won at about S$1,278, a gap near 39 percent, and the next launch there is projected to break even close to S$2,378 psf. So the roughly S$2,250 working average today, indicative until official pricing releases on 4 July, is not generosity. It is a cost basis the next parcel cannot match, set in the ground before a single floor plan is drawn.\n\nWhat holds value after you enter is the catchment. By 2029 the North South Corridor shortens the drive into town, and the Woodlands Regional Centre, about 700,000 sqm anchored by the RTS Link to Johor, deepens the tenant pool. Lentor Modern already shows a gross yield band around 3.5 percent. Past performance is not indicative of future results.\n\nTwo things I will not bury. Kingsford has delivered over 3,500 Singapore homes, and also carried a no sale licence on Normanton Park in 2019 to 2020, which is exactly why I treat snagging as live due diligence. And only about 28 units remain across the entire enclave.\n\nPreview is 4 July, booking 18 July. Before either, the useful hour is one quiet session pressure testing this against your numbers, not mine: {{ $('Config').first().json.calendlyUrl }}. If you would rather I close the file, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email5",
+      "name": "Email Day 5",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2440,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait6",
+      "name": "Wait Day 6",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2660,
+        300
+      ],
+      "webhookId": "wait-6"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "The 3 questions you almost replied",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nOver the five emails so far, three questions came back again and again. None of them have a glossy answer, so let me give you the plain one.\n\nFirst, the yield. People expect a number near the sky and find about 3.5 percent gross at Lentor Modern instead. My honest read is that this is a capital and progression play, not a yield play. The yields here are moderate, not spectacular, and I would rather you hear that from me now than discover it after you sign. Past performance is not indicative of future results.\n\nSecond, leasehold. Yes, this is 99 year leasehold. So is every other plot in the Lentor enclave. You are not choosing leasehold versus freehold here, you are choosing your entry point within a leasehold estate the whole market has already bought into, with TOP estimated around Q1 2029.\n\nThird, the developer. Kingsford Development has delivered over 3,500 homes in Singapore, and also carried a no sale licence on Normanton Park in 2019 to 2020. I do not soften that. I plan for it, through build quality due diligence and a disciplined snagging process when you take keys.\n\nThat is the file with nothing hidden. If your hesitation is one of these three, or a fourth I have not named, that is exactly what a quiet conversation is for.\n\nBook a free 30 minute private session and bring me your hardest question, no pitch waiting: {{ $('Config').first().json.calendlyUrl }}.\n\nIf these no longer serve you, reply stop and I will close the loop quietly.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email6",
+      "name": "Email Day 6",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2880,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait7",
+      "name": "Wait Day 7",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3100,
+        300
+      ],
+      "webhookId": "wait-7"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "Which line is yours, decided early",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost buyers arrive at a launch thinking about which project. The ones who do well arrive thinking about which line. On 18 July, balloting day, that distinction decides everything.\n\nLentor Gardens is deliberately a smaller unit project. Of about 499 to 502 homes, two bedrooms make up 252 units at 50.2 percent, sized about 60 to 68 sqm. Three bedrooms add 139 units at 27.7 percent, about 81 to 94 sqm. Four bedrooms are the scarce tier, 105 units at 20.9 percent, about 110 to 126 sqm. There are also three strata terraces and three shops.\n\nThis is not an accident of design. URA projects Singapore households getting smaller and more numerous, and this mix is built straight for that demand curve. For an investor, the two and three bedroom band is where the broadest future tenant and resale pool sits. For an own stay upgrader, the four bedroom tier is genuinely scarce at one in five, which changes how early you need to decide.\n\nOn the plans themselves, the design is unusually efficient. The published layouts run on a dumbbell principle that keeps the bedrooms apart for privacy, the master takes a king bed and the common rooms a queen, with separated kitchen alcoves, dedicated study nooks and very little wasted corridor. The full floor plans by stack release with the official e brochure, and I can send you the complete set the moment they are out.\n\nThe part a brochure cannot give you is stack. Orientation, floor band, the view that holds value, the lines that ballot out first. Indicative two bedroom pricing starts near S$1.32m and three bedroom near S$1.87m, with official pricing on 4 July, so the homework is best done before the queue forms, not inside it.\n\nIf you would like to walk the mix and pre shortlist the stacks that fit your goal and budget, that is exactly what a quiet session is for. Book a free 30 minutes here and we map your shortlist before 18 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this is not useful to you, reply stop and I will step back quietly.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email7",
+      "name": "Email Day 7",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3320,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait8",
+      "name": "Wait Day 8",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3540,
+        300
+      ],
+      "webhookId": "wait-8"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "Who actually rents this, honestly",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThe capital case for Lentor Gardens is the loud one. The rental case is quieter, and an honest landlord wants it before, not after, keys.\n\nStart with who rents here. The northern catchment is deepening in a way that matters for tenant demand. By 2029 the North South Corridor compresses the drive into the city. The Woodlands Regional Centre, about 700,000 sqm of commercial space anchored by the RTS Link to Johor, pulls a working population north. Closer in, Seletar Aerospace hosts names like Rolls Royce and Pratt and Whitney, with Ang Mo Kio industrial and Nanyang Polytechnic minutes away. That is the employment base your future tenant is drawn from, and Lentor MRT on the Thomson East Coast Line runs them straight to Orchard and Marina Bay in one ride.\n\nNow the number, with its ceiling stated plainly. Lentor Modern, the established neighbour on this exact stop, shows a gross yield band around 3.5 percent. That is solid and real, and it is not spectacular. Past performance is not indicative of future results. I would never sell this as a high yield play, because it is not one. It is a capital and progression asset that also rents to a thickening tenant pool.\n\nThe honest work is matching a specific unit, entry price and likely rent to your own holding plan and cash flow tolerance. A spreadsheet cannot weigh that against your portfolio. A quiet conversation can.\n\nIf modelling a realistic rental scenario would help, book a free 30 minute private session and we will run your numbers candidly, moderate not inflated: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this no longer fits, reply stop and I will quietly remove you.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email8",
+      "name": "Email Day 8",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        3760,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait9",
+      "name": "Wait Day 9",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        3980,
+        300
+      ],
+      "webhookId": "wait-9"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "Preview is in, here is the read",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThe 4 July preview has happened, which means the working numbers I labelled indicative all sequence are no longer guesses. Pricing is official now, and the honest thing to do is hold it against what we expected.\n\nFor weeks the analyst launch band sat around S$2,100 to S$2,400 psf, with about S$2,250 as the working average. The reason that mattered was never the figure in isolation. It was the gap beneath it. Lentor Gardens land cost about S$920 psf ppr. The adjacent Lentor Central site went to GuocoLand at S$1,278, and the next launch there is projected to break even near S$2,378 psf. That structural gap does not move with a preview. It was fixed in the ground years ago.\n\nWhat the preview settles is the entry price itself, no longer indicative, against that fixed land basis. If you want the precise official figures by bedroom and how each line reads against the S$2,378 breakeven next door, that is a five minute conversation, not an email I can pre write before knowing your exact target.\n\nBalloting is 18 July. From here the question stops being is the thesis sound and becomes which unit and at what confirmed price. That is a far better problem to have, and it is time sensitive in a real way, because the room is the same room everyone else is reading.\n\nBook a free 30 minute private session and I will walk the now official pricing against your shortlist before 18 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf you would rather I stop here, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email9",
+      "name": "Email Day 9",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4200,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 1,
+        "unit": "days"
+      },
+      "id": "wait10",
+      "name": "Wait Day 10",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        4420,
+        300
+      ],
+      "webhookId": "wait-10"
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "sendTo": "={{ $('Config').first().json.email }}",
+        "subject": "A clean go or wait, before 18 July",
+        "emailType": "text",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThis is the last email in the series, and I want it to be useful whether you move or you wait.\n\nBalloting is 18 July. By then the decision is binary, and the cleanest way to hold it is two honest questions.\n\nFirst, is the thesis sound. I think the evidence says yes, and it does not depend on hype. Lentor Gardens sits on land at about S$920 psf ppr against the adjacent Lentor Central parcel at about S$1,278, and the next launch there is projected to break even near S$2,378 psf. Only about 28 unsold units remain across the entire enclave out of roughly 2,926 sold. That cost basis and that scarcity are structural facts, fixed before any marketing began, not a countdown I invented.\n\nSecond, is it right for you. This is a capital and progression play with moderate yields, on 99 year leasehold, from a developer in Kingsford that has delivered over 3,500 Singapore homes and also carried a no sale licence on Normanton Park in 2019 to 2020, which I manage through snagging and due diligence rather than hide. If those terms fit your goals and your numbers, going is reasonable. If they do not, waiting is reasonable too, and I will respect that fully.\n\nThe one thing not worth doing is deciding blind under launch day pressure. A quiet 30 minutes before 18 July settles both questions against your own position, with no push either way.\n\nBook your free private session here while there is still room to think: {{ $('Config').first().json.calendlyUrl }}.\n\nThis is the final note in the series. If you would prefer I close the file, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "options": {
+          "appendAttribution": false,
+          "senderName": "Winfred Quek"
+        }
+      },
+      "id": "email10",
+      "name": "Email Day 10",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        4640,
+        300
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "New Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Email Day 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 1": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 2": {
+      "main": [
+        [
+          {
+            "node": "Email Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 2": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 3": {
+      "main": [
+        [
+          {
+            "node": "Email Day 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 3": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 4": {
+      "main": [
+        [
+          {
+            "node": "Email Day 4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 4": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 5": {
+      "main": [
+        [
+          {
+            "node": "Email Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 5": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 6": {
+      "main": [
+        [
+          {
+            "node": "Email Day 6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 6": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 7": {
+      "main": [
+        [
+          {
+            "node": "Email Day 7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 7": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 8": {
+      "main": [
+        [
+          {
+            "node": "Email Day 8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 8": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 9": {
+      "main": [
+        [
+          {
+            "node": "Email Day 9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Day 9": {
+      "main": [
+        [
+          {
+            "node": "Wait Day 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Day 10": {
+      "main": [
+        [
+          {
+            "node": "Email Day 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "tags": [
+    {
+      "name": "lentor-funnel"
+    }
+  ]
+}
