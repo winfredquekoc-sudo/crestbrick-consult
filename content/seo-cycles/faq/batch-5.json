@@ -1,0 +1,177 @@
+{
+  "tools/rental-yield.html": {
+    "quickAnswer": "This calculator runs both gross and net rental yield on a Singapore property. Gross yield is annual rent divided by price. Net yield deducts mortgage, MCST, property tax, insurance, vacancy and income tax, then shows monthly cashflow and years to break even on your cash outlay.",
+    "faqs": [
+      {
+        "q": "What is the difference between gross and net rental yield?",
+        "a": "Gross yield is annual rent divided by purchase price, the number agents quote in brochures. Net yield deducts the real costs of holding the property: mortgage, MCST, property tax, insurance, a vacancy allowance and income tax on the rent. Net yield is what actually lands in your bank account."
+      },
+      {
+        "q": "What is a good rental yield in Singapore?",
+        "a": "Singapore residential gross yields are typically around 3 to 4 percent. On a net basis, many investors treat 3 percent as a working benchmark. Below that you are usually betting on capital appreciation rather than cashflow. The tool flags where your number sits, but no yield is guaranteed."
+      },
+      {
+        "q": "Why does this calculator ask for a vacancy assumption?",
+        "a": "Rent does not arrive 12 months a year every year. Tenants move out and units sit empty between leases. Applying a vacancy haircut, even one month a year, gives you a more honest net yield. The figure that survives a realistic vacancy period is the one worth planning around."
+      },
+      {
+        "q": "Does the tool account for income tax on my rental income?",
+        "a": "Yes. It estimates taxable rental income after deducting mortgage interest, MCST, property tax and insurance, then applies your marginal income tax rate. IRAS lets you offset allowable expenses against rent, so your taxable rental is lower than the gross rent you collect. Confirm your actual deductions with your tax agent."
+      },
+      {
+        "q": "What does years to break even mean here?",
+        "a": "It is how long the annual net cashflow takes to recover your upfront cash outlay, roughly the downpayment plus buyer stamp duty. It ignores capital appreciation and seller stamp duty, so treat it as a cashflow floor, not a full return picture. For a full read on a specific deal, speak with Winfred Quek."
+      }
+    ]
+  },
+  "tools/rental-yield-heatmap.html": {
+    "quickAnswer": "This heatmap shows median gross rental yield by Singapore district, colour coded so high yield areas stand out against districts where you are mostly paying for the postcode. Each tile lists the district yield, average PSF and median monthly rent, with figures updated periodically from the source data.",
+    "faqs": [
+      {
+        "q": "How is rental yield calculated in this heatmap?",
+        "a": "Each tile shows median gross yield, which is annual rent divided by price for that district. It uses median PSF and median monthly rent to give a district level read. Singapore gross yields are typically around 3 to 4 percent, and the colour bands help you spot which districts sit above or below that range."
+      },
+      {
+        "q": "Why do central districts often show lower rental yields?",
+        "a": "Prime central districts carry the highest PSF, so even strong rents translate into a lower yield percentage. Outside central regions tend to show higher gross yields because entry prices are lower relative to rent. A lower yield district is often a capital appreciation play rather than a cashflow one."
+      },
+      {
+        "q": "Will my specific unit match the district yield shown?",
+        "a": "Not exactly. The heatmap is a district median. Your actual unit will deviate based on floor, facing, age, layout efficiency, furnishing and tenant demand. Treat the tile as a starting reference, then narrow down with comparable rentals for your specific block before drawing conclusions."
+      },
+      {
+        "q": "Should I just buy in the highest yield district?",
+        "a": "Yield is only one input. High gross yield can come with weaker capital growth, older stock or thinner tenant pools. The right district depends on your goal: cashflow now, appreciation later, or a balance. Use the heatmap to shortlist, then pressure test the trade offs with Winfred Quek."
+      },
+      {
+        "q": "How current is the data in this heatmap?",
+        "a": "The footer shows the source and the last updated date, and the figures refresh periodically. Property data moves, so always check the update stamp before relying on a number. For a live read on a specific district or unit, message Winfred Quek directly through the page."
+      }
+    ]
+  },
+  "tools/leasehold-tail-discount.html": {
+    "quickAnswer": "This tool models how a 99 year leasehold property loses value as the lease shortens, using a Bala's table approximation against a freehold equivalent value. It also flags two financing pressure points: the 35 year financing rule for banks and tighter CPF use once the lease runs low.",
+    "faqs": [
+      {
+        "q": "What is leasehold tail discount in Singapore?",
+        "a": "It is the value gap between a leasehold property and its freehold equivalent that widens as the remaining lease shortens. Bala's table assigns a percentage of freehold value for each remaining tenure. This tool applies that approximation so you can see the implied value at future checkpoints before you buy or sell."
+      },
+      {
+        "q": "Why does the lease decay accelerate later in the tail?",
+        "a": "Decay is gradual while a healthy lease remains, then steepens roughly from the 60 years remaining mark. As the tail shortens, the buyer pool narrows and financing tightens, so each year lost knocks off proportionally more value. The tool shows this curve so you can plan an exit before the steep part bites."
+      },
+      {
+        "q": "How does a short lease affect my bank loan?",
+        "a": "Banks restrict mortgages once the property tenure plus the borrower's age pushes past about 95, and financing tightens sharply below 35 years remaining. A shorter lease means a smaller buyer pool able to borrow against it, which feeds back into a lower resale price. The tool flags when you enter that critical zone."
+      },
+      {
+        "q": "Can I use CPF to buy an old leasehold property?",
+        "a": "CPF usage rules tighten as the remaining lease falls, with meaningful restrictions once the lease drops below 30 years. That further shrinks the pool of buyers who can fund a purchase using CPF. The tool notes these CPF and financing effects so you treat them as part of the real value picture."
+      },
+      {
+        "q": "Is the Bala's table figure in this tool exact?",
+        "a": "No, it is a directional approximation based on the SLA leasehold table, interpolated between key milestones. Use it for thinking through the decay trend, not as a formal valuation. Bank, CPF and market conditions also move the real number, so confirm with a proper valuation and speak with Winfred Quek on exit timing."
+      }
+    ]
+  },
+  "tools/cooling-measure-timeline.html": {
+    "quickAnswer": "This timeline maps every major Singapore property cooling measure since the 2009 cycle: ABSD hikes, SSD windows, the introduction of TDSR and successive LTV cuts. Click any event to see the exact rule change and the observed market reaction 90, 180 and 365 days after.",
+    "faqs": [
+      {
+        "q": "What are property cooling measures in Singapore?",
+        "a": "They are government interventions to keep the property market stable, including Additional Buyer's Stamp Duty, Seller's Stamp Duty, the Total Debt Servicing Ratio framework and Loan to Value limits. The timeline lays out each measure since 2009 so you can see how the toolkit has evolved over successive cycles."
+      },
+      {
+        "q": "When was ABSD first introduced and how has it changed?",
+        "a": "ABSD was introduced in December 2011 and has been raised several times since, including the April 2023 round that lifted foreigner ABSD to 60 percent and raised rates for citizens and permanent residents buying additional homes. Click each event in the timeline for the specific rates that applied at the time."
+      },
+      {
+        "q": "What is TDSR and when did it start?",
+        "a": "The Total Debt Servicing Ratio caps your total monthly debt repayments as a share of gross income, and was introduced in 2013 at 60 percent before later being adjusted to 55 percent. It was a structural reset rather than a one off tweak. The timeline marks when it landed and the market reaction that followed."
+      },
+      {
+        "q": "How did the market react after each cooling measure?",
+        "a": "Reactions varied. Some measures barely dented an upward market while others cut transaction volumes sharply and flattened or reversed prices for several quarters. Each timeline entry records the observed impact at 90, 180 and 365 days, so you can see which moves reset the cycle and which were absorbed quickly."
+      },
+      {
+        "q": "Will there be more cooling measures?",
+        "a": "Future moves are not announced in advance, and the timeline's final entry simply tracks possibilities rather than predictions. History shows measures arrive when the market runs hot and ease when it cools. Rather than guess, use the past pattern to plan resilient timing, and talk strategy through with Winfred Quek."
+      }
+    ]
+  },
+  "tools/comparison-tool.html": {
+    "quickAnswer": "This tool puts two Singapore condos side by side on the numbers that matter: PSF, freehold versus 99 year tenure, years remaining, distance to MRT, expected gross yield, years to TOP and project size. It scores each metric and gives a quantitative tally, cutting through the marketing noise.",
+    "faqs": [
+      {
+        "q": "What does this project comparison tool actually compare?",
+        "a": "It lines up two projects across PSF, tenure, years of lease remaining, distance to MRT, expected gross yield, years to TOP and total units. Each row picks a winner on a simple rule, lower PSF wins, more lease wins, and so on, then tallies a quantitative score so you can see where each project leads."
+      },
+      {
+        "q": "Does a lower PSF always mean the better buy?",
+        "a": "No. Lower PSF wins that single row, but PSF alone ignores layout efficiency, tenure, location and upside. A higher PSF freehold near an MRT can outperform a cheaper 99 year unit further out. Use the PSF comparison as one input, not the verdict, and weigh it against the other rows."
+      },
+      {
+        "q": "How should I read freehold versus 99 year tenure in the comparison?",
+        "a": "Freehold holds value better over a long horizon, while a 99 year lease decays, especially in the later years. The tool credits more remaining lease, but the right choice depends on your holding period and exit plan. A long term holder may value freehold more than a shorter term investor would."
+      },
+      {
+        "q": "Is a smaller or larger project better?",
+        "a": "It depends on your goal, which is why the tool marks project size as depends rather than picking a winner. Smaller developments feel more exclusive but trade less often, so resale liquidity is thinner. Larger projects offer more transaction data and easier exit. Match the trade off to whether you prioritise exclusivity or liquidity."
+      },
+      {
+        "q": "Is this comparison enough to decide which project to buy?",
+        "a": "No, and the tool says so. It is a thin quantitative read. A real decision also needs developer track record, layout efficiency per unit, MCST history, tenant demand and URA Master Plan upside nearby. Use the scoreboard to shortlist, then get Winfred Quek's read before committing."
+      }
+    ]
+  },
+  "tools/cobroke-split-optimizer.html": {
+    "quickAnswer": "This optimiser suggests a fair co broke commission split between two Singapore agents. It starts from the industry default of 50/50, then adjusts for who holds the listing, who sourced the buyer and who carried the workload during the deal, capping the result between 20 and 80 percent either way.",
+    "faqs": [
+      {
+        "q": "What is a co broke commission split?",
+        "a": "In a co broke deal, two agents represent the two sides of a transaction and share the commission. The market default is 50/50, but the actual contribution often is not equal. This tool models a split that reflects who brought the listing, who sourced the buyer and who did the heavier lifting."
+      },
+      {
+        "q": "How does the tool decide the split percentage?",
+        "a": "It starts at 50/50, then shifts the balance for three factors: holding the listing side, sourcing the buyer and carrying the larger share of work during the deal. Each factor nudges the split by a set amount, and the result is capped between 20 and 80 percent so neither side is left with a token cut."
+      },
+      {
+        "q": "Why is lead source weighted in the split?",
+        "a": "Sourcing the buyer or seller is often the hardest, most valuable part of a deal, so the agent who brings the lead carries more of the commission logic. The tool gives lead source meaningful weight precisely because a 50/50 default can undervalue the side that generated the opportunity in the first place."
+      },
+      {
+        "q": "Is a 50/50 co broke split always fair?",
+        "a": "Not necessarily. 50/50 is a convenient default, but if one agent sourced the lead, marketed the unit and ran most viewings while the other simply introduced a buyer, an even split overpays one side. The tool exists to surface that gap so the conversation is grounded in contribution, not habit."
+      },
+      {
+        "q": "How should I present this split to the other agent?",
+        "a": "Frame it on contribution, not entitlement. Walk through who did what, listing, lead, viewings, paperwork, and let the split follow from that. The tool gives you a defensible starting number and the reasoning behind it, which makes the discussion about the work done rather than a tug of war over percentages."
+      }
+    ]
+  },
+  "tools/otp-review-checklist.html": {
+    "quickAnswer": "This 15 point checklist walks you through what to verify on a Singapore Option to Purchase before you sign: buyer identity, property and tenure details, option and exercise fees, completion date, inclusions, encumbrances, financing and valuation clauses, and the 14 day stamp duty deadline. Miss these and you risk your option fee or worse.",
+    "faqs": [
+      {
+        "q": "What is an Option to Purchase in Singapore?",
+        "a": "An OTP is the document that gives a buyer the exclusive right to buy a property within a set window, usually after paying an option fee of around 1 percent. You exercise it later by paying the balance deposit. This checklist covers the 15 things to verify on the OTP before you commit."
+      },
+      {
+        "q": "How much is the option fee and exercise fee?",
+        "a": "For resale, the option fee is typically 1 percent of the price and the exercise fee is typically a further 4 percent, making a 5 percent deposit in total. Non standard percentages can appear, so the checklist tells you to confirm the exact figures in both numerals and words before signing anything."
+      },
+      {
+        "q": "What is a subject to financing clause and why does it matter?",
+        "a": "It makes the purchase conditional on your loan being approved, giving you an out if financing falls through. There is also a subject to valuation clause for when the bank values the property below your price. If your loan approval is not fully locked, the checklist flags both clauses as critical to consider."
+      },
+      {
+        "q": "What happens if I do not exercise the OTP?",
+        "a": "The standard consequence is that you forfeit the option fee you paid. The checklist tells you to verify the withdrawal terms so you know exactly what is forfeited and that no other deductions apply. Knowing the downside before you pay the option fee keeps the decision a deliberate one."
+      },
+      {
+        "q": "How long do I have to pay stamp duty after signing the OTP?",
+        "a": "Buyer's Stamp Duty, and ABSD where it applies, must be paid to IRAS within 14 days of signing the OTP, or you risk a penalty. This deadline is the final item on the checklist because it is easy to overlook once the excitement of securing the unit takes over."
+      }
+    ]
+  }
+}
