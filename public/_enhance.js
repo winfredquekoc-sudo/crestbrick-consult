@@ -145,7 +145,7 @@
   }
 
   // ============================================================
-  // #280 Exit-intent capture (offer free Property Portfolio Blueprint eBook)
+  // #280 Exit-intent capture (offer free Move Framework eBook)
   // ============================================================
   function initExitIntent() {
     if (sessionStorage.getItem('wf_exit_shown')) return;
@@ -159,7 +159,7 @@
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9998;padding:20px;';
       overlay.innerHTML = `<div style="background:#1a1610;border:1px solid rgba(180,140,80,0.3);border-radius:12px;padding:32px;max-width:440px;color:#f0e9d8;text-align:center;font-family:-apple-system,system-ui,sans-serif;">
         <h2 style="font-family:'Fraunces',serif;font-size:24px;margin-bottom:10px;color:#b48c50;font-weight:400;">Before you go.</h2>
-        <p style="color:#a89980;margin-bottom:20px;line-height:1.6;font-size:15px;">Free Property Portfolio Blueprint eBook. The way I diagnose every Singapore property situation. No fluff.</p>
+        <p style="color:#a89980;margin-bottom:20px;line-height:1.6;font-size:15px;">Free eBook: The Move Framework. The way I diagnose every Singapore property situation. No fluff.</p>
         <input id="wf_exit_email" type="email" placeholder="your@email.com" style="width:100%;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;margin-bottom:12px;font-size:15px;"/>
         <button id="wf_exit_send" style="background:#b48c50;color:#0e0c08;padding:12px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;font-size:15px;">Send me the eBook</button>
         <div style="color:#7a6c54;font-size:11px;margin-top:14px;cursor:pointer;" id="wf_exit_close">No thanks, just looking</div>
