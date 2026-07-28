@@ -32,12 +32,12 @@ async function startLentorDrip(payload) {
 // without needing the actual PDF file present.
 const MAGNETS = {
   'property-portfolio-blueprint': {
-    title: 'The Property Portfolio Blueprint',
-    url: '/ebooks/4-pillar-framework',
+    title: 'The Move Framework',
+    url: '/ebooks/the-move-framework',
   },
   '4-pillar-ebook': { // backward-compat
-    title: 'The Property Portfolio Blueprint',
-    url: '/ebooks/4-pillar-framework',
+    title: 'The Move Framework',
+    url: '/ebooks/the-move-framework',
   },
   'foreign-buyer-guide': {
     title: 'Foreign Buyer Survival Guide',

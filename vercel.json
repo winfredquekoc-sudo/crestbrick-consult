@@ -58,6 +58,11 @@
   ],
   "redirects": [
     {
+      "source": "/ebooks/4-pillar-framework",
+      "destination": "/ebooks/the-move-framework",
+      "permanent": true
+    },
+    {
       "source": "/LentorGardenResidences",
       "destination": "/LentorGardensResidences",
       "permanent": true
