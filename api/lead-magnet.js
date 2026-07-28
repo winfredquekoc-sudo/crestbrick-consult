@@ -43,6 +43,18 @@ const MAGNETS = {
     title: 'Foreign Buyer Survival Guide',
     url: '/ebooks/foreign-buyer-guide',
   },
+  'buyer-playbook': {
+    title: "The Buyer's Playbook",
+    url: '/buyers-guide',
+  },
+  'seller-valuation': {
+    title: 'Net Proceeds Guide',
+    url: '/sellers-guide',
+  },
+  'progression-score': {
+    title: 'Progression Score follow up',
+    url: '/tools/progression-score',
+  },
   'newsletter': { title: 'Newsletter subscription', url: null },
   'lentor-gardens-guide': {
     title: 'Lentor Gardens Residences: The Investor Case',
