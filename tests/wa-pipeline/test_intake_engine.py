@@ -2,6 +2,20 @@ import sys, json, sqlite3, os
 sys.path.insert(0, os.path.expanduser("~/crestbrick-consult/src/wa-pipeline"))
 import intake_engine as E
 
+# The fixtures predate several listings closing (caspian tenanted 9 Jul 2026, others on
+# hold). Force every fixture listing open for the test process only, so the suite keeps
+# exercising the full enquiry flow instead of dead-ending on "room no longer available".
+_FIXTURE_LISTINGS = ("caspian", "hougang-703", "bedok-north-522", "tampines-855",
+                     "sunshine-terrace", "rivervale-185c")
+_orig_listing_reqs = E.listing_reqs
+def _reqs_fixtures_open():
+    r = dict(_orig_listing_reqs())
+    for k in _FIXTURE_LISTINGS:
+        if k in r:
+            c = dict(r[k]); c["status"] = "open"; r[k] = c
+    return r
+E.listing_reqs = _reqs_fixtures_open
+
 reqs = E.listing_reqs()
 P = 0; F = 0
 def ok(name, cond):
@@ -48,9 +62,10 @@ a1 = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still ava
 ok("first enquiry -> SEND_FORM", a1 and a1["type"]=="SEND_FORM")
 ok("SEND_FORM is TWO messages (unit info, then form)", a1 and len(a1.get("texts",[]))==2)
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
-ok("message 2 is the form with the 10 fields", all(x in a1["texts"][1] for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax","Move in Date","Lease Term","Budget"]))
+ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("same msg id replayed -> None (event dedup)", a1b is None)
+st["conversations"]["6591234567"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
 a2 = E.handle_event(st, {"jid":jid,"msg_id":"m2","text":"Name: Raj\nNationality: Indian\nGender: Male","is_from_me":0})
 ok("incomplete profile -> ONE nudge to prospect (almost there)", a2 and a2["type"]=="NUDGE_INCOMPLETE" and a2.get("text") and "almost there" in a2["text"].lower())
 ok("form NOT resent on 2nd inbound", st["conversations"]["6591234567"]["form_sent"] is True and a2["type"]!="SEND_FORM")
