@@ -7,6 +7,7 @@
 // instantly even if no email channel is configured. No more 503.
 // POST { email, magnet, source } → JSON { ok: true, ebook_url, title }
 import crypto from 'crypto';
+import nodemailer from 'nodemailer';
 
 // Hardcoded to the live leads->Sheet webhook. (A stale N8N_LEAD_MAGNET_WEBHOOK
 // env var was overriding this with a dead URL, so site leads never reached the sheet.)
@@ -17,27 +18,41 @@ const N8N_LENTOR_DRIP_WEBHOOK =
   process.env.N8N_LENTOR_DRIP_WEBHOOK ||
   'https://winfredquekoc.app.n8n.cloud/webhook/lentor-funnel';
 
+// Foolproof fetch: hard timeout + one retry. A hung n8n must never hold the function
+// open, and a transient blip must never lose a lead.
+async function postJson(url, payload, { timeoutMs = 8000, retries = 1 } = {}) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), timeoutMs);
+    try {
+      const r = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        signal: ctrl.signal,
+      });
+      clearTimeout(timer);
+      if (r.ok) return true;
+    } catch { clearTimeout(timer); }
+    if (attempt < retries) await new Promise(r => setTimeout(r, 1500));
+  }
+  return false;
+}
+
 async function startLentorDrip(payload) {
-  try {
-    const r = await fetch(N8N_LENTOR_DRIP_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    return r.ok;
-  } catch { return false; }
+  return postJson(N8N_LENTOR_DRIP_WEBHOOK, payload);
 }
 
 // eBooks live as HTML pages with a Print/Save-as-PDF button — instant access
 // without needing the actual PDF file present.
 const MAGNETS = {
   'property-portfolio-blueprint': {
-    title: 'The Move Framework',
-    url: '/ebooks/the-move-framework',
+    title: 'The Money, Timing & Safety Framework',
+    url: '/ebooks/money-timing-safety-framework',
   },
   '4-pillar-ebook': { // backward-compat
-    title: 'The Move Framework',
-    url: '/ebooks/the-move-framework',
+    title: 'The Money, Timing & Safety Framework',
+    url: '/ebooks/money-timing-safety-framework',
   },
   'foreign-buyer-guide': {
     title: 'Foreign Buyer Survival Guide',
@@ -47,15 +62,12 @@ const MAGNETS = {
     title: "The Buyer's Playbook",
     url: '/buyers-guide',
   },
-  'seller-valuation': {
-    title: 'Net Proceeds Guide',
-    url: '/sellers-guide',
-  },
-  'progression-score': {
-    title: 'Progression Score follow up',
-    url: '/tools/progression-score',
-  },
   'newsletter': { title: 'Newsletter subscription', url: null },
+  'seller-valuation': { title: 'Seller Valuation Report request', url: null },
+  'progression-score': {
+    title: 'The Money, Timing & Safety Framework',
+    url: '/ebooks/money-timing-safety-framework',
+  },
   'lentor-gardens-guide': {
     title: 'Lentor Gardens Residences: The Investor Case',
     url: '/launches/briefs/lentor-gardens-residences',
@@ -84,33 +96,35 @@ async function notifyTelegram(lead) {
 }
 
 async function notifyN8n(payload) {
-  try {
-    const r = await fetch(N8N_LEAD_MAGNET_WEBHOOK, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
-    return r.ok;
-  } catch { return false; }
+  return postJson(N8N_LEAD_MAGNET_WEBHOOK, payload);
 }
 
-async function notifyResend(email, m, source) {
-  const RESEND = process.env.RESEND_API_KEY;
-  if (!RESEND) return false;
+// Deliver the eBook email. PRIMARY = Gmail SMTP (GMAIL_USER + GMAIL_APP_PASSWORD, which are
+// set and working); FALLBACK = Resend (only if a valid key is configured). Resend was returning
+// resend:false in prod (empty/unverified), so Gmail is now the reliable path.
+async function notifyEmail(email, m, source) {
   const html = `<p>Hi,</p><p>Your free copy of <b>${m.title}</b>:</p><p><a href="https://winfredquek.com${m.url}">Open eBook →</a></p><p>If you find it useful, the way I work with paying clients is at <a href="https://winfredquek.com/services/property-portfolio-analysis">winfredquek.com/services/property-portfolio-analysis</a>.</p><p>— Winfred</p><p style="font-size:11px;color:#999;">You requested this via ${source}. Reply STOP to unsubscribe.</p>`;
-  try {
-    const r = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        from: 'Winfred Quek <winfred@winfredquek.com>',
-        to: [email],
-        subject: `Your copy of ${m.title}`,
-        html,
-      }),
-    });
-    return r.ok;
-  } catch { return false; }
+  const subject = `Your copy of ${m.title}`;
+  const user = process.env.GMAIL_USER, pass = process.env.GMAIL_APP_PASSWORD;
+  if (user && pass) {
+    try {
+      const t = nodemailer.createTransport({ service: 'gmail', auth: { user, pass } });
+      await t.sendMail({ from: `Winfred Quek <${user}>`, to: email, subject, html });
+      return true;
+    } catch { /* fall through to Resend */ }
+  }
+  const RESEND = process.env.RESEND_API_KEY;
+  if (RESEND) {
+    try {
+      const r = await fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${RESEND}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ from: 'Winfred Quek <winfred@winfredquek.com>', to: [email], subject, html }),
+      });
+      return r.ok;
+    } catch { return false; }
+  }
+  return false;
 }
 
 export default async function handler(req, res) {
@@ -137,8 +151,10 @@ export default async function handler(req, res) {
   const src = source || 'resources_page';
 
   // Fan out — none of these block on each other failing.
-  const [tg, n8n, resend, drip] = await Promise.all([
-    notifyTelegram({ email, name, phone, intent, magnet_title: m.title, source: src }),
+  // Per-lead Telegram ping intentionally disabled — leads are summarised by the
+  // daily lead-magnet-digest cron instead of pinging on every submission.
+  const wantDrip = magnet === 'lentor-gardens-guide';
+  const [n8n, emailed, drip] = await Promise.all([
     notifyN8n({
       email,
       name: name || null,
@@ -150,17 +166,35 @@ export default async function handler(req, res) {
       source: src,
       ts: new Date().toISOString(),
     }),
-    notifyResend(email, m, src),
-    magnet === 'lentor-gardens-guide'
+    notifyEmail(email, m, src),
+    wantDrip
       ? startLentorDrip({ email, name: name || '', phone: phone || '', intent: intent || '', magnet, source: src, ts: new Date().toISOString() })
       : Promise.resolve(false),
   ]);
+
+  // FAILSAFE: a lead must NEVER be silently lost. If the Sheet webhook (the system of
+  // record), the email, or an expected drip start failed, ping Telegram WITH the full
+  // lead payload so it is always recoverable by hand. This ping fires ONLY on failure,
+  // so the quiet-inbox intent of the digest is preserved on the happy path.
+  let tg = false;
+  const failures = [];
+  if (!n8n) failures.push('sheet webhook');
+  if (!emailed) failures.push('ebook email');
+  if (wantDrip && !drip) failures.push('lentor drip');
+  if (failures.length) {
+    tg = await notifyTelegram({
+      magnet_title: `⚠️ LEAD DELIVERY FAILED (${failures.join(' + ')}) — record this lead by hand`,
+      email, name, phone, intent, source: src,
+    });
+  }
+  console.log(JSON.stringify({ lead_magnet: true, email, magnet, source: src,
+    delivery: { n8n, email: emailed, drip, fallback_tg: tg } }));
 
   // Always succeed. The eBook URL is in the response so the page can redirect/show it.
   return res.status(200).json({
     ok: true,
     ebook_url: m.url,
     title: m.title,
-    delivery: { telegram: tg, n8n, resend, drip },
+    delivery: { telegram: tg, n8n, email: emailed, drip },
   });
 }

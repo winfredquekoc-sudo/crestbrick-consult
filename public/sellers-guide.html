@@ -45,7 +45,7 @@
     label{font-size:13px;color:var(--ink-soft);font-weight:500;display:block;margin-bottom:.35rem;}
     .step-num{font-family:'Fraunces',Georgia,serif;font-size:42px;color:var(--accent);line-height:1;}
   </style>
-  <link rel="stylesheet" href="/motion.css">
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
 
   <!-- GA4, replace G-T6C46CFKCM with your measurement ID from analytics.google.com -->
@@ -69,7 +69,7 @@
     "telephone": "+65-8161-8149",
     "email": "winfredquekoc@gmail.com",
     "areaServed": { "@type": "Country", "name": "Singapore" },
-    "address": { "@type": "PostalAddress", "addressCountry": "SG" },
+    "address":{"@type":"PostalAddress","streetAddress":"62 Ubi Road 1, #05-04 Oxley BizHub 2","addressLocality":"Singapore","postalCode":"408734","addressCountry":"SG"},
     "identifier": { "@type": "PropertyValue", "propertyID": "CEA", "value": "R073319H" },
     "sameAs": [
       "https://www.linkedin.com/in/winfredquek",
@@ -78,9 +78,7 @@
     ]
   }
   </script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <meta property="og:site_name" content="Winfred Quek" />
-  <meta property="og:locale" content="en_SG" />
-</head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -137,6 +135,15 @@
     signals desperation faster than a well-timed relaunch can undo.
   </p>
 </section>
+
+    <!-- Free valuation report banner -->
+    <section class="max-w-5xl mx-auto px-6 py-6">
+      <a href="/sell-with-winfred" style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;background:linear-gradient(135deg,#1a1610,#221c12);border:1px solid rgba(198,163,106,0.35);border-radius:12px;padding:1.25rem 1.5rem;text-decoration:none;">
+        <span style="color:var(--ink);font-weight:600;">Thinking of selling? Get your free valuation report, prepared personally within 24 hours.</span>
+        <span class="btn btn-primary" style="white-space:nowrap;">Get your free valuation &rarr;</span>
+      </a>
+    </section>
+
 
 <section class="max-w-5xl mx-auto px-6 pb-16">
   <div class="grid md:grid-cols-2 gap-8">
@@ -348,7 +355,7 @@
 
     <div class="flex flex-wrap gap-3 mt-8">
       <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a strategy call</a>
-      <a href="/stamp-duty-calculator" class="btn btn-ghost">Calculate stamp duty on next purchase</a>
+      <a href="/tools/bsd" class="btn btn-ghost">Calculate stamp duty on next purchase</a>
       <a href="/absd-calculator" class="btn btn-ghost">Check ABSD on next property</a>
       <a href="/pricing" class="btn btn-ghost">See full pricing</a>
     </div>

@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><title>Property Loan Repayment Calculator Singapore 2026 · Winfred Quek</title>
+<meta name="description" content="Singapore property loan calculator: monthly repayment, total interest, year by year amortization, rate shock and TDSR check. Free tool, Winfred Quek, CEA R073319H.">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link rel="canonical" href="https://winfredquek.com/tools/loan-repayment">
+<style>
+:root{--bg:#0e0c08;--ink:#f0e9d8;--ink-soft:#a89980;--ink-muted:#7a6c54;--accent:#b48c50;--rule:rgba(180,140,80,0.2);--highlight:#1a1610;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;padding:32px 16px;line-height:1.6;}
+.wrap{max-width:780px;margin:0 auto;}
+h1{font-family:'Fraunces',serif;font-size:28px;font-weight:400;}
+.lead{color:var(--ink-soft);margin:8px 0 28px;line-height:1.6;}
+.card{background:var(--highlight);border:1px solid var(--rule);border-radius:12px;padding:24px;margin-bottom:18px;}
+label{display:block;margin-bottom:14px;}
+label>span{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:4px;}
+input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid var(--rule);border-radius:6px;color:var(--ink);font-size:15px;}
+input[type=range]{padding:0;accent-color:var(--accent);}
+.row{display:flex;gap:14px;flex-wrap:wrap;}
+.row label{flex:1;min-width:180px;}
+.help{font-size:12px;color:var(--ink-muted);margin-top:-8px;margin-bottom:14px;}
+.section-label{font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink-muted);margin:18px 0 10px;border-top:1px solid var(--rule);padding-top:16px;}
+.btn{background:var(--accent);color:var(--bg);padding:12px 24px;border-radius:8px;border:none;cursor:pointer;font-weight:500;font-size:15px;width:100%;}
+.result{display:none;margin-top:24px;}
+.result.show{display:block;}
+.big{font-family:'Fraunces',serif;font-size:42px;color:var(--accent);text-align:center;}
+.bigcap{text-align:center;color:var(--ink-muted);font-size:13px;margin-top:6px;}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-top:22px;}
+.metric-card{background:var(--bg);border:1px solid var(--rule);border-radius:8px;padding:14px;}
+.metric-card .label{font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink-muted);margin-bottom:4px;}
+.metric-card .val{font-size:19px;color:var(--ink);font-weight:500;}
+.shock{margin-top:18px;padding:14px 16px;background:rgba(255,82,82,0.08);border:1px solid rgba(255,82,82,0.25);border-radius:8px;font-size:13.5px;color:var(--ink-soft);}
+.shock b{color:#ff8a8a;}
+.tdsr{margin-top:18px;padding:14px 16px;border-radius:8px;font-size:13.5px;line-height:1.7;}
+.tdsr.pass{background:rgba(61,220,132,0.08);border:1px solid rgba(61,220,132,0.25);}
+.tdsr.fail{background:rgba(255,82,82,0.08);border:1px solid rgba(255,82,82,0.25);}
+.tdsr b.pass-tag{color:#3ddc84;}
+.tdsr b.fail-tag{color:#ff8a8a;}
+.chart-wrap{margin-top:24px;}
+.chart-wrap svg{width:100%;height:auto;display:block;}
+.legend{display:flex;gap:18px;justify-content:center;margin-top:10px;font-size:12px;color:var(--ink-soft);}
+.legend span{display:inline-flex;align-items:center;gap:6px;}
+.dot{width:10px;height:10px;border-radius:50%;display:inline-block;}
+details{margin-top:20px;}
+summary{cursor:pointer;color:var(--accent);font-size:13.5px;padding:8px 0;}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px;}
+th,td{text-align:right;padding:7px 8px;border-bottom:1px solid var(--rule);}
+th:first-child,td:first-child{text-align:left;}
+th{color:var(--ink-muted);font-weight:500;font-size:11px;text-transform:uppercase;letter-spacing:0.05em;}
+td{color:var(--ink-soft);}
+.cta{margin-top:24px;text-align:center;}
+.cta a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
+</style>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Property Loan Repayment Calculator Singapore 2026 · Winfred Quek","item":"https://winfredquek.com/tools/loan-repayment"}]}
+</script>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@type":"WebApplication","name":"Property Loan Repayment Calculator Singapore 2026 · Winfred Quek","url":"https://winfredquek.com/tools/loan-repayment","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Calculate your Singapore property loan monthly repayment, total interest, and year by year amortization. Model rate shocks and TDSR. Free tool, Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about"}}
+</script>
+</head><body><div class="wrap">
+<h1>Property Loan Repayment Calculator</h1>
+<div class="lead">Work out the real monthly number before you commit: repayment, total interest over the full tenure, and what a rate shock does to your cash flow. Enter your numbers below.</div>
+
+<div class="card">
+<div class="row">
+<label><span>Property price (S$)</span><input id="price" type="number" value="750000" min="0" step="10000"/></label>
+<label><span>Property type</span><select id="ptype"><option value="private" selected>Private (up to 30y)</option><option value="hdb">HDB / EC (up to 25y)</option></select></label>
+</div>
+
+<label><span>Loan to value, LTV (<span id="ltvval">75</span>%) — first housing loan default 75%</span>
+<input id="ltv" type="range" min="10" max="75" step="5" value="75"/></label>
+
+<div class="row">
+<label><span>Loan amount (S$) — auto from LTV, or type your own</span><input id="loan" type="number" value="562500" min="0" step="1000"/></label>
+<label><span>Interest rate % per year (0.5–5, step 0.05)</span><input id="rate" type="number" value="1.50" min="0.5" max="5" step="0.05"/></label>
+</div>
+
+<div class="row">
+<label><span>Loan tenure (years)</span><input id="tenure" type="number" value="25" min="5" max="30" step="1"/></label>
+<label><span>&nbsp;</span></label>
+</div>
+<div class="help">Max tenure is the lower of 30 years (private) / 25 years (HDB) or age 65, whichever comes first.</div>
+
+<div class="section-label">Optional — TDSR / MSR check</div>
+<div class="row">
+<label><span>Gross monthly income (S$)</span><input id="income" type="number" value="" placeholder="e.g. 12000" min="0" step="500"/></label>
+<label><span>Existing monthly debt obligations (S$)</span><input id="debts" type="number" value="" placeholder="e.g. 800" min="0" step="100"/></label>
+</div>
+
+<button class="btn" onclick="calc()">Calculate my repayment</button>
+</div>
+
+<div id="result" class="result">
+<div class="card">
+<div class="big" id="monthly"></div>
+<div class="bigcap">Monthly repayment</div>
+
+<div class="metrics">
+<div class="metric-card"><div class="label">Total interest</div><div class="val" id="totalInterest"></div></div>
+<div class="metric-card"><div class="label">Total payable</div><div class="val" id="totalPayable"></div></div>
+<div class="metric-card"><div class="label">Year 1 — interest</div><div class="val" id="y1interest"></div></div>
+<div class="metric-card"><div class="label">Year 1 — principal</div><div class="val" id="y1principal"></div></div>
+</div>
+
+<div class="shock" id="shockBox"></div>
+<div class="tdsr" id="tdsrBox" style="display:none;"></div>
+
+<div class="chart-wrap">
+<div class="section-label" style="border-top:none;padding-top:0;margin-top:0;">Amortization timeline</div>
+<div id="chart"></div>
+<div class="legend">
+<span><i class="dot" style="background:#b48c50;"></i>Outstanding balance</span>
+<span><i class="dot" style="background:#7fb8d8;"></i>Cumulative interest paid</span>
+</div>
+</div>
+
+<details>
+<summary>Show full year-by-year amortization table</summary>
+<div style="overflow-x:auto;">
+<table id="amortTable"><thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Ending balance</th></tr></thead><tbody id="amortBody"></tbody></table>
+</div>
+</details>
+</div>
+<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20ran%20the%20loan%20repayment%20calculator%20and%20want%20to%20talk%20about%20the%20best%20rate%20package.">Want me to shop the best rate lock for this loan? WA me →</a></div>
+</div>
+
+<script>
+function fmt(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
+
+function pmt(loan, annualRatePct, years){
+  const r = (annualRatePct/100)/12;
+  const n = years*12;
+  if (n<=0) return 0;
+  if (r === 0) return loan/n;
+  return loan * r * Math.pow(1+r,n) / (Math.pow(1+r,n)-1);
+}
+
+function buildSchedule(loan, annualRatePct, years){
+  const r = (annualRatePct/100)/12;
+  const n = years*12;
+  const m = pmt(loan, annualRatePct, years);
+  let bal = loan;
+  const months = [];
+  for(let i=1;i<=n;i++){
+    const interest = bal*r;
+    let principal = m - interest;
+    if (principal > bal) principal = bal;
+    bal = Math.max(0, bal - principal);
+    months.push({interest, principal, bal});
+  }
+  return months;
+}
+
+function yearlyAgg(months){
+  const years = [];
+  for(let y=0; y*12<months.length; y++){
+    const slice = months.slice(y*12, y*12+12);
+    const principal = slice.reduce((s,r)=>s+r.principal,0);
+    const interest = slice.reduce((s,r)=>s+r.interest,0);
+    const endBal = slice[slice.length-1].bal;
+    years.push({year:y+1, principal, interest, endBal});
+  }
+  return years;
+}
+
+function buildChart(years, loanAmount){
+  const w=680, h=240, padL=54, padR=14, padT=14, padB=28;
+  const plotW = w-padL-padR, plotH = h-padT-padB;
+  const n = years.length;
+  const maxInterest = years.reduce((s,y)=>s+y.interest,0);
+  let cum=0;
+  const balPts=[], intPts=[];
+  years.forEach((y,i)=>{
+    cum += y.interest;
+    const x = padL + (i/(n-1||1))*plotW;
+    const yBal = padT + (1 - y.endBal/loanAmount)*plotH;
+    const yInt = padT + (1 - cum/(maxInterest||1))*plotH;
+    balPts.push(x.toFixed(1)+','+yBal.toFixed(1));
+    intPts.push(x.toFixed(1)+','+yInt.toFixed(1));
+  });
+  // gridlines every ~5 years, or every year if tenure small
+  const step = n>15 ? 5 : (n>8 ? 2 : 1);
+  let gridlines='', labels='';
+  for(let i=0;i<n;i++){
+    if((i+1)%step===0 || i===n-1 || i===0){
+      const x = padL + (i/(n-1||1))*plotW;
+      gridlines += `<line x1="${x.toFixed(1)}" y1="${padT}" x2="${x.toFixed(1)}" y2="${padT+plotH}" stroke="rgba(180,140,80,0.12)" stroke-width="1"/>`;
+      labels += `<text x="${x.toFixed(1)}" y="${h-8}" font-size="10" fill="#7a6c54" text-anchor="middle">Y${i+1}</text>`;
+    }
+  }
+  const axisLabels = `<text x="${padL}" y="${padT-2}" font-size="10" fill="#7a6c54">${fmt(loanAmount)}</text><text x="${padL}" y="${padT+plotH+2}" font-size="10" fill="#7a6c54">S$0</text>`;
+  return `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="${w}" height="${h}" fill="none"/>
+    ${gridlines}
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${padT+plotH}" stroke="rgba(180,140,80,0.25)" stroke-width="1"/>
+    <line x1="${padL}" y1="${padT+plotH}" x2="${padL+plotW}" y2="${padT+plotH}" stroke="rgba(180,140,80,0.25)" stroke-width="1"/>
+    <polyline points="${balPts.join(' ')}" fill="none" stroke="#b48c50" stroke-width="2.5"/>
+    <polyline points="${intPts.join(' ')}" fill="none" stroke="#7fb8d8" stroke-width="2.5" stroke-dasharray="4,3"/>
+    ${labels}
+    ${axisLabels}
+  </svg>`;
+}
+
+let ltvManual = false, loanManual = false;
+
+function syncFromLtv(){
+  const price = +document.getElementById('price').value || 0;
+  const ltv = +document.getElementById('ltv').value;
+  document.getElementById('ltvval').textContent = ltv;
+  document.getElementById('loan').value = Math.round(price*ltv/100);
+}
+
+document.getElementById('ltv').addEventListener('input', function(){ syncFromLtv(); calc(); });
+document.getElementById('price').addEventListener('input', function(){ syncFromLtv(); calc(); });
+
+function calc(){
+  const price = +document.getElementById('price').value || 0;
+  const loan = +document.getElementById('loan').value || 0;
+  const rate = +document.getElementById('rate').value || 0;
+  const tenure = Math.max(1, +document.getElementById('tenure').value || 1);
+  const ptype = document.getElementById('ptype').value;
+  const income = +document.getElementById('income').value || 0;
+  const debts = +document.getElementById('debts').value || 0;
+
+  const monthly = pmt(loan, rate, tenure);
+  const months = buildSchedule(loan, rate, tenure);
+  const years = yearlyAgg(months);
+  const totalInterest = months.reduce((s,m)=>s+m.interest,0);
+  const totalPayable = loan + totalInterest;
+  const y1 = years[0] || {principal:0, interest:0};
+
+  document.getElementById('monthly').textContent = fmt(monthly);
+  document.getElementById('totalInterest').textContent = fmt(totalInterest);
+  document.getElementById('totalPayable').textContent = fmt(totalPayable);
+  document.getElementById('y1interest').textContent = fmt(y1.interest);
+  document.getElementById('y1principal').textContent = fmt(y1.principal);
+
+  // rate shock +1.5pp
+  const shockRate = rate + 1.5;
+  const shockMonthly = pmt(loan, shockRate, tenure);
+  const shockDiff = shockMonthly - monthly;
+  document.getElementById('shockBox').innerHTML = `<b>Rate shock stress test:</b> if your rate rises 1.5 percentage points to <b>${shockRate.toFixed(2)}%</b>, your monthly repayment becomes <b>${fmt(shockMonthly)}</b> — that's ${fmt(shockDiff)} more per month. Make sure you can hold this before you commit.`;
+
+  // TDSR / MSR check
+  const tdsrBox = document.getElementById('tdsrBox');
+  if (income > 0) {
+    const tdsrCap = income*0.55;
+    const totalObligations = debts + monthly;
+    const tdsrRatio = totalObligations/income;
+    const tdsrPass = totalObligations <= tdsrCap;
+    let msrLine = '';
+    if (ptype === 'hdb') {
+      const msrCap = income*0.30;
+      const msrPass = monthly <= msrCap;
+      msrLine = `<br>MSR (HDB/EC, housing debt only, cap 30%): your housing repayment is ${fmt(monthly)} of a ${fmt(msrCap)} cap — <b class="${msrPass?'pass-tag':'fail-tag'}">${msrPass?'within MSR':'exceeds MSR'}</b>.`;
+    }
+    tdsrBox.className = 'tdsr ' + (tdsrPass ? 'pass' : 'fail');
+    tdsrBox.style.display = 'block';
+    tdsrBox.innerHTML = `<b>TDSR check (cap 55% of gross income):</b> total monthly debt (this loan + existing obligations) is ${fmt(totalObligations)} against income of ${fmt(income)} — that's ${(tdsrRatio*100).toFixed(1)}% of income, cap is ${fmt(tdsrCap)}. <b class="${tdsrPass?'pass-tag':'fail-tag'}">${tdsrPass?'PASSES TDSR':'EXCEEDS TDSR'}</b>.${msrLine}<br><span style="color:var(--ink-muted);font-size:12px;">This is a simplified check at your stated rate, not the MAS stress-tested qualifying figure. See the <a href="/tools/tdsr-scenarios" style="color:var(--accent);">TDSR scenario tool</a> for the stress-tested version banks actually underwrite to.</span>`;
+  } else {
+    tdsrBox.style.display = 'none';
+  }
+
+  // chart
+  document.getElementById('chart').innerHTML = buildChart(years, loan);
+
+  // table
+  const body = document.getElementById('amortBody');
+  body.innerHTML = years.map(y => `<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td>${fmt(y.interest)}</td><td>${fmt(y.endBal)}</td></tr>`).join('');
+
+  document.getElementById('result').classList.add('show');
+}
+
+syncFromLtv();
+calc();
+</script>
+</div>
+    
+  
+  <!-- related-tools:START -->
+  <div style="max-width:720px;margin:32px auto 0;padding:0 16px;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#b48c50;font-weight:600;margin-bottom:10px;">Related tools</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+      <a href="/tools/mortgage-rates" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Mortgage Rates 2026</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Live bank packages, fixed and SORA</span></a>
+      <a href="/tools/tdsr-scenarios" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">TDSR / MSR Scenario Compare</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Rate-shock stress test, 3.5-5%</span></a>
+      <a href="/tools/purchase-timeline" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Purchase Timeline</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Every milestone from offer to keys</span></a>
+    </div>
+  </div>
+  <!-- related-tools:END -->
+
+<!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
+</body></html>

@@ -65,9 +65,9 @@
         "resource": "message",
         "operation": "send",
         "sendTo": "={{ $('Config').first().json.email }}",
-        "subject": "The 38.9% land gap, and the catch",
+        "subject": "The land price gap, and the catch",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nYour Lentor Gardens Residences investor guide is here: {{ $('Config').first().json.guideUrl }}.\n\nOne number in it is worth more than every render in the showflat, and you can verify it tonight before the 4 July preview.\n\nLentor Gardens sits on land that cost about S$920 psf ppr. Kingsford Development won that site. The very next parcel in the same cluster, Lentor Central, went to GuocoLand at about S$1,278 psf ppr. That is a 38.9 percent jump in the land cost under the next launch, right next door. Analysts project that neighbour breaks even near S$2,378 psf. Lentor Gardens is tracking about S$2,250 psf on an indicative basis, with official pricing released on 4 July. You would be entering before the reset, not after it.\n\nThe scarcity is structural, not staged. Across the whole enclave about 2,926 units have already sold, leaving roughly 28 unsold as of May 2026. This is effectively the last meaningful entry into a cluster the market has already voted on.\n\nNow the question a careful buyer asks. If it is this underpriced, what is the catch. Kingsford has delivered over 3,500 homes in Singapore, and also carried a no sale licence on Normanton Park in 2019 to 2020. I do not bury that. I manage it through build quality due diligence and snagging, openly, with you.\n\nEach day this week I will unpack one more piece, so you can weigh it calmly rather than under a clock.\n\nIf you would rather hold these numbers against your own portfolio now, book a free 30 minute private session and we map it together, no pitch: {{ $('Config').first().json.calendlyUrl }}.\n\nNot the right fit? Reply stop and I will quietly close the loop.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nHere is your Lentor Gardens Residences investor guide: {{ $('Config').first().json.guideUrl }}.\n\nOne number in it matters more than any showflat photo. You can check it tonight.\n\nHere is the number.\n\nLentor Gardens sits on land that cost about S$920 psf ppr (per square foot of land). Kingsford Development won that plot.\n\nThe very next plot, right next door, is Lentor Central. GuocoLand paid about S$1,278 psf ppr for it.\n\nSo the land next door cost 38.9 percent more. That is a big jump for the next launch.\n\nNow the part to read slowly.\n\nSome early estimates say Lentor Gardens may be around S$2,250 psf. This is NOT confirmed pricing. The official prices only come out on 4 July. They may turn out different.\n\nYou may also hear that the next door project needs about S$2,378 psf just to not lose money. That figure is a third party estimate, not from me. It is not a promise. Future prices are not guaranteed.\n\nSo please treat all of these numbers as estimates only, not facts you can bank on.\n\nNow the question a careful buyer asks. If it looks cheap, what is the catch.\n\nHere is the honest catch. Kingsford has built over 3,500 homes in Singapore. It also once had a no sale licence on Normanton Park in 2019 to 2020.\n\nI do not hide that. I deal with it through proper build quality checks and snagging, openly, with you.\n\nA quick note on how many are left. Across this area, about 2,926 units have sold. About 28 were unsold as of May 2026.\n\nI am not saying you must rush. I am only sharing the numbers as they stand.\n\nEach day this week I will share one more piece. That way you can think it over calmly, with no clock on you.\n\nWould you rather go through these numbers against your own plans now? Book a free 30 minute private session. We map it out together. No pressure, no pitch: {{ $('Config').first().json.calendlyUrl }}.\n\nNot the right fit? Just reply stop and I will quietly close the loop.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -85,7 +85,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -108,9 +112,9 @@
         "resource": "message",
         "operation": "send",
         "sendTo": "={{ $('Config').first().json.email }}",
-        "subject": "The bill cash quietly pays every year",
+        "subject": "What cash quietly loses every year",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost allocators I speak with hold a meaningful balance in cash or short bonds right now. It earns a little, it feels safe, and it waits for a clearer signal before committing to a hard asset. Safe is the word worth pausing on.\n\nThree forces are quietly compounding underneath that balance while it sits.\n\nInflation, first. MAS and MTI project core inflation of about 1.5 to 2.5 percent for 2026, with the bias to the upside. Idle cash gives up close to that in real terms every year, with no statement that ever shows the loss.\n\nReplacement cost, second. The Singapore Contractors Association reports building material prices up about 20 percent. A home standing today cannot be rebuilt for what it cost a few years ago, and that rising floor sits under everything already built.\n\nPipeline, third. BCA projects about S$47 to 53 billion of construction contracts in 2026 alone, across more than ten mega projects including Changi T5, Tuas Port, the North South Corridor, the Jurong Region Line and the Cross Island Line. A multi year build programme is one of the cleaner signals of sustained housing and rental demand in the precincts it reaches.\n\nNow the honest caveat a sharp reader is already forming. None of this lifts the price of one specific home. It sets a floor under the asset class, not a guarantee under a single unit. Which unit, which location, which entry price, that is the real work, and it is exactly what a quiet conversation is for.\n\nIf it would help to read your own position against this backdrop, I keep a few free 30 minute private sessions open each week, no obligation: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this no longer serves you, reply stop and I will remove you quietly.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost people I speak with hold a lot of cash right now. Or short bonds. It earns a little. It feels safe. They wait for a clearer sign before buying a real asset.\n\nLet us pause on that word. Safe.\n\nThree things quietly chip away at that cash while it sits.\n\nFirst, inflation. MAS and MTI project core inflation of about 1.5 to 2.5 percent for 2026. They say it may run a bit higher. So idle cash loses close to that in real value each year. No bank statement ever shows you this loss.\n\nSecond, the cost to rebuild. The Singapore Contractors Association reports building material prices up about 20 percent. A home standing today cannot be rebuilt for what it cost a few years ago. That rising cost sits under every home already built.\n\nThird, the building pipeline. BCA projects about S$47 to 53 billion of construction contracts in 2026 alone. That covers more than ten mega projects. These include Changi T5, Tuas Port, the North South Corridor, the Jurong Region Line and the Cross Island Line. In my view, steady building like this tends to go with housing and rental demand. But that is my opinion, not a promise.\n\nNow the honest catch. A sharp reader has already spotted it.\n\nNone of this lifts the price of one home. It puts a floor under the whole asset class. It is not a guarantee for any single unit.\n\nWhich unit. Which spot. Which entry price. That is the real work. And that is exactly what a quiet chat is for.\n\nIf it helps to read your own position against all this, I keep a few free 30 minute private sessions open each week. No pressure, no obligation: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this no longer serves you, reply stop and I will remove you quietly.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -128,7 +132,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -153,7 +161,7 @@
         "sendTo": "={{ $('Config').first().json.email }}",
         "subject": "Same MRT stop, two land prices",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nLet me put the question you are already holding on the table. If Lentor Gardens looks underpriced, where is the catch? Land that cheap usually hides a defect.\n\nHere is the honest answer. It is not a flaw, it is timing.\n\nLand is bought years before a home is sold, and your launch price is anchored to what the ground cost back then. Kingsford secured this site at about S$920 psf ppr. The adjacent Lentor Central plot, won later by GuocoLand, cost S$1,278 psf ppr. Same MRT stop, two land prices, a 38.9 percent gap. Nothing is wrong here. The two parcels simply transacted at different moments in the cycle.\n\nThat gap does not stay buried. On GuocoLand's higher basis, analysts project the next launch must break even near S$2,378 psf just to make commercial sense. Lentor Gardens carries an indicative average near S$2,250 psf, inside an indicative S$2,100 to S$2,400 band. Every figure here is indicative, with official pricing on 4 July.\n\nSo you are not buying a low number. You are buying the distance between two land costs, fixed before either building rose.\n\nOne caveat I keep in front of you, never behind. This is primarily a capital and progression play. The yields here are moderate, not spectacular.\n\nThe clean way to read this is against your own cost basis and exit math. In a free 30 minute private session I will walk your numbers through that gap with you, before pricing firms up on 4 July. You can book a time that suits you here: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this is not the right moment, reply stop and I will quietly step back.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nYou are likely asking one quiet question. If Lentor Gardens looks cheap, what is the catch?\n\nWhen land is cheap, people worry it hides a problem.\n\nHere is the honest answer. It is not a problem. It is timing.\n\nLand is bought years before a home is sold. The launch price is tied to what the land cost back then.\n\nKingsford bought this site for about S$920 per square foot of land (psf ppr). The plot next door, Lentor Central, went to GuocoLand later. That land cost S$1,278 psf ppr.\n\nSame MRT stop. Two land prices. A 38.9 percent gap.\n\nNothing is wrong here. The two plots were bought at different times.\n\nThat gap does not stay hidden. GuocoLand paid more for their land. So the price they need on their next launch, just to not lose money, is near S$2,378 psf. That breakeven figure is a third party estimate from analysts.\n\nLentor Gardens has an estimated average near S$2,250 psf. The estimated range is S$2,100 to S$2,400.\n\nThese prices are only estimates. The official prices come out on 4 July.\n\nSo you are not just buying a low number. You are buying the gap between two land costs. That gap was set before either building went up.\n\nOne thing I will always say to your face, never hide. You buy this for growth in value, not for rent. The rent returns here are okay, not amazing.\n\nThese are estimates only. They are not a promise of future returns. Your real rent may turn out different.\n\nThe best way to read this is against your own numbers. What did you pay in? When do you plan to sell?\n\nIn a free 30 minute private session, I will walk your numbers through this gap with you. We can do this before prices are set on 4 July. No pressure. Book a time that suits you here: {{ $('Config').first().json.calendlyUrl }}.\n\nIf now is not the right time, reply stop and I will quietly step back.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -171,7 +179,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -196,7 +208,7 @@
         "sendTo": "={{ $('Config').first().json.email }}",
         "subject": "Two quiet questions before 4 July",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nPicture the gallery on 4 July. You like a stack. The agent asks which bedroom and what budget, and you realise two things were never settled in private. Am I paying too much near a top. And can I actually carry this once I want it.\n\nBetter to answer both now, calmly, than under bright lights with a queue forming behind you.\n\nOn overpaying, the evidence leans the other way. Six neighbours on this exact MRT stop sold roughly 91 to 100 percent: Lentor Modern, Lentor Hills, Hillock Green, Lentoria, Lentor Mansion and Lentor Central Residences. This cluster did not clear once by chance, it cleared again and again. And the adjacent Lentor Central parcel was tendered at S$1,278 psf ppr against Lentor Gardens land near S$920, a 38.9 percent gap. The next launch is projected to break even close to S$2,378 psf, which is why today's indicative working average near S$2,250 psf reads underpriced rather than toppy. Official pricing releases 4 July.\n\nOne honest note on history. Buyers in the 2022 Mayflower and Lentor launches realised roughly 13 to 27 percent gains by 2026 over about 3.3 to 3.7 years. Those are past, realised outcomes of other projects. Past performance is not indicative of future results, and nothing here is promised for Lentor Gardens. I show the range so you can weigh it, not lean on it.\n\nOn carrying it, indicative entry: a 2 bedroom from about S$1.32m suggests roughly S$8,800 monthly income and S$369k cash plus CPF. A 3 bedroom from about S$1.87m suggests about S$12,500 income and S$521k cash plus CPF.\n\nA table cannot tell you which line is yours. A quiet 30 minutes with me can. Book your free private session and we will settle both before 4 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf you would rather I stop sending these, just reply stop.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nPicture the showroom on 4 July. You like a unit.\n\nThe agent asks which bedroom and what budget. Suddenly two worries hit you.\n\nAm I paying too much near the top. And can I really afford this.\n\nBetter to answer both now, calmly. Not while a queue waits behind you.\n\nFirst, a quick note on the facts below. All prices here are estimates only. They are not the real prices. The official prices come out on 4 July and may be different.\n\nNow, are you paying too much. Here is some context to weigh.\n\nSix nearby projects on this same MRT stop sold about 91 to 100 percent of their units:\n\n• Lentor Modern\n• Lentor Hills\n• Hillock Green\n• Lentoria\n• Lentor Mansion\n• Lentor Central Residences\n\nThese were separate, earlier projects. They do not tell you how this launch will do. I share them only as background.\n\nHere is some land cost data, from market reports. The land next door at Lentor Central was bid at S$1,278 per square foot of land (psf ppr). The Lentor Gardens land was near S$920. That is a 38.9 percent gap.\n\nSome industry estimates suggest the next launch may need about S$2,378 psf just to not lose money. This is a third party estimate, not a promise.\n\nAgainst that, today's rough working price is near S$2,250 psf. In my opinion that looks fair, not too high. But that is just my read on an estimate. The real prices on 4 July may differ. Please judge it yourself.\n\nNow a honest note on the past. Buyers in the 2022 Mayflower and Lentor launches made about 13 to 27 percent gains by 2026. That took about 3.3 to 3.7 years.\n\nThose are past results from other projects. Past results are not a promise. Lentor Gardens may turn out different. I show the range so you can weigh it, not lean on it.\n\nNow, can you afford it. These are rough starting prices only.\n\nA 2 bedroom from about S$1.32m. That points to about S$8,800 monthly income and S$369k in cash plus CPF.\n\nA 3 bedroom from about S$1.87m. That points to about S$12,500 income and S$521k in cash plus CPF.\n\nA table cannot tell you which line is yours. A quiet 30 minutes with me can.\n\nBook a free private session. No pressure. We can settle both worries before 4 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf you would rather I stop sending these, just reply stop.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -214,7 +226,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -237,9 +253,9 @@
         "resource": "message",
         "operation": "send",
         "sendTo": "={{ $('Config').first().json.email }}",
-        "subject": "The land gap that already reached you",
+        "subject": "The land gap that reached you",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nThis is the last of the five, so I want to answer the question you are actually holding, not the one a brochure answers for you.\n\nYou already believe the Lentor story. The quiet doubt that remains is simpler. Every agent says the next launch will cost more. So why would the land gap here reach you rather than become the developer's margin?\n\nFair question. Land is the floor a developer prices up from, not a discount anyone chooses to share. Lentor Gardens sits on land bought at about S$920 psf ppr. The adjacent Lentor Central parcel was won at about S$1,278, a gap near 39 percent, and the next launch there is projected to break even close to S$2,378 psf. So the roughly S$2,250 working average today, indicative until official pricing releases on 4 July, is not generosity. It is a cost basis the next parcel cannot match, set in the ground before a single floor plan is drawn.\n\nWhat holds value after you enter is the catchment. By 2029 the North South Corridor shortens the drive into town, and the Woodlands Regional Centre, about 700,000 sqm anchored by the RTS Link to Johor, deepens the tenant pool. Lentor Modern already shows a gross yield band around 3.5 percent. Past performance is not indicative of future results.\n\nTwo things I will not bury. Kingsford has delivered over 3,500 Singapore homes, and also carried a no sale licence on Normanton Park in 2019 to 2020, which is exactly why I treat snagging as live due diligence. And only about 28 units remain across the entire enclave.\n\nPreview is 4 July, booking 18 July. Before either, the useful hour is one quiet session pressure testing this against your numbers, not mine: {{ $('Config').first().json.calendlyUrl }}. If you would rather I close the file, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThis is my last email in this set. So let me answer the real question on your mind.\n\nYou already like the Lentor story. But one quiet doubt is left.\n\nThe common claim is that the next launch will cost more. So why would the land savings here reach you, and not just stay as the developer's profit?\n\nFair question. Let me explain it simply.\n\nLand is the floor a developer prices up from. It is not a discount anyone chooses to give you. So the land cost matters a lot.\n\nLentor Gardens sits on land bought at about S$920 psf ppr. That is per square foot of land.\n\nThe nearby Lentor Central plot was bought at about S$1,278. That is a gap of nearly 39 percent.\n\nAnalysts say the next launch there needs about S$2,378 psf just to not lose money. That is an estimate only. It is not confirmed pricing.\n\nSo today's working average of about S$2,250 is not the developer being kind. It is simply a lower starting cost that the next plot cannot match. This was set in the ground before any floor plan was drawn.\n\nOne honest note. These prices are only estimates. The official prices come out on 4 July.\n\nWhat helps hold value after you buy is the people who live and work nearby.\n\nBy 2029, the North South Corridor makes the drive into town shorter. The Woodlands Regional Centre, about 700,000 sqm, adds more possible tenants. It is anchored by the RTS Link to Johor.\n\nFor comparison only. Lentor Modern is a separate, completed project. It has shown a past gross yield of around 3.5 percent. This is not a forecast or a promise for Lentor Gardens. Past results are not a promise. Lentor Gardens may turn out different.\n\nTwo things I will not hide from you.\n\nKingsford has built over 3,500 homes in Singapore. It also once had a no sale licence on Normanton Park in 2019 to 2020. That is exactly why I check every defect myself before you commit.\n\nOn unit count. The developer says about 28 units are left. This can still change, and it is not confirmed until the official launch.\n\nThe preview is 4 July. Booking is 18 July.\n\nBefore either date, the most useful thing is a quiet private session. We test this against your numbers, not mine. No pressure: {{ $('Config').first().json.calendlyUrl }}\n\nIf you would rather I close the file, just reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -257,7 +273,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -280,9 +300,9 @@
         "resource": "message",
         "operation": "send",
         "sendTo": "={{ $('Config').first().json.email }}",
-        "subject": "The 3 questions you almost replied",
+        "subject": "The 3 questions you almost asked",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nOver the five emails so far, three questions came back again and again. None of them have a glossy answer, so let me give you the plain one.\n\nFirst, the yield. People expect a number near the sky and find about 3.5 percent gross at Lentor Modern instead. My honest read is that this is a capital and progression play, not a yield play. The yields here are moderate, not spectacular, and I would rather you hear that from me now than discover it after you sign. Past performance is not indicative of future results.\n\nSecond, leasehold. Yes, this is 99 year leasehold. So is every other plot in the Lentor enclave. You are not choosing leasehold versus freehold here, you are choosing your entry point within a leasehold estate the whole market has already bought into, with TOP estimated around Q1 2029.\n\nThird, the developer. Kingsford Development has delivered over 3,500 homes in Singapore, and also carried a no sale licence on Normanton Park in 2019 to 2020. I do not soften that. I plan for it, through build quality due diligence and a disciplined snagging process when you take keys.\n\nThat is the file with nothing hidden. If your hesitation is one of these three, or a fourth I have not named, that is exactly what a quiet conversation is for.\n\nBook a free 30 minute private session and bring me your hardest question, no pitch waiting: {{ $('Config').first().json.calendlyUrl }}.\n\nIf these no longer serve you, reply stop and I will close the loop quietly.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nOver my last five emails, three questions kept coming up. None has a shiny answer. So let me give you the plain one.\n\nFirst, the rent return.\n\nPeople hope for a big number. At a nearby project called Lentor Modern, the rent return is about 3.5 percent gross. It is only an estimate, not a promise.\n\nOne thing to be clear about. Lentor Modern is a different project that is already built. That 3.5 percent is not a forecast for Lentor Gardens Residences.\n\nMy honest read is simple. You buy here for growth in value, not for rent. The rent return is okay, not amazing. I would rather you hear that from me now than find out after you sign.\n\nPast results are not a promise. Lentor Gardens may turn out different.\n\nSecond, the lease.\n\nYes, this is 99 year leasehold. So is every other plot in this area. You are not choosing leasehold or freehold here. You are choosing your starting point in an area the whole market already bought into. The estimated finish date is around the first quarter of 2029.\n\nThird, the developer.\n\nKingsford Development has built over 3,500 homes in Singapore. It also once had a no sale licence on Normanton Park in 2019 to 2020. I will not hide that. I plan for it. I do careful checks on build quality. I run a strict snagging process when you collect your keys.\n\nThat is the full file, with nothing hidden.\n\nMaybe your pause is one of these three. Maybe it is a fourth one I have not named. Either way, that is exactly what a quiet chat is for.\n\nBook a free 30 minute private session and bring me your hardest question. No sales pitch waiting: {{ $('Config').first().json.calendlyUrl }}.\n\nIf these emails no longer help you, just reply stop. I will close things off quietly.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -300,7 +320,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -323,9 +347,9 @@
         "resource": "message",
         "operation": "send",
         "sendTo": "={{ $('Config').first().json.email }}",
-        "subject": "Which line is yours, decided early",
+        "subject": "Which line fits you, before 18 July",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost buyers arrive at a launch thinking about which project. The ones who do well arrive thinking about which line. On 18 July, balloting day, that distinction decides everything.\n\nLentor Gardens is deliberately a smaller unit project. Of about 499 to 502 homes, two bedrooms make up 252 units at 50.2 percent, sized about 60 to 68 sqm. Three bedrooms add 139 units at 27.7 percent, about 81 to 94 sqm. Four bedrooms are the scarce tier, 105 units at 20.9 percent, about 110 to 126 sqm. There are also three strata terraces and three shops.\n\nThis is not an accident of design. URA projects Singapore households getting smaller and more numerous, and this mix is built straight for that demand curve. For an investor, the two and three bedroom band is where the broadest future tenant and resale pool sits. For an own stay upgrader, the four bedroom tier is genuinely scarce at one in five, which changes how early you need to decide.\n\nOn the plans themselves, the design is unusually efficient. The published layouts run on a dumbbell principle that keeps the bedrooms apart for privacy, the master takes a king bed and the common rooms a queen, with separated kitchen alcoves, dedicated study nooks and very little wasted corridor. The full floor plans by stack release with the official e brochure, and I can send you the complete set the moment they are out.\n\nThe part a brochure cannot give you is stack. Orientation, floor band, the view that holds value, the lines that ballot out first. Indicative two bedroom pricing starts near S$1.32m and three bedroom near S$1.87m, with official pricing on 4 July, so the homework is best done before the queue forms, not inside it.\n\nIf you would like to walk the mix and pre shortlist the stacks that fit your goal and budget, that is exactly what a quiet session is for. Book a free 30 minutes here and we map your shortlist before 18 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this is not useful to you, reply stop and I will step back quietly.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost buyers pick a project. The smart ones pick the right unit line.\n\nOn 18 July, you ballot for a unit. That is when the unit choice gets locked in.\n\nLentor Gardens is mostly smaller homes. Here is the mix. These are estimates only. The official numbers come from the developer.\n\nThere are about 499 to 502 homes in total.\n\n2 bedroom: 252 units. That is 50.2 percent. Size about 60 to 68 sqm.\n\n3 bedroom: 139 units. That is 27.7 percent. Size about 81 to 94 sqm.\n\n4 bedroom: 105 units. That is 20.9 percent. Size about 110 to 126 sqm.\n\nThere are also three strata terraces and three shops.\n\nThis mix is on purpose. URA expects Singapore households to get smaller. So smaller homes fit what people will want.\n\nIf you buy to rent out, the 2 and 3 bedroom homes hold the biggest tenant pool. They also hold the biggest resale pool.\n\nIf you want a bigger home to live in, the 4 bedroom is the smallest group. Only about one in five units.\n\nThe floor plans look well planned. The bedrooms sit on opposite ends, so you get more privacy. The master room fits a king bed. The other rooms fit a queen bed. The kitchen sits in its own corner. There are study nooks. Very little space is wasted.\n\nThe full floor plans come out with the official e brochure. I can send you the whole set the moment they are out.\n\nOne thing a brochure cannot tell you is the stack. That means the direction it faces, the floor, the view, and which lines tend to sell first.\n\nAbout price. These are estimates only, and can change. The 2 bedroom is around S$1.32m. The 3 bedroom is around S$1.87m. Official prices come out on 4 July and may be different.\n\nIf you want, we can go through the mix together. We can shortlist the stacks that fit your goal and budget.\n\nBook a free 30 minute private session here. No pressure: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this is not useful, just reply stop. I will step back quietly.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -343,7 +367,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -368,7 +396,7 @@
         "sendTo": "={{ $('Config').first().json.email }}",
         "subject": "Who actually rents this, honestly",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nThe capital case for Lentor Gardens is the loud one. The rental case is quieter, and an honest landlord wants it before, not after, keys.\n\nStart with who rents here. The northern catchment is deepening in a way that matters for tenant demand. By 2029 the North South Corridor compresses the drive into the city. The Woodlands Regional Centre, about 700,000 sqm of commercial space anchored by the RTS Link to Johor, pulls a working population north. Closer in, Seletar Aerospace hosts names like Rolls Royce and Pratt and Whitney, with Ang Mo Kio industrial and Nanyang Polytechnic minutes away. That is the employment base your future tenant is drawn from, and Lentor MRT on the Thomson East Coast Line runs them straight to Orchard and Marina Bay in one ride.\n\nNow the number, with its ceiling stated plainly. Lentor Modern, the established neighbour on this exact stop, shows a gross yield band around 3.5 percent. That is solid and real, and it is not spectacular. Past performance is not indicative of future results. I would never sell this as a high yield play, because it is not one. It is a capital and progression asset that also rents to a thickening tenant pool.\n\nThe honest work is matching a specific unit, entry price and likely rent to your own holding plan and cash flow tolerance. A spreadsheet cannot weigh that against your portfolio. A quiet conversation can.\n\nIf modelling a realistic rental scenario would help, book a free 30 minute private session and we will run your numbers candidly, moderate not inflated: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this no longer fits, reply stop and I will quietly remove you.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nMost people talk about the price growth here. The rent side is quieter. A good landlord wants to know it before keys, not after.\n\nSo let me start with who would rent this place.\n\nThe area up north is growing in a way that brings more tenants. By 2029 the North South Corridor makes the drive into the city shorter.\n\nThen there is the Woodlands Regional Centre. It has about 700,000 sqm of office and business space. The RTS Link to Johor anchors it. This pulls more workers up north.\n\nCloser by, Seletar Aerospace is home to big names. Rolls Royce and Pratt and Whitney are there. Ang Mo Kio industrial and Nanyang Polytechnic are minutes away.\n\nThese are the jobs your future tenant comes from. Lentor MRT on the Thomson East Coast Line helps too. It takes them straight to Orchard and Marina Bay in one ride.\n\nNow the number. And its limit, said plainly.\n\nLentor Modern is the neighbour on this same MRT stop. It shows a gross rent return of around 3.5 percent. This is Lentor Modern's actual figure, not a guess or promise for Lentor Gardens.\n\nThat return is solid and real. It is not amazing.\n\nPast results are not a promise. Lentor Gardens may turn out different. I would never sell this as a high rent deal, because it is not one.\n\nYou buy it for growth in value, not mainly for rent. It also rents to a growing pool of tenants.\n\nThe real work is matching one unit and its likely rent to your own plan. It also has to fit your cash flow comfort. A spreadsheet alone cannot weigh that against your other holdings. A quiet chat can.\n\nIf a real rent scenario would help, book a free 30 minute private session. No pressure. We will run your numbers honestly, fair not blown up: {{ $('Config').first().json.calendlyUrl }}.\n\nIf this no longer fits, reply stop and I will quietly remove you.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -386,7 +414,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -409,9 +441,9 @@
         "resource": "message",
         "operation": "send",
         "sendTo": "={{ $('Config').first().json.email }}",
-        "subject": "Preview is in, here is the read",
+        "subject": "After 4 July: what the prices really mean",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nThe 4 July preview has happened, which means the working numbers I labelled indicative all sequence are no longer guesses. Pricing is official now, and the honest thing to do is hold it against what we expected.\n\nFor weeks the analyst launch band sat around S$2,100 to S$2,400 psf, with about S$2,250 as the working average. The reason that mattered was never the figure in isolation. It was the gap beneath it. Lentor Gardens land cost about S$920 psf ppr. The adjacent Lentor Central site went to GuocoLand at S$1,278, and the next launch there is projected to break even near S$2,378 psf. That structural gap does not move with a preview. It was fixed in the ground years ago.\n\nWhat the preview settles is the entry price itself, no longer indicative, against that fixed land basis. If you want the precise official figures by bedroom and how each line reads against the S$2,378 breakeven next door, that is a five minute conversation, not an email I can pre write before knowing your exact target.\n\nBalloting is 18 July. From here the question stops being is the thesis sound and becomes which unit and at what confirmed price. That is a far better problem to have, and it is time sensitive in a real way, because the room is the same room everyone else is reading.\n\nBook a free 30 minute private session and I will walk the now official pricing against your shortlist before 18 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf you would rather I stop here, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThe official prices come out on 4 July.\n\nUntil then, all the numbers below are estimates. They are not the developer's confirmed prices.\n\nHere is the simple way to read it.\n\nFor weeks, analysts guessed the launch price would land between S$2,100 and S$2,400 per square foot. The working average was about S$2,250. This is an analyst guess, not a fact.\n\nBut the price alone was never the point. The point is the gap below it.\n\nHere is what I mean.\n\nLentor Gardens land cost about S$920 psf ppr (that means per square foot of land).\n\nThe nearby Lentor Central site cost more. GuocoLand paid S$1,278 for it.\n\nOne analyst estimates the next launch there needs about S$2,378 per square foot just to not lose money. This is an analyst estimate, not a confirmed number.\n\nSo Lentor Gardens started with a lower land cost. That gap was set years ago when the land was bought. A preview does not change it.\n\nPlease do not read this as one project being better than another. It is simply the land cost on record.\n\nWhat 4 July settles is the real entry price.\n\nOnce the official price list is out, I am happy to share it. I can also walk through how each unit type reads against that land cost.\n\nThat is a short chat, not something I can write up before I know your exact target.\n\nBalloting is on 18 July.\n\nA note on the numbers. Past results are not a promise. Lentor Gardens may turn out different.\n\nIf it helps, book a free 30 minute private session. No pressure. After 4 July, I will walk the official prices against your shortlist before 18 July: {{ $('Config').first().json.calendlyUrl }}.\n\nIf you would rather I stop here, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -429,7 +461,11 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -454,7 +490,7 @@
         "sendTo": "={{ $('Config').first().json.email }}",
         "subject": "A clean go or wait, before 18 July",
         "emailType": "text",
-        "message": "=Hi {{ $('Config').first().json.name }},\n\nThis is the last email in the series, and I want it to be useful whether you move or you wait.\n\nBalloting is 18 July. By then the decision is binary, and the cleanest way to hold it is two honest questions.\n\nFirst, is the thesis sound. I think the evidence says yes, and it does not depend on hype. Lentor Gardens sits on land at about S$920 psf ppr against the adjacent Lentor Central parcel at about S$1,278, and the next launch there is projected to break even near S$2,378 psf. Only about 28 unsold units remain across the entire enclave out of roughly 2,926 sold. That cost basis and that scarcity are structural facts, fixed before any marketing began, not a countdown I invented.\n\nSecond, is it right for you. This is a capital and progression play with moderate yields, on 99 year leasehold, from a developer in Kingsford that has delivered over 3,500 Singapore homes and also carried a no sale licence on Normanton Park in 2019 to 2020, which I manage through snagging and due diligence rather than hide. If those terms fit your goals and your numbers, going is reasonable. If they do not, waiting is reasonable too, and I will respect that fully.\n\nThe one thing not worth doing is deciding blind under launch day pressure. A quiet 30 minutes before 18 July settles both questions against your own position, with no push either way.\n\nBook your free private session here while there is still room to think: {{ $('Config').first().json.calendlyUrl }}.\n\nThis is the final note in the series. If you would prefer I close the file, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun | CEA R073319H",
+        "message": "=Hi {{ $('Config').first().json.name }},\n\nThis is my last email. I want it to help you, whether you buy or you wait.\n\nBalloting is 18 July. By then you say yes or no. The simplest way to decide is two honest questions.\n\nFirst question. Is the deal sound?\n\nI think yes. And it does not need any hype.\n\nHere are the numbers. Please treat them as estimates, not confirmed prices.\n\nLentor Gardens sits on land that cost about S$920 per square foot of land. That is the psf ppr figure, based on the URA land tender.\n\nThe plot next door, Lentor Central, cost about S$1,278 for the same kind of land.\n\nMarket analysts think the next launch there may need to sell at about S$2,378 psf just to not lose money. That is their estimate from the land cost. It is not a confirmed or promised price.\n\nAbout 28 unsold homes are left across the whole area. That is out of roughly 2,926 already sold. This count comes from the latest developer and portal tally and can change.\n\nThat low land cost and that small number of homes left were set before any marketing began. They are not a countdown I made up.\n\nOne honest point. Any gain here is only a guess about the future, not a promise. Past results from other projects are not a promise either. Lentor Gardens may turn out different.\n\nSecond question. Is it right for you?\n\nYou buy this one for growth in the value, not for rent. The rent return is only moderate.\n\nIt is on a 99 year lease.\n\nThe developer is Kingsford. They have built over 3,500 homes in Singapore. They also once had a no sale licence on Normanton Park in 2019 to 2020. I do not hide that. I plan for it, through checks and snagging.\n\nIf those terms fit your goals and your numbers, buying is fine. If they do not, waiting is fine too. I will fully respect that.\n\nThe one thing not worth doing is choosing blind, in a rush, on launch day.\n\nA quiet 30 minutes before 18 July can settle both questions for you. No push either way.\n\nBook your free 30 minute private session here, while there is still time to think: {{ $('Config').first().json.calendlyUrl }}.\n\nThis is the final note. If you would rather I close the file, reply stop and I will, with thanks.\n\nWinfred Quek Wei Lun\nCrestbrick Pte Ltd (Licence L31010886H) | CEA Reg R073319H",
         "options": {
           "appendAttribution": false,
           "senderName": "Winfred Quek"
@@ -472,7 +508,24 @@
         "gmailOAuth2": {
           "name": "Gmail account"
         }
-      }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Foolproofing: one drip per email EVER (workflow static data survives across\n// executions), and synthetic health check payloads (test:true) never start a drip.\nconst sd = $getWorkflowStaticData('global');\nsd.seen = sd.seen || {};\nconst out = [];\nfor (const item of $input.all()) {\n  const b = item.json.body || item.json;\n  const email = String(b.email || '').toLowerCase().trim();\n  if (!email) continue;\n  if (b.test === true || b.test === 'true') continue;\n  if (sd.seen[email]) continue;\n  sd.seen[email] = new Date().toISOString();\n  out.push(item);\n}\nreturn out;"
+      },
+      "id": "dedupe-guard-node",
+      "name": "Dedupe and Skip Tests",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        420,
+        300
+      ]
     }
   ],
   "connections": {
@@ -480,7 +533,7 @@
       "main": [
         [
           {
-            "node": "Config",
+            "node": "Dedupe and Skip Tests",
             "type": "main",
             "index": 0
           }
@@ -690,6 +743,17 @@
         [
           {
             "node": "Email Day 10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe and Skip Tests": {
+      "main": [
+        [
+          {
+            "node": "Config",
             "type": "main",
             "index": 0
           }

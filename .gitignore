@@ -33,3 +33,21 @@ ruvector.db
 *.key
 *.pem
 _api_archive/
+
+# Local-only PII tools (matchmaker app) — never commit
+_local/
+
+# Private databases + local state — NEVER commit (PII: tenants/landlords)
+_templates/*-db.json
+_templates/*-db.json.*
+_templates/tenant-db.json*
+_templates/landlord-db.json*
+_templates/area-demand.json
+_templates/buyer-intake.md
+_local/
+*.bak-*
+.mcp.json.bak*
+docs/tenant-database.csv
+docs/*database*.csv
+scripts/matchmaker/matchmaker-data.json
+scripts/patch_tenant_nightly*.py

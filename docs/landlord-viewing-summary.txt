@@ -1,0 +1,196 @@
+================================================================================
+LANDLORD VIEWING SCHEDULE EXTRACTION SUMMARY
+Generated: 2026-06-08
+================================================================================
+
+QUICK REFERENCE - PRIORITIZED BY SCHEDULING EASE
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TIER 1: READY NOW - SCHEDULE IMMEDIATELY (3 landlords)                      │
+│ Can book viewings with minimal back-and-forth                               │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  LL_003  | ANYTIME - Completely flexible
+  LL_014  | Multiple viewings already scheduled (7 viewers)
+  LL_002  | Flexible - handles concurrent viewings
+
+  → ACTION: Propose dates immediately, tenant can pick any time
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TIER 2: SPECIFIC SLOTS - CONFIRM TIMES (4 landlords)                        │
+│ Clear availability windows - propose exact times                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  LL_010  | Thursday 7-7:45pm (Lakeside MRT, Caspian)
+  LL_017  | Every Friday 1pm or 5pm (Gedong Camp)
+  LL_019  | Thursday 6:30-7:30pm
+  LL_012  | Tuesday/Wednesday after 7pm
+
+  → ACTION: Offer specific slot, confirm with tenant
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TIER 3: FLEXIBLE - OFFER OPTIONS (5 landlords)                              │
+│ Availability exists - provide 3-5 time options                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  LL_008  | Thursday/Tuesday evenings 8-9:30pm
+  LL_009  | Evening appointments (9pm+)
+  LL_013  | Sunday preferred, flexible on time
+  LL_015  | Saturday 1-3pm open house
+  LL_018  | Busy but responsive - ask for available slots
+
+  → ACTION: Provide multiple options, landlord picks
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ TIER 4: ASK AVAILABILITY - FOLLOW UP (8 landlords)                          │
+│ No schedule mentioned - need direct conversation                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+  LL_004  | No schedule mentioned - ASK
+  LL_005  | No schedule (4 tenants, coordinate with them)
+  LL_006  | Flexible but no details
+  LL_007  | Not available same-day (plan 1+ day ahead)
+  LL_011  | Very limited availability
+  LL_016  | No schedule - check "when home"
+  LL_020  | No schedule mentioned - ASK
+  LL_021  | Wednesday nights ONLY (very limited)
+
+  → ACTION: Direct question about availability
+
+
+================================================================================
+BY THE NUMBERS
+================================================================================
+
+Total Landlords:             20
+Total Messages Analyzed:     4,576
+Average per Landlord:        229 messages
+Most Active:                 LL_002 (1,284 messages)
+Least Active:                LL_021 (181 messages)
+
+AVAILABILITY BREAKDOWN:
+  Very High (2):             LL_003, LL_014
+  High (1):                  LL_002
+  Medium-High (1):           LL_008
+  Medium (8):                LL_006, LL_009, LL_010, LL_012, LL_013, LL_015, LL_017, LL_019
+  Low (4):                   LL_007, LL_011, LL_018, LL_021
+  Unknown (4):               LL_004, LL_005, LL_016, LL_020
+
+
+================================================================================
+VIEWING TIME PREFERENCES
+================================================================================
+
+PREFERRED DAYS:
+  Monday:      6 landlords (LL_005, LL_010, LL_012, LL_014, LL_015, LL_019)
+  Tuesday:     5 landlords (LL_008, LL_012, LL_013, LL_014, LL_021)
+  Wednesday:   6 landlords (LL_010, LL_012, LL_013, LL_019, LL_021, others)
+  Thursday:    5 landlords (LL_008, LL_010, LL_014, LL_019)
+  Friday:      4 landlords (LL_011, LL_013, LL_014, LL_017)
+  Saturday:    2 landlords (LL_015, LL_017)
+  Sunday:      4 landlords (LL_003, LL_007, LL_013, LL_014, LL_021)
+
+PREFERRED TIMES:
+  Morning:     Minimal (most prefer evening)
+  Afternoon:   LL_015 (1-3pm), LL_017 (1pm or 5pm)
+  Evening:     Most landlords (6pm+)
+  Night:       LL_009 (9pm+), LL_021 (6:30-7:30pm)
+
+BUSIEST VIEWING TIMES:
+  Thursday 7-8pm:    LL_008, LL_010, LL_019
+  Wednesday 7pm+:    LL_012, LL_021
+  Friday:            LL_017
+  Saturday:          LL_015
+
+
+================================================================================
+QUICK SCRIPTS
+================================================================================
+
+PRIORITY 1 (Ready Now):
+"Hi! I have a tenant keen on [unit]. You free this week?"
+
+PRIORITY 2 (Specific Times):
+"Can we lock in [DAY] [TIME]? That's when my tenant is free."
+
+PRIORITY 3 (Options):
+"I have some interested tenants. Can you do:
+  - [TIME 1]
+  - [TIME 2]
+  - [TIME 3]?"
+
+PRIORITY 4 (Ask):
+"When's best for you - mornings, afternoons, or evenings? Weekdays or weekends?"
+
+
+================================================================================
+KEY INSIGHTS
+================================================================================
+
+✓ HIGH ENGAGEMENT: Landlords LL_002 and LL_003 have 1,100+ messages each
+✓ STRUCTURED: LL_010, LL_012, LL_017, LL_019 have clear time slots
+✗ LIMITED: LL_021 available ONLY Wednesday nights
+✗ UNKNOWN: 4 landlords (LL_004, LL_005, LL_016, LL_020) need immediate follow-up
+✓ RESPONSIVE: LL_014 already has 7 viewers scheduled
+✓ FLEXIBLE: LL_003 and LL_014 essentially anytime
+
+SCHEDULING STRATEGY:
+1. Fast-track LL_003, LL_014, LL_002 immediately
+2. Use LL_010, LL_017, LL_019, LL_012 for next-week bookings
+3. Provide options to LL_008, LL_009, LL_013, LL_015, LL_018
+4. Follow up with LL_004, LL_005, LL_006, LL_007, LL_011, LL_016, LL_020, LL_021
+
+AVOID SCHEDULING CONFLICTS:
+- LL_021: Only Wednesday, 6:30-7:30pm - high priority to lock in
+- LL_011: Very limited - don't expect flexibility
+- LL_018: Busy weekends - plan 1+ week ahead
+
+
+================================================================================
+FILES CREATED
+================================================================================
+
+1. landlord-viewing-schedules.md
+   → Detailed analysis with exact quotes from conversations
+   → 20 individual landlord profiles
+
+2. landlord-viewing-schedules.json
+   → Structured data for programmatic access
+   → Summary categories by availability level
+   → Next steps categorized by action type
+
+3. landlord-viewing-schedules.csv
+   → Quick reference table format
+   → Easy import to CRM or spreadsheet
+   → All key info in one row per landlord
+
+4. landlord-viewing-action-plan.md
+   → Prioritized action plan
+   → Outreach templates for each tier
+   → Scheduling tips and efficiency strategies
+
+5. landlord-viewing-summary.txt
+   → This quick reference guide
+   → Key numbers and insights
+   → Time preferences aggregated
+
+================================================================================
+NEXT STEPS
+================================================================================
+
+IMMEDIATELY (Today):
+□ Contact LL_003, LL_014, LL_002 to schedule
+□ Confirm availability with LL_010, LL_017, LL_019, LL_012
+□ Send follow-up messages to LL_004, LL_005, LL_006, LL_007
+
+THIS WEEK:
+□ Finalize viewings for all 20 landlords
+□ Create master viewing calendar
+□ Set up reminders for specific time slots
+
+ONGOING:
+□ Track which scheduling approach works best (direct ask vs options)
+□ Monitor response times and conversion rates
+□ Update availability as schedules change
+
+================================================================================
