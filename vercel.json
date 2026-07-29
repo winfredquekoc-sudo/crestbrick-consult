@@ -2,12 +2,6 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
-  "rewrites": [
-    {
-      "source": "/lentor",
-      "destination": "/LentorGardenResidences"
-    }
-  ],
   "headers": [
     {
       "source": "/(.*)",
