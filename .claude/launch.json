@@ -18,6 +18,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8768", "--directory", "_local"],
       "port": 8768
+    },
+    {
+      "name": "crestbrick-static-2",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8769", "--directory", "public"],
+      "port": 8769
     }
   ]
 }
