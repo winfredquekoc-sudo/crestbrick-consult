@@ -8,10 +8,22 @@
       "port": 8766
     },
     {
+      "name": "staged-insights",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8767", "--directory", "/Users/winfredquek/.claude/state/insights-drip/staged"],
+      "port": 8767
+    },
+    {
+      "name": "matchmaker",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8768", "--directory", "_local"],
+      "port": 8768
+    },
+    {
       "name": "crestbrick-static-2",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8767", "--directory", "public"],
-      "port": 8767
+      "runtimeArgs": ["-m", "http.server", "8769", "--directory", "public"],
+      "port": 8769
     }
   ]
 }

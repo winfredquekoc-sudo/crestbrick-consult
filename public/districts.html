@@ -44,19 +44,11 @@
     .chev{transition:transform .2s ease;display:inline-block;}
     summary::-webkit-details-marker{display:none;}summary{list-style:none;}
   </style>
-  <link rel="stylesheet" href="/motion.css">
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-  <link rel="stylesheet" href="/animations.css">
+  <link rel="stylesheet" href="/animations.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/animations.css"></noscript>
   <script defer src="/animations.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","name":"Singapore Districts D1-D28 + Postal Code Lookup Winfred Quek, Crestbrick","url":"https://winfredquek.com/districts","isPartOf":{"@type":"WebSite","name":"Winfred Quek","url":"https://winfredquek.com"},"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"}}
-</script>
-  <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Singapore Districts D1-D28 + Postal Code Lookup Winfred Quek, Crestbrick","item":"https://winfredquek.com/districts"}]}
-</script>
-  <meta property="og:site_name" content="Winfred Quek" />
-  <meta property="og:locale" content="en_SG" />
-</head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -119,7 +111,7 @@
     <h2 class="serif text-2xl font-semibold mb-4">Which district is your property in?</h2>
     <div class="flex flex-col sm:flex-row gap-3">
       <input id="postal-input" type="text" inputmode="numeric" maxlength="6" placeholder="e.g. 408727"
-        class="flex-1 px-4 py-3 border border-[var(--rule)] rounded-lg text-lg font-medium tracking-wider focus:outline-none focus:border-[var(--accent)]" />
+        class="flex-1 px-4 py-3 bg-[#1c1e26] text-[var(--ink)] border border-[var(--rule)] rounded-lg text-lg font-medium tracking-wider focus:outline-none focus:border-[var(--accent)]" style="color-scheme:dark;" />
       <button id="postal-lookup-btn" class="btn btn-primary" style="padding:.85rem 1.6rem;">Find district</button>
     </div>
     <div id="postal-result" class="mt-5 hidden"></div>
@@ -171,7 +163,7 @@
   .region-pill{display:inline-block;font-size:9px;font-weight:600;letter-spacing:1.5px;padding:3px 8px;border-radius:4px;text-transform:uppercase;}
   .region-pill.CCR{background:rgba(139,111,71,.15);color:var(--accent);}
   .region-pill.RCR{background:rgba(74,74,74,.1);color:var(--ink-soft);}
-  .region-pill.OCR{background:rgba(110,194,138,.18);color:#3d7755;}
+  .region-pill.OCR{background:rgba(110,194,138,.18);color:#6ec28a;}
   .postal-result-card{background:#1c1e26;border:1px solid var(--accent);border-radius:10px;padding:18px 20px;}
 </style>
 

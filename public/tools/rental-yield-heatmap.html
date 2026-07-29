@@ -23,25 +23,13 @@ h1{font-family:'Fraunces',serif;font-size:30px;font-weight:400;}
 .cta{margin-top:32px;text-align:center;}
 .cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
 .foot{color:#7a6c54;font-size:11px;margin-top:24px;text-align:center;}
-</style><link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+</style><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"SG Rental Yield Heatmap · Winfred Quek","item":"https://winfredquek.com/tools/rental-yield-heatmap"}]}
 </script>
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"WebApplication","name":"SG Rental Yield Heatmap · Winfred Quek","url":"https://winfredquek.com/tools/rental-yield-heatmap","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Singapore rental yield by district 2026: OCR, RCR, and CCR gross yields with median PSF and monthly rent. See which districts outperform. Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about"}}
 </script>
-  <!-- geo-faq (auto) -->
-  <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"How is rental yield calculated in this heatmap?","acceptedAnswer":{"@type":"Answer","text":"Each tile shows median gross yield, which is annual rent divided by price for that district. It uses median PSF and median monthly rent to give a district level read. Singapore gross yields are typically around 3 to 4 percent, and the colour bands help you spot which districts sit above or below that range."}},{"@type":"Question","name":"Why do central districts often show lower rental yields?","acceptedAnswer":{"@type":"Answer","text":"Prime central districts carry the highest PSF, so even strong rents translate into a lower yield percentage. Outside central regions tend to show higher gross yields because entry prices are lower relative to rent. A lower yield district is often a capital appreciation play rather than a cashflow one."}},{"@type":"Question","name":"Will my specific unit match the district yield shown?","acceptedAnswer":{"@type":"Answer","text":"Not exactly. The heatmap is a district median. Your actual unit will deviate based on floor, facing, age, layout efficiency, furnishing and tenant demand. Treat the tile as a starting reference, then narrow down with comparable rentals for your specific block before drawing conclusions."}},{"@type":"Question","name":"Should I just buy in the highest yield district?","acceptedAnswer":{"@type":"Answer","text":"Yield is only one input. High gross yield can come with weaker capital growth, older stock or thinner tenant pools. The right district depends on your goal: cashflow now, appreciation later, or a balance. Use the heatmap to shortlist, then pressure test the trade offs with Winfred Quek."}},{"@type":"Question","name":"How current is the data in this heatmap?","acceptedAnswer":{"@type":"Answer","text":"The footer shows the source and the last updated date, and the figures refresh periodically. Property data moves, so always check the update stamp before relying on a number. For a live read on a specific district or unit, message Winfred Quek directly through the page."}}]}
-</script>
-  <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"WebPage","url":"https://winfredquek.com/tools/rental-yield-heatmap","speakable":{"@type":"SpeakableSpecification","cssSelector":[".geo-quick-answer",".geo-faq-q"]}}
-</script>
-  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
-  <meta property="og:site_name" content="Winfred Quek" />
-  <meta property="og:locale" content="en_SG" />
 </head>
 <body><div class="wrap">
 <h1>SG Rental Yield Heatmap</h1>
@@ -79,7 +67,20 @@ fetch('/data/yield-heatmap.json').then(r => r.json()).then(d => {
 }).catch(() => { document.getElementById('foot').textContent = 'Data not available yet, refreshing weekly.'; });
 </script>
 
-  <!-- Disclaimer -->
+    
+  
+  <!-- related-tools:START -->
+  <div style="max-width:720px;margin:32px auto 0;padding:0 16px;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#b48c50;font-weight:600;margin-bottom:10px;">Related tools</p>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;">
+      <a href="/tools/rental-yield" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Rental Yield &amp; Breakeven</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Gross/net yield, cashflow, breakeven years</span></a>
+      <a href="/tools/comparison-tool" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Project Comparison Tool</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Compare two condos side by side</span></a>
+      <a href="/tools/property-vs-equities" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Property vs Equities</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Leveraged returns vs S&amp;P 500 and STI</span></a>
+    </div>
+  </div>
+  <!-- related-tools:END -->
+
+<!-- Disclaimer -->
   <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.

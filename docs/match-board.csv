@@ -1,0 +1,224 @@
+listing_key,area,district,rent_min,rent_max,landlord,tenant_id,tenant_name,tenant_budget,tenant_pax,tenant_lease,tenant_district,tenant_status,verdict,score,note
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN276,Lim Meng Yao,,1,12,D18,profile-received,QUALIFIED,76,budget unknown; 28d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN347,,3300,,12,,profile-received,QUALIFIED,71,location preference unconfirmed
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN060,Kang Meiqi,2500,2,12,,rejected,QUALIFIED,69,location preference unconfirmed; 48d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN338,Dee,3500,1,12,D18,profile-received,QUALIFIED,68,adjacent district; move-in date unclear; 22d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN306,Ingrid Chenghuei Chou,3600,1,24,D18,profile-received,QUALIFIED,67,adjacent district; move-in date unclear; 24d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN308,Kent Ng,3500,5,12,D18,profile-received,QUALIFIED,67,adjacent district; move-in date unclear; 25d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN350,Krunal,3000,3,24,D18,profile-received,QUALIFIED,67,adjacent district; move-in date unclear; 23d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN175,Apurv Singh Rathee,3200,2,12,D18,rejected,QUALIFIED,66,adjacent district; 54d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN286,Vietnamese group (primary contact unknown),3700,6,,D18,open,QUALIFIED,66,adjacent district; lease term unknown; 24d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN289,(profile: Chinese STP NUS student female),3700,3,12,D18,profile-received,QUALIFIED,66,adjacent district; move-in date unclear; 27d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN322,March Tia,2200,1,,D16,open,NEEDS_INFO,64,stretch budget (within 10%); lease term unknown; 27d since contact; missing: budget 2200 just under 2300
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN365,Pushpendra Arya,,2,,D16,open,QUALIFIED,63,budget unknown; lease term unknown; move-in date unclear
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN324,,,,,D18,open,QUALIFIED,62,budget unknown; lease term unknown; move-in date unclear; 26d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN328,,,,,D18,open,QUALIFIED,62,budget unknown; lease term unknown; move-in date unclear; 26d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN163,Ganesh Babar,3000,2,12,,rejected,QUALIFIED,60,location preference unconfirmed; 53d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN290,Kaitlyn Osborne,3700,2,,D18,profile-received,QUALIFIED,59,adjacent district; lease term unknown; move-in date unclear; 25d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN294,Chelsea,3500,3,,D18,profile-received,QUALIFIED,58,adjacent district; lease term unknown; move-in date unclear; 27d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN329,Ria,2200,1,,D16,open,NEEDS_INFO,58,stretch budget (within 10%); lease term unknown; move-in date unclear; 25d since contact; missing: budget 2200 just under 2300
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN287,Linda Emilia Shalash,3700,3,,D18,viewed,QUALIFIED,57,adjacent district; lease term unknown; move-in date unclear; 30d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN302,Shubham,,6,12,D18,profile-received,QUALIFIED,57,budget unknown; adjacent district; move-in date unclear; 25d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN307,Naveen,,3,12,D18,profile-received,QUALIFIED,57,budget unknown; adjacent district; move-in date unclear; 26d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN310,Siddarth Shah and Vidhi Kothari,,2,12,D18,profile-received,QUALIFIED,57,budget unknown; adjacent district; move-in date unclear; 24d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN354,Xia Weiyi,,4,12,D18,profile-received,QUALIFIED,57,budget unknown; adjacent district; move-in date unclear; 26d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN038,Nirmal kumar,,2,12,,rejected,QUALIFIED,52,budget unknown; location preference unconfirmed; 47d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN170,,3000,,,D18,rejected,QUALIFIED,51,adjacent district; lease term unknown; move-in date unclear; 54d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN138,John,3300,2,,D18,rejected,QUALIFIED,51,adjacent district; lease term unknown; stated move-in has passed (reconfirm); 52d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN184,Gunjan Madan,,1,12,,rejected,QUALIFIED,50,budget unknown; location preference unconfirmed; 54d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN372,Jonell Tan,,1,,D18,rejected,QUALIFIED,50,budget unknown; adjacent district; lease term unknown; move-in date unclear; 22d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN165,XIE,,1,12,D17,rejected,QUALIFIED,49,budget unknown; adjacent district; move-in date unclear; 53d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN340,,,,,D18,form-sent,QUALIFIED,49,budget unknown; adjacent district; lease term unknown; move-in date unclear; 24d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN355,,,2,,D18,open,QUALIFIED,49,budget unknown; adjacent district; lease term unknown; move-in date unclear; 26d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN319,Unknown (needs 4 bedrooms),,,,D18,open,QUALIFIED,48,budget unknown; adjacent district; lease term unknown; move-in date unclear; 28d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN115,Simon,,1,,,rejected,QUALIFIED,43,budget unknown; location preference unconfirmed; lease term unknown; 50d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN317,siddhi,,,,,profile-received,QUALIFIED,43,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 24d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN261,Aditya,,1,,,form-sent,QUALIFIED,42,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN312,Unknown 606D enquirer B,,,,,open,QUALIFIED,42,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN272,Shin Su Jeong,,1,6,D18,profile-received,SHORT_LEASE,41,budget unknown; adjacent district; needs 1yr acceptance; move-in date unclear; short lease (engine will send the 1yr note)
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN062,,,,,,rejected,QUALIFIED,36,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN063,,,,,,rejected,QUALIFIED,36,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN090,,,2,,,rejected,QUALIFIED,36,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 49d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN145,,,2,,,rejected,QUALIFIED,35,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 52d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN230,,,,,,rejected,QUALIFIED,34,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 56d since contact
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN058,Sibin Augustine,,1,6,,rejected,SHORT_LEASE,31,budget unknown; location preference unconfirmed; needs 1yr acceptance; 48d since contact; short lease (engine will send the 1yr note)
+bayshore,"Bayshore, Bedok South",D16,2300,2300,Jane Ye,TN197,Ananya,,1,6,,rejected,SHORT_LEASE,22,budget unknown; location preference unconfirmed; needs 1yr acceptance; stated move-in has passed (reconfirm); 55d since contact; short lease (engine will send the 1yr note)
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN334,Timothy,1100,1,12,D18,profile-received,QUALIFIED,93,24d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN006,Lilian Ling and Louise Ling,1200,2,12,D15,rejected,QUALIFIED,89,46d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN333,Koh Pei Si,1100,1,12,D18,profile-received,QUALIFIED,88,move-in date unclear; 25d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN337,Tracy,1000,1,12,D18,form-sent,QUALIFIED,88,move-in date unclear; 24d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN267,Florencia Thalia,1300,1,12,D15,profile-received,QUALIFIED,86,29d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN366,Shawn,1000,1,,D18,profile-received,QUALIFIED,81,lease term unknown; move-in date unclear
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN151,Allard Quek,1000,1,12,D17,rejected,QUALIFIED,80,stated move-in has passed (reconfirm); 53d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN315,Amgelynn,980,1,12,D17,profile-received,QUALIFIED,80,adjacent district; 25d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN326,Kaneshiro Haven,1100,1,,D18,profile-received,QUALIFIED,80,lease term unknown; move-in date unclear; 25d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN293,Judy,990,1,,D18,form-sent,QUALIFIED,79,lease term unknown; move-in date unclear; 28d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN087,Xiaofei Fang,1100,1,12,,profile-received,QUALIFIED,77,location preference unconfirmed
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN276,Lim Meng Yao,,1,12,D18,profile-received,QUALIFIED,76,budget unknown; 28d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN124,Ong Mei Xin,1200,1,12,D19,rejected,QUALIFIED,75,adjacent district; 50d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN139,Brandon Chan,1000,1,12,D19,rejected,QUALIFIED,74,adjacent district; 52d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN362,Unknown,1300,1,12,D16,profile-received,NEEDS_INFO,73,move-in date unclear; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN228,,1200,2,,D22,rejected,QUALIFIED,71,lease term unknown; move-in date unclear; 56d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN275,Junming,1600,1,,D15,profile-received,QUALIFIED,71,lease term unknown; stated move-in has passed (reconfirm); 28d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN342,,1100,1,,D18,form-sent,NEEDS_INFO,71,lease term unknown; move-in date unclear; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN346,,990,,,D18,open,NEEDS_INFO,71,lease term unknown; move-in date unclear; 22d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN354,Xia Weiyi,,4,12,D18,profile-received,QUALIFIED,70,budget unknown; move-in date unclear; 26d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN044,Felicia Chong,1000,1,24,,rejected,QUALIFIED,69,location preference unconfirmed; 48d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN112,Karyan,1200,2,12,,rejected,QUALIFIED,69,location preference unconfirmed; 50d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN177,Si Yi,1500,1,12,,profile-received,QUALIFIED,66,location preference unconfirmed; 30d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN364,Lau Zhan Ming,1300,1,,D16,form-sent,NEEDS_INFO,65,lease term unknown; move-in date unclear; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN338,Dee,3500,1,12,D18,profile-received,QUALIFIED,64,"budget suggests whole unit, not a room; move-in date unclear; 22d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN306,Ingrid Chenghuei Chou,3600,1,24,D18,profile-received,QUALIFIED,63,"budget suggests whole unit, not a room; move-in date unclear; 24d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN308,Kent Ng,3500,5,12,D18,profile-received,QUALIFIED,63,"budget suggests whole unit, not a room; move-in date unclear; 25d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN372,Jonell Tan,,1,,D18,rejected,QUALIFIED,63,budget unknown; lease term unknown; move-in date unclear; 22d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN286,Vietnamese group (primary contact unknown),3700,6,,D18,open,QUALIFIED,62,"budget suggests whole unit, not a room; lease term unknown; 24d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN289,(profile: Chinese STP NUS student female),3700,3,12,D18,profile-received,QUALIFIED,62,"budget suggests whole unit, not a room; move-in date unclear; 27d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN106,Haizhou Yin,1350,1,12,,rejected,QUALIFIED,61,location preference unconfirmed; 50d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN052,Raquel (enquirer contacting for friend),1700,1,12,,rejected,QUALIFIED,61,location preference unconfirmed; 48d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN227,Sean Yee,1100,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; stated move-in has passed (reconfirm); 56d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN241,CHONG YOONG SIM,1000,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; move-in date unclear; 57d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN164,Zhangchi Cheng,1500,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; 53d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN190,Zay Lwin Mg Mg / Aye Thandar Cho,1400,2,12,,rejected,QUALIFIED,60,location preference unconfirmed; 54d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN321,Alisha,1400,1,6,D16,profile-received,SHORT_LEASE,60,needs 1yr acceptance; move-in date unclear; 25d since contact; short lease (engine will send the 1yr note)
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN244,Zhou,1800,2,12,D22,rejected,QUALIFIED,59,budget far above room (may want bigger); stated move-in has passed (reconfirm); 58d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN162,Chng (Reichie),1300,1,12,D19,rejected,QUALIFIED,59,adjacent district; stated move-in has passed (reconfirm); 53d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN236,Hu Rongzhen,1400,1,12,,rejected,QUALIFIED,59,location preference unconfirmed; 56d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN237,liew ling zhen,1300,2,12,,rejected,QUALIFIED,59,location preference unconfirmed; 56d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN105,Farah Wasimah Binte Mohammad Sabirin,950,1,,D18,rejected,NEEDS_INFO,58,stretch budget (within 10%); lease term unknown; 50d since contact; missing: budget 950 just under 980
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN231,Matt,1000,1,12,,rejected,QUALIFIED,56,location preference unconfirmed; move-in 95 days away; 56d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN290,Kaitlyn Osborne,3700,2,,D18,profile-received,QUALIFIED,55,"budget suggests whole unit, not a room; lease term unknown; move-in date unclear; 25d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN042,David,1620,1,12,,rejected,QUALIFIED,54,location preference unconfirmed; stated move-in has passed (reconfirm); 48d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN272,Shin Su Jeong,,1,6,D18,profile-received,SHORT_LEASE,54,budget unknown; needs 1yr acceptance; move-in date unclear; short lease (engine will send the 1yr note)
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN294,Chelsea,3500,3,,D18,profile-received,QUALIFIED,54,"budget suggests whole unit, not a room; lease term unknown; move-in date unclear; 27d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN347,,3300,,12,,profile-received,QUALIFIED,54,"budget suggests whole unit, not a room; location preference unconfirmed"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN183,Lin Yanting,1500,2,24,,rejected,QUALIFIED,53,location preference unconfirmed; move-in date unclear; 54d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN161,Jacelyn Chia,1500,2,12,,rejected,QUALIFIED,53,location preference unconfirmed; move-in date unclear; 53d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN287,Linda Emilia Shalash,3700,3,,D18,viewed,QUALIFIED,53,"budget suggests whole unit, not a room; lease term unknown; move-in date unclear; 30d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN322,March Tia,2200,1,,D16,open,QUALIFIED,53,budget far above room (may want bigger); adjacent district; lease term unknown; 27d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN365,Pushpendra Arya,,2,,D16,open,NEEDS_INFO,53,budget unknown; lease term unknown; move-in date unclear; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN196,Yiran Chen,1700,1,12,,rejected,QUALIFIED,52,location preference unconfirmed; stated move-in has passed (reconfirm); 55d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN324,,,,,D18,open,NEEDS_INFO,52,budget unknown; lease term unknown; move-in date unclear; 26d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN328,,,,,D18,open,NEEDS_INFO,52,budget unknown; lease term unknown; move-in date unclear; 26d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN340,,,,,D18,form-sent,NEEDS_INFO,52,budget unknown; lease term unknown; move-in date unclear; 24d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN355,,,2,,D18,open,NEEDS_INFO,52,budget unknown; lease term unknown; move-in date unclear; 26d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN319,Unknown (needs 4 bedrooms),,,,D18,open,NEEDS_INFO,51,budget unknown; lease term unknown; move-in date unclear; 28d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN110,Hannah,1600,2,12,,rejected,QUALIFIED,50,location preference unconfirmed; move-in 155 days away; 50d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN053,Thea Yang,2000,1,12,,rejected,QUALIFIED,49,budget far above room (may want bigger); location preference unconfirmed; 48d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN060,Kang Meiqi,2500,2,12,,rejected,QUALIFIED,49,budget far above room (may want bigger); location preference unconfirmed; 48d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN165,XIE,,1,12,D17,rejected,QUALIFIED,49,budget unknown; adjacent district; move-in date unclear; 53d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN220,,1588,1,12,,rejected,NEEDS_INFO,49,location preference unconfirmed; 55d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN185,Mehdi Bourtal,1200,1,6,,rejected,SHORT_LEASE,48,location preference unconfirmed; needs 1yr acceptance; 54d since contact; short lease (engine will send the 1yr note)
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN292,Emran Hasan,1300,,,D16,open,NEEDS_INFO,48,adjacent district; lease term unknown; move-in date unclear; 28d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN138,John,3300,2,,D18,rejected,QUALIFIED,47,"budget suggests whole unit, not a room; lease term unknown; stated move-in has passed (reconfirm); 52d since contact"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN067,,1100,,,,rejected,NEEDS_INFO,44,location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN115,Simon,,1,,,rejected,QUALIFIED,43,budget unknown; location preference unconfirmed; lease term unknown; 50d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN146,,1100,,,,rejected,NEEDS_INFO,43,location preference unconfirmed; lease term unknown; move-in date unclear; 52d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN247,Tony,1200,2,,,rejected,NEEDS_INFO,42,location preference unconfirmed; lease term unknown; move-in date unclear; 58d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN113,Do Thanh Hai,1400,1,6,,rejected,SHORT_LEASE,41,location preference unconfirmed; needs 1yr acceptance; 50d since contact; short lease (engine will send the 1yr note)
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN235,Adam Bahaj,1300,1,6,,rejected,SHORT_LEASE,39,location preference unconfirmed; needs 1yr acceptance; 56d since contact; short lease (engine will send the 1yr note)
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN170,,3000,,,D18,rejected,NEEDS_INFO,37,"budget suggests whole unit, not a room; lease term unknown; move-in date unclear; 54d since contact; missing: nationality"
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN062,,,,,,rejected,QUALIFIED,36,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN064,,1620,,,,rejected,NEEDS_INFO,36,location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN145,,,2,,,rejected,QUALIFIED,35,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 52d since contact
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN261,Aditya,,1,,,form-sent,NEEDS_INFO,32,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN312,Unknown 606D enquirer B,,,,,open,NEEDS_INFO,32,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN063,,,,,,rejected,NEEDS_INFO,26,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN090,,,2,,,rejected,NEEDS_INFO,26,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 49d since contact; missing: nationality
+eastpoint-green,"Simei, Eastpoint",D18,980,1200,Teow Lin Kim (LK),TN230,,,,,,rejected,NEEDS_INFO,24,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 56d since contact; missing: nationality
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN139,Brandon Chan,1000,1,12,D19,rejected,QUALIFIED,87,52d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN124,Ong Mei Xin,1200,1,12,D19,rejected,QUALIFIED,80,50d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN334,Timothy,1100,1,12,D18,profile-received,QUALIFIED,80,adjacent district; 24d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN087,Xiaofei Fang,1100,1,12,,profile-received,QUALIFIED,77,location preference unconfirmed
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN333,Koh Pei Si,1100,1,12,D18,profile-received,QUALIFIED,75,adjacent district; move-in date unclear; 25d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN337,Tracy,1000,1,12,D18,form-sent,QUALIFIED,75,adjacent district; move-in date unclear; 24d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN267,Florencia Thalia,1300,1,12,D15,profile-received,QUALIFIED,73,adjacent district; 29d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN162,Chng (Reichie),1300,1,12,D19,rejected,QUALIFIED,72,stated move-in has passed (reconfirm); 53d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN222,Hannah George,1500,1,12,D19,rejected,QUALIFIED,71,stated move-in has passed (reconfirm); 55d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN362,Unknown,1300,1,12,D16,profile-received,QUALIFIED,70,adjacent district; move-in date unclear
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN044,Felicia Chong,1000,1,24,,rejected,QUALIFIED,69,location preference unconfirmed; 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN342,,1100,1,,D18,form-sent,QUALIFIED,68,adjacent district; lease term unknown; move-in date unclear
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN346,,990,,,D18,open,QUALIFIED,68,adjacent district; lease term unknown; move-in date unclear; 22d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN366,Shawn,1000,1,,D18,profile-received,QUALIFIED,68,adjacent district; lease term unknown; move-in date unclear
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN151,Allard Quek,1000,1,12,D17,rejected,QUALIFIED,67,adjacent district; stated move-in has passed (reconfirm); 53d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN105,Farah Wasimah Binte Mohammad Sabirin,950,1,,D18,rejected,QUALIFIED,67,adjacent district; lease term unknown; 50d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN326,Kaneshiro Haven,1100,1,,D18,profile-received,QUALIFIED,67,adjacent district; lease term unknown; move-in date unclear; 25d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN177,Si Yi,1500,1,12,,profile-received,QUALIFIED,66,location preference unconfirmed; 30d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN293,Judy,990,1,,D18,form-sent,QUALIFIED,66,adjacent district; lease term unknown; move-in date unclear; 28d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN364,Lau Zhan Ming,1300,1,,D16,form-sent,QUALIFIED,62,adjacent district; lease term unknown; move-in date unclear
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN106,Haizhou Yin,1350,1,12,,rejected,QUALIFIED,61,location preference unconfirmed; 50d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN057,Dakshesh Gusain,1300,1,12,,rejected,QUALIFIED,61,location preference unconfirmed; 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN143,Samantaray Samiksha,1000,1,12,,rejected,QUALIFIED,61,location preference unconfirmed; stated move-in has passed (reconfirm); 52d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN227,Sean Yee,1100,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; stated move-in has passed (reconfirm); 56d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN241,CHONG YOONG SIM,1000,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; move-in date unclear; 57d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN182,Titisha,1550,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; 54d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN164,Zhangchi Cheng,1500,1,12,,rejected,QUALIFIED,60,location preference unconfirmed; 53d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN325,Vishesh Bajoria,1000,1,6,D22,profile-received,SHORT_LEASE,60,adjacent district; needs 1yr acceptance; 26d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN236,Hu Rongzhen,1400,1,12,,rejected,QUALIFIED,59,location preference unconfirmed; 56d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN220,,1588,1,12,,rejected,QUALIFIED,59,location preference unconfirmed; 55d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN275,Junming,1600,1,,D15,profile-received,QUALIFIED,58,adjacent district; lease term unknown; stated move-in has passed (reconfirm); 28d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN231,Matt,1000,1,12,,rejected,QUALIFIED,56,location preference unconfirmed; move-in 95 days away; 56d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN360,Tang Hao,850,1,,D19,profile-received,NEEDS_INFO,56,stretch budget (within 10%); lease term unknown; move-in date unclear; 30d since contact; missing: budget 850 just under 900
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN042,David,1620,1,12,,rejected,QUALIFIED,54,location preference unconfirmed; stated move-in has passed (reconfirm); 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN067,,1100,,,,rejected,QUALIFIED,54,location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN347,,3300,,12,,profile-received,QUALIFIED,54,"budget suggests whole unit, not a room; location preference unconfirmed"
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN146,,1100,,,,rejected,QUALIFIED,53,location preference unconfirmed; lease term unknown; move-in date unclear; 52d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN276,Lim Meng Yao,,1,12,D18,profile-received,NEEDS_INFO,53,budget unknown; adjacent district; 28d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN338,Dee,3500,1,12,D18,profile-received,QUALIFIED,51,"budget suggests whole unit, not a room; adjacent district; move-in date unclear; 22d since contact"
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN306,Ingrid Chenghuei Chou,3600,1,24,D18,profile-received,QUALIFIED,50,"budget suggests whole unit, not a room; adjacent district; move-in date unclear; 24d since contact"
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN052,Raquel (enquirer contacting for friend),1700,1,12,,rejected,QUALIFIED,49,budget far above room (may want bigger); location preference unconfirmed; 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN053,Thea Yang,2000,1,12,,rejected,QUALIFIED,49,budget far above room (may want bigger); location preference unconfirmed; 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN321,Alisha,1400,1,6,D16,profile-received,SHORT_LEASE,47,adjacent district; needs 1yr acceptance; move-in date unclear; 25d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN064,,1620,,,,rejected,QUALIFIED,46,location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN356,Lilian,850,1,,D22,profile-received,NEEDS_INFO,44,stretch budget (within 10%); adjacent district; lease term unknown; move-in date unclear; 27d since contact; missing: budget 850 just under 900
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN113,Do Thanh Hai,1400,1,6,,rejected,SHORT_LEASE,41,location preference unconfirmed; needs 1yr acceptance; 50d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN272,Shin Su Jeong,,1,6,D18,profile-received,SHORT_LEASE,41,budget unknown; adjacent district; needs 1yr acceptance; move-in date unclear; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN196,Yiran Chen,1700,1,12,,rejected,QUALIFIED,40,budget far above room (may want bigger); location preference unconfirmed; stated move-in has passed (reconfirm); 55d since contact
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN184,Gunjan Madan,,1,12,,rejected,NEEDS_INFO,40,budget unknown; location preference unconfirmed; 54d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN185,Mehdi Bourtal,1200,1,6,,rejected,SHORT_LEASE,40,location preference unconfirmed; needs 1yr acceptance; 54d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN372,Jonell Tan,,1,,D18,rejected,NEEDS_INFO,40,budget unknown; adjacent district; lease term unknown; move-in date unclear; 22d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN235,Adam Bahaj,1300,1,6,,rejected,SHORT_LEASE,39,location preference unconfirmed; needs 1yr acceptance; 56d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN324,,,,,D18,open,NEEDS_INFO,39,budget unknown; adjacent district; lease term unknown; move-in date unclear; 26d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN328,,,,,D18,open,NEEDS_INFO,39,budget unknown; adjacent district; lease term unknown; move-in date unclear; 26d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN340,,,,,D18,form-sent,NEEDS_INFO,39,budget unknown; adjacent district; lease term unknown; move-in date unclear; 24d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN319,Unknown (needs 4 bedrooms),,,,D18,open,NEEDS_INFO,38,budget unknown; adjacent district; lease term unknown; move-in date unclear; 28d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN132,Parth Jaiswal,1300,1,6,,rejected,SHORT_LEASE,36,location preference unconfirmed; needs 1yr acceptance; 51d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN170,,3000,,,D18,rejected,QUALIFIED,34,"budget suggests whole unit, not a room; adjacent district; lease term unknown; move-in date unclear; 54d since contact"
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN115,Simon,,1,,,rejected,NEEDS_INFO,33,budget unknown; location preference unconfirmed; lease term unknown; 50d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN317,siddhi,,,,,profile-received,NEEDS_INFO,33,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 24d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN261,Aditya,,1,,,form-sent,NEEDS_INFO,32,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN312,Unknown 606D enquirer B,,,,,open,NEEDS_INFO,32,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN058,Sibin Augustine,,1,6,,rejected,SHORT_LEASE,31,budget unknown; location preference unconfirmed; needs 1yr acceptance; 48d since contact; short lease (engine will send the 1yr note)
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN062,,,,,,rejected,NEEDS_INFO,26,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN063,,,,,,rejected,NEEDS_INFO,26,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN230,,,,,,rejected,NEEDS_INFO,24,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 56d since contact; missing: budget
+sumang-lane-232b,"Sumang, Punggol",D19,900,900,Buva,TN197,Ananya,,1,6,,rejected,SHORT_LEASE,22,budget unknown; location preference unconfirmed; needs 1yr acceptance; stated move-in has passed (reconfirm); 55d since contact; short lease (engine will send the 1yr note)
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN177,Si Yi,1500,1,12,,profile-received,NEEDS_INFO,64,location preference unconfirmed; 30d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN106,Haizhou Yin,1350,1,12,,rejected,NEEDS_INFO,59,location preference unconfirmed; 50d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN057,Dakshesh Gusain,1300,1,12,,rejected,NEEDS_INFO,59,location preference unconfirmed; 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN182,Titisha,1550,1,12,,rejected,NEEDS_INFO,58,location preference unconfirmed; 54d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN164,Zhangchi Cheng,1500,1,12,,rejected,NEEDS_INFO,58,location preference unconfirmed; 53d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN162,Chng (Reichie),1300,1,12,D19,rejected,NEEDS_INFO,57,adjacent district; stated move-in has passed (reconfirm); 53d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN236,Hu Rongzhen,1400,1,12,,rejected,NEEDS_INFO,57,location preference unconfirmed; 56d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN220,,1588,1,12,,rejected,NEEDS_INFO,57,location preference unconfirmed; 55d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN222,Hannah George,1500,1,12,D19,rejected,NEEDS_INFO,56,adjacent district; stated move-in has passed (reconfirm); 55d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN124,Ong Mei Xin,1200,1,12,D19,rejected,NEEDS_INFO,53,stretch budget (within 10%); adjacent district; 50d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN042,David,1620,1,12,,rejected,NEEDS_INFO,52,location preference unconfirmed; stated move-in has passed (reconfirm); 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN052,Raquel (enquirer contacting for friend),1700,1,12,,rejected,NEEDS_INFO,51,location preference unconfirmed; 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN053,Thea Yang,2000,1,12,,rejected,NEEDS_INFO,51,location preference unconfirmed; 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN113,Do Thanh Hai,1400,1,6,,rejected,SHORT_LEASE,49,location preference unconfirmed; needs 1yr acceptance; 50d since contact; short lease (engine will send the 1yr note)
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN347,,3300,,12,,profile-received,NEEDS_INFO,49,budget far above room (may want bigger); location preference unconfirmed; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN235,Adam Bahaj,1300,1,6,,rejected,SHORT_LEASE,47,location preference unconfirmed; needs 1yr acceptance; 56d since contact; short lease (engine will send the 1yr note)
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN132,Parth Jaiswal,1300,1,6,,rejected,SHORT_LEASE,44,location preference unconfirmed; needs 1yr acceptance; 51d since contact; short lease (engine will send the 1yr note)
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN064,,1620,,,,rejected,NEEDS_INFO,44,location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN196,Yiran Chen,1700,1,12,,rejected,NEEDS_INFO,42,location preference unconfirmed; stated move-in has passed (reconfirm); 55d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN184,Gunjan Madan,,1,12,,rejected,NEEDS_INFO,40,budget unknown; location preference unconfirmed; 54d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN185,Mehdi Bourtal,1200,1,6,,rejected,SHORT_LEASE,36,stretch budget (within 10%); location preference unconfirmed; needs 1yr acceptance; 54d since contact; short lease (engine will send the 1yr note)
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN115,Simon,,1,,,rejected,NEEDS_INFO,33,budget unknown; location preference unconfirmed; lease term unknown; 50d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN317,siddhi,,,,,profile-received,NEEDS_INFO,33,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 24d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN261,Aditya,,1,,,form-sent,NEEDS_INFO,32,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN312,Unknown 606D enquirer B,,,,,open,NEEDS_INFO,32,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 29d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN058,Sibin Augustine,,1,6,,rejected,SHORT_LEASE,31,budget unknown; location preference unconfirmed; needs 1yr acceptance; 48d since contact; short lease (engine will send the 1yr note)
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN062,,,,,,rejected,NEEDS_INFO,26,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN063,,,,,,rejected,NEEDS_INFO,26,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 48d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN230,,,,,,rejected,NEEDS_INFO,24,budget unknown; location preference unconfirmed; lease term unknown; move-in date unclear; 56d since contact; missing: listing rent not confirmed
+sunshine-terrace,"Sunrise Terrace, Seletar Hills",D28,1300,1300,Fei,TN197,Ananya,,1,6,,rejected,SHORT_LEASE,22,budget unknown; location preference unconfirmed; needs 1yr acceptance; stated move-in has passed (reconfirm); 55d since contact; short lease (engine will send the 1yr note)

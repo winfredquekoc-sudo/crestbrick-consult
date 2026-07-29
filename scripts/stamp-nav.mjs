@@ -37,7 +37,7 @@ for (const file of walk(PUBLIC)) {
   scanned++;
   const before = readFileSync(file, 'utf8');
   if (!HEADER_RE.test(before)) { noheader++; continue; }
-  const after = before.replace(HEADER_RE, nav);
+  const after = before.replace(HEADER_RE, () => nav); // replacer fn: $-sequences in the template stay literal
   if (after === before) continue;
   changed++;
   if (!DRY) writeFileSync(file, after);

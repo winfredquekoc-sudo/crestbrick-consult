@@ -88,41 +88,49 @@
 </head>
 <body>
 
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap">
-      <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
-    </a>
-    <div class="hidden xl:flex items-center gap-6">
-      <a class="nav-link link-underline" href="/">Home</a>
-      <a class="nav-link link-underline" href="/about">About</a>
-      <a class="nav-link link-underline" href="/services">Services</a>
-      <a class="nav-link link-underline" href="/pricing">Pricing</a>
-      <a class="nav-link link-underline" href="/tools">Tools</a>
-      <a class="nav-link link-underline" href="/sell">Sell</a>
-      <a class="nav-link link-underline" href="/listings">Listings</a>
-      <a class="nav-link link-underline active" href="/insights">Insights</a>
-      <a class="nav-link link-underline" href="/resources">Resources</td>
-      <a class="nav-link link-underline" href="/contact">Contact</a>
-      <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/new-launches">New Launches</a>
+        <a class="nav-link" href="/districts">Districts</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/track-record">Track Record</a>
+        <a class="nav-link" href="/testimonials">Testimonials</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
     </div>
-    <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </nav>
-  <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
-    <div class="px-6 py-4 flex flex-col gap-3">
-      <a class="nav-link" href="/">Home</a>
-      <a class="nav-link" href="/about">About</a>
-      <a class="nav-link" href="/services">Services</a>
-      <a class="nav-link" href="/listings">Listings</a>
-      <a class="nav-link" href="/insights">Insights</a>
-      <a class="nav-link" href="/contact">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
-    </div>
-  </div>
-</header>
+  </header>
 
 <main>
 
@@ -153,13 +161,13 @@
 <article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
   <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek, Associate Marketing Consultant &middot; CEA R073319H &middot; Crestbrick Pte Ltd (L31010886H) &middot; Published 3 July 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> The investor case for Dunearn House rests on three structural arguments: first-mover entry at an estimated S$150&ndash;S$250 psf below the adjacent Plot 2 (projected S$3,200&ndash;S$3,300 psf in 2H 2027); the CRL Turf City MRT opening (~2032) as a structural capital catalyst not yet in the launch price; and 33 years of zero private residential supply in this subzone creating genuine scarcity. The cashflow case is weak: CCR gross yields are historically 2.5&ndash;3.5% and the zero 1-bedroom unit mix limits the tenant pool. The minimum recommended hold period from independent analysts is 6&ndash;7 years. This is a capital play, not a yield play. This analysis was written against the pre launch analyst consensus of S$2,900&ndash;S$3,100 psf; official pricing has since been released at the July 2026 launch, so verify current figures before acting.</div>
-  <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.4rem;margin-bottom:1.5rem;">All PSF and quantum figures are analyst projections made before launch pricing was released &middot; Rate assumptions: bank ~1.5%, TDSR stress test 4%, LTV 75% for first property, MSR not applicable (private residential)</p>
+  <div class="quick-answer"><strong>Quick answer:</strong> The investor case for Dunearn House rests on three structural arguments: first-mover entry at an estimated S$150&ndash;S$250 psf below the adjacent Plot 2 (projected S$3,200&ndash;S$3,300 psf in 2H 2027); the CRL Turf City MRT opening (~2032) as a structural capital catalyst not yet in the launch price; and 33 years of zero private residential supply in this subzone creating genuine scarcity. The cashflow case is weak: CCR gross yields are historically 2.5&ndash;3.5% and the zero 1-bedroom unit mix limits the tenant pool. The minimum recommended hold period from independent analysts is 6&ndash;7 years. This is a capital play, not a yield play. Official pricing is not yet released; all analysis is based on the analyst consensus of S$2,900&ndash;S$3,100 psf.</div>
+  <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.4rem;margin-bottom:1.5rem;">All PSF and quantum figures are analyst projections pending official launch &middot; Rate assumptions: bank ~1.5%, TDSR stress test 4%, LTV 75% for first property, MSR not applicable (private residential)</p>
 
   <p>Investment decisions should not be made from a brochure. They should be made from a clear-eyed look at what cash you put in, what you carry month to month, what catalysts you are betting on, and what your exit looks like. This article does that math for Dunearn House. It uses the analyst-projected PSF range (S$2,900&ndash;S$3,100), the standard regulatory parameters (LTV 75%, TDSR 55%, bank rate approximately 1.5%, stress-test rate 4%), and the verified facts from the research brief. If any of those inputs change, the math changes. Run your actual numbers before you ballot.</p>
 
   <div class="warn">
-    <strong>Pricing note:</strong> Dunearn House's showflat preview was 10 July 2026 and booking day was 25 July 2026, with official pricing released at that point. All quantum and holding cost figures below are the pre launch analyst consensus of S$2,900&ndash;S$3,100 psf; WhatsApp me for the current released figures. ABSD considerations are highly individual. Buyers with an existing property face 20% ABSD (Singaporean citizen) or 30% (PR) on the second property. Run ABSD planning before you commit, not after.
+    <strong>Pre-launch note:</strong> Official Dunearn House pricing is not released as of 3 July 2026. All quantum and holding cost figures below are based on the post-GLS analyst consensus of S$2,900&ndash;S$3,100 psf. ABSD considerations are highly individual. Buyers with an existing property face 20% ABSD (Singaporean citizen) or 30% (PR) on the second property. Run ABSD planning before the showflat visit, not after.
   </div>
 
   <h2>CCR rental demand: who rents in this corridor</h2>
@@ -265,7 +273,7 @@
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
   <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.9rem;"><a href="/insights/dunearn-house-review-2026" style="color:var(--accent);">Dunearn House review 2026: the full honest verdict</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/dunearn-house-review-2026" style="color:var(--accent);">Dunearn House review 2026: the full Money, Timing & Safety verdict</a></li>
     <li style="font-size:.9rem;"><a href="/insights/dunearn-house-price-guide-2026" style="color:var(--accent);">Dunearn House price guide 2026: land cost math and expected PSF</a></li>
     <li style="font-size:.9rem;"><a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent);">Rental yield vs appreciation: Singapore property investment framework</a></li>
     <li style="font-size:.9rem;"><a href="/insights/absd-singapore-2026" style="color:var(--accent);">ABSD Singapore 2026: complete guide</a></li>

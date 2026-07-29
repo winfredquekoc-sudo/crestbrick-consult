@@ -16,7 +16,7 @@
   <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
   <link rel="canonical" href="https://winfredquek.com/" />
 
-  <link rel="preload" as="image" href="/img/winfred-hero.jpg?v=3" />
+  <link rel="preload" as="image" href="/img/winfred-hero.avif?v=3" type="image/avif" />
 
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,7 +28,7 @@
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/manifest.webmanifest" />
-  <meta name="theme-color" content="#faf8f4" />
+  <meta name="theme-color" content="#0f1117" />
 
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
@@ -49,7 +49,7 @@
         "email": "winfredquekoc@gmail.com",
         "priceRange": "$$$",
         "areaServed": { "@type": "Country", "name": "Singapore" },
-        "address": { "@type": "PostalAddress", "addressCountry": "SG" },
+        "address":{"@type":"PostalAddress","streetAddress":"62 Ubi Road 1, #05-04 Oxley BizHub 2","addressLocality":"Singapore","postalCode":"408734","addressCountry":"SG"},
         "knowsAbout": [
           "Singapore property investment",
           "HDB upgrade strategy",
@@ -286,23 +286,34 @@
   <link rel="stylesheet" href="/animations.css">
   <script defer src="/animations.js"></script>
   <script defer src="/site-enhancements.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_search.js"></script><link rel="alternate" type="application/rss+xml" title="Winfred Quek Singapore Property Insights" href="/feed.xml">
-  <meta property="og:site_name" content="Winfred Quek" />
-  <meta property="og:locale" content="en_SG" />
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_search.js"></script><link rel="alternate" type="application/rss+xml" title="Winfred Quek Singapore Property Insights" href="/feed.xml">
 </head>
 
 <body class="has-bg-video">
 
   <!-- ===== FULL-PAGE BACKGROUND VIDEO (plays once, muted) ===== -->
   <video
+    id="page-bg-video"
     class="page-bg-video"
     src="/video/hero-scroll.mp4"
-    autoplay
     muted
     playsinline
-    preload="auto"
+    preload="none"
+    poster="/img/winfred-hero.jpg?v=3"
     disablepictureinpicture
     aria-hidden="true"></video>
+  <script>
+    (function(){
+      var v = document.getElementById('page-bg-video');
+      if (!v) return;
+      var saveData = navigator.connection && navigator.connection.saveData === true;
+      if (window.matchMedia('(min-width:768px)').matches && !saveData) {
+        v.play().catch(function(){});
+      } else {
+        v.removeAttribute('src');
+      }
+    })();
+  </script>
   <div class="page-bg-overlay" aria-hidden="true"></div>
 
   <!-- ===== TOP NAV ===== -->
@@ -371,7 +382,7 @@
         </p>
 
         <div class="reveal-fade flex flex-wrap gap-3">
-          <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Get My Free Upgrade Roadmap</a>
+          <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book the free 30 minute Property Portfolio Analysis</a>
           <a href="/services" class="btn btn-ghost" style="border-color:var(--accent);color:var(--accent);">See how it works</a>
         </div>
         <p class="reveal-fade text-xs text-[var(--ink-muted)] mt-4" style="font-size:0.75rem;">30 min · no obligation · walk away with your numbers</p>
@@ -485,46 +496,32 @@
   <section class="max-w-5xl mx-auto px-6 py-20 fade-up reveal-fade scroll-reveal">
     <p class="section-label mb-6">The methodology</p>
     <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-4">
-      The Move
+      Money, Timing &amp; Safety
     </h2>
     <p class="text-lg text-[var(--ink-soft)] max-w-2xl leading-relaxed mb-12">
-      My five-step process. Every property decision buy, sell, hold, restructure, wait runs through The Move. Thirty minutes to know where you stand and what your next move is.
+      Three checks, not five steps. Every property decision, buy, sell, hold, restructure, wait, gets run through the same lens before we talk about a specific unit. Thirty minutes to know where you stand and what your next move is.
     </p>
 
     <div class="grid md:grid-cols-3 gap-x-12 gap-y-10 mb-10">
       <div class="reveal-fade">
-        <div class="move-step mb-3">M1</div>
-        <h3 class="serif text-2xl font-semibold mb-3">Read the Board</h3>
+        <div class="move-step mb-3">01</div>
+        <h3 class="serif text-2xl font-semibold mb-3">Money</h3>
         <p class="text-[var(--ink-soft)] leading-relaxed">
-          Your current position, on paper. CPF balances, outstanding loans, what you actually own vs what you owe, and where the equity lives.
+          Read the board first, CPF balances, outstanding loans, what you actually own vs what you owe. Then find the real constraint: the TDSR ceiling, a cash shortfall, or stamp duty exposure. One thing, not everything.
         </p>
       </div>
       <div class="reveal-fade">
-        <div class="move-step mb-3">M2</div>
-        <h3 class="serif text-2xl font-semibold mb-3">Find the Constraint</h3>
+        <div class="move-step mb-3">02</div>
+        <h3 class="serif text-2xl font-semibold mb-3">Timing</h3>
         <p class="text-[var(--ink-soft)] leading-relaxed">
-          What is stopping the next move? TDSR ceiling, cash shortfall, stamp duty exposure, lease decay, or timing. One thing, not everything.
+          Model two or three paths, built with real numbers. Buy first vs sell first. Keep vs sell. Hold vs restructure. Then decide when to act and in what order, getting the sequence wrong costs more than the transaction.
         </p>
       </div>
       <div class="reveal-fade">
-        <div class="move-step mb-3">M3</div>
-        <h3 class="serif text-2xl font-semibold mb-3">Model the Scenarios</h3>
+        <div class="move-step mb-3">03</div>
+        <h3 class="serif text-2xl font-semibold mb-3">Safety</h3>
         <p class="text-[var(--ink-soft)] leading-relaxed">
-          Two or three paths, built with real numbers. Buy first vs sell first. Keep vs sell. Hold vs restructure. The math on each.
-        </p>
-      </div>
-      <div class="reveal-fade">
-        <div class="move-step mb-3">M4</div>
-        <h3 class="serif text-2xl font-semibold mb-3">Time the Move</h3>
-        <p class="text-[var(--ink-soft)] leading-relaxed">
-          When to act, in what order, and why the sequence matters. Getting the timing wrong costs more than the transaction.
-        </p>
-      </div>
-      <div class="reveal-fade">
-        <div class="move-step mb-3">M5</div>
-        <h3 class="serif text-2xl font-semibold mb-3">Secure the Position</h3>
-        <p class="text-[var(--ink-soft)] leading-relaxed">
-          The downside check before you commit. What breaks, and when. Buffer sizing, holding power, and the exit before entry.
+          The downside check before you commit. Lease decay, a rate shock, a vacancy stretch, what breaks and when. Buffer sizing, holding power, and the exit thought through before the entry.
         </p>
       </div>
     </div>
@@ -689,7 +686,7 @@
     </p>
 
     <div class="flex flex-wrap justify-center gap-3 mb-6">
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a 30 min Strategy Call</a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book the free 30 minute Property Portfolio Analysis</a>
       <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20book%20the%20Property%20Portfolio%20Analysis%20call." class="btn btn-ghost" onclick="trackWAClick()">Message on WhatsApp </a>
       <a href="/property-portfolio-analysis" class="btn btn-ghost" style="background:var(--accent);color:var(--bg);border-color:var(--accent);">Get your Property Portfolio Analysis</a>
     </div>

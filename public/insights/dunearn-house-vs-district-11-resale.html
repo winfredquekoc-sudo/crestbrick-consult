@@ -31,7 +31,7 @@
   </script>
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
-    {"@type":"Question","name":"Is Dunearn House more expensive than D11 resale condos?","acceptedAnswer":{"@type":"Answer","text":"At the analyst-estimated range of S$2,900 to S$3,100 psf, Dunearn House prices above current D11 resale comparables such as Dunearn 386 (freehold, approximately S$2,551 psf resale) and Fourth Avenue Residences (99LH, approximately S$2,522 psf resale), and sits in line with or slightly below the freehold ceiling set by Watten House (approximately S$3,212 to S$3,337 psf). These comparisons are based on pre launch analyst projections; official pricing was released at the July 2026 launch, so verify current figures."}},
+    {"@type":"Question","name":"Is Dunearn House more expensive than D11 resale condos?","acceptedAnswer":{"@type":"Answer","text":"At the analyst-estimated range of S$2,900 to S$3,100 psf, Dunearn House prices above current D11 resale comparables such as Dunearn 386 (freehold, approximately S$2,551 psf resale) and Fourth Avenue Residences (99LH, approximately S$2,522 psf resale), and sits in line with or slightly below the freehold ceiling set by Watten House (approximately S$3,212 to S$3,337 psf). Official Dunearn House pricing is not yet released; these comparisons are based on analyst projections."}},
     {"@type":"Question","name":"Why does Dunearn House cost more than nearby freehold resale condos?","acceptedAnswer":{"@type":"Answer","text":"The new launch premium over nearby freehold resale reflects fresh 99-year lease commencement, new construction, unselected stacks, the first-mover discount versus Plot 2 (projected at S$3,200 to S$3,300 psf), and the Turf City masterplan and CRL 2032 catalysts not yet priced into resale comps. Whether that premium is justified depends on hold period, entry price and individual financial situation."}},
     {"@type":"Question","name":"Should I buy Dunearn House or a D11 resale condo?","acceptedAnswer":{"@type":"Answer","text":"New launch makes sense if you have a 6-plus year hold horizon, want a fresh lease, value the CRL and Turf City catalysts, and see the Plot 2 forward anchor as a near-term repricing signal. Resale makes sense if you want immediate access, freehold tenure, mature amenities, faster TOP, or a lower entry quantum. The right answer depends on your specific financial position, timeline and priorities."}},
     {"@type":"Question","name":"What freehold alternatives are there in D11 near Dunearn House?","acceptedAnswer":{"@type":"Answer","text":"Verified D11 freehold options cited in the research brief include: Watten House (approximately S$3,212 to S$3,337 psf, the freehold ceiling benchmark), Dunearn 386 (approximately S$2,551 psf resale, TOP 2023), and Fourth Avenue Residences (99LH, approximately S$2,522 psf resale). The Reserve Residences (99LH, 732 units, TOP 2028, launched at approximately S$2,347 to S$2,853 psf) is a nearby leasehold comparison. These are cited from the research brief and may not represent current market offers; verify with URA caveats."}}
@@ -87,41 +87,49 @@
 </head>
 <body>
 
-<header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
-  <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-    <a href="/" class="flex items-center gap-2 whitespace-nowrap">
-      <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
-    </a>
-    <div class="hidden xl:flex items-center gap-6">
-      <a class="nav-link link-underline" href="/">Home</a>
-      <a class="nav-link link-underline" href="/about">About</a>
-      <a class="nav-link link-underline" href="/services">Services</a>
-      <a class="nav-link link-underline" href="/pricing">Pricing</a>
-      <a class="nav-link link-underline" href="/tools">Tools</a>
-      <a class="nav-link link-underline" href="/sell">Sell</a>
-      <a class="nav-link link-underline" href="/listings">Listings</a>
-      <a class="nav-link link-underline active" href="/insights">Insights</a>
-      <a class="nav-link link-underline" href="/resources">Resources</a>
-      <a class="nav-link link-underline" href="/contact">Contact</a>
-      <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/new-launches">New Launches</a>
+        <a class="nav-link" href="/districts">Districts</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/track-record">Track Record</a>
+        <a class="nav-link" href="/testimonials">Testimonials</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
     </div>
-    <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-  </nav>
-  <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
-    <div class="px-6 py-4 flex flex-col gap-3">
-      <a class="nav-link" href="/">Home</a>
-      <a class="nav-link" href="/about">About</a>
-      <a class="nav-link" href="/services">Services</a>
-      <a class="nav-link" href="/listings">Listings</a>
-      <a class="nav-link" href="/insights">Insights</a>
-      <a class="nav-link" href="/contact">Contact</a>
-      <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
-    </div>
-  </div>
-</header>
+  </header>
 
 <main>
 
@@ -158,7 +166,7 @@
   <p>Every buyer facing a new launch decision asks the same question eventually: why pay a new launch premium when there are resale options in the same district? It is a fair question and the honest answer is not &ldquo;because new is always better.&rdquo; Sometimes resale wins. The decision depends on what you are trying to achieve, your hold horizon and what you are willing to give up. This article walks through that framework specifically for Dunearn House and District 11 in July 2026. It does not fabricate like-for-like comparisons because no two units are identical. It gives you the logic that lets you make the right call for your situation.</p>
 
   <div class="warn">
-    <strong>Pricing caveat:</strong> All Dunearn House PSF and quantum figures in this article are analyst projections (S$2,900&ndash;S$3,100 psf consensus) made before launch pricing was released. Resale PSF figures for Dunearn 386, Fourth Avenue Residences, Watten House and The Reserve Residences are from the research brief and may not reflect today&rsquo;s market precisely. Use URA caveats and PropertyGuru/99.co for live resale pricing before making any decision.
+    <strong>Pricing caveat:</strong> All Dunearn House PSF and quantum figures in this article are analyst projections (S$2,900&ndash;S$3,100 psf consensus) pending official launch pricing at the 10 July 2026 showflat preview. Resale PSF figures for Dunearn 386, Fourth Avenue Residences, Watten House and The Reserve Residences are from the research brief and may not reflect today&rsquo;s market precisely. Use URA caveats and PropertyGuru/99.co for live resale pricing before making any decision.
   </div>
 
   <h2>The D11 resale landscape in context</h2>
@@ -245,7 +253,7 @@
   <h2>Frequently asked questions</h2>
 
   <p class="faq-q">Is Dunearn House more expensive than D11 resale condos?</p>
-  <p>At the analyst-estimated range of S$2,900&ndash;S$3,100 psf, Dunearn House prices above Dunearn 386 (freehold, approximately S$2,551 psf) and Fourth Avenue Residences (99LH, approximately S$2,522 psf resale), and at a discount to Watten House (FH, approximately S$3,212&ndash;S$3,337 psf). All Dunearn House figures are projections made before official pricing was released.</p>
+  <p>At the analyst-estimated range of S$2,900&ndash;S$3,100 psf, Dunearn House prices above Dunearn 386 (freehold, approximately S$2,551 psf) and Fourth Avenue Residences (99LH, approximately S$2,522 psf resale), and at a discount to Watten House (FH, approximately S$3,212&ndash;S$3,337 psf). All Dunearn House figures are projections prepared before official pricing was released.</p>
 
   <p class="faq-q">Why is Dunearn House priced higher than nearby freehold resale?</p>
   <p>The new launch premium reflects a fresh 99-year lease start, new construction, stack selection, the first-mover entry discount versus Plot 2 (projected S$3,200&ndash;S$3,300 psf in 2H 2027), and the Turf City masterplan and CRL 2032 catalysts not yet priced into resale comps. Whether those catalysts justify the premium is the core question each buyer must answer for their own situation and hold horizon.</p>
@@ -269,7 +277,7 @@
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
   <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.9rem;"><a href="/insights/dunearn-house-review-2026" style="color:var(--accent);">Dunearn House review 2026: the full honest verdict</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/dunearn-house-review-2026" style="color:var(--accent);">Dunearn House review 2026: the full Money, Timing & Safety verdict</a></li>
     <li style="font-size:.9rem;"><a href="/insights/dunearn-house-price-guide-2026" style="color:var(--accent);">Dunearn House price guide 2026: land cost math and expected PSF</a></li>
     <li style="font-size:.9rem;"><a href="/insights/dunearn-house-investor-case" style="color:var(--accent);">Dunearn House investor case: rental demand and exit strategy</a></li>
     <li style="font-size:.9rem;"><a href="/insights/freehold-vs-leasehold" style="color:var(--accent);">Freehold vs leasehold in Singapore: the full analysis</a></li>
