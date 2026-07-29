@@ -136,6 +136,7 @@ def _real_age_hours(ts):
 
 STALE_ROW_HOURS = 48   # backfilled history older than this is skipped (never auto-served)
 SEND_MAX_INBOUND_AGE_HOURS = 5 * 24   # never message anyone whose triggering reply is >5 days old
+DAILY_SEND_CAP = 2     # max automated touches per client per SGT day (Winfred, 29 Jul 2026)
 
 def run():
     # single-instance lock: a slow run (bridge stalls) must not overlap the next 120s tick,
@@ -350,6 +351,18 @@ def run():
             if _grec.get("manual_takeover") and not a.get("copilot"):
                 _log("TAKEOVER_SKIP", a.get("pn"), a.get("type") + " :: manual takeover latched")
                 E.save_state(state); acted += 1; continue
+            # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day
+            # (a touch = one engine action; SEND_FORM's unit-info + form pair counts as one).
+            # CONFIRM_VIEWING is exempt — it answers a tenant's explicit YES to a slot;
+            # holding it overnight dead-ends a converting lead, which is not spam.
+            _today_sgt = time.strftime("%Y-%m-%d",
+                         time.gmtime(time.time() + 8 * 3600))
+            if a.get("type") != "CONFIRM_VIEWING":
+                if (_grec.get("sends_today_date") == _today_sgt
+                        and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
+                    _log("DAILY_CAP_SKIP", a.get("pn"),
+                         a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")
+                    E.save_state(state); acted += 1; continue
             if E.DRY_RUN:
                 for tx in texts:
                     _log("WOULD_SEND", a.get("pn"), a.get("type") + " :: " + tx.replace("\n"," / "))
@@ -393,6 +406,13 @@ def run():
                         pass
                 else:
                     _r0.pop("partial_sent", None)
+                    # count this touch against the per-client daily cap (SGT day)
+                    _rc = state["conversations"].get(a.get("pn"))
+                    if _rc is not None:
+                        if _rc.get("sends_today_date") != _today_sgt:
+                            _rc["sends_today_date"] = _today_sgt
+                            _rc["sends_today"] = 0
+                        _rc["sends_today"] = int(_rc.get("sends_today") or 0) + 1
                 # throttle: drip the morning backlog instead of a bot-like instant burst
                 time.sleep(random.uniform(4, 9))
                 if allok and a.get("type") == "CONFIRM_VIEWING" and a.get("slot_id"):
