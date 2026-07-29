@@ -47,21 +47,25 @@ async function startLentorDrip(payload) {
 // without needing the actual PDF file present.
 const MAGNETS = {
   'property-portfolio-blueprint': {
-    title: 'The Move Framework',
+    title: 'The Money, Timing & Safety Framework',
     url: '/ebooks/money-timing-safety-framework',
   },
   '4-pillar-ebook': { // backward-compat
-    title: 'The Move Framework',
+    title: 'The Money, Timing & Safety Framework',
     url: '/ebooks/money-timing-safety-framework',
   },
   'foreign-buyer-guide': {
     title: 'Foreign Buyer Survival Guide',
     url: '/ebooks/foreign-buyer-guide',
   },
+  'buyer-playbook': {
+    title: "The Buyer's Playbook",
+    url: '/buyers-guide',
+  },
   'newsletter': { title: 'Newsletter subscription', url: null },
   'seller-valuation': { title: 'Seller Valuation Report request', url: null },
   'progression-score': {
-    title: 'The Property Portfolio Blueprint',
+    title: 'The Money, Timing & Safety Framework',
     url: '/ebooks/money-timing-safety-framework',
   },
   'lentor-gardens-guide': {

@@ -1,17 +1,17 @@
-# Winfred Quek ,  Singapore Property Advisor
+# Winfred Quek, Singapore Property Advisor
 
 > Investor-minded property advisor in Singapore. CEA R073319H. Crestbrick Pte Ltd (CEA Licence No. L31010886H). Nine years of experience, 5 properties before 30, the Property Portfolio Analysis methodology. Specialises in HDB upgraders, ownership restructuring (decoupling), ABSD planning, foreign-buyer strategy, and family-office property briefs.
 
 ## About
 
-- [Winfred Quek ,  homepage](https://winfredquek.com/): Positioning, story, and how Winfred works with clients.
+- [Winfred Quek, homepage](https://winfredquek.com/): Positioning, story, and how Winfred works with clients.
 - [About Winfred Quek](https://winfredquek.com/about): Investor-first biography, the 2018 mistake, the Property Portfolio Analysis framework.
 - [Services](https://winfredquek.com/services): Buyer / seller / investor / family-office service tracks.
 - [Pricing](https://winfredquek.com/pricing): How Winfred is paid; commission vs flat-fee advisory transparency.
 - [Track record](https://winfredquek.com/track-record): Closed transactions, advisory engagements, client outcomes.
 - [Testimonials](https://winfredquek.com/testimonials): Client testimonials.
 - [Case studies](https://winfredquek.com/case-studies): Anonymised case studies of upgrade and restructuring decisions.
-- [Contact](https://winfredquek.com/contact): WhatsApp, Calendly, email ,  direct contact channels.
+- [Contact](https://winfredquek.com/contact): WhatsApp, Calendly, email, direct contact channels.
 - [FAQ](https://winfredquek.com/faq): Common questions about working with Winfred and SG property mechanics.
 
 ## Tools (free Singapore property calculators)
@@ -60,7 +60,7 @@
 - [ABSD explained](https://winfredquek.com/insights/absd-explained): Plain-English ABSD primer.
 - [Foreign buyer 60% ABSD strategy](https://winfredquek.com/insights/foreign-buyer-60-absd-strategy): How foreign buyers approach 60% ABSD; FTA exemption nuances.
 - [Cooling measures timeline](https://winfredquek.com/insights/cooling-measures): Singapore cooling measures chronology and impact.
-- [Ownership restructuring math](https://winfredquek.com/insights/ownership-restructuring-math): When decoupling saves money ,  and when it doesn't.
+- [Ownership restructuring math](https://winfredquek.com/insights/ownership-restructuring-math): When decoupling saves money, and when it doesn't.
 - [Restructuring break-even](https://winfredquek.com/insights/restructuring-breakeven): Quantified break-even worked example.
 - [HDB MOP upgrade timeline](https://winfredquek.com/insights/hdb-mop-upgrade-timeline): Sequencing the HDB-to-private upgrade.
 - [Sell HDB before MOP](https://winfredquek.com/insights/sell-hdb-before-mop): Rules and exceptions on selling HDB before MOP.
@@ -216,8 +216,8 @@
 <!-- lentor-cluster -->
 - [Lentor Gardens Residences FAQ: 25 Questions Answered (2026)](https://winfredquek.com/insights/lentor-gardens-residences-faq): Lentor Gardens Residences is a 499 unit, 99 year leasehold launch by Kingsford in District 26, a 6 to 7 minute walk to Lentor MRT (TE5).
 - [Lentor Gardens Residences Buyer Checklist: 12 Things to Confirm](https://winfredquek.com/insights/lentor-gardens-residences-buyer-checklist): Before committing to Lentor Gardens Residences, confirm twelve things: your financing pre approval and TDSR headroom, ABSD position, the actual 4 July price for your stack, layout efficiency, facing and noise, the verified MOE school band per block, maintenance fees, the TOP timeline, your CPF and cash flow including any HDB accrued interest, the developer build quality plan, your realistic hold period, and a clear exit thesis.
-- [New Launch vs Resale in Lentor (D26): Which Wins in 2026?](https://winfredquek.com/insights/new-launch-vs-resale-lentor-d26): In Lentor, a new launch like Lentor Gardens Residences offers fresh 99 year leasehold, the latest layouts, and progressive payments that ease upgrader cash flow, at a launch price you cannot confirm until 4 July.
-- [Lentor Gardens Residences for Second Property & Right Sizers](https://winfredquek.com/insights/lentor-gardens-residences-for-second-property-buyers): Lentor Gardens Residences appeals to right sizers and second property buyers who want a lower land cost entry in a quieter, lower rise, greener District 26 pocket, with budgets around S$1.6m to S$2.4m (estimate, pending 4 July pricing).
+- [New Launch vs Resale in Lentor (D26): Which Wins in 2026?](https://winfredquek.com/insights/new-launch-vs-resale-lentor-d26): In Lentor, a new launch like Lentor Gardens Residences offers fresh 99 year leasehold, the latest layouts, and progressive payments that ease upgrader cash flow, at a launch price released 4 July.
+- [Lentor Gardens Residences for Second Property & Right Sizers](https://winfredquek.com/insights/lentor-gardens-residences-for-second-property-buyers): Lentor Gardens Residences appeals to right sizers and second property buyers who want a lower land cost entry in a quieter, lower rise, greener District 26 pocket, with budgets around S$1.6m to S$2.4m (pre launch estimate; official pricing released 4 July).
 - [Is Lentor a Good Place to Invest in 2026? The Corridor View](https://winfredquek.com/insights/is-lentor-a-good-investment-2026): Lentor is a credible investment corridor for the right buyer, but not a yield play.
 - [Lentor Gardens Residences Showflat Guide: What to Check on 4 July](https://winfredquek.com/insights/lentor-gardens-residences-showflat-guide): At the Lentor Gardens Residences preview on 4 July 2026, check the things that do not show in a brochure: layout efficiency and usable space, build quality and finishes (especially given Kingsford's history), the facing and noise of each stack, the price difference between stacks and floors, and the maintenance fees.
 - [Lentor Gardens Residences Loan & Financing: TDSR, LTV and Rates](https://winfredquek.com/insights/lentor-gardens-residences-loan-financing): Financing Lentor Gardens Residences follows the standard private rules: up to 75% loan to value on a first mortgage, a 55% TDSR cap stress tested at a MAS medium term rate, and a progressive loan that draws down in stages as the project is built.
@@ -235,14 +235,14 @@
 - [The Lentor MRT & TEL Corridor Guide: Connectivity and Condo Value](https://winfredquek.com/insights/lentor-mrt-tel-corridor-guide): The Thomson East Coast Line (TEL) is the spine of the Lentor story.
 - [Ang Mo Kio HDB Upgrader Guide: Stepping Up to Lentor in 2026](https://winfredquek.com/insights/ang-mo-kio-hdb-upgrader-guide-lentor): For Ang Mo Kio HDB owners reaching MOP, Lentor Gardens Residences is the natural step up to private: it is one MRT corridor away, keeps children in the same schools, and keeps grandparents nearby.
 - [Lentor Gardens Residences vs Hillock Green (2026 Comparison)](https://winfredquek.com/insights/lentor-gardens-residences-vs-hillock-green): Hillock Green launched November 2023 at approx S$2,108 psf with a softer 27.6% launch weekend, now roughly 93% sold.
-- [Lentor Gardens Residences Stamp Duty: BSD & ABSD Worked Examples](https://winfredquek.com/insights/lentor-gardens-residences-stamp-duty): On an estimated 3 bedroom quantum of approx S$1.84m (pending official 4 July 2026 pricing), Buyer's Stamp Duty works out to roughly S$60k, before any ABSD.
+- [Lentor Gardens Residences Stamp Duty: BSD & ABSD Worked Examples](https://winfredquek.com/insights/lentor-gardens-residences-stamp-duty): On an estimated 3 bedroom quantum of approx S$1.84m (pre launch estimate; official pricing released 4 July 2026), Buyer's Stamp Duty works out to roughly S$60k, before any ABSD.
 - [Lentor Gardens Residences: Buy Now or Wait for Plot 4?](https://winfredquek.com/insights/lentor-gardens-residences-buy-now-or-wait): The timing argument favours acting at Lentor Gardens Residences rather than waiting for Lentor Central Plot 4.
 - [Is Lentor Gardens Residences Worth Buying? An Honest Money, Timing & Safety Verdict](https://winfredquek.com/insights/lentor-gardens-residences-worth-it): Lentor Gardens Residences is worth buying for the right profile: it is strong on capital (lowest land basis in a repricing corridor) and progression (a clean HDB to private step for north side upgraders), weak on cashflow (yields around 2.8 to 3.2%, rental competition at TOP), and mixed on protection (maturing estate and fresh lease, but developer history and 99 year tenure to watch).
 - [Living in Lentor, District 26: A 2026 Neighbourhood Guide](https://winfredquek.com/insights/living-in-lentor-district-26): Lentor, in District 26 off Ang Mo Kio, has shifted from a greenfield pocket to a maturing private estate of an estimated 3,500 plus homes across eight parcels.
 - [Lentor Gardens Residences vs Lentor Modern: New Launch vs the Estate Anchor](https://winfredquek.com/insights/lentor-gardens-residences-vs-lentor-modern): Lentor Modern (GuocoLand) is the corridor's only mixed use development, launched September 2022 at approx S$2,107 psf, fully sold, and TOPed August 2025 with a mall integrated into Lentor MRT.
-- [Lentor Gardens Residences Preview & Balloting: 4 and 18 July 2026](https://winfredquek.com/insights/lentor-gardens-residences-preview-balloting): Lentor Gardens Residences previews on 4 July 2026, with booking and balloting day on 18 July 2026.
+- [Lentor Gardens Residences Preview & Balloting: What Happened on 4 and 18 July 2026](https://winfredquek.com/insights/lentor-gardens-residences-preview-balloting): Lentor Gardens Residences previewed on 4 July 2026, with booking and balloting day on 18 July 2026.
 - [Kingsford Developer Track Record: Should You Worry at Lentor Gardens?](https://winfredquek.com/insights/kingsford-developer-track-record): Kingsford, the developer of Lentor Gardens Residences, has delivered more than 3,500 Singapore homes (Waterbay, Hillview Peak, Normanton Park) and won awards, but also carries a documented quality and safety history, including a no sale licence on Normanton Park from January 2019 to December 2020.
-- [Can You Afford Lentor Gardens Residences? Income, Loan & Cash Needed](https://winfredquek.com/insights/lentor-gardens-residences-affordability): On analyst estimated quantum (pending official 4 July 2026 pricing), a 2 bedroom from approx S$1.36m or 3 bedroom from approx S$1.84m implies, at 75% loan, roughly S$340k to S$460k in cash and CPF for downpayment and duties, plus a TDSR supported income.
+- [Can You Afford Lentor Gardens Residences? Income, Loan & Cash Needed](https://winfredquek.com/insights/lentor-gardens-residences-affordability): On the pre launch analyst estimated quantum (official pricing released 4 July 2026), a 2 bedroom from approx S$1.36m or 3 bedroom from approx S$1.84m implies, at 75% loan, roughly S$340k to S$460k in cash and CPF for downpayment and duties, plus a TDSR supported income.
 - [The Lentor Gardens Residences Land Cost Advantage: S$920 psf Explained](https://winfredquek.com/insights/lentor-gardens-residences-land-cost-advantage): Kingsford paid approx S$920 psf ppr for the Lentor Gardens site, the lowest land cost in the entire Lentor precinct.
 - [Lentor Gardens Residences for Families: Schools, Space & Multigen Living](https://winfredquek.com/insights/lentor-gardens-residences-for-families): Lentor Gardens Residences fits schooling and multigen families.
 - [Lentor Gardens Residences Location & MRT: Living on the TEL (TE5)](https://winfredquek.com/insights/lentor-gardens-residences-location-mrt): Lentor Gardens Residences is about a 6 to 7 minute walk (approx 500m) from Lentor MRT on the Thomson East Coast Line (TE5), operational since August 2021.
@@ -254,7 +254,7 @@
 - [Lentor Gardens Residences for HDB Upgraders: The North Side Path to Private](https://winfredquek.com/insights/lentor-gardens-residences-hdb-upgraders): Lentor Gardens Residences is built for north side HDB upgraders: owners in Ang Mo Kio, Bishan, Yishun and Sengkang reaching MOP who want a first private home near family and the same schools.
 - [Lentor Gardens Residences vs Lentor Central Residences (2026)](https://winfredquek.com/insights/lentor-gardens-residences-vs-lentor-central-residences): Lentor Central Residences launched March 2025 at approx S$2,200 psf and hit 93% take up in its launch weekend (445 of 477 units), now roughly 99.6% sold.
 - [Lentor Gardens Residences vs Lentor Mansion: Which to Buy in 2026?](https://winfredquek.com/insights/lentor-gardens-residences-vs-lentor-mansion): Lentor Mansion (GuocoLand) launched March 2024 at approx S$2,257 psf and is roughly 97 to 98% sold.
-- [Lentor Gardens Residences Price Guide: PSF & Quantum Estimates (Pre Launch)](https://winfredquek.com/insights/lentor-gardens-residences-price-guide): Lentor Gardens Residences has not released official pricing; it launches at the 4 July 2026 preview.
+- [Lentor Gardens Residences Price Guide: PSF & Quantum Estimates (Pre Launch)](https://winfredquek.com/insights/lentor-gardens-residences-price-guide): Lentor Gardens Residences released official pricing at the 4 July 2026 preview; this page covers the pre launch estimate band.
 - [Lentor Gardens Residences Review 2026: Price, Floor Plans, Location & Verdict](https://winfredquek.com/insights/lentor-gardens-residences-review-2026): Lentor Gardens Residences is a 499 unit, 99 year leasehold launch by Kingsford in District 26, about a 6 to 7 minute walk to Lentor MRT (TE5).
 
 ## New launch reviews and property guides (2026)
@@ -334,13 +334,13 @@
 - [Dunearn House vs Dunearn Road Plot 2: The First Mover Math](https://winfredquek.com/insights/dunearn-house-vs-dunearn-road-plot-2): Dunearn House land cost S$1,410 psf ppr vs Plot 2 at S$1,625 psf ppr, a 15.2% premium.
 - [Dunearn House Is 99 Year Leasehold in a Freehold Enclave: The Honest Conversation](https://winfredquek.com/insights/dunearn-house-99-leasehold-freehold-enclave): Dunearn House is a 99 year leasehold launch at an expected near S$3,000 psf in a Bukit Timah pocket dominated by freehold resale.
 - [Turf City Transformation Property Outlook: What the D11 Masterplan Means for Values](https://winfredquek.com/insights/turf-city-transformation-property-outlook): The Turf City masterplan covers 176 hectares in Bukit Timah, targeting 15,000 to 20,000 new homes over 20 to 30 years.
-- [Dunearn House Floor Plan Strategy: Stack and Size Selection in a 5-Block Layout](https://winfredquek.com/insights/dunearn-house-floor-plan-strategy): How to choose a unit at Dunearn House: understanding the Pinnacle vs Luxury Collection split, 19-storey vs 10-storey block trade-offs, size selection by holding strategy, and the key questions to answer before booking day 25 July 2026.
-- [Dunearn House Buyer Process 2026: Preview, Ballot, OTP and Booking Day](https://winfredquek.com/insights/dunearn-house-buyer-process-2026): How to buy a unit at Dunearn House: what happens at the 10 July showflat preview, how the ballot works on booking day 25 July 2026, the OTP timeline, documents needed, and what to check before you commit.
-- [Lentor Gardens Residences vs Upcoming 2026 Launches: Where It Sits in the H2 Pipeline](https://winfredquek.com/insights/lentor-gardens-vs-upcoming-2026-launches): How Lentor Gardens Residences (D26, OCR, booking day 18 July 2026) compares to the H2 2026 new launch pipeline including Dunearn House (D11, CCR, 25 July), Bayshore, and other confirmed upcoming launches.
+- [Dunearn House Floor Plan Strategy: Stack and Size Selection in a 5-Block Layout](https://winfredquek.com/insights/dunearn-house-floor-plan-strategy): How to choose a unit at Dunearn House: understanding the Pinnacle vs Luxury Collection split, 19-storey vs 10-storey block trade-offs, size selection by holding strategy, and the key questions that mattered before booking day 25 July 2026.
+- [Dunearn House Buyer Process 2026: Preview, Ballot, OTP and Booking Day](https://winfredquek.com/insights/dunearn-house-buyer-process-2026): How to buy a unit at Dunearn House: what happened at the 10 July showflat preview, how the ballot worked on booking day 25 July 2026, the OTP timeline, documents needed, and what to check before you commit.
+- [Lentor Gardens Residences vs Upcoming 2026 Launches: Where It Sits in the H2 Pipeline](https://winfredquek.com/insights/lentor-gardens-vs-upcoming-2026-launches): How Lentor Gardens Residences (D26, OCR, booking day 18 July 2026) compared to the H2 2026 new launch pipeline including Dunearn House (D11, CCR, 25 July), Bayshore, and other H2 2026 launches.
 - [Dunearn House Investor Case 2026: Rental Demand, Exit Strategy & Holding Period Math](https://winfredquek.com/insights/dunearn-house-investor-case): The investor case for Dunearn House: CCR rental demand profile, the first-mover S$150–S$250 psf discount vs Plot 2, CRL 2032 catalyst, 6–7 year hold math at stated rate rules (LTV 75%, TDSR 55%, bank ~1.5%), and the honest risk flags.
 - [Dunearn House vs District 11 Resale Condos: New Launch Premium vs Nearby Resale 2026](https://winfredquek.com/insights/dunearn-house-vs-district-11-resale): At an estimated S$2,900–S$3,100 psf, Dunearn House prices above D11 resale comps (Dunearn 386 FH ~S$2,551, Fourth Avenue Residences ~S$2,522 resale) and below Watten House freehold (~S$3,230).
 - [Dunearn House Location, Schools & MRT: Swiss Club/Turf City Facts, School Zone Guide 2026](https://winfredquek.com/insights/dunearn-house-location-schools-mrt): Dunearn House is in the Swiss Club subzone of D11 CCR.
-- [What Realtors Say About Lentor Gardens Residences 2026: Agent Commentary Roundup](https://winfredquek.com/insights/lentor-gardens-residences-what-realtors-say): What PropertyNet, PropNex CEO Ismail Gafoor, James Ong, ERA, JetSet Homes, AestheticHavens, and Stacked Homes are saying about Lentor Gardens Residences before the 18 July 2026 booking day — plus Winfred Quek's honest take.
+- [What Realtors Say About Lentor Gardens Residences 2026: Agent Commentary Roundup](https://winfredquek.com/insights/lentor-gardens-residences-what-realtors-say): What PropertyNet, PropNex CEO Ismail Gafoor, James Ong, ERA, JetSet Homes, AestheticHavens, and Stacked Homes said about Lentor Gardens Residences ahead of the 18 July 2026 booking day — plus Winfred Quek's honest take.
 - [Dunearn House Price Guide 2026: Land Cost Math, Expected PSF Range & What It Buys](https://winfredquek.com/insights/dunearn-house-price-guide-2026): Dunearn House GLS bid was S$1,410 psf ppr.
 - [What Realtors Say About Dunearn House 2026: Attributed Commentary Roundup](https://winfredquek.com/insights/what-realtors-say-dunearn-house): PropertyNet.sg 85/100 (Strong Buy), ProjectHome.sg 87.5%, DecouplingExpertise (investable with caveats), MyChoiceHomez 84/100, PropNex cautiously positive, COS.sg analytically positive, ERA bullish on precinct.
 - [Dunearn House vs Lentor Gardens Residences 2026: Upgrader Decision Guide](https://winfredquek.com/insights/dunearn-house-vs-lentor-gardens-residences): Dunearn House (D11, CCR) vs Lentor Gardens Residences (D26, OCR): a side-by-side upgrader comparison on price, school catchment, location, tenure, and long-term capital case.
@@ -348,10 +348,10 @@
 
 ## Foreign buyer guides
 
-- [US buyer guide](https://winfredquek.com/buyers/us): US citizens ,  ABSD, FTA exemption nuance, financing routes.
-- [UK buyer guide](https://winfredquek.com/buyers/uk): UK citizens ,  ABSD, SDLT interaction, financing.
-- [China buyer guide](https://winfredquek.com/buyers/china): China citizens ,  60% ABSD, capital outflow context.
-- [India buyer guide](https://winfredquek.com/buyers/india): India citizens ,  60% ABSD, banking and remittance.
+- [US buyer guide](https://winfredquek.com/buyers/us): US citizens, ABSD, FTA exemption nuance, financing routes.
+- [UK buyer guide](https://winfredquek.com/buyers/uk): UK citizens, ABSD, SDLT interaction, financing.
+- [China buyer guide](https://winfredquek.com/buyers/china): China citizens, 60% ABSD, capital outflow context.
+- [India buyer guide](https://winfredquek.com/buyers/india): India citizens, 60% ABSD, banking and remittance.
 - [FTA-exempt countries](https://winfredquek.com/buyers/fta-group): US, Switzerland, Liechtenstein, Iceland, Norway treated as SC/PR for ABSD.
 
 ## Districts and HDB towns
@@ -379,10 +379,10 @@
 
 ## For AI engines (full-context)
 
-- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred ,  identity, services, Property Portfolio Analysis framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
+- [Full AI-readable context (HTML)](https://winfredquek.com/llms-full-context): Structured Q&A about Winfred, identity, services, Property Portfolio Analysis framework, sample analyses, ABSD rate reference, contact. Optimised for AI ingestion.
 - [Full AI-readable context (Markdown)](https://winfredquek.com/llms.md): Same content as Markdown for crawlers that prefer plain text.
 
-## Area pages (programmatic ,  MRT × school catchment)
+## Area pages (programmatic, MRT × school catchment)
 
 - [Living near Admiralty MRT with kids at Innova Primary](https://winfredquek.com/area/admiralty-innova-primary): School-catchment + MRT guide for parents: Innova Primary (within walking distance from Admiralty MRT). Distance band,.
 - [Living near Admiralty MRT with kids at Woodgrove Primary](https://winfredquek.com/area/admiralty-woodgrove-primary): School-catchment + MRT guide for parents: Woodgrove Primary (approximately 1.6 km from Admiralty MRT). Distance band,.
