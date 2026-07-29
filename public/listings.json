@@ -1,56 +1,232 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
-  "source": "manual",
-  "synced_at": "2026-04-27T00:00:00+08:00",
-  "count": 2,
+  "source": "landlord-db",
+  "synced_at": "2026-07-29T07:43:09+08:00",
+  "count": 17,
   "listings": [
     {
-      "id": "farrer-park-common-room-1",
-      "title": "Common Room ,  Farrer Park",
+      "id": "common-room-blk-113-lor-1-toa-payoh-ll086",
+      "title": "Common Room — Blk 113 Lor 1 Toa Payoh",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1500,
-      "currency": "SGD",
-      "price_label": "S$1,500 / month",
-      "address": "Farrer Park",
-      "district": "D8",
-      "beds": 1,
-      "baths_shared": true,
-      "sqft": 120,
-      "tenure": ", ",
-      "highlights": [
-        "Includes utilities",
-        "2-min walk to Farrer Park MRT (NEL)",
-        "Furnished ,  bed, wardrobe, ceiling fan",
-        "Central location"
-      ],
-      "image": "/img/listings/farrer-park-common-room-1.jpg",
-      "wa_text": "Hi%20Winfred%2C%20I%27m%20interested%20in%20the%20Common%20Room%20in%20Farrer%20Park%20at%20S%241%2C500%2Fmo.",
-      "url": "",
-      "scraped_at": "2026-04-18T15:45:00+08:00"
+      "price": 1000,
+      "price_label": "S$1,000 / mo",
+      "address": "Blk 113 Lor 1 Toa Payoh",
+      "district": "D12",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Lor%201%20Toa%20Payoh.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Lor%201%20Toa%20Payoh."
     },
     {
-      "id": "oxley-bizhub-2-office-1",
-      "title": "Office Space ,  Oxley Bizhub 2",
-      "type": "Industrial",
+      "id": "master-room-toa-payoh-ll015",
+      "title": "Master Room — Toa Payoh",
+      "type": "HDB",
       "transaction": "rent",
-      "price": 700,
-      "currency": "SGD",
-      "price_label": "S$700 / month",
-      "address": "Oxley Bizhub 2 · Ubi",
-      "district": "D14",
-      "sqft": 90,
-      "tenure": ", ",
+      "price": 1850,
+      "price_label": "From S$1,850 / mo",
+      "address": "Toa Payoh",
+      "district": "D12",
+      "sqft": 200,
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh."
+    },
+    {
+      "id": "private-room-balestier-ll087",
+      "title": "Private Room — Balestier",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 2500,
+      "price_label": "S$2,500 / mo",
+      "address": "Balestier",
+      "district": "D12",
+      "sqft": 1990,
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier."
+    },
+    {
+      "id": "common-room-blk-2-haig-road-ll089",
+      "title": "Common Room — Blk 2 Haig Road (Katong)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "S$900 / mo",
+      "address": "Blk 2 Haig Road",
+      "district": "D15",
       "highlights": [
-        "B1 industrial ,  suited for light business / workspace use",
-        "Aircon-ready, power points, fitted flooring",
-        "Affordable entry point for a dedicated office",
-        "Within the Ubi cluster ,  easy access via Downtown Line (Ubi MRT)"
+        "Aircon",
+        "Available now"
       ],
-      "image": "/img/listings/oxley-bizhub-2-room-1.jpg",
-      "wa_text": "Hi%20Winfred%2C%20I%27m%20interested%20in%20the%20office%20space%20at%20Oxley%20Bizhub%202%20at%20S%24700%2Fmo.",
-      "url": "",
-      "scraped_at": "2026-04-18T17:05:00+08:00"
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%202%20Haig%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%202%20Haig%20Road."
+    },
+    {
+      "id": "common-room-bayshore-park-ll070",
+      "title": "Common Room — Bayshore Park",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1300,
+      "price_label": "S$1,300 / mo",
+      "address": "Bayshore Park",
+      "district": "D16",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park."
+    },
+    {
+      "id": "master-room-26-bayshore-road-ll001",
+      "title": "Master Room — 26 Bayshore Road",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 2300,
+      "price_label": "S$2,300 / mo",
+      "address": "26 Bayshore Road",
+      "district": "D16",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road."
+    },
+    {
+      "id": "studio-34-jalan-tanjong-ll077",
+      "title": "Studio — 34 Jalan Tanjong (Bedok)",
+      "type": "Landed",
+      "transaction": "rent",
+      "price": 2200,
+      "price_label": "S$2,200 / mo",
+      "address": "34 Jalan Tanjong",
+      "district": "D16",
+      "sqft": 430,
+      "highlights": [
+        "Own bathroom"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
+    },
+    {
+      "id": "common-room-eastpoint-green-ll033",
+      "title": "Common Room — Eastpoint Green (Tampines)",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 950,
+      "price_label": "From S$950 / mo",
+      "address": "Eastpoint Green",
+      "district": "D18",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Eastpoint%20Green.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Eastpoint%20Green."
+    },
+    {
+      "id": "common-room-232b-sumang-lane-ll020",
+      "title": "Common Room — 232B Sumang Lane (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "S$900 / mo",
+      "address": "232B Sumang Lane",
+      "district": "D19",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane."
+    },
+    {
+      "id": "common-room-602-jurong-west-street-62-ll081",
+      "title": "Common Room — 602 Jurong West Street 62 (Reserved)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "602 Jurong West Street 62",
+      "district": "D22",
+      "highlights": [
+        "Offer pending — enquire to join the waitlist",
+        "Utilities included",
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20602%20Jurong%20West%20Street%2062.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20602%20Jurong%20West%20Street%2062."
+    },
+    {
+      "id": "room-851-jurong-west-ll017",
+      "title": "Room — 851 Jurong West",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 800,
+      "price_label": "From S$800 / mo",
+      "address": "851 Jurong West",
+      "district": "D22",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
+    },
+    {
+      "id": "whole-unit-blk-26-teck-whye-lane-ll083",
+      "title": "Whole Unit — Blk 26 Teck Whye Lane (Bukit Batok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price_label": "POA",
+      "address": "Blk 26 Teck Whye Lane",
+      "district": "D23",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane."
+    },
+    {
+      "id": "room-parc-clover-ll019",
+      "title": "Room — Parc Clover (Tengah)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 850,
+      "price_label": "S$850 / mo",
+      "address": "Parc Clover",
+      "district": "D24",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Parc%20Clover.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Parc%20Clover."
+    },
+    {
+      "id": "common-room-383a-yishun-avenue-6-ll050",
+      "title": "Common Room — 383a Yishun Avenue 6 (Reserved)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "From S$900 / mo",
+      "address": "383a Yishun Avenue 6",
+      "district": "D27",
+      "highlights": [
+        "Offer pending — enquire to join the waitlist"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20383a%20Yishun%20Avenue%206.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20383a%20Yishun%20Avenue%206."
+    },
+    {
+      "id": "common-room-54-sunrise-terrace-ll028",
+      "title": "Common Room — 54 Sunrise Terrace",
+      "type": "Landed",
+      "transaction": "rent",
+      "price": 1300,
+      "price_label": "S$1,300 / mo",
+      "address": "54 Sunrise Terrace",
+      "district": "D28",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace."
+    },
+    {
+      "id": "common-room-blk-110a-depot-road-ll082",
+      "title": "Common Room — Blk 110A Depot Road (Harbourfront)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "From S$1,200 / mo",
+      "address": "Blk 110A Depot Road",
+      "district": "D4",
+      "highlights": [
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road."
+    },
+    {
+      "id": "room-blk-706-clementi-west-st-2-ll051",
+      "title": "Room — Blk 706 Clementi West St 2",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "S$1,100 / mo",
+      "address": "Blk 706 Clementi West St 2",
+      "district": "D5",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20706%20Clementi%20West%20St%202.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20706%20Clementi%20West%20St%202."
     }
   ]
 }

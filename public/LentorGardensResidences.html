@@ -159,7 +159,7 @@
   .casec .p{font-size:.95rem;font-weight:700;margin-top:2px}
   .casec .m{font-size:.82rem;color:var(--navy-soft);margin-top:6px}
 
-  /* 4 pillar */
+  /* Money, Timing & Safety */
   .pillars-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
   .pcard{background:var(--surface);border:1px solid var(--rule);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow-sm)}
   .pcard .ph{display:flex;align-items:center;gap:11px;margin-bottom:11px}
@@ -259,6 +259,44 @@
 </style>
 </head>
 <body id="top">
+
+  <!-- ===== ENTRY GATE (first thing on load) ===== -->
+  <style>
+    #lentor-gate{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,7,4,.92);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);opacity:0;transition:opacity .3s ease}
+    #lentor-gate.show{display:flex;opacity:1}
+    #lentor-gate .gate-card{background:#15110b;border:1px solid rgba(180,140,80,.35);border-radius:16px;max-width:480px;width:100%;padding:28px 26px;box-shadow:0 30px 80px rgba(0,0,0,.6);max-height:94vh;overflow:auto;transform:translateY(12px);transition:transform .3s ease}
+    #lentor-gate.show .gate-card{transform:translateY(0)}
+    #lentor-gate .gate-eyebrow{display:inline-block;font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:#b48c50;font-weight:700;margin-bottom:10px}
+    #lentor-gate h2{font-family:Fraunces,Georgia,serif;color:#f0e9d8;font-weight:500;font-size:1.5rem;line-height:1.22;margin:0 0 8px}
+    #lentor-gate .gate-sub{color:#a89980;font-size:.92rem;line-height:1.5;margin:0 0 18px}
+    #lentor-gate .gate-skip{display:block;text-align:center;margin-top:14px;color:#7a6c54;font-size:.82rem;text-decoration:none;cursor:pointer}
+    #lentor-gate .gate-skip:hover{color:#a89980;text-decoration:underline}
+  </style>
+  <div id="lentor-gate" role="dialog" aria-modal="true" aria-label="Get the Lentor Gardens investor case">
+    <div class="gate-card">
+      <span class="gate-eyebrow">Preview 4 Jul · before the price is public</span>
+      <h2>See the official Lentor Gardens price the moment it drops</h2>
+      <p class="gate-sub">Drop your details and I'll send you the full investor case plus a VIP preview slot. About 20 seconds.</p>
+      <div class="form-card">
+        <form data-magnet="lentor-gardens-guide" novalidate>
+          <div class="frow">
+            <div class="field"><label for="g-name">Name</label><input id="g-name" name="name" type="text" placeholder="Your name" autocomplete="name" required /></div>
+            <div class="field"><label for="g-phone">Mobile</label><input id="g-phone" name="phone" type="tel" inputmode="tel" placeholder="+65" autocomplete="tel" required /></div>
+          </div>
+          <div class="field full"><label for="g-email">Email</label><input id="g-email" name="email" type="email" placeholder="you@email.com" autocomplete="email" required /></div>
+          <div class="field full"><label for="g-intent">Your main goal</label>
+            <select id="g-intent" name="intent">
+              <option selected>Investment</option><option>Upgrade from HDB</option><option>Own stay</option><option>Just exploring</option>
+            </select>
+          </div>
+          <button class="btn btn-gold" type="submit" style="width:100%">Send me the case + my VIP slot</button>
+          <p class="form-msg" hidden></p>
+          <p class="form-fine" style="margin-top:10px">Name, mobile and email, takes about 20 seconds. By submitting you agree Winfred Quek may contact you about Lentor Gardens Residences. Indicative figures only, official pricing releases 4 Jul 2026. CEA R073319H.</p>
+        </form>
+      </div>
+      <a class="gate-skip" data-gate-close>I'll browse the page first →</a>
+    </div>
+  </div>
 
   <header class="nav" id="nav">
     <div class="nav-inner">
@@ -672,7 +710,9 @@
         e.preventDefault();
         var btn=form.querySelector('button[type=submit]'),msg=form.querySelector('.form-msg');
         var email=(form.elements['email'].value||'').trim();
-        if(!email){form.elements['email'].focus();return}
+        var firstEmpty=null;
+        Array.prototype.forEach.call(form.querySelectorAll('[required]'),function(el){if(!firstEmpty&&!(el.value||'').trim())firstEmpty=el;});
+        if(firstEmpty){if(msg){msg.hidden=false;msg.textContent='Please fill in all the fields.';}firstEmpty.focus();return;}
         var original=btn.textContent;btn.disabled=true;btn.textContent='Sending...';
         var payload={name:(form.elements['name'].value||'').trim(),email:email,phone:(form.elements['phone'].value||'').trim(),intent:(form.elements['intent'].value||''),magnet:form.dataset.magnet,source:'lentor-funnel'};
         try{
@@ -683,6 +723,23 @@
         }
       });
     });
+
+    // Entry gate: show the capture form first, once per session, never after submit.
+    (function(){
+      var gate=document.getElementById('lentor-gate');
+      if(!gate) return;
+      var done=false,seen=false;
+      try{done=!!sessionStorage.getItem('lentorGateDone');seen=!!sessionStorage.getItem('lentorGateSeen');}catch(e){}
+      if(done||seen){if(gate.parentNode)gate.parentNode.removeChild(gate);return;}
+      function close(){gate.classList.remove('show');document.body.style.overflow='';try{sessionStorage.setItem('lentorGateSeen','1');}catch(e){}setTimeout(function(){if(gate.parentNode)gate.parentNode.removeChild(gate);},320);}
+      document.body.style.overflow='hidden';
+      requestAnimationFrame(function(){gate.classList.add('show');var n=document.getElementById('g-name');if(n)n.focus();});
+      gate.querySelector('[data-gate-close]').addEventListener('click',function(e){e.preventDefault();close();});
+      gate.addEventListener('click',function(e){if(e.target===gate)close();});
+      document.addEventListener('keydown',function(e){if(e.key==='Escape'&&gate.classList.contains('show'))close();});
+      var gform=gate.querySelector('form[data-magnet]');
+      if(gform){gform.addEventListener('submit',function(){var ok=true;Array.prototype.forEach.call(gform.querySelectorAll('[required]'),function(el){if(!(el.value||'').trim())ok=false;});if(!ok)return;try{sessionStorage.setItem('lentorGateDone','1');}catch(e){}setTimeout(close,2600);});}
+    })();
   </script>
 </body>
 </html>
