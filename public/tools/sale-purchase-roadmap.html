@@ -139,15 +139,71 @@ function shift(steps, offset){
 function sortByDay(steps){
   return steps.slice().sort((a,b) => a.day - b.day);
 }
+function addMonthsClamped(date, months){
+  const y = date.getFullYear(), m = date.getMonth(), d = date.getDate();
+  const target = new Date(y, m + months, 1);
+  const daysInTargetMonth = new Date(target.getFullYear(), target.getMonth()+1, 0).getDate();
+  target.setDate(Math.min(d, daysInTargetMonth));
+  return target;
+}
+
+const ACRONYM_RULES = [
+  {key:'S&P', re:/\bS&P\b/, exp:'S&P (Sale and Purchase Agreement)'},
+  {key:'OTP', re:/\bOTP\b/, exp:'OTP (Option to Purchase)'},
+  {key:'ABSD', re:/\bABSD\b/, exp:"ABSD (Additional Buyer's Stamp Duty)"},
+  {key:'BSD', re:/\bBSD\b/, exp:"BSD (Buyer's Stamp Duty)"},
+  {key:'EIP', re:/\bEIP\b/, exp:'EIP (Ethnic Integration Policy)'},
+  {key:'COV', re:/\bCOV\b/, exp:"COV (Cash Over Valuation) — the gap between price and HDB's valuation, payable in cash only, no loan or CPF"}
+];
+function expandAcronymsOnce(items){
+  const done = {};
+  const fields = ['title','desc','warn','note'];
+  items.forEach(item => {
+    fields.forEach(f => {
+      if (!item[f]) return;
+      ACRONYM_RULES.forEach(rule => {
+        if (done[rule.key]) return;
+        if (rule.re.test(item[f])) {
+          item[f] = item[f].replace(rule.re, rule.exp);
+          done[rule.key] = true;
+        }
+      });
+    });
+  });
+}
+function annotateParallelPhases(phases){
+  for (let i=1;i<phases.length;i++){
+    const prevMax = Math.max.apply(null, phases[i-1].steps.map(s=>s.day));
+    const thisMin = Math.min.apply(null, phases[i].steps.map(s=>s.day));
+    if (thisMin < prevMax) {
+      const weekN = Math.round(thisMin/7);
+      const word = /sell/i.test(phases[i-1].header) ? 'sale' : (/buy/i.test(phases[i-1].header) ? 'purchase' : 'first phase');
+      phases[i] = Object.assign({}, phases[i], {header: phases[i].header + ` — runs in parallel with your ${word} from Week ${weekN}; don't wait for completion to start this`});
+    }
+  }
+  return phases;
+}
+function neutralizeABSDStep(steps){
+  return steps.map(s => {
+    if (s.title === 'BSD and any ABSD due') {
+      return Object.assign({}, s, {
+        title: 'BSD due (no ABSD on this route)',
+        desc: "Buyer's Stamp Duty is due within 14 days of exercising. Because you sold first, ABSD does not apply here — the 20% figure only concerns the buy first route.",
+        warn: undefined
+      });
+    }
+    return s;
+  });
+}
 
 function sellHDBSteps(){
   return [
     {day:0, title:"Check you're clear to sell", desc:"Confirm your Minimum Occupation Period is met (usually 5 years from key collection). Note your outstanding loan and CPF used, including accrued interest, so you know your real cash proceeds.", warn:"CPF refund plus accrued interest comes out of your sale proceeds first. Sellers who skip this math discover at completion that their cash proceeds are far smaller than expected."},
-    {day:0, title:"Register your Intent to Sell", desc:"Register on the HDB Resale Portal. Valid 12 months.", milestone:true, warn:"You cannot grant an OTP until 7 days after your Intent to Sell is registered. Granting one earlier makes it invalid."},
+    {day:0, title:"Register your Intent to Sell", desc:"Register on the HDB Resale Portal. Valid 12 months. It must still be valid both when you grant the OTP and when the resale application goes in.", milestone:true, warn:"You cannot grant an OTP until 7 days after your Intent to Sell is registered. Granting one earlier makes it invalid."},
     {day:0, rangeEnd:56, title:"Market the flat", desc:"Do viewings and negotiate. Duration varies with pricing and market conditions."},
-    {day:56, title:"Grant the OTP", desc:"Verify the buyer holds a valid HFE letter, then grant the OTP. Option fee is a token S$1 to S$1,000.", milestone:true, warn:"Never grant an OTP to a buyer without a valid HFE letter — the deal cannot proceed and your OTP locks you up for 21 days."},
+    {day:56, title:"Grant the OTP", desc:"Verify the buyer holds a valid HFE letter (HDB Flat Eligibility), then grant the OTP. Option fee is a token S$1 to S$1,000.", milestone:true, warn:"Never grant an OTP to a buyer without a valid HFE letter (HDB Flat Eligibility — confirms the buyer is cleared to purchase) — the deal cannot proceed and your OTP locks you up for 21 days."},
     {day:77, title:"Buyer's deadline to exercise the OTP", desc:"The buyer must exercise the OTP within 21 days of the OTP date.", milestone:true},
-    {day:77, rangeEnd:84, title:"Submit the resale application", desc:"Both parties submit the resale application to HDB — buyer and seller each submit their portion.", warn:"If you need to stay on after completion, the Temporary Extension of Stay (up to 3 months) must be agreed and included in the resale application. You cannot bolt it on afterwards."},
+    {day:77, rangeEnd:84, title:"Submit the resale application", desc:"Both parties submit the resale application to HDB — buyer and seller each submit their portion.", warn:"If you need to stay on after completion, the Temporary Extension of Stay (up to 3 months) must be agreed and included in the resale application — you cannot bolt it on afterwards. Available only if you have committed to buy a completed property in Singapore, and only with your buyer's agreement; an upgrader buying an uncompleted new launch cannot use it."},
     {day:91, rangeEnd:98, title:"HDB accepts and processes", desc:"HDB accepts the application and processes approval. Allow about 12 to 13 weeks in total from OTP to completion."},
     {day:147, rangeEnd:154, title:"Completion appointment", desc:"Loan is redeemed, CPF refunded to your Ordinary Account, balance proceeds to you. Hand over keys.", milestone:true}
   ];
@@ -156,10 +212,10 @@ function sellHDBSteps(){
 function sellPrivateSteps(){
   return [
     {day:0, title:"Check your Seller's Stamp Duty window", desc:"Bought on or after 4 Jul 2025: SSD applies within 4 years — 16% (year 1), 12% (year 2), 8% (year 3), 4% (year 4). Bought before 4 Jul 2025: 3 year window at 12% / 8% / 4%.", milestone:true, warn:"Selling weeks before your SSD window closes can cost you 4% of the price. Check the exact purchase date on your exercised OTP or S&P, not your memory."},
-    {day:0, title:"Check your bank's lock in period", desc:"Redeeming the loan early can trigger a penalty of about 1.5% of the outstanding loan, plus any clawback of legal or valuation subsidies. Note CPF used plus accrued interest. Serve notice of redemption on your bank as soon as you decide to sell — banks typically need up to 3 months' notice, or you pay interest in lieu."},
+    {day:0, title:"Check your bank's lock in period", desc:"Redeeming the loan early can trigger a penalty typically 0.75% to 1.5% of the outstanding loan — check your facility letter — plus any clawback of legal or valuation subsidies. Note CPF used plus accrued interest. Serve notice of redemption on your bank as soon as you decide to sell — banks typically need up to 3 months' notice, or you pay interest in lieu."},
     {day:0, rangeEnd:56, title:"Market, viewings, negotiate", desc:"Run viewings and negotiate your price."},
-    {day:56, title:"Grant the OTP", desc:"Buyer pays a 1% option fee.", milestone:true},
-    {day:70, title:"Buyer's deadline to exercise", desc:"The buyer must exercise within 14 days of the OTP date, paying a further 4%.", milestone:true},
+    {day:56, title:"Grant the OTP", desc:"Buyer pays an option fee, typically 1% of the price (unless your OTP states otherwise).", milestone:true},
+    {day:70, title:"Buyer's deadline to exercise", desc:"The buyer must exercise within 14 days of the OTP date, typically paying a further 4% (unless your OTP states otherwise).", milestone:true},
     {day:70, rangeEnd:140, title:"Conveyancing runs", desc:"Property tax and outgoings are apportioned to completion."},
     {day:140, rangeEnd:154, title:"Completion", desc:"Loan redeemed, CPF refunded with accrued interest, balance to you. Keys handed over.", milestone:true}
   ];
@@ -167,7 +223,7 @@ function sellPrivateSteps(){
 
 function buyHDBSteps(){
   return [
-    {day:0, title:"Apply for your HFE letter", desc:"Apply on the HDB Flat Portal before house hunting. Processing can take up to about a month; the letter is valid 9 months and states your eligibility, grants and HDB loan amount.", milestone:true, warn:"No valid HFE letter, no OTP — sellers cannot legally grant you one. Buyers who start viewing first routinely lose the unit they wanted while waiting for HFE."},
+    {day:0, title:"Apply for your HFE letter (HDB Flat Eligibility)", desc:"Apply on the HDB Flat Portal before house hunting. Processing can take up to about a month; the letter is valid 9 months and states your eligibility, grants and HDB loan amount.", milestone:true, warn:"No valid HFE letter, no OTP — sellers cannot legally grant you one. Buyers who start viewing first routinely lose the unit they wanted while waiting for HFE."},
     {day:0, title:"Get In Principle Approval (IPA)", desc:"If taking a bank loan, get IPA too, so you know your true budget including COV headroom."},
     {day:28, rangeEnd:70, title:"House hunt and negotiate", desc:"Agree on a price.", warn:"Check the block's EIP and SPR quota before offering. Quotas recalculate on the 1st of each month — a block that is full for your ethnic group cannot be bought at any price."},
     {day:70, title:"Receive the OTP", desc:"Option fee S$1 to S$1,000.", milestone:true},
@@ -175,7 +231,7 @@ function buyHDBSteps(){
     {day:91, title:"Exercise the OTP", desc:"Deadline is 21 days after the OTP date. Deposit including option fee capped at S$5,000.", milestone:true},
     {day:105, title:"Pay Buyer's Stamp Duty", desc:"Buyer's Stamp Duty is due within 14 days of exercising the OTP. Late stamping carries penalties of up to four times the duty.", milestone:true},
     {day:91, rangeEnd:98, title:"Submit the resale application", desc:"Buyer and seller submit the resale application to HDB."},
-    {day:147, rangeEnd:161, title:"Completion appointment", desc:"Pay the balance and collect keys. Allow about 12 to 13 weeks in total from OTP to completion.", milestone:true}
+    {day:161, rangeEnd:168, title:"Completion appointment", desc:"Pay the balance and collect keys. Allow about 12 to 13 weeks in total from OTP to completion.", milestone:true}
   ];
 }
 
@@ -183,8 +239,8 @@ function buyPrivateSteps(){
   return [
     {day:0, title:"Get bank In Principle Approval (IPA)", desc:"Get this before paying any option fee. Valid about 30 days, renewable.", milestone:true, warn:"Pay the 1% option fee without IPA and the loan falls short, you forfeit the full option fee. This is the single most common private buyer loss."},
     {day:0, rangeEnd:42, title:"House hunt and negotiate", desc:"Budget LTV 75% on your first loan, 45% if you still hold another housing loan."},
-    {day:42, title:"Pay the option fee, receive the OTP", desc:"Option fee is 1% of the price.", milestone:true},
-    {day:56, title:"Exercise the OTP", desc:"Deadline is 14 days after the OTP date. Pay a further 4% (5% total).", milestone:true},
+    {day:42, title:"Pay the option fee, receive the OTP", desc:"Option fee is typically 1% of the price (unless your OTP states otherwise).", milestone:true},
+    {day:56, title:"Exercise the OTP", desc:"Deadline is typically 14 days after the OTP date (unless your OTP states otherwise). Pay a further 4% (5% total).", milestone:true},
     {day:56, rangeEnd:126, title:"Conveyancing runs", desc:"Formal loan offer signed, fire insurance arranged."},
     {day:70, title:"BSD and any ABSD due", desc:"Due 14 days after exercise. SC buying a 2nd property: ABSD 20% (PR 2nd property 30%, foreigner 60% — rates as at July 2026).", milestone:true, warn:"ABSD is due 14 days after exercise, in cash first (CPF reimbursement later where eligible). Buying before selling? See the combined routes — the remission clock is unforgiving."},
     {day:112, rangeEnd:126, title:"Completion", desc:"Balance paid, keys collected.", milestone:true}
@@ -198,35 +254,39 @@ const SINGLE = {
   'buy-private': {title:'Buying a private resale', build: buyPrivateSteps}
 };
 
-function buildCombined(route, seq){
+function buildCombined(route, seq, startVal){
   if (route === 'hdb-to-private') {
     if (seq === 'buy-first') {
       const buy = buyPrivateSteps();
       const exerciseDay = 56;
-      const windowOpen = {day:exerciseDay, title:"ABSD remission window opens (at exercise)", desc:"Start marketing your HDB before you exercise the private OTP. Your remission clock starts at exercise; your buyer's OTP must be exercised within 6 months of that day.", milestone:true};
+      const windowOpen = {day:exerciseDay, title:"ABSD remission window opens (at exercise)", desc:"Start marketing your HDB before you exercise the private OTP. Your remission clock starts at exercise; your buyer's OTP must be exercised within 6 months of that day. If the property you are buying is uncompleted (a new launch), the 6 months runs from the earlier of TOP or CSC instead — more time, not less.", milestone:true};
       const phase2Start = 112;
+      const sellFull = sellHDBSteps();
+      const earlyCheck = sellFull[0];
+      const registerIntent = Object.assign({}, sellFull[1], {day:20});
+      const sellRest = shift(sellFull.slice(2), phase2Start);
       const saleExerciseDay = phase2Start + 77;
-      const remissionDeadline = {day:exerciseDay+182, title:"ABSD remission deadline — your HDB must be sold (buyer's OTP exercised) by this date", desc:"Hard IRAS deadline. Your buyer must have exercised the OTP on your HDB by this date, or the ABSD paid cannot be recovered. IRAS does not grant extensions.", milestone:true};
-      const refundFiling = {day:saleExerciseDay+182, title:"File the ABSD refund claim with IRAS (deadline)", desc:"The refund application must be filed within 6 months after the date you sold your first home. Selling in time is not enough — an unfiled claim is a forfeited claim.", milestone:true};
-      const sell = shift(sellHDBSteps(), phase2Start);
+      const remissionDeadline = {day:exerciseDay+182, dateOverride: addMonthsClamped(addDays(startVal, exerciseDay), 6), title:"ABSD remission deadline — your HDB must be sold (buyer's OTP exercised) by this date", desc:"Hard IRAS deadline. Your buyer must have exercised the OTP on your HDB by this date, or the ABSD paid cannot be recovered. IRAS does not grant extensions. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
+      const refundFiling = {day:saleExerciseDay+182, dateOverride: addMonthsClamped(addDays(startVal, saleExerciseDay), 6), title:"File the ABSD refund claim with IRAS (deadline)", desc:"The refund application must be filed within 6 months after the date you sold your first home. Selling in time is not enough — an unfiled claim is a forfeited claim. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
       return {
         title: 'Upgrading: sell HDB, buy private',
         badge: 'Buy first',
-        oneRule: "Buy first and you pay 20% ABSD upfront in cash on the private purchase (SC 2nd property; PR 2nd property 30%, foreigner 60% — rates as at July 2026). A married couple with at least one Singapore Citizen can claim ABSD remission only if the HDB is sold within 6 months of the date you purchase the private property — the date you exercise the OTP or sign the S&P, not the date the purchase completes. Sold means your buyer has exercised their OTP. IRAS does not grant extensions. Singles and non married co owners get no remission. Second housing loan while the first is outstanding: LTV drops to 45%.",
+        oneRule: "Start marketing your HDB before you exercise the private OTP — the remission clock starts at exercise. Married with at least one Singapore Citizen? You can claim ABSD remission if the HDB is sold within 6 months of the date you purchase the private property — the date you exercise the OTP or sign the S&P, not the date the purchase completes. Single or not married? No remission — budget the 20% as a permanent cost. Buy first and you pay 20% ABSD upfront in cash on the private purchase (SC 2nd property; PR 2nd property 30%, foreigner 60% — rates as at July 2026). Sold means your buyer has exercised their OTP. IRAS does not grant extensions. Second housing loan while the first is outstanding: LTV drops to 45%.",
         phases: [
-          {header:'Phase 1 — Buy your private', steps: buy.concat([windowOpen])},
-          {header:'Phase 2 — Sell your HDB', steps: sell.concat([remissionDeadline, refundFiling])}
+          {header:'Phase 1 — Buy your private', steps: buy.concat([windowOpen, earlyCheck, registerIntent])},
+          {header:'Phase 2 — Sell your HDB', steps: sellRest.concat([remissionDeadline, refundFiling])}
         ]
       };
     }
     const sell = sellHDBSteps();
     const phase2Start = 84;
-    const buy = shift(buyPrivateSteps(), phase2Start);
-    buy[0] = Object.assign({}, buy[0], {warn:"The gap between your HDB completion and private completion is your interim housing window. Extension of Stay covers at most 3 months — align your private completion inside it."});
+    let buy = shift(buyPrivateSteps(), phase2Start);
+    buy = neutralizeABSDStep(buy);
+    buy[0] = Object.assign({}, buy[0], {warn: buy[0].warn + " The gap between your HDB completion and private completion is your interim housing window. Extension of Stay covers at most 3 months — align your private completion inside it. Extension of Stay is available only if you have committed to buy a completed property in Singapore, and only with your buyer's agreement — an upgrader buying an uncompleted new launch cannot use it."});
     return {
       title: 'Upgrading: sell HDB, buy private',
       badge: 'Sell first',
-      oneRule: "Sell first and you never touch ABSD, and you know your exact proceeds before committing. The price: you must line up interim housing — negotiate a Temporary Extension of Stay (up to 3 months, agreed inside the resale application) or rent. Exercise your private purchase OTP only after your HDB buyer has exercised theirs.",
+      oneRule: "Exercise your private purchase OTP only after your HDB buyer has exercised theirs. Sell first and you never touch ABSD, and you know your exact proceeds before committing. The price: you must line up interim housing — negotiate a Temporary Extension of Stay (up to 3 months, agreed inside the resale application) or rent.",
       phases: [
         {header:'Phase 1 — Sell your HDB', steps: sell},
         {header:'Phase 2 — Buy your private', steps: buy}
@@ -235,18 +295,26 @@ function buildCombined(route, seq){
   }
 
   if (route === 'hdb-to-hdb') {
-    const sell = sellHDBSteps().slice(0, -1);
-    const completionDay = sellHDBSteps().slice(-1)[0].day;
-    const phase2Start = 42;
-    const buyWithoutLast = shift(buyHDBSteps().slice(0, -1), phase2Start);
-    const aligned = {day:completionDay, title:"Aligned completion / contra day", desc:"Both transactions are timed to complete on the same day via the Enhanced Contra Facility — sale proceeds and CPF flow straight into your purchase.", milestone:true};
+    const sellFull = sellHDBSteps();
+    const sellLeg = sellFull.slice(0, 5);
+    const completionDay = 147;
+    const buyLeg = [
+      {day:0, title:"Apply for your HFE letter (HDB Flat Eligibility)", desc:"Apply on the HDB Flat Portal alongside your sale prep.", milestone:true, warn:"No valid HFE letter, no OTP — sellers cannot legally grant you one."},
+      {day:0, title:"Get In Principle Approval (IPA)", desc:"If taking a bank loan, get IPA too — though the Enhanced Contra Facility generally works best with an HDB housing loan or no loan on the purchase."},
+      {day:28, rangeEnd:49, title:"House hunt and negotiate", desc:"Agree on a price.", warn:"Check the block's EIP and SPR quota before offering. Quotas recalculate on the 1st of each month — a block that is full for your ethnic group cannot be bought at any price."},
+      {day:49, title:"Receive the OTP on your new flat", desc:"Option fee S$1 to S$1,000.", milestone:true},
+      {day:70, title:"Exercise the OTP on your new flat", desc:"Deadline is 21 days after the OTP date. Deposit including option fee capped at S$5,000.", milestone:true},
+      {day:84, title:"Submit both resale applications and the ECF application together", desc:"You and your buyer submit your HDB sale's resale application, your new flat's resale application, and the Enhanced Contra Facility application all together. HDB requires concurrent submission for contra to work — submitting them separately breaks the arrangement and forces two separate completions.", milestone:true},
+      {day:98, rangeEnd:105, title:"HDB accepts and processes both applications", desc:"HDB processes both applications together. Allow about 8 to 9 weeks from here to your aligned completion."}
+    ];
+    const aligned = {day:completionDay, title:"Aligned completion / contra day", desc:"Both transactions complete on the same day via the Enhanced Contra Facility — sale proceeds and CPF flow straight into your purchase.", milestone:true};
     return {
       title: 'Moving: sell HDB, buy HDB',
       badge: 'Aligned completion',
-      oneRule: "The Enhanced Contra Facility generally requires an HDB housing loan or no loan on the purchase, with HDB conveyancing on both legs, and the sale completing on or before the purchase. Confirm eligibility with HDB before you submit either resale application. Have your HFE letter in hand before you go looking — no seller can grant you an OTP without it, and it can take up to about a month. Buy first is not a real route here — you cannot hold two flats. The play is aligned completion.",
+      oneRule: "Aim both completions at the same day — ask HDB about the Enhanced Contra Facility before you submit either application. The Enhanced Contra Facility generally requires an HDB housing loan or no loan on the purchase, with HDB conveyancing on both legs, and the sale completing on or before the purchase. Confirm eligibility with HDB before you submit either resale application. Have your HFE letter (HDB Flat Eligibility) in hand before you go looking — no seller can grant you an OTP without it, and it can take up to about a month. Buy first is possible but expensive: you would pay ABSD on the second flat and must dispose of your existing flat within 6 months of the new flat's resale completion. Aligned completion through the Enhanced Contra Facility avoids that cost, which is why it is the usual route.",
       phases: [
-        {header:'Phase 1 — Sell your HDB', steps: sell},
-        {header:'Phase 2 — Buy your HDB', steps: buyWithoutLast.concat([aligned])}
+        {header:'Phase 1 — Sell your HDB', steps: sellLeg},
+        {header:'Phase 2 — Buy your HDB', steps: buyLeg.concat([aligned])}
       ]
     };
   }
@@ -256,30 +324,33 @@ function buildCombined(route, seq){
       const checks = sellPrivateSteps().slice(0, 2);
       const buy = buyPrivateSteps();
       const exerciseDay = 56;
-      const windowOpen = {day:exerciseDay, title:"ABSD remission window opens (at exercise)", desc:"Start marketing your existing home before you exercise the new purchase OTP. Your remission clock starts at exercise; your buyer's OTP must be exercised within 6 months of that day.", milestone:true};
+      const windowOpen = {day:exerciseDay, title:"ABSD remission window opens (at exercise)", desc:"Start marketing your existing home before you exercise the new purchase OTP. Your remission clock starts at exercise; your buyer's OTP must be exercised within 6 months of that day. If the property you are buying is uncompleted (a new launch), the 6 months runs from the earlier of TOP or CSC instead — more time, not less.", milestone:true};
       const phase2Start = 112;
+      const sellFull = sellPrivateSteps();
+      const marketHoisted = Object.assign({}, sellFull[2], {day:20, rangeEnd:112});
+      const sellRest = shift(sellFull.slice(3), phase2Start);
       const saleExerciseDay = phase2Start + 70;
-      const remissionDeadline = {day:exerciseDay+182, title:"ABSD remission deadline — your existing home must be sold (buyer's OTP exercised) by this date", desc:"Hard IRAS deadline. Your buyer must have exercised the OTP on your existing home by this date, or the ABSD paid cannot be recovered. IRAS does not grant extensions.", milestone:true};
-      const refundFiling = {day:saleExerciseDay+182, title:"File the ABSD refund claim with IRAS (deadline)", desc:"The refund application must be filed within 6 months after the date you sold your first home. Selling in time is not enough — an unfiled claim is a forfeited claim.", milestone:true};
-      const sellRest = shift(sellPrivateSteps().slice(2), phase2Start);
+      const remissionDeadline = {day:exerciseDay+182, dateOverride: addMonthsClamped(addDays(startVal, exerciseDay), 6), title:"ABSD remission deadline — your existing home must be sold (buyer's OTP exercised) by this date", desc:"Hard IRAS deadline. Your buyer must have exercised the OTP on your existing home by this date, or the ABSD paid cannot be recovered. IRAS does not grant extensions. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
+      const refundFiling = {day:saleExerciseDay+182, dateOverride: addMonthsClamped(addDays(startVal, saleExerciseDay), 6), title:"File the ABSD refund claim with IRAS (deadline)", desc:"The refund application must be filed within 6 months after the date you sold your first home. Selling in time is not enough — an unfiled claim is a forfeited claim. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
       return {
         title: 'Moving: sell private, buy private',
         badge: 'Buy first',
-        oneRule: "A married couple with at least one Singapore Citizen can claim ABSD remission only if the first home is sold within 6 months of the date you purchase the new property — the date you exercise the OTP, not the date the purchase completes. Sold means your buyer has exercised their OTP. IRAS does not grant extensions. Singles and non married co owners get no remission. Also check SSD on the property you are selling before anything else.",
+        oneRule: "Start marketing your existing home before you exercise the new purchase OTP — the remission clock starts at exercise. Married with at least one Singapore Citizen? You can claim ABSD remission if the first home is sold within 6 months of the date you purchase the new property — the date you exercise the OTP, not the date the purchase completes. Single or not married? No remission — budget the 20% as a permanent cost. Sold means your buyer has exercised their OTP. IRAS does not grant extensions. Also check SSD on the property you are selling before anything else.",
         phases: [
-          {header:'Phase 1 — Buy your private', steps: checks.concat(buy, [windowOpen])},
+          {header:'Phase 1 — Buy your private', steps: checks.concat(buy, [windowOpen, marketHoisted])},
           {header:'Phase 2 — Sell your private', steps: sellRest.concat([remissionDeadline, refundFiling])}
         ]
       };
     }
     const sell = sellPrivateSteps();
     const phase2Start = 70;
-    const buy = shift(buyPrivateSteps(), phase2Start);
-    buy[0] = Object.assign({}, buy[0], {warn:"budget for the gap between handing over your keys and collecting the new ones — sell first means you carry that gap in interim housing."});
+    let buy = shift(buyPrivateSteps(), phase2Start);
+    buy = neutralizeABSDStep(buy);
+    buy[0] = Object.assign({}, buy[0], {warn: buy[0].warn + " Budget for the gap between handing over your keys and collecting the new ones — sell first means you carry that gap in interim housing."});
     return {
       title: 'Moving: sell private, buy private',
       badge: 'Sell first',
-      oneRule: "Sell first, then exercise your purchase OTP after your sale OTP is exercised — done right you never owe ABSD and can negotiate a longer completion on the sale, or a shorter one on the purchase, so the two land close together.",
+      oneRule: "Exercise your purchase OTP only after your sale OTP is exercised. Done right you never owe ABSD and can negotiate a longer completion on the sale, or a shorter one on the purchase, so the two land close together.",
       phases: [
         {header:'Phase 1 — Sell your private', steps: sell},
         {header:'Phase 2 — Buy your private', steps: buy}
@@ -288,30 +359,38 @@ function buildCombined(route, seq){
   }
 
   if (route === 'private-to-hdb') {
-    const oneRule = "Since 28 July 2026 there is no wait out period when buying a non subsidised resale flat without an HDB housing loan — announced with immediate effect. A 30 month wait out still applies if you take an HDB housing loan, claim CPF housing grants, or buy a subsidised flat or a new EC. Separately, if you buy the resale flat while you still own private property, you must dispose of all private property within 6 months of the resale completion. Rules current as at 29 July 2026.";
+    const commonBody = "Since 28 July 2026 there is no wait out period when buying a non subsidised resale flat without an HDB housing loan — announced with immediate effect. A 30 month wait out (running from the disposal of your private property) still applies if you take an HDB housing loan, claim CPF housing grants, or buy a subsidised flat or a new EC. Rules current as at 29 July 2026.";
     if (seq === 'buy-first') {
-      const buy = buyHDBSteps();
+      const checks = sellPrivateSteps().slice(0, 2);
+      let buy = buyHDBSteps();
+      buy = buy.map(s => s.title.indexOf('In Principle Approval') !== -1 ? Object.assign({}, s, {warn:"Taking an HDB housing loan instead? The 30 month wait out then applies — see the rule card."}) : s);
       const buyCompletionDay = buy.slice(-1)[0].day;
+      const exerciseDay = 91;
+      const absdDue = {day:exerciseDay+14, title:"BSD and ABSD due", desc:"Buying while you still own private property means ABSD applies: SC 20%, PR 30%, in cash within 14 days of exercising. A married couple with at least one Singapore Citizen can claim remission if all private property is sold within 6 months of the flat purchase (OTP exercise) date.", milestone:true};
       const phase2Start = buyCompletionDay;
-      const sell = shift(sellPrivateSteps(), phase2Start);
-      const disposalDeadline = {day:buyCompletionDay+182, title:"Private property disposal deadline — all private property must be disposed of by this date", desc:"If you still own private property when this resale completes, you must dispose of all private property within 6 months (182 days) of the resale completion. Miss it and you are in breach of your HDB eligibility conditions.", milestone:true};
+      const sellRest = shift(sellPrivateSteps().slice(2), phase2Start);
+      const remissionDeadline = {day:exerciseDay+182, dateOverride: addMonthsClamped(addDays(startVal, exerciseDay), 6), title:"ABSD remission deadline — private property must be sold (buyer's OTP exercised) by this date", desc:"Hard IRAS deadline. All your private property's buyer(s) must have exercised OTP by this date, or the ABSD paid cannot be recovered. IRAS does not grant extensions. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
+      const saleExerciseDay = phase2Start + 70;
+      const refundFiling = {day:saleExerciseDay+182, dateOverride: addMonthsClamped(addDays(startVal, saleExerciseDay), 6), title:"File the ABSD refund claim with IRAS (deadline)", desc:"The refund application must be filed within 6 months after the date all your private property was sold. Selling in time is not enough — an unfiled claim is a forfeited claim. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
+      const disposalDeadline = {day:buyCompletionDay+182, dateOverride: addMonthsClamped(addDays(startVal, buyCompletionDay), 6), title:"Private property disposal deadline — all private property must be disposed of by this date", desc:"If you still own private property when this resale completes, you must dispose of all private property within 6 months of the resale completion. Miss it and you are in breach of your HDB eligibility conditions. Confirm the exact date with your lawyer — the statutory deadline is 6 months from the anchor date.", milestone:true};
       return {
         title: 'Right sizing: sell private, buy HDB resale',
         badge: 'Buy first',
-        oneRule: oneRule,
+        oneRule: "You can buy the flat while still owning your condo, but every private property you own must then be disposed of within 6 months of the resale completion. " + commonBody + " The remission clock (from your flat's OTP exercise) runs earlier than the disposal clock (from resale completion) — meeting the disposal deadline alone can still forfeit the ABSD refund.",
         phases: [
-          {header:'Phase 1 — Buy your HDB', steps: buy},
-          {header:'Phase 2 — Sell your private', steps: sell.concat([disposalDeadline])}
+          {header:'Phase 1 — Buy your HDB', steps: checks.concat(buy, [absdDue])},
+          {header:'Phase 2 — Sell your private', steps: sellRest.concat([remissionDeadline, refundFiling, disposalDeadline])}
         ]
       };
     }
     const sell = sellPrivateSteps();
     const phase2Start = sell.slice(-1)[0].day;
-    const buy = shift(buyHDBSteps(), phase2Start);
+    let buy = shift(buyHDBSteps(), phase2Start);
+    buy = buy.map(s => s.title.indexOf('In Principle Approval') !== -1 ? Object.assign({}, s, {warn:"Taking an HDB housing loan instead? The 30 month wait out then applies — see the rule card."}) : s);
     return {
       title: 'Right sizing: sell private, buy HDB resale',
       badge: 'Sell first',
-      oneRule: oneRule,
+      oneRule: "Sell your condo first and complete it, then buy the flat — the only path with no disposal deadline to track. " + commonBody,
       phases: [
         {header:'Phase 1 — Sell your private', steps: sell},
         {header:'Phase 2 — Buy your HDB', steps: buy}
@@ -321,7 +400,7 @@ function buildCombined(route, seq){
 }
 
 function stepHtml(s, startVal){
-  const d = addDays(startVal, s.day);
+  const d = s.dateOverride || addDays(startVal, s.day);
   const label = s.rangeEnd !== undefined ? rangeLabel(s.day, s.rangeEnd) : wkLabel(s.day);
   const note = s.note ? `<div class="tl-note">${s.note}</div>` : '';
   const warn = s.warn ? `<div class="tl-warn"><b>Don't slip:</b> ${s.warn}</div>` : '';
@@ -360,20 +439,27 @@ function render(){
     document.getElementById('tlTitle').textContent = def.title;
     document.getElementById('tlBadge').textContent = 'Single journey';
     oneRuleCard.style.display = 'none';
-    tl.innerHTML = sortByDay(def.build()).map(s => stepHtml(s, startVal)).join('');
+    const steps = sortByDay(def.build());
+    expandAcronymsOnce(steps);
+    tl.innerHTML = steps.map(s => stepHtml(s, startVal)).join('');
     document.getElementById('result').classList.add('show');
     return;
   }
 
-  const data = buildCombined(route, seq);
+  const data = buildCombined(route, seq, startVal);
   document.getElementById('tlTitle').textContent = data.title;
   document.getElementById('tlBadge').textContent = data.badge;
-  document.getElementById('oneRuleText').textContent = data.oneRule;
+
+  const phases = annotateParallelPhases(data.phases.map(p => ({header:p.header, steps: sortByDay(p.steps)})));
+  const carrier = {desc: data.oneRule};
+  const scanList = [carrier].concat(phases.reduce((acc,p) => acc.concat(p.steps), []));
+  expandAcronymsOnce(scanList);
+  document.getElementById('oneRuleText').textContent = carrier.desc;
   oneRuleCard.style.display = 'block';
 
-  tl.innerHTML = data.phases.map(p => {
+  tl.innerHTML = phases.map(p => {
     const header = `<div class="tl-phase">${p.header}</div>`;
-    return header + sortByDay(p.steps).map(s => stepHtml(s, startVal)).join('');
+    return header + p.steps.map(s => stepHtml(s, startVal)).join('');
   }).join('');
 
   document.getElementById('result').classList.add('show');
