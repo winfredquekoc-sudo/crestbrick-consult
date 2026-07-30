@@ -530,5 +530,37 @@ _so["conversations"]["6590999009"]["form_sent_ts"] -= 300   # skip the 3 min ant
 _so2=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o2","text":"Name: John\nNationality: Malaysian\nNo. of Pax: 1\nBudget: 2500\nLease: 12 months","is_from_me":0})
 ok("open brief reply (name+pax+budget+lease, the open-intake must knows) -> OFFER_VIEWING", _so2 and _so2.get("type")=="OFFER_VIEWING")
 
+print("== LEAD SOURCE: first-touch attribution (website CTA vs portal vs unknown) ==")
+# unit tests on the classifier itself
+ok("portal wins regardless of text", E.classify_lead_source("hi is this still available", "bayshore")=="portal")
+ok("website: matches a real site CTA phrase, 'Hi Winfred,' anchored",
+   E.classify_lead_source("Hi Winfred, I have a property question.", None)=="website")
+ok("website: 'I'd like to discuss' family",
+   E.classify_lead_source("Hi Winfred, I'd like to discuss Lentor Gardens Residences.", None)=="website")
+ok("website: 'I read your article' family (insights CTA)",
+   E.classify_lead_source("Hi Winfred, I read your article and would like a portfolio enquiry.", None)=="website")
+ok("unknown: organic Carousell-style message, no CTA phrasing, no listing_key",
+   E.classify_lead_source("hey is the flat still up for rent", None)=="unknown")
+ok("unknown: CTA phrase present but NOT anchored at 'Hi Winfred,' start (unlikely to be the real CTA)",
+   E.classify_lead_source("someone told me you can help, i have a property question", None)=="unknown")
+ok("unknown: no text at all", E.classify_lead_source(None, None)=="unknown")
+
+# end to end via handle_event: stamped once on first genuine inbound, never re-classified
+_sp = {"version":1,"conversations":{}}
+E.handle_event(_sp, {"jid":"6590055501@s.whatsapp.net","msg_id":"sp1","text":"hi still available?","is_from_me":0,"listing_key":"bayshore"})
+ok("portal-attributed record stores source=portal", _sp["conversations"]["6590055501"]["source"]=="portal")
+
+_sw = {"version":1,"conversations":{}}
+E.handle_event(_sw, {"jid":"6590055502@s.whatsapp.net","msg_id":"sw1","text":"Hi Winfred, I have a question about upgrading from my HDB.","is_from_me":0})
+ok("website-attributed record stores source=website", _sw["conversations"]["6590055502"]["source"]=="website")
+
+_su = {"version":1,"conversations":{}}
+E.handle_event(_su, {"jid":"6590055503@s.whatsapp.net","msg_id":"su1","text":"saw ur listing on carousell, still got?","is_from_me":0})
+ok("unattributed record stores source=unknown", _su["conversations"]["6590055503"]["source"]=="unknown")
+
+E.handle_event(_su, {"jid":"6590055503@s.whatsapp.net","msg_id":"su2","text":"Hi Winfred, I have a property question.","is_from_me":0})
+ok("source is first-touch only: a later CTA-shaped reply does NOT overwrite the original unknown",
+   _su["conversations"]["6590055503"]["source"]=="unknown")
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

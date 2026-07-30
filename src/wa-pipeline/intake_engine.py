@@ -590,6 +590,28 @@ def classify_property_type(text, listing_key=None):
     if p and not h: return "private"
     return "unknown"
 
+# Every wa.me CTA on the site pre-fills a "Hi Winfred, ..." message with one of a fixed
+# set of stock phrases (site-wide audit, 31 Jul 2026). Visitors rarely edit it before
+# hitting send, so a match is a strong (not certain) signal of a website-originated lead.
+_WEBSITE_CTA_RE = re.compile(
+    r"(?i)^\s*hi\s+winfred\s*,?\s*.{0,60}?"
+    r"(property question|i'?d like to discuss|i have a question about|i read your article|"
+    r"book(?:ing)? (?:the|a) .{0,20}call|net proceeds analysis|valuation report|"
+    r"ownership restructuring|asking about|portfolio enquiry)"
+)
+
+def classify_lead_source(text, listing_key=None):
+    """Best-effort FIRST-TOUCH attribution, not a compliance-grade field.
+    'portal'  = tied to a PropertyGuru/99.co listing_key.
+    'website' = inbound text matches the site's wa.me pre-filled CTA phrasing.
+    'unknown' = everything else -- Carousell, referral, and organic WA are today
+    indistinguishable from each other, this only rules those two IN when detectable."""
+    if listing_key:
+        return "portal"
+    if text and _WEBSITE_CTA_RE.search(text):
+        return "website"
+    return "unknown"
+
 def classify_property_type_ctx(chat_jid, text, listing_key=None):
     """HDB vs private from the current message, falling back to the chat history when the
     current line has no property-type cue (so a buy thread that earlier said 'condo' or
@@ -1098,7 +1120,8 @@ def _rec(state, pn):
         "pn":pn, "listing_key":None, "stage":"NEW", "profile":{},
         "processed_ids":[], "form_sent":False, "asked_fields":[],
         "viewing_asked":False, "viewing_confirmed":False,
-        "manual_takeover":False, "status":"new", "last_inbound":None}.items():
+        "manual_takeover":False, "status":"new", "last_inbound":None,
+        "source":None}.items():
         rec.setdefault(k, v)   # repair partial/legacy records, not just create new ones
     return rec
 
@@ -1353,6 +1376,10 @@ def _handle_event_inner(state, ev):
         if len(rec["processed_ids"]) > 200:
             rec["processed_ids"] = rec["processed_ids"][-200:]
     rec["last_inbound"] = ev.get("text")
+    if rec.get("source") is None:
+        # first-touch only: never re-classify once stamped, even if a later message
+        # happens to match a CTA phrase (e.g. copy-pasted from an article by hand).
+        rec["source"] = classify_lead_source(ev.get("text"), ev.get("listing_key"))
     if rec.get("terminal"):
         return None                      # closed / terminal conversation -> engine never acts again
     if withdrawal_signal(ev.get("text")):
