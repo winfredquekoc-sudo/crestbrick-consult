@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-07-29T12:30:03+08:00",
-  "count": 17,
+  "synced_at": "2026-07-30T12:30:04+08:00",
+  "count": 19,
   "listings": [
     {
       "id": "common-room-blk-113-lor-1-toa-payoh-ll086",
@@ -41,6 +41,18 @@
       "sqft": 1990,
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier."
+    },
+    {
+      "id": "common-room-paya-lebar-area-ll091",
+      "title": "Common Room — Paya Lebar area",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1600,
+      "price_label": "From S$1,600 / mo",
+      "address": "Paya Lebar area",
+      "district": "D14",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area."
     },
     {
       "id": "common-room-blk-2-haig-road-ll089",
@@ -121,6 +133,21 @@
       "district": "D19",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane."
+    },
+    {
+      "id": "master-room-near-nex-ll090",
+      "title": "Master Room — Near NEX (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1600,
+      "price_label": "From S$1,600 / mo",
+      "address": "Near NEX",
+      "district": "D19",
+      "highlights": [
+        "Utilities included"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Near%20NEX.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Near%20NEX."
     },
     {
       "id": "common-room-602-jurong-west-street-62-ll081",
