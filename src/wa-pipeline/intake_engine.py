@@ -233,6 +233,11 @@ def extract_profile(text):
         if ":" in val:
             val = val.split(":")[-1].strip()
         val = re.sub(r"^\([^)]*\)\s*", "", val).strip()
+        # a label with no colon separator can still match inside ordinary prose ("my name is
+        # Ruth", "budget is 500k") -- grab() has no way to tell "field:" apart from a sentence
+        # containing the word. Strip a leading connector verb so "is/was/'s Ruth" -> "Ruth"
+        # instead of poisoning the value. Fixed 31 Jul 2026 (garbled buyer names "is Ruth", "an").
+        val = re.sub(r"(?i)^(?:is|was|'s)\s+", "", val).strip()
         # reject an empty value or one that is itself another field label
         if not val or re.match(r"^(name|nationality|ethnic|gender|sex|age|type\s+of\s+pass|pass|visa|"
                                r"no\.?\s*of|pax|occupant|intended|move|preferred|lease|budget|rent|"
@@ -1440,9 +1445,16 @@ def _handle_event_inner(state, ev):
 
     # STAGE 1: first contact -> send the listing message (unit info + form) ONCE, with safety gates
     if not rec["form_sent"]:
-        # a buyer who already has the buyer form is in the BUYER flow — parse/nudge/hand off
+        # a buyer who already has the buyer form is in the BUYER flow — parse/nudge/hand off.
+        # EXCEPTION: a DECISIVE new-message signal (explicit RENT token, registry deal_type,
+        # per-month price...) can still break them out into a genuine rental enquiry -- only an
+        # AMBIGUOUS message (a buyer-form answer, a repeat sale ping) stays routed to the buyer
+        # flow. Fixed 31 Jul 2026: this used to swallow a later unambiguous rental enquiry as a
+        # silent buyer-flow ANSWER_QUESTION.
         if rec.get("buyer_form_sent"):
-            return _buyer_followup(rec, ev, pn)
+            tx_now, _ = classify_transaction(ev.get("text",""), ev.get("listing_key"))
+            if tx_now != "rent":
+                return _buyer_followup(rec, ev, pn)
         why = excluded_reason(pn, ev.get("text",""))
         if why == "db_error":                    # contact DB locked -> fail closed for THIS run,
             rec["status"] = "deferred_db_lock"   # but do NOT latch (a genuine prospect re-checks

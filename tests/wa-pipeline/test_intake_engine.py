@@ -385,19 +385,27 @@ E.handle_event(sdq,{"jid":jdq,"msg_id":"dq2","text":"let me check ah","is_from_m
 _dqf="Name: Raj\nNationality: Indian\nEthnicity: Indian\nGender: Male\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 1200"
 aDq=E.handle_event(sdq,{"jid":jdq,"msg_id":"dq3","text":_dqf,"is_from_me":0})
 ok("DISQUALIFIED under manual -> COPILOT_VERDICT (notify), no prospect message", aDq and aDq["type"]=="COPILOT_VERDICT" and aDq.get("notify") is True and aDq.get("text") is None)
-# manual takeover + QUALIFIED + open slot (bayshore has a fixed weekly slot) -> AUTO-OFFER viewing
+# manual takeover + QUALIFIED + open slot (bayshore has a fixed weekly slot).
 # bayshore's master room rent rose to $2,300/mth (budget_floor 2300 in the live listing index);
 # the old $1,500 fixture budget now DISQUALIFIES on price alone, so bump it above the floor.
+# NOTE 31 Jul 2026: this used to assert an auto-offer (OFFER_VIEWING) fired here. The 26 Jul
+# hardening (c634271) tightened the single-sender rule so manual_takeover and copilot_muted
+# are now ALWAYS set together (every code path that sets one sets both) -- there is no longer
+# any way to reach "manual takeover, not muted" through a real inbound event, which is the
+# correct, doctrine-aligned behavior ("after a hand reply the copilot may never message this
+# prospect again"). The autonomous (non-manual) auto-offer -> confirm flow is still fully
+# covered elsewhere (see "prospect says yes -> CONFIRM_VIEWING" and the open-intake
+# OFFER_VIEWING test) and unaffected. This scenario now correctly stays silent throughout,
+# only ever pinging Winfred with a screening verdict.
 _qf="Name: Mei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 30\nType of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 2500"
 sql={"version":1,"conversations":{}}; jql="6590223300@s.whatsapp.net"
 E.handle_event(sql,{"jid":jql,"msg_id":"q1","text":"Hi is the Bayshore room still available?","is_from_me":0,"listing_key":"bayshore"})
 E.handle_event(sql,{"jid":jql,"msg_id":"q2","text":"let me check with owner ah","is_from_me":1,"engine":False})
 aQ=E.handle_event(sql,{"jid":jql,"msg_id":"q3","text":_qf,"is_from_me":0})
-ok("QUALIFIED under manual + slot -> AUTO-OFFER viewing to prospect", aQ and aQ["type"]=="OFFER_VIEWING" and aQ.get("text"))
-ok("auto-offer also pings Winfred (copilot + notify)", aQ and aQ.get("copilot") is True and aQ.get("notify") is True)
-ok("auto-offer not repeated on a neutral reply", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"hmm let me think about it","is_from_me":0}) is None)
-aYes=E.handle_event(sql,{"jid":jql,"msg_id":"q5","text":"yes sounds good","is_from_me":0})
-ok("prospect YES after auto-offer -> bot CONFIRMS the viewing + pings Winfred", aYes and aYes["type"]=="CONFIRM_VIEWING" and aYes.get("text") and aYes.get("notify") is True)
+ok("QUALIFIED under manual (muted) + slot -> COPILOT_VERDICT, no prospect send", aQ and aQ["type"]=="COPILOT_VERDICT" and aQ.get("verdict")=="QUALIFIED" and aQ.get("text") is None)
+ok("verdict still pings Winfred (notify), never the prospect", aQ and aQ.get("notify") is True)
+ok("verdict not repeated on a neutral reply (same profile, same sig)", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"hmm let me think about it","is_from_me":0}) is None)
+ok("prospect YES under muted manual takeover -> still silent, no stray CONFIRM_VIEWING", E.handle_event(sql,{"jid":jql,"msg_id":"q5","text":"yes sounds good","is_from_me":0}) is None)
 sqn={"version":1,"conversations":{"6590224400":{"pn":"6590224400","listing_key":"bayshore","stage":"VIEWING_OFFERED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":True,"status":"manual","offered_slot_id":"s1"}}}
 aQn=E.handle_event(sqn,{"jid":"6590224400@s.whatsapp.net","msg_id":"qn1","text":"is parking included?","is_from_me":0})
 ok("question after auto-offer (manual) -> ANSWER_QUESTION ping, no auto-answer", aQn and aQn["type"]=="ANSWER_QUESTION" and aQn.get("notify") is True and aQn.get("text") is None)
@@ -561,6 +569,21 @@ ok("unattributed record stores source=unknown", _su["conversations"]["6590055503
 E.handle_event(_su, {"jid":"6590055503@s.whatsapp.net","msg_id":"su2","text":"Hi Winfred, I have a property question.","is_from_me":0})
 ok("source is first-touch only: a later CTA-shaped reply does NOT overwrite the original unknown",
    _su["conversations"]["6590055503"]["source"]=="unknown")
+
+print("== NAME EXTRACTION: 'name' matched in prose, not just 'Name:' fields (31 Jul 2026 fix) ==")
+# grab() has no way to tell a structured "Name:" field apart from the bare word "name"
+# inside a sentence -- "my name is Ruth" used to capture "is Ruth" as the name (also seen
+# live as garbled "an"). A leading connector verb is now stripped.
+ok("free-text 'my name is Ruth' -> name is 'Ruth', not 'is Ruth'",
+   E.extract_profile("my name is Ruth").get("name")=="Ruth")
+ok("free-text \"name's Ruth\" (apostrophe-s, no space) -> 'Ruth'",
+   E.extract_profile("name's Ruth").get("name")=="Ruth")
+ok("structured 'Name: Ruth' still works (regression guard)",
+   E.extract_profile("Name: Ruth\nBudget: 500000").get("name")=="Ruth")
+ok("buyer flow: 'my name is Ruth' on its own line -> name 'Ruth'",
+   E.extract_buyer("my name is Ruth\nBudget: 500k").get("name")=="Ruth")
+ok("buyer flow free-form 'im Ken' fallback still works",
+   E.extract_buyer("im Ken, budget 800k").get("name")=="Ken")
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
