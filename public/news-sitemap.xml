@@ -1357,4 +1357,40 @@
       <news:keywords>Singapore property, New launch</news:keywords>
     </news:news>
   </url>
+  <url>
+    <loc>https://winfredquek.com/insights/selling-condo-with-mcst-arrears-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-31</news:publication_date>
+      <news:title>Selling a Condo Unit With Outstanding MCST Arrears</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/property-tax-arrears-consequences-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-31</news:publication_date>
+      <news:title>What Happens If You Don't Pay Property Tax</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
+  <url>
+    <loc>https://winfredquek.com/insights/panel-valuer-bank-valuation-process-singapore</loc>
+    <news:news>
+      <news:publication>
+        <news:name>Winfred Quek Singapore Property Advisory</news:name>
+        <news:language>en</news:language>
+      </news:publication>
+      <news:publication_date>2026-07-31</news:publication_date>
+      <news:title>How Bank Valuers Actually Value Your Property</news:title>
+      <news:keywords>Singapore property, New launch</news:keywords>
+    </news:news>
+  </url>
 </urlset>
