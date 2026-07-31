@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-07-30T12:30:04+08:00",
-  "count": 19,
+  "synced_at": "2026-07-31T12:30:03+08:00",
+  "count": 20,
   "listings": [
     {
       "id": "common-room-blk-113-lor-1-toa-payoh-ll086",
@@ -135,8 +135,8 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane."
     },
     {
-      "id": "master-room-near-nex-ll090",
-      "title": "Master Room — Near NEX (Hougang)",
+      "id": "room-near-nex-ll090",
+      "title": "Room — Near NEX (Hougang)",
       "type": "HDB",
       "transaction": "rent",
       "price": 1600,
@@ -146,8 +146,8 @@
       "highlights": [
         "Utilities included"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Near%20NEX.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Near%20NEX."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX."
     },
     {
       "id": "common-room-602-jurong-west-street-62-ll081",
@@ -177,6 +177,18 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
+    },
+    {
+      "id": "master-room-blk-148-gangsa-road-ll096",
+      "title": "Master Room — Blk 148 Gangsa Road (Bukit Batok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1900,
+      "price_label": "S$1,900 / mo",
+      "address": "Blk 148 Gangsa Road",
+      "district": "D23",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road."
     },
     {
       "id": "whole-unit-blk-26-teck-whye-lane-ll083",
