@@ -1,7 +1,7 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-07-31T12:30:03+08:00",
+  "synced_at": "2026-08-01T12:30:03+08:00",
   "count": 20,
   "listings": [
     {
@@ -111,16 +111,16 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
     },
     {
-      "id": "common-room-eastpoint-green-ll033",
-      "title": "Common Room — Eastpoint Green (Tampines)",
+      "id": "room-eastpoint-green-ll033",
+      "title": "Room — Eastpoint Green (Tampines)",
       "type": "Condo",
       "transaction": "rent",
       "price": 950,
       "price_label": "From S$950 / mo",
       "address": "Eastpoint Green",
       "district": "D18",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Eastpoint%20Green.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Eastpoint%20Green."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Eastpoint%20Green.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Eastpoint%20Green."
     },
     {
       "id": "common-room-232b-sumang-lane-ll020",
@@ -184,9 +184,12 @@
       "type": "HDB",
       "transaction": "rent",
       "price": 1900,
-      "price_label": "S$1,900 / mo",
+      "price_label": "From S$1,900 / mo",
       "address": "Blk 148 Gangsa Road",
       "district": "D23",
+      "highlights": [
+        "Furnished"
+      ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road."
     },
