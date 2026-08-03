@@ -53,4 +53,5 @@ else
 Co-Authored-By: claude-flow <ruv@ruv.net>" || { echo "commit failed"; exit 1; }
   git -C "$WT" push origin "HEAD:$BRANCH" || { echo "push failed"; exit 1; }
   echo "published public/listings.json and pushed to ${BRANCH}."
+  bash "$WT/scripts/indexnow-ping.sh" "https://winfredquek.com/listings" || true
 fi

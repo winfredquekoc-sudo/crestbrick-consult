@@ -159,11 +159,6 @@
       "permanent": true
     },
     {
-      "source": "/hdb-towns",
-      "destination": "/districts#hdb-towns",
-      "permanent": false
-    },
-    {
       "source": "/contact.html",
       "destination": "/contact",
       "permanent": true
@@ -236,11 +231,6 @@
     {
       "source": "/insights/decoupling-breakeven.html",
       "destination": "/insights/restructuring-breakeven",
-      "permanent": true
-    },
-    {
-      "source": "/blog",
-      "destination": "/insights",
       "permanent": true
     },
     {
@@ -426,16 +416,6 @@
     {
       "source": "/tools/cpf",
       "destination": "/insights/cpf-accrued-interest-calculator-singapore",
-      "permanent": true
-    },
-    {
-      "source": "/compare",
-      "destination": "/insights",
-      "permanent": true
-    },
-    {
-      "source": "/compare/",
-      "destination": "/insights",
       "permanent": true
     },
     {

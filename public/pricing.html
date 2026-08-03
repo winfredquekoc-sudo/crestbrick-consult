@@ -28,21 +28,57 @@
 
   <!-- JSON-LD: Service pricing -->
   <script type="application/ld+json">
-  {
+    {
     "@context": "https://schema.org",
     "@type": "Service",
     "serviceType": "Property Advisory and Representation",
     "provider": {
       "@type": "RealEstateAgent",
       "name": "Winfred Quek",
-      "identifier": { "@type": "PropertyValue", "propertyID": "CEA", "value": "R073319H" },
-      "worksFor": { "@type": "Organization", "name": "Crestbrick" }
+      "identifier": {
+        "@type": "PropertyValue",
+        "propertyID": "CEA",
+        "value": "R073319H"
+      },
+      "worksFor": {
+        "@type": "Organization",
+        "name": "Crestbrick"
+      },
+      "sameAs": [
+        "https://t.me/imwinfred",
+        "https://www.instagram.com/imwinfred",
+        "https://www.propertyguru.com.sg/agent/winfred-quek-11069860"
+      ]
     },
-    "areaServed": { "@type": "Country", "name": "Singapore" },
+    "areaServed": {
+      "@type": "Country",
+      "name": "Singapore"
+    },
     "offers": [
-      { "@type": "Offer", "name": "Property Portfolio Analysis", "price": "0", "priceCurrency": "SGD", "description": "30-minute strategy call. Free. No commitment." },
-      { "@type": "Offer", "name": "Seller Representation", "priceSpecification": { "@type": "UnitPriceSpecification", "price": "2", "priceCurrency": "percent" }, "description": "2% of sale price + GST. Includes full marketing, photography, 360° tour, staging support, and portfolio planning." },
-      { "@type": "Offer", "name": "Buyer Representation", "price": "0", "priceCurrency": "SGD", "description": "No fee to buyer under standard co-broke arrangement. CEA-compliant disclosure provided before any engagement." }
+      {
+        "@type": "Offer",
+        "name": "Property Portfolio Analysis",
+        "price": "0",
+        "priceCurrency": "SGD",
+        "description": "30-minute strategy call. Free. No commitment."
+      },
+      {
+        "@type": "Offer",
+        "name": "Seller Representation",
+        "priceSpecification": {
+          "@type": "UnitPriceSpecification",
+          "price": "2",
+          "priceCurrency": "percent"
+        },
+        "description": "2% of sale price + GST. Includes full marketing, photography, 360° tour, staging support, and portfolio planning."
+      },
+      {
+        "@type": "Offer",
+        "name": "Buyer Representation",
+        "price": "0",
+        "priceCurrency": "SGD",
+        "description": "No fee to buyer under standard co-broke arrangement. CEA-compliant disclosure provided before any engagement."
+      }
     ]
   }
   </script>
