@@ -9,12 +9,16 @@
   <meta property="og:description" content="Know your number before you list. Free valuation report, personally prepared, in your inbox within 24 hours." />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://winfredquek.com/sell-with-winfred" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Free Seller Valuation Report | Winfred Quek" />
+  <meta name="twitter:description" content="Know your number before you list. Free valuation report, personally prepared, in your inbox within 24 hours." />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
   <link rel="canonical" href="https://winfredquek.com/sell-with-winfred" />
   <link rel="stylesheet" href="/tw.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -50,7 +54,7 @@
     @keyframes wa-pulse{0%,100%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4),0 0 0 0 rgba(37,211,102,.55);}50%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4),0 0 0 14px rgba(37,211,102,0);}}
     #wa-float.wa-pulsing{animation:wa-pulse 1s ease-out 2;}
   </style>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Sell","item":"https://winfredquek.com/sell"},{"@type":"ListItem","position":3,"name":"Free Seller Valuation Report","item":"https://winfredquek.com/sell-with-winfred"}]}
 </script>
@@ -72,6 +76,7 @@
 
       <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/start">Start here</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
         <a class="nav-link link-underline" href="/pricing">Pricing</a>
@@ -79,6 +84,8 @@
         <a class="nav-link link-underline" href="/sell">Sell</a>
         <a class="nav-link link-underline" href="/listings">Listings</a>
         <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/answers">Answers</a>
+        <a class="nav-link link-underline" href="/glossary">Glossary</a>
         <a class="nav-link link-underline" href="/resources">Resources</a>
         <a class="nav-link link-underline" href="/contact">Contact</a>
         <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
@@ -92,6 +99,7 @@
     <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/start">Start here</a>
         <a class="nav-link" href="/about">About</a>
         <a class="nav-link" href="/services">Services</a>
         <a class="nav-link" href="/listings">Listings</a>
@@ -99,7 +107,7 @@
         <a class="nav-link" href="/districts">Districts</a>
         <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
         <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
-        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/answers">Answers</a><a class="nav-link" href="/glossary">Glossary</a><a class="nav-link" href="/faq">FAQ</a>
         <a class="nav-link" href="/track-record">Track Record</a>
         <a class="nav-link" href="/testimonials">Testimonials</a>
         <a class="nav-link" href="/contact">Contact</a>
@@ -146,7 +154,7 @@
           <p class="text-[var(--ink-soft)] text-sm mt-1">Families advised on selling &amp; restructuring</p>
         </div>
         <div>
-          <div class="stat-num" style="font-size:1.6rem;">R073319H</div>
+          <a href="https://eservices.cea.gov.sg/aceas/public-register/" target="_blank" rel="noopener" class="stat-num" style="font-size:1.6rem;display:inline-block;text-decoration:none;">R073319H</a>
           <p class="text-[var(--ink-soft)] text-sm mt-1">CEA registered, Crestbrick Pte Ltd</p>
         </div>
       </div>
@@ -217,49 +225,70 @@
       <form id="seller-valuation-form" class="space-y-5 crest-card rounded-xl p-8">
         <input type="text" name="company" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;" aria-hidden="true" />
 
-        <div><label for="sv-address">Property address (block/unit/condo name)</label><input id="sv-address" name="address" placeholder="e.g. Bishan Street 22, #12-34 or 570xxxx" required /></div>
+        <div class="sv-progress" style="margin-bottom:0.25rem;">
+          <div class="flex items-center justify-between mb-2">
+            <p id="sv-step-indicator" class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold" aria-live="polite">Step 1 of 2 — Property details</p>
+          </div>
+          <div style="height:4px;background:var(--rule);border-radius:2px;overflow:hidden;" role="progressbar" aria-valuemin="1" aria-valuemax="2" aria-valuenow="1" id="sv-progress-track">
+            <div id="sv-progress-bar" style="height:100%;width:50%;background:var(--accent);transition:width .25s ease;"></div>
+          </div>
+        </div>
 
-        <div class="grid md:grid-cols-2 gap-5">
-          <div><label for="sv-type">Property type</label>
-            <select id="sv-type" name="property_type" required>
+        <div id="sv-step-1">
+          <div><label for="sv-address">Property address (block/unit/condo name)</label><input id="sv-address" name="address" placeholder="e.g. Bishan Street 22, #12-34 or 570xxxx" required /></div>
+
+          <div class="grid md:grid-cols-2 gap-5 mt-5">
+            <div><label for="sv-type">Property type</label>
+              <select id="sv-type" name="property_type" required>
+                <option value="">Select...</option>
+                <option value="HDB">HDB</option>
+                <option value="Condo">Condo / Apartment</option>
+                <option value="EC">Executive Condominium (EC)</option>
+                <option value="Landed">Landed</option>
+              </select>
+            </div>
+            <div><label for="sv-size">Approximate size (sqft)</label><input id="sv-size" name="size" placeholder="e.g. 1,050" required /></div>
+          </div>
+
+          <div class="mt-5"><label for="sv-timeline">Your timeline to sell</label>
+            <select id="sv-timeline" name="timeline" required>
               <option value="">Select...</option>
-              <option value="HDB">HDB</option>
-              <option value="Condo">Condo / Apartment</option>
-              <option value="EC">Executive Condominium (EC)</option>
-              <option value="Landed">Landed</option>
+              <option value="Now, ready to move">Now, I'm ready to move</option>
+              <option value="Within 3 months">Within 3 months</option>
+              <option value="Within 6 months">Within 6 months</option>
+              <option value="Exploring, no fixed timeline">Exploring, no fixed timeline</option>
             </select>
           </div>
-          <div><label for="sv-size">Approximate size (sqft)</label><input id="sv-size" name="size" placeholder="e.g. 1,050" required /></div>
+
+          <button type="button" id="sv-next-btn" class="btn btn-primary w-full justify-center mt-6" style="font-size:16px;padding:1rem 1.6rem;">Continue </button>
         </div>
 
-        <div><label for="sv-timeline">Your timeline to sell</label>
-          <select id="sv-timeline" name="timeline" required>
-            <option value="">Select...</option>
-            <option value="Now, ready to move">Now, I'm ready to move</option>
-            <option value="Within 3 months">Within 3 months</option>
-            <option value="Within 6 months">Within 6 months</option>
-            <option value="Exploring, no fixed timeline">Exploring, no fixed timeline</option>
-          </select>
+        <div id="sv-step-2" style="display:none;">
+          <h3 id="sv-step-2-heading" tabindex="-1" class="serif text-lg font-semibold mb-1" style="outline:none;">Your contact details</h3>
+          <p class="text-xs text-[var(--ink-muted)] mb-5">Last step. This is where I'll send your valuation report.</p>
+
+          <div class="grid md:grid-cols-2 gap-5">
+            <div><label for="sv-name">Your name</label><input id="sv-name" name="name" placeholder="First name is fine" required /></div>
+            <div><label for="sv-mobile">Mobile</label><input id="sv-mobile" name="mobile" type="tel" placeholder="+65 9xxx xxxx" required /></div>
+          </div>
+
+          <div class="mt-5"><label for="sv-email">Email</label><input id="sv-email" name="email" type="email" placeholder="your@email.com" required /></div>
+
+          <label class="flex gap-3 items-start text-sm text-[var(--ink-soft)] leading-relaxed cursor-pointer mt-5">
+            <input type="checkbox" id="sv-consent" required class="mt-1" style="width:auto;" />
+            <span>I consent to Winfred Quek (CEA R073319H, Crestbrick) collecting and using the above information to prepare my valuation report and respond to my enquiry. I understand I can withdraw consent anytime.</span>
+          </label>
+
+          <div class="flex gap-3 mt-6">
+            <button type="button" id="sv-back-btn" class="btn btn-ghost" style="flex:0 0 auto;">← Back</button>
+            <button type="submit" class="btn btn-primary flex-1 justify-center" style="font-size:16px;padding:1rem 1.6rem;">Get my free valuation report</button>
+          </div>
+          <p id="seller-valuation-msg" class="text-sm text-center" style="display:none;"></p>
+          <p class="text-xs text-[var(--ink-muted)] text-center leading-relaxed mt-4">
+            This is an indicative market opinion based on recent comparable transactions, prepared by Winfred personally.
+            It is not a formal valuation for financing purposes and does not guarantee any sale price.
+          </p>
         </div>
-
-        <div class="grid md:grid-cols-2 gap-5">
-          <div><label for="sv-name">Your name</label><input id="sv-name" name="name" placeholder="First name is fine" required /></div>
-          <div><label for="sv-mobile">Mobile</label><input id="sv-mobile" name="mobile" type="tel" placeholder="+65 9xxx xxxx" required /></div>
-        </div>
-
-        <div><label for="sv-email">Email</label><input id="sv-email" name="email" type="email" placeholder="your@email.com" required /></div>
-
-        <label class="flex gap-3 items-start text-sm text-[var(--ink-soft)] leading-relaxed cursor-pointer">
-          <input type="checkbox" id="sv-consent" required class="mt-1" style="width:auto;" />
-          <span>I consent to Winfred Quek (CEA R073319H, Crestbrick) collecting and using the above information to prepare my valuation report and respond to my enquiry. I understand I can withdraw consent anytime.</span>
-        </label>
-
-        <button type="submit" class="btn btn-primary w-full justify-center" style="font-size:16px;padding:1rem 1.6rem;">Get my free valuation report</button>
-        <p id="seller-valuation-msg" class="text-sm text-center" style="display:none;"></p>
-        <p class="text-xs text-[var(--ink-muted)] text-center leading-relaxed">
-          This is an indicative market opinion based on recent comparable transactions, prepared by Winfred personally.
-          It is not a formal valuation for financing purposes and does not guarantee any sale price.
-        </p>
       </form>
 
       <script>
@@ -267,6 +296,55 @@
           var form = document.getElementById('seller-valuation-form');
           var successBox = document.getElementById('valuation-success');
           if (!form) return;
+
+          var step1 = document.getElementById('sv-step-1');
+          var step2 = document.getElementById('sv-step-2');
+          var nextBtn = document.getElementById('sv-next-btn');
+          var backBtn = document.getElementById('sv-back-btn');
+          var stepIndicator = document.getElementById('sv-step-indicator');
+          var progressBar = document.getElementById('sv-progress-bar');
+          var progressTrack = document.getElementById('sv-progress-track');
+          var step2Heading = document.getElementById('sv-step-2-heading');
+
+          function goToStep2(){
+            var addressEl = form.querySelector('[name="address"]');
+            var typeEl = form.querySelector('[name="property_type"]');
+            var sizeEl = form.querySelector('[name="size"]');
+            var timelineEl = form.querySelector('[name="timeline"]');
+            var fields = [addressEl, typeEl, sizeEl, timelineEl];
+            for (var i = 0; i < fields.length; i++) {
+              if (!fields[i].checkValidity()) { fields[i].reportValidity(); return; }
+            }
+            step1.style.display = 'none';
+            step2.style.display = 'block';
+            stepIndicator.textContent = 'Step 2 of 2 — Your contact details';
+            progressBar.style.width = '100%';
+            if (progressTrack) progressTrack.setAttribute('aria-valuenow', '2');
+            step2Heading.focus();
+          }
+
+          function goToStep1(){
+            step2.style.display = 'none';
+            step1.style.display = 'block';
+            stepIndicator.textContent = 'Step 1 of 2 — Property details';
+            progressBar.style.width = '50%';
+            if (progressTrack) progressTrack.setAttribute('aria-valuenow', '1');
+            document.getElementById('sv-address').focus();
+          }
+
+          if (nextBtn) nextBtn.addEventListener('click', goToStep2);
+          if (backBtn) backBtn.addEventListener('click', goToStep1);
+
+          // Enter key in step 1 fields advances to step 2 instead of submitting
+          if (step1) {
+            step1.addEventListener('keydown', function(e){
+              if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
+                e.preventDefault();
+                goToStep2();
+              }
+            });
+          }
+
           form.addEventListener('submit', function(e){
             e.preventDefault();
             var btn = form.querySelector('button[type="submit"]');
@@ -336,7 +414,7 @@
         <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27m%20thinking%20of%20selling%20and%20would%20like%20a%20free%20valuation%20report."
            class="btn btn-ghost">WhatsApp </a>
       </div>
-      <p class="text-xs text-[var(--ink-muted)] mt-6">Winfred Quek · CEA R073319H · Crestbrick · Same-day response</p>
+      <p class="text-xs text-[var(--ink-muted)] mt-6">Winfred Quek · CEA <a href="https://eservices.cea.gov.sg/aceas/public-register/" target="_blank" rel="noopener" class="hover:text-[var(--ink)]">R073319H</a> · Crestbrick · Same-day response</p>
     </section>
 
   </main>

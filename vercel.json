@@ -37,7 +37,16 @@
       "headers": [
         {
           "key": "Cache-Control",
-          "value": "public, max-age=3600, s-maxage=86400, stale-while-revalidate=604800"
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/fonts/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
         }
       ]
     },
@@ -58,6 +67,15 @@
           "value": "public, max-age=0, s-maxage=600, stale-while-revalidate=86400"
         }
       ]
+    },
+    {
+      "source": "/listings.json",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, s-maxage=300, stale-while-revalidate=600"
+        }
+      ]
     }
   ],
   "redirects": [
@@ -74,11 +92,6 @@
     {
       "source": "/insights/absd-singapore",
       "destination": "/insights/absd-singapore-2026",
-      "permanent": true
-    },
-    {
-      "source": "/tools/tdsr",
-      "destination": "/tools/affordability",
       "permanent": true
     },
     {
@@ -117,6 +130,11 @@
       "permanent": true
     },
     {
+      "source": "/lentor-gardens-residences",
+      "destination": "/LentorGardensResidences",
+      "permanent": true
+    },
+    {
       "source": "/links",
       "destination": "/links.html",
       "permanent": false
@@ -127,17 +145,6 @@
         {
           "type": "host",
           "value": "crestbrick-consult.vercel.app"
-        }
-      ],
-      "destination": "https://winfredquek.com/:path*",
-      "permanent": true
-    },
-    {
-      "source": "/:path*",
-      "has": [
-        {
-          "type": "host",
-          "value": "www.winfredquek.com"
         }
       ],
       "destination": "https://winfredquek.com/:path*",
@@ -389,28 +396,8 @@
       "permanent": true
     },
     {
-      "source": "/calculators",
-      "destination": "/tools",
-      "permanent": true
-    },
-    {
-      "source": "/calculators/stamp-duty-calculator",
-      "destination": "/tools/bsd",
-      "permanent": true
-    },
-    {
-      "source": "/calculators/tdsr-calculator",
-      "destination": "/tools/affordability",
-      "permanent": true
-    },
-    {
       "source": "/tools/tdsr",
       "destination": "/tools/tdsr-scenarios",
-      "permanent": true
-    },
-    {
-      "source": "/tools/stamp-duty",
-      "destination": "/tools/bsd",
       "permanent": true
     },
     {
@@ -466,6 +453,11 @@
     {
       "source": "/insights/cpf-accrued-interest-calculator",
       "destination": "/insights/cpf-accrued-interest-calculator-singapore",
+      "permanent": true
+    },
+    {
+      "source": "/glossary.html",
+      "destination": "/glossary",
       "permanent": true
     }
   ],

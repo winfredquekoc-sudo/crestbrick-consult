@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HDB Valuation Tool Singapore, Free Instant Estimate | Winfred Quek</title>
+  <meta name="description" content="Free instant HDB resale valuation. Get an indicative price range for your flat by town, flat type and storey, from recent data.gov.sg resale transactions. Winfred Quek, CEA R073319H." />
+  <meta property="og:title" content="HDB Valuation Tool Singapore, Winfred Quek" />
+  <meta property="og:description" content="Get an instant indicative price range for your HDB flat, drawn from recent resale transactions. Free, no signup." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/tools/valuation" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HDB Valuation Tool Singapore, Winfred Quek" />
+  <meta name="twitter:description" content="Get an instant indicative price range for your HDB flat, drawn from recent resale transactions. Free, no signup." />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <link rel="canonical" href="https://winfredquek.com/tools/valuation" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <script defer src="/_vercel/insights/script.js"></script>
+
+  <link rel="stylesheet" href="/tw.css" />
+
+  <link rel="stylesheet" href="/fonts/fonts.css" />
+  <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+
+  <link rel="stylesheet" href="/tools/_shared.css" />
+
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/motion.css"></noscript>
+  <link rel="stylesheet" href="/animations.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/animations.css"></noscript>
+  <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript>
+
+  <script defer src="/motion.js"></script>
+  <script defer src="/_enhance.js?v=20260729"></script>
+  <script defer src="/_schema.js"></script>
+  <script defer src="/_nav.js"></script>
+
+<style>
+    .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
+    .crest-card{background:#14161c;border:1px solid rgba(255,255,255,0.08);color:var(--ink);}
+    #no-data{display:none;background:#1a1c24;border:1px solid #3a2e22;border-left:3px solid #c6857a;border-radius:8px;padding:1.1rem 1.4rem;margin-top:1.5rem;color:#e8c9c1;font-size:.92rem;line-height:1.6;}
+    #load-error{display:none;background:#1a1c24;border:1px solid #3a2e22;border-left:3px solid #c6857a;border-radius:8px;padding:1.1rem 1.4rem;margin-top:1rem;color:#e8c9c1;font-size:.92rem;}
+  </style>
+
+<script type="application/ld+json">
+{"@context": "https://schema.org", "@type": "WebApplication", "name": "HDB Valuation Tool Singapore, Free Instant Estimate | Winfred Quek", "url": "https://winfredquek.com/tools/valuation", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "browserRequirements": "Requires JavaScript", "description": "Free instant HDB resale valuation tool. Indicative price range by town, flat type, floor area and storey band, from recent data.gov.sg resale transactions. By Winfred Quek, Crestbrick.", "offers": {"@type": "Offer", "price": "0", "priceCurrency": "SGD"}, "isAccessibleForFree": true, "publisher": {"@type": "Organization", "name": "Crestbrick Pte Ltd", "identifier": "L31010886H"}, "creator": {"@type": "Person", "name": "Winfred Quek", "identifier": "CEA R073319H", "url": "https://winfredquek.com/about", "sameAs": ["https://t.me/imwinfred", "https://www.instagram.com/imwinfred", "https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]}}
+</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"HDB Valuation Tool","item":"https://winfredquek.com/tools/valuation"}]}</script>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does the instant HDB valuation estimate work?", "acceptedAnswer": {"@type": "Answer", "text": "The tool groups the last six full months of HDB resale transactions from data.gov.sg by town, flat type and storey band, then works out the median price per square metre for each group. It multiplies that median (and the surrounding p25 to p75 range) by the floor area you enter to give an indicative price and range for your flat."}}, {"@type": "Question", "name": "Why is the result a range instead of one number?", "acceptedAnswer": {"@type": "Answer", "text": "Flats in the same town, flat type and storey band still differ by block, facing, renovation and exact floor, so transacted prices per square metre naturally spread out. The range shown runs from the 25th to the 75th percentile of that spread, which is a more honest picture than a single average."}}, {"@type": "Question", "name": "How accurate is this compared to a formal valuation?", "acceptedAnswer": {"@type": "Answer", "text": "This is an indicative estimate built purely from public resale transaction data. It does not see your exact block, unit condition, renovation or remaining lease, so treat it as a starting point, not a formal valuation. Winfred Quek prepares a detailed, personally reviewed valuation report for your exact unit within 24 hours on request."}}, {"@type": "Question", "name": "What happens if my town or flat type combination shows no data?", "acceptedAnswer": {"@type": "Answer", "text": "Where a town, flat type and storey band combination had fewer than five transactions in the last six months, the tool holds back an estimate rather than showing an unreliable figure. Try a different storey band, or WhatsApp Winfred directly for a personally researched read on your flat."}}]}</script>
+</head>
+<body>
+
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/start">Start here</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/answers">Answers</a>
+        <a class="nav-link link-underline" href="/glossary">Glossary</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/start">Start here</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/new-launches">New Launches</a>
+        <a class="nav-link" href="/districts">Districts</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/answers">Answers</a><a class="nav-link" href="/glossary">Glossary</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/track-record">Track Record</a>
+        <a class="nav-link" href="/testimonials">Testimonials</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+<main>
+<section class="hero hero-sequence max-w-3xl mx-auto px-6 pt-16 pb-6">
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <p class="section-label"><a href="/" class="hover:text-[var(--ink)]">Home</a> / <a href="/tools" class="hover:text-[var(--ink)]">Tools</a> / <span>HDB Valuation Tool</span></p>
+  </nav>
+  <h1 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-4">HDB Valuation Tool <span class="italic text-[var(--accent)]">Singapore</span></h1>
+<div class="geo-quick-answer" style="max-width:48rem;margin:1.25rem auto;padding:1rem 1.25rem;background:#1a1c24;border:1px solid #252830;border-left:3px solid #c6a36a;border-radius:8px;color:#f0ede6;font-size:1.02rem;line-height:1.7;"><strong style="color:#c6a36a;">Quick answer:</strong> Pick your town, flat type, floor area and storey band, and this tool gives an instant indicative price range built from the last six months of actual HDB resale transactions on data.gov.sg.</div>
+
+  <p class="text-[var(--ink-soft)] leading-relaxed mb-8">This tool works out an indicative price range for your HDB flat from real resale transactions, grouped by town, flat type and storey band, then scaled to your exact floor area. It is a starting point built from public transaction data, not a formal valuation and not a guarantee of what your flat will sell for.</p>
+</section>
+
+<section class="max-w-3xl mx-auto px-6 pb-16">
+  <div class="calc-panel">
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="town">Town</label>
+        <select id="town"><option value="">Loading towns...</option></select>
+      </div>
+      <div class="calc-row">
+        <label for="flat-type">Flat type</label>
+        <select id="flat-type"><option value="">Loading...</option></select>
+      </div>
+    </div>
+    <div class="grid md:grid-cols-2 gap-4">
+      <div class="calc-row">
+        <label for="area">Floor area (sqm)</label>
+        <input id="area" type="number" min="20" max="250" step="1" value="90" />
+        <p id="area-hint" class="text-xs text-[var(--ink-muted)] mt-1">Enter the flat's floor area as stated on your lease or HDB InfoWEB listing.</p>
+      </div>
+      <div class="calc-row">
+        <label for="storey-band">Storey band</label>
+        <select id="storey-band">
+          <option value="">Select...</option>
+          <option value="low">Low, 1st to 6th storey</option>
+          <option value="mid">Mid, 7th to 12th storey</option>
+          <option value="high">High, 13th storey and above</option>
+        </select>
+      </div>
+    </div>
+
+    <div id="no-data">Not enough recent transactions for this town, flat type and storey band combination to give a reliable estimate (fewer than 5 in the last six months). Try a different storey band, or WhatsApp Winfred directly for a personally researched read on your flat.</div>
+    <div id="load-error">Could not load transaction data. Please refresh the page, or WhatsApp Winfred directly at +65 8161 8149.</div>
+
+    <div id="result" class="result-panel mt-6" style="display:none;">
+      <h3 class="serif text-xl font-semibold mb-3">Your indicative valuation</h3>
+      <div class="result-row"><span class="label">Indicative range</span><span id="o-range" class="amount">,</span></div>
+      <div class="result-row"><span class="label">Transactions used</span><span id="o-count" class="amount">,</span></div>
+      <div class="result-total">
+        <span class="label">Median estimate</span>
+        <span id="o-median" class="amount">,</span>
+      </div>
+      <p class="calc-note" id="o-period" style="color:rgba(15,17,23,.75);"></p>
+      <a id="wa-share" href="#" target="_blank" rel="noopener" class="calc-note" style="display:inline-block;margin-top:.75rem;text-decoration:underline;cursor:pointer;">Share this estimate on WhatsApp </a>
+    </div>
+
+    <p class="text-xs text-[var(--ink-muted)] mt-4" id="period-hint"></p>
+
+    <div class="flex flex-wrap gap-3 mt-6">
+      <a href="#precise-valuation" class="btn btn-primary">Want the precise number? Get a detailed report </a>
+      <a href="https://calendly.com/winfredquekoc" class="btn btn-ghost">Or book a 30-min call </a>
+    </div>
+  </div>
+
+  <div class="mt-10 p-6 bg-[#1c1e26] border border-[var(--rule)] rounded-xl">
+    <h3 class="serif text-xl font-semibold mb-4">How to read this result</h3>
+    <ul class="list-disc pl-5 space-y-2 text-[var(--ink-soft)] leading-relaxed">
+      <li>This is an indicative estimate from public transaction data, not a formal valuation and not a sale price guarantee.</li>
+      <li>Exact block, facing, renovation, remaining lease and unit condition all move the real number and are not captured here.</li>
+      <li>The range reflects normal spread within your town, flat type and storey band, from the 25th to the 75th percentile of recent deals.</li>
+    </ul>
+  </div>
+
+  <p class="mt-6 text-xs text-[var(--ink-muted)]">Figures are estimates for planning purposes only, drawn from data.gov.sg HDB resale transactions. Verify with a proper valuation before listing, buying or refinancing.</p>
+</section>
+
+<div class="divider max-w-3xl mx-auto"></div>
+
+<!-- LEAD CAPTURE: precise valuation report -->
+<section id="precise-valuation" class="max-w-3xl mx-auto px-6 py-16">
+  <p class="section-label mb-4 text-center">Get the precise number</p>
+  <h2 class="serif text-3xl md:text-4xl font-semibold balance text-center mb-4">Want the precise number for your exact block and condition?</h2>
+  <p class="text-[var(--ink-soft)] text-center mb-10">Winfred prepares a detailed valuation report within 24 hours, free. No auto-generated estimate, no listing commitment.</p>
+
+  <div id="valuation-success" class="hidden crest-card rounded-xl p-8 text-center">
+    <p class="section-label mb-4" style="color:var(--accent);">Request received</p>
+    <h3 class="serif text-2xl font-semibold mb-3">Report on the way within 24h.</h3>
+    <p class="text-[var(--ink-soft)] mb-6">Winfred reads every request personally. If you would rather talk it through first, book a call below.</p>
+    <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a 30-min call</a>
+  </div>
+
+  <form id="seller-valuation-form" class="space-y-5 crest-card rounded-xl p-8">
+    <input type="text" name="company" autocomplete="off" tabindex="-1" style="position:absolute;left:-9999px;" aria-hidden="true" />
+
+    <div><label for="sv-address">Property address (block/unit/estate name)</label><input id="sv-address" name="address" placeholder="e.g. Bishan Street 22, #12-34 or 570xxxx" required /></div>
+
+    <div class="grid md:grid-cols-2 gap-5">
+      <div><label for="sv-name">Your name</label><input id="sv-name" name="name" placeholder="First name is fine" required /></div>
+      <div><label for="sv-mobile">Mobile</label><input id="sv-mobile" name="mobile" type="tel" placeholder="+65 9xxx xxxx" required /></div>
+    </div>
+
+    <div><label for="sv-email">Email</label><input id="sv-email" name="email" type="email" placeholder="your@email.com" required /></div>
+
+    <label class="flex gap-3 items-start text-sm text-[var(--ink-soft)] leading-relaxed cursor-pointer">
+      <input type="checkbox" id="sv-consent" required class="mt-1" style="width:auto;" />
+      <span>I consent to Winfred Quek (CEA R073319H, Crestbrick) collecting and using the above information to prepare my valuation report and respond to my enquiry. I understand I can withdraw consent anytime.</span>
+    </label>
+
+    <button type="submit" class="btn btn-primary w-full justify-center" style="font-size:16px;padding:1rem 1.6rem;">Get my free valuation report</button>
+    <p id="seller-valuation-msg" class="text-sm text-center" style="display:none;"></p>
+    <p class="text-xs text-[var(--ink-muted)] text-center leading-relaxed">
+      This is an indicative market opinion based on recent comparable transactions, prepared by Winfred personally.
+      It is not a formal valuation for financing purposes and does not guarantee any sale price.
+    </p>
+  </form>
+</section>
+
+<div class="divider max-w-3xl mx-auto"></div>
+
+<section class="max-w-3xl mx-auto px-6 py-16 text-center">
+  <p class="section-label mb-4">Prefer to talk first?</p>
+  <h2 class="serif text-2xl md:text-3xl font-semibold balance mb-6">30 minutes. We will cover your number and you decide if it makes sense to proceed.</h2>
+  <div class="flex flex-wrap justify-center gap-3">
+    <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a strategy call</a>
+    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20used%20the%20HDB%20valuation%20tool%20and%20would%20like%20a%20free%20detailed%20valuation%20report." class="btn btn-ghost">WhatsApp </a>
+  </div>
+  <p class="text-xs text-[var(--ink-muted)] mt-6">Winfred Quek, CEA R073319H, Crestbrick. Same day response.</p>
+</section>
+
+<aside class="max-w-3xl mx-auto px-6 my-12">
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-3">Related tools</p>
+  <h3 class="serif text-2xl font-semibold mb-5">Keep going.</h3>
+  <div class="grid md:grid-cols-3 gap-3">
+      <a href="/tools/hdb-mop-countdown" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Tool</p><p class="serif text-[var(--ink)] font-semibold leading-snug">HDB MOP Countdown</p><p class="text-xs text-[var(--ink-muted)] mt-1">When you can sell or rent out your flat</p></a>
+      <a href="/tools/resale-levy-calculator" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Tool</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Resale Levy Calculator</p><p class="text-xs text-[var(--ink-muted)] mt-1">What you owe on a second subsidised flat</p></a>
+      <a href="/tools/affordability" class="block p-4 rounded-lg border border-[var(--rule)] bg-[#1c1e26] hover:border-[var(--accent)] transition"><p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-1">Tool</p><p class="serif text-[var(--ink)] font-semibold leading-snug">Affordability Calculator</p><p class="text-xs text-[var(--ink-muted)] mt-1">Max loan and purchase price under TDSR/MSR</p></a>
+  </div>
+</aside>
+
+</main>
+
+<section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How does the instant HDB valuation estimate work?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">The tool groups the last six full months of HDB resale transactions from data.gov.sg by town, flat type and storey band, then works out the median price per square metre for each group. It multiplies that median, and the surrounding p25 to p75 range, by the floor area you enter to give an indicative price and range for your flat.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Why is the result a range instead of one number?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">Flats in the same town, flat type and storey band still differ by block, facing, renovation and exact floor, so transacted prices per square metre naturally spread out. The range shown runs from the 25th to the 75th percentile of that spread, which is a more honest picture than a single average.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How accurate is this compared to a formal valuation?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">This is an indicative estimate built purely from public resale transaction data. It does not see your exact block, unit condition, renovation or remaining lease, so treat it as a starting point, not a formal valuation. Winfred Quek prepares a detailed, personally reviewed valuation report for your exact unit within 24 hours on request.</p>
+  </div>
+  <div style="border-top:1px solid #252830;padding:1rem 0;">
+    <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What happens if my town or flat type combination shows no data?</h3>
+    <p style="color:#b8b4aa;line-height:1.7;margin:0;">Where a town, flat type and storey band combination had fewer than five transactions in the last six months, the tool holds back an estimate rather than showing an unreliable figure. Try a different storey band, or WhatsApp Winfred directly for a personally researched read on your flat.</p>
+  </div>
+</section>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 text-center text-xs text-[var(--ink-muted)]">
+    © 2026 Winfred Quek, Crestbrick, CEA R073319H. Estimates only.
+  </div>
+
+  <!-- Disclaimer -->
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+    </p>
+  </div>
+</footer>
+
+<script>
+(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();
+
+(function(){
+  var VALUATION_DATA = null;
+  var lastSummary = null;
+
+  var TYPICAL_AREA = {
+    '1 ROOM': '31 to 35 sqm',
+    '2 ROOM': '44 to 48 sqm',
+    '3 ROOM': '60 to 70 sqm',
+    '4 ROOM': '90 to 110 sqm',
+    '5 ROOM': '110 to 130 sqm',
+    'EXECUTIVE': '130 to 150 sqm',
+    'MULTI-GENERATION': '140 to 165 sqm'
+  };
+
+  var MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  function titleCase(s){
+    return String(s).toLowerCase().replace(/(^|\s|-)\S/g, function(c){ return c.toUpperCase(); });
+  }
+
+  function fmt(n){ return 'S$' + Math.round(n).toLocaleString('en-SG'); }
+
+  function monthLabel(ym){
+    var parts = ym.split('-');
+    return MONTH_NAMES[parseInt(parts[1], 10) - 1] + ' ' + parts[0];
+  }
+
+  function periodLabel(){
+    if(!VALUATION_DATA) return '';
+    return monthLabel(VALUATION_DATA.month_range.from) + ' to ' + monthLabel(VALUATION_DATA.month_range.to);
+  }
+
+  function populateSelects(data){
+    var townSel = document.getElementById('town');
+    var ftSel = document.getElementById('flat-type');
+    townSel.innerHTML = '<option value="">Select...</option>' + data.towns.map(function(t){
+      return '<option value="' + t + '">' + titleCase(t) + '</option>';
+    }).join('');
+    ftSel.innerHTML = '<option value="">Select...</option>' + data.flat_types.map(function(ft){
+      return '<option value="' + ft + '">' + titleCase(ft) + '</option>';
+    }).join('');
+    document.getElementById('period-hint').textContent = 'Estimates use data.gov.sg HDB resale transactions from ' + periodLabel() + '.';
+  }
+
+  function updateAreaHint(){
+    var ft = document.getElementById('flat-type').value;
+    var hint = document.getElementById('area-hint');
+    hint.textContent = TYPICAL_AREA[ft]
+      ? ('Typical for ' + titleCase(ft) + ': ' + TYPICAL_AREA[ft])
+      : 'Enter the flat\'s floor area as stated on your lease or HDB InfoWEB listing.';
+  }
+
+  function recalc(){
+    var resultBox = document.getElementById('result');
+    var noDataBox = document.getElementById('no-data');
+    noDataBox.style.display = 'none';
+    resultBox.style.display = 'none';
+    lastSummary = null;
+
+    if(!VALUATION_DATA) return;
+
+    var town = document.getElementById('town').value;
+    var ft = document.getElementById('flat-type').value;
+    var band = document.getElementById('storey-band').value;
+    var area = parseFloat(document.getElementById('area').value);
+
+    if(!town || !ft || !band || !area || area <= 0) return;
+
+    var key = town + '|' + ft + '|' + band;
+    var cell = VALUATION_DATA.cells[key];
+
+    if(!cell){
+      noDataBox.style.display = 'block';
+      return;
+    }
+
+    var low = cell.p25_psm * area;
+    var high = cell.p75_psm * area;
+    var median = cell.median_psm * area;
+    var bandLabel = document.getElementById('storey-band').selectedOptions[0].textContent;
+
+    document.getElementById('o-median').textContent = fmt(median);
+    document.getElementById('o-range').textContent = fmt(low) + ' to ' + fmt(high);
+    document.getElementById('o-count').textContent = cell.count + ' transactions';
+    document.getElementById('o-period').textContent = 'Based on ' + cell.count + ' transactions in ' + titleCase(town) + ', ' + periodLabel() + ' data.gov.sg data.';
+
+    resultBox.style.display = 'block';
+
+    lastSummary = titleCase(town) + ' ' + titleCase(ft) + ', ' + area + ' sqm, ' + bandLabel +
+      ' | Indicative estimate ' + fmt(median) + ' (range ' + fmt(low) + ' to ' + fmt(high) + ', based on ' + cell.count + ' transactions, ' + periodLabel() + ')';
+
+    var shareText = 'I just got an instant HDB valuation estimate for ' + titleCase(town) + ' ' + titleCase(ft) +
+      ' (' + area + ' sqm, ' + bandLabel.toLowerCase() + '): indicative price ' + fmt(median) +
+      ' (range ' + fmt(low) + ' to ' + fmt(high) + '). Try it here: https://winfredquek.com/tools/valuation';
+    document.getElementById('wa-share').href = 'https://wa.me/?text=' + encodeURIComponent(shareText);
+  }
+
+  fetch('/data/valuation-hdb.json').then(function(r){
+    if(!r.ok) throw new Error('bad response');
+    return r.json();
+  }).then(function(data){
+    VALUATION_DATA = data;
+    populateSelects(data);
+    updateAreaHint();
+    recalc();
+  }).catch(function(){
+    document.getElementById('load-error').style.display = 'block';
+  });
+
+  ['town', 'flat-type', 'storey-band', 'area'].forEach(function(id){
+    var el = document.getElementById(id);
+    el.addEventListener('input', recalc);
+    el.addEventListener('change', recalc);
+  });
+  document.getElementById('flat-type').addEventListener('change', updateAreaHint);
+
+  // Lead capture: precise valuation report request
+  var form = document.getElementById('seller-valuation-form');
+  var successBox = document.getElementById('valuation-success');
+  if (form) {
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var btn = form.querySelector('button[type="submit"]');
+      var msg = document.getElementById('seller-valuation-msg');
+      var hp = form.querySelector('[name="company"]').value;
+      if (hp) return false; // honeypot tripped, silently drop
+
+      var address = form.querySelector('[name="address"]').value.trim();
+      var name = form.querySelector('[name="name"]').value.trim();
+      var mobile = form.querySelector('[name="mobile"]').value.trim();
+      var email = form.querySelector('[name="email"]').value.trim();
+
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      msg.style.display = 'none';
+
+      var intent = address + (lastSummary ? (' | ' + lastSummary) : ' | No estimate generated on this visit');
+
+      var payload = {
+        email: email,
+        name: name,
+        phone: mobile,
+        magnet: 'seller-valuation',
+        source: 'tools-valuation',
+        intent: intent
+      };
+
+      fetch('/api/lead-magnet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      }).then(function(r){ return r.json(); }).then(function(d){
+        if (d && d.ok) {
+          form.style.display = 'none';
+          successBox.classList.remove('hidden');
+          if (window.gtag) gtag('event', 'valuation_tool_lead');
+        } else {
+          msg.style.display = 'block';
+          msg.style.color = '#f0998a';
+          msg.textContent = 'Something went wrong. WhatsApp me directly: +65 8161 8149';
+          btn.disabled = false;
+          btn.textContent = 'Get my free valuation report';
+        }
+      }).catch(function(){
+        msg.style.display = 'block';
+        msg.style.color = '#f0998a';
+        msg.textContent = 'Network error. WhatsApp me directly: +65 8161 8149';
+        btn.disabled = false;
+        btn.textContent = 'Get my free valuation report';
+      });
+    });
+  }
+})();
+</script>
+</body>
+</html>

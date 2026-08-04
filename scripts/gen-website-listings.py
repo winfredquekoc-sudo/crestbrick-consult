@@ -43,6 +43,7 @@ listings (only synced_at advances, by design — the site shows a fresh
 """
 import argparse
 import datetime
+import html as html_mod
 import json
 import os
 import re
@@ -54,6 +55,18 @@ DEFAULT_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.jso
 DEFAULT_AREA_DEMAND = os.path.expanduser("~/crestbrick-consult/_templates/area-demand.json")
 DEFAULT_ROOT = os.path.expanduser("~/crestbrick-consult")
 WA_NUMBER = "6581618149"
+
+# Sentinel comment pairs in public/listings.html that this script owns. Each
+# run replaces everything between a pair, verbatim, so listings.html stays a
+# static, crawlable mirror of listings.json for bots that don't execute JS
+# (GPTBot, ClaudeBot, PerplexityBot). Never hand-edit content between these
+# markers — it is overwritten on every run.
+LISTINGS_HTML_SENTINELS = {
+    "grid": ("<!-- LISTINGS:START -->", "<!-- LISTINGS:END -->"),
+    "meta": ("<!-- LISTINGS:META:START -->", "<!-- LISTINGS:META:END -->"),
+    "data": ("<!-- LISTINGS:DATA:START -->", "<!-- LISTINGS:DATA:END -->"),
+    "jsonld": ("<!-- LISTINGS:JSONLD:START -->", "<!-- LISTINGS:JSONLD:END -->"),
+}
 
 NEGATIVE_MARKERS = ("rented out", "tenanted", "taken", "occupied", "not available", "closed", "unavailable")
 
@@ -333,6 +346,202 @@ def build_listing(l, dist_area):
     return {k: v for k, v in item.items() if v not in (None, "", [])}
 
 
+# ──────── static HTML / JSON-LD rendering (mirrors listings.html's client-side JS) ────────
+# Every function below is a line-for-line port of the equivalent function in the
+# <script> block of public/listings.html (bedsBathsSqft / priceLabel / tag / the
+# card template). Keep them in sync by hand if that script ever changes — this is
+# what makes GPTBot/ClaudeBot/PerplexityBot (which don't run JS) see real cards.
+
+def esc(value):
+    return html_mod.escape("" if value is None else str(value), quote=True)
+
+
+def js_beds_baths_sqft(l):
+    parts = []
+    ltype = (l.get("type") or "").lower()
+    is_office_industrial = ltype in ("industrial", "office")
+    if not is_office_industrial:
+        if l.get("beds") not in (None, ""):
+            parts.append(f"{l['beds']} bed")
+        if l.get("baths_shared"):
+            parts.append("shared bath")
+        elif l.get("baths") not in (None, ""):
+            parts.append(f"{l['baths']} bath")
+    if l.get("sqft"):
+        parts.append(f"{l['sqft']} sqft")
+    if l.get("tenure") and l.get("tenure") != "--":
+        parts.append(l["tenure"])
+    return " · ".join(parts)
+
+
+def js_price_label(l):
+    if l.get("price_label"):
+        return l["price_label"]
+    if not l.get("price"):
+        return "POA"
+    num = l["price"]
+    if l.get("transaction") == "rent" or (0 < num <= 20000):
+        return f"S${num:,} / mo"
+    if num >= 1000000:
+        val = num / 1000000
+        return f"S${val:.0f}M" if num % 1000000 == 0 else f"S${val:.2f}M"
+    if num >= 1000:
+        return f"S${round(num / 1000)}k"
+    return f"S${num:,}"
+
+
+def js_tag(l):
+    bits = []
+    if l.get("district"):
+        bits.append(l["district"])
+    if l.get("address"):
+        bits.append(l["address"])
+    if l.get("type"):
+        bits.append(l["type"])
+    if l.get("transaction") == "rent":
+        bits.append("Rent")
+    return " · ".join(bits)
+
+
+def render_card_html(l):
+    wa = l.get("wa_text") or quote(f"Hi Winfred, enquiring about {l.get('title', '')}.")
+    data_type = (l.get("type") or "").lower()
+    if l.get("image"):
+        img_html = (
+            f'<img src="{esc(l["image"])}" alt="{esc(l.get("title", ""))}" '
+            f'width="640" height="400" class="aspect-[16/10] w-full object-cover" loading="lazy" />'
+        )
+    else:
+        img_html = (
+            '<div class="aspect-[16/10] bg-[var(--rule)] flex items-center justify-center '
+            'text-[var(--ink-muted)] serif italic">Photo</div>'
+        )
+    highlights = l.get("highlights") or []
+    if highlights:
+        lis = "".join(f"<li>· {esc(h)}</li>" for h in highlights)
+        highlights_html = f'<ul class="text-xs text-[var(--ink-muted)] mt-3 space-y-1">{lis}</ul>'
+    else:
+        highlights_html = ""
+    return f"""
+      <article class="listing bg-[#1c1e26] rounded-xl overflow-hidden border border-[var(--rule)]" data-type="{esc(data_type)}">
+        {img_html}
+        <div class="p-6">
+          <p class="text-xs text-[var(--accent)] uppercase tracking-widest mb-2">{esc(js_tag(l))}</p>
+          <h3 class="serif text-xl font-semibold mb-2">{esc(l.get('title', ''))}</h3>
+          <p class="text-[var(--ink-soft)] text-sm mb-1">{esc(js_beds_baths_sqft(l))}</p>
+          {highlights_html}
+          <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
+            <p class="serif text-lg font-semibold">{esc(js_price_label(l))}</p>
+            <a href="https://wa.me/{WA_NUMBER}?text={wa}" class="btn btn-ghost text-sm" style="padding:.5rem .9rem;">Enquire</a>
+          </div>
+        </div>
+      </article>"""
+
+
+def render_grid_html(listings):
+    if not listings:
+        return (
+            '<p class="col-span-full text-center text-[var(--ink-muted)] py-12">Listings refreshing, '
+            "check back shortly, or message me on WhatsApp for off-market options. "
+            '<a href="/contact" class="underline hover:text-[var(--ink)]">Submit a listing enquiry</a></p>'
+        )
+    return "".join(render_card_html(l) for l in listings)
+
+
+def format_synced_at(iso_str):
+    try:
+        dt = datetime.datetime.fromisoformat(iso_str)
+    except (ValueError, TypeError):
+        return ""
+    return f"{dt.strftime('%-d %b %Y')}, {dt.strftime('%-I:%M %p').lower()}"
+
+
+def render_meta_html(count, synced_at):
+    if not synced_at or not count:
+        return ""
+    plural = "s" if count > 1 else ""
+    return f"{esc(count)} active listing{plural} · last updated {esc(format_synced_at(synced_at))}"
+
+
+def render_initial_data_html(listings, synced_at):
+    payload = {"synced_at": synced_at, "listings": listings}
+    # </script> can never appear inside our own JSON (no listing field holds
+    # arbitrary HTML), but escape defensively anyway before embedding.
+    raw = json.dumps(payload, ensure_ascii=False).replace("</", "<\\/")
+    return f'<script type="application/json" id="listings-initial-data">{raw}</script>'
+
+
+def render_jsonld_html(listings):
+    if not listings:
+        return ""
+    items = []
+    for idx, l in enumerate(listings, start=1):
+        title = l.get("title") or ""
+        reserved = "(reserved)" in title.lower() or any(
+            "offer pending" in (h or "").lower() for h in (l.get("highlights") or [])
+        )
+        entity = {
+            "@type": "RealEstateListing",
+            "name": title,
+            "url": "https://winfredquek.com/listings",
+        }
+        address = {"@type": "PostalAddress", "addressCountry": "SG"}
+        if l.get("address"):
+            address["addressLocality"] = l["address"]
+        if l.get("district"):
+            address["addressRegion"] = l["district"]
+        entity["address"] = address
+        if l.get("price"):
+            entity["offers"] = {
+                "@type": "Offer",
+                "price": l["price"],
+                "priceCurrency": "SGD",
+                "availability": (
+                    "https://schema.org/LimitedAvailability" if reserved else "https://schema.org/InStock"
+                ),
+            }
+        items.append({"@type": "ListItem", "position": idx, "item": entity})
+    payload = {
+        "@context": "https://schema.org",
+        "@type": "ItemList",
+        "name": "Active Property Listings — Winfred Quek",
+        "url": "https://winfredquek.com/listings",
+        "numberOfItems": len(listings),
+        "itemListElement": items,
+    }
+    body = json.dumps(payload, ensure_ascii=False, indent=2).replace("</", "<\\/")
+    return f'<script type="application/ld+json">\n{body}\n</script>'
+
+
+def splice_sentinel(text, key, inner_html):
+    start, end = LISTINGS_HTML_SENTINELS[key]
+    pattern = re.compile(re.escape(start) + r".*?" + re.escape(end), re.DOTALL)
+    if not pattern.search(text):
+        raise ValueError(f"listings.html is missing the {key!r} sentinel pair ({start} ... {end})")
+    replacement = f"{start}\n{inner_html}\n{end}" if inner_html else f"{start}\n{end}"
+    return pattern.sub(lambda _m: replacement, text, count=1)
+
+
+def update_listings_html(root, listings, synced_at):
+    """Server-render listings.html's cards + JSON-LD in place so non-JS crawlers
+    (GPTBot, ClaudeBot, PerplexityBot) see the same listings a browser does.
+    Idempotent for a given (listings, synced_at) pair: reruns replace the same
+    sentinel-bounded regions with the same content."""
+    html_path = os.path.join(root, "public", "listings.html")
+    if not os.path.exists(html_path):
+        print(f"listings.html not found at {html_path}; skipping static render.", file=sys.stderr)
+        return False
+    with open(html_path, encoding="utf-8") as f:
+        text = f.read()
+    text = splice_sentinel(text, "grid", render_grid_html(listings))
+    text = splice_sentinel(text, "meta", render_meta_html(len(listings), synced_at))
+    text = splice_sentinel(text, "data", render_initial_data_html(listings, synced_at))
+    text = splice_sentinel(text, "jsonld", render_jsonld_html(listings))
+    with open(html_path, "w", encoding="utf-8") as f:
+        f.write(text)
+    return True
+
+
 # ───────────────────────────────── main pipeline ─────────────────────────────────
 
 def generate(db_path, area_demand_path):
@@ -420,6 +629,11 @@ def main():
         json.dump(payload, f, ensure_ascii=False, indent=2)
         f.write("\n")
     print(f"wrote {out_path} ({len(new_listings)} listings)")
+
+    html_root = os.path.dirname(os.path.dirname(out_path)) if args.out else args.root
+    if update_listings_html(html_root, new_listings, payload["synced_at"]):
+        print(f"wrote {os.path.join(html_root, 'public', 'listings.html')} "
+              f"({len(new_listings)} static cards)")
     return 0
 
 

@@ -13,6 +13,9 @@
   <meta property="article:published_time" content="2026-05-19" />
   <meta property="article:modified_time" content="2026-05-19" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HDB Upgrader Guide 2026, Winfred Quek" />
+  <meta name="twitter:description" content="Sell-then-buy vs buy-then-sell vs new launch PPS, the actual math, the cash flow gap, and the mistakes that cost upgraders six figures." />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://winfredquek.com/insights/hdb-upgrader-guide" />
   <script type="application/ld+json">
@@ -51,9 +54,9 @@
   }
   </script>
   <link rel="stylesheet" href="/tw.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
   <style>
     :root{--bg:#0f1117;--highlight:#1a1c24;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
     html{scroll-behavior:smooth;}
@@ -90,7 +93,7 @@
     details summary{cursor:pointer;font-weight:600;color:var(--ink);font-family:'Fraunces',Georgia,serif;font-size:1.05rem;}
     details[open] summary{margin-bottom:.5rem;}
   </style>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -101,6 +104,7 @@
 
       <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/start">Start here</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
         <a class="nav-link link-underline" href="/pricing">Pricing</a>
@@ -108,6 +112,8 @@
         <a class="nav-link link-underline" href="/sell">Sell</a>
         <a class="nav-link link-underline" href="/listings">Listings</a>
         <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/answers">Answers</a>
+        <a class="nav-link link-underline" href="/glossary">Glossary</a>
         <a class="nav-link link-underline" href="/resources">Resources</a>
         <a class="nav-link link-underline" href="/contact">Contact</a>
         <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
@@ -121,6 +127,7 @@
     <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/start">Start here</a>
         <a class="nav-link" href="/about">About</a>
         <a class="nav-link" href="/services">Services</a>
         <a class="nav-link" href="/listings">Listings</a>
@@ -128,7 +135,7 @@
         <a class="nav-link" href="/districts">Districts</a>
         <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
         <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
-        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/answers">Answers</a><a class="nav-link" href="/glossary">Glossary</a><a class="nav-link" href="/faq">FAQ</a>
         <a class="nav-link" href="/track-record">Track Record</a>
         <a class="nav-link" href="/testimonials">Testimonials</a>
         <a class="nav-link" href="/contact">Contact</a>
@@ -337,11 +344,12 @@
   <div style="background:rgba(198,163,106,0.08);border:1px solid rgba(198,163,106,0.3);border-radius:12px;padding:2rem;margin:3rem 0;text-align:center;">
     <p style="color:var(--accent);font-size:11px;text-transform:uppercase;letter-spacing:.18em;font-weight:600;margin-bottom:.5rem;">FREE · 30 MINUTES · NO COMMITMENT</p>
     <p class="serif" style="font-size:1.4rem;font-weight:600;margin-bottom:.75rem;">Get your personalised HDB upgrade roadmap</p>
-    <p style="color:var(--ink-soft);font-size:.95rem;margin-bottom:1.5rem;">We map your MOP date, CPF accrued interest, cash gap, and the sell-first vs buy-first sequence for your actual numbers. You leave with a written upgrade plan not a listing pitch.</p>
-    <div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin-bottom:1rem;">
-      <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:var(--ink);color:var(--bg);padding:.9rem 2rem;border-radius:4px;font-weight:500;text-decoration:none;">Get my upgrade roadmap (free)</a>
-      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20plan%20my%20HDB%20upgrade%20to%20condo." style="display:inline-block;border:1px solid rgba(198,163,106,0.5);color:var(--ink);padding:.9rem 2rem;border-radius:4px;font-weight:500;text-decoration:none;">WhatsApp Winfred</a>
-    </div>
+    <!-- w4b-cta:v1 -->
+<p style="color:var(--ink-soft);font-size:.95rem;margin-bottom:1.5rem;">Ask Winfred whether the upgrade cash flow and timing works for you.</p>
+<div style="display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;margin-bottom:1rem;">
+<a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20read%20your%20upgrade%20article%20and%20want%20to%20check%20my%20cash%20flow%20and%20timing." style="display:inline-block;background:var(--ink);color:var(--bg);padding:.9rem 2rem;border-radius:4px;font-weight:500;text-decoration:none;">Ask Winfred on WhatsApp</a>
+<a href="https://calendly.com/winfredquekoc" style="display:inline-block;border:1px solid rgba(198,163,106,0.5);color:var(--ink);padding:.9rem 2rem;border-radius:4px;font-weight:500;text-decoration:none;">Book a portfolio analysis</a>
+</div>
     <p style="font-size:.8rem;color:var(--ink-muted);margin-top:.75rem;">Winfred Quek · CEA R073319H · Crestbrick</p>
   </div>
 
