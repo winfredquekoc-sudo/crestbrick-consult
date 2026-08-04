@@ -31,7 +31,7 @@ hr{border:none;border-top:1px solid rgba(180,140,80,0.4);margin:48px 0;}
 .print-btn{position:fixed;top:24px;right:24px;background:#b48c50;color:#fff;padding:10px 18px;border-radius:6px;border:none;cursor:pointer;font-weight:500;font-size:13px;}
 @media print {.print-btn{display:none;}body{padding:0;}}
 </style>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729">
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript>
 <script defer src="/_enhance.js?v=20260729"></script>
 <script defer src="/_nav.js"></script></head><body>
 <button class="print-btn" onclick="window.print()">📄 Print / Save as PDF</button>

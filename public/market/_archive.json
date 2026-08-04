@@ -1,0 +1,12 @@
+[
+  {
+    "month": "2026-07",
+    "month_label": "July 2026",
+    "total_transactions": 2654,
+    "n_towns": 26,
+    "island_median_price": 630000,
+    "island_median_psm": 6407.0,
+    "island_delta_pct": 0.8,
+    "generated_at_utc": "2026-08-04T19:17:01Z"
+  }
+]

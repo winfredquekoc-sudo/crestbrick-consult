@@ -75,26 +75,42 @@
       "primary_source": "IRAS"
     },
     {
-      "fact": "Seller's Stamp Duty rate for a residential property sold within year 1 of purchase",
+      "fact": "Seller's Stamp Duty rate for a residential property purchased on or after 4 Jul 2025 and sold within year 1",
+      "value": 16,
+      "unit": "percent",
+      "as_of": "2026-08",
+      "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Seller's Stamp Duty rate for a residential property purchased on or after 4 Jul 2025 and sold within year 2",
       "value": 12,
       "unit": "percent",
-      "as_of": "2026",
+      "as_of": "2026-08",
       "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
       "primary_source": "IRAS"
     },
     {
-      "fact": "Seller's Stamp Duty rate for a residential property sold within year 2 of purchase",
+      "fact": "Seller's Stamp Duty rate for a residential property purchased on or after 4 Jul 2025 and sold within year 3",
       "value": 8,
       "unit": "percent",
-      "as_of": "2026",
+      "as_of": "2026-08",
       "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
       "primary_source": "IRAS"
     },
     {
-      "fact": "Seller's Stamp Duty rate for a residential property sold within year 3 of purchase",
+      "fact": "Seller's Stamp Duty rate for a residential property purchased on or after 4 Jul 2025 and sold within year 4",
       "value": 4,
       "unit": "percent",
-      "as_of": "2026",
+      "as_of": "2026-08",
+      "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
+      "primary_source": "IRAS"
+    },
+    {
+      "fact": "Seller's Stamp Duty for a residential property purchased before 4 Jul 2025 follows the earlier 3 year schedule of 12, 8 and 4 percent",
+      "value": "12/8/4",
+      "unit": "percent by year",
+      "as_of": "2026-08",
       "source_url": "https://winfredquek.com/insights/seller-stamp-duty-singapore",
       "primary_source": "IRAS"
     },

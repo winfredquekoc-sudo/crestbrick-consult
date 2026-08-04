@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en-SG">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>ABSD Calculator, Free Embeddable Widget | Winfred Quek</title>
+<style>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: #0f1117;
+    color: #f0ede6;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Arial, sans-serif;
+    font-size: 13px;
+    line-height: 1.4;
+  }
+  .wrap {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 14px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    min-height: 480px;
+  }
+  .title {
+    font-size: 15px;
+    font-weight: 700;
+    color: #f0ede6;
+    margin: 0 0 2px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle {
+    font-size: 11px;
+    color: #8a8680;
+    margin: 0 0 12px;
+  }
+  label {
+    display: block;
+    font-size: 10.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #b8b4aa;
+    margin-bottom: 4px;
+  }
+  .row { margin-bottom: 10px; }
+  .row-2 { display: flex; gap: 8px; margin-bottom: 10px; }
+  .row-2 > div { flex: 1; min-width: 0; }
+  input[type="number"], select {
+    width: 100%;
+    background: #1a1c24;
+    border: 1px solid #2b2e38;
+    border-radius: 6px;
+    color: #f0ede6;
+    padding: 8px 9px;
+    font-size: 13px;
+    font-family: inherit;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  select {
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c6a36a' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 14px;
+    padding-right: 26px;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: #c6a36a;
+  }
+  .result {
+    background: #1a1c24;
+    border: 1px solid #2b2e38;
+    border-left: 3px solid #c6a36a;
+    border-radius: 8px;
+    padding: 12px 13px;
+    margin-top: 4px;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 3px 0;
+    font-size: 12.5px;
+    color: #b8b4aa;
+  }
+  .result-row .amt { color: #f0ede6; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .result-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-top: 1px solid #2b2e38;
+    margin-top: 6px;
+    padding-top: 8px;
+  }
+  .result-total .lbl { font-size: 12.5px; font-weight: 600; color: #f0ede6; }
+  .result-total .amt { font-size: 17px; font-weight: 700; color: #c6a36a; font-variant-numeric: tabular-nums; }
+  .note {
+    font-size: 9.5px;
+    color: #706c64;
+    line-height: 1.5;
+    margin: 8px 0 0;
+  }
+  .footer {
+    margin-top: auto;
+    padding-top: 12px;
+    border-top: 1px solid #22242c;
+    text-align: center;
+  }
+  .footer a {
+    color: #c6a36a;
+    text-decoration: none;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .footer a:hover { text-decoration: underline; }
+  .footer .tag {
+    display: block;
+    font-size: 9.5px;
+    color: #605c56;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="title">ABSD Calculator</p>
+  <p class="subtitle">Singapore Additional Buyer's Stamp Duty, 2026 rates</p>
+
+  <div class="row">
+    <label for="price">Purchase price (SGD)</label>
+    <input id="price" type="number" min="0" step="1000" value="1500000" />
+  </div>
+
+  <div class="row-2">
+    <div>
+      <label for="profile">Buyer profile</label>
+      <select id="profile">
+        <option value="SC">Singapore Citizen</option>
+        <option value="PR">Singapore PR</option>
+        <option value="FOR">Foreigner</option>
+        <option value="ENT">Entity / Company</option>
+      </select>
+    </div>
+    <div>
+      <label for="count">Property count</label>
+      <select id="count">
+        <option value="1">1st</option>
+        <option value="2">2nd</option>
+        <option value="3">3rd+</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="result" class="result">
+    <div class="result-row"><span>Buyer's Stamp Duty</span><span id="o-bsd" class="amt">, </span></div>
+    <div class="result-row"><span>ABSD (<span id="o-rate">, </span>)</span><span id="o-absd" class="amt">, </span></div>
+    <div class="result-total"><span class="lbl">Total stamp duty</span><span id="o-total" class="amt">, </span></div>
+  </div>
+
+  <p class="note">Estimates only, not legal or financial advice. Entity rate is 65 percent net of remission. Verify with your conveyancer before committing.</p>
+
+  <div class="footer">
+    <a href="https://winfredquek.com/tools/absd?utm_source=embed&amp;utm_medium=widget&amp;utm_campaign=absd_embed" target="_blank" rel="noopener">Built by Winfred Quek — winfredquek.com</a>
+    <span class="tag">CEA R073319H · Free to embed</span>
+  </div>
+</div>
+
+<script>
+// BSD tiered residential — replicated from /tools/absd.html, do not diverge
+function computeBSD(price){
+  var tiers=[[180000,0.01],[180000,0.02],[640000,0.03],[500000,0.04],[1500000,0.05]];
+  var bsd=0, remaining=price;
+  for(var i=0;i<tiers.length;i++){
+    var slice=Math.min(remaining, tiers[i][0]);
+    if(slice<=0) break;
+    bsd += slice*tiers[i][1];
+    remaining -= slice;
+  }
+  if(remaining>0) bsd += remaining*0.06;
+  return Math.round(bsd);
+}
+
+// ABSD rate table — replicated from /tools/absd.html, do not diverge
+function absdRate(profile, count){
+  var c=parseInt(count,10);
+  switch(profile){
+    case 'SC': return c===1?0:c===2?0.20:0.30;
+    case 'PR': return c===1?0.05:c===2?0.30:0.35;
+    case 'FOR': return 0.60;
+    case 'ENT': return 0.65;
+    default: return 0;
+  }
+}
+
+function fmt(n){ return 'S$' + Math.round(n).toLocaleString('en-SG'); }
+function pct(r){ return (r*100).toFixed(0) + '%'; }
+
+function recalc(){
+  var price=parseFloat(document.getElementById('price').value)||0;
+  var profile=document.getElementById('profile').value;
+  var count=document.getElementById('count').value;
+  if(price<=0) return;
+  var bsd=computeBSD(price);
+  var rate=absdRate(profile, count);
+  var absd=Math.round(price*rate);
+  var total=bsd+absd;
+  document.getElementById('o-bsd').textContent=fmt(bsd);
+  document.getElementById('o-rate').textContent=pct(rate);
+  document.getElementById('o-absd').textContent=fmt(absd);
+  document.getElementById('o-total').textContent=fmt(total);
+}
+
+['price','profile','count'].forEach(function(id){
+  document.getElementById(id).addEventListener('input', recalc);
+  document.getElementById(id).addEventListener('change', recalc);
+});
+recalc();
+</script>
+</body>
+</html>

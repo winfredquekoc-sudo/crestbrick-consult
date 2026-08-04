@@ -30,6 +30,39 @@
     .link-secondary:hover { border-color: #c6a36a; }
     .link-primary:hover { background: #d4b47a; }
     footer { padding: 1.5rem; text-align: center; font-size: 0.75rem; color: #706c64; border-top: 1px solid #252830; }
+    .search-box { max-width: 420px; margin: 0 auto 2.5rem; position: relative; }
+    .search-box input {
+      width: 100%; background: #1a1c24; border: 1px solid #2b2e38; border-radius: 8px;
+      color: #f0ede6; padding: 0.75rem 1rem; font-size: 0.95rem; font-family: inherit;
+    }
+    .search-box input:focus { outline: none; border-color: #c6a36a; }
+    .search-results {
+      position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 20;
+      background: #1a1c24; border: 1px solid #2b2e38; border-radius: 8px;
+      max-height: 320px; overflow-y: auto; text-align: left; display: none;
+    }
+    .search-results.open { display: block; }
+    .search-results a { display: block; padding: 0.7rem 0.9rem; text-decoration: none; border-bottom: 1px solid #252830; }
+    .search-results a:last-child { border-bottom: none; }
+    .search-results a:hover { background: #22242c; }
+    .search-results .r-section { font-size: 0.6875rem; text-transform: uppercase; letter-spacing: 0.06em; color: #c6a36a; }
+    .search-results .r-title { font-size: 0.875rem; font-weight: 500; color: #f0ede6; margin: 0.15rem 0; }
+    .search-results .r-desc { font-size: 0.75rem; color: #8a8680; }
+    .search-empty { padding: 0.9rem; font-size: 0.8125rem; color: #8a8680; text-align: center; }
+    .destinations { max-width: 640px; margin: 0 auto 2rem; text-align: left; display: grid; gap: 0.65rem; }
+    .dest-card {
+      display: block; background: #1a1c24; border: 1px solid #252830; border-radius: 8px;
+      padding: 0.9rem 1.1rem; text-decoration: none; transition: border-color .15s ease;
+    }
+    .dest-card:hover { border-color: #c6a36a; }
+    .dest-card .d-title { font-weight: 600; color: #f0ede6; font-size: 0.9375rem; }
+    .dest-card .d-desc { font-size: 0.8125rem; color: #8a8680; margin-top: 0.2rem; }
+    .section-heading { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: #706c64; margin: 0 0 0.9rem; text-align: center; }
+    .wa-link {
+      display: inline-flex; align-items: center; gap: 0.5rem; color: #f0ede6; text-decoration: none;
+      font-size: 0.875rem; font-weight: 500; margin-top: 0.5rem;
+    }
+    .wa-link:hover { color: #c6a36a; }
   </style>
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
 <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
@@ -40,20 +73,109 @@
   </nav>
 
   <main>
-    <div class="container">
+    <div class="container" style="max-width:640px;">
       <div class="error-code">404</div>
       <h1>This address did not survive the search.</h1>
-      <p>The page you are looking for may have moved, been renamed, or never existed. Here is where to go instead.</p>
-      <div class="links">
-        <a href="https://calendly.com/winfredquekoc" class="link-primary">Book the Property Portfolio Analysis</a>
-        <a href="/insights" class="link-secondary">Property insights and guides</a>
-        <a href="/tools" class="link-secondary">Property calculators</a>
-        <a href="/new-launches" class="link-secondary">New launch tracker</a>
-        <a href="/contact" class="link-secondary">Contact Winfred</a>
+      <p>The page you are looking for may have moved, been renamed, or never existed. Search the site, or head straight to one of the pages below.</p>
+
+      <div class="search-box">
+        <input id="nf-search-input" type="text" placeholder="Search articles, tools, glossary..." autocomplete="off" aria-label="Search the site" />
+        <div id="nf-search-results" class="search-results"></div>
       </div>
+
+      <p class="section-heading">Or try one of these</p>
+      <div class="destinations">
+        <a href="/answers" class="dest-card">
+          <div class="d-title">Answers</div>
+          <div class="d-desc">Quick, direct answers to common Singapore property questions.</div>
+        </a>
+        <a href="/tools" class="dest-card">
+          <div class="d-title">Tools</div>
+          <div class="d-desc">ABSD, BSD, affordability and other property calculators.</div>
+        </a>
+        <a href="/guides" class="dest-card">
+          <div class="d-title">Guides</div>
+          <div class="d-desc">Complete hubs on ABSD, decoupling and other big decisions.</div>
+        </a>
+        <a href="/listings" class="dest-card">
+          <div class="d-title">Listings</div>
+          <div class="d-desc">Active rental and sale listings, updated nightly.</div>
+        </a>
+        <a href="/glossary" class="dest-card">
+          <div class="d-title">Glossary</div>
+          <div class="d-desc">Every Singapore property term explained in plain English.</div>
+        </a>
+        <a href="/sell-with-winfred" class="dest-card">
+          <div class="d-title">Sell with Winfred</div>
+          <div class="d-desc">Thinking of selling? Start here.</div>
+        </a>
+      </div>
+
+      <div class="links" style="max-width:420px;">
+        <a href="https://calendly.com/winfredquekoc" class="link-primary">Book the Property Portfolio Analysis</a>
+      </div>
+      <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20landed%20on%20a%20broken%20page%20looking%20for..." class="wa-link" target="_blank" rel="noopener">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Tell me what you were looking for
+      </a>
     </div>
   </main>
 
   <footer>Winfred Quek &middot; Crestbrick &middot; CEA R073319H</footer>
+
+  <script>
+  (function(){
+    // Wired to the same /search-index.json used by /_search.js — inline compact
+    // version since this page needs the box always visible, not overlay-triggered.
+    'use strict';
+    var input = document.getElementById('nf-search-input');
+    var results = document.getElementById('nf-search-results');
+    if (!input || !results) return;
+
+    var INDEX = [];
+    var loaded = false;
+    var loading = false;
+
+    function loadIndex() {
+      if (loaded || loading) return;
+      loading = true;
+      fetch('/search-index.json').then(function(r){ return r.json(); }).then(function(data){
+        INDEX = data;
+        loaded = true;
+      }).catch(function(){ /* fail soft, no results shown */ });
+    }
+
+    function render(matches) {
+      if (!matches.length) {
+        results.innerHTML = '<div class="search-empty">No matches. Try different keywords, or WhatsApp Winfred below.</div>';
+        results.classList.add('open');
+        return;
+      }
+      results.innerHTML = matches.map(function(m){
+        return '<a href="' + m.url + '">' +
+          '<div class="r-section">' + (m.section || 'page') + '</div>' +
+          '<div class="r-title">' + m.title + '</div>' +
+          '<div class="r-desc">' + (m.desc || m.url) + '</div>' +
+        '</a>';
+      }).join('');
+      results.classList.add('open');
+    }
+
+    input.addEventListener('focus', loadIndex);
+    input.addEventListener('input', function(){
+      var q = input.value.trim().toLowerCase();
+      if (q.length < 2) { results.classList.remove('open'); results.innerHTML = ''; return; }
+      var matches = INDEX.filter(function(item){
+        return (item.title || '').toLowerCase().indexOf(q) !== -1 ||
+               (item.desc || '').toLowerCase().indexOf(q) !== -1 ||
+               (item.url || '').toLowerCase().indexOf(q) !== -1;
+      }).slice(0, 8);
+      render(matches);
+    });
+    document.addEventListener('click', function(e){
+      if (!e.target.closest('.search-box')) results.classList.remove('open');
+    });
+  })();
+  </script>
 </body>
 </html>

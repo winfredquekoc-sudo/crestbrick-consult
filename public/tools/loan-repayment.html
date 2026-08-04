@@ -50,7 +50,7 @@ td{color:var(--ink-soft);}
 .cta{margin-top:24px;text-align:center;}
 .cta a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
 </style>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Property Loan Repayment Calculator Singapore 2026 · Winfred Quek","item":"https://winfredquek.com/tools/loan-repayment"}]}
 </script>
@@ -125,7 +125,8 @@ td{color:var(--ink-soft);}
 </div>
 </details>
 </div>
-<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20ran%20the%20loan%20repayment%20calculator%20and%20want%20to%20talk%20about%20the%20best%20rate%20package.">Want me to shop the best rate lock for this loan? WA me →</a></div>
+<div class="cta"><a id="wa-cta" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20ran%20the%20loan%20repayment%20calculator%20and%20want%20to%20talk%20about%20the%20best%20rate%20package." target="_blank" rel="noopener">Send my loan result on WhatsApp →</a></div>
+<div class="cta" style="margin-top:8px;"><a href="https://t.me/imwinfred" target="_blank" rel="noopener" style="color:var(--ink-muted);font-size:12px;border-bottom:none;">Weekly Singapore market reads: t.me/imwinfred</a></div>
 </div>
 
 <script>
@@ -273,6 +274,9 @@ function calc(){
   body.innerHTML = years.map(y => `<tr><td>${y.year}</td><td>${fmt(y.principal)}</td><td>${fmt(y.interest)}</td><td>${fmt(y.endBal)}</td></tr>`).join('');
 
   document.getElementById('result').classList.add('show');
+
+  const waMsg = 'Hi Winfred, I used your loan repayment calculator: loan '+fmt(loan)+' at '+rate.toFixed(2)+'% over '+tenure+' years, monthly repayment '+fmt(monthly)+'. Can we discuss the best rate package?';
+  document.getElementById('wa-cta').href = 'https://wa.me/6581618149?text=' + encodeURIComponent(waMsg);
 }
 
 syncFromLtv();

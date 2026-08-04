@@ -48,7 +48,7 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
   a{color:#111;text-decoration:underline;}
 }
 </style>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Property Purchase Timeline Singapore 2026 · Winfred Quek","item":"https://winfredquek.com/tools/purchase-timeline"}]}
 </script>
@@ -86,7 +86,8 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
 <div class="timeline" id="timeline"></div>
 <button class="print-btn" onclick="window.print()">Print / save this timeline</button>
 </div>
-<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20mapped%20out%20my%20purchase%20timeline%20and%20want%20to%20talk%20through%20the%20next%20steps.">Want me to walk this timeline with you? WA me →</a></div>
+<div class="cta"><a id="wa-cta" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20mapped%20out%20my%20purchase%20timeline%20and%20want%20to%20talk%20through%20the%20next%20steps." target="_blank" rel="noopener">Send my timeline on WhatsApp →</a></div>
+<div class="cta" style="margin-top:8px;"><a href="https://t.me/imwinfred" target="_blank" rel="noopener" style="color:var(--ink-muted);font-size:12px;border-bottom:none;">Weekly Singapore market reads: t.me/imwinfred</a></div>
 </div>
 
 <script>
@@ -172,6 +173,11 @@ function render(){
   }).join('');
 
   document.getElementById('result').classList.add('show');
+
+  const lastStep = data.steps[data.steps.length - 1];
+  const keyDate = fmtDate(addDays(startVal, lastStep.days));
+  const waMsg = 'Hi Winfred, I mapped my purchase timeline: '+badge+', starting '+fmtDate(addDays(startVal,0))+', '+lastStep.title.toLowerCase()+' around '+keyDate+'. Can we discuss the next steps?';
+  document.getElementById('wa-cta').href = 'https://wa.me/6581618149?text=' + encodeURIComponent(waMsg);
 }
 
 (function(){

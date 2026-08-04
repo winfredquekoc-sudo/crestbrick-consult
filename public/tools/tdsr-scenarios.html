@@ -28,7 +28,7 @@ input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rg
 .metric .v{color:#f0e9d8;}
 .note{color:#7a6c54;font-size:12px;line-height:1.6;margin-top:14px;}
 .cta{margin-top:24px;text-align:center;}.cta a{color:#b48c50;text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
-</style><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
+</style><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"TDSR / MSR Scenario Compare · Winfred Quek","item":"https://winfredquek.com/tools/tdsr-scenarios"}]}
 </script>
@@ -58,7 +58,8 @@ input,select{width:100%;padding:10px 12px;background:#0e0c08;border:1px solid rg
 <div id="result" class="result">
 <div class="scenarios" id="cards"></div>
 <div class="note" id="note"></div>
-<div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20ran%20the%20TDSR%20scenarios%20and%20want%20to%20talk%20rate%20strategy.">Want a real bank IPA + rate-lock strategy? WA me </a></div>
+<div class="cta"><a id="wa-cta" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20ran%20the%20TDSR%20scenarios%20and%20want%20to%20talk%20rate%20strategy." target="_blank" rel="noopener">Send my TDSR result on WhatsApp </a></div>
+<div class="cta" style="margin-top:8px;"><a href="https://t.me/imwinfred" target="_blank" rel="noopener" style="color:#7a6c54;font-size:12px;border-bottom:none;">Weekly Singapore market reads: t.me/imwinfred</a></div>
 </div>
 
 <script>
@@ -124,6 +125,10 @@ function calc(){
     TDSR rule: Total debt &lt; 55% of gross income. MSR rule (HDB/EC only): Housing debt &lt; 30%.
     `;
   document.getElementById('result').classList.add('show');
+
+  var qualLoanToday = maxLoan(stressRate, periods, monthlyAvail);
+  var waMsg='Hi Winfred, I ran your TDSR scenarios: '+(ptype==='hdb'?'HDB/EC':'private')+', income '+fmt(inc)+'/mo, qualifying loan '+fmt(qualLoanToday)+' at stress rate '+(stressRate*100).toFixed(1)+'%. Can we discuss my options?';
+  document.getElementById('wa-cta').href='https://wa.me/6581618149?text='+encodeURIComponent(waMsg);
 }
 calc();
 </script>
