@@ -1,7 +1,7 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-04T00:30:07+08:00",
+  "synced_at": "2026-08-05T00:30:02+08:00",
   "count": 21,
   "listings": [
     {
@@ -55,20 +55,20 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area."
     },
     {
-      "id": "common-room-blk-2-haig-road-ll089",
-      "title": "Common Room — Blk 2 Haig Road (Katong)",
+      "id": "common-room-2-jalan-batu-ll089",
+      "title": "Common Room — 2 Jalan Batu (Katong)",
       "type": "HDB",
       "transaction": "rent",
       "price": 900,
       "price_label": "S$900 / mo",
-      "address": "Blk 2 Haig Road",
+      "address": "2 Jalan Batu",
       "district": "D15",
       "highlights": [
         "Aircon",
         "Available now"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%202%20Haig%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%202%20Haig%20Road."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%202%20Jalan%20Batu.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%202%20Jalan%20Batu."
     },
     {
       "id": "common-room-bayshore-park-ll070",
