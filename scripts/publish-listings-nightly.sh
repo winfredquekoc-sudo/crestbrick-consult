@@ -39,6 +39,7 @@ fi
 python3 "$REPO/scripts/gen-website-listings.py" --root "$WT" || { echo "generator failed"; exit 1; }
 
 git -C "$WT" add public/listings.json
+python3 "$WT/scripts/gen-image-sitemap.py" && git -C "$WT" add public/sitemap-images.xml || true
 
 if git -C "$WT" diff --cached --quiet -- public/listings.json; then
   echo "no change in public/listings.json; nothing to publish."
