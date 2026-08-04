@@ -48,5 +48,11 @@ if (existsSync('public/area')) {
   replaceSection('## Area pages', area);
 }
 
+let answers = [];
+if (existsSync('public/answers')) {
+  answers = listDir('answers', `${BASE}/answers`);
+  replaceSection('## Quick answers', answers);
+}
+
 if (!DRY) writeFileSync(F, txt);
-console.log(`${DRY ? '[dry] ' : ''}llms-augment: Tools=${tools.length} entries, Area=${existsSync('public/area') ? listDir('area', '').length : 0} entries`);
+console.log(`${DRY ? '[dry] ' : ''}llms-augment: Tools=${tools.length} entries, Area=${existsSync('public/area') ? listDir('area', '').length : 0} entries, Answers=${answers.length} entries`);
