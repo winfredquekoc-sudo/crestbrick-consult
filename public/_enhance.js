@@ -168,6 +168,31 @@
   // ============================================================
   // #280 Exit-intent capture (offer free Move Framework eBook)
   // ============================================================
+  // Deterministic headline A/B — a visitor always sees the same variant
+  // (keyed off a persisted localStorage id, falling back to day-of-month
+  // parity if storage is unavailable). 'exit-intent-a' / 'exit-intent-b' is
+  // passed as the source on submission so conversion per variant is readable
+  // straight off the existing n8n Sheet — no new infrastructure needed.
+  function getExitVariant() {
+    try {
+      var id = localStorage.getItem('wf_visitor_id');
+      if (!id) {
+        id = 'v_' + Date.now().toString(36) + Math.random().toString(36).slice(2);
+        localStorage.setItem('wf_visitor_id', id);
+      }
+      var hash = 0;
+      for (var i = 0; i < id.length; i++) { hash = (hash * 31 + id.charCodeAt(i)) | 0; }
+      return (Math.abs(hash) % 2 === 0) ? 'a' : 'b';
+    } catch (e) {
+      return (new Date().getDate() % 2 === 0) ? 'a' : 'b';
+    }
+  }
+
+  var EXIT_HEADLINES = {
+    a: 'Before you go.',
+    b: 'See exactly where you stand.'
+  };
+
   function initExitIntent() {
     if (sessionStorage.getItem('wf_exit_shown')) return;
     if (localStorage.getItem('wf_exit_dismissed_perm')) return;
@@ -176,13 +201,16 @@
       if (e.clientY > 0 || triggered) return;
       triggered = true;
       sessionStorage.setItem('wf_exit_shown','1');
+      const variant = getExitVariant();
+      const exitSource = 'exit-intent-' + variant;
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9998;padding:20px;';
       overlay.innerHTML = `<div role="dialog" aria-modal="true" aria-label="Free Property Portfolio Blueprint eBook" style="background:#1a1610;border:1px solid rgba(180,140,80,0.3);border-radius:12px;padding:32px;max-width:440px;color:#f0e9d8;text-align:center;font-family:-apple-system,system-ui,sans-serif;">
-        <h2 style="font-family:'Fraunces',serif;font-size:24px;margin-bottom:10px;color:#c6a36a;font-weight:400;">Before you go.</h2>
+        <h2 style="font-family:'Fraunces',serif;font-size:24px;margin-bottom:10px;color:#c6a36a;font-weight:400;">${EXIT_HEADLINES[variant]}</h2>
         <p style="color:#a89980;margin-bottom:20px;line-height:1.6;font-size:15px;">Free Property Portfolio Blueprint eBook. The way I diagnose every Singapore property situation. No fluff.</p>
         <input id="wf_exit_email" type="email" placeholder="your@email.com" style="width:100%;padding:12px;background:#0e0c08;border:1px solid rgba(180,140,80,0.3);border-radius:6px;color:#f0e9d8;margin-bottom:12px;font-size:15px;"/>
         <button id="wf_exit_send" style="background:#c6a36a;color:#0e0c08;padding:12px;border-radius:8px;border:none;cursor:pointer;font-weight:500;width:100%;font-size:15px;">Send me the eBook</button>
+        <a href="/start" id="wf_exit_start" style="display:block;color:#c6a36a;font-size:13px;margin-top:14px;text-decoration:underline;">Or answer 4 quick questions and I will point you at the right strategy</a>
         <div style="color:#a89980;font-size:11px;margin-top:14px;cursor:pointer;" id="wf_exit_close">No thanks, just looking</div>
       </div>`;
       document.body.appendChild(overlay);
@@ -227,7 +255,7 @@
         const email = document.getElementById('wf_exit_email').value.trim();
         if (!email || !/^[^@]+@[^@]+\.[^@]+$/.test(email)) return;
         try {
-          await fetch('/api/lead-magnet', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, magnet:'property-portfolio-blueprint', source:'exit-intent'})});
+          await fetch('/api/lead-magnet', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({email, magnet:'property-portfolio-blueprint', source:exitSource})});
         } catch(e){}
         dialog.innerHTML = '<h2 style="color:#c6a36a;font-family:Fraunces,serif;">✓ Sent</h2><p style="color:#a89980;margin-top:14px;">Check your inbox in 1-2min. ,  Winfred</p>';
         setTimeout(() => closeModal(), 3000);

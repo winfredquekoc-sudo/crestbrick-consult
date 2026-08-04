@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-07-29T07:42:50+08:00",
-  "count": 17,
+  "synced_at": "2026-08-05T02:48:51+08:00",
+  "count": 21,
   "listings": [
     {
       "id": "common-room-blk-113-lor-1-toa-payoh-ll086",
@@ -43,20 +43,32 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier."
     },
     {
-      "id": "common-room-blk-2-haig-road-ll089",
-      "title": "Common Room — Blk 2 Haig Road (Katong)",
+      "id": "common-room-paya-lebar-area-ll091",
+      "title": "Common Room — Paya Lebar area",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1600,
+      "price_label": "From S$1,600 / mo",
+      "address": "Paya Lebar area",
+      "district": "D14",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area."
+    },
+    {
+      "id": "common-room-2-jalan-batu-ll089",
+      "title": "Common Room — 2 Jalan Batu (Katong)",
       "type": "HDB",
       "transaction": "rent",
       "price": 900,
       "price_label": "S$900 / mo",
-      "address": "Blk 2 Haig Road",
+      "address": "2 Jalan Batu",
       "district": "D15",
       "highlights": [
         "Aircon",
         "Available now"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%202%20Haig%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%202%20Haig%20Road."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%202%20Jalan%20Batu.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%202%20Jalan%20Batu."
     },
     {
       "id": "common-room-bayshore-park-ll070",
@@ -99,16 +111,16 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
     },
     {
-      "id": "common-room-eastpoint-green-ll033",
-      "title": "Common Room — Eastpoint Green (Tampines)",
+      "id": "room-eastpoint-green-ll033",
+      "title": "Room — Eastpoint Green (Tampines)",
       "type": "Condo",
       "transaction": "rent",
-      "price": 950,
-      "price_label": "From S$950 / mo",
+      "price": 1120,
+      "price_label": "S$1,120 / mo",
       "address": "Eastpoint Green",
       "district": "D18",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Eastpoint%20Green.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Eastpoint%20Green."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Eastpoint%20Green.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Eastpoint%20Green."
     },
     {
       "id": "common-room-232b-sumang-lane-ll020",
@@ -121,6 +133,34 @@
       "district": "D19",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane."
+    },
+    {
+      "id": "room-near-nex-ll090",
+      "title": "Room — Near NEX (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1600,
+      "price_label": "From S$1,600 / mo",
+      "address": "Near NEX",
+      "district": "D19",
+      "highlights": [
+        "Utilities included"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX."
+    },
+    {
+      "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
+      "title": "Common Room — Blk 539 Ang Mo Kio Ave 10",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1000,
+      "price_label": "S$1,000 / mo",
+      "address": "Blk 539 Ang Mo Kio Ave 10",
+      "district": "D20",
+      "sqft": 130,
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010."
     },
     {
       "id": "common-room-602-jurong-west-street-62-ll081",
@@ -150,6 +190,21 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
+    },
+    {
+      "id": "master-room-blk-148-gangsa-road-ll096",
+      "title": "Master Room — Blk 148 Gangsa Road (Bukit Batok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1900,
+      "price_label": "From S$1,900 / mo",
+      "address": "Blk 148 Gangsa Road",
+      "district": "D23",
+      "highlights": [
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road."
     },
     {
       "id": "whole-unit-blk-26-teck-whye-lane-ll083",

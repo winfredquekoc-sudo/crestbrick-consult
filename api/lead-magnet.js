@@ -74,6 +74,10 @@ const MAGNETS = {
   },
 };
 
+// High-intent magnets get a real-time Telegram ping instead of waiting for
+// the daily digest — see the fan-out in the POST handler below.
+const HIGH_INTENT_MAGNETS = new Set(['seller-valuation', 'progression-score']);
+
 async function notifyTelegram(lead) {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   const chat = process.env.TELEGRAM_WINFRED_CHAT_ID;
@@ -153,8 +157,13 @@ export default async function handler(req, res) {
   // Fan out — none of these block on each other failing.
   // Per-lead Telegram ping intentionally disabled — leads are summarised by the
   // daily lead-magnet-digest cron instead of pinging on every submission.
+  // EXCEPTION: 'seller-valuation' and 'progression-score' are high-intent
+  // magnets (someone actively asking what their property is worth or where
+  // they stand) — speed-to-lead matters enough there to interrupt in real
+  // time. Every other magnet stays digest-only exactly as before.
   const wantDrip = magnet === 'lentor-gardens-guide';
-  const [n8n, emailed, drip] = await Promise.all([
+  const isHighIntent = HIGH_INTENT_MAGNETS.has(magnet);
+  const [n8n, emailed, drip, realtimeTg] = await Promise.all([
     notifyN8n({
       email,
       name: name || null,
@@ -169,6 +178,12 @@ export default async function handler(req, res) {
     notifyEmail(email, m, src),
     wantDrip
       ? startLentorDrip({ email, name: name || '', phone: phone || '', intent: intent || '', magnet, source: src, ts: new Date().toISOString() })
+      : Promise.resolve(false),
+    isHighIntent
+      ? notifyTelegram({
+          magnet_title: `🔥 High-intent lead: ${m.title}`,
+          email, name, phone, intent, source: src,
+        })
       : Promise.resolve(false),
   ]);
 
@@ -188,13 +203,13 @@ export default async function handler(req, res) {
     });
   }
   console.log(JSON.stringify({ lead_magnet: true, email, magnet, source: src,
-    delivery: { n8n, email: emailed, drip, fallback_tg: tg } }));
+    delivery: { n8n, email: emailed, drip, fallback_tg: tg, realtime_tg: realtimeTg } }));
 
   // Always succeed. The eBook URL is in the response so the page can redirect/show it.
   return res.status(200).json({
     ok: true,
     ebook_url: m.url,
     title: m.title,
-    delivery: { telegram: tg, n8n, email: emailed, drip },
+    delivery: { telegram: tg || realtimeTg, n8n, email: emailed, drip },
   });
 }

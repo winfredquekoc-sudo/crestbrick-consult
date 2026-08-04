@@ -9,11 +9,14 @@
   <meta property="og:type" content="article" />
   <meta property="og:title" content="The CPF Accrued Interest Trap, Winfred Quek" />
   <meta property="og:description" content="How CPF accrued interest silently eats HDB sale proceeds, and the real math upgraders need before selling." />
-  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/insights/cpf-accrued-interest-trap" />
   <meta property="article:published_time" content="2026-05-19" />
   <meta property="article:modified_time" content="2026-05-19" />
   <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="The CPF Accrued Interest Trap, Winfred Quek" />
+  <meta name="twitter:description" content="How CPF accrued interest silently eats HDB sale proceeds, and the real math upgraders need before selling." />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
   <link rel="canonical" href="https://winfredquek.com/insights/cpf-accrued-interest-trap" />
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"Article","headline":"The CPF accrued interest trap: why HDB sellers are losing six figures silently","description":"CPF accrued interest compounds at 2.5% and quietly erodes HDB sale proceeds. A worked example and the upgrader's playbook.","image":"https://winfredquek.com/img/og-image.jpg","author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Associate Marketing Consultant","identifier":"CEA R073319H","sameAs":["https://t.me/imwinfred","https://www.instagram.com/imwinfred","https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]},"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"datePublished":"2026-05-19","dateModified":"2026-05-19","wordCount":2150,"mainEntityOfPage":"https://winfredquek.com/insights/cpf-accrued-interest-trap","speakable":{"@type":"SpeakableSpecification","cssSelector":[".quick-answer","h1","h2"]}}
@@ -30,9 +33,9 @@
   }
   </script>
   <link rel="stylesheet" href="/tw.css" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
   <style>
     :root{--bg:#0f1117;--highlight:#1a1c24;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
     html{scroll-behavior:smooth;}
@@ -65,9 +68,9 @@
     .flow-step{background:#1a1c24;border-left:3px solid var(--accent);border-top:1px solid var(--rule);border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);border-radius:6px;padding:.9rem 1.1rem;margin:.5rem 0;}
     .flow-step strong{color:var(--ink);}
   </style>
-  <link rel="stylesheet" href="/motion.css">
+  <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script><script type="application/ld+json">
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script><script type="application/ld+json">
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"1. What is CPF accrued interest and how does it work?","acceptedAnswer":{"@type":"Answer","text":"When you use CPF Ordinary Account (OA) savings to pay for a property, the downpayment, monthly instalments, stamp duties, or legal fees, that money leaves your CPF account. The CPF Board treats this as an opportunity cost: had you left that money in OA, it would have earned 2.5% per annum risk-free."}},{"@type":"Question","name":"2. Why does S$200k of CPF used become a S$290k refund obligation?","acceptedAnswer":{"@type":"Answer","text":"Let's take a realistic upgrader case. Couple buys a 5-room HDB flat in 2011 for S$500,000. Downpayment from CPF: S$100,000 combined. Over 15 years of servicing the HDB loan and top-up payments, they draw another S$100,000 from CPF OA. Total principal used: S$200,000. They now want to sell in 2026 and upgrade to a condo."}},{"@type":"Question","name":"3. How does CPF accrued interest affect your next purchase?","acceptedAnswer":{"@type":"Answer","text":"Here's the quiet trap: upgraders assume that CPF refund is a good thing because \"it's still my money.\" It is. But it's not cash. It doesn't pay for the 25% downpayment on the new condo (the 5% cash + 20% CPF+cash buffer). It can't pay ABSD. And if your new purchase draws down OA again, you start a new accrued interest clock."}},{"@type":"Question","name":"4. What is a negative sale and when can it happen?","acceptedAnswer":{"@type":"Answer","text":"Take a flat bought at S$600,000 in 2013 with S$150,000 CPF used. Fast forward to 2026: outstanding loan S$250,000, CPF refund liability S$220,000 (principal + accrued interest). Total: S$470,000. If the flat sells at S$500,000, the cash in hand is S$30,000 before agent fees. If it sells at S$450,000, the seller has to pay S$20,000 at completion."}},{"@type":"Question","name":"5. The upgrader's decision matrix\n  Once you know your accrued interest number, the decision tree clarifies fast. Three scenarios:\n\n  Scenario A: Healthy equity, low refund ratio\n  Sale proceeds cover loan + CPF refund + transaction costs with meaningful cash left over. This is the \"clean upgrade\" case. Proceed with a standard upgrade timeline, the CPF refund replenishes your OA, which then funds part of the new downpayment.\n\n  Scenario B: Thin equity, high refund ratio\n  Sale proceeds cover the obligations but leave minimal cash. You'll need external cash (savings, bridging loan, liquidated investments) to close the gap on ABSD, downpayment top-up, stamp duties, and renovation. Model the full affordability picture including these cash calls before committing.\n\n  Scenario C: Negative sale risk\n  Sale proceeds won't cover loan + CPF refund. Either wait (if you can), rent out if HDB rules permit (5-year MOP passed, then subject to rental permission), or plan for the partial CPF refund waiver. In all three sub-options, the upgrade is paused, not cancelled, timing matters more than pride.\n\n  6. The accrued interest on the new purchase\n  Once you sell and buy the upgrade, the accrued interest clock starts over on the new property. If you use S$200,000 from CPF OA on the condo downpayment and service the loan partly via CPF for 10 years, your next CPF refund liability at exit could easily exceed S$300,000.\n\n  This is why I always show clients the lifetime CPF math, not the single-transaction math. Each property restarts the compounding. Two upgrades over a 25-year horizon can lock up S$500,000+ of CPF in accrued interest alone, retirement savings that went to property holding, not property gains.\n\n  7. Three ways to reduce accrued interest exposure\n  \n    Pay loan with cash, not CPF, when cashflow permits. Every dollar of cash servicing is a dollar that doesn't compound at 2.5% against you. If your household cashflow supports cash-only servicing for the final 5–7 years, the accrued interest delta at exit is materially smaller.\n    Keep the loan longer, not shorter. Counter-intuitive but real: a larger outstanding loan at sale means more principal repaid to the bank and less residual CPF refund. Paying down early with CPF lump sums inflates accrued interest; paying with bank loan interest at 3–4% vs CPF's 2.5% is a 1–1.5% spread on the marginal dollar.\n    Refund CPF voluntarily from rental or other income. If you hold the property and rent it out (applicable post-MOP with HDB, or investment condos), you can voluntarily refund CPF from rental income, stopping the compounding while retaining the asset. This isn't common advice, but it's legal and effective.\n  \n\n  8. How I run this in the Property Portfolio Analysis\n  The CPF accrued interest number enters the Money side (what's actually deployable) and the Safety side (retirement adequacy). In the property portfolio analysis, I model three things:\n\n  \n    Deployable cash at sale. Sale price loan CPF refund costs. Not \"profit.\" Deployable cash.\n    Post-refund CPF position. What OA looks like after the refund lands, and how much of that is usable for the next purchase.\n    Lifetime CPF trajectory. Projected CPF balance at 55 under both the \"upgrade now\" and \"hold the flat\" scenarios. The 25-year difference is usually the most sobering number in the whole analysis.\n  \n\n  Upgraders who see this math tend to make better timing decisions. The ones who don't see it often discover the problem at completion, when the numbers are locked and the refund is already pulling back into CPF.\n\n  9. What are the three biggest CPF accrued-interest myths?","acceptedAnswer":{"@type":"Answer","text":"See the full article for details."}}]}
   </script>
   <meta property="og:site_name" content="Winfred Quek" />
@@ -83,6 +86,7 @@
 
       <div class="hidden xl:flex items-center gap-6">
         <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/start">Start here</a>
         <a class="nav-link link-underline" href="/about">About</a>
         <a class="nav-link link-underline" href="/services">Services</a>
         <a class="nav-link link-underline" href="/pricing">Pricing</a>
@@ -90,6 +94,8 @@
         <a class="nav-link link-underline" href="/sell">Sell</a>
         <a class="nav-link link-underline" href="/listings">Listings</a>
         <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/answers">Answers</a>
+        <a class="nav-link link-underline" href="/glossary">Glossary</a>
         <a class="nav-link link-underline" href="/resources">Resources</a>
         <a class="nav-link link-underline" href="/contact">Contact</a>
         <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
@@ -103,6 +109,7 @@
     <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
       <div class="px-6 py-4 flex flex-col gap-3">
         <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/start">Start here</a>
         <a class="nav-link" href="/about">About</a>
         <a class="nav-link" href="/services">Services</a>
         <a class="nav-link" href="/listings">Listings</a>
@@ -110,7 +117,7 @@
         <a class="nav-link" href="/districts">Districts</a>
         <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
         <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
-        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/answers">Answers</a><a class="nav-link" href="/glossary">Glossary</a><a class="nav-link" href="/faq">FAQ</a>
         <a class="nav-link" href="/track-record">Track Record</a>
         <a class="nav-link" href="/testimonials">Testimonials</a>
         <a class="nav-link" href="/contact">Contact</a>

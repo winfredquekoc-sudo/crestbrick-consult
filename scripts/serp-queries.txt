@@ -1,0 +1,24 @@
+# serp-queries.txt — 20 target queries for scripts/serp-snapshot.sh
+# One query per target page cluster on winfredquek.com. Blank lines and lines
+# starting with # are ignored. Edit freely, the snapshot script re-reads this
+# file on every run.
+absd calculator singapore
+hdb rental yield by town
+can pr buy hdb
+property agent singapore
+decoupling property singapore
+seller stamp duty singapore
+15 month wait out removed
+hdb valuation tool
+bsd calculator singapore
+tdsr calculator singapore
+cpf accrued interest refund
+executive condo eligibility singapore
+hdb grants for first time buyers
+property glossary singapore
+best mortgage rates singapore 2026
+en bloc probability singapore
+99 year lease decay singapore
+new launch condo singapore 2026
+how to sell hdb flat singapore
+singapore property investor advisor
