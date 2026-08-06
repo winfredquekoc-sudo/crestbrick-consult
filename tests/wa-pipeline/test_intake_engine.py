@@ -585,5 +585,93 @@ ok("buyer flow: 'my name is Ruth' on its own line -> name 'Ruth'",
 ok("buyer flow free-form 'im Ken' fallback still works",
    E.extract_buyer("im Ken, budget 800k").get("name")=="Ken")
 
+print("== FIXED VIEWING SLOT offered on a BUYER (sale) enquiry (3 Aug 2026: Kembangan Villas Sat 11-12noon, 23 Sin Ming Road Sat 1-2.30pm) ==")
+# registry-level: same fixed_viewing mechanism rentals use (weekday/start/end/time_label),
+# just now also read on the sale/buyer branch. "2026-07-30" is a Thursday, so the next-Sat
+# rollover is exercised deterministically regardless of the wall clock the suite runs at.
+ok("kembangan-villas has a fixed_viewing rule -> next Sat 1 Aug, 11:00-12:00",
+   (lambda s: s and s["date"]=="2026-08-01" and s["start"]=="11:00" and s["end"]=="12:00")(
+     E._fixed_viewing_slot("kembangan-villas","2026-07-30")))
+ok("sin-ming-rd-23 has a fixed_viewing rule -> next Sat 1 Aug, 13:00-14:30",
+   (lambda s: s and s["date"]=="2026-08-01" and s["start"]=="13:00" and s["end"]=="14:30")(
+     E._fixed_viewing_slot("sin-ming-rd-23","2026-07-30")))
+# end to end: the first buyer-form message includes the fixed slot, and it is tracked under
+# its OWN state key (buyer_offered_slot_id) so it never touches the rental viewing_asked /
+# offered_slot_id machinery a later rental enquiry from the same person might rely on.
+sK={"version":1,"conversations":{}}
+aK=E.handle_event(sK,{"jid":"6590221100@s.whatsapp.net","msg_id":"K1",
+   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
+   "is_from_me":0,"listing_key":"kembangan-villas"})
+ok("Kembangan Villas buyer enquiry -> SEND_BUYER_FORM with the fixed slot appended",
+   aK and aK["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK["text"] and "11 to 12noon" in aK["text"])
+ok("buyer-side slot tracked separately (buyer_offered_slot_id), rental viewing_asked untouched",
+   sK["conversations"]["6590221100"].get("buyer_offered_slot_id","").startswith("kembangan-villas-fixed-")
+   and sK["conversations"]["6590221100"].get("viewing_asked") is False)
+
+sM={"version":1,"conversations":{}}
+aM=E.handle_event(sM,{"jid":"6590221101@s.whatsapp.net","msg_id":"M1",
+   "text":"Hi Winfred Quek,\nI am interested in:\nSALE - 23 Sin Ming Road\n2 Beds /  S$ 368,000\n\nThanks",
+   "is_from_me":0,"listing_key":"sin-ming-rd-23"})
+ok("23 Sin Ming Road buyer enquiry -> SEND_BUYER_FORM with the fixed slot appended",
+   aM and aM["type"]=="SEND_BUYER_FORM" and "Viewing:" in aM["text"] and "1 to 2.30pm" in aM["text"])
+
+# regression: a sale enquiry with no listing_key match (or a listing with no fixed_viewing
+# rule) still sends the plain buyer form -- no "Viewing:" line, no crash on next_slot(None).
+ok("un-matched sale enquiry (no listing_key) -> buyer form with NO viewing line",
+   aS and "Viewing:" not in aS["text"])   # aS defined in section 11 above (Sembawang, listing_key=None)
+
+print("== BACKTEST FIXES (5 Aug 2026): fixed_viewing must not leak across deal_type/status ==")
+# Finding 1: a RENTAL listing (ang-mo-kio-539) can still classify as tx=="sale" via an
+# explicit portal SALE token overriding the registry -- its fixed_viewing (a rental viewing
+# slot) must never be appended to the buyer/purchase intake message.
+sR={"version":1,"conversations":{}}
+aR2=E.handle_event(sR,{"jid":"6590331199@s.whatsapp.net","msg_id":"r1",
+   "text":"hi is the ang mo kio 539 unit for sale? what price","is_from_me":0,"listing_key":"ang-mo-kio-539"})
+ok("rental listing misclassified as sale -> buyer form with NO viewing line (deal_type gate)",
+   aR2 and aR2["type"]=="SEND_BUYER_FORM" and "Viewing:" not in aR2["text"])
+
+# Finding 2: sin-ming-rd-23's keywords must be specific to that address, not the bare road
+# name (Sin Ming Road spans many unrelated AMK/Bishan blocks).
+ok("generic 'sin ming road' text does NOT bind to the sin-ming-rd-23 sale listing",
+   RNR.match_listing("hi is the common room along sin ming road still up? budget 900", E.listing_reqs()) is None)
+
+# Finding 4: a fixed_viewing sale listing put on hold/closed must not auto-commit a buyer to
+# a concrete viewing time for a property that is no longer available.
+_orig_reqs_hold = E.listing_reqs
+def _reqs_kembangan_hold():
+    r = {k: dict(v) for k, v in _orig_reqs_hold().items()}
+    r["kembangan-villas"]["status"] = "hold"
+    return r
+E.listing_reqs = _reqs_kembangan_hold
+sH={"version":1,"conversations":{}}
+aH=E.handle_event(sH,{"jid":"6590331188@s.whatsapp.net","msg_id":"h1",
+   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
+   "is_from_me":0,"listing_key":"kembangan-villas"})
+ok("kembangan-villas on hold -> buyer form with NO viewing line (status gate)",
+   aH and aH["type"]=="SEND_BUYER_FORM" and "Viewing:" not in aH["text"])
+E.listing_reqs = _orig_reqs_hold
+# regression guard: the same active listing still offers its slot normally (gate isn't over-broad)
+sK2={"version":1,"conversations":{}}
+aK2=E.handle_event(sK2,{"jid":"6590331177@s.whatsapp.net","msg_id":"k2",
+   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
+   "is_from_me":0,"listing_key":"kembangan-villas"})
+ok("kembangan-villas still active -> viewing slot still offered (gate not over-broad)",
+   aK2 and aK2["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK2["text"])
+
+# Pre-existing bug (predates tonight, since commit c634271 29 Jul), fixed 5 Aug 2026:
+# _unit_rejection fired before the buyer_form_sent gate, so a buyer commenting "too small"/
+# "too far" on a PURCHASE enquiry got misrouted into the rental cross-sell/redirect path and
+# the conversation was permanently closed (terminal=True), silently swallowing every message
+# after -- including their name/budget/financing, which never reached Winfred.
+sU={"version":1,"conversations":{}}
+jidU = "6598765432@s.whatsapp.net"
+E.handle_event(sU, {"jid":jidU,"msg_id":"u1","text":"Hi is Kembangan Villas still for sale? Keen to view","is_from_me":0,"listing_key":"kembangan-villas"})
+pnU = E.resolve_pn(jidU); recU = sU["conversations"][pnU]
+aU2 = E.handle_event(sU, {"jid":jidU,"msg_id":"u2","text":"hmm too small for us, but my name is John, budget 2m, HFE valid, own stay","is_from_me":0,"listing_key":"kembangan-villas"})
+ok("buyer 'too small for us' reply -> profile captured (name/budget/financing), NOT swallowed",
+   aU2 is not None and recU.get("buyer",{}).get("budget")==2000000 and recU.get("buyer",{}).get("financing")=="valid")
+ok("buyer 'too small for us' reply -> conversation stays open (no rental terminal/redirect)",
+   not recU.get("terminal") and recU.get("stage") != "CLOSED_UNIT_REJECTED")
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
