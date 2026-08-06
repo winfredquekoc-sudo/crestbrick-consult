@@ -73,7 +73,9 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -170,7 +172,7 @@
 
   <p>This guide explains the loophole ACD was built to shut, how the entity test works, who is actually caught, and why the structure that looks clever on paper rarely is.</p>
 
-  <h2>What loophole does ACD close?</h2>
+  <h2 id="what-loophole-does-acd-close">What loophole does ACD close?</h2>
   <p>Start with the problem. Suppose a residential property is held inside a company. There are two ways to "acquire" that property:</p>
 
   <ul>
@@ -182,7 +184,7 @@
 
   <p>According to IRAS, ACD was introduced to address exactly this. ACD is imposed on the transfer of equity interests in a property-holding entity so that the stamp duty broadly reflects what would have been payable had the underlying residential property itself been transacted. It removes the tax advantage of the share-transfer route.</p>
 
-  <h2>What is a "property-holding entity"?</h2>
+  <h2 id="what-is-a-property-holding-entity">What is a "property-holding entity"?</h2>
   <p>ACD does not apply to every company that happens to own some property. It applies to a defined category: a <strong>property-holding entity</strong> (PHE).</p>
 
   <p>According to IRAS, an entity is a property-holding entity where it is one whose primary tangible asset is residential property in Singapore, broadly, an entity that holds Singapore residential property meeting a significant threshold of its total tangible assets. The concept also looks through tiered structures, so an entity holding a property-holding entity can itself be caught.</p>
@@ -199,7 +201,7 @@
   </table>
   <p class="text-xs text-[var(--ink-muted)]">Whether a specific entity is a property-holding entity depends on the asset tests in the legislation. Always obtain professional advice on the entity's classification.</p>
 
-  <h2>Who does ACD actually catch?</h2>
+  <h2 id="who-does-acd-actually-catch">Who does ACD actually catch?</h2>
   <p>This is the part that reassures most readers. ACD is not aimed at the ordinary investor who buys a handful of shares in a listed property company. It targets <strong>significant owners</strong>.</p>
 
   <p>According to IRAS, ACD applies where a person, together with associates, becomes or ceases to be a "significant owner" of a property-holding entity, broadly defined around holding more than 50% of the equity interest or voting power, or where a person who is already a significant owner acquires or disposes of further equity interests.</p>
@@ -216,7 +218,7 @@
     <strong>The "buy the company" structure is rarely the clever move it appears to be.</strong> ACD was specifically designed to neutralise the stamp duty advantage of acquiring property-holding entities instead of property. Anyone considering a share-transfer route to acquire significant Singapore residential property should assume ACD is in scope and get specialist tax and legal advice before structuring anything. The duty saving people imagine usually is not there.
   </div>
 
-  <h2>How does ACD interact with the rest of the regime?</h2>
+  <h2 id="how-does-acd-interact-with-the-rest-of-the-regime">How does ACD interact with the rest of the regime?</h2>
   <p>ACD sits alongside, not instead of, the rest of Singapore's stamp duty framework. A direct purchase of residential property still carries BSD and, where applicable, ABSD, and a sale within the holding period still carries SSD. ACD is the parallel mechanism that applies when the residential property is being acquired or disposed of <em>indirectly</em>, through equity in a property-holding entity.</p>
 
   <p>The design principle to take away is consistency. Singapore's stamp duty regime is built so that the route you choose, direct property transaction or equity transfer, does not, by itself, change the duty outcome for significant residential property holdings. ACD is the piece that enforces that consistency. It is technical, but the idea behind it is simple, and it is the same idea behind the 65% entity ABSD and the anti-avoidance rule: substance over form.</p>
@@ -237,7 +239,7 @@
     <p style="font-size:.8rem;color:var(--ink-muted);margin-top:.75rem;">Winfred Quek · CEA R073319H · Crestbrick</p>
   </div>
 
-  <h2>Frequently asked questions</h2>
+  <h2 id="frequently-asked-questions">Frequently asked questions</h2>
   <h3>What is Additional Conveyance Duty in Singapore?</h3>
   <p>ACD is a stamp duty on the transfer of equity interests in a property-holding entity, an entity whose primary asset is Singapore residential property. It ensures that acquiring property indirectly, by buying the company, attracts duty broadly equivalent to a direct property transaction.</p>
 
@@ -254,7 +256,7 @@
   <p>The property-holding entity concept is centred on Singapore residential property. Always confirm the precise scope and the asset tests with a qualified tax adviser, as the classification of any specific entity depends on the legislation.</p>
 
   <section style="margin:3rem 0 0;padding-top:2rem;border-top:1px solid var(--rule);">
-    <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+    <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
     <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
       <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-shares" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Stamp Duty on Property-Holding Entities (PHE)</a></li>
       <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-shares" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Stamp Duty for Shares</a></li>
@@ -294,6 +296,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred Quek's independent research and views. Winfred Quek is an Associate Marketing Consultant at Crestbrick Pte Ltd (CEA Licence L31010886H), CEA Registration No. R073319H. While we strive to ensure accuracy, we do not guarantee the completeness, correctness, or timeliness of the data presented. Additional Conveyance Duty rules, property-holding entity tests, and significant-owner thresholds are set by IRAS and the Stamp Duties Act and may change. This page does not constitute tax, legal, financial, or investment advice and should not be relied upon as such. Always obtain specialist tax and legal advice and confirm the position with IRAS before structuring any transaction.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20question%20about%20Additional%20Conveyance%20Duty." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

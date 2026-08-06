@@ -28,6 +28,8 @@ input:focus,select:focus{outline:none;border-color:#b48c50;}
 {"@context":"https://schema.org","@type":"WebApplication","name":"HDB MOP Countdown · Winfred Quek","url":"https://winfredquek.com/tools/hdb-mop-countdown","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"HDB MOP countdown: calculate days until your Minimum Occupation Period ends, then see your upgrade options sell, rent, or buy private. Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about","sameAs":["https://t.me/imwinfred","https://www.instagram.com/imwinfred","https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]}}
 </script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "When does my HDB MOP start counting?", "acceptedAnswer": {"@type": "Answer", "text": "The standard MOP is 5 years and runs from your key collection date, not from your application or option date. This tool projects the end date from the key collection date you enter. The same 5 year period applies to a BTO, a resale flat bought with a grant, and an Executive Condominium, each measured from when you take keys."}}, {"@type": "Question", "name": "What can I do once my HDB MOP ends?", "acceptedAnswer": {"@type": "Answer", "text": "After MOP you can sell on the open resale market, sublet the whole flat, or sell and upgrade to private property. Each path has different maths around proceeds, financing, and timing. The tool flags that most upgraders begin planning six to nine months before MOP rather than waiting for the date to pass."}}, {"@type": "Question", "name": "Why should I plan before my MOP date arrives?", "acceptedAnswer": {"@type": "Answer", "text": "Because the steps that unlock a clean upgrade take time. The planning window the tool highlights is roughly six to nine months out, when you refresh a valuation, get an approval in principle from two or three banks, and shortlist your target. Starting early means you can act the moment MOP clears rather than scrambling afterwards."}}, {"@type": "Question", "name": "Can I sell my HDB flat before the MOP is over?", "acceptedAnswer": {"@type": "Answer", "text": "In ordinary cases no. The MOP must be fulfilled before you can sell on the open market or sublet the whole flat. Limited exceptions exist for specific circumstances and require HDB approval. If your situation is unusual, confirm directly with HDB rather than assuming, since selling early without approval is not permitted."}}, {"@type": "Question", "name": "How does knowing my MOP date help my upgrade decision?", "acceptedAnswer": {"@type": "Answer", "text": "Your MOP end date is the trigger for the upgrade maths. Once you know it, you can work backwards: estimate your post MOP equity, test affordability on a target property, and decide whether selling and upgrading beats holding. The countdown gives you the date; Winfred Quek can run the equity and affordability numbers around it."}}]}</script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body><div class="wrap">
 <h1>HDB MOP Countdown</h1>
@@ -50,6 +52,7 @@ input:focus,select:focus{outline:none;border-color:#b48c50;}
 <div class="days-label" id="status">days until MOP</div>
 <div class="detail" id="detail"></div>
 </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 
 <div class="cta">
 <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20my%20MOP%20ends%20soon%20and%20I'm%20thinking%20about%20what's%20next.">When MOP hits, want to plan the next move? WA me </a>
@@ -108,7 +111,7 @@ function calc(){
   </div>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
-  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
   <div style="border-top:1px solid #252830;padding:1rem 0;">
     <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">When does my HDB MOP start counting?</h3>
     <p style="color:#b8b4aa;line-height:1.7;margin:0;">The standard MOP is 5 years and runs from your key collection date, not from your application or option date. This tool projects the end date from the key collection date you enter. The same 5 year period applies to a BTO, a resale flat bought with a grant, and an Executive Condominium, each measured from when you take keys.</p>

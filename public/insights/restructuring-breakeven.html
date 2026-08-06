@@ -71,7 +71,9 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -136,19 +138,19 @@
 
   <p>This piece is the math I'd want someone to show me. Worked example. Real numbers. Including the cases where restructuring is the wrong move, because my job is to tell you not to do it when the numbers don't hold.</p>
 
-  <h2>4 Steps to Test If Restructuring Breaks Even for Your Situation</h2>
+  <h2 id="4-steps-to-test-if-restructuring-breaks-even-for-your-situation">4 Steps to Test If Restructuring Breaks Even for Your Situation</h2>
 
   <div class="flow-step"><strong>Step 1 Estimate the BSD on the share transfer.</strong> Take 50% of your current property's market value. Apply tiered BSD: 1% on first S$180K, 2% on next S$180K, 3% on next S$640K, 4% on next S$500K, 5% on next S$1.5M. This is the largest unavoidable cost. For a S$2M property (S$1M share), BSD ≈ S$24,600. For a S$3M property (S$1.5M share), BSD ≈ S$44,600.</div>
   <div class="flow-step"><strong>Step 2 Add legal and loan costs.</strong> Legal fees (both sides) ≈ S$7,000–9,000. Loan repricing/restructuring ≈ S$2,000–4,000. Prepayment penalty if within lock-in period (typically 1.5% of outstanding loan) check your facility letter before starting. Total restructuring overhead: typically S$30,000–S$65,000 depending on property value and loan status.</div>
   <div class="flow-step"><strong>Step 3 Compare to ABSD on the planned second purchase.</strong> SC second property ABSD = 20% of purchase price. PR second property ABSD = 30%. The net saving = (ABSD avoided) − (total restructuring cost). If net saving is under S$100,000, the risk-adjusted case is thin. Restructuring earns its complexity reliably when the second purchase is S$1.5M or above.</div>
   <div class="flow-step"><strong>Step 4 Stress test the receiving spouse's solo TDSR before you start.</strong> After restructuring, the receiving spouse carries the existing mortgage alone. Get a bank In-Principle Approval (IPA) for the remaining spouse as sole borrower before you sign any share transfer documents. TDSR failure at step 6 of the 9-step process means you've already paid BSD and legal fees with nothing to show for it the most expensive mistake in this playbook.</div>
 
-  <h2>1. What restructuring actually is</h2>
+  <h2 id="1-what-restructuring-actually-is">1. What restructuring actually is</h2>
   <p>Restructuring in the Singapore context means one co-owner transfers their share of a property to the other, ending joint ownership. The transferee now owns 100%. The transferor no longer appears on title, which restores their ABSD-free first-property status for a new purchase.</p>
   <p>In practice, this is a full share transfer from 50/50 joint ownership to 100/0 sole ownership. The market value of the transferred share is the consideration on which <a href="/tools/bsd" class="text-[var(--accent)] hover:underline">Buyer's Stamp Duty</a> is computed. There's no shortcut structure that avoids this, anything that looks like one usually ends up in the IRAS section below.</p>
   <p>For HDB flats, restructuring is no longer permitted since 2016 except in very limited cases (divorce, financial hardship, demise). For private property, it remains legal when done properly.</p>
 
-  <h2>2. The three costs on the "save" side</h2>
+  <h2 id="2-the-three-costs-on-the-save-side">2. The three costs on the "save" side</h2>
   <p>Every restructuring transaction has three cost buckets. Miss one and the math is wrong:</p>
   <ol>
     <li><strong>Buyer's Stamp Duty on the transferred share.</strong> Computed on the market value of the share transferred. Rates step up from 1% to 6% depending on value. This is the largest cost.</li>
@@ -157,7 +159,7 @@
   </ol>
   <p>You also have the opportunity cost of capital: the transferee needs liquid funds to buy out the transferor's equity. That capital now sits in property equity instead of being available for the new purchase.</p>
 
-  <h2>3. The worked example, when it works</h2>
+  <h2 id="3-the-worked-example-when-it-works">3. The worked example, when it works</h2>
   <p>Singapore Citizen couple, married. They co-own a condo worth S$2.4M with S$1.0M outstanding loan. They want to buy a S$2.0M investment property.</p>
   <p>Without restructuring: ABSD on second property (SC) = 20% × S$2.0M = <strong>S$400,000</strong>.</p>
   <p>With restructuring: Wife transfers her 50% share to husband. Husband becomes sole owner of the existing condo. Wife is now ABSD-free for a "first" purchase.</p>
@@ -194,7 +196,7 @@
   </table>
   <p class="text-xs text-[var(--ink-muted)] mb-6">As of May 2026. The "when it doesn't" case collapses not on cost but on TDSR sole remaining borrower on S$900k existing + new S$1.1M loan typically requires S$25k+/mth household income.</p>
 
-  <h2>4. The worked example, when it doesn't</h2>
+  <h2 id="4-the-worked-example-when-it-doesn-t">4. The worked example, when it doesn't</h2>
   <p>Different couple. Condo worth S$1.3M. Outstanding loan S$900k. Target second property: S$1.1M.</p>
   <p>ABSD avoided (SC second): 20% × S$1.1M = S$220,000. Looks attractive on the surface.</p>
 
@@ -210,19 +212,19 @@
 
   <p>I've seen this exact scenario twice in the past eighteen months. Both times, the agent sold the "S$200k savings" without testing financing first. Both times, the couples came to me after the fact, out of pocket, with no path forward.</p>
 
-  <h2>5. Post-2023 IRAS scrutiny, why legitimate purpose matters</h2>
+  <h2 id="5-post-2023-iras-scrutiny-why-legitimate-purpose-matters">5. Post-2023 IRAS scrutiny, why legitimate purpose matters</h2>
   <div class="warn">
     <strong>Important:</strong> Since April 2023, IRAS has intensified audits of ownership-restructuring arrangements it considers artificial. Where an arrangement is deemed a tax-avoidance scheme, ABSD can be clawed back with a 50% surcharge, plus interest. This isn't theoretical, letters have been sent.
   </div>
   <p>The General Anti-Avoidance Rule (Section 33A of the Stamp Duties Act) is being actively applied. The distinguishing question IRAS asks is whether the restructuring has genuine economic substance beyond avoiding ABSD on a known incoming purchase.</p>
   <p>Restructuring of existing matrimonial property remains legal and legitimate, provided the restructuring has bona fide planning reasons (investment planning, estate planning, asset protection, or genuine ownership consolidation). A couple doing a round-trip transfer purely to dodge ABSD on a known incoming purchase is on far weaker ground. Work with a conveyancer who can articulate the non-tax rationale for the restructuring before you start.</p>
 
-  <h2>6. The break-even formula you should memorise</h2>
+  <h2 id="6-the-break-even-formula-you-should-memorise">6. The break-even formula you should memorise</h2>
   <p>Simple rule of thumb: restructuring becomes worth considering when the prospective ABSD on the new purchase exceeds roughly 7× the total restructuring cost, giving you meaningful margin after hard costs and execution risk.</p>
   <p>Rough restructuring cost on a S$2M existing unit: S$40k – S$50k. So the new purchase needs to trigger at least ~S$280k of avoidable ABSD to make sense. At 20% SC ABSD, that's a second property of S$1.4M+.</p>
   <p>Below that threshold, the math narrows and the execution risk (TDSR, IRAS scrutiny, valuation challenges) starts to dominate. Above it, restructuring is one of the cleanest structural moves available.</p>
 
-  <h2>7. The five questions I always ask before agreeing to restructure</h2>
+  <h2 id="7-the-five-questions-i-always-ask-before-agreeing-to-restructure">7. The five questions I always ask before agreeing to restructure</h2>
   <ol>
     <li>Does the "freed" spouse genuinely qualify for the new purchase solo under TDSR/MSR? Pre-AIP before any transfer.</li>
     <li>Is the existing unit's valuation defensible? Lowballing the transfer value to reduce BSD is how clients end up in IRAS letters.</li>
@@ -231,7 +233,7 @@
     <li>Does the couple's 10-year plan actually need a second property, or is it FOMO dressed up as strategy?</li>
   </ol>
 
-  <h2>8. Restructuring alternatives that are sometimes better</h2>
+  <h2 id="8-restructuring-alternatives-that-are-sometimes-better">8. Restructuring alternatives that are sometimes better</h2>
   <ul>
     <li><strong>Sell the first property and size up.</strong> Removes ABSD entirely. Sometimes the right answer if the existing unit isn't the keeper you thought it was.</li>
     <li><strong>Pay the ABSD.</strong> Heretical, but sometimes correct. If the target property has a compelling 5-year thesis and restructuring isn't clean, paying 20% ABSD on an asset that appreciates 30% over the hold still works.</li>
@@ -239,11 +241,11 @@
     <li><strong>Wait.</strong> ABSD rates have changed before and will change again. If there's no urgency, the right move might be patience.</li>
   </ul>
 
-  <h2>9. Where restructuring fits in the Property Portfolio Analysis</h2>
+  <h2 id="9-where-restructuring-fits-in-the-property-portfolio-analysis">9. Where restructuring fits in the Property Portfolio Analysis</h2>
   <p>Restructuring is an execution step, not a decision on its own. It reshapes the legal structure around your existing capital so that a buying decision that has already cleared Money and Timing can go through at the lowest friction.</p>
   <p>But restructuring never drives the decision. The Property Portfolio Analysis first establishes whether buying a second property makes sense for your situation at all, then tests whether the money works, then works out timing. Restructuring comes last: given the decision is right, how do we structure it cleanly? Clients who reach out asking "should I restructure?" are usually asking the wrong question. The right one is: "should I buy a second property, and if so, how?"</p>
 
-  <h2>10. The honest close</h2>
+  <h2 id="10-the-honest-close">10. The honest close</h2>
   <p>I'll tell you not to restructure more often than I'll tell you to. Not because it's a bad tool, because it's frequently pitched at couples whose actual situation doesn't support it. When the numbers work, restructuring is one of the single highest-leverage moves in Singapore real estate. When they don't, it's an expensive detour into a bad trade.</p>
   <p>The job of a good advisor is to know which case you're in before you sign anything.</p>
 
@@ -257,7 +259,7 @@
     </div>
   </div>
 
-  <h2>Related reading</h2>
+  <h2 id="related-reading">Related reading</h2>
   <ul>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/ownership-restructuring-math">The ownership restructuring math nobody shows you</a></li>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/absd-singapore-2026">ABSD Singapore 2026: Every rate, every remission, every legal angle</a></li>
@@ -291,7 +293,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 </article>
 
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer's Stamp Duty (ABSD)</a></li>
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Buyer's Stamp Duty (BSD)</a></li>
@@ -327,7 +329,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 <!-- /author-bio-block -->
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/ownership-restructuring-math" style="color:var(--accent);">The ownership restructuring math nobody shows you</a></li>
     <li style="font-size:.9rem;"><a href="/insights/property-restructuring-after-99-1" style="color:var(--accent);">Is Restructuring Your Property Still Worth It After the 99-1 Crackdown?</a></li>
@@ -360,6 +362,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20discuss%20restructuring." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

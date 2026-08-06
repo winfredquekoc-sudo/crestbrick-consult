@@ -70,7 +70,9 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -181,12 +183,12 @@
 
   <p>This article explains how the MAS <a href="/tools/affordability" class="text-[var(--accent)] hover:underline">Total Debt Servicing Ratio</a> (TDSR) framework actually works, including the 4% stress test rate, variable income treatment, and the assumptions bank calculators quietly make that inflate your theoretical borrowing power.</p>
 
-  <h2>What Is Singapore's TDSR and How Does It Cap Your Borrowing?</h2>
+  <h2 id="what-is-singapore-s-tdsr-and-how-does-it-cap-your-borrowing">What Is Singapore's TDSR and How Does It Cap Your Borrowing?</h2>
   <p>According to MAS Notice 645, the Total Debt Servicing Ratio is a regulatory requirement that caps your monthly debt obligations (including the new mortgage) at 55% of your gross monthly income. It's not a bank policy every licensed lender in Singapore applies it identically.</p>
 
   <p>Debt obligations counted under TDSR include: all outstanding mortgages, car loans, credit card minimum payments, personal loans, student loans, and any guaranteed debts. Not counted: household expenses, insurance premiums, school fees.</p>
 
-  <h2>2. The 4% stress test rate, the core mechanic</h2>
+  <h2 id="2-the-4-stress-test-rate-the-core-mechanic">2. The 4% stress test rate, the core mechanic</h2>
   <p>When banks calculate your TDSR for a new mortgage, they don't use the actual rate you'll pay (say 3.2% fixed). They use a stress test rate, currently 4% for residential property, to compute the hypothetical monthly mortgage.</p>
 
   <p>This means the bank runs two calculations:</p>
@@ -197,7 +199,7 @@
 
   <p>The difference protects borrowers from rate shocks. If rates rise from 3.2% to 4%, your actual monthly payment rises, but it's still within the stress-tested approval threshold, so you shouldn't be overstretched. This is the regulatory intent.</p>
 
-  <h2>3. Why bank calculators overstate your capacity</h2>
+  <h2 id="3-why-bank-calculators-overstate-your-capacity">3. Why bank calculators overstate your capacity</h2>
   <p>Public-facing mortgage calculators often:</p>
   <ul>
     <li><strong>Use the current rate (not the 4% stress rate).</strong> Your "max loan" number inflates by 10–15% versus reality.</li>
@@ -208,7 +210,7 @@
 
   <p>The net effect: a calculator that says "S$2M approvable" may translate to S$1.6M at the real application desk. That's the gap that blindsides buyers at IPA.</p>
 
-  <h2>How Is Variable Income Treated in the TDSR Calculation?</h2>
+  <h2 id="how-is-variable-income-treated-in-the-tdsr-calculation">How Is Variable Income Treated in the TDSR Calculation?</h2>
   <p>MAS requires banks to discount variable income by a specified haircut before including it in TDSR computations. The rule of thumb:</p>
 
   <table>
@@ -225,7 +227,7 @@
 
   <p>For a professional whose total income is heavily weighted to bonus or commission, this haircut can cut approvable loan by 15–20%. A S$25k/month banker with S$10k base and S$15k avg variable has a TDSR income of S$10k + (S$15k × 0.7) = S$20,500/month, not S$25k.</p>
 
-  <h2>5. The Loan Tenure Limit, the age variable</h2>
+  <h2 id="5-the-loan-tenure-limit-the-age-variable">5. The Loan Tenure Limit, the age variable</h2>
   <p>Maximum loan tenure for residential property:</p>
   <ul>
     <li>HDB flats: 25 years (if using HDB loan) or 30 years (if using bank loan)</li>
@@ -236,7 +238,7 @@
 
   <p>This is why upgrading late (in your 50s) with a new 20-year tenure on a larger asset is materially harder than upgrading at 40. The stress test cuts deeper.</p>
 
-  <h2>6. What TDSR actually protects against</h2>
+  <h2 id="6-what-tdsr-actually-protects-against">6. What TDSR actually protects against</h2>
   <p>The 4% stress rate protects against rate shock, if SORA rises meaningfully, you shouldn't be pushed into default. Historical data suggests 4% is a reasonable buffer over the long-run SORA average of ~2–3%.</p>
 
   <p>What TDSR <em>does not</em> protect against:</p>
@@ -248,12 +250,12 @@
 
   <p>The regulation protects the system (mortgage defaults) more than it protects the individual borrower from all realistic stress scenarios. Which is why my real advice is always: pass TDSR <em>with headroom</em>, don't target maximum approval.</p>
 
-  <h2>7. MSR, the HDB overlay</h2>
+  <h2 id="7-msr-the-hdb-overlay">7. MSR, the HDB overlay</h2>
   <p>For HDB properties (both HDB concessionary loans and bank loans on HDB), the Mortgage Servicing Ratio (MSR) applies on top of TDSR. According to MAS Notice 645, the MSR caps mortgage payments at 30% of gross monthly income a stricter floor than TDSR's 55% that applies only to HDB and Executive Condominium purchases.</p>
 
   <p>For executive condo (EC) buyers, MSR applies for the first 10 years after purchase. After Year 10, the EC becomes treated as private and only TDSR applies.</p>
 
-  <h2>8. The worked example, how the gap materialises</h2>
+  <h2 id="8-the-worked-example-how-the-gap-materialises">8. The worked example, how the gap materialises</h2>
   <p>Couple, both 38. Combined gross income S$18,000/month (S$12k base + S$6k avg bonus). No other debt. Looking at S$2M condo, 25% down, S$1.5M loan, 27-year tenure.</p>
 
   <div class="flow-step"><strong>Public calculator says:</strong> At 3.2% over 27 years on S$18k income, TDSR is 38%. Loan is approvable at S$1.8M+. Budget fits comfortably.</div>
@@ -264,7 +266,7 @@
 
   <p>The couple walked into the bank thinking S$1.8M was in reach. It wasn't. The calculator was sugarcoating.</p>
 
-  <h2>9. What to do before walking into the bank</h2>
+  <h2 id="9-what-to-do-before-walking-into-the-bank">9. What to do before walking into the bank</h2>
   <ol>
     <li><strong>Get a proper affordability estimate.</strong> Use the <a class="underline" style="color:var(--accent);" href="/tools/affordability">affordability calculator</a> with the 4% stress rate and variable income haircuts correctly applied.</li>
     <li><strong>Pull your credit report from Credit Bureau Singapore.</strong> S$6.90. Identifies debts the bank will see that you may have forgotten.</li>
@@ -273,7 +275,7 @@
     <li><strong>Leave headroom.</strong> Don't target 54% TDSR. Target 45–50% so you're not one income fluctuation from stress.</li>
   </ol>
 
-  <h2>10. How TDSR fits the Safety side</h2>
+  <h2 id="10-how-tdsr-fits-the-safety-side">10. How TDSR fits the Safety side</h2>
   <p>In the Property Portfolio Analysis, the TDSR stress test and affordability buffer sit on the Safety side, what protects your financial position under adverse scenarios. I run every client's affordability at three stress levels:</p>
 
   <ul>
@@ -301,7 +303,7 @@
   <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;">The stress test at 4% catches people who qualified comfortably at 2.5% floating rates in 2021. If your household income dropped, you took on a car loan, or your spouse stopped working since you last checked your TDSR, re-run the numbers before assuming the bank will say yes. I've had clients at IPA stage discover they're $200,000 short of their target budget because a $1,500/month car hire-purchase they forgot to mention collapsed the last 10% of their qualifying capacity. TDSR has no exceptions for good intentions.</p>
 </div>
 
-  <h2>Related reading</h2>
+  <h2 id="related-reading">Related reading</h2>
   <ul>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/fixed-vs-floating-mortgage">Fixed vs floating mortgage</a></li>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/portfolio-blueprint-one-income">Portfolio blueprint on one income</a></li>
@@ -343,10 +345,10 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 
 <!-- author-bio-block -->
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/regulations/total-debt-servicing-ratio-framework" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio Framework</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/regulations/loan-to-value-limit" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Loan-to-Value Limits</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/guidelines/guidelines-on-the-application-of-tdsr-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio Framework</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/new-housing-loans/loan-tenure-and-loan-to-value-limits" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Loan-to-Value Limits</a></li>
   </ul>
 </section>
 
@@ -366,7 +368,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
 <!-- /author-bio-block -->
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/msr-explained-singapore" style="color:var(--accent);">What is MSR? How the 30% Rule Affects Your HDB and EC Loan</a></li>
     <li style="font-size:.9rem;"><a href="/insights/non-singapore-income-tdsr-haircut" style="color:var(--accent);">Non-Singapore Income and TDSR: How Banks Haircut Foreign Salaries</a></li>
@@ -389,6 +391,7 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20TDSR%20question." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

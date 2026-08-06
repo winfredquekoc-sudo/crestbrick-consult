@@ -58,6 +58,8 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What property purchase types does this timeline tool cover?","acceptedAnswer":{"@type":"Answer","text":"Private resale, new launch (developer sale) and HDB resale. Pick the type and your OTP or booking date to generate the exact dated milestones for that path."}},{"@type":"Question","name":"How long do I have to exercise the OTP after receiving it?","acceptedAnswer":{"@type":"Answer","text":"For a private resale you must exercise within 14 days of the OTP date. For an HDB resale the deadline is 21 days."}},{"@type":"Question","name":"When is Buyer's Stamp Duty due after exercising the OTP?","acceptedAnswer":{"@type":"Answer","text":"Buyer's Stamp Duty, and Additional Buyer's Stamp Duty if applicable, is due within 14 days of exercising the OTP on a private resale purchase."}},{"@type":"Question","name":"How long does completion typically take for a private resale?","acceptedAnswer":{"@type":"Answer","text":"Typical completion is 8 to 12 weeks after exercise, once lawyers complete conveyancing, your loan is disbursed and the balance price is paid, with key collection usually on the same day."}},{"@type":"Question","name":"How does the new launch payment schedule work?","acceptedAnswer":{"@type":"Answer","text":"You pay a 5% booking fee, sign the Sale and Purchase Agreement within 3 weeks (bringing total paid to 20% within 8 weeks of booking), then progressive payment stages follow construction milestones, with a further 25% due on TOP (indicatively 3 to 4 years after launch) and the final 15% on CSC (about a year after TOP)."}}]}
 </script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head><body><div class="wrap">
 <h1>Property Purchase Timeline</h1>
 <div class="lead">Pick your property type and your OTP (or booking) date, and see every dated milestone from option to keys — so nothing catches you out with a deadline.</div>
@@ -89,6 +91,7 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
 <div class="cta"><a id="wa-cta" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20mapped%20out%20my%20purchase%20timeline%20and%20want%20to%20talk%20through%20the%20next%20steps." target="_blank" rel="noopener">Send my timeline on WhatsApp →</a></div>
 <div class="cta" style="margin-top:8px;"><a href="https://t.me/imwinfred" target="_blank" rel="noopener" style="color:var(--ink-muted);font-size:12px;border-bottom:none;">Weekly Singapore market reads: t.me/imwinfred</a></div>
 </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 
 <script>
 function pad2(n){ return String(n).padStart(2,'0'); }
@@ -189,7 +192,7 @@ render();
     
   
   <section class="geo-faq" style="max-width:728px;margin:32px auto 0;padding:0 16px;">
-    <h2 style="font-family:'Fraunces',serif;font-weight:400;font-size:20px;margin-bottom:14px;color:var(--ink);">Frequently asked questions</h2>
+    <h2 style="font-family:'Fraunces',serif;font-weight:400;font-size:20px;margin-bottom:14px;color:var(--ink);" id="frequently-asked-questions">Frequently asked questions</h2>
     <div style="border-top:1px solid var(--rule);padding:14px 0;">
       <h3 class="geo-faq-q" style="font-size:15.5px;font-weight:500;margin-bottom:4px;color:var(--ink);">What property purchase types does this timeline tool cover?</h3>
       <p style="color:var(--ink-soft);line-height:1.6;margin:0;font-size:13.5px;">Private resale, new launch (developer sale) and HDB resale. Pick the type and your OTP or booking date to generate the exact dated milestones for that path.</p>

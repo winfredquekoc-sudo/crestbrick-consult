@@ -58,7 +58,9 @@
     function trackFormSubmit(type) { gtag('event','form_submit',{form_type:type}); }
   </script>
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <!-- TOP NAV -->
@@ -141,7 +143,7 @@
 
         <!-- FORM -->
         <div>
-          <h2 class="serif text-2xl font-semibold mb-2">Get your free net proceeds analysis</h2>
+          <h2 class="serif text-2xl font-semibold mb-2" id="get-your-free-net-proceeds-analysis">Get your free net proceeds analysis</h2>
           <p class="text-[var(--ink-soft)] text-sm mb-8">Tell me a bit about your property and I'll come back with a detailed net proceeds analysis within 24 hours.</p>
 
           <form id="seller-form" action="/api/contact" method="POST" onsubmit="return submitSellerForm(event)">
@@ -238,7 +240,7 @@
 
         <!-- VALUE PROP -->
         <div>
-          <h2 class="serif text-2xl font-semibold mb-6">What's in the analysis</h2>
+          <h2 class="serif text-2xl font-semibold mb-6" id="what-s-in-the-analysis">What's in the analysis</h2>
           <div class="space-y-4">
             <div class="crest-card rounded-xl p-5">
               <p class="font-semibold mb-1">Gross sale price range</p>
@@ -266,7 +268,7 @@
 
     <!-- TRUST SIGNALS -->
     <section class="max-w-5xl mx-auto px-6 py-16 fade-up">
-      <h2 class="serif text-2xl font-semibold text-center mb-10">Why sellers work with me</h2>
+      <h2 class="serif text-2xl font-semibold text-center mb-10" id="why-sellers-work-with-me">Why sellers work with me</h2>
       <div class="grid md:grid-cols-3 gap-6">
 
         <div class="crest-card rounded-xl p-6 text-center">
@@ -297,7 +299,7 @@
     <!-- SECONDARY CTA -->
     <section class="max-w-4xl mx-auto px-6 py-20 text-center fade-up">
       <p class="section-label mb-4">Prefer to talk first?</p>
-      <h2 class="serif text-3xl font-semibold balance mb-6">
+      <h2 class="serif text-3xl font-semibold balance mb-6" id="30-minutes-we-ll-cover-the-numbers-and-you-decide-if-it-makes-sense-to-proceed">
         30 minutes. We'll cover the numbers and you decide if it makes sense to proceed.
       </h2>
       <div class="flex flex-wrap justify-center gap-3">
@@ -333,6 +335,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
   <a id="wa-float"

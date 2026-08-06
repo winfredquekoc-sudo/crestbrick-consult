@@ -91,6 +91,8 @@
   <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta property="og:site_name" content="Winfred Quek" />
   <meta property="og:locale" content="en_SG" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body>
 <nav>
@@ -103,7 +105,7 @@
   <p style="font-size:.9rem;color:var(--ink-muted);margin-bottom:1.5rem">By <strong style="color:var(--ink)">Winfred Quek</strong> · CEA R073319H · Crestbrick</p>
   <div class="quick-answer"><strong>Quick answer:</strong> On an $800,000 Singapore mortgage at 1.6% interest, a 30-year loan costs $2,818/month versus $3,123/month for 25 years  --  saving $305/month. But over the full term, the 30-year loan costs ~$54,900 more in total interest. The age-plus-tenure MAS rule is equally critical: if your age plus loan tenure exceeds 65, LTV drops from 75% to 55%, changing the entire affordability equation.</div>
 
-  <h2>The Core Numbers: Monthly Payment Comparison</h2>
+  <h2 id="the-core-numbers-monthly-payment-comparison">The Core Numbers: Monthly Payment Comparison</h2>
   <table>
     <tr><th>Loan Amount</th><th>Rate</th><th>25-Year Monthly</th><th>30-Year Monthly</th><th>Monthly Saving (30yr)</th><th>Extra Total Interest (30yr)</th></tr>
     <tr><td>$600,000</td><td>1.6%</td><td>$2,342</td><td>$2,113</td><td>$229</td><td>~$41,200</td></tr>
@@ -113,7 +115,7 @@
   </table>
   <p style="font-size:.82rem;color:var(--ink-muted)">All figures assume 1.6% flat rate for illustration. Actual mortgages reset after the fixed period. Total interest calculated over full respective tenures.</p>
 
-  <h2>The Age + Tenure LTV Rule  --  A Critical Hidden Constraint</h2>
+  <h2 id="the-age-tenure-ltv-rule-a-critical-hidden-constraint">The Age + Tenure LTV Rule  --  A Critical Hidden Constraint</h2>
   <p>Most buyers focus only on monthly payment. The far more consequential impact of tenure choice is on LTV and therefore down payment. MAS imposes a hard rule:</p>
   <ul>
     <li>If borrower age + loan tenure &gt; 65: LTV drops from 75% to 55% for private property</li>
@@ -136,7 +138,7 @@
     <strong>The 36-year-old trap:</strong> A 36-year-old choosing a 30-year loan (age + tenure = 66) triggers the 55% LTV rule and needs a $540,000 down payment on a $1.2M property instead of $300,000. Reducing tenure to 25 years (age + tenure = 61) restores full 75% LTV and drops the down payment requirement by $240,000. Always calculate age + tenure before deciding on tenure.
   </div>
 
-  <h2>Front-Loading of Interest: Why the First 10 Years Are the Most Expensive</h2>
+  <h2 id="front-loading-of-interest-why-the-first-10-years-are-the-most-expensive">Front-Loading of Interest: Why the First 10 Years Are the Most Expensive</h2>
   <p>Mortgage interest is charged on the outstanding principal, which is highest at the start. In a standard amortising loan, a much larger portion of early payments goes to interest than principal  --  this is the front-loading effect.</p>
   <p>On an $800,000 loan at 1.6% over 30 years:</p>
   <ul>
@@ -147,7 +149,7 @@
   </ul>
   <p>The implication: if you sell within 10 years, you have paid mostly interest and built relatively little equity. The extra 5 years of a 30-year tenure sit in a period when each extra year is relatively cheap in interest terms  --  but you have had 25 years of slow equity building to get there.</p>
 
-  <h2>TDSR Impact: How Tenure Affects How Much You Can Borrow</h2>
+  <h2 id="tdsr-impact-how-tenure-affects-how-much-you-can-borrow">TDSR Impact: How Tenure Affects How Much You Can Borrow</h2>
   <p>TDSR (Total Debt Servicing Ratio) is capped at 55% of gross income, with the monthly payment stress-tested at 4.0% p.a. A longer tenure reduces the monthly stress test payment, which means you can borrow more within the same income.</p>
   <table>
     <tr><th>Monthly Income</th><th>Max TDSR Payment (55%)</th><th>Max Loan (25yr, 4% stress)</th><th>Max Loan (30yr, 4% stress)</th><th>Difference</th></tr>
@@ -158,10 +160,10 @@
   </table>
   <p style="font-size:.82rem;color:var(--ink-muted)">Stress test rate 4.0%, no existing debt assumed. The 30-year tenure gives roughly $80K–$150K more borrowing power at the same income  --  meaningful when stretching for a higher-priced property.</p>
 
-  <h2>HDB Loans: 25 Years Is the Maximum</h2>
+  <h2 id="hdb-loans-25-years-is-the-maximum">HDB Loans: 25 Years Is the Maximum</h2>
   <p>HDB concessionary loans are capped at 25 years tenure. There is no 30-year option. Bank loans on HDB flats are also capped at 25 years from January 2023 MAS rules. The 30-year decision only applies to private property bank loans.</p>
 
-  <h2>The Decision Framework</h2>
+  <h2 id="the-decision-framework">The Decision Framework</h2>
   <div class="steps">
     <div class="flow-step"><div><strong>Check your age + tenure first</strong>  --  if age + 30 exceeds 65, using 30 years triggers the 55% LTV rule. Run the down payment requirement at 55% LTV  --  if you can afford it, 30 years may still work. If you cannot, 25 years is compulsory to preserve LTV.</div></div>
     <div class="flow-step"><div><strong>Model the monthly saving</strong>  --  use the table above. The $229–$457/month saving on 30 years versus 25 years is real. Ask yourself: will this money be productively invested (e.g. in equities earning 5%+ p.a.) or spent?</div></div>
@@ -180,6 +182,7 @@
 <footer>
   <p>Winfred Quek · CEA Salesperson Registration No. R073319H · Crestbrick Pte Ltd (CEA Licence No. L31010886H)</p>
   <p style="margin-top:.5rem"><a href="/insights">← Back to Insights</a> · <a href="/tools/absd">ABSD Calculator</a> · <a href="https://wa.me/6581618149">WhatsApp</a></p>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 </body>
 </html>

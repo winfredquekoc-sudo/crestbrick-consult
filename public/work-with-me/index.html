@@ -115,7 +115,9 @@
     }
   }
   </script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -186,7 +188,7 @@
     <!-- TRIAGE -->
     <div class="tier-card">
       <p class="section-label mb-4">Tier 01</p>
-      <h2 class="serif text-2xl font-semibold mb-1">Triage</h2>
+      <h2 class="serif text-2xl font-semibold mb-1" id="triage">Triage</h2>
       <div class="tier-price">Free<small> · 15 min</small></div>
       <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-5 mt-3">A short call to see if a full property portfolio analysis is the right next step. No pitch.</p>
       <div class="mb-6">
@@ -200,7 +202,7 @@
     <!-- PROPERTY PORTFOLIO ANALYSIS -->
     <div class="tier-card featured">
       <p class="section-label mb-4">Tier 02 · Most chosen</p>
-      <h2 class="serif text-2xl font-semibold mb-1">Property Portfolio Analysis</h2>
+      <h2 class="serif text-2xl font-semibold mb-1" id="property-portfolio-analysis">Property Portfolio Analysis</h2>
       <div class="tier-price">$499<small> · one-off</small></div>
       <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-5 mt-3">The core deliverable. Money, Timing, Safety modelled, not assumed.</p>
       <div class="mb-6">
@@ -215,7 +217,7 @@
     <!-- FO RETAINER -->
     <div class="tier-card">
       <p class="section-label mb-4">Tier 03</p>
-      <h2 class="serif text-2xl font-semibold mb-1">Family Office</h2>
+      <h2 class="serif text-2xl font-semibold mb-1" id="family-office">Family Office</h2>
       <div class="tier-price">$5k<small> /quarter</small></div>
       <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-5 mt-3">For multi-property households who need a quarterly review and year-round access.</p>
       <div class="mb-6">
@@ -230,7 +232,7 @@
     <!-- CONCIERGE -->
     <div class="tier-card">
       <p class="section-label mb-4">Tier 04 · Max 5 slots</p>
-      <h2 class="serif text-2xl font-semibold mb-1">Concierge</h2>
+      <h2 class="serif text-2xl font-semibold mb-1" id="concierge">Concierge</h2>
       <div class="tier-price">$50k<small> /year</small></div>
       <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-5 mt-3">Top of the ladder. Every property decision in your household, managed end-to-end.</p>
       <div class="mb-6">
@@ -249,7 +251,7 @@
 <!-- DECISION TREE -->
 <section class="max-w-3xl mx-auto px-6 py-20 fade-up">
   <p class="section-label mb-6">Which one fits you?</p>
-  <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-10">A short decision tree</h2>
+  <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-10" id="a-short-decision-tree">A short decision tree</h2>
   <div class="space-y-1">
     <div class="decision-row">
       <p class="text-[var(--ink)] font-medium">You're not sure if you have a real question yet.</p>
@@ -300,7 +302,7 @@
 <!-- CTA -->
 <section class="max-w-4xl mx-auto px-6 py-24 text-center fade-up">
   <p class="section-label mb-6">Still deciding?</p>
-  <h2 class="serif text-4xl md:text-5xl font-semibold balance leading-tight mb-6">
+  <h2 class="serif text-4xl md:text-5xl font-semibold balance leading-tight mb-6" id="start-with-the-free-15-minute-triage">
     Start with the free <span class="italic text-[var(--accent)]">15-minute triage.</span>
   </h2>
   <p class="text-lg text-[var(--ink-soft)] max-w-xl mx-auto mb-10">If a full property portfolio analysis isn't the right call, I'll say so on the triage. You'll know in 15 minutes.</p>
@@ -350,6 +352,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <script>

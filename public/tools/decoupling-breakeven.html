@@ -33,6 +33,8 @@ input:focus{outline:none;border-color:#b48c50;}
 {"@context":"https://schema.org","@type":"WebApplication","name":"Restructuring Strategy Break-even Calculator · Winfred Quek","url":"https://winfredquek.com/tools/decoupling-breakeven","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Singapore decoupling break-even: BSD transfer cost vs ABSD savings on next purchase, with CPF refund mechanics. Free calculator. Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about","sameAs":["https://t.me/imwinfred","https://www.instagram.com/imwinfred","https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]}}
 </script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does this restructuring break even calculator work?", "acceptedAnswer": {"@type": "Answer", "text": "You enter your current property value, outstanding loan, CPF used by the transferring spouse, years held, your next property price, and the ABSD rate you face. It estimates BSD on the transferred share, legal fees, and the ABSD you would save, then shows the net benefit so you can see if restructuring is worth it."}}, {"@type": "Question", "name": "What is property restructuring (decoupling) in Singapore?", "acceptedAnswer": {"@type": "Answer", "text": "Restructuring is when one co owner transfers their share of a jointly held property to the other. This frees up the exiting owner to buy a second property as a first time buyer, sidestepping the higher ABSD that applies to a second home. It involves BSD on the transferred share, legal fees, and a fresh loan."}}, {"@type": "Question", "name": "What costs does restructuring actually involve?", "acceptedAnswer": {"@type": "Answer", "text": "The main cash costs are Buyer Stamp Duty on the share being transferred, legal and conveyancing fees for both parties, and arranging a fresh loan for the buying spouse. CPF used must also be refunded to the CPF account with accrued interest. These costs are weighed against the ABSD you would otherwise pay."}}, {"@type": "Question", "name": "Does a positive net benefit mean I should restructure?", "acceptedAnswer": {"@type": "Answer", "text": "Not automatically. The calculator gives an indicative figure, but it does not capture everything. CPF accrued interest must be refunded, SSD may apply if you are still inside the holding period, and the buying spouse needs to qualify for the new loan on a single income. Treat the result as a starting point, not a decision."}}, {"@type": "Question", "name": "Is restructuring still allowed, and is it watched by IRAS?", "acceptedAnswer": {"@type": "Answer", "text": "Restructuring between co owners remains a legitimate move, but IRAS has increased scrutiny since 2023. The arrangement should reflect a genuine transfer, not a purely tax driven paper exercise. Winfred Quek (CEA R073319H) models the full picture and works with your solicitor so the transaction holds up. Book a consult before committing."}}]}</script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body><div class="wrap">
 <h1>Restructuring Break-even</h1>
@@ -41,7 +43,7 @@ input:focus{outline:none;border-color:#b48c50;}
 <div class="lead">Should you restructure ownership now to dodge the 20%+ ABSD on your next property? Plug in the numbers, this tells you the true cost vs the savings.</div>
 
 <div class="card">
-<h2>Inputs</h2>
+<h2 id="inputs">Inputs</h2>
 <div class="row">
   <label><span>Current property value (S$)</span><input id="value" type="number" value="1500000" /></label>
   <label><span>Outstanding loan (S$)</span><input id="loan" type="number" value="600000" /></label>
@@ -58,7 +60,7 @@ input:focus{outline:none;border-color:#b48c50;}
 </div>
 
 <div id="result" class="result">
-<h2 style="font-size:13px;letter-spacing:0.15em;color:#b48c50;text-transform:uppercase;margin-bottom:12px;">Break-even</h2>
+<h2 style="font-size:13px;letter-spacing:0.15em;color:#b48c50;text-transform:uppercase;margin-bottom:12px;" id="break-even">Break-even</h2>
 <div class="row-r"><span>BSD on transfer (3% on transferred share)</span><span id="bsd"></span></div>
 <div class="row-r"><span>CPF refund + accrued interest</span><span id="cpf_refund"></span></div>
 <div class="row-r"><span>Loan restructure legal fees (est)</span><span id="legal"></span></div>
@@ -67,6 +69,7 @@ input:focus{outline:none;border-color:#b48c50;}
 <div class="row-r"><span>Net benefit</span><span id="net"></span></div>
 <div class="muted" id="verdict"></div>
 </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 
 <div class="cta">
 <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20ran%20the%20restructuring%20calculator%20and%20want%20to%20chat.">Run the real numbers with me on WhatsApp </a>
@@ -139,7 +142,7 @@ calc();
   </div>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
-  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
   <div style="border-top:1px solid #252830;padding:1rem 0;">
     <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How does this restructuring break even calculator work?</h3>
     <p style="color:#b8b4aa;line-height:1.7;margin:0;">You enter your current property value, outstanding loan, CPF used by the transferring spouse, years held, your next property price, and the ABSD rate you face. It estimates BSD on the transferred share, legal fees, and the ABSD you would save, then shows the net benefit so you can see if restructuring is worth it.</p>

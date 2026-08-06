@@ -39,6 +39,8 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Embeddable Calculators","item":"https://winfredquek.com/embed"}]}</script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Is the ABSD embed calculator really free?","acceptedAnswer":{"@type":"Answer","text":"Yes. Copy the iframe snippet, paste it into your site or forum post, and it works. No sign up, no API key, no cost. The only condition is that the attribution link at the bottom of the widget stays visible."}},{"@type":"Question","name":"Can I customise the size or remove the attribution link?","acceptedAnswer":{"@type":"Answer","text":"You can resize the iframe width and height to fit your layout. The attribution link, Built by Winfred Quek, must stay in place. That link is the only cost of using the widget for free."}},{"@type":"Question","name":"Will the calculator stay updated if IRAS changes ABSD rates?","acceptedAnswer":{"@type":"Answer","text":"Yes. The widget pulls from the same rate logic as the main ABSD calculator on winfredquek.com, so any rate update on our side reaches every site that has embedded it, automatically."}}]}</script>
 <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body>
 
@@ -102,14 +104,14 @@
 </section>
 
 <section class="max-w-3xl mx-auto px-6 pb-10">
-  <h2 class="serif text-2xl font-semibold mb-4">Live demo</h2>
+  <h2 class="serif text-2xl font-semibold mb-4" id="live-demo">Live demo</h2>
   <div class="embed-demo-frame">
     <iframe src="/embed/absd.html" title="ABSD Calculator widget demo" loading="lazy"></iframe>
   </div>
 </section>
 
 <section class="max-w-3xl mx-auto px-6 pb-10">
-  <h2 class="serif text-2xl font-semibold mb-4">Copy paste embed code</h2>
+  <h2 class="serif text-2xl font-semibold mb-4" id="copy-paste-embed-code">Copy paste embed code</h2>
   <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Paste this wherever your platform accepts raw HTML (WordPress custom HTML block, forum BBCode iframe tag, static site).</p>
   <div class="snippet-box" id="snippet">&lt;iframe
   src="https://winfredquek.com/embed/absd.html"
@@ -123,7 +125,7 @@
 </section>
 
 <section class="max-w-3xl mx-auto px-6 pb-10">
-  <h2 class="serif text-2xl font-semibold mb-4">Terms</h2>
+  <h2 class="serif text-2xl font-semibold mb-4" id="terms">Terms</h2>
   <ul class="list-disc pl-5 terms-list text-[var(--ink-soft)] leading-relaxed">
     <li>Free to embed on any site, forum, or blog, commercial or personal.</li>
     <li>The attribution link, Built by Winfred Quek, winfredquek.com, must remain visible in the widget footer. Do not hide it with CSS or remove it from the markup.</li>
@@ -147,7 +149,7 @@
 </main>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
-  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
   <div style="border-top:1px solid #252830;padding:1rem 0;">
     <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">Is the ABSD embed calculator really free?</h3>
     <p style="color:#b8b4aa;line-height:1.7;margin:0;">Yes. Copy the iframe snippet, paste it into your site or forum post, and it works. No sign up, no API key, no cost. The only condition is that the attribution link at the bottom of the widget stays visible.</p>
@@ -172,6 +174,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <script>

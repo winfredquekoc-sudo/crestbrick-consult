@@ -12,6 +12,8 @@
 {"@context":"https://schema.org","@type":"WebApplication","name":"Project Comparison Tool · Winfred Quek","url":"https://winfredquek.com/tools/comparison-tool","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Compare two Singapore condos side-by-side: PSF, freehold vs 99-year tenure, rental yield, MRT distance, and TOP date. Free investor tool. Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about","sameAs":["https://t.me/imwinfred","https://www.instagram.com/imwinfred","https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]}}
 </script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "What does this project comparison tool actually compare?", "acceptedAnswer": {"@type": "Answer", "text": "It lines up two projects across PSF, tenure, years of lease remaining, distance to MRT, expected gross yield, years to TOP and total units. Each row picks a winner on a simple rule, lower PSF wins, more lease wins, and so on, then tallies a quantitative score so you can see where each project leads."}}, {"@type": "Question", "name": "Does a lower PSF always mean the better buy?", "acceptedAnswer": {"@type": "Answer", "text": "No. Lower PSF wins that single row, but PSF alone ignores layout efficiency, tenure, location and upside. A higher PSF freehold near an MRT can outperform a cheaper 99 year unit further out. Use the PSF comparison as one input, not the verdict, and weigh it against the other rows."}}, {"@type": "Question", "name": "How should I read freehold versus 99 year tenure in the comparison?", "acceptedAnswer": {"@type": "Answer", "text": "Freehold holds value better over a long horizon, while a 99 year lease decays, especially in the later years. The tool credits more remaining lease, but the right choice depends on your holding period and exit plan. A long term holder may value freehold more than a shorter term investor would."}}, {"@type": "Question", "name": "Is a smaller or larger project better?", "acceptedAnswer": {"@type": "Answer", "text": "It depends on your goal, which is why the tool marks project size as depends rather than picking a winner. Smaller developments feel more exclusive but trade less often, so resale liquidity is thinner. Larger projects offer more transaction data and easier exit. Match the trade off to whether you prioritise exclusivity or liquidity."}}, {"@type": "Question", "name": "Is this comparison enough to decide which project to buy?", "acceptedAnswer": {"@type": "Answer", "text": "No, and the tool says so. It is a thin quantitative read. A real decision also needs developer track record, layout efficiency per unit, MCST history, tenant demand and URA Master Plan upside nearby. Use the scoreboard to shortlist, then get Winfred Quek's read before committing."}}]}</script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body><div class="wrap">
 <h1>Project A vs Project B</h1>
@@ -19,7 +21,7 @@
 
 <div class="lead">Side-by-side comparison. Cuts through the marketing noise, focuses on the math + timing that actually matters.</div>
 <div class="compare">
-<div class="col"><h2>Project A</h2>
+<div class="col"><h2 id="project-a">Project A</h2>
 <label>Name</label><input id="a_name" value="Project A"/>
 <label>Avg PSF (S$)</label><input id="a_psf" type="number" value="2200"/>
 <label>Tenure (years)</label><input id="a_ten" type="number" value="99"/>
@@ -29,7 +31,7 @@
 <label>Years to TOP</label><input id="a_top" type="number" value="3"/>
 <label>Total units in project</label><input id="a_units" type="number" value="500"/>
 </div>
-<div class="col"><h2>Project B</h2>
+<div class="col"><h2 id="project-b">Project B</h2>
 <label>Name</label><input id="b_name" value="Project B"/>
 <label>Avg PSF (S$)</label><input id="b_psf" type="number" value="2400"/>
 <label>Tenure (years)</label><input id="b_ten" type="number" value="999"/>
@@ -45,6 +47,7 @@
 <table id="tbl"></table>
 <div style="margin-top:14px;color:#a89980;font-size:13px;line-height:1.7;" id="verdict"></div>
 </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 <div class="cta"><a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20compared%20two%20projects%20and%20want%20to%20talk.">Want my honest read on either? WA me →</a></div>
 <script>
 function comp(){
@@ -99,7 +102,7 @@ comp();
   </div>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
-  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
   <div style="border-top:1px solid #252830;padding:1rem 0;">
     <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What does this project comparison tool actually compare?</h3>
     <p style="color:#b8b4aa;line-height:1.7;margin:0;">It lines up two projects across PSF, tenure, years of lease remaining, distance to MRT, expected gross yield, years to TOP and total units. Each row picks a winner on a simple rule, lower PSF wins, more lease wins, and so on, then tallies a quantitative score so you can see where each project leads.</p>

@@ -60,6 +60,8 @@ td{color:var(--ink-soft);}
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What does this loan repayment calculator work out?","acceptedAnswer":{"@type":"Answer","text":"It calculates your monthly repayment, total interest over the full loan tenure, the year 1 interest versus principal split, and a full year by year amortisation table, alongside an amortisation timeline chart of outstanding balance and cumulative interest paid."}},{"@type":"Question","name":"What is the maximum loan tenure for a property loan in Singapore?","acceptedAnswer":{"@type":"Answer","text":"Max tenure is the lower of 30 years for private property or 25 years for HDB and EC, or age 65, whichever comes first."}},{"@type":"Question","name":"What is the rate shock stress test?","acceptedAnswer":{"@type":"Answer","text":"It tests what happens if your rate rises 1.5 percentage points, showing your new monthly repayment and exactly how much more that is per month, so you can check you could still hold the loan before committing."}},{"@type":"Question","name":"What is the TDSR check and how is it calculated?","acceptedAnswer":{"@type":"Answer","text":"The TDSR check caps total monthly debt, this loan plus your existing obligations, at 55% of your gross monthly income. Enter your income and existing debts and the calculator shows whether you pass or exceed that cap."}},{"@type":"Question","name":"What is MSR and when does it apply?","acceptedAnswer":{"@type":"Answer","text":"MSR applies only to HDB and EC loans, capping your housing repayment alone, not other debts, at 30% of gross monthly income. It sits alongside, not instead of, the TDSR check."}}]}
 </script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head><body><div class="wrap">
 <h1>Property Loan Repayment Calculator</h1>
 <div class="lead">Work out the real monthly number before you commit: repayment, total interest over the full tenure, and what a rate shock does to your cash flow. Enter your numbers below.</div>
@@ -128,6 +130,7 @@ td{color:var(--ink-soft);}
 <div class="cta"><a id="wa-cta" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20ran%20the%20loan%20repayment%20calculator%20and%20want%20to%20talk%20about%20the%20best%20rate%20package." target="_blank" rel="noopener">Send my loan result on WhatsApp →</a></div>
 <div class="cta" style="margin-top:8px;"><a href="https://t.me/imwinfred" target="_blank" rel="noopener" style="color:var(--ink-muted);font-size:12px;border-bottom:none;">Weekly Singapore market reads: t.me/imwinfred</a></div>
 </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 
 <script>
 function fmt(n){ return 'S$'+Math.round(n).toLocaleString('en-SG'); }
@@ -286,7 +289,7 @@ calc();
     
   
   <section class="geo-faq" style="max-width:748px;margin:32px auto 0;padding:0 16px;">
-    <h2 style="font-family:'Fraunces',serif;font-weight:400;font-size:20px;margin-bottom:14px;color:var(--ink);">Frequently asked questions</h2>
+    <h2 style="font-family:'Fraunces',serif;font-weight:400;font-size:20px;margin-bottom:14px;color:var(--ink);" id="frequently-asked-questions">Frequently asked questions</h2>
     <div style="border-top:1px solid var(--rule);padding:14px 0;">
       <h3 class="geo-faq-q" style="font-size:15.5px;font-weight:500;margin-bottom:4px;color:var(--ink);">What does this loan repayment calculator work out?</h3>
       <p style="color:var(--ink-soft);line-height:1.6;margin:0;font-size:13.5px;">It calculates your monthly repayment, total interest over the full loan tenure, the year 1 interest versus principal split, and a full year by year amortisation table, alongside an amortisation timeline chart of outstanding balance and cumulative interest paid.</p>
