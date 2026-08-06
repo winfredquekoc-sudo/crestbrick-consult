@@ -76,7 +76,11 @@ def main():
         elif unmatched >= 1: pri = "LOW"
         elif nwait > 0: pri = "served"
         else: pri = "no active demand"
-        names = [t.get("name") or t.get("id") for t in sorted(waiting, key=lambda t:-(t.get("budget") or 0)) if served.get(t.get("id"),0)==0][:4]
+        def _bsort(t):
+            b = t.get("budget") or 0
+            try: return -float(str(b).split("-")[0].replace("$","").replace(",","").strip())
+            except: return 0
+        names = [t.get("name") or t.get("id") for t in sorted(waiting, key=_bsort) if served.get(t.get("id"),0)==0][:4]
         rows.append({"district":d,"area":AREA.get(d,d),"waiting_active":nwait,"unmatched_waiting":unmatched,
                      "total_interested":r["total"],"active_listings":sup,"supply_gap":nwait-sup,"budget_band":band,
                      "sourcing_priority":pri,"sample_tenants":", ".join(str(n) for n in names)})

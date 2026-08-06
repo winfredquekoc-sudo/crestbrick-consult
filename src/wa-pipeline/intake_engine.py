@@ -1395,10 +1395,14 @@ def _handle_event_inner(state, ev):
                 "listing_key": rec.get("listing_key"),
                 "reason": "said they found another place / no longer renting",
                 "quote": (ev.get("text") or "")[:160]}
-    if _unit_rejection(ev.get("text")) and not rec.get("alt_suggested"):
+    if _unit_rejection(ev.get("text")) and not rec.get("alt_suggested") and not rec.get("buyer_form_sent"):
         # they rejected THIS unit but are still looking: cross sell once, same district,
         # then rebind the conversation to the suggested listing so the normal qualify ->
         # offer viewing -> YES -> exact time flow re-runs against the new unit.
+        # buyer_form_sent excluded: a buyer commenting "too small"/"too far" on a PURCHASE
+        # enquiry is feedback for _buyer_followup (capture profile + flag to Winfred), not a
+        # rental unit rejection -- this gate used to fire first and silently kill the buyer
+        # conversation with a rental "here are my other rooms" redirect (backtest, 5 Aug 2026).
         rec["alt_suggested"] = True
         alt = suggest_alternative(rec.get("profile") or {}, rec.get("listing_key"))
         if alt:
@@ -1504,9 +1508,32 @@ def _handle_event_inner(state, ev):
             rec["buyer_form_sent"] = True
             rec["buyer_form_sent_ts"] = __import__("time").time()
             rec["stage"] = "BUYER_INTAKE"; rec["status"] = "buyer_intake:" + ptype
-            return {"type":"SEND_BUYER_FORM", "pn":pn, "text": buyer_form_for(ptype),
+            text = buyer_form_for(ptype)
+            # A listing with a fixed_viewing rule (same registry field rentals use) gets that
+            # slot appended to the FIRST buyer message, own state (buyer_offered_slot_id) so it
+            # never touches the rental viewing_asked/offered_slot_id machinery for this same
+            # phone number. Buyer flow stays otherwise unchanged -- Winfred still coordinates the
+            # actual viewing himself once the profile comes in (11 Jul 2026 silent-handoff rule).
+            # Gated on the LISTING's own registry deal_type/status, not the classified intent: a
+            # rental unit can still classify as tx=="sale" via an explicit portal SALE token
+            # (classify_transaction checks that before the registry), which must never leak a
+            # rental listing's fixed_viewing slot into a purchase intake message (backtest, 5 Aug
+            # 2026). Same gate skips a hold/closed sale listing, so the bot never auto-commits a
+            # buyer to a viewing for a property that is no longer available.
+            lst = reqs.get(rec.get("listing_key"), {}) or {}
+            lst_status = str(lst.get("status") or "").lower()
+            slot = None
+            if (rec.get("listing_key") and lst.get("deal_type") != "rent"
+                    and not lst_status.startswith("closed") and lst_status != "hold"):
+                slot = next_slot(rec.get("listing_key"))
+            if slot:
+                rec["buyer_offered_slot_id"] = slot.get("slot_id")
+                rec["buyer_offered_slot_label"] = slot.get("label")
+                text = text + "\n\nViewing: " + slot["label"] + ". Let me know if you'd like to come by."
+            return {"type":"SEND_BUYER_FORM", "pn":pn, "text": text,
                     "listing_key": rec.get("listing_key"), "property_type": ptype,
-                    "reason":"buyer enquiry (" + txr + ", " + ptype + "); sent buyer intake form"}
+                    "reason":"buyer enquiry (" + txr + ", " + ptype + "); sent buyer intake form"
+                             + (" + fixed viewing slot" if slot else "")}
         # a message that arrived while we were deferred (contact DB locked) carries its
         # enquiry context forward: gate on the deferred text too, or "any update?" after
         # a deferral dead-ends a real prospect on a human flag.
