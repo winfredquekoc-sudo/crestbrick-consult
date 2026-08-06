@@ -178,21 +178,21 @@ def main() -> int:
     OUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     OUT_PATH.write_text(json.dumps(payload, indent=2) + "\n", encoding="utf-8")
     print(f"Wrote {OUT_PATH} — {len(monthly)} months, latest {latest_date.isoformat()} = {latest_value}%")
+    page = OUT_PATH.parent.parent / "tools" / "mortgage-rates.html"
+    try:
+        html = page.read_text(encoding="utf-8")
+        stamped = re.sub(
+            r"<!-- SORA-STATIC:START -->.*?<!-- SORA-STATIC:END -->",
+            f'<!-- SORA-STATIC:START --><p style="margin:8px 0"><strong>3 Month Compounded SORA: {round(latest_value, 2)}%</strong> (as of {latest_date.isoformat()}, source MAS). Down from 3.60% in August 2024.</p><!-- SORA-STATIC:END -->',
+            html, flags=re.S)
+        if stamped != html:
+            page.write_text(stamped, encoding="utf-8")
+            print("stamped static SORA line on mortgage-rates.html")
+    except OSError:
+        pass
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
 
-
-def _stamp_static_line(latest_month, latest_avg):
-    import re
-    p = PUBLIC_DIR + "/tools/mortgage-rates.html" if "PUBLIC_DIR" in globals() else __file__.rsplit("/scripts/",1)[0] + "/public/tools/mortgage-rates.html"
-    try:
-        s = open(p).read()
-        new = f"<!-- SORA-STATIC:START --><p><strong>3 Month Compounded SORA: {latest_avg}%</strong> (monthly average, {latest_month}; source MAS). Down from 3.60% in August 2024.</p><!-- SORA-STATIC:END -->"
-        s2 = re.sub(r"<!-- SORA-STATIC:START -->.*?<!-- SORA-STATIC:END -->", new, s, flags=re.S)
-        if s2 != s:
-            open(p, "w").write(s2)
-    except OSError:
-        pass
