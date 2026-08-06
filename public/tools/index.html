@@ -9,12 +9,12 @@
   <meta property="og:title" content="Singapore Property Calculators, Winfred Quek" />
   <meta property="og:description" content="4 free tools: ABSD, BSD, Affordability, Restructuring break-even." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta property="og:image" content="https://winfredquek.com/img/og/tools.jpg" />
   <meta property="og:url" content="https://winfredquek.com/tools" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Singapore Property Calculators, Winfred Quek" />
   <meta name="twitter:description" content="4 free tools: ABSD, BSD, Affordability, Restructuring break-even." />
-  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og/tools.jpg" />
   <link rel="canonical" href="https://winfredquek.com/tools" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script defer src="/_vercel/insights/script.js"></script>
@@ -45,7 +45,9 @@
   </style>
   <link rel="stylesheet" href="/animations.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/animations.css"></noscript>
   <script defer src="/animations.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -108,7 +110,7 @@
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
       <div>
         <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-2">Not sure where to start? 5 minutes</p>
-        <h2 class="serif text-3xl font-semibold mb-3">Property Progression Score</h2>
+        <h2 class="serif text-3xl font-semibold mb-3" id="property-progression-score">Property Progression Score</h2>
         <p class="text-[var(--ink-soft)] leading-relaxed max-w-xl">14 questions across Money, Timing and Safety. Get a 0-100 score plus a point-by-point breakdown, no sign up. Take this first, then jump to the calculator that matches your result.</p>
       </div>
       <p class="text-sm text-[var(--accent)] whitespace-nowrap">Take the score </p>
@@ -122,7 +124,7 @@
 
     <a href="/tools/absd" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h2 class="serif text-2xl font-semibold mb-3">ABSD Calculator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="absd-calculator">ABSD Calculator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Full BSD + ABSD breakdown. 2026 rates. Every buyer profile (SC / PR / Foreigner / Entity / joint).</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: second-home buyers, PRs, foreigners, joint-profile couples</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -130,7 +132,7 @@
 
     <a href="/tools/bsd" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">02</p>
-      <h2 class="serif text-2xl font-semibold mb-3">BSD Tiered Breakdown</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="bsd-tiered-breakdown">BSD Tiered Breakdown</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Buyer's Stamp Duty, tier by tier. Residential + non-residential. Shows you exactly which band costs what.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: every Singapore property buyer (residential + commercial)</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -138,7 +140,7 @@
 
     <a href="/tools/affordability" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Affordability Calculator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="affordability-calculator">Affordability Calculator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Max loan and max purchase price under TDSR (private) or MSR (HDB/EC). MAS 4% stress test applied.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: first-time buyers and upgraders pressure-testing a budget</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -146,7 +148,7 @@
 
     <a href="/tools/foreign-buyer-absd" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">04</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Foreign Buyer 60% ABSD</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="foreign-buyer-60-absd">Foreign Buyer 60% ABSD</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Total stamp duty cost for foreign buyers, FTA exemption check, and structured alternatives modeled. Know the real cost before you proceed.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: foreigners and PRs weighing the full tax cost of Singapore property</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -154,7 +156,7 @@
 
     <a href="/tools/bto-ballot-probability" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">05</p>
-      <h2 class="serif text-2xl font-semibold mb-3">BTO Ballot Probability Estimator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="bto-ballot-probability-estimator">BTO Ballot Probability Estimator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Estimate your odds of being shortlisted by town tier and flat type, using 2023-2025 oversubscription rates.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: BTO applicants deciding between another ballot cycle or going resale</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -162,7 +164,7 @@
 
     <a href="/tools/hdb-grant-eligibility" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">06</p>
-      <h2 class="serif text-2xl font-semibold mb-3">HDB Grant Eligibility</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-grant-eligibility">HDB Grant Eligibility</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">CPF Housing Grant, Enhanced Grant up to S$120k, Step-Up, Proximity, and Family grants check all in one place.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: first-timer HDB buyers and second-timers checking their grant entitlement</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -170,7 +172,7 @@
 
     <a href="/tools/hdb-eip-checker" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">07</p>
-      <h2 class="serif text-2xl font-semibold mb-3">HDB EIP / SPR Quota Checker</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-eip-spr-quota-checker">HDB EIP / SPR Quota Checker</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Verify resale flat EIP compliance before listing or buying. Covers all Singapore towns. Avoid a failed transaction.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: resale HDB buyers and sellers checking ethnic quota compliance</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -178,7 +180,7 @@
 
     <a href="/tools/resale-levy-calculator" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">08</p>
-      <h2 class="serif text-2xl font-semibold mb-3">HDB Resale Levy Calculator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-resale-levy-calculator">HDB Resale Levy Calculator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Calculate your resale levy for a second BTO or EC. Exact levy based on your first flat type no guesswork.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: second-time BTO or EC applicants</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -186,7 +188,7 @@
 
     <a href="/tools/otp-review-checklist" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">09</p>
-      <h2 class="serif text-2xl font-semibold mb-3">OTP Review Checklist</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="otp-review-checklist">OTP Review Checklist</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">15-point Singapore OTP checklist: title, caveats, CPF usage, loan approval, seller disclosure. Know what to verify before signing.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers reviewing an OTP before exercising</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -194,7 +196,7 @@
 
     <a href="/tools/walk-away-calculator" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">10</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Walk-Away Threshold Calculator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="walk-away-threshold-calculator">Walk-Away Threshold Calculator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Set your walk-away price before negotiating. Model stamp duty, loan headroom, and CPF to avoid overbidding under pressure.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers entering negotiation who need a hard ceiling to stick to</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -202,7 +204,7 @@
 
     <a href="/tools/concession-ladder" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">11</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Concession Ladder Generator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="concession-ladder-generator">Concession Ladder Generator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Generate a 5-step negotiation concession ladder with diminishing increments. Signal you're near your ceiling without tipping your hand.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers in active negotiation who want a disciplined offer strategy</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -210,7 +212,7 @@
 
     <a href="/tools/comparison-tool" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">12</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Project Comparison Tool</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="project-comparison-tool">Project Comparison Tool</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Compare two Singapore condos side-by-side: PSF, freehold vs 99-year tenure, rental yield, MRT distance, and TOP date.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: shortlisted buyers comparing two new launches or resale projects</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -218,7 +220,7 @@
 
     <a href="/tools/leasehold-tail-discount" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">13</p>
-      <h2 class="serif text-2xl font-semibold mb-3">99-Year Leasehold Tail Discount</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="99-year-leasehold-tail-discount">99-Year Leasehold Tail Discount</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Bala's curve haircut for any remaining tenure. Know the real value before buying or selling resale leasehold not the asking price.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: resale leasehold buyers and sellers below 60 years remaining</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -226,7 +228,7 @@
 
     <a href="/tools/purchase-timeline" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">14</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Purchase Timeline</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="purchase-timeline">Purchase Timeline</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Dated milestones from OTP to key collection, for private resale, new launch, or HDB resale. Know what's due and when.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers who want the full sequence mapped out before they start</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -234,7 +236,7 @@
 
     <a href="/tools/sale-purchase-roadmap" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">15</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Sale &amp; Purchase Roadmap</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="sale-purchase-roadmap">Sale &amp; Purchase Roadmap</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Sell, buy, or both — every deadline in order so nothing slips.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: HDB upgraders and movers sequencing a sale and a purchase together</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -251,7 +253,7 @@
 
     <a href="/tools/mortgage-rates" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Mortgage Rates 2026</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="mortgage-rates-2026">Mortgage Rates 2026</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Live table of current Singapore bank packages DBS, OCBC, UOB, SCB, Maybank, HSBC, Citibank. Fixed and floating (SORA), updated daily.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers comparing bank packages before locking in</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -259,7 +261,7 @@
 
     <a href="/tools/tdsr-scenarios" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">02</p>
-      <h2 class="serif text-2xl font-semibold mb-3">TDSR / MSR Scenario Compare</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="tdsr-msr-scenario-compare">TDSR / MSR Scenario Compare</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Model rate-shock scenarios at 3.5-5%, see max loan quantum and affordability gap side by side. Know your buffer before rates move.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers stress-testing affordability under different rate environments</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -267,7 +269,7 @@
 
     <a href="/tools/loan-repayment" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Loan Repayment Calculator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="loan-repayment-calculator">Loan Repayment Calculator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Monthly instalment, total interest, and year-by-year amortisation. Rate-shock and TDSR check built in.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: any buyer sizing up the real monthly cost of a loan quantum</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -275,7 +277,7 @@
 
     <a href="/tools/mortgage-qa-bot" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">04</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Mortgage Q&A</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="mortgage-q-a">Mortgage Q&A</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Answers on TDSR, MSR for HDB, SORA packages, lock-in exits, and refinancing decisions. Instant. No banker gatekeeping.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers with specific mortgage questions before speaking to a banker</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -292,7 +294,7 @@
 
     <a href="/tools/should-i-sell" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Should I Sell Now?</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="should-i-sell-now">Should I Sell Now?</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">5 questions, instant SELL / WAIT / RESTRUCTURE / RENT-OUT verdict. Cut through the noise and get a clear direction.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: existing owners unsure whether to exit or hold</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -300,7 +302,7 @@
 
     <a href="/tools/seller-motivation-scorer" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">02</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Seller Motivation Scorer</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="seller-motivation-scorer">Seller Motivation Scorer</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Score seller motivation in 8 questions: gauge urgency signals, calibrate your offer, and negotiate with a data edge.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: buyers and agents preparing an offer strategy</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -308,7 +310,7 @@
 
     <a href="/tools/cobroke-split-optimizer" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Co-Broke Commission Split Optimiser</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="co-broke-commission-split-optimiser">Co-Broke Commission Split Optimiser</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Calculate fair Singapore co-broke commission splits based on deal size, lead source, and work distribution.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: agents negotiating co-broke arrangements on a deal</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -316,7 +318,7 @@
 
     <a href="/tools/hdb-mop-countdown" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">04</p>
-      <h2 class="serif text-2xl font-semibold mb-3">HDB MOP Countdown</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-mop-countdown">HDB MOP Countdown</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Days until your Minimum Occupation Period ends, then see your upgrade options sell, rent whole flat, or buy private.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: HDB owners planning the timing of their upgrade</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -324,7 +326,7 @@
 
     <a href="/tools/upgrade-roi" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">05</p>
-      <h2 class="serif text-2xl font-semibold mb-3">HDB-to-Condo Upgrade ROI</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-to-condo-upgrade-roi">HDB-to-Condo Upgrade ROI</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Model 5, 10, and 15-year equity growth from upgrading. Factor in leverage, appreciation, and CPF accrued interest the full picture.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: HDB owners modelling the financial case for upgrading to private</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -341,7 +343,7 @@
 
     <a href="/tools/restructuring" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Restructuring Break-Even</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="restructuring-break-even">Restructuring Break-Even</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Does restructuring save money? Compare BSD + legal cost of the transfer vs ABSD saved on the next purchase. Honest math.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: married SC couples weighing restructuring vs ABSD</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -349,7 +351,7 @@
 
     <a href="/tools/decoupling-breakeven" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">02</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Restructuring Strategy Break-even</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="restructuring-strategy-break-even">Restructuring Strategy Break-even</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">BSD transfer cost vs ABSD savings on next purchase, with CPF refund mechanics. Detailed break-even timeline.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: couples who want the full cost breakdown before restructuring</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -357,7 +359,7 @@
 
     <a href="/tools/decoupling-calculator" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Decoupling Calculator</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="decoupling-calculator">Decoupling Calculator</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Check whether ABSD decoupling clears the bar: savings vs inter-spouse transfer cost, instant verdict for your situation.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: married SC couples deciding if decoupling beats paying ABSD outright</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -374,7 +376,7 @@
 
     <a href="/tools/rental-yield" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Rental Yield & Breakeven</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="rental-yield-breakeven">Rental Yield & Breakeven</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Gross yield, net yield after all holding costs, monthly cashflow, years to breakeven. The investor read, not the brochure read.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: investors, landlords, anyone sanity-checking a rental deal</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -382,7 +384,7 @@
 
     <a href="/tools/rental-yield-heatmap" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">02</p>
-      <h2 class="serif text-2xl font-semibold mb-3">SG Rental Yield Heatmap</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="sg-rental-yield-heatmap">SG Rental Yield Heatmap</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Rental yield by district 2026: OCR, RCR, and CCR gross yields with median PSF and monthly rent. See which districts outperform.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: investors comparing yield across Singapore districts</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -390,7 +392,7 @@
 
     <a href="/tools/property-vs-equities" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h2 class="serif text-2xl font-semibold mb-3">Property vs Equities</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="property-vs-equities">Property vs Equities</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Model 10 and 20-year leveraged returns vs S&P 500 and STI, factoring ABSD and holding costs. Honest side-by-side comparison.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: investors deciding between Singapore property and equities</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -398,7 +400,7 @@
 
     <a href="/tools/cooling-measure-timeline" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">04</p>
-      <h2 class="serif text-2xl font-semibold mb-3">SG Cooling Measure Timeline</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="sg-cooling-measure-timeline">SG Cooling Measure Timeline</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Every Singapore cooling measure from 2009 to 2026: ABSD hikes, LTV cuts, SSD windows, TDSR introduction with market reaction data.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: investors and analysts studying policy-driven market cycles</p>
       <p class="text-sm text-[var(--accent)]">Open tool </p>
@@ -413,7 +415,7 @@
   <p class="section-label mb-6">Data reports</p>
   <div class="grid md:grid-cols-1 gap-6">
     <a href="/reports/hdb-rental-yield-ranking" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
-      <h2 class="serif text-2xl font-semibold mb-3">HDB Rental Yield Ranking by Town</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-rental-yield-ranking-by-town">HDB Rental Yield Ranking by Town</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">All 25 HDB towns ranked by gross rental yield, using real data.gov.sg resale and rental transactions. Jurong East tops the list at 7.38% gross yield.</p>
       <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: investors comparing HDB rental yield across towns</p>
       <p class="text-sm text-[var(--accent)]">Open report </p>
@@ -425,7 +427,7 @@
 
 <section class="max-w-4xl mx-auto px-6 py-20 text-center">
   <p class="section-label mb-6">Numbers look interesting?</p>
-  <h2 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-6">Book a <span class="italic text-[var(--accent)]">30-min walkthrough.</span></h2>
+  <h2 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-6" id="book-a-30-min-walkthrough">Book a <span class="italic text-[var(--accent)]">30-min walkthrough.</span></h2>
   <p class="text-lg text-[var(--ink-soft)] max-w-xl mx-auto mb-10">Calculators give you the rules. A walkthrough tells you whether the move is right. No sales pitch, just the math applied to your specific situation.</p>
   <div class="flex flex-wrap justify-center gap-3">
     <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a 30-min walkthrough </a>
@@ -484,6 +486,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <script>

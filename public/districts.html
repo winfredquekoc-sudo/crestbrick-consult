@@ -50,7 +50,9 @@
   <script defer src="/motion.js"></script>
   <link rel="stylesheet" href="/animations.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/animations.css"></noscript>
   <script defer src="/animations.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -114,7 +116,7 @@
 <section class="max-w-3xl mx-auto px-6 mb-12">
   <div class="card-lift bg-[#1c1e26] border border-[var(--rule)] rounded-xl p-6 md:p-8">
     <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-2">Postal code lookup</p>
-    <h2 class="serif text-2xl font-semibold mb-4">Which district is your property in?</h2>
+    <h2 class="serif text-2xl font-semibold mb-4" id="which-district-is-your-property-in">Which district is your property in?</h2>
     <div class="flex flex-col sm:flex-row gap-3">
       <input id="postal-input" type="text" inputmode="numeric" maxlength="6" placeholder="e.g. 408727"
         class="flex-1 px-4 py-3 bg-[#1c1e26] text-[var(--ink)] border border-[var(--rule)] rounded-lg text-lg font-medium tracking-wider focus:outline-none focus:border-[var(--accent)]" style="color-scheme:dark;" />
@@ -146,7 +148,7 @@
 <!-- ===== HDB TOWNS SECTION ===== -->
 <section class="max-w-6xl mx-auto px-6 pt-16 pb-8" id="hdb-towns">
   <p class="section-label mb-6">HDB towns</p>
-  <h2 class="serif text-3xl md:text-5xl font-semibold leading-tight balance mb-4">All 26 HDB towns the <span class="italic text-[var(--accent)]">upgrader's map</span>.</h2>
+  <h2 class="serif text-3xl md:text-5xl font-semibold leading-tight balance mb-4" id="all-26-hdb-towns-the-upgrader-s-map">All 26 HDB towns the <span class="italic text-[var(--accent)]">upgrader's map</span>.</h2>
   <p class="text-lg text-[var(--ink-soft)] max-w-2xl leading-relaxed mb-8">Per-town character, MRT access, maturity status, and the upgrade angle. Tap any town for the full guide.</p>
 </section>
 
@@ -416,7 +418,7 @@ loadDistricts();
 
 <section class="max-w-4xl mx-auto px-6 py-20 text-center fade-up scroll-reveal">
   <p class="section-label mb-6">Want the district view for your situation?</p>
-  <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-6">Tell me the constraint. I'll tell you the district.</h2>
+  <h2 class="serif text-3xl md:text-4xl font-semibold balance leading-tight mb-6" id="tell-me-the-constraint-i-ll-tell-you-the-district">Tell me the constraint. I'll tell you the district.</h2>
   <p class="text-[var(--ink-soft)] mb-8">Budget, tenure, tenant profile, resale horizon each one narrows the map fast.</p>
   <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20your%20district%20view%20for%20my%20situation." class="btn btn-primary">Ask on WhatsApp </a>
 </section>
@@ -521,6 +523,7 @@ loadDistricts();
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20district-specific%20question." aria-label="Message Winfred on WhatsApp" class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

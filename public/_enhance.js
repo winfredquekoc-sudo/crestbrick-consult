@@ -384,6 +384,44 @@
     document.body.insertBefore(skip, document.body.firstChild);
   }
 
+  // ============================================================
+  // GA4 CTA + lead-submit tracking (consent-gated: only fires once
+  // the visitor has accepted analytics via #259 cookie consent).
+  // Delegated listeners so they work for elements added later
+  // (exit-intent modal, tool capture box, etc.) without re-binding.
+  // ============================================================
+  function trackGA4Event(name, params) {
+    if (localStorage.getItem('wf_consent') !== '1') return;
+    try {
+      var payload = { page_path: window.location.pathname };
+      for (var k in params) { if (params.hasOwnProperty(k)) payload[k] = params[k]; }
+      window.gtag && window.gtag('event', name, payload);
+    } catch (e) {}
+  }
+
+  function initCTATracking() {
+    document.addEventListener('click', function (e) {
+      var a = e.target && e.target.closest ? e.target.closest('a[href]') : null;
+      if (!a) return;
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf('wa.me') !== -1) {
+        trackGA4Event('wa_click', { link_url: href });
+      } else if (href.indexOf('calendly.com') !== -1) {
+        trackGA4Event('calendly_click', { link_url: href });
+      } else if (href.indexOf('t.me') !== -1) {
+        trackGA4Event('tg_click', { link_url: href });
+      }
+    }, true);
+
+    // #tool_lead_submit: hooks onto whatever lead/calc <form> exists on the
+    // page, if any. No-ops gracefully on pages without a form.
+    document.addEventListener('submit', function (e) {
+      var form = e.target;
+      if (!form || form.tagName !== 'FORM') return;
+      trackGA4Event('tool_lead_submit', { form_id: form.id || '' });
+    }, true);
+  }
+
   function init() {
     initSkipLink();
     initThemeToggle();
@@ -395,6 +433,7 @@
     initToolCapture();
     initArticleOptin();
     initGeoCTA();
+    initCTATracking();
     trackVisit();
     initConsent(); // last so it appears on top
     injectRSSLink();

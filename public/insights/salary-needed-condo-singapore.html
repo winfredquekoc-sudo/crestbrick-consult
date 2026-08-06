@@ -84,7 +84,9 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css"></noscript><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css"></noscript><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -178,7 +180,7 @@
 
   <p>The question I hear most often from people thinking about a private condo is this: do I actually qualify? Most people know their gross salary but have no idea what it translates to in borrowing power. This guide does the reverse engineering so you can read directly from your salary to the condo price you can support.</p>
 
-  <h2>How the TDSR determines what you can borrow</h2>
+  <h2 id="how-the-tdsr-determines-what-you-can-borrow">How the TDSR determines what you can borrow</h2>
   <p>The Total Debt Servicing Ratio, established by the Monetary Authority of Singapore, limits your total monthly debt obligations to 55% of your gross monthly income. This covers all debt: the new mortgage, any existing mortgages, car loans, student loans, credit card minimum payments, and personal loans.</p>
 
   <p>The critical detail most people miss is the stress test rate. Banks do not use the actual mortgage rate of approximately 1.5% when computing your TDSR. They use a medium-term rate of 4%, or the actual contracted rate, whichever is higher. This stress test has been in place under MAS rules to ensure borrowers can withstand rate increases. The practical effect: the minimum salary to qualify for a loan is determined by the stress test instalment, not the instalment you will actually pay.</p>
@@ -189,7 +191,7 @@
 
   <p>Read more on the mechanics at the <a href="/insights/tdsr-stress-test-explained" class="text-[var(--accent)] hover:underline">TDSR stress test guide</a> and use the <a href="/tools/tdsr-scenarios" class="text-[var(--accent)] hover:underline">TDSR scenarios tool</a> to model your specific situation.</p>
 
-  <h2>The price-to-income table</h2>
+  <h2 id="the-price-to-income-table">The price-to-income table</h2>
   <p>The table below shows the minimum gross monthly income required to qualify for a private condo purchase at each price point, assuming a 75% LTV bank loan, 30-year tenure, and no other debts. Add roughly $1,800 of minimum income for every $1,000 per month in other existing debts.</p>
 
   <table>
@@ -216,7 +218,7 @@
 
   <p>The downpayment column is equally important. Even if you pass the TDSR, you need to fund that 25% downpayment, of which at least 5% must be cash (the remaining 20% can be CPF OA). On a $1.2M condo, that is at least $60,000 in cash on top of CPF. Check the full downpayment breakdown in the guide on <a href="/insights/downpayment-condo-singapore-2026" class="text-[var(--accent)] hover:underline">downpayment requirements for a condo</a>.</p>
 
-  <h2>How other debts shrink your buying power</h2>
+  <h2 id="how-other-debts-shrink-your-buying-power">How other debts shrink your buying power</h2>
   <p>Every dollar of existing monthly debt obligations eats into your TDSR headroom. Here is what that means in practice.</p>
 
   <p>If you earn $10,000 per month, your TDSR ceiling is $5,500 per month in total debt. If you have a car loan costing $1,200 per month, only $4,300 per month is available for the mortgage. At the 4% stress test rate over 30 years, $4,300 per month of stress-tested instalment supports a loan of roughly $899,000. At 75% LTV, that buys a property of approximately $1.2M.</p>
@@ -227,7 +229,7 @@
     <strong>Tip:</strong> Before applying for a mortgage, consider whether it is worth paying off small personal loans, reducing credit card balances, or settling a car loan early. Every $500 per month you free up adds roughly $105,000 in mortgage qualifying capacity at the 4% stress test rate.
   </div>
 
-  <h2>The age factor: how tenure affects the minimum salary</h2>
+  <h2 id="the-age-factor-how-tenure-affects-the-minimum-salary">The age factor: how tenure affects the minimum salary</h2>
   <p>The salary figures in the table above assume a 30-year loan tenure. As covered in the <a href="/insights/how-much-can-i-borrow-home-loan-singapore" class="text-[var(--accent)] hover:underline">guide on how much you can borrow</a>, MAS rules require that your age plus the loan tenure generally not exceed 65 years if you want full LTV. A 40-year-old is limited to a 25-year tenure. A 45-year-old to a 20-year tenure. Shorter tenures mean higher monthly instalments for the same loan amount, which requires higher income to pass the TDSR.</p>
 
   <table>
@@ -251,7 +253,7 @@
 
   <p>A 50-year-old trying to buy the same condo as a 35-year-old needs nearly 55% more income to qualify for the same loan amount. This is a significant constraint for mid-career buyers and one that often surprises clients in their late forties.</p>
 
-  <h2>Joint applications: the power of two incomes</h2>
+  <h2 id="joint-applications-the-power-of-two-incomes">Joint applications: the power of two incomes</h2>
   <p>When two borrowers apply jointly, their gross incomes are pooled for the TDSR calculation. This is one of the most powerful levers available to couples. Two people each earning $7,000 per month have a combined $14,000, which at a 55% TDSR ceiling allows $7,700 per month in total debt service. At the 4% stress test over 30 years, that supports a loan of approximately $1.61M and a property of roughly $2.15M.</p>
 
   <p>Individually, neither borrower could qualify for a $1M condo comfortably. Together they can reach a $2M property. This is why the decision on whether to buy jointly or in one name has significant financial implications beyond the legal structure. It is not just about ABSD planning: it is about qualifying power.</p>
@@ -261,10 +263,10 @@
     <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;">Most clients come to me asking whether they can afford a particular condo. The honest answer always starts with the TDSR and the stress test, not the actual mortgage rate. The gap between qualifying at 4% and what you actually pay at 1.5% means you will typically pay far less each month than your qualifying headroom suggests, which is a reassuring buffer. But it also means you need to earn meaningfully more than the minimum to feel comfortable. I typically suggest clients target a loan whose stress-tested instalment sits no higher than 40% to 45% of gross income, keeping the remaining 10% to 15% as buffer. That leaves room for life's surprises without your mortgage becoming a source of stress.</p>
   </div>
 
-  <h2>Variable income: commissions, bonuses, and self-employment</h2>
+  <h2 id="variable-income-commissions-bonuses-and-self-employment">Variable income: commissions, bonuses, and self-employment</h2>
   <p>Banks treat variable income conservatively. Commission income, freelance earnings, and variable bonuses are typically assessed at 70% of the 12-month average shown on your Notice of Assessment, not the full amount. Self-employed borrowers face additional scrutiny and may need two years of tax returns. If your income is partly variable, your effective qualifying income is lower than your gross salary suggests. Budget accordingly and discuss the specifics with your bank before making an offer.</p>
 
-  <h2>Frequently asked questions</h2>
+  <h2 id="frequently-asked-questions">Frequently asked questions</h2>
 
   <h3>What salary do you need to buy a $1 million condo in Singapore?</h3>
   <p>Assuming a 75% bank loan of $750,000 and no other debts, you need a gross monthly income of approximately $6,500 to qualify at the TDSR using the 4% stress test over 30 years. With other debts, the minimum income rises.</p>
@@ -302,11 +304,11 @@
 </article>
 
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/total-debt-servicing-ratio-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio for Property Loans</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/tdsr-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio for Property Loans</a></li>
     <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/notices/notice-632" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS Notice 632: Residential Property Loans (LTV, TDSR, MSR)</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.hdb.gov.sg/residential/buying-a-flat/financing-a-flat-purchase/mortgage-servicing-ratio" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">HDB: Mortgage Servicing Ratio</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.hdb.gov.sg/buying-a-flat/financial-planning-for-a-flat-purchase/ability-to-pay" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">HDB: Mortgage Servicing Ratio</a></li>
   </ul>
 </section>
 
@@ -337,7 +339,7 @@
 </aside>
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/how-much-can-i-borrow-home-loan-singapore" style="color:var(--accent);">How Much Can I Borrow for a House in Singapore?</a></li>
     <li style="font-size:.9rem;"><a href="/insights/tdsr-stress-test-explained" style="color:var(--accent);">TDSR Stress Test Explained</a></li>
@@ -357,6 +359,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate and mortgage decisions are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, and unforeseen property-specific risks. This page does not constitute investment, financial, or mortgage advice and should not be relied upon as such. Buyers should conduct their own due diligence and seek advice from qualified professionals, and confirm current rules with MAS, HDB, and their bank, before making any decision. Winfred Quek, Associate Marketing Consultant, CEA R073319H, Crestbrick Pte Ltd (CEA Licence L31010886H).
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20know%20if%20my%20salary%20qualifies%20for%20a%20condo." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

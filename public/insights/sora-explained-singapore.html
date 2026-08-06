@@ -74,6 +74,8 @@
 <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"What is the current SORA rate?","acceptedAnswer":{"@type":"Answer","text":"SORA changes over time, so it should not be quoted from a fixed figure. The Monetary Authority of Singapore publishes SORA, including 1-month and 3-month compounded SORA, on its website."}},{"@type":"Question","name":"Who decides the SORA rate?","acceptedAnswer":{"@type":"Answer","text":"Nobody sets SORA by decision. It is computed by MAS from actual overnight interbank Singapore-dollar lending transactions and published each business day."}},{"@type":"Question","name":"Why is my floating rate higher than SORA?","acceptedAnswer":{"@type":"Answer","text":"Your floating rate is compounded SORA plus a fixed bank margin. The margin is the bank's spread, set in your loan agreement."}},{"@type":"Question","name":"Is a 1-month or 3-month SORA loan better?","acceptedAnswer":{"@type":"Answer","text":"Neither is universally better. The 1-month version tracks the market faster and reprices monthly; the 3-month version is smoother and reprices quarterly."}},{"@type":"Question","name":"Does SIBOR still exist?","acceptedAnswer":{"@type":"Answer","text":"SIBOR has been discontinued. Singapore floating mortgages are now priced against SORA. Existing SIBOR loans were transitioned as part of the move to the SORA benchmark."}}]}
   </script><!-- faq-geo -->
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body>
 
@@ -166,17 +168,17 @@
 
   <p>If you are choosing between a fixed-rate and a floating-rate home loan in Singapore, you will see the floating packages quoted as "SORA + a margin". Most buyers nod along without really knowing what SORA is. It is worth understanding, because SORA is the engine that drives the floating part of your monthly instalment, and the way it is constructed has real consequences for how your repayment behaves.</p>
 
-  <h2>What is SORA?</h2>
+  <h2 id="what-is-sora">What is SORA?</h2>
   <p>SORA stands for Singapore Overnight Rate Average. According to the Monetary Authority of Singapore, which administers and publishes it, SORA is the volume-weighted average rate of unsecured overnight interbank Singapore-dollar lending transactions. In plain terms: when banks lend Singapore dollars to one another overnight, SORA is the average rate they actually charged, weighted by how much was lent.</p>
   <p>The key word is "actually". SORA is computed from real, completed transactions. It is not a prediction, an estimate, or a survey of what banks think a rate should be. It is a record of what happened in the overnight money market on a given day. According to the Monetary Authority of Singapore, which administers and publishes SORA, the rate is released on each business day.</p>
 
-  <h2>How does SORA feed into a floating mortgage?</h2>
+  <h2 id="how-does-sora-feed-into-a-floating-mortgage">How does SORA feed into a floating mortgage?</h2>
   <p>Your floating home loan rate has two parts:</p>
   <div class="flow-step"><strong>The SORA component:</strong> a published, market-driven figure that moves over time. Your loan references either 1-month compounded SORA or 3-month compounded SORA.</div>
   <div class="flow-step"><strong>The bank margin (or spread):</strong> a fixed percentage the bank adds on top, set in your loan agreement. The margin does not float, though some packages step the margin up after an initial period.</div>
   <p>Your effective interest rate is the sum of the two. So if a package is "3-month compounded SORA + a margin", your rate rises and falls with SORA while the margin stays constant. When you compare two floating packages, you are really comparing their margins and how the margin steps over time, because the SORA part is identical for everyone.</p>
 
-  <h2>What does "compounded" SORA mean, and why 1-month versus 3-month?</h2>
+  <h2 id="what-does-compounded-sora-mean-and-why-1-month-versus-3-month">What does "compounded" SORA mean, and why 1-month versus 3-month?</h2>
   <p>SORA itself is a daily overnight rate. Lenders do not reprice your mortgage every single day against yesterday's overnight number, that would be extremely volatile. Instead they use <em>compounded</em> SORA: the daily SORA values are compounded together over a recent period to produce a single rate.</p>
   <p>1-month compounded SORA averages the daily SORA over the past month. 3-month compounded SORA averages over the past three months. Both are backward-looking, they tell you what overnight rates have done recently.</p>
 
@@ -194,7 +196,7 @@
 
   <p>The trade-off is simple. The 1-month version tracks the market more closely, so it adjusts faster in both directions. The 3-month version is smoother and slower, it lags movements either way. Neither is inherently better; it depends on whether you prefer your instalment to respond quickly or gradually.</p>
 
-  <h2>How is SORA different from the old SIBOR?</h2>
+  <h2 id="how-is-sora-different-from-the-old-sibor">How is SORA different from the old SIBOR?</h2>
   <p>For years, Singapore floating mortgages were priced off SIBOR, the Singapore Interbank Offered Rate. SIBOR was a forward-looking rate based on banks submitting estimates of the rate at which they believed they could borrow. SORA is fundamentally different.</p>
   <ul>
     <li><strong>Transaction-based, not estimate-based.</strong> SORA reflects real overnight lending that took place. SIBOR relied on banks' submitted estimates, which were more open to question.</li>
@@ -208,7 +210,7 @@
   <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;">The most useful thing to internalise is that SORA is not something the bank controls, it is a published market rate, the same for every lender. So when a bank "competes" on a floating package, it is competing on the margin and on how that margin steps up over time, not on SORA. That changes how you should shop. Do not be dazzled by a low headline rate; ask what the margin is, whether it steps up after a year or two, and which tenor, 1-month or 3-month, the package uses. I also tell clients not to fixate on a single SORA number they read somewhere. SORA moves. The right place to see today's level is the MAS website, and the right question is how your instalment behaves across a range of SORA outcomes, not at one point in time.</p>
 </div>
 
-  <h2>Should you choose a SORA floating loan or a fixed-rate loan?</h2>
+  <h2 id="should-you-choose-a-sora-floating-loan-or-a-fixed-rate-loan">Should you choose a SORA floating loan or a fixed-rate loan?</h2>
   <p>That is a separate decision, covered in detail in the guide on <a href="/insights/sora-vs-fixed-mortgage-2026" class="text-[var(--accent)] hover:underline">SORA versus fixed mortgages</a>. In short: a floating SORA loan lets your rate move with the market, which helps if rates fall and hurts if they rise; a fixed-rate loan gives you certainty for the fixed period at the cost of not benefiting from any fall. In 2026 both fixed and floating packages sit at around 1.5%, so the choice is less about today's rate and more about your view on rate direction and your appetite for fluctuation in your monthly payment. Either way, the bank stress-tests your loan at the 4.0% TDSR floor rate.</p>
 
   <div style="background:rgba(198,163,106,0.08);border:1px solid rgba(198,163,106,0.3);border-radius:12px;padding:2rem;margin:3rem 0;text-align:center;">
@@ -222,7 +224,7 @@
     <p style="font-size:.8rem;color:var(--ink-muted);margin-top:.75rem;">Winfred Quek · CEA R073319H · Crestbrick</p>
   </div>
 
-  <h2>Frequently asked questions</h2>
+  <h2 id="frequently-asked-questions">Frequently asked questions</h2>
   <h3>What is the current SORA rate?</h3>
   <p>SORA changes over time, so it should not be quoted from a fixed figure. The Monetary Authority of Singapore publishes SORA, including 1-month and 3-month compounded SORA, on its website. Check there for the current level before relying on any number.</p>
 
@@ -248,11 +250,11 @@
 </article>
 
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/monetary-policy/sora" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Singapore Overnight Rate Average (SORA)</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/monetary-policy/interest-rate-benchmarks" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Interest Rate Benchmarks</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/total-debt-servicing-ratio-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio for Property Loans</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/interest-rate-benchmarks-transition" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Interest Rate Benchmarks</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/tdsr-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio for Property Loans</a></li>
   </ul>
 </section>
 
@@ -284,7 +286,7 @@
 <!-- /author-bio-block -->
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/sora-vs-fixed-mortgage-2026" style="color:var(--accent);">SORA vs Fixed Mortgage 2026</a></li>
     <li style="font-size:.9rem;"><a href="/insights/fixed-vs-floating-mortgage" style="color:var(--accent);">Fixed vs Floating Mortgage</a></li>
@@ -305,6 +307,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate and mortgage decisions are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, and unforeseen property-specific risks. This page does not constitute investment, financial, or mortgage advice and should not be relied upon as such. Buyers should conduct their own due diligence and seek advice from qualified professionals, and confirm current rates and the prevailing SORA level with MAS and their bank, before making any decision. Winfred Quek, Associate Marketing Consultant, CEA R073319H, Crestbrick Pte Ltd (CEA Licence L31010886H).
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20question%20about%20SORA%20home%20loans." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

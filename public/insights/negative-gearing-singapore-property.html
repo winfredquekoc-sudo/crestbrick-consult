@@ -22,7 +22,9 @@
   <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/fonts/fonts.css">
   <style>:root{--bg:#0f1117;--ink:#e8e6e1;--ink-muted:#9ca3af;--accent:#c6a36a;--rule:rgba(255,255,255,0.08)}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7}a{color:var(--accent)}h1,h2,h3{font-family:'Fraunces',serif}.quick-answer{border-left:3px solid var(--accent);padding:.75rem 1rem;margin:1rem 0 1.5rem;background:rgba(198,163,106,.07);font-size:.95rem;line-height:1.65;border-radius:0 4px 4px 0}table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.92rem}th{background:rgba(198,163,106,.15);color:var(--accent);padding:.6rem 1rem;text-align:left}td{padding:.55rem 1rem;border-bottom:1px solid var(--rule)}.warn{background:rgba(239,68,68,.08);border-left:3px solid #ef4444;padding:.75rem 1rem;margin:1.5rem 0;border-radius:0 4px 4px 0;font-size:.9rem}.flow-step{counter-increment:step;display:flex;gap:1rem;margin:.75rem 0}.flow-step::before{content:counter(step);flex-shrink:0;width:2rem;height:2rem;border-radius:50%;background:var(--accent);color:#0f1117;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}.steps{counter-reset:step}nav{padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule)}.btn{display:inline-block;padding:.6rem 1.4rem;background:var(--accent);color:#0f1117;font-weight:600;border-radius:4px;text-decoration:none;font-size:.9rem}article{max-width:780px;margin:0 auto;padding:2rem 1.5rem}footer{border-top:1px solid var(--rule);padding:2rem 1.5rem;font-size:.82rem;color:var(--ink-muted);text-align:center}</style>
-<script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script></head>
+<script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 <nav><a href="/" style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--ink);text-decoration:none">Winfred Quek</a><a href="https://calendly.com/winfredquekoc" class="btn">Book a Call</a></nav>
 <article>
@@ -32,11 +34,11 @@
   <div class="quick-answer"><strong>Quick answer:</strong> Singapore has no formal negative gearing law. Under IRAS Section 10(1)(f), rental losses can only be offset against other rental income not salary, dividends, or business income. Losses carry forward indefinitely to future rental income. This is fundamentally different from Australia, where rental losses can reduce taxable employment income.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">How Singapore Taxes Rental Income</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="how-singapore-taxes-rental-income">How Singapore Taxes Rental Income</h2>
   <p>Rental income in Singapore is taxed under Section 10(1)(f) of the Income Tax Act. It is separate from employment income (Sec 10(1)(b)) and must be declared in your annual tax return. The net rental income (after allowable deductions) is added to your total assessable income and taxed at your marginal personal income tax rate.</p>
   <p style="margin-top:.75rem">Singapore personal income tax rates are progressive: 0% up to $20K, 2% on the next $10K, rising to 24% above $1M. For most landlords earning $120K–$300K combined income, marginal rate on rental income is 11.5%–17%.</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">What You Can and Cannot Deduct</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="what-you-can-and-cannot-deduct">What You Can and Cannot Deduct</h2>
   <table>
     <thead><tr><th>Expense</th><th>Deductible?</th><th>Notes</th></tr></thead>
     <tbody>
@@ -53,7 +55,7 @@
     </tbody>
   </table>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Rental Loss Example</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="rental-loss-example">Rental Loss Example</h2>
   <table>
     <thead><tr><th>Item</th><th>Monthly</th><th>Annual</th></tr></thead>
     <tbody>
@@ -72,11 +74,11 @@
     <li>You cannot deduct the $1,250 from your employment income</li>
   </ul>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Loss Carry-Forward Rules</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="loss-carry-forward-rules">Loss Carry-Forward Rules</h2>
   <p>Rental losses under Sec 10(1)(f) can be carried forward indefinitely. There is no time limit you can accumulate rental losses over many years and offset them against future rental income when the property becomes profitable (e.g., after the loan is repaid and interest expense drops).</p>
   <p style="margin-top:.75rem">Importantly, if you sell the property, any unabsorbed rental loss carry-forward is lost you cannot use it against capital gain (Singapore has no capital gains tax anyway) or convert it into any other deduction.</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">The Singapore vs Australia Difference</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="the-singapore-vs-australia-difference">The Singapore vs Australia Difference</h2>
   <table>
     <thead><tr><th></th><th>Singapore</th><th>Australia</th></tr></thead>
     <tbody>
@@ -90,11 +92,11 @@
 
   <div class="warn"><strong>IRAS audit risk:</strong> Aggressive rental expense claims trigger IRAS review. Common red flags: high renovation costs claimed as repairs, personal expenses mixed into property maintenance, interest on personal loans (not secured by rental property) claimed as rental expense. Keep receipts and records for 5 years.</div>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Tax Planning Implication</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="tax-planning-implication">Tax Planning Implication</h2>
   <p>Because you cannot offset rental losses against employment income, the tax benefit of running a property at a loss in Singapore is limited compared to Australia. The primary financial benefit of a Singapore rental property loss is deferral you are building a loss carry-forward that will shelter future rental income once the property becomes cash flow positive (typically when the loan is substantially repaid or rental income rises).</p>
 
   
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Related reading</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="related-reading">Related reading</h2>
   <ul style="margin:.5rem 0 1.5rem;padding-left:1.25rem">
     <li><a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent)">Rental yield vs appreciation in Singapore</a></li>
     <li><a href="/insights/cash-on-cash-return-singapore-condo" style="color:var(--accent)">Cash-on-cash return for Singapore condo</a></li>
@@ -109,7 +111,7 @@
     <a href="https://calendly.com/winfredquekoc" class="btn">Book a Free 30-Min Session</a>
   </div>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">How to Calculate Your Rental Income Tax: Step-by-Step</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="how-to-calculate-your-rental-income-tax-step-by-step">How to Calculate Your Rental Income Tax: Step-by-Step</h2>
   <div class="steps">
     <div class="flow-step"><div><strong>Step 1 Compute gross rental income.</strong> Total rent received in the calendar year, including any advance rent, security deposit retained (if forfeited), and any furniture allowance paid by tenant that exceeds actual cost.</div></div>
     <div class="flow-step"><div><strong>Step 2 Identify all allowable deductions.</strong> Mortgage interest (not principal), property tax, agent commission, maintenance and repair costs, depreciation of furniture (based on cost / useful life), insurance. Keep receipts for all items.</div></div>
@@ -118,7 +120,7 @@
     <div class="flow-step"><div><strong>Step 5 Declare in Form B or Form B1.</strong> Report rental income under "Other income" in your IRAS tax return. Attach a rental income schedule showing all properties, gross rent, and deductions. IRAS may request supporting documents.</div></div>
   </div>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Rental Income Tax by Marginal Rate: Real Examples</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="rental-income-tax-by-marginal-rate-real-examples">Rental Income Tax by Marginal Rate: Real Examples</h2>
   <table>
     <thead><tr><th>Combined Annual Income (incl. rental)</th><th>Marginal Rate on Rental Income</th><th>Tax on $20K Net Rental Income</th><th>After-Tax Rental Income</th></tr></thead>
     <tbody>
@@ -131,7 +133,7 @@
   </table>
   <p style="font-size:.85rem;color:var(--ink-muted)">Marginal rates are approximate based on YA 2026 tax bands. Actual tax depends on all deductions, reliefs, and rebates. High-income landlords should consider whether to hold rental property in a spouse's name if their marginal rate is significantly lower.</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Common Mistakes Singapore Landlords Make on Tax</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="common-mistakes-singapore-landlords-make-on-tax">Common Mistakes Singapore Landlords Make on Tax</h2>
   <ul style="margin:.75rem 0 .75rem 1.5rem;line-height:2">
     <li><strong>Claiming renovation costs as repairs.</strong> Renovation (capital expenditure) is not deductible. Repairs and maintenance (restoring to original condition) are deductible. Painting walls after a tenant leaves = deductible. Installing a new kitchen = capital expenditure, not deductible.</li>
     <li><strong>Deducting mortgage principal repayment.</strong> Only the interest portion of your loan instalment is deductible. Principal repayment is a capital item it is your own money repaying your own loan, not a business expense.</li>
@@ -139,7 +141,7 @@
     <li><strong>Claiming deductions for a property used partly for personal use.</strong> If you occupy part of the property yourself and rent out the rest, deductions must be apportioned on a floor-area basis. You cannot claim 100% of the mortgage interest if you are living in one bedroom and renting the other.</li>
   </ul>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Frequently Asked Questions</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="frequently-asked-questions">Frequently Asked Questions</h2>
 
   <h3 style="font-size:1.05rem;margin:1.25rem 0 .5rem">How long can I carry forward an unabsorbed rental loss in Singapore?</h3>
   <p>IRAS allows rental losses under Section 10(1)(f) to be carried forward indefinitely there is no time limit. You can accumulate losses over many years and use them against future rental income when the property eventually turns cash-flow positive. However, if you sell the property, any remaining unabsorbed loss is permanently extinguished it cannot be applied against the sale proceeds or any other income.</p>
@@ -153,14 +155,14 @@
   <p style="font-size:.85rem;color:var(--ink-muted)">Related: <a href="/insights/rental-yield-vs-appreciation">Rental Yield vs Appreciation</a> · <a href="/insights/cash-on-cash-return-singapore-condo">Cash-on-Cash Return Singapore Condo</a> · <a href="/insights/singapore-rental-market-landlord-2026">Singapore Rental Market Landlord 2026</a></p>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/what-is-taxable-what-is-not/income-from-property-rented-out" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Rental Income</a></li>
   </ul>
 </section>
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/singapore-property-market-cycles" style="color:var(--accent);">Singapore Property Market Cycles 1990–2026</a></li>
     <li style="font-size:.9rem;"><a href="/insights/cash-on-cash-return-singapore-condo" style="color:var(--accent);">Cash-on-Cash Return for Singapore Condo: What to Target and How to Calculate</a></li>
@@ -172,6 +174,7 @@
 <footer>
   <p>Winfred Quek · CEA Salesperson Registration No. R073319H · Crestbrick Pte Ltd (CEA Licence No. L31010886H)</p>
   <p style="margin-top:.5rem"><a href="/insights">← Back to Insights</a> · <a href="/tools/absd">ABSD Calculator</a> · <a href="https://wa.me/6581618149">WhatsApp</a></p>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 </body>
 </html>

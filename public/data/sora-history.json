@@ -1,0 +1,138 @@
+{
+  "generated_at": "2026-08-05 04:44 SGT",
+  "source": "MAS eServices \u2014 Domestic Interest Rates, 3-Month Compounded SORA",
+  "source_url": "https://eservices.mas.gov.sg/statistics/dir/domesticinterestrates.aspx",
+  "unit": "percent",
+  "range_months": 24,
+  "latest": {
+    "date": "2026-08-03",
+    "value_pct": 1.1302
+  },
+  "months": [
+    {
+      "month": "2024-08",
+      "avg_3m_sora_pct": 3.6017,
+      "reading_count": 21
+    },
+    {
+      "month": "2024-09",
+      "avg_3m_sora_pct": 3.5304,
+      "reading_count": 21
+    },
+    {
+      "month": "2024-10",
+      "avg_3m_sora_pct": 3.4552,
+      "reading_count": 22
+    },
+    {
+      "month": "2024-11",
+      "avg_3m_sora_pct": 3.2877,
+      "reading_count": 21
+    },
+    {
+      "month": "2024-12",
+      "avg_3m_sora_pct": 3.1391,
+      "reading_count": 21
+    },
+    {
+      "month": "2025-01",
+      "avg_3m_sora_pct": 2.9516,
+      "reading_count": 20
+    },
+    {
+      "month": "2025-02",
+      "avg_3m_sora_pct": 2.8181,
+      "reading_count": 20
+    },
+    {
+      "month": "2025-03",
+      "avg_3m_sora_pct": 2.6188,
+      "reading_count": 20
+    },
+    {
+      "month": "2025-04",
+      "avg_3m_sora_pct": 2.4687,
+      "reading_count": 21
+    },
+    {
+      "month": "2025-05",
+      "avg_3m_sora_pct": 2.3096,
+      "reading_count": 20
+    },
+    {
+      "month": "2025-06",
+      "avg_3m_sora_pct": 2.1687,
+      "reading_count": 21
+    },
+    {
+      "month": "2025-07",
+      "avg_3m_sora_pct": 1.9283,
+      "reading_count": 23
+    },
+    {
+      "month": "2025-08",
+      "avg_3m_sora_pct": 1.7142,
+      "reading_count": 21
+    },
+    {
+      "month": "2025-09",
+      "avg_3m_sora_pct": 1.507,
+      "reading_count": 22
+    },
+    {
+      "month": "2025-10",
+      "avg_3m_sora_pct": 1.394,
+      "reading_count": 22
+    },
+    {
+      "month": "2025-11",
+      "avg_3m_sora_pct": 1.2577,
+      "reading_count": 20
+    },
+    {
+      "month": "2025-12",
+      "avg_3m_sora_pct": 1.2104,
+      "reading_count": 22
+    },
+    {
+      "month": "2026-01",
+      "avg_3m_sora_pct": 1.1558,
+      "reading_count": 21
+    },
+    {
+      "month": "2026-02",
+      "avg_3m_sora_pct": 1.1381,
+      "reading_count": 18
+    },
+    {
+      "month": "2026-03",
+      "avg_3m_sora_pct": 1.092,
+      "reading_count": 22
+    },
+    {
+      "month": "2026-04",
+      "avg_3m_sora_pct": 1.0469,
+      "reading_count": 21
+    },
+    {
+      "month": "2026-05",
+      "avg_3m_sora_pct": 1.0686,
+      "reading_count": 19
+    },
+    {
+      "month": "2026-06",
+      "avg_3m_sora_pct": 1.0743,
+      "reading_count": 21
+    },
+    {
+      "month": "2026-07",
+      "avg_3m_sora_pct": 1.1329,
+      "reading_count": 23
+    },
+    {
+      "month": "2026-08",
+      "avg_3m_sora_pct": 1.1302,
+      "reading_count": 1
+    }
+  ]
+}
