@@ -1,21 +1,9 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-07T00:30:03+08:00",
-  "count": 21,
+  "synced_at": "2026-08-07T03:59:57+08:00",
+  "count": 15,
   "listings": [
-    {
-      "id": "common-room-blk-113-lor-1-toa-payoh-ll086",
-      "title": "Common Room — Blk 113 Lor 1 Toa Payoh",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1000,
-      "price_label": "S$1,000 / mo",
-      "address": "Blk 113 Lor 1 Toa Payoh",
-      "district": "D12",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Lor%201%20Toa%20Payoh.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Lor%201%20Toa%20Payoh."
-    },
     {
       "id": "master-room-toa-payoh-ll015",
       "title": "Master Room — Toa Payoh",
@@ -26,21 +14,9 @@
       "address": "Toa Payoh",
       "district": "D12",
       "sqft": 200,
+      "image": "/img/listings/master-room-toa-payoh-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh."
-    },
-    {
-      "id": "private-room-balestier-ll087",
-      "title": "Private Room — Balestier",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 2500,
-      "price_label": "S$2,500 / mo",
-      "address": "Balestier",
-      "district": "D12",
-      "sqft": 1990,
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Private%20Room%20in%20Balestier."
     },
     {
       "id": "common-room-paya-lebar-area-ll091",
@@ -87,8 +63,8 @@
       "title": "Master Room — 26 Bayshore Road",
       "type": "Condo",
       "transaction": "rent",
-      "price": 2300,
-      "price_label": "S$2,300 / mo",
+      "price": 2000,
+      "price_label": "S$2,000 / mo",
       "address": "26 Bayshore Road",
       "district": "D16",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road.",
@@ -107,32 +83,9 @@
       "highlights": [
         "Own bathroom"
       ],
+      "image": "/img/listings/studio-34-jalan-tanjong-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
-    },
-    {
-      "id": "room-eastpoint-green-ll033",
-      "title": "Room — Eastpoint Green (Tampines)",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1120,
-      "price_label": "S$1,120 / mo",
-      "address": "Eastpoint Green",
-      "district": "D18",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Eastpoint%20Green.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Eastpoint%20Green."
-    },
-    {
-      "id": "common-room-232b-sumang-lane-ll020",
-      "title": "Common Room — 232B Sumang Lane (Hougang)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 900,
-      "price_label": "S$900 / mo",
-      "address": "232B Sumang Lane",
-      "district": "D19",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20232B%20Sumang%20Lane."
     },
     {
       "id": "room-near-nex-ll090",
@@ -192,21 +145,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
     },
     {
-      "id": "master-room-blk-148-gangsa-road-ll096",
-      "title": "Master Room — Blk 148 Gangsa Road (Bukit Batok)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1900,
-      "price_label": "From S$1,900 / mo",
-      "address": "Blk 148 Gangsa Road",
-      "district": "D23",
-      "highlights": [
-        "Furnished"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20148%20Gangsa%20Road."
-    },
-    {
       "id": "whole-unit-blk-26-teck-whye-lane-ll083",
       "title": "Whole Unit — Blk 26 Teck Whye Lane (Bukit Batok)",
       "type": "HDB",
@@ -214,20 +152,9 @@
       "price_label": "POA",
       "address": "Blk 26 Teck Whye Lane",
       "district": "D23",
+      "image": "/img/listings/whole-unit-blk-26-teck-whye-lane-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane."
-    },
-    {
-      "id": "room-parc-clover-ll019",
-      "title": "Room — Parc Clover (Tengah)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 850,
-      "price_label": "S$850 / mo",
-      "address": "Parc Clover",
-      "district": "D24",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Parc%20Clover.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Parc%20Clover."
     },
     {
       "id": "common-room-383a-yishun-avenue-6-ll050",
@@ -268,6 +195,7 @@
       "highlights": [
         "Available now"
       ],
+      "image": "/img/listings/common-room-blk-110a-depot-road-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road."
     },
