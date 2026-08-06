@@ -183,3 +183,16 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+
+
+def _stamp_static_line(latest_month, latest_avg):
+    import re
+    p = PUBLIC_DIR + "/tools/mortgage-rates.html" if "PUBLIC_DIR" in globals() else __file__.rsplit("/scripts/",1)[0] + "/public/tools/mortgage-rates.html"
+    try:
+        s = open(p).read()
+        new = f"<!-- SORA-STATIC:START --><p><strong>3 Month Compounded SORA: {latest_avg}%</strong> (monthly average, {latest_month}; source MAS). Down from 3.60% in August 2024.</p><!-- SORA-STATIC:END -->"
+        s2 = re.sub(r"<!-- SORA-STATIC:START -->.*?<!-- SORA-STATIC:END -->", new, s, flags=re.S)
+        if s2 != s:
+            open(p, "w").write(s2)
+    except OSError:
+        pass
