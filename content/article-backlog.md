@@ -345,7 +345,7 @@ Generated overnight on Winfred's instruction ("generate over 100 new content, pu
 - [~] **What Happens If You Forfeit Your OTP Deposit?** — `otp-forfeiture-losing-deposit-singapore` · drips 2026-07-21
 - [~] **Your Home Loan Got Rejected After Exercising the OTP: Now What?** — `loan-rejected-after-otp-exercised-singapore` · drips 2026-07-25
 - [~] **Can a Seller Back Out After Accepting an Offer?** — `seller-backs-out-of-sale-singapore` · drips 2026-07-28
-- [~] **How Bank Valuers Actually Value Your Property** — `panel-valuer-bank-valuation-process-singapore` · drips 2026-07-31
+- [~] **Free Home Valuation in Singapore: What You Actually Get** — `free-home-valuation-singapore-what-you-get` · drips 2026-07-31
 - [~] **How Much Money Do I Need to Buy a House in Singapore?** — `total-upfront-cash-to-buy-property-singapore` · drips 2026-08-04
 - [~] **Private Treaty, Tender, or Auction: How Singapore Properties Are Sold** — `private-treaty-vs-tender-vs-auction-sale-singapore` · drips 2026-08-07
 - [~] **HDB Resale vs Private Property: How the Buying Process Actually Differs** — `resale-hdb-vs-private-buying-process-differences` · drips 2026-08-10
@@ -360,8 +360,8 @@ Generated overnight on Winfred's instruction ("generate over 100 new content, pu
 - [~] **Condo By-Laws: What You Can Be Fined For** — `condo-by-laws-violations-singapore` · drips 2026-07-22
 - [~] **Running For or Voting In Your MCST Council** — `mcst-council-election-guide-singapore` · drips 2026-07-25
 - [~] **Getting Renovation Approved by Your MCST** — `condo-renovation-approval-process-singapore` · drips 2026-07-28
-- [~] **When Condo Facility Bookings Go Wrong** — `condo-facility-booking-disputes-singapore` · drips 2026-08-01
-- [~] **Water Leak From the Unit Above: Who's Liable?** — `water-leak-between-units-liability-singapore` · drips 2026-08-04
+- [~] **Choosing an Agent to Sell Your HDB or Condo in Singapore** — `choosing-an-agent-to-sell-property-singapore` · drips 2026-08-01
+- [~] **How to Get a Second Opinion Before Listing Your Property** — `second-opinion-before-listing-property-singapore` · drips 2026-08-04
 - [~] **How MCSTs Catch and Penalise Illegal Short Term Rentals** — `condo-short-term-rental-enforcement-singapore` · drips 2026-08-07
 - [~] **Pet Rules in Singapore Condos: What's Actually Allowed** — `condo-pet-policy-rules-singapore` · drips 2026-08-10
 - [~] **Common Property vs Your Unit: Who Pays for What Repair** — `common-property-repair-responsibility-singapore` · drips 2026-08-13
@@ -407,7 +407,7 @@ Generated overnight on Winfred's instruction ("generate over 100 new content, pu
 - [~] **Corner Terrace HDB Flats: Why They Command a Premium** — `corner-terrace-hdb-guide-singapore` · drips 2026-07-23
 - [~] **DBSS Flats Explained: The Privately Built HDB Hybrid** — `dbss-flats-explained-singapore` · drips 2026-07-26
 - [~] **Buying a Resale EC After Privatisation: What Changes** — `ec-resale-after-privatisation-singapore` · drips 2026-07-29
-- [~] **HUDC Estates: Singapore's Privatised Public Housing** — `hudc-estates-privatised-singapore` · drips 2026-08-02
+- [~] **What a Property Agent Actually Does for a Seller in Singapore** — `what-a-property-agent-does-for-sellers-singapore` · drips 2026-08-02
 - [~] **Studio Apartments for Seniors: Singapore's Small Format HDB** — `studio-apartment-elderly-hdb-singapore` · drips 2026-08-05
 - [~] **3Gen Flats: Eligibility and Why Demand Is Rising** — `3gen-flat-eligibility-singapore` · drips 2026-08-08
 - [~] **HDB Maisonettes: The Two Storey Flats Still on the Resale Market** — `maisonette-hdb-guide-singapore` · drips 2026-08-11
@@ -978,3 +978,7 @@ Generated 2026-07-14 on Winfred's instruction (another 200). New territories: te
 - [~] **What Happens to Your Rental Lease if Your Work Pass Expires** — `employment-pass-expiry-and-your-rental-lease-singapore` · drips 2026-12-30
 - [~] **Renting a Whole HDB Flat as a Tenant: What to Know** — `renting-a-whole-hdb-flat-as-a-tenant-guide-singapore` · drips 2026-12-30
 - [~] **Viewing a Rental Property: What Tenants Should Look For** — `viewing-a-rental-property-what-tenants-should-look-for-singapore` · drips 2026-12-31
+- [~] **How Bank Valuers Actually Value Your Property** — `panel-valuer-bank-valuation-process-singapore` · drips 2026-12-31
+- [~] **When Condo Facility Bookings Go Wrong** — `condo-facility-booking-disputes-singapore` · drips 2026-12-31
+- [~] **Water Leak From the Unit Above: Who's Liable?** — `water-leak-between-units-liability-singapore` · drips 2027-01-01
+- [~] **HUDC Estates: Singapore's Privatised Public Housing** — `hudc-estates-privatised-singapore` · drips 2027-01-01
