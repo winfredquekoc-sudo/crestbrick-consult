@@ -44,7 +44,10 @@ data entry carried out under Winfred's supervision and subject to his review bef
 - Humans replying by hand (Winfred or his assistant, via phone or WhatsApp Web) are always
   safe: the engine latches manual takeover and goes silent on that chat automatically.
 - Drafts for prospects/clients are queued for human sending (WhatsApp Web) or Winfred's
-  approval — Claude never sends them directly.
+  approval. Claude may send a drafted client-facing message directly only after Winfred
+  gives explicit approval in the current chat session (e.g. "send it") for that specific
+  draft — approval does not carry over to later messages or sessions. Without that
+  explicit approval, Claude never sends them directly.
 
 ## Production changes (guarded — this repo deploys to prod)
 - winfredquek.com deploys to production on `git push` to `main` (Vercel). Treat any push to `main` as a production ship.
