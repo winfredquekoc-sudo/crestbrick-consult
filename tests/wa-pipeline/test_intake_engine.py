@@ -2,6 +2,32 @@ import sys, json, sqlite3, os
 sys.path.insert(0, os.path.expanduser("~/crestbrick-consult/src/wa-pipeline"))
 import intake_engine as E
 
+# The fixtures predate several listings closing (caspian tenanted 9 Jul 2026, others on
+# hold). Force every fixture listing open for the test process only, so the suite keeps
+# exercising the full enquiry flow instead of dead-ending on "room no longer available".
+_FIXTURE_LISTINGS = ("caspian", "hougang-703", "bedok-north-522", "tampines-855",
+                     "sunshine-terrace", "rivervale-185c", "bayshore", "eastpoint-green")
+_orig_listing_reqs = E.listing_reqs
+def _reqs_fixtures_open():
+    r = dict(_orig_listing_reqs())
+    for k in _FIXTURE_LISTINGS:
+        if k in r:
+            c = dict(r[k]); c["status"] = "open"; r[k] = c
+    return r
+E.listing_reqs = _reqs_fixtures_open
+
+# 13 Jul 2026 hardening added a SECOND, independent closed gate: _listing_unavailable also
+# cross checks the MASTER landlord DB status (not just the listing index "status" field
+# patched above), so a fixture listing that is genuinely tenanted/archived in the real
+# landlord DB (e.g. caspian) still reads as closed mid flow even with the override above.
+# Force the master status to "active" for fixture listings too, for the same reason.
+_orig_master_status = E._master_status
+def _master_status_fixtures_active(lk, reqs=None):
+    if lk in _FIXTURE_LISTINGS:
+        return "active"
+    return _orig_master_status(lk, reqs)
+E._master_status = _master_status_fixtures_active
+
 reqs = E.listing_reqs()
 P = 0; F = 0
 def ok(name, cond):
@@ -48,11 +74,15 @@ a1 = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still ava
 ok("first enquiry -> SEND_FORM", a1 and a1["type"]=="SEND_FORM")
 ok("SEND_FORM is TWO messages (unit info, then form)", a1 and len(a1.get("texts",[]))==2)
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
-ok("message 2 is the form with the 10 fields", all(x in a1["texts"][1] for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax","Move in Date","Lease Term","Budget"]))
+ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("same msg id replayed -> None (event dedup)", a1b is None)
+st["conversations"]["6591234567"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
 a2 = E.handle_event(st, {"jid":jid,"msg_id":"m2","text":"Name: Raj\nNationality: Indian\nGender: Male","is_from_me":0})
-ok("incomplete profile -> ONE nudge to prospect (almost there)", a2 and a2["type"]=="NUDGE_INCOMPLETE" and a2.get("text") and "almost there" in a2["text"].lower())
+# nudge copy changed (July): no longer "Almost there", now "thanks for the details so far...
+# could you also share your <fields>?" (_nudge_text). Same protective intent: one prospect
+# facing nudge naming the gap, not silence.
+ok("incomplete profile -> ONE nudge to prospect (share your...)", a2 and a2["type"]=="NUDGE_INCOMPLETE" and a2.get("text") and "could you also share your" in a2["text"].lower())
 ok("form NOT resent on 2nd inbound", st["conversations"]["6591234567"]["form_sent"] is True and a2["type"]!="SEND_FORM")
 # blast 5 more inbound at this prospect: the FORM must never go out again, no prospect message
 forms_after=0; prospect_msgs=0
@@ -159,7 +189,7 @@ sG={"version":1,"conversations":{}}
 aG=E.handle_event(sG,{"jid":"6590002222@s.whatsapp.net","msg_id":"G1","text":"Hi, I am interested in RENT Caspian, still available?","is_from_me":0,"listing_key":"caspian"})
 ok("genuine enquiry -> SEND_FORM", aG and aG["type"]=="SEND_FORM")
 ok("message 1 includes UNIT INFO (Lakeside/Caspian)", aG and ("Lakeside" in aG["texts"][0] or "Caspian" in aG["texts"][0]))
-ok("message 2 includes the correct bulleted form", aG and "• Name:" in aG["texts"][1] and "Type of Pass" in aG["texts"][1])
+ok("message 2 includes the correct bulleted form", aG and "• Name:" in aG["texts"][1] and "Pass type" in aG["texts"][1])
 
 print("== 7. SELF-RECOGNITION: bot's own send must NOT count as Winfred handling it ==")
 ok("is_bot_message true for the form", E.is_bot_message(E.INTAKE_FORM))
@@ -216,7 +246,9 @@ ok("SG citizen of Indian ethnicity NOT excluded (nationality is SG)", E.policy_e
 sP={"version":1,"conversations":{}}; jp="6590008888@s.whatsapp.net"
 E.handle_event(sP,{"jid":jp,"msg_id":"p1","text":"Hi is the room still available?","is_from_me":0,"listing_key":"bedok-north-522"})
 aP=E.handle_event(sP,{"jid":jp,"msg_id":"p2","text":"Name: Raj\nNationality: Indian\nEthnicity: Indian\nGender: Female\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nIntended Move in Date: 1 Jul\nPreferred Lease Term: 12\nBudget: 1500","is_from_me":0})
-ok("India profile -> REDIRECT channel referral", aP and aP["type"]=="REDIRECT" and "does not match" in aP["text"])
+# redirect copy changed (July): "your profile is not a fit for this unit" replaces the old
+# "does not match" wording. Same protective intent: a kind, reason free redirect.
+ok("India profile -> REDIRECT channel referral", aP and aP["type"]=="REDIRECT" and "not a fit" in aP["text"].lower())
 ok("redirect reveals NO reason", aP and "india" not in aP["text"].lower() and "nationality" not in aP["text"].lower())
 ok("excluded via service policy path", sP["conversations"]["6590008888"].get("status","").startswith("policy_excluded"))
 aP2=E.handle_event(sP,{"jid":jp,"msg_id":"p3","text":"hello? you there?","is_from_me":0})
@@ -231,15 +263,23 @@ ok("/mo price -> rent", E.classify_transaction("interested in the room S$ 900 /m
 ok("lump-sum price -> sale", E.classify_transaction("interested, asking S$ 2,050,000 for the unit")[0]=="sale")
 ok("token-less enquiry bound to a rent listing -> rent (registry)", E.classify_transaction("interested in Caspian, ref id 7361", "caspian")[0]=="rent")
 ok("explicit SALE token overrides a rental listing binding", E.classify_transaction("SALE - Caspian / 3 Beds / S$ 1,800,000", "caspian")[0]=="sale")
-# end to end: a SALE enquiry must never get the rental tenant intake form
+# end to end: a SALE enquiry must NEVER get the rental TENANT intake form. July design
+# (buyer intake form concept): a sale enquiry now gets its OWN buyer form (SEND_BUYER_FORM),
+# not a silent FLAG_HUMAN and not the tenant INTAKE_FORM. Protective intent preserved: the
+# tenant form must never reach a buyer.
 sS={"version":1,"conversations":{}}
 aS=E.handle_event(sS,{"jid":"6590009999@s.whatsapp.net","msg_id":"S1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":None})
-ok("sale enquiry -> FLAG_HUMAN, NOT SEND_FORM", aS and aS["type"]=="FLAG_HUMAN" and "sale" in aS.get("reason","").lower())
-ok("sale enquiry sends NO tenant-facing message", aS and aS.get("text") is None)
+ok("sale enquiry -> SEND_BUYER_FORM (buyer intake), not FLAG_HUMAN", aS and aS["type"]=="SEND_BUYER_FORM" and "sale" in aS.get("reason","").lower())
+ok("sale enquiry sends the BUYER form, never the tenant INTAKE_FORM", aS and aS.get("text") and E.INTAKE_FORM not in aS["text"] and "Citizenship" in aS["text"])
 sR={"version":1,"conversations":{}}
 aR=E.handle_event(sR,{"jid":"6590007777@s.whatsapp.net","msg_id":"R1","text":"I am interested in: RENT - Caspian / Room / S$ 1,100 /mo","is_from_me":0,"listing_key":"caspian"})
 ok("rental enquiry still -> SEND_FORM", aR and aR["type"]=="SEND_FORM")
-# a SALE enquiry must not permanently silence a person who later sends a RENTAL enquiry
+# a SALE enquiry must not permanently silence a person who later sends a RENTAL enquiry.
+# TRUE REGRESSION (reported, not fixed here): once buyer_form_sent latches, EVERY subsequent
+# inbound is routed to _buyer_followup with no rent/sale re-classification, so an unambiguous
+# later "RENT - ..." enquiry (even with an explicit portal token and a bound listing) is
+# swallowed as a buyer-flow ANSWER_QUESTION (silent to the prospect) instead of SEND_FORM.
+# Left failing on purpose to surface this; see report.
 sSR={"version":1,"conversations":{}}
 E.handle_event(sSR,{"jid":"6590006611@s.whatsapp.net","msg_id":"sr1","text":"I am interested in: SALE - Clavon / S$2,050,000","is_from_me":0,"listing_key":None})
 aSR=E.handle_event(sSR,{"jid":"6590006611@s.whatsapp.net","msg_id":"sr2","text":"RENT - Caspian / Room / S$1,100/mo still available?","is_from_me":0,"listing_key":"caspian"})
@@ -295,7 +335,9 @@ ok("opposite-sex couple on female_only + couple_ok FALSE -> DISQUALIFIED",
 ok("_to_int huge number -> None (no crash)", E._to_int("999999999999999999999") is None)
 ok("extract_profile on a giant pasted number does not crash", isinstance(E.extract_profile("budget 999999999999999999999999"), dict))
 # PDPA consent line on the form
-ok("INTAKE_FORM has the field labels and NO CEA signoff", "• Name:" in E.INTAKE_FORM and "• Budget (" in E.INTAKE_FORM and "R073319H" not in E.INTAKE_FORM)
+# the Budget field hint ("(S$ per month)") was dropped from the live form (plain "• Budget:"
+# now); extract_profile's hint tolerance is covered separately in section 18.
+ok("INTAKE_FORM has the field labels and NO CEA signoff", "• Name:" in E.INTAKE_FORM and "• Budget:" in E.INTAKE_FORM and "R073319H" not in E.INTAKE_FORM)
 
 print("== 14. CYCLE-3 HARDENING regressions ==")
 # offered slot must be future-floored (no past-dated slot offered/confirmed)
@@ -319,10 +361,12 @@ _fx = E._fixed_viewing_slot("bayshore", "2026-06-17")
 ok("bayshore has a fixed_viewing rule", _fx is not None)
 _fxcfg = (E.listing_reqs().get("bayshore",{}) or {}); _fxcfg = _fxcfg.get("fixed_viewing") or (_fxcfg.get("requirements",{}) or {}).get("fixed_viewing") or {}
 ok("fixed slot matches the configured time, marked fixed", _fx and _fx["start"]==_fxcfg.get("start") and _fx["end"]==_fxcfg.get("end") and _fx.get("fixed"))
-ok("fixed slot lands on the configured weekday (Sat)", _fx and __import__("datetime").date(*map(int,_fx["date"].split("-"))).weekday()==5)
-ok("from a Wed -> offers the COMING Saturday (06-20)", _fx and _fx["date"]=="2026-06-20")
-ok("rolls to next week once that Saturday passes", E._fixed_viewing_slot("bayshore","2026-06-22")["date"]=="2026-06-27")
-ok("on the day itself it still offers that day", E._fixed_viewing_slot("bayshore","2026-06-20")["date"]=="2026-06-20")
+# bayshore's fixed_viewing weekday moved from Sat to Fri 14 Jul 2026 (hardcoded slot config:
+# eastpoint-green Fri 7.15 to 8pm, bayshore Fri 8 to 9pm; see reference_fixed_viewing_slots).
+ok("fixed slot lands on the configured weekday (Fri)", _fx and __import__("datetime").date(*map(int,_fx["date"].split("-"))).weekday()==4)
+ok("from a Wed -> offers the COMING Friday (06-19)", _fx and _fx["date"]=="2026-06-19")
+ok("rolls to next week once that Friday passes", E._fixed_viewing_slot("bayshore","2026-06-22")["date"]=="2026-06-26")
+ok("on the day itself it still offers that day", E._fixed_viewing_slot("bayshore","2026-06-19")["date"]=="2026-06-19")
 ok("next_future_slot returns the fixed slot (overrides the availability file)", (E.next_future_slot("bayshore") or {}).get("fixed") is True)
 ok("a listing with NO fixed rule is unaffected", E._fixed_viewing_slot("caspian","2026-06-17") is None)
 
@@ -341,17 +385,27 @@ E.handle_event(sdq,{"jid":jdq,"msg_id":"dq2","text":"let me check ah","is_from_m
 _dqf="Name: Raj\nNationality: Indian\nEthnicity: Indian\nGender: Male\nAge: 30\nType of Pass: EP\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 1200"
 aDq=E.handle_event(sdq,{"jid":jdq,"msg_id":"dq3","text":_dqf,"is_from_me":0})
 ok("DISQUALIFIED under manual -> COPILOT_VERDICT (notify), no prospect message", aDq and aDq["type"]=="COPILOT_VERDICT" and aDq.get("notify") is True and aDq.get("text") is None)
-# manual takeover + QUALIFIED + open slot (bayshore has a fixed weekly slot) -> AUTO-OFFER viewing
-_qf="Name: Mei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 30\nType of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 1500"
+# manual takeover + QUALIFIED + open slot (bayshore has a fixed weekly slot).
+# bayshore's master room rent rose to $2,300/mth (budget_floor 2300 in the live listing index);
+# the old $1,500 fixture budget now DISQUALIFIES on price alone, so bump it above the floor.
+# NOTE 31 Jul 2026: this used to assert an auto-offer (OFFER_VIEWING) fired here. The 26 Jul
+# hardening (c634271) tightened the single-sender rule so manual_takeover and copilot_muted
+# are now ALWAYS set together (every code path that sets one sets both) -- there is no longer
+# any way to reach "manual takeover, not muted" through a real inbound event, which is the
+# correct, doctrine-aligned behavior ("after a hand reply the copilot may never message this
+# prospect again"). The autonomous (non-manual) auto-offer -> confirm flow is still fully
+# covered elsewhere (see "prospect says yes -> CONFIRM_VIEWING" and the open-intake
+# OFFER_VIEWING test) and unaffected. This scenario now correctly stays silent throughout,
+# only ever pinging Winfred with a screening verdict.
+_qf="Name: Mei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 30\nType of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Aug\nPreferred Lease Term: 12 months\nBudget: 2500"
 sql={"version":1,"conversations":{}}; jql="6590223300@s.whatsapp.net"
 E.handle_event(sql,{"jid":jql,"msg_id":"q1","text":"Hi is the Bayshore room still available?","is_from_me":0,"listing_key":"bayshore"})
 E.handle_event(sql,{"jid":jql,"msg_id":"q2","text":"let me check with owner ah","is_from_me":1,"engine":False})
 aQ=E.handle_event(sql,{"jid":jql,"msg_id":"q3","text":_qf,"is_from_me":0})
-ok("QUALIFIED under manual + slot -> AUTO-OFFER viewing to prospect", aQ and aQ["type"]=="OFFER_VIEWING" and aQ.get("text"))
-ok("auto-offer also pings Winfred (copilot + notify)", aQ and aQ.get("copilot") is True and aQ.get("notify") is True)
-ok("auto-offer not repeated on a neutral reply", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"hmm let me think about it","is_from_me":0}) is None)
-aYes=E.handle_event(sql,{"jid":jql,"msg_id":"q5","text":"yes sounds good","is_from_me":0})
-ok("prospect YES after auto-offer -> bot CONFIRMS the viewing + pings Winfred", aYes and aYes["type"]=="CONFIRM_VIEWING" and aYes.get("text") and aYes.get("notify") is True)
+ok("QUALIFIED under manual (muted) + slot -> COPILOT_VERDICT, no prospect send", aQ and aQ["type"]=="COPILOT_VERDICT" and aQ.get("verdict")=="QUALIFIED" and aQ.get("text") is None)
+ok("verdict still pings Winfred (notify), never the prospect", aQ and aQ.get("notify") is True)
+ok("verdict not repeated on a neutral reply (same profile, same sig)", E.handle_event(sql,{"jid":jql,"msg_id":"q4","text":"hmm let me think about it","is_from_me":0}) is None)
+ok("prospect YES under muted manual takeover -> still silent, no stray CONFIRM_VIEWING", E.handle_event(sql,{"jid":jql,"msg_id":"q5","text":"yes sounds good","is_from_me":0}) is None)
 sqn={"version":1,"conversations":{"6590224400":{"pn":"6590224400","listing_key":"bayshore","stage":"VIEWING_OFFERED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":True,"status":"manual","offered_slot_id":"s1"}}}
 aQn=E.handle_event(sqn,{"jid":"6590224400@s.whatsapp.net","msg_id":"qn1","text":"is parking included?","is_from_me":0})
 ok("question after auto-offer (manual) -> ANSWER_QUESTION ping, no auto-answer", aQn and aQn["type"]=="ANSWER_QUESTION" and aQn.get("notify") is True and aQn.get("text") is None)
@@ -363,9 +417,11 @@ aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_qf,"is_from_me":0,"list
 ok("known landlord under manual takeover -> NO co-pilot/auto-offer", aLr is None)
 
 print("== 17. FORM: Preferred Location captured + NO CEA signoff in any tenant-facing copy ==")
-ok("INTAKE_FORM includes a Preferred Location field", "Preferred Location" in E.INTAKE_FORM)
+# the form field itself was shortened to "Location" (still parsed into preferred_location by
+# extract_profile's "preferred location|preferred area|location" fallback, checked below).
+ok("INTAKE_FORM includes a Location field", "• Location:" in E.INTAKE_FORM)
 ok("INTAKE_FORM still has all 10 required field labels",
-   all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Type of Pass","No. of Pax","Move in Date","Lease Term","Budget"]))
+   all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","No. of pax","Move in date","Lease term","Budget"]))
 ok("extract_profile captures preferred_location", E.extract_profile("Preferred Location: Tampines").get("preferred_location")=="Tampines")
 ok("preferred_location is NOT a required field (does not gate qualify)", "preferred_location" not in E.REQUIRED_FIELDS)
 ok("INTAKE_FORM has no CEA signoff", "R073319H" not in E.INTAKE_FORM)
@@ -383,6 +439,7 @@ ok("blank hinted field -> hint NOT captured as a value", E.extract_profile("• 
 ok("blank INTAKE_FORM still yields zero required fields", E.missing_required(E.extract_profile(E.INTAKE_FORM))==E.REQUIRED_FIELDS)
 sn={"version":1,"conversations":{}}; jn="6590778899@s.whatsapp.net"
 E.handle_event(sn,{"jid":jn,"msg_id":"n1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
+sn["conversations"]["6590778899"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
 an=E.handle_event(sn,{"jid":jn,"msg_id":"n2","text":"Name: Mei\nBudget: 1300","is_from_me":0})
 ok("partial profile -> NUDGE_INCOMPLETE to prospect", an and an["type"]=="NUDGE_INCOMPLETE" and an.get("text"))
 ok("nudge names a missing field, no CEA", an and "nationality" in an["text"].lower() and "R073319H" not in an["text"])
@@ -452,23 +509,81 @@ _BAY={"requirements":{"open_intake":True,"ethnicity_rule":{"mode":"any","list":[
 _EAS={"requirements":{"open_intake":True,"ethnicity_rule":{"mode":"exclude","list":["Indian"]},"nationality_pref":{"mode":"exclude","list":["India","Indian"]}}}
 ok("open: name+pax alone -> QUALIFIED", E.qualify(_BAY,{"name":"A","no_of_pax":1})[0]=="QUALIFIED")
 ok("open: accepts all nationalities incl Indian", E.qualify(_BAY,{"name":"A","no_of_pax":1,"nationality":"Indian"})[0]=="QUALIFIED")
-ok("open: ignores budget/occupation/lease/age", E.qualify(_BAY,{"name":"A","no_of_pax":1,"budget":1,"occupation":"student","lease_term_months":1,"age":18})[0]=="QUALIFIED")
+# a GLOBAL 1 year lease floor (Winfred, 11 Jul 2026) now applies even to open_intake listings,
+# so a lease_term_months below 12 is no longer silently ignored (SHORT_LEASE, not QUALIFIED).
+# budget/occupation/age remain ungated for an open listing with no budget_floor configured.
+ok("open: ignores budget/occupation/age (lease has its own global 1yr floor)",
+   E.qualify(_BAY,{"name":"A","no_of_pax":1,"budget":1,"occupation":"student","lease_term_months":12,"age":18})[0]=="QUALIFIED")
 ok("open+kept gate: eastpoint India -> DISQUALIFIED", E.qualify(_EAS,{"name":"A","no_of_pax":1,"nationality":"India"})[0]=="DISQUALIFIED")
 ok("open+kept gate: eastpoint non-India -> QUALIFIED", E.qualify(_EAS,{"name":"A","no_of_pax":1,"nationality":"Singaporean"})[0]=="QUALIFIED")
 ok("open+kept gate: eastpoint no nationality -> NEEDS_INFO", E.qualify(_EAS,{"name":"A","no_of_pax":1})[0]=="NEEDS_INFO")
-ok("open missing_required: just name+pax for bayshore", E.missing_required({"name":"A","no_of_pax":1},_BAY)==[])
-ok("open missing_required: eastpoint also needs nationality", E.missing_required({"name":"A","no_of_pax":1},_EAS)==["nationality"])
+# missing_required for an open listing now ALSO requires budget + lease_term_months (must
+# knows for affordability + the 1yr floor, Winfred 11 Jul 2026), not just name+pax.
+ok("open missing_required: name+pax for bayshore still needs budget+lease", E.missing_required({"name":"A","no_of_pax":1},_BAY)==["budget","lease_term_months"])
+ok("open missing_required: eastpoint also needs nationality", E.missing_required({"name":"A","no_of_pax":1},_EAS)==["budget","lease_term_months","nationality"])
 ok("open: baby ALWAYS blocked", E.policy_excluded({"no_of_pax":2},"coming with a baby",open_intake=True)=="family")
 ok("open: India NOT blocked by global policy (per-listing instead)", E.policy_excluded({"nationality":"India"},"",open_intake=True) is None)
 ok("non-open regression: India still globally blocked", E.policy_excluded({"nationality":"India"},"",open_intake=False)=="nationality")
 ok("non-open regression: full form still required", set(E.missing_required({"name":"A"}))>= {"nationality","budget"})
-# end to end: open listing enquiry -> SHORT form -> brief reply -> viewing offered
+# end to end: open listing enquiry -> FULL form (the short open-intake form was retired 13 Jul
+# 2026 -- "the short open-intake form caused form-after-form sequences and violated the
+# standing full-form rule", so every enquiry, open_intake or not, now gets the same full
+# 14 field INTAKE_FORM) -> brief reply with the open-intake must-knows -> viewing offered.
 _so={"version":1,"conversations":{"6590999009":{"pn":"6590999009","listing_key":"bayshore","stage":"NEW","profile":{},"processed_ids":[],"form_sent":False,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":False,"status":"new","last_inbound":None}}}
 _so1=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o1","text":"hi is the bayshore room available to rent?","is_from_me":0})
 _form=(_so1.get("texts") or [_so1.get("text") or ""])[-1]
-ok("open enquiry -> SEND_FORM with the SHORT form", _so1.get("type")=="SEND_FORM" and "Name:" in _form and "Budget" not in _form and "Occupation" not in _form)
-_so2=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o2","text":"Name: John\nNationality: Malaysian\nNo. of Pax: 1","is_from_me":0})
-ok("open brief reply -> OFFER_VIEWING", _so2.get("type")=="OFFER_VIEWING")
+ok("open enquiry -> SEND_FORM with the FULL form (short form retired 13 Jul 2026)",
+   _so1.get("type")=="SEND_FORM" and "Name:" in _form and "Budget:" in _form and "Occupation" in _form)
+_so["conversations"]["6590999009"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
+_so2=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o2","text":"Name: John\nNationality: Malaysian\nNo. of Pax: 1\nBudget: 2500\nLease: 12 months","is_from_me":0})
+ok("open brief reply (name+pax+budget+lease, the open-intake must knows) -> OFFER_VIEWING", _so2 and _so2.get("type")=="OFFER_VIEWING")
+
+print("== LEAD SOURCE: first-touch attribution (website CTA vs portal vs unknown) ==")
+# unit tests on the classifier itself
+ok("portal wins regardless of text", E.classify_lead_source("hi is this still available", "bayshore")=="portal")
+ok("website: matches a real site CTA phrase, 'Hi Winfred,' anchored",
+   E.classify_lead_source("Hi Winfred, I have a property question.", None)=="website")
+ok("website: 'I'd like to discuss' family",
+   E.classify_lead_source("Hi Winfred, I'd like to discuss Lentor Gardens Residences.", None)=="website")
+ok("website: 'I read your article' family (insights CTA)",
+   E.classify_lead_source("Hi Winfred, I read your article and would like a portfolio enquiry.", None)=="website")
+ok("unknown: organic Carousell-style message, no CTA phrasing, no listing_key",
+   E.classify_lead_source("hey is the flat still up for rent", None)=="unknown")
+ok("unknown: CTA phrase present but NOT anchored at 'Hi Winfred,' start (unlikely to be the real CTA)",
+   E.classify_lead_source("someone told me you can help, i have a property question", None)=="unknown")
+ok("unknown: no text at all", E.classify_lead_source(None, None)=="unknown")
+
+# end to end via handle_event: stamped once on first genuine inbound, never re-classified
+_sp = {"version":1,"conversations":{}}
+E.handle_event(_sp, {"jid":"6590055501@s.whatsapp.net","msg_id":"sp1","text":"hi still available?","is_from_me":0,"listing_key":"bayshore"})
+ok("portal-attributed record stores source=portal", _sp["conversations"]["6590055501"]["source"]=="portal")
+
+_sw = {"version":1,"conversations":{}}
+E.handle_event(_sw, {"jid":"6590055502@s.whatsapp.net","msg_id":"sw1","text":"Hi Winfred, I have a question about upgrading from my HDB.","is_from_me":0})
+ok("website-attributed record stores source=website", _sw["conversations"]["6590055502"]["source"]=="website")
+
+_su = {"version":1,"conversations":{}}
+E.handle_event(_su, {"jid":"6590055503@s.whatsapp.net","msg_id":"su1","text":"saw ur listing on carousell, still got?","is_from_me":0})
+ok("unattributed record stores source=unknown", _su["conversations"]["6590055503"]["source"]=="unknown")
+
+E.handle_event(_su, {"jid":"6590055503@s.whatsapp.net","msg_id":"su2","text":"Hi Winfred, I have a property question.","is_from_me":0})
+ok("source is first-touch only: a later CTA-shaped reply does NOT overwrite the original unknown",
+   _su["conversations"]["6590055503"]["source"]=="unknown")
+
+print("== NAME EXTRACTION: 'name' matched in prose, not just 'Name:' fields (31 Jul 2026 fix) ==")
+# grab() has no way to tell a structured "Name:" field apart from the bare word "name"
+# inside a sentence -- "my name is Ruth" used to capture "is Ruth" as the name (also seen
+# live as garbled "an"). A leading connector verb is now stripped.
+ok("free-text 'my name is Ruth' -> name is 'Ruth', not 'is Ruth'",
+   E.extract_profile("my name is Ruth").get("name")=="Ruth")
+ok("free-text \"name's Ruth\" (apostrophe-s, no space) -> 'Ruth'",
+   E.extract_profile("name's Ruth").get("name")=="Ruth")
+ok("structured 'Name: Ruth' still works (regression guard)",
+   E.extract_profile("Name: Ruth\nBudget: 500000").get("name")=="Ruth")
+ok("buyer flow: 'my name is Ruth' on its own line -> name 'Ruth'",
+   E.extract_buyer("my name is Ruth\nBudget: 500k").get("name")=="Ruth")
+ok("buyer flow free-form 'im Ken' fallback still works",
+   E.extract_buyer("im Ken, budget 800k").get("name")=="Ken")
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
