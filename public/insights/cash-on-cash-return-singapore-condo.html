@@ -22,7 +22,9 @@
   <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/fonts/fonts.css">
   <style>:root{--bg:#0f1117;--ink:#e8e6e1;--ink-muted:#9ca3af;--accent:#c6a36a;--rule:rgba(255,255,255,0.08)}*{box-sizing:border-box;margin:0;padding:0}body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.7}a{color:var(--accent)}h1,h2,h3{font-family:'Fraunces',serif}.quick-answer{border-left:3px solid var(--accent);padding:.75rem 1rem;margin:1rem 0 1.5rem;background:rgba(198,163,106,.07);font-size:.95rem;line-height:1.65;border-radius:0 4px 4px 0}table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.92rem}th{background:rgba(198,163,106,.15);color:var(--accent);padding:.6rem 1rem;text-align:left}td{padding:.55rem 1rem;border-bottom:1px solid var(--rule)}.warn{background:rgba(239,68,68,.08);border-left:3px solid #ef4444;padding:.75rem 1rem;margin:1.5rem 0;border-radius:0 4px 4px 0;font-size:.9rem}.flow-step{counter-increment:step;display:flex;gap:1rem;margin:.75rem 0}.flow-step::before{content:counter(step);flex-shrink:0;width:2rem;height:2rem;border-radius:50%;background:var(--accent);color:#0f1117;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem}.steps{counter-reset:step}nav{padding:1rem 1.5rem;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--rule)}.btn{display:inline-block;padding:.6rem 1.4rem;background:var(--accent);color:#0f1117;font-weight:600;border-radius:4px;text-decoration:none;font-size:.9rem}article{max-width:780px;margin:0 auto;padding:2rem 1.5rem}footer{border-top:1px solid var(--rule);padding:2rem 1.5rem;font-size:.82rem;color:var(--ink-muted);text-align:center}</style>
-<script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script></head>
+<script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 <nav><a href="/" style="font-family:'Fraunces',serif;font-size:1.1rem;font-weight:700;color:var(--ink);text-decoration:none">Winfred Quek</a><a href="https://calendly.com/winfredquekoc" class="btn">Book a Call</a></nav>
 <article>
@@ -32,7 +34,7 @@
   <div class="quick-answer"><strong>Quick answer:</strong> Cash-on-cash return measures annual net rental income after loan repayments, divided by total cash deployed (downpayment + stamp duties + renovation). A condo with $363K cash deployed earning $3,600/month net of loan gives a 11.9% CoC but this example uses high-yield OCR. CCR condos typically yield 1–2% CoC. ABSD on second properties makes positive CoC very difficult for multi-property investors.</div>
 <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.5rem;margin-bottom:1.5rem;">Facts verified: May 2026 · Sources linked below</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">The Cash-on-Cash Formula</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="the-cash-on-cash-formula">The Cash-on-Cash Formula</h2>
   <p style="background:rgba(198,163,106,.07);padding:.75rem 1rem;border-radius:4px;font-family:monospace;margin:.75rem 0"><strong>CoC Return = Annual Net Cash Flow ÷ Total Cash Invested</strong></p>
   <p>Where:</p>
   <ul style="margin:.75rem 0 .75rem 1.5rem;line-height:2">
@@ -40,7 +42,7 @@
     <li><strong>Total Cash Invested</strong> = Downpayment + BSD + ABSD (if applicable) + Renovation + Legal fees</li>
   </ul>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Example 1: First-Property OCR Condo (No ABSD)</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="example-1-first-property-ocr-condo-no-absd">Example 1: First-Property OCR Condo (No ABSD)</h2>
   <table>
     <thead><tr><th>Item</th><th>Amount</th></tr></thead>
     <tbody>
@@ -63,7 +65,7 @@
   </table>
   <p>This looks low. The reason: at 1.6% interest rate, the loan repayment consumes most of the rental income. CoC is a measure of immediate cash yield it does not capture equity build-up from principal repayment or capital appreciation, both of which can be significant.</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Example 2: Second-Property with ABSD (SC)</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="example-2-second-property-with-absd-sc">Example 2: Second-Property with ABSD (SC)</h2>
   <table>
     <thead><tr><th>Item</th><th>Amount</th></tr></thead>
     <tbody>
@@ -84,7 +86,7 @@
   </table>
   <div class="warn"><strong>Key insight:</strong> ABSD adds $300K to the denominator without increasing rental income. This destroys CoC yield. Second-property buys in Singapore are primarily capital appreciation plays, not yield plays. The math only works if you believe the property will appreciate substantially over 5–10 years.</div>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">CoC Scenario Comparison (First Property, No ABSD)</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="coc-scenario-comparison-first-property-no-absd">CoC Scenario Comparison (First Property, No ABSD)</h2>
   <table>
     <thead><tr><th>District</th><th>Price</th><th>Monthly Rent</th><th>Gross Yield</th><th>Est. CoC</th></tr></thead>
     <tbody>
@@ -97,7 +99,7 @@
   </table>
   <p style="font-size:.85rem;color:var(--ink-muted)">Assumes 75% LTV, 1.6% rate, 30yr tenure, first property (no ABSD), standard renovation $25K–$35K. CoC improves with lower interest rate, higher LTV not available for 2nd property.</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">What CoC Misses</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="what-coc-misses">What CoC Misses</h2>
   <p>CoC is a snapshot of immediate cash flow. It does not measure:</p>
   <ul style="margin:.75rem 0 .75rem 1.5rem;line-height:2">
     <li>Capital appreciation (historically 4–5% p.a. for Singapore private residential)</li>
@@ -108,7 +110,7 @@
   <p>For Singapore property, total return (CoC + capital appreciation + equity build-up) is a more complete measure than CoC alone.</p>
 
   
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Related reading</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="related-reading">Related reading</h2>
   <ul style="margin:.5rem 0 1.5rem;padding-left:1.25rem">
     <li><a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent)">Rental yield vs appreciation in Singapore</a></li>
     <li><a href="/insights/singapore-property-yield-by-district" style="color:var(--accent)">Singapore property yield by district</a></li>
@@ -123,7 +125,7 @@
     <a href="https://calendly.com/winfredquekoc" class="btn">Book a Free 30-Min Session</a>
   </div>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">How to Calculate Cash-on-Cash Return: Step-by-Step</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="how-to-calculate-cash-on-cash-return-step-by-step">How to Calculate Cash-on-Cash Return: Step-by-Step</h2>
   <div class="steps">
     <div class="flow-step"><div><strong>Step 1 Add up every dollar of cash deployed.</strong> Downpayment (25% for first property, 45–55% for second), BSD, ABSD if applicable, renovation budget, and legal fees. This is your denominator.</div></div>
     <div class="flow-step"><div><strong>Step 2 Project annual gross rental income.</strong> Use URA rental data or 99.co/PropertyGuru listings for comparable units. For a 2BR in D19, current market rents are $3,800–$4,500/month depending on furnishing and MRT proximity.</div></div>
@@ -132,7 +134,7 @@
     <div class="flow-step"><div><strong>Step 5 Divide net annual cash flow by total cash deployed.</strong> Multiply by 100 for percentage. Positive result = cash flow positive investment. Negative = you are topping up monthly but building equity.</div></div>
   </div>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">When CoC Turns Positive: The Interest Rate Tipping Point</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="when-coc-turns-positive-the-interest-rate-tipping-point">When CoC Turns Positive: The Interest Rate Tipping Point</h2>
   <p>At 1.6% mortgage rate (current market, 2026), most Singapore condo investments are barely cash flow positive or slightly negative. The CoC calculation is extremely sensitive to the interest rate:</p>
   <table>
     <thead><tr><th>Mortgage Rate</th><th>Monthly Instalment ($900K, 30yr)</th><th>Annual Loan Cost</th><th>Net Cash Flow (D19, $3,800 rent)</th><th>CoC</th></tr></thead>
@@ -145,7 +147,7 @@
   </table>
   <p style="font-size:.85rem;color:var(--ink-muted)">Assumes $1.2M D19 condo, 25% downpayment + BSD + $30K renovation = $367K cash deployed. $3,800/month rent, $2,880/yr property tax, $1,800/yr maintenance.</p>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">What Most People Get Wrong About CoC</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="what-most-people-get-wrong-about-coc">What Most People Get Wrong About CoC</h2>
   <ul style="margin:.75rem 0 .75rem 1.5rem;line-height:2">
     <li><strong>Using gross yield instead of net cash flow.</strong> A 4% gross yield sounds decent. But after loan repayments, property tax, and maintenance, the net CoC is often under 1%. Always model the full cash flow, not just gross rental income.</li>
     <li><strong>Forgetting vacancy.</strong> Even in a strong rental market, the typical Singapore condo has 2–4 weeks vacancy between tenancies per year. Model 11 months of rental income, not 12, as a conservative baseline.</li>
@@ -154,7 +156,7 @@
     <li><strong>Ignoring CPF accrued interest on exit.</strong> When you eventually sell, you refund CPF + accrued interest at 2.5% p.a. A $150K CPF deployment accrues $4,000/yr in "phantom cost." This reduces your actual return on sale and should be factored into long-term CoC analysis.</li>
   </ul>
 
-  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem">Frequently Asked Questions</h2>
+  <h2 style="font-size:1.3rem;margin:1.5rem 0 .75rem" id="frequently-asked-questions">Frequently Asked Questions</h2>
 
   <h3 style="font-size:1.05rem;margin:1.25rem 0 .5rem">Is 1% cash-on-cash return worth it for a Singapore condo?</h3>
   <p>In isolation, 1% CoC sounds poor compared to CPF SA at 4% guaranteed. But Singapore property investors accept low CoC because the real return comes from capital appreciation (historically 4–5% p.a.) and equity build-up through principal repayment. The leveraged total return factoring appreciation on the full property value against your equity is far higher than CoC alone suggests. CoC is a snapshot of cash flow efficiency, not a complete measure of investment return.</p>
@@ -171,16 +173,16 @@
   <p style="font-size:.85rem;color:var(--ink-muted)">Related: <a href="/insights/singapore-rental-market-landlord-2026">Singapore Rental Market 2026</a> · <a href="/insights/rental-yield-vs-appreciation">Rental Yield vs Appreciation</a> · <a href="/insights/singapore-property-vs-reits-vs-cpf">Property vs REITs vs CPF</a></p>
 </article>
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.85rem;"><a href="https://www.ura.gov.sg/Corporate/Property/Property-Data/Download-Property-Data" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">URA: Download Property Data</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.ura.gov.sg/property-data/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">URA: Download Property Data</a></li>
     <li style="font-size:.85rem;"><a href="https://data.gov.sg" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Data.gov.sg: Singapore Open Data</a></li>
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/individual-income-tax/basics-of-individual-income-tax/what-is-taxable-what-is-not/income-from-property-rented-out" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Rental Income (Individual Income Tax)</a></li>
   </ul>
 </section>
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/industrial-vs-residential-investment-sg" style="color:var(--accent);">Industrial vs Residential Property Singapore: Net Yield and Capital Gain Compared</a></li>
     <li style="font-size:.9rem;"><a href="/insights/negative-gearing-singapore-property" style="color:var(--accent);">Running Singapore Property at a Rental Loss: What IRAS Actually Allows</a></li>
@@ -192,6 +194,7 @@
 <footer>
   <p>Winfred Quek · CEA Salesperson Registration No. R073319H · Crestbrick Pte Ltd (CEA Licence No. L31010886H)</p>
   <p style="margin-top:.5rem"><a href="/insights">← Back to Insights</a> · <a href="/tools/absd">ABSD Calculator</a> · <a href="https://wa.me/6581618149">WhatsApp</a></p>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 </body>
 </html>

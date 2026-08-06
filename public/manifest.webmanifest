@@ -1,12 +1,15 @@
 {
-  "name": "Winfred Quek ,  Crestbrick",
-  "short_name": "Winfred Quek",
-  "description": "Investor-minded property advisor, Singapore. Crestbrick.",
+  "name": "Winfred Quek Property",
+  "short_name": "Winfred",
+  "description": "Investor minded property advisor, Singapore. Winfred Quek, CEA R073319H.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#faf8f4",
-  "theme_color": "#1a1a1a",
+  "background_color": "#0f1117",
+  "theme_color": "#0f1117",
   "icons": [
-    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" }
+    { "src": "/favicon.svg", "type": "image/svg+xml", "sizes": "any" },
+    { "src": "/apple-touch-icon.png", "type": "image/png", "sizes": "180x180" },
+    { "src": "/img/og/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
+    { "src": "/img/og/icon-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
   ]
 }

@@ -100,7 +100,9 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -178,7 +180,7 @@
   <!-- ABSD -->
   <div class="rules-section" id="absd-rules">
     <span class="tag tag-active">Active · Since April 2023</span>
-    <h2>Additional Buyer's Stamp Duty (ABSD)</h2>
+    <h2 id="additional-buyer-s-stamp-duty-absd">Additional Buyer's Stamp Duty (ABSD)</h2>
     <div class="rule-summary">ABSD is imposed under the Stamp Duties Act on the purchase of residential property. It is payable by the buyer within 14 days of OTP exercise on the full purchase price or market value, whichever is higher. It is in addition to Buyer's Stamp Duty (BSD).</div>
 
     <h3>Rate Table</h3>
@@ -211,7 +213,7 @@
   <!-- BSD -->
   <div class="rules-section" id="bsd-rules">
     <span class="tag tag-active">Active · Current tiers since Feb 2023</span>
-    <h2>Buyer's Stamp Duty (BSD)</h2>
+    <h2 id="buyer-s-stamp-duty-bsd">Buyer's Stamp Duty (BSD)</h2>
     <div class="rule-summary">BSD applies to all buyers of all property types (residential, commercial, industrial) in Singapore. It is non-refundable, payable within 14 days of OTP exercise, and calculated on the higher of purchase price or market value assessed by IRAS.</div>
 
     <h3>Residential BSD Rate Tiers</h3>
@@ -242,7 +244,7 @@
   <!-- SSD -->
   <div class="rules-section" id="ssd-rules">
     <span class="tag tag-active">Active · Current rates since 4 Jul 2025</span>
-    <h2>Seller's Stamp Duty (SSD)</h2>
+    <h2 id="seller-s-stamp-duty-ssd">Seller's Stamp Duty (SSD)</h2>
     <div class="rule-summary">SSD is imposed on sellers of residential property. From 4 Jul 2025, the holding period reverted to 4 years with rates up to 16%; property bought before 4 Jul 2025 keeps the earlier 3 year, up to 12% schedule. SSD is designed to deter short-term speculation and is calculated on the higher of sale price or market value at date of sale.</div>
 
     <h3>SSD Rate Table -- property bought on or after 4 Jul 2025</h3>
@@ -285,7 +287,7 @@
   <!-- TDSR / MSR / LTV -->
   <div class="rules-section" id="tdsr-rules">
     <span class="tag tag-active">Active · MAS Notices 632/645</span>
-    <h2>TDSR, MSR &amp; LTV Rules</h2>
+    <h2 id="tdsr-msr-ltv-rules">TDSR, MSR &amp; LTV Rules</h2>
     <div class="rule-summary">MAS-mandated rules governing how much Singapore financial institutions may lend against residential property. Apply to all bank and finance company loans. HDB concessionary loans governed by HDB's own rules.</div>
 
     <h3>TDSR Total Debt Servicing Ratio</h3>
@@ -318,7 +320,7 @@
   <!-- HDB -->
   <div class="rules-section" id="hdb-rules">
     <span class="tag tag-active">Active · Housing and Development Act</span>
-    <h2>HDB Eligibility &amp; MOP Rules</h2>
+    <h2 id="hdb-eligibility-mop-rules">HDB Eligibility &amp; MOP Rules</h2>
     <div class="rule-summary">HDB flats are public housing regulated under the Housing and Development Act. Key rules govern who can buy, when they can sell, and what other properties they may hold concurrently.</div>
 
     <h3>Buyer Eligibility</h3>
@@ -342,7 +344,7 @@
   <!-- CPF -->
   <div class="rules-section" id="cpf-rules">
     <span class="tag tag-active">Active · CPF Act</span>
-    <h2>CPF Housing Rules</h2>
+    <h2 id="cpf-housing-rules">CPF Housing Rules</h2>
     <div class="rule-summary">CPF Ordinary Account (OA) savings may be used for property down payment and monthly mortgage servicing subject to CPF Board rules. All withdrawn amounts plus 2.5% p.a. accrued interest must be refunded to CPF OA upon property sale.</div>
 
     <h3>Withdrawal Limits</h3>
@@ -365,7 +367,7 @@
   <!-- Foreign Ownership -->
   <div class="rules-section" id="foreign-rules">
     <span class="tag tag-active">Active · Residential Property Act</span>
-    <h2>Foreign Ownership Rules</h2>
+    <h2 id="foreign-ownership-rules">Foreign Ownership Rules</h2>
     <div class="rule-summary">Foreign ownership of Singapore residential property is governed by the Residential Property Act. Foreigners may purchase private non-landed residential property freely (subject to 60% ABSD). Restrictions apply to HDB flats and landed property.</div>
 
     <h3>What Foreigners Can Buy</h3>
@@ -391,7 +393,7 @@
   <!-- Property Tax -->
   <div class="rules-section" id="proptax-rules">
     <span class="tag tag-active">Active · Property Tax Act</span>
-    <h2>Property Tax Rules</h2>
+    <h2 id="property-tax-rules">Property Tax Rules</h2>
     <div class="rule-summary">Property tax is an annual tax levied by IRAS on all property in Singapore, based on Annual Value (AV) IRAS's assessment of the property's annual rental potential. Owner-occupiers receive lower rates than landlords and investors.</div>
 
     <h3>Rate Structure</h3>
@@ -399,8 +401,8 @@
       <table>
         <thead><tr><th>Annual Value Tier</th><th>Owner-Occupier Rate</th><th>Non-Owner-Occupier Rate</th></tr></thead>
         <tbody>
-          <tr><td>First $8,000</td><td>0%</td><td>12%</td></tr>
-          <tr><td>$8,001 – $55,000</td><td>4%</td><td>12%</td></tr>
+          <tr><td>First $12,000</td><td>0%</td><td>12%</td></tr>
+          <tr><td>$12,001 – $55,000</td><td>4%</td><td>12%</td></tr>
           <tr><td>$55,001 – $70,000</td><td>6%</td><td>12%</td></tr>
           <tr><td>$70,001 – $85,000</td><td>8%</td><td>12%</td></tr>
           <tr><td>$85,001 – $100,000</td><td>10%</td><td>12%</td></tr>
@@ -419,7 +421,7 @@
   <!-- Cooling Measures -->
   <div class="rules-section" id="cooling-rules">
     <span class="tag tag-active">Active · Current as of May 2026</span>
-    <h2>Cooling Measures Current Active Set</h2>
+    <h2 id="cooling-measures-current-active-set">Cooling Measures Current Active Set</h2>
     <div class="rule-summary">Singapore's property cooling measures are a coordinated set of demand-side and supply-side tools managed by MND, MAS, and HDB. All measures below are currently active as of May 2026.</div>
 
     <h3>Demand-Side Measures</h3>
@@ -483,6 +485,7 @@
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">This page is a general reference compiled by Winfred Quek (CEA R073319H) based on publicly available Singapore government sources as of May 2026. Rules are subject to change without notice. Always verify with IRAS, HDB, MAS, CPF Board, or a licensed conveyancer before making property decisions. This page does not constitute legal, financial, or investment advice.</p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20property%20rules%20question." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

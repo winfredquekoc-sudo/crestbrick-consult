@@ -9,12 +9,12 @@
   <meta property="og:type" content="article" />
   <meta property="og:title" content="ABSD: The Complete Hub" />
   <meta property="og:description" content="Every ABSD guide, calculator, and comparison on this site, organised by what you're actually trying to solve." />
-  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta property="og:image" content="https://winfredquek.com/img/og/guides.jpg" />
   <meta property="og:url" content="https://winfredquek.com/guides/absd" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="ABSD: The Complete Hub" />
   <meta name="twitter:description" content="Every ABSD guide, calculator, and comparison on this site, organised by what you're actually trying to solve." />
-  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og/guides.jpg" />
   <link rel="canonical" href="https://winfredquek.com/guides/absd" />
   <script type="application/ld+json">
     {
@@ -91,10 +91,25 @@
     .link-card a:hover{color:var(--accent);}
     .link-card p{font-size:.8rem;color:var(--ink-muted);margin:.3rem 0 0;line-height:1.5;}
     .link-card .kind{display:inline-block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);background:rgba(198,163,106,0.1);border-radius:3px;padding:.15rem .4rem;margin-bottom:.35rem;}
-  </style>
+      @media print{
+      header,#mobile-menu,.toc,footer,#wa-float,.cta-print-hide,.link-grid,.print-btn{display:none !important;}
+      body{background:#fff !important;color:#111 !important;}
+      article{max-width:100% !important;padding:0 !important;}
+      .stage-summary{background:#f4f4f4 !important;color:#111 !important;border-color:#ccc !important;}
+      .checklist{background:#fff !important;border-color:#999 !important;}
+      .checklist li{border-color:#ccc !important;break-inside:avoid;}
+      .checklist b{color:#111 !important;}
+      .checklist span{color:#444 !important;}
+      article h1, article h2{color:#111 !important;}
+      a{color:#111 !important;text-decoration:none !important;}
+      .geo-quick-answer{background:#f4f4f4 !important;color:#111 !important;border-color:#ccc !important;}
+    }
+</style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -149,7 +164,7 @@
 
 <section style="background:var(--highlight);padding:4rem 1.5rem 3rem;border-bottom:1px solid var(--rule);">
   <div style="max-width:72rem;margin:0 auto;">
-    <p class="section-label" style="margin-bottom:.5rem;"><a href="/guides/" style="color:var(--accent);">Guides</a></p>
+    <nav aria-label="Breadcrumb" class="mb-4"><p class="section-label" style="margin-bottom:.5rem;"><a href="/" style="color:var(--accent);">Home</a> / <a href="/guides/" style="color:var(--accent);">Guides</a> / <span style="color:var(--ink-muted);">ABSD: The Complete Hub</span></p></nav>
     <h1 class="serif balance" style="font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:.75rem;">ABSD: The Complete Hub</h1>
     <div class="geo-quick-answer" style="max-width:65ch;margin:0 0 1.25rem;padding:1rem 1.25rem;background:#1a1c24;border:1px solid #252830;border-left:3px solid #c6a36a;border-radius:8px;color:#f0ede6;font-size:1.02rem;line-height:1.7;"><strong style="color:#c6a36a;">Quick answer:</strong> Additional Buyer's Stamp Duty is a flat percentage of the purchase price, due within 14 days of exercising the Option to Purchase, on top of standard Buyer's Stamp Duty. On an $1.8M second property it can add $360,000. Rates run up to 60% for foreigners and 65% for trusts. It can be reduced through remission, FTA exemption, timing or decoupling.</div>
     <p style="color:var(--ink-soft);max-width:65ch;margin-bottom:1rem;">Every ABSD guide, calculator, and comparison on this site, organised by what you're actually trying to solve not by publish date.</p>
@@ -180,7 +195,7 @@
     </div>
   </div>
 
-  <h2>ABSD Basics &amp; Current Rates <span class="count">4 guides</span></h2>
+  <h2 id="absd-basics-current-rates-4-guides">ABSD Basics &amp; Current Rates <span class="count">4 guides</span></h2>
   <p class="sub-note">Start here if you need the actual 2026 rate table before anything else.</p>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/absd-explained">ABSD Explained: Rates, Remissions, FTAs</a><p>The full 2026 rate table SC, PR, foreigner, entity and how ABSD is calculated.</p></div>
@@ -189,7 +204,7 @@
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/absd-commercial-mixed-use-property-singapore">ABSD on Commercial &amp; Mixed-Use Property</a><p>Why ABSD doesn't apply to commercial and industrial purchases, and where the mixed-use line falls.</p></div>
   </div>
 
-  <h2>ABSD for Foreigners &amp; PRs <span class="count">5 guides</span></h2>
+  <h2 id="absd-for-foreigners-prs-5-guides">ABSD for Foreigners &amp; PRs <span class="count">5 guides</span></h2>
   <p class="sub-note">The 60% rate, FTA exemptions, and what property types still make sense at that rate.</p>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/foreign-buyer-60-absd-strategy">Foreign Buyer Singapore Property 2026</a><p>Strategy for buying at the 60% foreign-buyer ABSD rate structuring, timing, and the numbers that still work.</p></div>
@@ -199,7 +214,7 @@
     <div class="link-card"><span class="kind">Blog</span><br><a href="/blog/absd-singapore-2026-foreigners-spr">ABSD Singapore 2026: Foreigners and SPR Rates</a><p>Rate reference specifically for foreigner and Singapore PR buyer profiles.</p></div>
   </div>
 
-  <h2>Remission &amp; Refunds <span class="count">4 guides</span></h2>
+  <h2 id="remission-refunds-4-guides">Remission &amp; Refunds <span class="count">4 guides</span></h2>
   <p class="sub-note">Timing-critical: the 6-month disposal window is the most common way buyers forfeit a legitimate remission.</p>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/absd-remission-married-couples-2026">ABSD Remission for Married Couples 2026</a><p>Timeline, conditions, and refund amount for the matrimonial home remission.</p></div>
@@ -208,7 +223,7 @@
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/absd-inherited-property-singapore">Do You Pay ABSD on Inherited Property?</a><p>Inheritance is treated differently from a normal purchase here's when ABSD does and doesn't apply.</p></div>
   </div>
 
-  <h2>Reducing &amp; Restructuring ABSD <span class="count">6 guides</span></h2>
+  <h2 id="reducing-restructuring-absd-6-guides">Reducing &amp; Restructuring ABSD <span class="count">6 guides</span></h2>
   <p class="sub-note">Legitimate structuring options and where the line sits between smart planning and IRAS red flags.</p>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/how-to-legally-reduce-absd-singapore">How to Legally Reduce Your ABSD</a><p>An overview of every legitimate lever remission, FTA, timing, structure before you consider anything aggressive.</p></div>
@@ -219,12 +234,12 @@
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/absd-for-singles-singapore-2026">ABSD for Singles 2026: The Strategic Gap</a><p>Single buyers face a different set of constraints and openings this covers the gap most miss.</p></div>
   </div>
 
-  <h2>New Launch Case Study <span class="count">1 guide</span></h2>
+  <h2 id="new-launch-case-study-1-guide">New Launch Case Study <span class="count">1 guide</span></h2>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Insight</span><br><a href="/insights/lentor-gardens-residences-absd-second-property">Lentor Gardens Residences: ABSD for Second Property Buyers</a><p>A worked ABSD example for buyers eyeing this specific new launch as a second property.</p></div>
   </div>
 
-  <h2>Calculators &amp; Tools <span class="count">5 tools</span></h2>
+  <h2 id="calculators-tools-5-tools">Calculators &amp; Tools <span class="count">5 tools</span></h2>
   <p class="sub-note">Run your own numbers before you read another article.</p>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Tool</span><br><a href="/tools/absd">ABSD Calculator</a><p>Free instant ABSD calculation across SC, PR, foreigner, and entity buyer profiles.</p></div>
@@ -234,7 +249,7 @@
     <div class="link-card"><span class="kind">Tool</span><br><a href="/tools/concession-ladder">Concession Ladder Generator</a><p>Maps every concession and remission your specific profile may qualify for, in order.</p></div>
   </div>
 
-  <h2>Related Reading <span class="count">3 pages</span></h2>
+  <h2 id="related-reading-3-pages">Related Reading <span class="count">3 pages</span></h2>
   <div class="link-grid">
     <div class="link-card"><span class="kind">Deep Dive</span><br><a href="/insights/absd-singapore">ABSD Singapore 2026: The Hub</a><p>A comprehensive single-article FAQ treatment of ABSD, if you prefer one long read over the sectioned index above.</p></div>
     <div class="link-card"><span class="kind">Compare</span><br><a href="/compare/hdb-vs-condo">HDB vs Condo</a><p>Where ABSD sits in the broader HDB-versus-private decision.</p></div>
@@ -242,7 +257,7 @@
   </div>
 
   <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0;">
-    <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+    <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
     <div style="border-top:1px solid #252830;padding:1rem 0;">
       <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">What is ABSD and when is it due?</h3>
       <p style="color:#b8b4aa;line-height:1.7;margin:0;">Additional Buyer's Stamp Duty is a flat percentage of the full purchase price, not bracketed like income tax, and it sits on top of standard Buyer's Stamp Duty. It is due within 14 days of exercising the Option to Purchase.</p>
@@ -289,6 +304,7 @@
   <div style="border-top:1px solid rgba(255,255,255,0.08);padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">The information and insights provided on this page are for informational purposes only. Real estate investments are subject to various risks including market fluctuations, regulatory changes, and property-specific risks. This page does not constitute investment, financial, or professional advice. CEA R073319H. Crestbrick Pte Ltd L31010886H.</p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20check%20my%20ABSD%20situation." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

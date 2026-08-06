@@ -84,7 +84,9 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css"></noscript><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css"></noscript><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -178,7 +180,7 @@
 
   <p>The HDB-to-condo upgrade is the most common property transaction in Singapore. Most families do it once. And yet the number of people who approach it without running the full proceeds calculation first is remarkable. They assume they can afford it because their HDB has appreciated, then are surprised by how little cash is left after the CPF refund and the loan repayment. Let me walk through the complete picture.</p>
 
-  <h2>Step 1: calculate your HDB net cash proceeds</h2>
+  <h2 id="step-1-calculate-your-hdb-net-cash-proceeds">Step 1: calculate your HDB net cash proceeds</h2>
   <p>When you sell your HDB flat, the proceeds flow in a specific sequence, and only what is left after every prior claim is actual cash in your bank account.</p>
 
   <div class="flow-step"><strong>Sale price</strong> (what you sell for, after negotiation)</div>
@@ -190,7 +192,7 @@
 
   <p>The CPF refund is the biggest surprise for most upgraders. Read the full explanation at the <a href="/insights/cpf-accrued-interest-trap" class="text-[var(--accent)] hover:underline">CPF accrued interest guide</a>. The accrued interest compounds at 2.5% per annum from the date each dollar was withdrawn. If you bought your flat ten years ago and used $150,000 in CPF, the accrued interest alone could be $40,000 or more. That entire amount goes back into CPF, not your bank account.</p>
 
-  <h2>A worked example</h2>
+  <h2 id="a-worked-example">A worked example</h2>
   <p>Take a couple who bought a five-room resale HDB flat ten years ago and have been told their flat is worth around $600,000 today. Here is how the proceeds stack up.</p>
 
   <table>
@@ -210,7 +212,7 @@
 
   <p>In this example, the couple walks away with $216,000 in cash and $256,000 in CPF OA. Total "war chest" is $472,000. The CPF OA money can be used for the condo downpayment (subject to CPF rules on valuation limit). The important insight: a large portion of the proceeds is in CPF, not cash, which is a liquidity constraint many couples underestimate.</p>
 
-  <h2>Step 2: the ABSD timing question</h2>
+  <h2 id="step-2-the-absd-timing-question">Step 2: the ABSD timing question</h2>
   <p>This is the most consequential decision in the upgrade process, and it has a large financial consequence if you get it wrong.</p>
 
   <p>If you sell your HDB first and buy the condo after, you own one property at purchase: your new condo. Singapore Citizens pay zero ABSD on their first property. The condo purchase is treated as a first-property purchase because you have already divested the HDB.</p>
@@ -221,7 +223,7 @@
     <strong>The 20% ABSD on a $1.3M condo is $260,000.</strong> That is real money that most upgrading families do not have sitting idle. Even if you qualify for the remission scheme by selling within six months, you need to fund that $260,000 upfront at the time of purchase. Most families sell first to avoid this entirely.
   </div>
 
-  <h2>Step 3: the cashflow gap</h2>
+  <h2 id="step-3-the-cashflow-gap">Step 3: the cashflow gap</h2>
   <p>When you sell your HDB and then buy a condo, there is typically a gap between handing over your HDB keys and collecting your condo keys. This gap has a real cost.</p>
 
   <ul>
@@ -231,7 +233,7 @@
 
   <p>The cashflow gap for a new launch upgrader can be substantial. Renting a similar-sized unit for two years at $3,000 per month is $72,000. That cost needs to factor into your upgrade decision. For a detailed month-by-month cashflow model, use the <a href="/tools/upgrade-roi" class="text-[var(--accent)] hover:underline">upgrade ROI tool</a>.</p>
 
-  <h2>Step 4: can you qualify for the condo loan?</h2>
+  <h2 id="step-4-can-you-qualify-for-the-condo-loan">Step 4: can you qualify for the condo loan?</h2>
   <p>Once you have the proceeds and the downpayment mapped, you need to confirm you can borrow enough for the condo. For a private condo, the key rules are:</p>
   <ul>
     <li>Maximum LTV of 75% for a first housing loan (you are a first-time property owner if you sold the HDB first).</li>
@@ -241,7 +243,7 @@
 
   <p>Your combined CPF and cash from the HDB sale should comfortably cover the 25% downpayment in most cases. The qualifying question is the income TDSR. If your household income is strong enough for the target condo price, the upgrade is financially feasible. If not, consider whether decoupling the HDB into one name first and structuring the condo purchase in one name makes sense. The <a href="/insights/decoupling-singapore" class="text-[var(--accent)] hover:underline">decoupling guide</a> explains that option in detail.</p>
 
-  <h2>The second-property CPF rules</h2>
+  <h2 id="the-second-property-cpf-rules">The second-property CPF rules</h2>
   <p>When you buy a private condo, CPF rules on withdrawals are more restrictive than for an HDB flat. You can use CPF OA toward the condo downpayment and monthly instalments, but only up to the property's Valuation Limit (the lower of the purchase price or bank valuation). Once you have withdrawn up to the Valuation Limit, CPF withdrawals stop and you must service the remaining loan from cash. For most upgraders buying at or near bank valuation, this is not immediately binding, but it is worth understanding in the context of long-term cashflow planning.</p>
 
   <div class="winfred-take" style="background:rgba(198,163,106,0.08);border:1px solid rgba(198,163,106,0.25);border-radius:10px;padding:1.5rem;margin:2rem 0;">
@@ -249,7 +251,7 @@
     <p style="font-size:.95rem;color:var(--ink-soft);line-height:1.7;">The upgrade conversation usually starts with "my HDB is worth X, can I afford a condo at Y?" The honest answer requires four numbers: net cash from HDB sale, CPF OA after refund, your combined household TDSR headroom, and the cashflow you need to bridge the gap. Most couples who have passed MOP and have reasonable household incomes can upgrade. The question is not usually whether, it is to what and when. I run this full proceeds and cashflow analysis as the starting point of every upgrade engagement. It takes thirty minutes and removes months of uncertainty.</p>
   </div>
 
-  <h2>Frequently asked questions</h2>
+  <h2 id="frequently-asked-questions">Frequently asked questions</h2>
 
   <h3>Do I pay ABSD when upgrading from HDB to condo?</h3>
   <p>Yes, if you buy the condo before selling your HDB, you are holding two properties and must pay 20% ABSD as a Singapore Citizen buying a second property. If you sell first and then buy, you pay zero ABSD on the condo as your new first property. Timing your sale and purchase is critical.</p>
@@ -287,12 +289,12 @@
 </article>
 
 <section style="max-width:3xl;margin:3rem auto 0;padding:2rem 1.5rem;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Sources &amp; References</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
-    <li style="font-size:.85rem;"><a href="https://www.cpf.gov.sg/member/cpf-overview/saving-for-housing/using-your-cpf-savings-for-housing" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">CPF Board: Using CPF for housing and accrued interest</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.cpf.gov.sg/member/home-ownership/using-your-cpf-to-buy-a-home" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">CPF Board: Using CPF for housing and accrued interest</a></li>
     <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer Stamp Duty (ABSD) rates and remission</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/total-debt-servicing-ratio-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio for Property Loans</a></li>
-    <li style="font-size:.85rem;"><a href="https://www.hdb.gov.sg/residential/selling-a-flat/overview" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">HDB: Selling an HDB flat</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.mas.gov.sg/regulation/explainers/tdsr-for-property-loans" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">MAS: Total Debt Servicing Ratio for Property Loans</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.hdb.gov.sg/managing-my-home/selling-a-flat" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">HDB: Selling an HDB flat</a></li>
   </ul>
 </section>
 
@@ -323,7 +325,7 @@
 </aside>
 
 <section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
-  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
   <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
     <li style="font-size:.9rem;"><a href="/insights/cpf-accrued-interest-trap" style="color:var(--accent);">The CPF Accrued Interest Trap Explained</a></li>
     <li style="font-size:.9rem;"><a href="/insights/sell-hdb-first-buy-condo-2026" style="color:var(--accent);">Sell HDB First or Buy Condo First?</a></li>
@@ -343,6 +345,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate and mortgage decisions are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, and unforeseen property-specific risks. This page does not constitute investment, financial, or mortgage advice and should not be relied upon as such. Buyers should conduct their own due diligence and seek advice from qualified professionals, and confirm current rules with MAS, HDB, IRAS, and CPF, before making any decision. Winfred Quek, Associate Marketing Consultant, CEA R073319H, Crestbrick Pte Ltd (CEA Licence L31010886H).
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20discuss%20upgrading%20from%20my%20HDB%20to%20a%20condo." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">

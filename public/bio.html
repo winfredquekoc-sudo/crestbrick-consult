@@ -355,6 +355,7 @@
     .ios{opacity:1;transform:none}
   }
 </style>
+  <link rel="manifest" href="/manifest.webmanifest" />
 </head>
 <body id="top">
 
@@ -413,7 +414,7 @@
       <div class="container">
         <div class="sec-head ios">
           <span class="eyebrow">Active Listing</span>
-          <h2 class="sec-title">On the market now</h2>
+          <h2 class="sec-title" id="on-the-market-now">On the market now</h2>
           <p>Screened through the same Money, Timing & Safety lens I use for my own portfolio. See my full list on the portals below.</p>
         </div>
 
@@ -449,7 +450,7 @@
       <div class="container lead-grid">
         <div class="lead-copy ios">
           <span class="eyebrow">For Buyers</span>
-          <h2>Know the full cost before you sign</h2>
+          <h2 id="know-the-full-cost-before-you-sign">Know the full cost before you sign</h2>
           <p class="sub">The Singapore Buyer's Playbook breaks down every dollar of a purchase, so you never get surprised at the closing table.</p>
           <ul class="lead-list">
             <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span>The full transaction stack: BSD, ABSD, legal, commission and reno</li>
@@ -484,7 +485,7 @@
       <div class="container lead-grid reverse">
         <div class="lead-copy ios">
           <span class="eyebrow">For Sellers</span>
-          <h2 class="sec-title" style="font-size:clamp(1.7rem,4vw,2.4rem)">What will you actually walk away with?</h2>
+          <h2 class="sec-title" style="font-size:clamp(1.7rem,4vw,2.4rem)" id="what-will-you-actually-walk-away-with">What will you actually walk away with?</h2>
           <p class="sub" style="color:var(--navy-soft)">The Seller's Net Proceeds Guide shows you the real number after every deduction, so you can plan your next move with confidence.</p>
           <ul class="lead-list">
             <li><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4 10-10"/></svg></span><span style="color:var(--navy)">Outstanding loan, SSD window and CPF refund with accrued interest</span></li>
@@ -530,7 +531,7 @@
       <div class="container">
         <div class="sec-head ios" style="margin-inline:auto;text-align:center">
           <span class="eyebrow">Client Reviews</span>
-          <h2 class="sec-title">Trusted by families who hate being sold to</h2>
+          <h2 class="sec-title" id="trusted-by-families-who-hate-being-sold-to">Trusted by families who hate being sold to</h2>
         </div>
         <div class="reviews-grid">
 
@@ -574,7 +575,7 @@
         </div>
         <div class="story-copy ios">
           <span class="eyebrow">My Story</span>
-          <h2 class="sec-title">An investor first, an agent second</h2>
+          <h2 class="sec-title" id="an-investor-first-an-agent-second">An investor first, an agent second</h2>
           <p>I built a five property portfolio before turning 30, through Singapore's most active years of cooling measures. Every structure, every strategy and every mistake I made is now part of the methodology I use with clients.</p>
           <p><strong>Most agents show you a listing. I show you a Money, Timing & Safety analysis</strong> that determines whether the deal makes sense for your specific situation, before you sign anything.</p>
           <ul class="pillars">
@@ -595,7 +596,7 @@
       <div class="container">
         <div class="book-head ios">
           <span class="eyebrow">Book a Call</span>
-          <h2 class="sec-title">Let's map your next move</h2>
+          <h2 class="sec-title" id="let-s-map-your-next-move">Let's map your next move</h2>
           <p>Grab a free 30 minute strategy call. No obligation, no pressure, just a clear read on your situation.</p>
         </div>
         <div class="calendly-shell ios">
@@ -641,7 +642,8 @@
         <span>CEA Registration R073319H · Licence No. L31010886H</span>
       </div>
     </div>
-  </footer>
+  <p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
+</footer>
 
   <!-- Calendly inline embed -->
   <script src="https://assets.calendly.com/assets/external/widget.js" async></script>

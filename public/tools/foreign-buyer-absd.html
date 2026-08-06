@@ -32,6 +32,8 @@ h2{font-family:'Fraunces',serif;font-size:20px;font-weight:400;margin:24px 0 10p
 {"@context":"https://schema.org","@type":"WebApplication","name":"60% ABSD Calculator for Foreign Buyers · Winfred Quek","url":"https://winfredquek.com/tools/foreign-buyer-absd","applicationCategory":"FinanceApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","description":"Singapore foreign buyer 60% ABSD tool: total stamp duty cost, FTA exemption check, and structured alternatives modeled. Free. Winfred Quek, CEA R073319H.","offers":{"@type":"Offer","price":"0","priceCurrency":"SGD"},"isAccessibleForFree":true,"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":"L31010886H"},"creator":{"@type":"Person","name":"Winfred Quek","identifier":"CEA R073319H","url":"https://winfredquek.com/about","sameAs":["https://t.me/imwinfred","https://www.instagram.com/imwinfred","https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]}}
 </script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How much ABSD does a foreigner pay to buy property in Singapore?", "acceptedAnswer": {"@type": "Answer", "text": "A foreigner pays 60% ABSD on a residential purchase, applied to the higher of price or market value, on top of tiered BSD. On a S$2M home that is S$1.2M of ABSD before you add the roughly S$69,600 of BSD. This calculator shows your total upfront stamp duty and what it is as a percentage of price."}}, {"@type": "Question", "name": "Are any foreign nationals exempt from the 60% ABSD?", "acceptedAnswer": {"@type": "Answer", "text": "Under certain Free Trade Agreements, nationals of the United States, Switzerland, Norway, Liechtenstein and Iceland are accorded the same stamp duty treatment as Singapore Citizens on residential property. If you hold one of these nationalities you may pay Citizen rates rather than 60%. Verify your eligibility carefully before you rely on it."}}, {"@type": "Question", "name": "Does buying through a company avoid the foreigner ABSD?", "acceptedAnswer": {"@type": "Answer", "text": "No. An entity or company purchasing residential property is charged 65% ABSD, which is higher than the 60% foreigner rate, plus a further non remittable component for developers. A corporate vehicle is generally not a workaround for residential property. It only makes sense in specific commercial scenarios with very different economics."}}, {"@type": "Question", "name": "Should a foreigner wait for PR before buying?", "acceptedAnswer": {"@type": "Answer", "text": "A Singapore PR pays 5% ABSD on a first residential property versus 60% for a foreigner. That 55 percentage point gap is a meaningful reason to time a purchase around obtaining PR if it is realistic for you. The right answer depends on your timeline, so it is worth mapping your specific situation first."}}, {"@type": "Question", "name": "Can a foreigner buy jointly with a Singaporean to lower ABSD?", "acceptedAnswer": {"@type": "Answer", "text": "Where one buyer is a Singapore Citizen and one is a foreigner, IRAS applies the highest rate, 60%, to the whole purchase. Buying jointly does not blend the rate down. Some couples structure ownership around the Citizen spouse, but get this wrong and the full 60% applies, so professional structuring is essential."}}]}</script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body><div class="wrap">
 <div class="sub-hd">For Foreign Buyers</div>
@@ -40,7 +42,7 @@ h2{font-family:'Fraunces',serif;font-size:20px;font-weight:400;margin:24px 0 10p
 
 <div class="lead">Since 27 Apr 2023, foreign buyers pay <b style="color:#ff8a65;">60% ABSD</b> on every Singapore residential purchase, on top of BSD. That's an extra S$1.2M on a S$2M property. This page tells you the real cost, and the legitimate alternatives.</div>
 
-<h2>Calculate</h2>
+<h2 id="calculate">Calculate</h2>
 <div class="card">
 <label><span>Property purchase price (S$)</span><input id="price" type="number" value="2000000"/></label>
 <label><span>Buyer profile</span>
@@ -56,14 +58,15 @@ h2{font-family:'Fraunces',serif;font-size:20px;font-weight:400;margin:24px 0 10p
 </div>
 
 <div id="result" class="result">
-<h2 style="margin-top:0;">Total stamp duty</h2>
+<h2 style="margin-top:0;" id="total-stamp-duty">Total stamp duty</h2>
 <div class="row-r"><span>BSD (tiered)</span><span id="bsd"></span></div>
 <div class="row-r"><span>ABSD</span><span id="absd"></span></div>
 <div class="row-r"><span>Total upfront stamp duty</span><span id="total"></span></div>
 <div class="row-r"><span>As % of purchase price</span><span id="pct"></span></div>
 </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 
-<h2>Alternatives if you're a foreigner</h2>
+<h2 id="alternatives-if-you-re-a-foreigner">Alternatives if you're a foreigner</h2>
 <div class="factbox">
 <b>1. Marry an SC/PR (joint purchase as occupier).</b> ABSD on the household is determined by the highest-tier profile. SC + Foreigner = SC's 0% on 1st property (but only if structure is right, get this wrong and full 60% applies).
 <br><br>
@@ -122,7 +125,7 @@ calc();
   </div>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
-  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
   <div style="border-top:1px solid #252830;padding:1rem 0;">
     <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How much ABSD does a foreigner pay to buy property in Singapore?</h3>
     <p style="color:#b8b4aa;line-height:1.7;margin:0;">A foreigner pays 60% ABSD on a residential purchase, applied to the higher of price or market value, on top of tiered BSD. On a S$2M home that is S$1.2M of ABSD before you add the roughly S$69,600 of BSD. This calculator shows your total upfront stamp duty and what it is as a percentage of price.</p>

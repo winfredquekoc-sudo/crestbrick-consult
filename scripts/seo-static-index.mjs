@@ -44,7 +44,7 @@ ${links.join('\n')}
 }
 
 const HUBS = [
-  { file: 'insights.html', blocks: [['All insight guides', 'insights', '/insights'], ['From the blog', 'blog', '/blog']] },
+  { file: 'insights.html', blocks: [['All insight guides', 'insights', '/insights']] },
   { file: 'new-launches.html', blocks: [['All new launch project briefs', 'launches/briefs', '/launches/briefs']] },
   { file: 'districts.html', blocks: [['All Singapore district guides', 'districts', '/districts'], ['All HDB town guides', 'hdb-towns', '/hdb-towns']] },
   { file: 'services.html', blocks: [['Advisory services', 'services', '/services'], ['Specialist niches', 'niches', '/niches'], ['Cross border buyer guides', 'cross-border', '/cross-border']] },

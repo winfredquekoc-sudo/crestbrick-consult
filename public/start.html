@@ -68,6 +68,8 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
 </script>
   <meta property="og:site_name" content="Winfred Quek" />
   <meta property="og:locale" content="en_SG" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body>
 <div class="wrap">
@@ -99,7 +101,7 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
   </div>
 
   <div class="form">
-    <h2>Where should I send them?</h2>
+    <h2 id="where-should-i-send-them">Where should I send them?</h2>
     <div class="field">
       <label for="name">Your name</label>
       <input id="name" name="name" type="text" autocomplete="name" required>
@@ -124,7 +126,7 @@ h1{font-family:'Fraunces',Georgia,serif;font-size:42px;font-weight:400;color:#f0
 
 <div id="success" class="success-card">
   <div class="check">✓</div>
-  <h2>You're in.</h2>
+  <h2 id="you-re-in">You're in.</h2>
   <p>Day 1 lands in your inbox tomorrow morning.</p>
   <p style="margin-top:14px;color:#7a6c54;font-size:13px;">If urgent: <a href="https://wa.me/6581618149" style="color:#b48c50;">WhatsApp me directly</a>.</p>
 </div>

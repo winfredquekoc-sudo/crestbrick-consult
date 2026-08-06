@@ -9,12 +9,12 @@
   <meta property="og:title" content="HDB Valuation Tool Singapore, Winfred Quek" />
   <meta property="og:description" content="Get an instant indicative price range for your HDB flat, drawn from recent resale transactions. Free, no signup." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta property="og:image" content="https://winfredquek.com/img/og/tools.jpg" />
   <meta property="og:url" content="https://winfredquek.com/tools/valuation" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="HDB Valuation Tool Singapore, Winfred Quek" />
   <meta name="twitter:description" content="Get an instant indicative price range for your HDB flat, drawn from recent resale transactions. Free, no signup." />
-  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og/tools.jpg" />
   <link rel="canonical" href="https://winfredquek.com/tools/valuation" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script defer src="/_vercel/insights/script.js"></script>
@@ -51,6 +51,8 @@
 </script>
 <script type="application/ld+json">{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"HDB Valuation Tool","item":"https://winfredquek.com/tools/valuation"}]}</script>
 <script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "How does the instant HDB valuation estimate work?", "acceptedAnswer": {"@type": "Answer", "text": "The tool groups the last six full months of HDB resale transactions from data.gov.sg by town, flat type and storey band, then works out the median price per square metre for each group. It multiplies that median (and the surrounding p25 to p75 range) by the floor area you enter to give an indicative price and range for your flat."}}, {"@type": "Question", "name": "Why is the result a range instead of one number?", "acceptedAnswer": {"@type": "Answer", "text": "Flats in the same town, flat type and storey band still differ by block, facing, renovation and exact floor, so transacted prices per square metre naturally spread out. The range shown runs from the 25th to the 75th percentile of that spread, which is a more honest picture than a single average."}}, {"@type": "Question", "name": "How accurate is this compared to a formal valuation?", "acceptedAnswer": {"@type": "Answer", "text": "This is an indicative estimate built purely from public resale transaction data. It does not see your exact block, unit condition, renovation or remaining lease, so treat it as a starting point, not a formal valuation. Winfred Quek prepares a detailed, personally reviewed valuation report for your exact unit within 24 hours on request."}}, {"@type": "Question", "name": "What happens if my town or flat type combination shows no data?", "acceptedAnswer": {"@type": "Answer", "text": "Where a town, flat type and storey band combination had fewer than five transactions in the last six months, the tool holds back an estimate rather than showing an unreliable figure. Try a different storey band, or WhatsApp Winfred directly for a personally researched read on your flat."}}]}</script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
 </head>
 <body>
 
@@ -156,6 +158,7 @@
       <p class="calc-note" id="o-period" style="color:rgba(15,17,23,.75);"></p>
       <a id="wa-share" href="#" target="_blank" rel="noopener" class="calc-note" style="display:inline-block;margin-top:.75rem;text-decoration:underline;cursor:pointer;">Share this estimate on WhatsApp </a>
     </div>
+  <p class="calc-note" style="margin-top:0.75rem;">Calculations last verified August 2026 against IRAS, MAS and HDB published rates.</p>
 
     <p class="text-xs text-[var(--ink-muted)] mt-4" id="period-hint"></p>
 
@@ -182,7 +185,7 @@
 <!-- LEAD CAPTURE: precise valuation report -->
 <section id="precise-valuation" class="max-w-3xl mx-auto px-6 py-16">
   <p class="section-label mb-4 text-center">Get the precise number</p>
-  <h2 class="serif text-3xl md:text-4xl font-semibold balance text-center mb-4">Want the precise number for your exact block and condition?</h2>
+  <h2 class="serif text-3xl md:text-4xl font-semibold balance text-center mb-4" id="want-the-precise-number-for-your-exact-block-and-condition">Want the precise number for your exact block and condition?</h2>
   <p class="text-[var(--ink-soft)] text-center mb-10">Winfred prepares a detailed valuation report within 24 hours, free. No auto-generated estimate, no listing commitment.</p>
 
   <div id="valuation-success" class="hidden crest-card rounded-xl p-8 text-center">
@@ -222,7 +225,7 @@
 
 <section class="max-w-3xl mx-auto px-6 py-16 text-center">
   <p class="section-label mb-4">Prefer to talk first?</p>
-  <h2 class="serif text-2xl md:text-3xl font-semibold balance mb-6">30 minutes. We will cover your number and you decide if it makes sense to proceed.</h2>
+  <h2 class="serif text-2xl md:text-3xl font-semibold balance mb-6" id="30-minutes-we-will-cover-your-number-and-you-decide-if-it-makes-sense-to-proceed">30 minutes. We will cover your number and you decide if it makes sense to proceed.</h2>
   <div class="flex flex-wrap justify-center gap-3">
     <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a strategy call</a>
     <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20used%20the%20HDB%20valuation%20tool%20and%20would%20like%20a%20free%20detailed%20valuation%20report." class="btn btn-ghost">WhatsApp </a>
@@ -243,7 +246,7 @@
 </main>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">
-  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;">Frequently asked questions</h2>
+  <h2 style="font-family:'Fraunces',Georgia,serif;font-size:1.6rem;margin-bottom:1rem;" id="frequently-asked-questions">Frequently asked questions</h2>
   <div style="border-top:1px solid #252830;padding:1rem 0;">
     <h3 class="geo-faq-q" style="font-size:1.08rem;font-weight:600;margin-bottom:.4rem;color:#f0ede6;">How does the instant HDB valuation estimate work?</h3>
     <p style="color:#b8b4aa;line-height:1.7;margin:0;">The tool groups the last six full months of HDB resale transactions from data.gov.sg by town, flat type and storey band, then works out the median price per square metre for each group. It multiplies that median, and the surrounding p25 to p75 range, by the floor area you enter to give an indicative price and range for your flat.</p>
@@ -273,6 +276,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <script>

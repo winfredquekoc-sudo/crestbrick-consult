@@ -9,12 +9,12 @@
   <meta property="og:title" content="Guides, Winfred Quek" />
   <meta property="og:description" content="Complete guides on ABSD and HDB upgrading, from Winfred Quek." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta property="og:image" content="https://winfredquek.com/img/og/guides.jpg" />
   <meta property="og:url" content="https://winfredquek.com/guides/" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Guides, Winfred Quek" />
   <meta name="twitter:description" content="Complete guides on ABSD and HDB upgrading, from Winfred Quek." />
-  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og/guides.jpg" />
   <link rel="canonical" href="https://winfredquek.com/guides/" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <script defer src="/_vercel/insights/script.js"></script>
@@ -28,10 +28,25 @@
   <script defer src="/motion.js"></script>
 <style>
     .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
-  </style>
+      @media print{
+      header,#mobile-menu,.toc,footer,#wa-float,.cta-print-hide,.link-grid,.print-btn{display:none !important;}
+      body{background:#fff !important;color:#111 !important;}
+      article{max-width:100% !important;padding:0 !important;}
+      .stage-summary{background:#f4f4f4 !important;color:#111 !important;border-color:#ccc !important;}
+      .checklist{background:#fff !important;border-color:#999 !important;}
+      .checklist li{border-color:#ccc !important;break-inside:avoid;}
+      .checklist b{color:#111 !important;}
+      .checklist span{color:#444 !important;}
+      article h1, article h2{color:#111 !important;}
+      a{color:#111 !important;text-decoration:none !important;}
+      .geo-quick-answer{background:#f4f4f4 !important;color:#111 !important;border-color:#ccc !important;}
+    }
+</style>
   <link rel="stylesheet" href="/animations.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/animations.css"></noscript>
   <script defer src="/animations.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script></head>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script>  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
 <body>
 
   <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
@@ -84,7 +99,7 @@
 
 <main>
 <section class="hero hero-sequence max-w-4xl mx-auto px-6 pt-16 pb-10">
-  <p class="section-label mb-6">Guides</p>
+  <nav aria-label="Breadcrumb" class="mb-4"><p class="section-label" style="margin-bottom:.5rem;"><a href="/" style="color:var(--accent);">Home</a> / <span style="color:var(--ink-muted);">Guides</span></p></nav>
   <h1 class="serif text-4xl md:text-6xl font-semibold leading-tight balance mb-6 hero-text-reveal">Complete Singapore property <span class="italic text-[var(--accent)]">guides</span></h1>
   <p class="text-lg text-[var(--ink-soft)] max-w-2xl leading-relaxed">Deep hub pages that pull together every related calculator, comparison and article on one topic.</p>
 </section>
@@ -92,12 +107,12 @@
 <section class="max-w-6xl mx-auto px-6 pb-16">
   <div class="grid md:grid-cols-2 gap-6">
     <a href="/guides/absd" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
-      <h2 class="serif text-2xl font-semibold mb-3">ABSD: The Complete Hub</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="absd-the-complete-hub">ABSD: The Complete Hub</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Rates, remission, restructuring and the calculators, all in one place.</p>
       <p class="text-sm text-[var(--accent)]">Open guide &rarr;</p>
     </a>
     <a href="/guides/hdb-upgrade" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
-      <h2 class="serif text-2xl font-semibold mb-3">HDB to Private Upgrade: The Complete Hub</h2>
+      <h2 class="serif text-2xl font-semibold mb-3" id="hdb-to-private-upgrade-the-complete-hub">HDB to Private Upgrade: The Complete Hub</h2>
       <p class="text-[var(--ink-soft)] leading-relaxed mb-4">MOP timing, cash flow gap, and every related tool for HDB upgraders.</p>
       <p class="text-sm text-[var(--accent)]">Open guide &rarr;</p>
     </a>
@@ -108,7 +123,7 @@
 
 <section class="max-w-4xl mx-auto px-6 py-20 text-center">
   <p class="section-label mb-6">Numbers look interesting?</p>
-  <h2 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-6">Book a <span class="italic text-[var(--accent)]">30-min walkthrough.</span></h2>
+  <h2 class="serif text-3xl md:text-5xl font-semibold balance leading-tight mb-6" id="book-a-30-min-walkthrough">Book a <span class="italic text-[var(--accent)]">30-min walkthrough.</span></h2>
   <div class="flex flex-wrap justify-center gap-3">
     <a href="https://calendly.com/winfredquekoc" class="btn btn-primary">Book a 30-min walkthrough &rarr;</a>
     <a href="/tools" class="btn btn-ghost">Browse all calculators &rarr;</a>
@@ -125,6 +140,7 @@
       The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
     </p>
   </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <script>

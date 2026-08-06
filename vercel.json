@@ -286,6 +286,56 @@
       "permanent": true
     },
     {
+      "source": "/blog/absd-singapore-2026",
+      "destination": "/insights/absd-singapore-2026",
+      "permanent": true
+    },
+    {
+      "source": "/blog/absd-singapore-2026.html",
+      "destination": "/insights/absd-singapore-2026",
+      "permanent": true
+    },
+    {
+      "source": "/blog/absd-singapore-2026-foreigners-pr",
+      "destination": "/insights/absd-singapore-2026-foreigners-spr-guide",
+      "permanent": true
+    },
+    {
+      "source": "/blog/absd-singapore-2026-foreigners-pr.html",
+      "destination": "/insights/absd-singapore-2026-foreigners-spr-guide",
+      "permanent": true
+    },
+    {
+      "source": "/blog/absd-singapore-2026-foreigners-spr",
+      "destination": "/insights/absd-singapore-2026-foreigners-spr-guide",
+      "permanent": true
+    },
+    {
+      "source": "/blog/absd-singapore-2026-foreigners-spr.html",
+      "destination": "/insights/absd-singapore-2026-foreigners-spr-guide",
+      "permanent": true
+    },
+    {
+      "source": "/blog/district-15-family-living-katong-marine-parade-joo-chiat-2026",
+      "destination": "/insights/living-district-15-katong-marine-parade-joo-chiat-families-2026",
+      "permanent": true
+    },
+    {
+      "source": "/blog/district-15-family-living-katong-marine-parade-joo-chiat-2026.html",
+      "destination": "/insights/living-district-15-katong-marine-parade-joo-chiat-families-2026",
+      "permanent": true
+    },
+    {
+      "source": "/blog",
+      "destination": "/insights",
+      "permanent": true
+    },
+    {
+      "source": "/blog/",
+      "destination": "/insights",
+      "permanent": true
+    },
+    {
       "source": "/absd-calculator",
       "destination": "/tools/absd",
       "permanent": true
