@@ -167,7 +167,11 @@ def main():
             if lk in failed: continue
             if lk in enq: continue          # already enquired on this exact listing
             bf = L["budget_floor"]
-            if budget and bf and budget < bf: continue
+            try:
+                budget_f = float(str(budget).replace('$','').replace(',','').split('/')[0].split('-')[0].strip()) if budget else None
+            except (ValueError, AttributeError):
+                budget_f = None
+            if budget_f and bf and budget_f < float(bf): continue
             reason = "matches profile" if lk in matched else "near preferred area " + L["district"]
             sugg.append({"listing_key":lk,"area":L["area"],"district":L["district"],
                          "rent":L["rent"],"reason":reason,"priority": 0 if lk in matched else 1})
