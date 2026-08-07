@@ -22,8 +22,8 @@
 <form id="qform">
 <div class="q"><div class="lbl">1. Days on market?</div><div class="opts">
 <label><input type="radio" name="q1" value="0"> &lt;14 days</label>
-<label><input type="radio" name="q1" value="2"> 15-60 days</label>
-<label><input type="radio" name="q1" value="4"> 60-120 days</label>
+<label><input type="radio" name="q1" value="2"> 15 to 60 days</label>
+<label><input type="radio" name="q1" value="4"> 60 to 120 days</label>
 <label><input type="radio" name="q1" value="6"> &gt;120 days</label>
 </div></div>
 <div class="q"><div class="lbl">2. Price reductions on listing?</div><div class="opts">
@@ -43,7 +43,7 @@
 </div></div>
 <div class="q"><div class="lbl">5. Property condition?</div><div class="opts">
 <label><input type="radio" name="q5" value="0"> Premium / staged</label>
-<label><input type="radio" name="q5" value="2"> Lived-in OK</label>
+<label><input type="radio" name="q5" value="2"> Lived in OK</label>
 <label><input type="radio" name="q5" value="4"> Tired / needs reno</label>
 </div></div>
 <div class="q"><div class="lbl">6. Marketing intensity?</div><div class="opts">
@@ -58,7 +58,7 @@
 </div></div>
 <div class="q"><div class="lbl">8. Counter speed in initial chat?</div><div class="opts">
 <label><input type="radio" name="q8" value="0"> Slow, no urgency</label>
-<label><input type="radio" name="q8" value="3"> Same-day responses</label>
+<label><input type="radio" name="q8" value="3"> Same day responses</label>
 <label><input type="radio" name="q8" value="5"> Asking when you can view ASAP</label>
 </div></div>
 <button type="button" class="btn" onclick="score()">Score motivation</button>
@@ -93,8 +93,8 @@ document.getElementById('result').classList.add('show');
   <div style="max-width:720px;margin:32px auto 0;padding:0 16px;">
     <p style="font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#b48c50;font-weight:600;margin-bottom:10px;">Related tools</p>
     <div style="display:flex;flex-wrap:wrap;gap:12px;">
-      <a href="/tools/concession-ladder" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Concession Ladder Generator</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">5-step negotiation concession plan</span></a>
-      <a href="/tools/walk-away-calculator" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Walk-Away Threshold</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Your negotiation ceiling before you bid</span></a>
+      <a href="/tools/concession-ladder" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Concession Ladder Generator</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">5 step negotiation concession plan</span></a>
+      <a href="/tools/walk-away-calculator" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Walk Away Threshold</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Your negotiation ceiling before you bid</span></a>
       <a href="/tools/cobroke-split-optimizer" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Co-Broke Split Optimiser</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Fair commission splits between agents</span></a>
     </div>
   </div>
@@ -103,8 +103,8 @@ document.getElementById('result').classList.add('show');
 <!-- Disclaimer -->
   <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
-      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
-    </p>
+ The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+ </p>
   </div>
 
 <section class="geo-faq" style="max-width:48rem;margin:2.5rem auto;padding:0 1.5rem;">

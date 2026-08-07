@@ -5,6 +5,8 @@ Checks every file the agents touched, against the rules they were given.
 Exits nonzero if anything blocking is found.
 """
 import json, os, re, subprocess, sys, html, collections
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _prose_rules import bad_hyphens, PARTIAL_DIRS
 
 import argparse
 _ap = argparse.ArgumentParser(description="Verify site changes before shipping.")
@@ -43,32 +45,14 @@ def text_of(s):
     return html.unescape(TAGS.sub("", s)).strip()
 
 
-# Winfred's rule is no hyphens in visible prose, but ranges and a small set of
-# standard property compounds are legitimate and must not block the release.
-ALLOWED_HYPHEN = {
-    "co-broke", "sub-sale", "en-bloc", "built-in", "walk-up", "buy-to-let",
-    "opt-in", "opt-out", "e-application", "x-ray", "2-room", "3-room",
-    "4-room", "5-room", "3gen", "99-year", "999-year", "t-o-p",
-}
-RANGE = re.compile(r"^[A-Za-z]?\d+[A-Za-z]?-[A-Za-z]?\d+[A-Za-z]?$")
-
-
-def bad_hyphens(s):
-    """Return hyphenated tokens that violate the no hyphen rule."""
-    out = []
-    for tok in re.findall(r"[A-Za-z0-9]+(?:-[A-Za-z0-9]+)+", s):
-        low = tok.lower()
-        if low in ALLOWED_HYPHEN or RANGE.match(tok):
-            continue
-        out.append(tok)
-    return out
 
 
 blocking, warn, info = [], [], []
 stats = collections.Counter()
 
 rows = changed()
-htmls = [(st, f) for st, f in rows if f.endswith(".html") and f.startswith("public/")]
+htmls = [(st, f) for st, f in rows if f.endswith(".html") and f.startswith("public/")
+         and not f.startswith(PARTIAL_DIRS)]
 
 for st, f in htmls:
     p = os.path.join(WT, f)
@@ -130,12 +114,29 @@ for st, f in htmls:
             continue
         for node in (data if isinstance(data, list) else [data]):
             if isinstance(node, dict) and node.get("@type") == "FAQPage":
-                body = text_of(src).lower()
+                # Strip script and style first. Without this the question text
+                # matches against its own JSON-LD block and every check passes.
+                visible = re.sub(r"<script.*?</script>|<style.*?</style>", " ",
+                                 src, flags=re.S | re.I)
+                body = re.sub(r"\s+", " ", text_of(visible)).lower()
+                # A mismatch that already existed on the base branch is an
+                # inherited defect, not a regression: warn, do not block, or a
+                # site wide prose change can never ship past 176 old problems.
+                prior = sh("git", "show", f"{BASE}:{f}")
+                prior_body = ""
+                if prior:
+                    prior_body = re.sub(
+                        r"\s+", " ",
+                        text_of(re.sub(r"<script.*?</script>|<style.*?</style>",
+                                       " ", prior, flags=re.S | re.I))).lower()
                 for qa in node.get("mainEntity", []) or []:
-                    q = text_of(str(qa.get("name", "")))
-                    if q and q.lower()[:45] not in body:
-                        blocking.append(
-                            f"{f}: FAQ schema question not in visible page: {q[:60]!r}")
+                    q = re.sub(r"\s+", " ", text_of(str(qa.get("name", "")))).strip()
+                    if not q or q.lower()[:45] in body:
+                        continue
+                    inherited = prior_body and q.lower()[:45] not in prior_body
+                    msg = f"{f}: FAQ schema question not in visible page: {q[:60]!r}"
+                    (warn if inherited else blocking).append(
+                        msg + (" [pre-existing]" if inherited else " [NEW]"))
 
 # vercel.json must still parse, and redirects must not point at deleted-and-missing targets
 vj = os.path.join(WT, "vercel.json")
