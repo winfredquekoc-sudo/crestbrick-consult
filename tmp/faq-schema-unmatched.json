@@ -1,0 +1,170 @@
+[
+ {
+  "file": "public/insights/absd-singapore-2026.html",
+  "question": "What is ABSD and when is it payable?",
+  "best_ratio": 0.6,
+  "nearest_visible": "1. What ABSD is (and what it isn't)"
+ },
+ {
+  "file": "public/insights/absd-singapore-2026.html",
+  "question": "Which nationalities are exempt from the 60% foreigner ABSD rate?",
+  "best_ratio": 0.44,
+  "nearest_visible": "3. FTA based exemptions, the ones most people miss"
+ },
+ {
+  "file": "public/insights/absd-singapore-2026.html",
+  "question": "Does inherited property count toward ABSD?",
+  "best_ratio": 0.61,
+  "nearest_visible": "Inherited property"
+ },
+ {
+  "file": "public/insights/adding-child-to-property-title-sg.html",
+  "question": "What if my child is under 21?",
+  "best_ratio": 0.56,
+  "nearest_visible": "Can I add my child to an HDB flat?"
+ },
+ {
+  "file": "public/insights/bridging-loan-singapore-playbook.html",
+  "question": "What is a bridging loan in Singapore?",
+  "best_ratio": 0.71,
+  "nearest_visible": "When is a bridging loan the wrong answer?"
+ },
+ {
+  "file": "public/insights/bridging-loan-singapore-playbook.html",
+  "question": "How are bridging loan repayments structured?",
+  "best_ratio": 0.56,
+  "nearest_visible": "1. What a bridging loan is (and isn't)"
+ },
+ {
+  "file": "public/insights/bridging-loan-singapore-playbook.html",
+  "question": "How does a bridging loan compare with an HDB Temporary Extension of Stay?",
+  "best_ratio": 0.7,
+  "nearest_visible": "7. Bridge vs HDB Temporary Extension of Stay"
+ },
+ {
+  "file": "public/insights/decoupling-singapore.html",
+  "question": "Does decoupling trigger SSD (Seller's Stamp Duty)?",
+  "best_ratio": 0.73,
+  "nearest_visible": "Does decoupling trigger SSD?"
+ },
+ {
+  "file": "public/insights/divorce-property-singapore-2026.html",
+  "question": "Do I pay ABSD on a court ordered transfer to my ex-spouse?",
+  "best_ratio": 0.62,
+  "nearest_visible": "Are ABSD and BSD payable on a court ordered transfer?"
+ },
+ {
+  "file": "public/insights/dunearn-house-entry-price-exit-math.html",
+  "question": "What is the Fourth Avenue Residences lesson for Dunearn House buyers?",
+  "best_ratio": 0.65,
+  "nearest_visible": "What is the estimated breakeven price for Dunearn House?"
+ },
+ {
+  "file": "public/insights/dunearn-house-mgs-school-ballot-guide.html",
+  "question": "Is Dunearn House within 1km of Methodist Girls' School Primary?",
+  "best_ratio": 0.66,
+  "nearest_visible": "Methodist Girls' School (Primary)"
+ },
+ {
+  "file": "public/insights/ec-vs-condo-singapore.html",
+  "question": "How much cheaper are ECs than comparable private condos at launch?",
+  "best_ratio": 0.47,
+  "nearest_visible": "3 Steps to Decide: EC or Private Condo?"
+ },
+ {
+  "file": "public/insights/ec-vs-condo-singapore.html",
+  "question": "Do ECs appreciate as much as private condos after privatisation?",
+  "best_ratio": 0.52,
+  "nearest_visible": "2. EC vs private condo: the pricing gap at purchase"
+ },
+ {
+  "file": "public/insights/fixed-vs-floating-mortgage.html",
+  "question": "What are the three main mortgage package types in Singapore?",
+  "best_ratio": -1.0,
+  "nearest_visible": "1. The three main package types in Singapore"
+ },
+ {
+  "file": "public/insights/fixed-vs-floating-mortgage.html",
+  "question": "What does the lock in period and redemption penalty cost?",
+  "best_ratio": 0.71,
+  "nearest_visible": "3. Lock in and redemption penalty, the real cost"
+ },
+ {
+  "file": "public/insights/fixed-vs-floating-mortgage.html",
+  "question": "What is the board rate trap in Singapore mortgages?",
+  "best_ratio": 0.64,
+  "nearest_visible": "6. What Is the Board Rate Trap and Why Should You Avoid It?"
+ },
+ {
+  "file": "public/insights/foreign-buyer-60-absd-strategy.html",
+  "question": "Which foreign nationalities are exempt from the 60% ABSD?",
+  "best_ratio": -1.0,
+  "nearest_visible": "Which Foreigners Are Exempt from the 60% ABSD?"
+ },
+ {
+  "file": "public/insights/foreign-buyer-60-absd-strategy.html",
+  "question": "What ABSD rate applies if a foreigner buys through a company?",
+  "best_ratio": 0.47,
+  "nearest_visible": "8. Structures for foreign buyers who do proceed"
+ },
+ {
+  "file": "public/insights/foreign-buyer-60-absd-strategy.html",
+  "question": "Should most foreigners rent instead of buy property in Singapore?",
+  "best_ratio": -1.0,
+  "nearest_visible": "Should Most Foreigners Rent Instead of Buy in Singapore?"
+ },
+ {
+  "file": "public/insights/freehold-vs-leasehold.html",
+  "question": "4. How does lease decay affect mortgage financing?",
+  "best_ratio": 0.62,
+  "nearest_visible": "How Does Remaining Lease Affect CPF Use and Bank Financing?"
+ },
+ {
+  "file": "public/insights/hdb-upgrader-guide.html",
+  "question": "What is CPF accrued interest and why does it matter for upgraders?",
+  "best_ratio": -1.0,
+  "nearest_visible": "What is CPF accrued interest and why does it matter?"
+ },
+ {
+  "file": "public/insights/lentor-absorption-story-what-it-means.html",
+  "question": "Why did Lentor absorb nearly 3,000 units so quickly?",
+  "best_ratio": 0.44,
+  "nearest_visible": "When does Lentor Gardens Residences book?"
+ },
+ {
+  "file": "public/insights/new-launch-balloting-e-application-singapore.html",
+  "question": "How long do I have to exercise the OTP on a new launch?",
+  "best_ratio": 0.58,
+  "nearest_visible": "When do I pay the rest of the money on a new launch condo?"
+ },
+ {
+  "file": "public/insights/property-succession-singapore-guide.html",
+  "question": "Is there estate duty on inherited property in Singapore?",
+  "best_ratio": -1.0,
+  "nearest_visible": "Is there estate duty or inheritance tax in Singapore?"
+ },
+ {
+  "file": "public/insights/seller-stamp-duty-singapore.html",
+  "question": "Are HDB flats subject to SSD?",
+  "best_ratio": 0.38,
+  "nearest_visible": "8. SSD and new launch sub-sales before TOP"
+ },
+ {
+  "file": "public/glossary/index.html",
+  "question": "What is Lock in period?",
+  "best_ratio": 0.7,
+  "nearest_visible": "What is plot ratio?"
+ },
+ {
+  "file": "public/glossary/index.html",
+  "question": "What is SERS?",
+  "best_ratio": -1.0,
+  "nearest_visible": "What is SSD?"
+ },
+ {
+  "file": "public/glossary/index.html",
+  "question": "What is Annual Value?",
+  "best_ratio": 0.67,
+  "nearest_visible": "What is Sub sale?"
+ }
+]
