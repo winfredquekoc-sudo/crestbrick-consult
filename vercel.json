@@ -509,6 +509,11 @@
       "source": "/glossary.html",
       "destination": "/glossary",
       "permanent": true
+    },
+    {
+      "source": "/insights/dunearn-house-review-singapore-2026",
+      "destination": "/insights/dunearn-house-review-2026",
+      "permanent": true
     }
   ],
   "buildCommand": "npm run build",
