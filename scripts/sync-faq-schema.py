@@ -204,11 +204,12 @@ def main():
     for rel, q, r, best in unmatched[:15]:
         print(f"  {rel}  (best {r})\n     Q:    {q[:90]!r}\n     near: {best[:90]!r}")
     if unmatched:
-        with open(os.path.join(a.root, "faq-schema-unmatched.json"), "w") as fh:
+        os.makedirs(os.path.join(a.root, "tmp"), exist_ok=True)
+        with open(os.path.join(a.root, "tmp", "faq-schema-unmatched.json"), "w") as fh:
             json.dump([{"file": f, "question": q, "best_ratio": r,
                         "nearest_visible": b} for f, q, r, b in unmatched],
                       fh, indent=1)
-        print(f"\n  full list -> faq-schema-unmatched.json")
+        print(f"\n  full list -> tmp/faq-schema-unmatched.json")
 
 
 if __name__ == "__main__":
