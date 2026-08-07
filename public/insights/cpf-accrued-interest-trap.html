@@ -70,9 +70,52 @@
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
-<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script><script type="application/ld+json">
-  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"1. What is CPF accrued interest and how does it work?","acceptedAnswer":{"@type":"Answer","text":"When you use CPF Ordinary Account (OA) savings to pay for a property, the downpayment, monthly instalments, stamp duties, or legal fees, that money leaves your CPF account. The CPF Board treats this as an opportunity cost: had you left that money in OA, it would have earned 2.5% per annum risk-free."}},{"@type":"Question","name":"2. Why does S$200k of CPF used become a S$290k refund obligation?","acceptedAnswer":{"@type":"Answer","text":"Let's take a realistic upgrader case. Couple buys a 5-room HDB flat in 2011 for S$500,000. Downpayment from CPF: S$100,000 combined. Over 15 years of servicing the HDB loan and top-up payments, they draw another S$100,000 from CPF OA. Total principal used: S$200,000. They now want to sell in 2026 and upgrade to a condo."}},{"@type":"Question","name":"3. How does CPF accrued interest affect your next purchase?","acceptedAnswer":{"@type":"Answer","text":"Here's the quiet trap: upgraders assume that CPF refund is a good thing because \"it's still my money.\" It is. But it's not cash. It doesn't pay for the 25% downpayment on the new condo (the 5% cash + 20% CPF+cash buffer). It can't pay ABSD. And if your new purchase draws down OA again, you start a new accrued interest clock."}},{"@type":"Question","name":"4. What is a negative sale and when can it happen?","acceptedAnswer":{"@type":"Answer","text":"Take a flat bought at S$600,000 in 2013 with S$150,000 CPF used. Fast forward to 2026: outstanding loan S$250,000, CPF refund liability S$220,000 (principal + accrued interest). Total: S$470,000. If the flat sells at S$500,000, the cash in hand is S$30,000 before agent fees. If it sells at S$450,000, the seller has to pay S$20,000 at completion."}},{"@type":"Question","name":"5. The upgrader's decision matrix\n  Once you know your accrued interest number, the decision tree clarifies fast. Three scenarios:\n\n  Scenario A: Healthy equity, low refund ratio\n  Sale proceeds cover loan + CPF refund + transaction costs with meaningful cash left over. This is the \"clean upgrade\" case. Proceed with a standard upgrade timeline, the CPF refund replenishes your OA, which then funds part of the new downpayment.\n\n  Scenario B: Thin equity, high refund ratio\n  Sale proceeds cover the obligations but leave minimal cash. You'll need external cash (savings, bridging loan, liquidated investments) to close the gap on ABSD, downpayment top-up, stamp duties, and renovation. Model the full affordability picture including these cash calls before committing.\n\n  Scenario C: Negative sale risk\n  Sale proceeds won't cover loan + CPF refund. Either wait (if you can), rent out if HDB rules permit (5-year MOP passed, then subject to rental permission), or plan for the partial CPF refund waiver. In all three sub-options, the upgrade is paused, not cancelled, timing matters more than pride.\n\n  6. The accrued interest on the new purchase\n  Once you sell and buy the upgrade, the accrued interest clock starts over on the new property. If you use S$200,000 from CPF OA on the condo downpayment and service the loan partly via CPF for 10 years, your next CPF refund liability at exit could easily exceed S$300,000.\n\n  This is why I always show clients the lifetime CPF math, not the single-transaction math. Each property restarts the compounding. Two upgrades over a 25-year horizon can lock up S$500,000+ of CPF in accrued interest alone, retirement savings that went to property holding, not property gains.\n\n  7. Three ways to reduce accrued interest exposure\n  \n    Pay loan with cash, not CPF, when cashflow permits. Every dollar of cash servicing is a dollar that doesn't compound at 2.5% against you. If your household cashflow supports cash-only servicing for the final 5–7 years, the accrued interest delta at exit is materially smaller.\n    Keep the loan longer, not shorter. Counter-intuitive but real: a larger outstanding loan at sale means more principal repaid to the bank and less residual CPF refund. Paying down early with CPF lump sums inflates accrued interest; paying with bank loan interest at 3–4% vs CPF's 2.5% is a 1–1.5% spread on the marginal dollar.\n    Refund CPF voluntarily from rental or other income. If you hold the property and rent it out (applicable post-MOP with HDB, or investment condos), you can voluntarily refund CPF from rental income, stopping the compounding while retaining the asset. This isn't common advice, but it's legal and effective.\n  \n\n  8. How I run this in the Property Portfolio Analysis\n  The CPF accrued interest number enters the Money side (what's actually deployable) and the Safety side (retirement adequacy). In the property portfolio analysis, I model three things:\n\n  \n    Deployable cash at sale. Sale price loan CPF refund costs. Not \"profit.\" Deployable cash.\n    Post-refund CPF position. What OA looks like after the refund lands, and how much of that is usable for the next purchase.\n    Lifetime CPF trajectory. Projected CPF balance at 55 under both the \"upgrade now\" and \"hold the flat\" scenarios. The 25-year difference is usually the most sobering number in the whole analysis.\n  \n\n  Upgraders who see this math tend to make better timing decisions. The ones who don't see it often discover the problem at completion, when the numbers are locked and the refund is already pulling back into CPF.\n\n  9. What are the three biggest CPF accrued-interest myths?","acceptedAnswer":{"@type":"Answer","text":"See the full article for details."}}]}
-  </script>
+<link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "1. What is CPF accrued interest and how does it work?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "When you use CPF Ordinary Account (OA) savings to pay for a property, the downpayment, monthly instalments, stamp duties, or legal fees, that money leaves your CPF account. The CPF Board treats this as an opportunity cost: had you left that money in OA, it would have earned 2.5% per annum risk free."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "2. Why does S$200k of CPF used become a S$290k refund obligation?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Let's take a realistic upgrader case. Couple buys a 5 room HDB flat in 2011 for S$500,000. Downpayment from CPF: S$100,000 combined. Over 15 years of servicing the HDB loan and top up payments, they draw another S$100,000 from CPF OA. Total principal used: S$200,000. They now want to sell in 2026 and upgrade to a condo."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "3. How does CPF accrued interest affect your next purchase?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Here's the quiet trap: upgraders assume that CPF refund is a good thing because \"it's still my money.\" It is. But it's not cash. It doesn't pay for the 25% downpayment on the new condo (the 5% cash + 20% CPF+cash buffer). It can't pay ABSD. And if your new purchase draws down OA again, you start a new accrued interest clock."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "4. What is a negative sale and when can it happen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Take a flat bought at S$600,000 in 2013 with S$150,000 CPF used. Fast forward to 2026: outstanding loan S$250,000, CPF refund liability S$220,000 (principal + accrued interest). Total: S$470,000. If the flat sells at S$500,000, the cash in hand is S$30,000 before agent fees. If it sells at S$450,000, the seller has to pay S$20,000 at completion."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "5. The upgrader's decision matrix",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Once you know your accrued interest number, the decision tree clarifies fast. Three scenarios: Scenario A: Healthy equity, low refund ratio Sale proceeds cover loan + CPF refund + transaction costs with meaningful cash left over. This is the \"clean upgrade\" case. Proceed with a standard upgrade timeline, the CPF refund replenishes your OA, which then funds part of the new downpayment. Scenario B: Thin equity, high refund ratio Sale proceeds cover the obligations but leave minimal cash. You'll need external cash (savings, bridging loan, liquidated investments) to close the gap on ABSD, downpayment top up, stamp duties, and renovation. Model the full affordability picture including these cash calls before committing. Scenario C: Negative sale risk Sale proceeds won't cover loan + CPF refund. Either wait (if you can), rent out if HDB rules permit (5 year MOP passed, then subject to rental permission), or plan for the partial CPF refund waiver. In all three sub-options, the upgrade is paused, not cancelled, timing matters more than pride. 6. The accrued interest on the new purchase Once you sell and buy the upgrade, the accrued interest clock starts over on the new property. If you use S$200,000 from CPF OA on the condo downpayment and service the loan partly via CPF for 10 years, your next CPF refund liability at exit could easily exceed S$300,000. This is why I always show clients the lifetime CPF math, not the single transaction math. Each property restarts the compounding. Two upgrades over a 25 year horizon can lock up S$500,000+ of CPF in accrued interest alone, retirement savings that went to property holding, not property gains. 7. Three ways to reduce accrued interest exposure Pay loan with cash, not CPF, when cashflow permits. Every dollar of cash servicing is a dollar that doesn't compound at 2.5% against you. If your household cashflow supports cash only servicing for the final 5 to 7 years, the accrued interest delta at exit is materially smaller. Keep the loan longer, not shorter. Counter-intuitive but real: a larger outstanding loan at sale means more principal repaid to the bank and less residual CPF refund. Paying down early with CPF lump sums inflates accrued interest; paying with bank loan interest at 3 to 4% vs CPF's 2.5% is a 1 to 1.5% spread on the marginal dollar. Refund CPF voluntarily from rental or other income. If you hold the property and rent it out (applicable post MOP with HDB, or investment condos), you can voluntarily refund CPF from rental income, stopping the compounding while retaining the asset. This isn't common advice, but it's legal and effective. 8. How I run this in the Property Portfolio Analysis The CPF accrued interest number enters the Money side (what's actually deployable) and the Safety side (retirement adequacy). In the property portfolio analysis, I model three things: Deployable cash at sale. Sale price loan CPF refund costs. Not \"profit.\" Deployable cash. Post refund CPF position. What OA looks like after the refund lands, and how much of that is usable for the next purchase. Lifetime CPF trajectory. Projected CPF balance at 55 under both the \"upgrade now\" and \"hold the flat\" scenarios. The 25 year difference is usually the most sobering number in the whole analysis. Upgraders who see this math tend to make better timing decisions. The ones who don't see it often discover the problem at completion, when the numbers are locked and the refund is already pulling back into CPF. 9. What are the three biggest CPF accrued interest myths?"
+      }
+    }
+  ]
+}</script>
   <meta property="og:site_name" content="Winfred Quek" />
   <meta property="og:locale" content="en_SG" />
   <link rel="manifest" href="/manifest.webmanifest" />
@@ -153,7 +196,7 @@
     <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#a8c0d6;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#a8c0d6;text-decoration:none;">All insights</a></p>
     <span style="display:inline-block;background:#1e4a3a;color:#7ec8a4;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">CPF</span>
     <h1 aria-hidden="true" style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.5rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:28ch;text-wrap:balance;margin-bottom:1.25rem;">The CPF accrued interest trap: why HDB sellers are losing six figures silently</h1>
-    <p style="color:#b0c4de;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 11-minute read &middot; Updated 19 April 2026</p>
+    <p style="color:#b0c4de;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 11 minute read &middot; Updated 19 April 2026</p>
   </div>
 </section>
 
@@ -161,35 +204,35 @@
   <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
   <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Money · 2026</p>
   <h1 class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6">The CPF accrued interest trap: why HDB sellers are losing six figures silently</h1>
-  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek · 11-minute read · Last reviewed May 2026</p>
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek · 11 minute read · Last reviewed May 2026</p>
 
-  <div class="quick-answer"><strong>Quick answer:</strong> CPF accrued interest compounds at 2.5% p.a. on all CPF Ordinary Account funds used for an HDB flat. At resale, the full principal plus accrued interest must be refunded to CPF before you receive any cash proceeds. On a flat purchased 10 years ago with S$150,000 CPF OA, the refund including accrued interest can exceed S$190,000  --  often eliminating what seemed like a profitable sale.</div>
+  <div class="quick-answer"><strong>Quick answer:</strong> CPF accrued interest compounds at 2.5% p.a. on all CPF Ordinary Account funds used for an HDB flat. At resale, the full principal plus accrued interest must be refunded to CPF before you receive any cash proceeds. On a flat purchased 10 years ago with S$150,000 CPF OA, the refund including accrued interest can exceed S$190,000, often eliminating what seemed like a profitable sale.</div>
 
   <p>When an HDB upgrader comes to me with a freshly signed OTP and a sale plan for their existing flat, I ask two questions before anything else. What did you use from CPF OA to pay for the flat? And when did you last pull the accrued interest statement from the CPF portal? Nine times out of ten, I get a shrug on the first, and a blank on the second.</p>
 
-  <p>That blank is expensive. Accrued interest is the invisible liability on the back of every HDB transaction, and it compounds at 2.5% per annum whether you pay attention to it or not. I've seen sellers walk away from "profitable" sales with S$40,000 in cash proceeds and a quarter of their CPF pre-empted for a decade. This article walks through the mechanics, the worked example, and the upgrader's playbook I actually use.</p>
+  <p>That blank is expensive. Accrued interest is the invisible liability on the back of every HDB transaction, and it compounds at 2.5% per annum whether you pay attention to it or not. I've seen sellers walk away from "profitable" sales with S$40,000 in cash proceeds and a quarter of their CPF pre empted for a decade. This article walks through the mechanics, the worked example, and the upgrader's playbook I actually use.</p>
 
   <h2 id="3-steps-to-check-your-cpf-accrued-interest-exposure-before-upgrading">3 Steps to Check Your CPF Accrued Interest Exposure Before Upgrading</h2>
 
-  <div class="flow-step"><strong>Step 1  --  Pull the exact number from CPF portal.</strong> Log in to cpf.gov.sg → My Statement → Property Dashboard. Under "Amount to be refunded to CPF upon sale," you'll see the exact principal used plus accrued interest to date. This number updates monthly. Do this before any other planning  --  sellers who skip this step routinely discover a S$50,000–S$90,000 surprise at the conveyancing table.</div>
-  <div class="flow-step"><strong>Step 2  --  Compute your deployable cash.</strong> Formula: (Expected HDB sale price) − (Outstanding HDB loan) − (CPF accrued interest refund amount) − (Agent commission ~2%) − (Legal fees ~S$2,500) = Deployable cash to bank account. Only this residual is available for ABSD, downpayment top-up, renovation, or emergency buffer. Your CPF refund goes back to CPF OA  --  useful for the new property's 20% tranche but cannot pay ABSD or cover cash-minimum requirements.</div>
-  <div class="flow-step"><strong>Step 3  --  Stress test two scenarios.</strong> Scenario A: if your HDB sells at 5% below asking, does deployable cash still cover minimum cash needed for the condo (5% downpayment + BSD + any ABSD)? Scenario B: if the condo market moves 3% higher before you complete your HDB sale, can you still qualify under TDSR at the new price? Run both numbers before signing any OTP on the new property.</div>
+  <div class="flow-step"><strong>Step 1, Pull the exact number from CPF portal.</strong> Log in to cpf.gov.sg → My Statement → Property Dashboard. Under "Amount to be refunded to CPF upon sale," you'll see the exact principal used plus accrued interest to date. This number updates monthly. Do this before any other planning, sellers who skip this step routinely discover a S$50,000 to S$90,000 surprise at the conveyancing table.</div>
+  <div class="flow-step"><strong>Step 2, Compute your deployable cash.</strong> Formula: (Expected HDB sale price) − (Outstanding HDB loan) − (CPF accrued interest refund amount) − (Agent commission ~2%) − (Legal fees ~S$2,500) = Deployable cash to bank account. Only this residual is available for ABSD, downpayment top up, renovation, or emergency buffer. Your CPF refund goes back to CPF OA, useful for the new property's 20% tranche but cannot pay ABSD or cover cash minimum requirements.</div>
+  <div class="flow-step"><strong>Step 3, Stress test two scenarios.</strong> Scenario A: if your HDB sells at 5% below asking, does deployable cash still cover minimum cash needed for the condo (5% downpayment + BSD + any ABSD)? Scenario B: if the condo market moves 3% higher before you complete your HDB sale, can you still qualify under TDSR at the new price? Run both numbers before signing any OTP on the new property.</div>
 
   <h2 id="1-what-is-cpf-accrued-interest-and-how-does-it-work">1. What is CPF accrued interest and how does it work?</h2>
-  <p>When you use CPF Ordinary Account (OA) savings to pay for a property, the downpayment, monthly instalments, stamp duties, or legal fees, that money leaves your CPF account. The CPF Board treats this as an opportunity cost: had you left that money in OA, it would have earned 2.5% per annum risk-free.</p>
+  <p>When you use CPF Ordinary Account (OA) savings to pay for a property, the downpayment, monthly instalments, stamp duties, or legal fees, that money leaves your CPF account. The CPF Board treats this as an opportunity cost: had you left that money in OA, it would have earned 2.5% per annum risk free.</p>
 
   <p>When you sell the property, you must refund the original principal plus the accrued interest that money would have earned. Both go back into your CPF OA, not your bank account. This is not a fine or a penalty. It's restoring your retirement savings to where they would have been had you not withdrawn them.</p>
 
-  <p>The problem is that 2.5% compounds. Over 15 years, a S$100 CPF withdrawal becomes roughly S$145 in refund liability. Over 25 years, it becomes roughly S$186. For a typical upgrader who used S$150,000 to S$250,000 from CPF OA across downpayment and 10–15 years of servicing, the accrued interest alone runs into tens of thousands.</p>
+  <p>The problem is that 2.5% compounds. Over 15 years, a S$100 CPF withdrawal becomes roughly S$145 in refund liability. Over 25 years, it becomes roughly S$186. For a typical upgrader who used S$150,000 to S$250,000 from CPF OA across downpayment and 10 to 15 years of servicing, the accrued interest alone runs into tens of thousands.</p>
 
   <h2 id="2-why-does-s-200k-of-cpf-used-become-a-s-290k-refund-obligation">2. Why does S$200k of CPF used become a S$290k refund obligation?</h2>
-  <p>Let's take a realistic upgrader case. Couple buys a 5-room HDB flat in 2011 for S$500,000. Downpayment from CPF: S$100,000 combined. Over 15 years of servicing the HDB loan and top-up payments, they draw another S$100,000 from CPF OA. Total principal used: S$200,000. They now want to sell in 2026 and upgrade to a condo.</p>
+  <p>Let's take a realistic upgrader case. Couple buys a 5 room HDB flat in 2011 for S$500,000. Downpayment from CPF: S$100,000 combined. Over 15 years of servicing the HDB loan and top up payments, they draw another S$100,000 from CPF OA. Total principal used: S$200,000. They now want to sell in 2026 and upgrade to a condo.</p>
 
   <table>
     <thead><tr><th>CPF usage over time</th><th>Principal</th><th>Accrued interest</th><th>Refund liability</th></tr></thead>
     <tbody>
       <tr><td>2011: Downpayment</td><td>S$100,000</td><td>S$45,000 (15 yrs @ 2.5%)</td><td>S$145,000</td></tr>
-      <tr><td>2012–2026: Monthly servicing</td><td>S$100,000</td><td>S$45,000 (avg 12 yrs)</td><td>S$145,000</td></tr>
+      <tr><td>2012 to 2026: Monthly servicing</td><td>S$100,000</td><td>S$45,000 (avg 12 yrs)</td><td>S$145,000</td></tr>
       <tr><td><strong>Total 2026 refund</strong></td><td><strong>S$200,000</strong></td><td><strong>S$90,000</strong></td><td><strong>S$290,000</strong></td></tr>
     </tbody>
   </table>
@@ -204,18 +247,18 @@
 
   <ul>
     <li><strong>Negative sale.</strong> Outstanding loan + CPF refund exceeds sale price. You have to top up in cash to close. This happens on flats bought at peak prices in 2013 with minimal appreciation since.</li>
-    <li><strong>Cash-thin sale.</strong> Refund eats most of the proceeds. You have enough for the new downpayment but nothing for renovation, buffer, or ABSD if applicable.</li>
-    <li><strong>CPF-locked sale.</strong> Proceeds go to CPF OA and can't be used for ABSD (which must be cash within 14 days) on a second property purchase.</li>
+    <li><strong>Cash thin sale.</strong> Refund eats most of the proceeds. You have enough for the new downpayment but nothing for renovation, buffer, or ABSD if applicable.</li>
+    <li><strong>CPF locked sale.</strong> Proceeds go to CPF OA and can't be used for ABSD (which must be cash within 14 days) on a second property purchase.</li>
   </ul>
 
   <h2 id="4-what-is-a-negative-sale-and-when-can-it-happen">4. What is a negative sale and when can it happen?</h2>
   <p>Take a flat bought at S$600,000 in 2013 with S$150,000 CPF used. Fast forward to 2026: outstanding loan S$250,000, CPF refund liability S$220,000 (principal + accrued interest). Total: S$470,000. If the flat sells at S$500,000, the cash in hand is S$30,000 before agent fees. If it sells at S$450,000, the seller has to <em>pay</em> S$20,000 at completion.</p>
 
-  <p>The CPF Board has an explicit provision for this: when sale proceeds are insufficient to refund CPF in full, IRAS does not require cash top-up, but only if the sale is at or above valuation and the shortfall is demonstrably due to market conditions. Sellers selling below valuation to force a quick sale may need to top up. This is not widely understood.</p>
+  <p>The CPF Board has an explicit provision for this: when sale proceeds are insufficient to refund CPF in full, IRAS does not require cash top up, but only if the sale is at or above valuation and the shortfall is demonstrably due to market conditions. Sellers selling below valuation to force a quick sale may need to top up. This is not widely understood.</p>
 
   <div class="warn">
     <strong>Pull the number early.</strong> The CPF Board's Property Dashboard (cpf.gov.sg, login required) shows your exact accrued interest to the dollar, updated monthly. I run this with every HDB client in the first 15 minutes of our meeting. If you haven't checked, you're flying blind.
-  </div>
+ </div>
 
   <h2 id="5-the-upgrader-s-decision-matrix">5. The upgrader's decision matrix</h2>
   <p>Once you know your accrued interest number, the decision tree clarifies fast. Three scenarios:</p>
@@ -224,21 +267,21 @@
   <p>Sale proceeds cover loan + CPF refund + transaction costs with meaningful cash left over. This is the "clean upgrade" case. Proceed with a standard upgrade timeline, the CPF refund replenishes your OA, which then funds part of the new downpayment.</p>
 
   <h3>Scenario B: Thin equity, high refund ratio</h3>
-  <p>Sale proceeds cover the obligations but leave minimal cash. You'll need external cash (savings, bridging loan, liquidated investments) to close the gap on ABSD, downpayment top-up, stamp duties, and renovation. Model the <a class="underline hover:no-underline" style="color:var(--accent);" href="/tools/affordability">full affordability picture</a> including these cash calls before committing.</p>
+  <p>Sale proceeds cover the obligations but leave minimal cash. You'll need external cash (savings, bridging loan, liquidated investments) to close the gap on ABSD, downpayment top up, stamp duties, and renovation. Model the <a class="underline hover:no-underline" style="color:var(--accent);" href="/tools/affordability">full affordability picture</a> including these cash calls before committing.</p>
 
   <h3>Scenario C: Negative sale risk</h3>
-  <p>Sale proceeds won't cover loan + CPF refund. Either wait (if you can), rent out if HDB rules permit (5-year MOP passed, then subject to rental permission), or plan for the partial CPF refund waiver. In all three sub-options, the upgrade is paused, not cancelled, timing matters more than pride.</p>
+  <p>Sale proceeds won't cover loan + CPF refund. Either wait (if you can), rent out if HDB rules permit (5 year MOP passed, then subject to rental permission), or plan for the partial CPF refund waiver. In all three sub-options, the upgrade is paused, not cancelled, timing matters more than pride.</p>
 
   <h2 id="6-the-accrued-interest-on-the-new-purchase">6. The accrued interest on the <em>new</em> purchase</h2>
   <p>Once you sell and buy the upgrade, the accrued interest clock starts over on the new property. If you use S$200,000 from CPF OA on the condo downpayment and service the loan partly via CPF for 10 years, your next CPF refund liability at exit could easily exceed S$300,000.</p>
 
-  <p>This is why I always show clients the <em>lifetime</em> CPF math, not the single-transaction math. Each property restarts the compounding. Two upgrades over a 25-year horizon can lock up S$500,000+ of CPF in accrued interest alone, retirement savings that went to property holding, not property gains.</p>
+  <p>This is why I always show clients the <em>lifetime</em> CPF math, not the single transaction math. Each property restarts the compounding. Two upgrades over a 25 year horizon can lock up S$500,000+ of CPF in accrued interest alone, retirement savings that went to property holding, not property gains.</p>
 
   <h2 id="7-three-ways-to-reduce-accrued-interest-exposure">7. Three ways to reduce accrued interest exposure</h2>
   <ol>
-    <li><strong>Pay loan with cash, not CPF, when cashflow permits.</strong> Every dollar of cash servicing is a dollar that doesn't compound at 2.5% against you. If your household cashflow supports cash-only servicing for the final 5–7 years, the accrued interest delta at exit is materially smaller.</li>
-    <li><strong>Keep the loan longer, not shorter.</strong> Counter-intuitive but real: a larger outstanding loan at sale means more principal repaid to the bank and less residual CPF refund. Paying down early with CPF lump sums inflates accrued interest; paying with bank loan interest at 3–4% vs CPF's 2.5% is a 1–1.5% spread on the marginal dollar.</li>
-    <li><strong>Refund CPF voluntarily from rental or other income.</strong> If you hold the property and rent it out (applicable post-MOP with HDB, or investment condos), you can voluntarily refund CPF from rental income, stopping the compounding while retaining the asset. This isn't common advice, but it's legal and effective.</li>
+    <li><strong>Pay loan with cash, not CPF, when cashflow permits.</strong> Every dollar of cash servicing is a dollar that doesn't compound at 2.5% against you. If your household cashflow supports cash only servicing for the final 5 to 7 years, the accrued interest delta at exit is materially smaller.</li>
+    <li><strong>Keep the loan longer, not shorter.</strong> Counter-intuitive but real: a larger outstanding loan at sale means more principal repaid to the bank and less residual CPF refund. Paying down early with CPF lump sums inflates accrued interest; paying with bank loan interest at 3 to 4% vs CPF's 2.5% is a 1 to 1.5% spread on the marginal dollar.</li>
+    <li><strong>Refund CPF voluntarily from rental or other income.</strong> If you hold the property and rent it out (applicable post MOP with HDB, or investment condos), you can voluntarily refund CPF from rental income, stopping the compounding while retaining the asset. This isn't common advice, but it's legal and effective.</li>
   </ol>
 
   <h2 id="8-how-i-run-this-in-the-property-portfolio-analysis">8. How I run this in the Property Portfolio Analysis</h2>
@@ -246,17 +289,17 @@
 
   <ul>
     <li><strong>Deployable cash at sale.</strong> Sale price loan CPF refund costs. Not "profit." Deployable cash.</li>
-    <li><strong>Post-refund CPF position.</strong> What OA looks like after the refund lands, and how much of that is usable for the next purchase.</li>
-    <li><strong>Lifetime CPF trajectory.</strong> Projected CPF balance at 55 under both the "upgrade now" and "hold the flat" scenarios. The 25-year difference is usually the most sobering number in the whole analysis.</li>
+    <li><strong>Post refund CPF position.</strong> What OA looks like after the refund lands, and how much of that is usable for the next purchase.</li>
+    <li><strong>Lifetime CPF trajectory.</strong> Projected CPF balance at 55 under both the "upgrade now" and "hold the flat" scenarios. The 25 year difference is usually the most sobering number in the whole analysis.</li>
   </ul>
 
   <p>Upgraders who see this math tend to make better timing decisions. The ones who don't see it often discover the problem at completion, when the numbers are locked and the refund is already pulling back into CPF.</p>
 
-  <h2 id="9-what-are-the-three-biggest-cpf-accrued-interest-myths">9. What are the three biggest CPF accrued-interest myths?</h2>
+  <h2 id="9-what-are-the-three-biggest-cpf-accrued-interest-myths">9. What are the three biggest CPF accrued interest myths?</h2>
   <ul>
     <li><strong>"It's my own money coming back to me, so it doesn't matter."</strong> It matters because it's not available for your next downpayment, your ABSD, or your renovation. Locked capital is different from free capital.</li>
-    <li><strong>"I can waive the refund."</strong> Only in specific negative-sale scenarios where sale is at valuation or above. Voluntary waiver on a profitable sale is not permitted.</li>
-    <li><strong>"I'll just sell when the market is hot."</strong> The CPF number compounds every month regardless of market. Waiting 3 more years for price appreciation adds ~S$15,000 to the refund on S$200,000 principal. The hot-market thesis has to beat that drag.</li>
+    <li><strong>"I can waive the refund."</strong> Only in specific negative sale scenarios where sale is at valuation or above. Voluntary waiver on a profitable sale is not permitted.</li>
+    <li><strong>"I'll just sell when the market is hot."</strong> The CPF number compounds every month regardless of market. Waiting 3 more years for price appreciation adds ~S$15,000 to the refund on S$200,000 principal. The hot market thesis has to beat that drag.</li>
   </ul>
 
   <h2 id="10-what-to-do-this-week">10. What to do this week</h2>
@@ -264,10 +307,10 @@
   <ol>
     <li>Log into the CPF portal and pull the exact accrued interest number for each owner on the title.</li>
     <li>Get a realistic valuation, not a gut guess, an actual valuer's assessment or a recent comparable transaction analysis.</li>
-    <li>Run the deployable-cash calculation: sale price outstanding loan CPF refund (principal + accrued interest) 2% transaction costs. That's what you actually have for the next step.</li>
+    <li>Run the deployable cash calculation: sale price outstanding loan CPF refund (principal + accrued interest) 2% transaction costs. That's what you actually have for the next step.</li>
   </ol>
 
-  <p>If the number is smaller than you expected, you're not alone. Most upgraders haven't done this calculation honestly. The ones who do are the ones who avoid the post-completion regret.</p>
+  <p>If the number is smaller than you expected, you're not alone. Most upgraders haven't done this calculation honestly. The ones who do are the ones who avoid the post completion regret.</p>
 
   <div class="cta-block">
     <p class="serif text-2xl font-semibold mb-3" style="color:var(--ink);">Book the Property Portfolio Analysis</p>
@@ -283,14 +326,14 @@
   <ul>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/hdb-mop-upgrade-timeline">HDB MOP to condo upgrade: the full timeline</a></li>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/portfolio-blueprint-one-income">Portfolio blueprint on one income</a></li>
-    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/restructuring-breakeven">Restructuring in Singapore: the break-even math</a></li>
+    <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/restructuring-breakeven">Restructuring in Singapore: the break even math</a></li>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/insights/absd-singapore-2026">ABSD Singapore 2026: the full reference</a></li>
     <li><a class="underline hover:no-underline" style="color:var(--accent);" href="/tools/affordability">Affordability calculator</a></li>
   </ul>
 
   <div class="article-cta" style="background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;">
     <p style="font-family:'Fraunces',Georgia,serif;font-size:1.1rem;font-weight:600;margin-bottom:0.5rem;">Want to apply this to your own situation?</p>
-    <p style="color:#4a4a4a;margin-bottom:1rem;">Book a 30-min Property Portfolio Analysis with Winfred. No pressure, just honest numbers.</p>
+    <p style="color:#4a4a4a;margin-bottom:1rem;">Book a 30 min Property Portfolio Analysis with Winfred. No pressure, just honest numbers.</p>
     <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.75rem 1.5rem;border-radius:8px;text-decoration:none;font-weight:600;">Book a free property portfolio analysis call</a>
   </div>
 
@@ -310,8 +353,8 @@
       style="padding:.65rem 1rem;border-radius:8px;border:1px solid var(--rule, #2a2d38);background:var(--bg, #12141c);color:var(--ink, #e8e9f0);font-size:.95rem;min-width:220px;">
     <button type="submit"
       style="padding:.65rem 1.4rem;background:var(--accent, #c9a84c);color:#0d0f18;font-weight:600;border:none;border-radius:8px;cursor:pointer;font-size:.95rem;">
-      Subscribe
-    </button>
+ Subscribe
+ </button>
   </form>
 <script>
 if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
@@ -346,8 +389,8 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
   <!-- Disclaimer -->
   <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
-      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
-    </p>
+ The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+ </p>
   </div>
 <p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>

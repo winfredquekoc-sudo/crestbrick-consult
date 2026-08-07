@@ -73,12 +73,12 @@ td{color:var(--ink-soft);}
 <label><span>Property type</span><select id="ptype"><option value="private" selected>Private (up to 30y)</option><option value="hdb">HDB / EC (up to 25y)</option></select></label>
 </div>
 
-<label><span>Loan to value, LTV (<span id="ltvval">75</span>%) — first housing loan default 75%</span>
+<label><span>Loan to value, LTV (<span id="ltvval">75</span>%), first housing loan default 75%</span>
 <input id="ltv" type="range" min="10" max="75" step="5" value="75"/></label>
 
 <div class="row">
-<label><span>Loan amount (S$) — auto from LTV, or type your own</span><input id="loan" type="number" value="562500" min="0" step="1000"/></label>
-<label><span>Interest rate % per year (0.5–5, step 0.05)</span><input id="rate" type="number" value="1.50" min="0.5" max="5" step="0.05"/></label>
+<label><span>Loan amount (S$), auto from LTV, or type your own</span><input id="loan" type="number" value="562500" min="0" step="1000"/></label>
+<label><span>Interest rate % per year (0.5 to 5, step 0.05)</span><input id="rate" type="number" value="1.50" min="0.5" max="5" step="0.05"/></label>
 </div>
 
 <div class="row">
@@ -87,7 +87,7 @@ td{color:var(--ink-soft);}
 </div>
 <div class="help">Max tenure is the lower of 30 years (private) / 25 years (HDB) or age 65, whichever comes first.</div>
 
-<div class="section-label">Optional — TDSR / MSR check</div>
+<div class="section-label">Optional, TDSR / MSR check</div>
 <div class="row">
 <label><span>Gross monthly income (S$)</span><input id="income" type="number" value="" placeholder="e.g. 12000" min="0" step="500"/></label>
 <label><span>Existing monthly debt obligations (S$)</span><input id="debts" type="number" value="" placeholder="e.g. 800" min="0" step="100"/></label>
@@ -104,8 +104,8 @@ td{color:var(--ink-soft);}
 <div class="metrics">
 <div class="metric-card"><div class="label">Total interest</div><div class="val" id="totalInterest"></div></div>
 <div class="metric-card"><div class="label">Total payable</div><div class="val" id="totalPayable"></div></div>
-<div class="metric-card"><div class="label">Year 1 — interest</div><div class="val" id="y1interest"></div></div>
-<div class="metric-card"><div class="label">Year 1 — principal</div><div class="val" id="y1principal"></div></div>
+<div class="metric-card"><div class="label">Year 1, interest</div><div class="val" id="y1interest"></div></div>
+<div class="metric-card"><div class="label">Year 1, principal</div><div class="val" id="y1principal"></div></div>
 </div>
 
 <div class="shock" id="shockBox"></div>
@@ -121,7 +121,7 @@ td{color:var(--ink-soft);}
 </div>
 
 <details>
-<summary>Show full year-by-year amortization table</summary>
+<summary>Show full year by year amortization table</summary>
 <div style="overflow-x:auto;">
 <table id="amortTable"><thead><tr><th>Year</th><th>Principal paid</th><th>Interest paid</th><th>Ending balance</th></tr></thead><tbody id="amortBody"></tbody></table>
 </div>
@@ -317,7 +317,7 @@ calc();
     <p style="font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:#b48c50;font-weight:600;margin-bottom:10px;">Related tools</p>
     <div style="display:flex;flex-wrap:wrap;gap:12px;">
       <a href="/tools/mortgage-rates" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Mortgage Rates 2026</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Live bank packages, fixed and SORA</span></a>
-      <a href="/tools/tdsr-scenarios" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">TDSR / MSR Scenario Compare</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Rate-shock stress test, 3.5-5%</span></a>
+      <a href="/tools/tdsr-scenarios" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">TDSR / MSR Scenario Compare</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Rate shock stress test, 3.5 to 5%</span></a>
       <a href="/tools/purchase-timeline" style="flex:1 1 200px;display:block;background:#1a1610;border:1px solid rgba(180,140,80,0.25);border-radius:10px;padding:14px 16px;text-decoration:none;color:inherit;"><span style="display:block;font-family:'Fraunces',Georgia,serif;color:#f0e9d8;font-weight:600;font-size:15px;">Purchase Timeline</span><span style="display:block;color:#a89980;font-size:13px;margin-top:2px;">Every milestone from offer to keys</span></a>
     </div>
   </div>
@@ -326,7 +326,7 @@ calc();
 <!-- Disclaimer -->
   <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
-      The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property-specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
-    </p>
+ The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
+ </p>
   </div>
 </body></html>
