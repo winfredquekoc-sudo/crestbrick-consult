@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-08T00:30:02+08:00",
-  "count": 15,
+  "synced_at": "2026-08-08T00:49:54+08:00",
+  "count": 14,
   "listings": [
     {
       "id": "master-room-toa-payoh-ll015",
@@ -29,22 +29,6 @@
       "district": "D14",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area."
-    },
-    {
-      "id": "common-room-2-jalan-batu-ll089",
-      "title": "Common Room — 2 Jalan Batu (Katong)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 900,
-      "price_label": "S$900 / mo",
-      "address": "2 Jalan Batu",
-      "district": "D15",
-      "highlights": [
-        "Aircon",
-        "Available now"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%202%20Jalan%20Batu.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%202%20Jalan%20Batu."
     },
     {
       "id": "common-room-bayshore-park-ll070",
