@@ -47,6 +47,7 @@
     .calc{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.2rem 1.4rem;font-family:'Fraunces',Georgia,serif;font-size:1.05rem;color:var(--ink);margin:1em 0;}
     .calc .line{display:flex;justify-content:space-between;padding:.35rem 0;border-bottom:1px dashed var(--rule);}
     .calc .line:last-child{border-bottom:0;padding-top:.6rem;border-top:2px solid var(--accent);font-weight:600;}
+      .article-cta{background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;}
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
@@ -204,6 +205,14 @@
 if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';var sm=document.createElement('div');sm.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#7bbf8f;';sm.textContent='Subscribed. You are on the list.';f.appendChild(sm);try{window.gtag&&window.gtag('event','newsletter_signup');}catch(_){}return false;}throw 0;}catch(_){b.disabled=false;b.textContent='Subscribe';var em2=f.querySelector('.nl-err');if(!em2){em2=document.createElement('div');em2.className='nl-err';em2.style.cssText='width:100%;font-size:.85rem;margin-top:.6rem;text-align:center;color:#e0a96d;';f.appendChild(em2);}em2.textContent='Could not subscribe. Please email winfredquekoc@gmail.com directly.';}return false;};}
 </script>
 </div>
+
+  <div class="article-cta">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;color:#1a1410;">How does this apply to your own numbers?</p>
+    <p style="color:#4a4a4a;margin-bottom:1.25rem;">General rules only take you so far. What actually decides your move is your financing, your timeline, and what you already own. A <a href="/services/property-portfolio-analysis" style="color:#b48c50;font-weight:600;">Property Portfolio Analysis</a> maps your real position, so you are deciding on your own figures rather than a rule of thumb.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Book a free 30 minute call</a>
+    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20read%20one%20of%20your%20guides%20and%20I%27d%20like%20to%20talk%20through%20my%20own%20situation." style="display:inline-block;margin-left:.6rem;border:1px solid #c6a36a;color:#7a5f2e;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">WhatsApp Winfred</a>
+  </div>
+
 </article>
 
 <aside class="max-w-3xl mx-auto px-6 my-12 not-prose">
@@ -263,6 +272,44 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
   </div>
 
   <!-- Disclaimer -->
+
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer's Stamp Duty (ABSD)</a></li>
+    <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Stamp Duty for Property</a></li>
+  </ul>
+</section>
+
+<aside class="max-w-3xl mx-auto px-6 my-12 not-prose">
+  <div class="rounded-xl border border-[var(--rule)] bg-[#1c1e26] p-6">
+    <p class="text-xs uppercase tracking-widest text-[var(--accent)] font-semibold mb-3">Related tools</p>
+    <p class="text-[var(--ink-soft)] text-sm mb-4">Run the numbers before you commit. These calculators map directly to the decisions in this article.</p>
+    <div class="flex flex-wrap gap-3">
+      <a href="/tools/restructuring" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--rule)] bg-[var(--bg)] text-sm text-[var(--ink)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition">Decoupling Break Even</a>
+      <a href="/tools/bsd" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[var(--rule)] bg-[var(--bg)] text-sm text-[var(--ink)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition">BSD Calculator </a>
+    </div>
+  </div>
+</aside>
+
+
+<!-- author-bio-block -->
+<aside class="max-w-3xl mx-auto px-6 py-10 border-t border-[var(--rule)] mt-12" aria-label="About the author">
+  <div class="flex flex-col md:flex-row gap-5 items-start">
+    <div class="flex-shrink-0">
+      <picture><source srcset="/img/winfred-hero.avif?v=3" type="image/avif"><source srcset="/img/winfred-hero.webp?v=3" type="image/webp"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek, CEA R073319H, Property Advisor at Crestbrick" loading="lazy" width="96" height="96" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);" decoding="async" /></picture>
+    </div>
+    <div>
+      <p class="serif text-xl font-semibold text-[var(--ink)] mb-1">Winfred Quek</p>
+      <p class="text-sm text-[var(--accent)] mb-3">Property advisor · CEA R073319H · Crestbrick</p>
+      <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">Nine years in Singapore property, five properties before 30, the Property Portfolio Analysis methodology. Winfred works with HDB upgraders, restructuring couples, foreign buyers, and family offices.</p>
+      <p class="text-sm"><a href="/about" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px;">About Winfred Quek </a></p>
+    </div>
+  </div>
+</aside>
+<!-- /author-bio-block -->
+
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+
   <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
  The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
