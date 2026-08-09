@@ -12,10 +12,13 @@ adem = json.load(open(os.path.join(ROOT, "_templates/area-demand.json")))
 DIST_AREA = {d["district"]: d["area"] for d in adem["districts"]}
 
 def availability(l):
-    if l.get("offer_pending"): return "Offer pending"
+    # A closed status outranks offer_pending: the flag is set when an offer comes in
+    # and is not always cleared once the unit closes, so checking it first
+    # republishes let units as live inventory.
     st = (l.get("status") or "").lower()
     if st.startswith("closed (tenanted") or st.startswith("closed (unavailable"): return "Taken"
     if st.startswith("closed") or st.startswith("archived") or st.startswith("cold"): return "Off market"
+    if l.get("offer_pending"): return "Offer pending"
     has_price = bool(l.get("rent_min") or l.get("rent_max"))
     cobroke = "co-broke" in (l.get("contact_label_source") or "").lower()
     if st in ("active", "channel", "active-verify") and (has_price or cobroke): return "Available"

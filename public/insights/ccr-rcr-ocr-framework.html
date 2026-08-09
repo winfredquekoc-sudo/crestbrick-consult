@@ -66,6 +66,7 @@
     .cta-block{background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
     .pillar-card{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.2rem;margin:.75rem 0;}
     .pillar-card h4{font-family:'Fraunces',Georgia,serif;font-weight:600;color:var(--ink);font-size:1.1rem;margin-bottom:.35rem;}
+      .article-cta{background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;}
   </style>
   <link rel="stylesheet" href="/motion.css" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/motion.css"></noscript>
   <script defer src="/motion.js"></script>
@@ -315,6 +316,14 @@
 if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=async function(e,f){e.preventDefault();var b=f.querySelector('button[type=submit]'),em=f.querySelector('[name=email]').value;b.disabled=true;b.textContent='Subscribing...';try{var r=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'Newsletter subscriber',email:em,type:'Newsletter Signup',message:'Subscribed via insights article'})});if(r.ok){b.textContent='Subscribed ✓';return false;}}catch(_){}b.disabled=false;b.textContent='Subscribe';return false;};}
 </script>
 </div>
+
+  <div class="article-cta">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;color:#1a1410;">How does this apply to your own numbers?</p>
+    <p style="color:#4a4a4a;margin-bottom:1.25rem;">General rules only take you so far. What actually decides your move is your financing, your timeline, and what you already own. A <a href="/services/property-portfolio-analysis" style="color:#b48c50;font-weight:600;">Property Portfolio Analysis</a> maps your real position, so you are deciding on your own figures rather than a rule of thumb.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Book a free 30 minute call</a>
+    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20read%20one%20of%20your%20guides%20and%20I%27d%20like%20to%20talk%20through%20my%20own%20situation." style="display:inline-block;margin-left:.6rem;border:1px solid #c6a36a;color:#7a5f2e;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">WhatsApp Winfred</a>
+  </div>
+
 </article>
 
 <aside class="max-w-3xl mx-auto px-6 my-12 not-prose">
@@ -363,6 +372,15 @@ if(!window._insightNL){window._insightNL=true;window.submitInsightNewsletter=asy
   </div>
 
   <!-- Disclaimer -->
+
+    <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+      <li style="font-size:.85rem;"><a href="https://www.ura.gov.sg/property-data/" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">URA: Download Property Data</a></li>
+      <li style="font-size:.85rem;"><a href="https://www.ura.gov.sg/Corporate/Planning/Master-Plan" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">URA: Master Plan</a></li>
+      <li style="font-size:.85rem;"><a href="https://www.singstat.gov.sg" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">Singapore Department of Statistics</a></li>
+    </ul>
+  </section>
+
   <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
     <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
  The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.

@@ -72,6 +72,22 @@ const MAGNETS = {
     title: 'Lentor Gardens Residences: The Investor Case',
     url: '/launches/briefs/lentor-gardens-residences',
   },
+  'hdb-upgrade-playbook': {
+    title: 'The HDB to Private Upgrade Playbook',
+    url: '/ebooks/hdb-upgrade-playbook',
+  },
+  'property-equity-playbook': {
+    title: 'The Property Equity Playbook',
+    url: '/ebooks/property-equity-playbook',
+  },
+  'reinvestment-playbook': {
+    title: 'The Reinvestment Playbook',
+    url: '/ebooks/reinvestment-playbook',
+  },
+  'multi-property-playbook': {
+    title: 'The Multiple Property Playbook',
+    url: '/ebooks/multi-property-playbook',
+  },
 };
 
 // High-intent magnets get a real-time Telegram ping instead of waiting for
