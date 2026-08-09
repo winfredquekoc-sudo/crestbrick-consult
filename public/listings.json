@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-09T00:30:06+08:00",
-  "count": 14,
+  "synced_at": "2026-08-10T00:30:06+08:00",
+  "count": 13,
   "listings": [
     {
       "id": "master-room-toa-payoh-ll015",
@@ -98,23 +98,6 @@
       "sqft": 130,
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010."
-    },
-    {
-      "id": "common-room-602-jurong-west-street-62-ll081",
-      "title": "Common Room — 602 Jurong West Street 62 (Reserved)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1200,
-      "price_label": "S$1,200 / mo",
-      "address": "602 Jurong West Street 62",
-      "district": "D22",
-      "highlights": [
-        "Offer pending — enquire to join the waitlist",
-        "Utilities included",
-        "Furnished"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20602%20Jurong%20West%20Street%2062.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20602%20Jurong%20West%20Street%2062."
     },
     {
       "id": "room-851-jurong-west-ll017",
