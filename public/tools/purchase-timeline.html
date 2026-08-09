@@ -32,12 +32,25 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
 .tl-title{font-size:15.5px;color:var(--ink);font-weight:500;margin-bottom:3px;}
 .tl-desc{font-size:13.5px;color:var(--ink-soft);line-height:1.55;}
 .tl-note{font-size:12px;color:var(--ink-muted);margin-top:4px;font-style:italic;}
+.orientation-toggle{display:inline-flex;border:1px solid var(--rule);border-radius:8px;overflow:hidden;margin-bottom:18px;}
+.orient-btn{background:transparent;color:var(--ink-soft);border:none;padding:8px 16px;font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;letter-spacing:0.02em;}
+.orient-btn:hover{color:var(--ink);}
+.orient-btn + .orient-btn{border-left:1px solid var(--rule);}
+.orient-btn[aria-pressed="true"]{background:var(--accent);color:var(--bg);}
+.orient-btn:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+.timeline-scroll{overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;}
+.timeline.horizontal{display:flex;align-items:flex-start;gap:0;padding-left:10px;padding-top:38px;padding-right:10px;padding-bottom:6px;min-width:max-content;}
+.timeline.horizontal::before{left:10px;right:10px;top:15px;bottom:auto;height:2px;width:auto;}
+.timeline.horizontal .tl-item{flex:0 0 220px;padding:0 24px 0 0;}
+.timeline.horizontal .tl-item:last-child{padding-right:0;}
+.timeline.horizontal .tl-item::before{left:2px;top:-28px;}
+.timeline.horizontal .tl-date,.timeline.horizontal .tl-title,.timeline.horizontal .tl-desc,.timeline.horizontal .tl-note{white-space:normal;}
 .cta{margin-top:24px;text-align:center;}
 .cta a{color:var(--accent);text-decoration:none;border-bottom:1px solid rgba(180,140,80,0.4);}
 .print-btn{display:inline-block;margin-top:10px;background:transparent;color:var(--ink-soft);border:1px solid var(--rule);border-radius:6px;padding:8px 16px;font-size:13px;cursor:pointer;}
 @media print{
   body{background:#fff;color:#111;padding:0;}
-  .card:first-of-type, .btn, .print-btn, .cta, .disclaimer-block{display:none !important;}
+  .card:first-of-type, .btn, .print-btn, .cta, .disclaimer-block, .orientation-toggle{display:none !important;}
   .card{background:#fff;border:1px solid #ccc;}
   .timeline::before{background:#999;}
   .tl-item::before{border-color:#333;background:#fff;}
@@ -46,6 +59,13 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
   .tl-title{color:#111;}
   .tl-desc{color:#333;}
   a{color:#111;text-decoration:underline;}
+  /* Horizontal layout doesn't print cleanly — always force the vertical layout. */
+  .timeline-scroll{overflow:visible !important;}
+  .timeline.horizontal{display:block !important;padding-left:34px !important;padding-top:0 !important;padding-right:0 !important;padding-bottom:0 !important;min-width:0 !important;}
+  .timeline.horizontal::before{left:9px !important;top:6px !important;bottom:6px !important;right:auto !important;height:auto !important;width:2px !important;}
+  .timeline.horizontal .tl-item{flex:none !important;padding:0 0 26px 0 !important;}
+  .timeline.horizontal .tl-item:last-child{padding-bottom:0 !important;}
+  .timeline.horizontal .tl-item::before{left:-34px !important;top:2px !important;}
 }
 </style>
 <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
@@ -85,7 +105,10 @@ input,select{width:100%;padding:10px 12px;background:var(--bg);border:1px solid 
 <h2 id="tlTitle"></h2>
 <span class="badge" id="tlBadge"></span>
 </div>
-<div class="timeline" id="timeline"></div>
+<div class="orientation-toggle" role="group" aria-label="Timeline layout">
+<button type="button" id="orientVertical" class="orient-btn" aria-pressed="true" onclick="setOrientation('vertical')">Vertical</button><button type="button" id="orientHorizontal" class="orient-btn" aria-pressed="false" onclick="setOrientation('horizontal')">Horizontal</button>
+</div>
+<div class="timeline-scroll"><div class="timeline" id="timeline"></div></div>
 <button class="print-btn" onclick="window.print()">Print / save this timeline</button>
 </div>
 <div class="cta"><a id="wa-cta" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20just%20mapped%20out%20my%20purchase%20timeline%20and%20want%20to%20talk%20through%20the%20next%20steps." target="_blank" rel="noopener">Send my timeline on WhatsApp →</a></div>
@@ -181,6 +204,28 @@ function render(){
   const keyDate = fmtDate(addDays(startVal, lastStep.days));
   const waMsg = 'Hi Winfred, I mapped my purchase timeline: '+badge+', starting '+fmtDate(addDays(startVal,0))+', '+lastStep.title.toLowerCase()+' around '+keyDate+'. Can we discuss the next steps?';
   document.getElementById('wa-cta').href = 'https://wa.me/6581618149?text=' + encodeURIComponent(waMsg);
+
+  applyOrientation();
+}
+
+let currentOrientation = 'vertical';
+try {
+  const saved = localStorage.getItem('ptl-orientation');
+  if (saved === 'horizontal' || saved === 'vertical') currentOrientation = saved;
+} catch (e) {}
+
+function applyOrientation(){
+  const tl = document.getElementById('timeline');
+  if (!tl) return;
+  tl.classList.toggle('horizontal', currentOrientation === 'horizontal');
+  document.getElementById('orientVertical').setAttribute('aria-pressed', String(currentOrientation === 'vertical'));
+  document.getElementById('orientHorizontal').setAttribute('aria-pressed', String(currentOrientation === 'horizontal'));
+}
+
+function setOrientation(o){
+  currentOrientation = o;
+  try { localStorage.setItem('ptl-orientation', o); } catch (e) {}
+  applyOrientation();
 }
 
 (function(){

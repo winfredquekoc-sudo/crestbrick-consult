@@ -106,8 +106,14 @@ html[data-theme="light"] select {
     font-size: 11pt;
     line-height: 1.5;
   }
-  /* Hide nav, sticky CTAs, theme toggle, etc */
-  nav, header, footer, .wf-skip, [class*="cta"], button, .nav-link,
+  /* Hide nav, sticky/floating CTAs, theme toggle, etc.
+   * Narrowed from [class*="cta"] (was matching ANY element whose class
+   * merely contains the substring "cta", including static in-page CTA
+   * content blocks like ebook .cta-box / article-cta / cta-card, which
+   * deleted the lead magnet's Calendly + WhatsApp block from every
+   * printed PDF). Target the actual floating/sticky CTA by id (#wa-float)
+   * and an explicit opt-in class (.cta-print-hide) instead. */
+  nav, header, footer, .wf-skip, #wa-float, .cta-print-hide, button, .nav-link,
   [style*="position:fixed"], [style*="position: fixed"] {
     display: none !important;
   }
