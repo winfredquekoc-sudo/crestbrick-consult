@@ -384,6 +384,21 @@ _SUPPLY_NEG = (
     "i'm a landlord","im a landlord","i am the owner","i'm the owner","as a landlord","for my place",
     "招租","房东","我的房",
 )
+# Commission NEGOTIATION from the fee-payer's side. Only an owner paying the fee asks for it
+# to come down; a co-broke agent leads with an agency name or "co-broke". "your commission"
+# sitting in the AGENT keyword list muted a live landlord for 5 days ("But can your commission
+# lower ?", GoldMind Circle 6 Aug 2026, engine state excluded:agent) — these phrases are
+# LANDLORD signals and must win over the residual commission keywords in excluded_reason.
+_LANDLORD_FEE_NEG = (
+    "commission lower","lower your commission","lower the commission","reduce your commission",
+    "reduce the commission","reduce commission","commission too high","commission so high",
+    "commission can lower","can your commission","cheaper commission","commission cheaper",
+    "commission negotiable","negotiate the commission","negotiate your commission",
+    "waive the commission","waive your commission","waive commission",
+    "half month commission","1/2 month commission","0.5 month commission",
+    "half a month commission","half month comm","1/2 month comm","0.5 month comm",
+    "佣金太高","佣金可以","佣金少","中介费太高","中介费可以","中介费少",
+)
 # HIGH-PRECISION landlord/owner-supply markers — safe to match across the whole thread
 # (unlike the generic negations above, which only veto the single current message). A real
 # tenant never types these, so reading them across a contact's first few messages catches a
@@ -399,11 +414,44 @@ _LANDLORD_SUPPLY = (
     "i'm a landlord","im a landlord","i am a landlord","i am the owner","i'm the owner",
     "as a landlord","as the owner","my room posting","my posting","my listing",
     "my property for rent","my unit for rent","my room for rent",
+    # article variants real landlords actually type (replay 8 Aug 2026: "I am the landlord"
+    # fell through while "I am a landlord" matched — 13 of 19 real openers missed; Brenda got
+    # the tenant form off exactly this gap on 5 Aug 2026)
+    "i am the landlord","i'm the landlord","im the landlord","i am landlord","i'm landlord",
+    "im landlord","am the landlord",
+    "looking tenant","looking for tenants","any good tenant","any good tenants",
+    "interested tenants","you have ready tenants","have ready tenants",
+    # possessive availability statements — only an owner says "MY room is available"
+    "my room is available","my room is still","my room available","my unit is available",
+    "my unit is still","my unit available","my place is available",
+    "we have 2 room","we have 2 rooms","we have two rooms","i have 2 rooms","i have two rooms",
+    "i have a whole flat","i got a whole flat","my whole flat",
+    # renting TO someone = choosing a tenant, the landlord's side of the verb
+    "like to rent to","want to rent to","prefer to rent to","willing to rent to",
+    "looking to rent to",
+    "i am not stay there","i am not staying there","i do not stay there","i dont stay there",
+    "i don't stay there","i don't stay in the unit","i dont stay in the unit",
+    # landlord-onboarding form echoes: anyone answering OUR landlord form field names is a
+    # landlord (David +6596976160 forwarded a filled form and was merged into a tenant profile).
+    # NOT "preferred lease duration" — that line also appears in other agencies' TENANT profile
+    # templates (Sungha Song regression, 11 Aug 2026).
+    "owner name:","sole owner","is mop met","asking rent and flexibility",
+    "how to handle viewings",
+    # landlord closures: "I have tenant move in soon" (Hannah Hoang) — only an owner says this
+    "i have tenant move","have tenant moving in","i have tenant already","found tenant already",
+    "got tenant already","i found tenant","tenant confirmed already",
+    # "wld u b interested to check and evaluate the rooms first?" (Wen) — inviting US to assess
+    "evaluate the room","evaluate the rooms","evaluate my room",
     # Carousell is where Winfred reaches OUT to landlords; a contact who mentions it on WhatsApp
     # is a landlord replying to that outreach (tenants arrive via PropertyGuru / 99.co, not here).
-    "carousell","carousel",
+    # Misspellings included — "I am the landlord from carosell" (Chua Li Xian) missed the clean one.
+    "carousell","carousel","carosell","carrousel",
     "招租","房东","我的房","房间出租","单位出租",
-)
+    "我是房东","我是屋主","找租客","帮我出租","我要出租","我想出租","我有房间",
+) + _LANDLORD_FEE_NEG
+# "My kim keat ave room is still avail" — possessive + availability with words in between,
+# unreachable by substring. Tenants say "the/your room", never "my room", about OUR listing.
+_MY_ROOM_AVAIL_RE = re.compile(r"\bmy [a-z0-9 ]{0,24}\b(room|unit|flat|place)s? (is |are )?(still )?avail")
 # SELLER-supply markers (selling their own property). A seller is SUPPLY for a sale, the
 # mirror of a landlord being supply for a rental, and must never get the buyer (demand) form.
 # High precision: possessive "my" or explicit "to sell" intent only, so a buyer who says
@@ -431,6 +479,7 @@ def supply_side_kind(chat_jid, text, with_confidence=False):
     if any(v in blob for v in _DEMAND_VETO):
         pass                                # portal enquiry template -> demand side, never supply
     elif any(m in blob for m in _LANDLORD_SUPPLY): kind, confident = "landlord", True
+    elif _MY_ROOM_AVAIL_RE.search(blob):           kind, confident = "landlord", True
     elif any(m in blob for m in _SELLER_SUPPLY):   kind, confident = "seller", True
     elif not blob.strip():
         n_img, n_txt = recent_inbound_media(chat_jid)
@@ -968,8 +1017,19 @@ def excluded_reason(pn, text=""):
     if pn and pn in _cobroke_agent_pn_set(): return "agent"    # phone gate, not just keywords
     if any(e in nm for e in EXCLUDE_NAMES): return "colleague"
     t = (text or "").lower()
-    if any(a in t or a in nm for a in ("propnex","huttons","orangetee","i take my own com","co-broke","co broke",
-                                       "your commission","my commission","i charge","co broke","cobroke")):
+    # unambiguous agent markers keep priority: an agency name or explicit co-broke language
+    # is an agent no matter what else the message says
+    if any(a in t or a in nm for a in ("propnex","huttons","orangetee","i take my own com",
+                                       "co-broke","co broke","cobroke")):
+        return "agent"
+    # owner-supply or fee-negotiation signals BEAT the residual commission keywords: a landlord
+    # asking to lower OUR fee ("But can your commission lower ?") is not an agent. Return None so
+    # the supply-side branch classifies them and sends the LANDLORD form. (GoldMind Circle sat
+    # excluded:agent for 5 days off exactly this, 6-11 Aug 2026.)
+    if (any(m in t for m in _LANDLORD_FEE_NEG) or any(m in t for m in _LANDLORD_SUPPLY)
+            or any(m in t for m in _SELLER_SUPPLY)):
+        return None
+    if any(a in t or a in nm for a in ("your commission","my commission","i charge")):
         return "agent"
     if not db_ok:
         return "db_error"        # could not verify the contact -> defer to a human, do not auto-send
