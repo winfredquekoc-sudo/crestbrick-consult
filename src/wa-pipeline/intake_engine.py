@@ -1357,6 +1357,7 @@ def _room_gone_action(rec, pn, st):
     """The room closed mid-flow. Cross sell once (same rebind as a unit rejection), else
     point at the channel and close. Never offer or confirm a dead room."""
     rec["viewing_asked"] = False; rec["viewing_confirmed"] = False
+    rec["book_intent_asked"] = False    # intent never carries across listings
     rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
     rec["exact_time_locked"] = False
     if not rec.get("alt_suggested"):
@@ -1537,6 +1538,7 @@ def _handle_event_inner(state, ev):
             k2, alt_text = alt
             rec["listing_key"] = k2
             rec["viewing_asked"] = False; rec["viewing_confirmed"] = False
+            rec["book_intent_asked"] = False    # intent never carries across listings
             rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
             rec["exact_time_locked"] = False
             rec["sent_count"] = 0; rec["cap_flagged"] = False   # cap is per qualification attempt
@@ -1768,6 +1770,26 @@ def _handle_event_inner(state, ev):
         # fields ride along in the same message
         _view_verb = re.search(r"\bview|come (?:by|down|over)|see the (?:room|unit|place)|drop by",
                                t_book)
+        # DECLINE of the CTA: "no thanks" / "not keen" must never be answered with a viewing
+        # offer — not by the booking path AND not by the stage-2 auto-offer below (cycle-14
+        # catch, 11 Aug 2026). Explicit decline stems only; form replies are exempt ("No. of
+        # pax" is data), a negation WITH a time is a reschedule and stays in, and questions
+        # ("not sure, is aircon included?") flow to the question paths instead.
+        _decline = (not _formish and not _has_viewing_time(t_book)
+                    and "?" not in (ev.get("text") or "")
+                    and not _is_affirmative(ev.get("text"))
+                    and (re.search(r"\b(no thanks?|not keen|not interested|don'?t want|dont want|"
+                                   r"no need|not looking|not proceeding|give (?:it|this) a miss|"
+                                   r"pass on this|cannot make it|can'?t make it)\b", t_book)
+                         or re.fullmatch(r"\s*(no|nope|nah)[.! ]*", t_book)))
+        if _decline:
+            if not rec.get("cta_declined_flagged"):
+                rec["cta_declined_flagged"] = True
+                rec["status"] = "cta_declined"
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "declined the viewing CTA (\"" + (ev.get("text") or "")[:60]
+                                  + "\"); engine holding, step in by hand if you want to save it"}
+            return None
         # book intent PERSISTS: once they said yes and we asked for the hard fields, the
         # field reply itself books the slot — no second yes required
         if (_is_affirmative(ev.get("text"))
@@ -1865,6 +1887,12 @@ def _handle_event_inner(state, ev):
         st_now = _listing_unavailable(lk, reqs)
         if st_now:
             return _room_gone_action(rec, pn, st_now)
+        # a QUESTION rides ahead of the auto-offer: answer it first (by hand), the offer
+        # fires on their next message — never reply to "how much is this one?" with
+        # "Reply YES to take this slot" (cycle-17 catch, 11 Aug 2026)
+        if "?" in (ev.get("text") or ""):
+            return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True,
+                    "question": ev.get("text"), "text": None}
         rec["viewing_asked"] = True
         rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
         slot = next_slot(lk)
