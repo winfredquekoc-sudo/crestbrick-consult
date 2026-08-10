@@ -81,10 +81,10 @@ def _normalize(chat_jid: str) -> str:
          resolve to phone via whatsmeow_lid_map.
       3. Strip leading + and whitespace from whatever remains.
 
-    Examples:
-      "100000000000000@lid"      → "6500000000"  (LID resolved to phone)
+    Examples (illustrative values, not real contacts):
+      "100000000000000@lid"       → "6500000000"  (LID resolved to phone)
       "6500000000@s.whatsapp.net" → "6500000000"
-      "85446246"                → "85446246"    (8-digit, left as-is)
+      "00000000"                  → "00000000"    (8-digit, left as-is)
     """
     _load_lid_map()
     bare = chat_jid.split("@")[0].replace("+", "").replace(" ", "").replace("-", "")

@@ -32,8 +32,13 @@ OUTPUT_PATH = os.path.expanduser("~/.claude/state/wa-agent/landlord-db.json")
 LOG_PATH    = os.path.expanduser("~/.claude/state/whatsapp-autoreply/landlord-db-update.log")
 
 # ─── Landlord roster ──────────────────────────────────────────────────────────
-# Mirrors build_landlord_db.py. Add new landlords here.
-LANDLORDS = load_landlords()  # roster lives outside the repo; see scripts/_wa_seed.py
+# Names and WhatsApp identifiers are personal data, so the roster lives outside
+# the repo. Add new landlords to ~/.claude/state/wa-agent/landlord-seed.json;
+# scripts/landlord-seed.example.json documents the schema.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _wa_seed import load_landlords
+
+LANDLORDS = load_landlords()
 
 # ─── Signals the LLM should detect ───────────────────────────────────────────
 CHANGE_EXTRACT_PROMPT = """You are reading a WhatsApp conversation between a property agent (Winfred) and a landlord named {name}.

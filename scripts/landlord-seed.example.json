@@ -1,0 +1,11 @@
+{
+  "_comment": "Copy to ~/.claude/state/wa-agent/landlord-seed.json and fill in with real values. That path is outside the repo because landlord names and WhatsApp identifiers are personal data. Keys are WhatsApp JIDs (either <digits>@lid or <phone>@s.whatsapp.net). listing_id matches an id in _templates/landlord-db.json, or \"unknown\".",
+  "100000000000000@lid": {
+    "name": "Example Landlord",
+    "listing_id": "example-listing"
+  },
+  "100000000000001@lid": {
+    "name": "Second Example",
+    "listing_id": "unknown"
+  }
+}

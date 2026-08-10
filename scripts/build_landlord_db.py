@@ -21,10 +21,14 @@ DB_PATH     = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.
 OUTPUT_PATH = os.path.expanduser("~/.claude/state/wa-agent/landlord-db.json")
 
 # ─── Landlord roster ──────────────────────────────────────────────────────────
-# Add new landlords here when onboarded.
+# Names and WhatsApp identifiers are personal data, so the roster lives outside
+# the repo. Add new landlords to ~/.claude/state/wa-agent/landlord-seed.json;
+# scripts/landlord-seed.example.json documents the schema.
 # listing_id must match an id in property-templates.json, or "unknown" if not yet listed.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _wa_seed import load_landlords
 
-LANDLORDS = load_landlords()  # roster lives outside the repo; see scripts/_wa_seed.py
+LANDLORDS = load_landlords()
 
 EXTRACT_PROMPT = """Extract rental property info from this WhatsApp conversation between a property agent (Winfred) and a landlord.
 Return ONLY a valid JSON object. No markdown, no explanation. Use double-quoted keys and string values only.
