@@ -982,6 +982,40 @@ def _landlord_pn_set():
         if cj: out.add(cj.split("@")[0])
     return frozenset(out)
 
+@functools.lru_cache(maxsize=1)
+def _landlord_form_recipients():
+    """pns + bare chat-jids of every chat WE have sent an owner intake form to (landlord
+    onboarding or seller intake — both carry the '• Owner name:' field, which no tenant form
+    has). Day-one protection: a landlord Winfred onboards by hand is shielded from the tenant
+    flow the moment the form goes out, without waiting for the nightly DB refresh keyed on
+    'Landlord' contact names (MI/Hannah/Wen sat unprotected for days, Aug 2026). Fails OPEN
+    (empty set) like the cobroke gate — the landlord-DB gate stays the fail-closed one."""
+    out = set()
+    try:
+        con = sqlite3.connect(MSG_DB, timeout=10)
+        con.execute("PRAGMA busy_timeout=10000")
+        jids = [j for (j,) in con.execute(
+            "SELECT DISTINCT chat_jid FROM messages WHERE is_from_me=1 "
+            "AND lower(content) LIKE '%owner name:%'")]
+        con.close()
+    except Exception:
+        return frozenset()
+    for j in jids:
+        bare = str(j).split("@")[0]
+        if bare: out.add(bare)
+    if out:
+        try:
+            wcon = sqlite3.connect(WA_DB, timeout=10)
+            wcon.execute("PRAGMA busy_timeout=10000")
+            for lid, pn in wcon.execute("SELECT lid, pn FROM whatsmeow_lid_map"):
+                if str(lid).split("@")[0] in out:
+                    p = re.sub(r"\D", "", str(pn))
+                    if p: out.add(p)
+            wcon.close()
+        except Exception:
+            pass                  # bare jids still protect when the event pn IS the jid user
+    return frozenset(out)
+
 COBROKE_DB = os.path.expanduser("~/.claude/state/cobroke-agents.json")
 
 @functools.lru_cache(maxsize=1)
@@ -1011,6 +1045,8 @@ def excluded_reason(pn, text=""):
         return "db_error"
     if pn and pn in lset:                 # authoritative landlord DB: catches outbound-first chats too
         return "landlord"
+    if pn and pn in _landlord_form_recipients():
+        return "landlord"                 # we sent them an owner intake form: supply side, day one
     names, db_ok = _contact_names(pn)
     nm = " ".join(names).lower()
     if "landlord" in nm: return "landlord"
@@ -1551,8 +1587,20 @@ def _handle_event_inner(state, ev):
                 return {"type":"SEND_SUPPLY_FORM", "pn":pn, "notify":True, "supply":_supply,
                         "reason":"owner/supply side, " + _label + "; sent their intake form, engine silent hereafter",
                         "text": form}
-            return {"type":"FLAG_HUMAN", "pn":pn,
+            return {"type":"FLAG_HUMAN", "pn":pn, "notify":True,
                     "reason":"owner/supply side, " + _label + " (read across first messages); not a tenant or buyer", "text":None}
+        # PHOTO with no text from a contact with no tenant profile = owner behaviour (Carousell
+        # landlords open with unit photos; Song +6596479676 sat 6 days as a silent not_enquiry).
+        # Flag LOUDLY once, never auto-send at a picture. A captioned photo now carries its
+        # caption as text (bridge fix, 11 Aug 2026) and classifies normally above.
+        if (str(ev.get("media_type") or "") in ("image", "video")
+                and not (ev.get("text") or "").strip()
+                and not rec.get("form_sent") and not rec.get("profile")
+                and not rec.get("photo_flagged")):
+            rec["photo_flagged"] = True; rec["status"] = "photo_no_text"
+            return {"type":"FLAG_HUMAN", "pn":pn, "notify":True, "text":None,
+                    "reason":"sent a photo/video with no text and has no tenant profile — could "
+                             "be a landlord. Engine will not auto-send; check the chat."}
         # INTENT FIRST (before the tenant-enquiry gate): a buyer (sale) enquiry gets the BUYER
         # form (HDB asks HFE, private asks IPA), never the tenant form. Only a non-sale message
         # is then held to the "clear tenant enquiry" gate. Conversation-aware: an ambiguous line

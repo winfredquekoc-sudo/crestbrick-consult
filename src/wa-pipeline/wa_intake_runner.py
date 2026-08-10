@@ -179,7 +179,7 @@ def run():
 
         if "last_rowid" in wm:
             rows = con.execute(
-                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp FROM messages "
+                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp, media_type FROM messages "
                 f"WHERE rowid > ? AND chat_jid LIKE '%@lid' ORDER BY rowid", (wm["last_rowid"],)
             ).fetchall()
         else:
@@ -187,7 +187,7 @@ def run():
             # the mixed +08:00/-04:00 offsets, so rows the string comparison hid (real leads)
             # are recovered here; the stale-row guard below keeps old history out.
             rows = con.execute(
-                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp FROM messages "
+                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp, media_type FROM messages "
                 f"WHERE datetime(timestamp) > datetime(?) AND chat_jid LIKE '%@lid' ORDER BY rowid",
                 (wm.get("last_ts", ""),)
             ).fetchall()
@@ -224,7 +224,7 @@ def run():
                       "enquiries are DEFERRED (no forms sent, nothing lost) until the file "
                       "is fixed — the engine cannot verify who is a landlord.")
         landlords = frozenset()
-    for _rowid, _mid, _jid, _ifm, _content, _ts in rows:
+    for _rowid, _mid, _jid, _ifm, _content, _ts, _mtype in rows:
         if _ifm and not E.is_engine_outbound(_content):
             try:
                 _pn = E.resolve_pn(_jid)
@@ -241,7 +241,7 @@ def run():
                 _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
     reqs_tick = E.listing_reqs()   # one disk read per tick, not one per row
     last_rowid = wm.get("last_rowid")
-    for rowid, rid, jid, ifm, content, ts in rows:
+    for rowid, rid, jid, ifm, content, ts, mtype in rows:
         last_rowid = rowid if (last_rowid is None or rowid > last_rowid) else last_rowid
         # stale backfill guard: the bridge re-syncs reconnect gaps with old-stamped rows.
         # Genuinely old history must never be auto-served as a fresh enquiry.
@@ -261,7 +261,8 @@ def run():
             _pn0 = E.resolve_pn(jid)
             if _pn0 and _pn0 in landlords:
                 continue
-            ev = {"jid": jid, "msg_id": str(rid), "text": content or "", "is_from_me": bool(ifm)}
+            ev = {"jid": jid, "msg_id": str(rid), "text": content or "", "is_from_me": bool(ifm),
+                  "media_type": mtype or ""}
             if not ifm:
                 ev["listing_key"] = match_listing(content, reqs_tick)
             # a bot-template outbound is OUR send (no takeover); any other outbound = Winfred by hand.
