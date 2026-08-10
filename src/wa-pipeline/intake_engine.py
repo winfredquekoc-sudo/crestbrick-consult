@@ -466,7 +466,10 @@ _LANDLORD_SUPPLY = (
     # is a landlord replying to that outreach (tenants arrive via PropertyGuru / 99.co, not here).
     # Misspellings included — "I am the landlord from carosell" (Chua Li Xian) missed the clean one.
     "carousell","carousel","carosell","carrousel",
-    "招租","房东","我的房","房间出租","单位出租",
+    # First-person / action phrasings only — bare 房东 ("landlord") and 我的房 ("my room")
+    # matched TENANTS talking about their landlord or their rented room (曹廷溪, real-history
+    # replay R3, 11 Aug 2026). Tenants say 房东说/问房东; only owners say 我是房东.
+    "招租","房间出租","单位出租",
     "我是房东","我是屋主","找租客","帮我出租","我要出租","我想出租","我有房间",
 )  # NOTE: fee-neg phrases are deliberately NOT part of supply — a TENANT asking "can your
 # commission be lower?" must never get the landlord form (adversarial-review P1-4, 11 Aug 2026);
@@ -488,7 +491,11 @@ _SELLER_SUPPLY = (
 # Portal enquiry boilerplate = DEMAND side, decisively. A tenant who forwards a PropertyGuru
 # template and then asks "这个房型有几个房间出租?" must never be classed as supply — the CJK
 # phrase 房间出租 appears inside their QUESTION about the unit (real misfire caught in replay).
-_DEMAND_VETO = ("i am interested in", "rent -", "for rent -", "propertyguru", "99.co")
+_DEMAND_VETO = ("i am interested in", "rent -", "for rent -", "propertyguru", "99.co",
+                # Chinese tenant-demand phrasings: 想租 (want to rent), 找房 (looking for a
+                # place), 有…出租吗 (any rooms for rent?) — these contain or accompany the
+                # supply nouns 房间出租/单位出租, so they must veto first (replay R3 class).
+                "想租", "找房", "有房间出租吗", "有单位出租吗", "有房出租吗")
 
 def supply_side_kind(chat_jid, text, with_confidence=False):
     """'landlord' (renting out), 'seller' (selling), or None. Reads across the current

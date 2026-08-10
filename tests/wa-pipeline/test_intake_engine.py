@@ -680,5 +680,26 @@ ok("buyer 'too small for us' reply -> profile captured (name/budget/financing), 
 ok("buyer 'too small for us' reply -> conversation stays open (no rental terminal/redirect)",
    not recU.get("terminal") and recU.get("stage") != "CLOSED_UNIT_REJECTED")
 
+print("== Chinese supply precision (real-history replay R3, 11 Aug 2026) ==")
+# Bare 房东 / 我的房 in _LANDLORD_SUPPLY matched TENANTS talking about their landlord or
+# their rented room (曹廷溪, mid-tenancy, 让房东再看一下信箱 -> classified landlord). Only
+# first-person / action supply phrasings may match; tenant demand phrasings must veto.
+_jz = "6580000000@s.whatsapp.net"  # no DB history -> blob is the text alone
+ok("tenant mentions THEIR landlord (房东说/问房东) -> not supply",
+   E.supply_side_kind(_jz, "我今天让房东再看一下信箱") is None
+   and E.supply_side_kind(_jz, "房东说可以，我下周搬进来") is None)
+ok("tenant about their own rented room (我的房间...) -> not supply",
+   E.supply_side_kind(_jz, "我的房间空调坏了") is None)
+ok("tenant availability question 有房间出租吗 -> demand veto, not supply",
+   E.supply_side_kind(_jz, "请问有房间出租吗？我想租一间") is None)
+ok("real landlord 我是房东/帮我出租 -> still supply confident",
+   E.supply_side_kind(_jz, "我是房东，帮我出租房间", with_confidence=True) == ("landlord", True))
+ok("real landlord 我有房间出租，找租客 -> still supply",
+   E.supply_side_kind(_jz, "我有房间出租，找租客") == "landlord")
+ok("real landlord 单位出租 posting -> still supply",
+   E.supply_side_kind(_jz, "单位出租，中介勿扰") == "landlord")
+ok("carousell neighbour entry unaffected -> still supply",
+   E.supply_side_kind(_jz, "i am the landlord from carosell") == "landlord")
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
