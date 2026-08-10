@@ -89,6 +89,12 @@ _OUTBOUND_ONLY = (
     "almost there :) to send your profile", "almost there :) i still need",
     "could you confirm this so i can send your profile",
     "when are you able to view", "by sharing these details you agree",
+    # viewing-first texts (11 Aug 2026) — echoed engine sends must never read as inbound
+    "keen to view? i can put you in", "to confirm your viewing slot with the landlord",
+    "can i just check your", "just need your profile above", "ok can, your viewing is on",
+    "what time will you be coming? i will keep", "see you then, i will send the unit number",
+    "on your question, let me check with the owner", "viewing slot:",
+    "no worries, which day and time would work better",
 )
 
 def _is_our_echo(content):
@@ -349,7 +355,11 @@ def run():
                 _log("STALE_SKIP", a.get("pn"),
                      a.get("type") + f" :: triggering inbound is {_real_age_hours(ts)/24:.1f}d old (>5d rule)")
                 E.save_state(state); acted += 1; continue
-            if _grec.get("manual_takeover") and not a.get("copilot"):
+            if (_grec.get("manual_takeover") and not a.get("copilot")
+                    and a.get("type") != "SEND_SUPPLY_FORM"):
+                # SEND_SUPPLY_FORM is exempt: the supply branch latches takeover BEFORE the
+                # send, so without this the landlord onboarding form is silently suppressed
+                # (runner-integration catch c74, 11 Aug 2026)
                 _log("TAKEOVER_SKIP", a.get("pn"), a.get("type") + " :: manual takeover latched")
                 E.save_state(state); acted += 1; continue
             # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day
@@ -358,7 +368,10 @@ def run():
             # holding it overnight dead-ends a converting lead, which is not spam.
             _today_sgt = time.strftime("%Y-%m-%d",
                          time.gmtime(time.time() + 8 * 3600))
-            if a.get("type") != "CONFIRM_VIEWING":
+            # ASK_ONE and OFFER_VIEWING are direct replies to a prospect's own message in
+            # the booking flow — the viewing-first happy path is 3 touches, and capping it
+            # at 2 dropped the offer right after a YES (adversarial-review P2-8)
+            if a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
                 if (_grec.get("sends_today_date") == _today_sgt
                         and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
                     _log("DAILY_CAP_SKIP", a.get("pn"),
