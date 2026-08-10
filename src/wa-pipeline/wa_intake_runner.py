@@ -90,7 +90,8 @@ _OUTBOUND_ONLY = (
     "could you confirm this so i can send your profile",
     "when are you able to view", "by sharing these details you agree",
     # viewing-first texts (11 Aug 2026) — echoed engine sends must never read as inbound
-    "keen to view? i can put you in", "to confirm your viewing slot with the landlord",
+    "keen to view? i can put you in", "are you free to view on", "i can arrange for viewing",
+    "to confirm your viewing slot with the landlord",
     "can i just check your", "just need your profile above", "ok can, your viewing is on",
     "what time will you be coming? i will keep", "see you then, i will send the unit number",
     "on your question, let me check with the owner", "viewing slot:",

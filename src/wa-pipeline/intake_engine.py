@@ -356,8 +356,8 @@ def listing_unit_message(listing_key):
             # CTA — his own 60-day data has a specific slot converting 96.6% vs 30.7% for an
             # open ask. The form is the ticket to the slot, not a gate in front of it.
             if slot and slot.get("label"):
-                avail = ("\n\nViewing slot: " + slot["label"]
-                         + ". Keen to view? I can put you in \U0001F642")
+                avail = ("\n\nAre you free to view on " + slot["label"]
+                         + "? I can arrange for viewing \U0001F642")
             else:
                 avail = ("\n\nViewings are running this week. What day and time suit you? "
                          "I will arrange it with the owner.")
@@ -367,8 +367,8 @@ def listing_unit_message(listing_key):
     # bare form with no CTA at all (cycle-27 catch, 11 Aug 2026)
     slot = next_future_slot(listing_key)
     if slot and slot.get("label"):
-        return ("Viewing slot: " + slot["label"]
-                + ". Keen to view? I can put you in \U0001F642")
+        return ("Are you free to view on " + slot["label"]
+                + "? I can arrange for viewing \U0001F642")
     return None
 
 def listing_message(listing_key):
@@ -901,7 +901,8 @@ def classify_intent(chat_jid, text, listing_key, rec):
     return "unknown", why
 
 BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits","📲 more listings","available viewing",
-    "keen to view? i can put you in","to confirm your viewing slot with the landlord",
+    "keen to view? i can put you in","are you free to view on","i can arrange for viewing",
+    "to confirm your viewing slot with the landlord",
     "can i just check your","just need your profile above","ok can, your viewing is on",
     "what time will you be coming? i will keep","on your question, let me check with the owner",
                   "your viewing is confirmed","profile does not match","the next viewing is",
@@ -933,6 +934,7 @@ _ENGINE_PREFIXES = (
     "just need your profile above and i can confirm",
     "no worries, which day and time would work better",
     "viewing slot:",
+    "are you free to view on",
     "thanks for your enquiry :) to match you to the right unit",
     "happy to set up a viewing :) just drop me",
     "thanks. just need a couple more details to send to the landlord",
