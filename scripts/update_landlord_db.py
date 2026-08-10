@@ -32,26 +32,13 @@ OUTPUT_PATH = os.path.expanduser("~/.claude/state/wa-agent/landlord-db.json")
 LOG_PATH    = os.path.expanduser("~/.claude/state/whatsapp-autoreply/landlord-db-update.log")
 
 # ─── Landlord roster ──────────────────────────────────────────────────────────
-# Mirrors build_landlord_db.py. Add new landlords here.
-LANDLORDS = {
-    "275883080331380@lid": {"name": "Fei",                     "listing_id": "sunshine-terrace"},
-    "111780869189778@lid": {"name": "juneiyana",               "listing_id": "tampines-west-951b"},
-    "51732897882360@lid":  {"name": "Li xian",                 "listing_id": "pine-grove"},
-    "199982367920344@lid": {"name": "Rachel",                  "listing_id": "tampines-855"},
-    "72778355073190@lid":  {"name": "Ken Ho",                  "listing_id": "caspian"},
-    "157260294651907@lid": {"name": "Lee",                     "listing_id": "farrer-park"},
-    "183528465653975@lid": {"name": "Normawati",               "listing_id": "unknown"},
-    "47626909171737@lid":  {"name": "Rachel 2",                "listing_id": "tampines-201"},
-    "248013037514930@lid": {"name": "Keith Ng",                "listing_id": "hougang-358"},
-    "119512078807119@lid": {"name": "Kirinkala",               "listing_id": "admiralty-drive"},
-    "29399755808971@lid":  {"name": "Yuling",                  "listing_id": "tampines-west-951b"},
-    "77760533950663@lid":  {"name": "Buva",                    "listing_id": "summerdale"},
-    "90285128331485@lid":  {"name": "Frank (Caspian/Sdale)",   "listing_id": "caspian"},
-    "182634995019954@lid": {"name": "Oxley landlord",          "listing_id": "oxley-edge"},
-    "160709186990229@lid": {"name": "Julie",                   "listing_id": "unknown"},
-    "110818930766053@lid": {"name": "Laixing",                 "listing_id": "tengah-308b"},
-    "77593634148558@lid":  {"name": "Crystal",                 "listing_id": "rio-vista"},
-}
+# Names and WhatsApp identifiers are personal data, so the roster lives outside
+# the repo. Add new landlords to ~/.claude/state/wa-agent/landlord-seed.json;
+# scripts/landlord-seed.example.json documents the schema.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _wa_seed import load_landlords
+
+LANDLORDS = load_landlords()
 
 # ─── Signals the LLM should detect ───────────────────────────────────────────
 CHANGE_EXTRACT_PROMPT = """You are reading a WhatsApp conversation between a property agent (Winfred) and a landlord named {name}.

@@ -101,7 +101,7 @@ Quiet Hours: 10pm–8am SGT (exits silently)
 5. **Builds Task JSON** — One task per JID that needs action:
    ```json
    {
-     "jid": "64313008099389@lid",
+     "jid": "100000000000000@lid",
      "phase": "A" | "B" | "A_SELL" | "A_BUY",
      "listing_id": "edgefield-104b",
      "is_landlord": false,
@@ -264,8 +264,8 @@ For each action in Claude's JSON:
 ```json
 {
   "conversations": {
-    "64313008099389@lid": {
-      "jid": "64313008099389@lid",
+    "100000000000000@lid": {
+      "jid": "100000000000000@lid",
       "stage": "viewing_confirmed",
       "listing": "edgefield-104b",
       "last_message_from_prospect": "2026-06-08T16:00:00+08:00",
@@ -306,9 +306,9 @@ For each action in Claude's JSON:
 
 ```json
 {
-  "64313008099389@lid": {
-    "jid": "64313008099389@lid",
-    "name": "Frank (Ong Chuan Heng)",
+  "100000000000000@lid": {
+    "jid": "100000000000000@lid",
+    "name": "Example Landlord",
     "listing_id": "edgefield-104b",
     "property_address": "104B Edgefield Plains #14-29, Punggol S(822104)",
     "room_type": "2 common rooms available",

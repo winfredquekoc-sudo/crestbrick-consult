@@ -61,3 +61,18 @@ docs/*database*.csv
 scripts/matchmaker/matchmaker-data.json
 scripts/patch_tenant_nightly*.py
 __pycache__/
+
+# Internal landlord working reports: real names, WhatsApp identifiers and
+# verbatim conversation quotes. Generated locally, never committed.
+docs/landlord-viewing-schedules.csv
+docs/landlord-viewing-schedules.json
+docs/landlord-viewing-schedules.md
+docs/landlord-viewing-action-plan.md
+docs/landlords-pending-extraction.md
+docs/landlord-extraction-report.md
+
+# Compiled bytecode: never source, and it embeds string literals
+*.pyc
+
+# Dated tenant working reports: real names and phone numbers.
+docs/tenant-recommendations-*.md

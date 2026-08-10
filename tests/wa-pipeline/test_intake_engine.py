@@ -107,8 +107,6 @@ print("== 3. LIVE REPLAY: real threads, count actions per prospect ==")
 mdb = sqlite3.connect(os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db"))
 cols=[r[1] for r in mdb.execute("PRAGMA table_info(messages)").fetchall()]
 idcol = "id" if "id" in cols else cols[0]
-# sample of real prospect threads (matched tenants)
-sample = ["157260294651907@lid"]  # will expand below from tenant-db
 tdb = json.load(open(os.path.expanduser("~/crestbrick-consult/_templates/tenant-db.json")))
 # map a few open tenants to their jid
 jids = [t["jid"] for t in tdb["tenants"] if not t.get("excluded")][:12]
@@ -169,17 +167,26 @@ a=E.handle_event(s2,{"jid":"6590000002@s.whatsapp.net","msg_id":"y1","text":"yes
 ok("prospect says yes -> CONFIRM_VIEWING, notify", a and a["type"]=="CONFIRM_VIEWING" and a.get("notify"))
 
 print("== 6. SAFETY GATES: never message a landlord/agent/non-enquiry; send unit info ==")
-ok("known landlord (Jane Ye) flagged as landlord", E.excluded_reason("6592717571")=="landlord")
+# The gate is checked against the live landlord DB, so the test needs a genuinely
+# known landlord. Draw one at runtime rather than hardcoding a real phone number
+# into the repo: the assertion stays just as strong and no personal data is committed.
+# Take it from the gate's own set so the number is in the exact normalised form the
+# gate matches on (the DB stores "+65..." while the set holds the bare digits).
+_lset = E._landlord_pn_set()
+assert _lset, "landlord DB unreadable: cannot run the landlord safety gate tests"
+LANDLORD_PN = next(p for p in sorted(_lset)
+                   if len(p) == 10 and p.startswith("65") and p[2] in "89" and p.isdigit())
+ok("known landlord flagged as landlord", E.excluded_reason(LANDLORD_PN)=="landlord")
 ok("is_enquiry true for 'still available'", E.is_enquiry("Hi is Caspian still available?"))
 ok("is_enquiry false for chit chat", not E.is_enquiry("hi how are you bro"))
 # a landlord who sends an enquiry-looking message still gets NO form
 sL={"version":1,"conversations":{}}
-aL=E.handle_event(sL,{"jid":"6592717571@s.whatsapp.net","msg_id":"L1","text":"is the room still available","is_from_me":0,"listing_key":"bayshore"})
-ok("known landlord -> silent, no tenant record created (never messaged)", aL is None and "6592717571" not in sL["conversations"])
+aL=E.handle_event(sL,{"jid":f"{LANDLORD_PN}@s.whatsapp.net","msg_id":"L1","text":"is the room still available","is_from_me":0,"listing_key":"bayshore"})
+ok("known landlord -> silent, no tenant record created (never messaged)", aL is None and LANDLORD_PN not in sL["conversations"])
 # a landlord we message FIRST (outbound) must also never become a tenant record
 sLo={"version":1,"conversations":{}}
-E.handle_event(sLo,{"jid":"6592717571@s.whatsapp.net","msg_id":"Lo1","text":"hi, following up on your unit","is_from_me":1,"engine":False})
-ok("known landlord outbound-first -> no record (pollution vector closed)", "6592717571" not in sLo["conversations"])
+E.handle_event(sLo,{"jid":f"{LANDLORD_PN}@s.whatsapp.net","msg_id":"Lo1","text":"hi, following up on your unit","is_from_me":1,"engine":False})
+ok("known landlord outbound-first -> no record (pollution vector closed)", LANDLORD_PN not in sLo["conversations"])
 # a non-enquiry first message -> no form
 sN={"version":1,"conversations":{}}
 aN=E.handle_event(sN,{"jid":"6590001111@s.whatsapp.net","msg_id":"N1","text":"hello bro long time","is_from_me":0})
@@ -409,8 +416,8 @@ ok("prospect YES under muted manual takeover -> still silent, no stray CONFIRM_V
 sqn={"version":1,"conversations":{"6590224400":{"pn":"6590224400","listing_key":"bayshore","stage":"VIEWING_OFFERED","profile":{"name":"T"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":True,"viewing_confirmed":False,"manual_takeover":True,"status":"manual","offered_slot_id":"s1"}}}
 aQn=E.handle_event(sqn,{"jid":"6590224400@s.whatsapp.net","msg_id":"qn1","text":"is parking included?","is_from_me":0})
 ok("question after auto-offer (manual) -> ANSWER_QUESTION ping, no auto-answer", aQn and aQn["type"]=="ANSWER_QUESTION" and aQn.get("notify") is True and aQn.get("text") is None)
-# a known landlord (Jane Ye) under manual takeover -> NO co-pilot / no auto-offer
-slr={"version":1,"conversations":{}}; jlr="6592717571@s.whatsapp.net"
+# a known landlord under manual takeover -> NO co-pilot / no auto-offer
+slr={"version":1,"conversations":{}}; jlr=f"{LANDLORD_PN}@s.whatsapp.net"
 E.handle_event(slr,{"jid":jlr,"msg_id":"lr1","text":"hi can you confirm","is_from_me":1,"engine":False})
 E.handle_event(slr,{"jid":jlr,"msg_id":"lr2","text":_qf,"is_from_me":0,"listing_key":"bayshore"})
 aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_qf,"is_from_me":0,"listing_key":"bayshore"})

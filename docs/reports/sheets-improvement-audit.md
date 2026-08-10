@@ -19,7 +19,7 @@ These are low risk, high value, and can be applied in a single pass. None of the
 1. Freeze the header row (View, Freeze, 1 row) on all three sheets, and freeze the ID and Name columns (first two columns) so they stay visible when scrolling right. The landlord sheet at 29 columns is unreadable past column J without this.
 2. Turn on a Filter view on every sheet so each can be sorted by status, district, budget, or last contact without disturbing the shared view.
 3. Status colour coding via conditional formatting. Suggested scheme used consistently across all sheets: green for closed or tenanted, amber for active or viewing-set or profile-received, grey for cold or dormant or stalled or no-response, blue for sale-active or channel. One legend, three sheets.
-4. Format the phone column as plain text on all three. Leading plus signs were stripped on upload (for example 6592717571 instead of +6592717571), which breaks click-to-WhatsApp and tel links.
+4. Format the phone column as plain text on all three. Leading plus signs were stripped on upload (for example 6500000000 instead of +6500000000), which breaks click-to-WhatsApp and tel links.
 5. Format the budget and rent columns as numbers or currency, and the date columns (last_contact, move_in_date) as real dates, so sorting works. Right now several sort as text.
 6. Resolve the duplicate landlord sheet: the older **landlord-tracker-crestbrick** (id 1iJowhQeOzWlqgj341Pf3q32z_A4xBo6_7H6tt_kBr2o, 11 columns, 23 rows, mostly end of May) is superseded by Crestbrick Landlord Database. Rename it to "ARCHIVE landlord-tracker (superseded)" or move it to an archive folder so nobody updates the wrong one.
 

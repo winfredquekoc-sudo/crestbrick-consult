@@ -21,23 +21,14 @@ DB_PATH     = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.
 OUTPUT_PATH = os.path.expanduser("~/.claude/state/wa-agent/landlord-db.json")
 
 # ─── Landlord roster ──────────────────────────────────────────────────────────
-# Add new landlords here when onboarded.
+# Names and WhatsApp identifiers are personal data, so the roster lives outside
+# the repo. Add new landlords to ~/.claude/state/wa-agent/landlord-seed.json;
+# scripts/landlord-seed.example.json documents the schema.
 # listing_id must match an id in property-templates.json, or "unknown" if not yet listed.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from _wa_seed import load_landlords
 
-LANDLORDS = {
-    "275883080331380@lid": {"name": "Fei",       "listing_id": "sunshine-terrace"},
-    "111780869189778@lid": {"name": "juneiyana", "listing_id": "tampines-west-951b"},
-    "51732897882360@lid":  {"name": "Li xian",   "listing_id": "pine-grove"},
-    "199982367920344@lid": {"name": "Rachel",    "listing_id": "tampines-855"},
-    "72778355073190@lid":  {"name": "Ken Ho",    "listing_id": "caspian"},
-    "157260294651907@lid": {"name": "Lee",       "listing_id": "farrer-park"},
-    "183528465653975@lid": {"name": "Normawati", "listing_id": "unknown"},
-    "47626909171737@lid":  {"name": "Rachel 2",  "listing_id": "tampines-201"},
-    "248013037514930@lid": {"name": "Keith Ng",  "listing_id": "hougang-358"},
-    "119512078807119@lid": {"name": "Kirinkala", "listing_id": "admiralty-drive"},
-    "29399755808971@lid":  {"name": "Yuling",    "listing_id": "tampines-west-951b"},
-    "77760533950663@lid":  {"name": "Buva",      "listing_id": "summerdale"},
-}
+LANDLORDS = load_landlords()
 
 EXTRACT_PROMPT = """Extract rental property info from this WhatsApp conversation between a property agent (Winfred) and a landlord.
 Return ONLY a valid JSON object. No markdown, no explanation. Use double-quoted keys and string values only.
