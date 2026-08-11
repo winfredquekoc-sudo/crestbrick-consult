@@ -82,7 +82,7 @@
   "@type": "ItemList",
   "name": "Active Property Listings — Winfred Quek",
   "url": "https://winfredquek.com/listings",
-  "numberOfItems": 13,
+  "numberOfItems": 15,
   "itemListElement": [
     {
       "@type": "ListItem",
@@ -173,6 +173,27 @@
       "position": 5,
       "item": {
         "@type": "RealEstateListing",
+        "name": "Master Room — Blk 62 Bayshore Park",
+        "url": "https://winfredquek.com/listings",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "SG",
+          "addressLocality": "Blk 62 Bayshore Park",
+          "addressRegion": "D16"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": 1250,
+          "priceCurrency": "SGD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 6,
+      "item": {
+        "@type": "RealEstateListing",
         "name": "Studio — 34 Jalan Tanjong (Bedok)",
         "url": "https://winfredquek.com/listings",
         "address": {
@@ -191,7 +212,28 @@
     },
     {
       "@type": "ListItem",
-      "position": 6,
+      "position": 7,
+      "item": {
+        "@type": "RealEstateListing",
+        "name": "Room — Blk 160 (Tampines)",
+        "url": "https://winfredquek.com/listings",
+        "address": {
+          "@type": "PostalAddress",
+          "addressCountry": "SG",
+          "addressLocality": "Blk 160",
+          "addressRegion": "D18"
+        },
+        "offers": {
+          "@type": "Offer",
+          "price": 1300,
+          "priceCurrency": "SGD",
+          "availability": "https://schema.org/InStock"
+        }
+      }
+    },
+    {
+      "@type": "ListItem",
+      "position": 8,
       "item": {
         "@type": "RealEstateListing",
         "name": "Room — Near NEX (Hougang)",
@@ -212,7 +254,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 7,
+      "position": 9,
       "item": {
         "@type": "RealEstateListing",
         "name": "Common Room — Blk 539 Ang Mo Kio Ave 10",
@@ -233,7 +275,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 8,
+      "position": 10,
       "item": {
         "@type": "RealEstateListing",
         "name": "Room — 851 Jurong West",
@@ -254,7 +296,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 9,
+      "position": 11,
       "item": {
         "@type": "RealEstateListing",
         "name": "Whole Unit — Blk 26 Teck Whye Lane (Bukit Batok)",
@@ -269,7 +311,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 10,
+      "position": 12,
       "item": {
         "@type": "RealEstateListing",
         "name": "Common Room — 383a Yishun Avenue 6 (Reserved)",
@@ -290,7 +332,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 11,
+      "position": 13,
       "item": {
         "@type": "RealEstateListing",
         "name": "Common Room — 54 Sunrise Terrace",
@@ -311,7 +353,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 12,
+      "position": 14,
       "item": {
         "@type": "RealEstateListing",
         "name": "Common Room — Blk 110A Depot Road (Harbourfront)",
@@ -332,7 +374,7 @@
     },
     {
       "@type": "ListItem",
-      "position": 13,
+      "position": 15,
       "item": {
         "@type": "RealEstateListing",
         "name": "Room — Blk 706 Clementi West St 2",
@@ -553,7 +595,7 @@ function buildOffMarketWA(e) {
         <div class="p-6">
           <p class="text-xs text-[var(--accent)] uppercase tracking-widest mb-2">D12 · Toa Payoh · HDB · Rent</p>
           <h3 class="serif text-xl font-semibold mb-2">Master Room — Toa Payoh</h3>
-          <p class="text-[var(--ink-soft)] text-sm mb-1">200 sqft</p>
+          <p class="text-[var(--ink-soft)] text-sm mb-1"></p>
           
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
             <p class="serif text-lg font-semibold">From S$1,850 / mo</p>
@@ -600,6 +642,19 @@ function buildOffMarketWA(e) {
           </div>
         </div>
       </article>
+      <article class="listing bg-[#1c1e26] rounded-xl overflow-hidden border border-[var(--rule)]" data-type="condo">
+        <div class="aspect-[16/10] bg-[var(--rule)] flex items-center justify-center text-[var(--ink-muted)] serif italic">Photo</div>
+        <div class="p-6">
+          <p class="text-xs text-[var(--accent)] uppercase tracking-widest mb-2">D16 · Blk 62 Bayshore Park · Condo · Rent</p>
+          <h3 class="serif text-xl font-semibold mb-2">Master Room — Blk 62 Bayshore Park</h3>
+          <p class="text-[var(--ink-soft)] text-sm mb-1"></p>
+          
+          <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
+            <p class="serif text-lg font-semibold">S$1,250 / mo</p>
+            <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park." class="btn btn-ghost text-sm" style="padding:.5rem .9rem;">Enquire</a>
+          </div>
+        </div>
+      </article>
       <article class="listing bg-[#1c1e26] rounded-xl overflow-hidden border border-[var(--rule)]" data-type="landed">
         <img src="/img/listings/studio-34-jalan-tanjong-1.jpg" alt="Studio — 34 Jalan Tanjong (Bedok)" width="640" height="400" class="aspect-[16/10] w-full object-cover" loading="lazy" />
         <div class="p-6">
@@ -610,6 +665,19 @@ function buildOffMarketWA(e) {
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
             <p class="serif text-lg font-semibold">S$2,200 / mo</p>
             <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong." class="btn btn-ghost text-sm" style="padding:.5rem .9rem;">Enquire</a>
+          </div>
+        </div>
+      </article>
+      <article class="listing bg-[#1c1e26] rounded-xl overflow-hidden border border-[var(--rule)]" data-type="hdb">
+        <div class="aspect-[16/10] bg-[var(--rule)] flex items-center justify-center text-[var(--ink-muted)] serif italic">Photo</div>
+        <div class="p-6">
+          <p class="text-xs text-[var(--accent)] uppercase tracking-widest mb-2">D18 · Blk 160 · HDB · Rent</p>
+          <h3 class="serif text-xl font-semibold mb-2">Room — Blk 160 (Tampines)</h3>
+          <p class="text-[var(--ink-soft)] text-sm mb-1"></p>
+          <ul class="text-xs text-[var(--ink-muted)] mt-3 space-y-1"><li>· Furnished</li><li>· Aircon</li><li>· Own bathroom</li><li>· Available now</li></ul>
+          <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
+            <p class="serif text-lg font-semibold">S$1,300 / mo</p>
+            <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160." class="btn btn-ghost text-sm" style="padding:.5rem .9rem;">Enquire</a>
           </div>
         </div>
       </article>
@@ -634,7 +702,7 @@ function buildOffMarketWA(e) {
           <p class="text-[var(--ink-soft)] text-sm mb-1">130 sqft</p>
           
           <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
-            <p class="serif text-lg font-semibold">S$1,000 / mo</p>
+            <p class="serif text-lg font-semibold">From S$1,000 / mo</p>
             <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010." class="btn btn-ghost text-sm" style="padding:.5rem .9rem;">Enquire</a>
           </div>
         </div>
@@ -720,11 +788,11 @@ function buildOffMarketWA(e) {
 <!-- LISTINGS:END -->
   </div>
   <p id="listings-meta" class="text-xs text-[var(--ink-muted)] mt-10 text-center"><!-- LISTINGS:META:START -->
-13 active listings · last updated 11 Aug 2026, 12:30 am
+15 active listings · last updated 12 Aug 2026, 12:30 am
 <!-- LISTINGS:META:END --></p>
   <p class="text-xs text-[var(--ink-muted)] mt-3 text-center">Many of the best opportunities I work on are off market. Ask.</p>
 <!-- LISTINGS:DATA:START -->
-<script type="application/json" id="listings-initial-data">{"synced_at": "2026-08-11T00:30:01+08:00", "listings": [{"id": "master-room-toa-payoh-ll015", "title": "Master Room — Toa Payoh", "type": "HDB", "transaction": "rent", "price": 1850, "price_label": "From S$1,850 / mo", "address": "Toa Payoh", "district": "D12", "sqft": 200, "image": "/img/listings/master-room-toa-payoh-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh."}, {"id": "common-room-paya-lebar-area-ll091", "title": "Common Room — Paya Lebar area", "type": "HDB", "transaction": "rent", "price": 1600, "price_label": "From S$1,600 / mo", "address": "Paya Lebar area", "district": "D14", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area."}, {"id": "common-room-bayshore-park-ll070", "title": "Common Room — Bayshore Park", "type": "Condo", "transaction": "rent", "price": 1300, "price_label": "S$1,300 / mo", "address": "Bayshore Park", "district": "D16", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park."}, {"id": "master-room-26-bayshore-road-ll001", "title": "Master Room — 26 Bayshore Road", "type": "Condo", "transaction": "rent", "price": 2000, "price_label": "S$2,000 / mo", "address": "26 Bayshore Road", "district": "D16", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road."}, {"id": "studio-34-jalan-tanjong-ll077", "title": "Studio — 34 Jalan Tanjong (Bedok)", "type": "Landed", "transaction": "rent", "price": 2200, "price_label": "S$2,200 / mo", "address": "34 Jalan Tanjong", "district": "D16", "sqft": 430, "highlights": ["Own bathroom"], "image": "/img/listings/studio-34-jalan-tanjong-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."}, {"id": "room-near-nex-ll090", "title": "Room — Near NEX (Hougang)", "type": "HDB", "transaction": "rent", "price": 1600, "price_label": "From S$1,600 / mo", "address": "Near NEX", "district": "D19", "highlights": ["Utilities included"], "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX."}, {"id": "common-room-blk-539-ang-mo-kio-ave-10-ll098", "title": "Common Room — Blk 539 Ang Mo Kio Ave 10", "type": "HDB", "transaction": "rent", "price": 1000, "price_label": "S$1,000 / mo", "address": "Blk 539 Ang Mo Kio Ave 10", "district": "D20", "sqft": 130, "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010."}, {"id": "room-851-jurong-west-ll017", "title": "Room — 851 Jurong West", "type": "HDB", "transaction": "rent", "price": 800, "price_label": "From S$800 / mo", "address": "851 Jurong West", "district": "D22", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."}, {"id": "whole-unit-blk-26-teck-whye-lane-ll083", "title": "Whole Unit — Blk 26 Teck Whye Lane (Bukit Batok)", "type": "HDB", "transaction": "rent", "price_label": "POA", "address": "Blk 26 Teck Whye Lane", "district": "D23", "image": "/img/listings/whole-unit-blk-26-teck-whye-lane-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane."}, {"id": "common-room-383a-yishun-avenue-6-ll050", "title": "Common Room — 383a Yishun Avenue 6 (Reserved)", "type": "HDB", "transaction": "rent", "price": 900, "price_label": "From S$900 / mo", "address": "383a Yishun Avenue 6", "district": "D27", "highlights": ["Offer pending — enquire to join the waitlist"], "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20383a%20Yishun%20Avenue%206.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20383a%20Yishun%20Avenue%206."}, {"id": "common-room-54-sunrise-terrace-ll028", "title": "Common Room — 54 Sunrise Terrace", "type": "Landed", "transaction": "rent", "price": 1300, "price_label": "S$1,300 / mo", "address": "54 Sunrise Terrace", "district": "D28", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace."}, {"id": "common-room-blk-110a-depot-road-ll082", "title": "Common Room — Blk 110A Depot Road (Harbourfront)", "type": "HDB", "transaction": "rent", "price": 1200, "price_label": "From S$1,200 / mo", "address": "Blk 110A Depot Road", "district": "D4", "highlights": ["Available now"], "image": "/img/listings/common-room-blk-110a-depot-road-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road."}, {"id": "room-blk-706-clementi-west-st-2-ll051", "title": "Room — Blk 706 Clementi West St 2", "type": "HDB", "transaction": "rent", "price": 1100, "price_label": "S$1,100 / mo", "address": "Blk 706 Clementi West St 2", "district": "D5", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20706%20Clementi%20West%20St%202.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20706%20Clementi%20West%20St%202."}]}</script>
+<script type="application/json" id="listings-initial-data">{"synced_at": "2026-08-12T00:30:03+08:00", "listings": [{"id": "master-room-toa-payoh-ll015", "title": "Master Room — Toa Payoh", "type": "HDB", "transaction": "rent", "price": 1850, "price_label": "From S$1,850 / mo", "address": "Toa Payoh", "district": "D12", "image": "/img/listings/master-room-toa-payoh-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh."}, {"id": "common-room-paya-lebar-area-ll091", "title": "Common Room — Paya Lebar area", "type": "HDB", "transaction": "rent", "price": 1600, "price_label": "From S$1,600 / mo", "address": "Paya Lebar area", "district": "D14", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Paya%20Lebar%20area."}, {"id": "common-room-bayshore-park-ll070", "title": "Common Room — Bayshore Park", "type": "Condo", "transaction": "rent", "price": 1300, "price_label": "S$1,300 / mo", "address": "Bayshore Park", "district": "D16", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park."}, {"id": "master-room-26-bayshore-road-ll001", "title": "Master Room — 26 Bayshore Road", "type": "Condo", "transaction": "rent", "price": 2000, "price_label": "S$2,000 / mo", "address": "26 Bayshore Road", "district": "D16", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road."}, {"id": "master-room-blk-62-bayshore-park-ll088", "title": "Master Room — Blk 62 Bayshore Park", "type": "Condo", "transaction": "rent", "price": 1250, "price_label": "S$1,250 / mo", "address": "Blk 62 Bayshore Park", "district": "D16", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park."}, {"id": "studio-34-jalan-tanjong-ll077", "title": "Studio — 34 Jalan Tanjong (Bedok)", "type": "Landed", "transaction": "rent", "price": 2200, "price_label": "S$2,200 / mo", "address": "34 Jalan Tanjong", "district": "D16", "sqft": 430, "highlights": ["Own bathroom"], "image": "/img/listings/studio-34-jalan-tanjong-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."}, {"id": "room-blk-160-ll099", "title": "Room — Blk 160 (Tampines)", "type": "HDB", "transaction": "rent", "price": 1300, "price_label": "S$1,300 / mo", "address": "Blk 160", "district": "D18", "highlights": ["Furnished", "Aircon", "Own bathroom", "Available now"], "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160."}, {"id": "room-near-nex-ll090", "title": "Room — Near NEX (Hougang)", "type": "HDB", "transaction": "rent", "price": 1600, "price_label": "From S$1,600 / mo", "address": "Near NEX", "district": "D19", "highlights": ["Utilities included"], "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Near%20NEX."}, {"id": "common-room-blk-539-ang-mo-kio-ave-10-ll098", "title": "Common Room — Blk 539 Ang Mo Kio Ave 10", "type": "HDB", "transaction": "rent", "price": 1000, "price_label": "From S$1,000 / mo", "address": "Blk 539 Ang Mo Kio Ave 10", "district": "D20", "sqft": 130, "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010."}, {"id": "room-851-jurong-west-ll017", "title": "Room — 851 Jurong West", "type": "HDB", "transaction": "rent", "price": 800, "price_label": "From S$800 / mo", "address": "851 Jurong West", "district": "D22", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."}, {"id": "whole-unit-blk-26-teck-whye-lane-ll083", "title": "Whole Unit — Blk 26 Teck Whye Lane (Bukit Batok)", "type": "HDB", "transaction": "rent", "price_label": "POA", "address": "Blk 26 Teck Whye Lane", "district": "D23", "image": "/img/listings/whole-unit-blk-26-teck-whye-lane-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane."}, {"id": "common-room-383a-yishun-avenue-6-ll050", "title": "Common Room — 383a Yishun Avenue 6 (Reserved)", "type": "HDB", "transaction": "rent", "price": 900, "price_label": "From S$900 / mo", "address": "383a Yishun Avenue 6", "district": "D27", "highlights": ["Offer pending — enquire to join the waitlist"], "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20383a%20Yishun%20Avenue%206.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20383a%20Yishun%20Avenue%206."}, {"id": "common-room-54-sunrise-terrace-ll028", "title": "Common Room — 54 Sunrise Terrace", "type": "Landed", "transaction": "rent", "price": 1300, "price_label": "S$1,300 / mo", "address": "54 Sunrise Terrace", "district": "D28", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace."}, {"id": "common-room-blk-110a-depot-road-ll082", "title": "Common Room — Blk 110A Depot Road (Harbourfront)", "type": "HDB", "transaction": "rent", "price": 1200, "price_label": "From S$1,200 / mo", "address": "Blk 110A Depot Road", "district": "D4", "highlights": ["Available now"], "image": "/img/listings/common-room-blk-110a-depot-road-1.jpg", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road."}, {"id": "room-blk-706-clementi-west-st-2-ll051", "title": "Room — Blk 706 Clementi West St 2", "type": "HDB", "transaction": "rent", "price": 1100, "price_label": "S$1,100 / mo", "address": "Blk 706 Clementi West St 2", "district": "D5", "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20706%20Clementi%20West%20St%202.", "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20706%20Clementi%20West%20St%202."}]}</script>
 <!-- LISTINGS:DATA:END -->
 </section>
 

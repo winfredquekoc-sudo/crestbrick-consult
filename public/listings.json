@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-11T00:30:01+08:00",
-  "count": 13,
+  "synced_at": "2026-08-12T00:30:03+08:00",
+  "count": 15,
   "listings": [
     {
       "id": "master-room-toa-payoh-ll015",
@@ -13,7 +13,6 @@
       "price_label": "From S$1,850 / mo",
       "address": "Toa Payoh",
       "district": "D12",
-      "sqft": 200,
       "image": "/img/listings/master-room-toa-payoh-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Toa%20Payoh."
@@ -55,6 +54,18 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2026%20Bayshore%20Road."
     },
     {
+      "id": "master-room-blk-62-bayshore-park-ll088",
+      "title": "Master Room — Blk 62 Bayshore Park",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1250,
+      "price_label": "S$1,250 / mo",
+      "address": "Blk 62 Bayshore Park",
+      "district": "D16",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park."
+    },
+    {
       "id": "studio-34-jalan-tanjong-ll077",
       "title": "Studio — 34 Jalan Tanjong (Bedok)",
       "type": "Landed",
@@ -70,6 +81,24 @@
       "image": "/img/listings/studio-34-jalan-tanjong-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
+    },
+    {
+      "id": "room-blk-160-ll099",
+      "title": "Room — Blk 160 (Tampines)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1300,
+      "price_label": "S$1,300 / mo",
+      "address": "Blk 160",
+      "district": "D18",
+      "highlights": [
+        "Furnished",
+        "Aircon",
+        "Own bathroom",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160."
     },
     {
       "id": "room-near-nex-ll090",
@@ -92,7 +121,7 @@
       "type": "HDB",
       "transaction": "rent",
       "price": 1000,
-      "price_label": "S$1,000 / mo",
+      "price_label": "From S$1,000 / mo",
       "address": "Blk 539 Ang Mo Kio Ave 10",
       "district": "D20",
       "sqft": 130,
