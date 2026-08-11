@@ -5,67 +5,15 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
 <title>Crestbrick Matchmaker</title>
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" href="/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/icon.svg">
+<meta name="theme-color" content="#0b1220">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Matchmaker">
 <style>
-:root{
-  --bg:#0f1420; --panel:#161d2e; --panel2:#1d2740; --line:#2a3550; --ink:#e8edf7; --mut:#93a1c0;
-  --acc:#5b8cff; --grn:#2ecc71; --amb:#f5a623; --red:#ff5c6c; --chip:#223052;
-}
-@media (prefers-color-scheme:light){
-  :root{--bg:#f4f6fb;--panel:#ffffff;--panel2:#f0f3fa;--line:#dde3ef;--ink:#16203a;--mut:#5a6a88;--acc:#2f6bff;--chip:#eaf0ff;}
-}
-*{box-sizing:border-box}
-body{margin:0;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
-header{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:1px solid var(--line);padding:10px 16px}
-.hrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
-h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
-.sub{color:var(--mut);font-size:12px}
-.kpis{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
-.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:4px 10px;font-size:12px}
-.kpi b{font-size:15px}
-.tabs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.tab{padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink)}
-.tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
-.filters{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
-input,select{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
-input#q{min-width:230px;flex:1}
-.tog{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:12px;cursor:pointer;user-select:none}
-main{padding:14px 16px 60px}
-.split{display:grid;grid-template-columns:320px 1fr;gap:14px}
-@media(max-width:820px){.split{grid-template-columns:1fr}}
-.rail{display:flex;flex-direction:column;gap:8px;max-height:calc(100vh - 180px);overflow:auto;padding-right:4px}
-.lc{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:10px 12px;cursor:pointer}
-.lc.on{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc) inset}
-.lc .t{font-weight:700}
-.lc .m{color:var(--mut);font-size:12px;margin-top:2px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-height:200px}
-.phead{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
-.phead .big{font-size:16px;font-weight:800}
-.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--ink);white-space:nowrap}
-.chip.g{background:rgba(46,204,113,.16);color:#37c07f}
-.chip.a{background:rgba(245,166,35,.16);color:#e39a1c}
-.chip.r{background:rgba(255,92,108,.16);color:#ff6b78}
-.row{border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-bottom:8px;background:var(--panel2)}
-.row.done{opacity:.42}
-.rtop{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-.nm{font-weight:700}
-.gap{color:var(--mut);font-size:12px;font-style:italic;margin-top:3px}
-.sb{height:7px;border-radius:5px;background:var(--line);overflow:hidden;width:120px;display:inline-flex}
-.sb i{height:100%;display:block}
-.sc{font-weight:800;font-variant-numeric:tabular-nums;min-width:30px;text-align:right}
-.acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
-.btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;gap:5px;align-items:center;font-weight:600}
-.btn.p{background:var(--grn);color:#062012;border-color:var(--grn)}
-.btn.w{background:#25d366;color:#03210f;border-color:#25d366}
-.mut{color:var(--mut)}
-.empty{color:var(--mut);text-align:center;padding:40px 10px}
-.legend{font-size:11px;color:var(--mut);margin-top:12px;line-height:1.6}
-.mk{font-size:11px;color:var(--mut)}
-select.mk{padding:3px 6px}
-.wm{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.4);color:#d98a10;border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:10px}
-.help{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;margin-bottom:10px;line-height:1.6}
-.row.blk{opacity:.8;background:repeating-linear-gradient(45deg,transparent,transparent 9px,rgba(255,92,108,.06) 9px,rgba(255,92,108,.06) 18px)}
-.btn{min-height:34px}
+/*__CSS__*/
 </style>
 </head>
 <body>
@@ -77,264 +25,58 @@ select.mk{padding:3px 6px}
     </div>
     <div class="kpis" id="kpis"></div>
   </div>
-  <div class="tabs" id="tabs">
-    <div class="tab on" data-v="work">⭐ Today's Worklist</div>
-    <div class="tab" data-v="listing">🏠 By Listing</div>
-    <div class="tab" data-v="tenant">🙋 By Tenant</div>
+  <div class="tabs" id="tabs" role="tablist" aria-label="Matchmaker views">
+    <div class="tab on" data-v="work" role="tab" tabindex="0" aria-selected="true" aria-controls="work" id="tab-work">⭐ Today's Worklist</div>
+    <div class="tab" data-v="listing" role="tab" tabindex="0" aria-selected="false" aria-controls="listing" id="tab-listing">🏠 By Listing</div>
+    <div class="tab" data-v="tenant" role="tab" tabindex="0" aria-selected="false" aria-controls="tenant" id="tab-tenant">🙋 By Tenant</div>
+    <div class="tab" data-v="whole" role="tab" tabindex="0" aria-selected="false" aria-controls="whole" id="tab-whole">🏘 Whole Unit</div>
+    <div class="tab" data-v="stats" role="tab" tabindex="0" aria-selected="false" aria-controls="stats" id="tab-stats">📊 Stats</div>
+  </div>
+  <div class="hrow" style="margin-top:8px">
+    <button class="hbtn" id="addtenant" type="button">+ Tenant</button>
+    <button class="hbtn" id="dispatchchip" type="button">Dispatch <span class="cnt">0</span></button>
+    <button class="hbtn" id="snoozechip" type="button">Snoozed <span class="cnt">0</span></button>
+    <button class="hbtn" id="palettebtn" type="button" title="Command palette">⌘K Find</button>
+    <button class="hbtn" id="maskbtn" type="button" title="Toggle phone masking">🔒 Masked</button>
+    <button class="hbtn" id="themebtn" type="button" title="Toggle day/night">🌙</button>
+    <button class="hbtn" id="densitybtn" type="button" title="Toggle density">☰ Density</button>
   </div>
   <div class="filters">
-    <input id="q" placeholder="Search tenant, landlord, district, area, postal…">
-    <select id="fd"><option value="">All districts</option></select>
-    <select id="fv">
+    <input id="q" placeholder="Search tenant, landlord, district, area, postal…" aria-label="Search tenant, landlord, district, area, or postal code">
+    <select id="fd" aria-label="Filter by district"><option value="">All districts</option></select>
+    <select id="fv" aria-label="Filter by verdict">
       <option value="">All verdicts</option>
       <option value="QUALIFIED">Qualified</option>
       <option value="NEEDS_INFO">Needs info</option>
       <option value="BLOCKED">Has conflict</option>
     </select>
-    <input id="fr" type="number" placeholder="Max rent $" style="width:120px">
-    <label class="tog"><input type="checkbox" id="fc"> hide cold &gt;5d</label>
-    <label class="tog"><input type="checkbox" id="fh"> hide actioned</label>
+    <input id="fr" type="number" placeholder="Max rent $" style="width:120px" aria-label="Maximum rent filter">
+    <label class="tog"><input type="checkbox" id="fc"> hide cold &gt;5d <span id="fccount" class="mut"></span></label>
+    <label class="tog"><input type="checkbox" id="fh"> hide actioned <span id="fhcount" class="mut"></span></label>
     <button id="clr" class="tab">↺ Clear filters</button>
+    <button id="bulkbtn" class="tab" type="button">☑ Bulk action</button>
   </div>
 </header>
 <main>
-  <div id="work"></div>
-  <div id="listing" class="split" style="display:none">
+  <div id="work" role="tabpanel" aria-labelledby="tab-work"></div>
+  <div id="listing" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-listing">
     <div class="rail" id="lrail"></div>
     <div class="panel" id="lpanel"><div class="empty">Pick a listing on the left to see ranked tenants.</div></div>
   </div>
-  <div id="tenant" class="split" style="display:none">
+  <div id="tenant" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-tenant">
     <div class="rail" id="trail"></div>
     <div class="panel" id="tpanel"><div class="empty">Pick a tenant on the left to see matching available listings.</div></div>
   </div>
+  <div id="whole" style="display:none" role="tabpanel" aria-labelledby="tab-whole"></div>
+  <div id="stats" style="display:none" role="tabpanel" aria-labelledby="tab-stats"></div>
   <div class="legend" id="legend"></div>
 </main>
 <script>const DATA = __DATA__;</script>
 <script>
-const $=s=>document.querySelector(s), el=(t,c,h)=>{const e=document.createElement(t);if(c)e.className=c;if(h!=null)e.innerHTML=h;return e;};
-const TODAY=new Date(DATA.generated+"T00:00:00");
-const AREA=DATA.districts||{};
-const ADJ={D1:["D2","D4","D6","D7"],D2:["D1","D3","D4"],D3:["D2","D4","D5","D10"],D4:["D1","D2","D3","D5"],D5:["D3","D4","D10","D21","D22"],D6:["D1","D7","D9"],D7:["D1","D6","D8","D14"],D8:["D7","D9","D11","D12","D13"],D9:["D6","D8","D10","D11"],D10:["D3","D5","D9","D11","D21"],D11:["D8","D9","D10","D12","D20"],D12:["D8","D11","D13","D20"],D13:["D8","D12","D14","D19","D20"],D14:["D7","D13","D15","D16","D19"],D15:["D14","D16"],D16:["D14","D15","D17","D18"],D17:["D16","D18"],D18:["D16","D17","D19"],D19:["D13","D14","D18","D20","D28"],D20:["D11","D12","D13","D19","D26","D28"],D21:["D5","D10","D23"],D22:["D5","D21","D23"],D23:["D22","D24","D25","D26"],D24:["D23","D25"],D25:["D23","D24","D26","D27"],D26:["D20","D23","D25","D28"],D27:["D25","D26","D28"],D28:["D19","D20","D26","D27"]};
-const days=d=>{ if(!d) return null; const x=new Date(d+"T00:00:00"); if(isNaN(x)) return null; return Math.round((TODAY-x)/864e5); };
-const fname=n=>(n||"there").split(/[ ,(]/)[0];
-const rentTxt=l=> l.rent_min&&l.rent_max&&l.rent_min!==l.rent_max?("$"+l.rent_min+" to $"+l.rent_max): l.rent_min?("$"+l.rent_min): l.rent_max?("$"+l.rent_max):"rent TBC";
-const areaName=l=> l.address || AREA[l.district] || l.district || "";
-
-// ---- matching engine (covers ALL available listings) ----
-function score(l,t){
-  const flags=[]; let hard=false;
-  const b = t.budget || t.budget_max || null;
-  // budget 0..30
-  let sb=15;
-  if(b!=null){
-    if(l.rent_min&&b<l.rent_min){ sb=4; flags.push("over landlord's min ($"+l.rent_min+")"); if(b<l.rent_min*0.9) hard=true; }
-    else if(l.rent_max&&b>l.rent_max*1.6){ sb=14; flags.push("budget well above room (may want whole unit)"); }
-    else sb=30;
-  } else flags.push("budget unknown");
-  // location 0..25
-  let sl=8; const pd=t.preferred_districts||[];
-  if(pd.includes(l.district)) sl=25;
-  else if(t.district===l.district) sl=20;
-  else if(pd.some(d=>(ADJ[l.district]||[]).includes(d))) sl=15;
-  else if(pd.length===0 && !t.district) { sl=8; }
-  else { sl=6; }
-  // lease 0..15
-  let sle=8; const lm=t.lease_months, need=l.gates.lease_min||12;
-  if(lm!=null){ if(lm>=12) sle=15; else if(lm>=need) sle=11; else { sle=5; flags.push("lease "+lm+"mo vs "+need+"mo wanted"); } }
-  // move-in 0..15
-  let sm=8; const di=days(t.move_in);
-  if(t.move_in){ if(di!=null){ if(di<=35&&di>=-40) sm=15; else if(di<=95) sm=10; else sm=6; } }
-  // freshness 0..15
-  let sf=2; const dc=days(t.last_contact);
-  if(dc!=null){ if(dc<=7) sf=15; else if(dc<=30) sf=10; else if(dc<=90) sf=5; else sf=2; }
-  // hard gates -> flags
-  const g=l.gates;
-  if(g.gender==="female_only" && /^m/i.test(t.gender||"")){ flags.push("landlord: female only"); hard=true; }
-  if(g.gender==="male_only" && /^f/i.test(t.gender||"")){ flags.push("landlord: male only"); hard=true; }
-  const eth=(t.ethnicity||"").toLowerCase(), er=g.ethnicity||{rule:"any",races:[]};
-  if(er.rule==="exclude" && er.races.some(r=>eth.includes(r))){ flags.push("landlord excludes "+er.races.join("/")); hard=true; }
-  if(er.rule==="only" && er.races.length && !er.races.some(r=>eth.includes(r))){ flags.push("landlord wants "+er.races.join("/")+" only"); hard=true; }
-  if(g.max_pax!=null && t.pax!=null && t.pax>g.max_pax){ flags.push("pax "+t.pax+" > max "+g.max_pax); hard=true; }
-  const total=sb+sl+sle+sm+sf;
-  let verdict = hard? "BLOCKED" : (b==null || sl<=6) ? "NEEDS_INFO" : "QUALIFIED";
-  return {total,parts:{budget:sb,location:sl,lease:sle,movein:sm,fresh:sf},flags,verdict,dc};
-}
-// build all matches
-const MATCHES=[];
-for(const l of DATA.listings) for(const t of DATA.tenants){ const s=score(l,t); MATCHES.push({l,t,s}); }
-const byListing={}, byTenant={};
-for(const m of MATCHES){ (byListing[m.l.id]=byListing[m.l.id]||[]).push(m); (byTenant[m.t.id]=byTenant[m.t.id]||[]).push(m); }
-for(const k in byListing) byListing[k].sort((a,b)=>b.s.total-a.s.total);
-for(const k in byTenant) byTenant[k].sort((a,b)=>b.s.total-a.s.total);
-
-// ---- status (localStorage) ----
-const skey=(l,t)=>"cbk_"+l+"_"+t;
-const getS=(l,t)=>localStorage.getItem(skey(l,t))||"";
-const setS=(l,t,v)=>{ v?localStorage.setItem(skey(l,t),v):localStorage.removeItem(skey(l,t)); render(); };
-
-// ---- WA draft ----
-function draft(l,t){
-  const fn=fname(t.name), area=(AREA[l.district]||l.district||"the area"), rt=rentTxt(l);
-  const mv=t.move_in?(" around "+t.move_in):"";
-  if(!t.budget && !t.budget_max)
-    return "Hi "+fn+", a room just opened in "+area+" ("+l.district+") at about "+rt+" a month. Whats your budget and when are you looking to move in so i can send you the right details";
-  return "Hi "+fn+", i have a room that fits what you are looking for in "+area+" ("+l.district+"), "+rt+" a month, can move in"+mv+". Free to view this week";
-}
-const normPhone=raw=>{let p=(raw||"").replace(/[^0-9]/g,"");if(p.length===8&&/^[89]/.test(p))p="65"+p;return p;};
-const waLink=(l,t)=>{const p=normPhone(t.phone);return p?("https://wa.me/"+p+"?text="+encodeURIComponent(draft(l,t))):"";};
-const waPlain=(phone,msg)=>{const p=normPhone(phone);return p?("https://wa.me/"+p+(msg?"?text="+encodeURIComponent(msg):"")):"";};
-const mapLink=l=>"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(l.map_query||areaName(l));
-
-// ---- filters/state ----
-let view="work", curL=null, curT=null;
-const F=()=>({q:$("#q").value.trim().toLowerCase(),d:$("#fd").value,v:$("#fv").value,r:parseInt($("#fr").value)||0,cold:$("#fc").checked,hide:$("#fh").checked});
-function passFilter(m){
-  const f=F();
-  if(f.d && m.l.district!==f.d) return false;
-  if(f.v && m.s.verdict!==f.v) return false;
-  if(f.r && m.l.rent_min && m.l.rent_min>f.r) return false;
-  if(f.cold && m.s.dc!=null && m.s.dc>5) return false;
-  if(f.hide && getS(m.l.id,m.t.id)) return false;
-  if(f.q){ const hay=(m.t.name+" "+m.l.name+" "+m.l.district+" "+(AREA[m.l.district]||"")+" "+m.l.address+" "+(m.t.preferred_location||"")+" "+(m.t.phone||"")).toLowerCase(); if(!hay.includes(f.q)) return false; }
-  return true;
-}
-const vchip=v=> v==="QUALIFIED"?'<span class="chip g">✅ Good fit</span>': v==="NEEDS_INFO"?'<span class="chip a">❓ Ask a question</span>':'<span class="chip r">⛔ Not a fit</span>';
-function scoreBar(p){
-  const seg=[["#2ecc71",p.budget],["#5b8cff",p.location],["#f5a623",p.lease],["#9b8cff",p.movein],["#7a8aa8",p.fresh]];
-  return '<span class="sb" title="budget '+p.budget+' · location '+p.location+' · lease '+p.lease+' · move-in '+p.movein+' · fresh '+p.fresh+'">'+seg.map(s=>'<i style="width:'+(s[1])+'px;background:'+s[0]+'"></i>').join('')+'</span>';
-}
-function coldChip(dc){ if(dc==null) return '<span class="chip">no contact date</span>'; if(dc<=5) return '<span class="chip g">heard '+dc+'d ago</span>'; if(dc<=30) return '<span class="chip a">cold '+dc+'d</span>'; return '<span class="chip r">stale '+dc+'d</span>'; }
-
-function matchRow(m,showListing){
-  const l=m.l,t=m.t,s=m.s, st=getS(l.id,t.id);
-  const blocked=s.verdict==="BLOCKED", cold=s.dc!=null&&s.dc>5, stale=s.dc!=null&&s.dc>30;
-  const waLabel= stale?('WhatsApp (stale '+s.dc+'d, double check)'): cold?('WhatsApp (cold '+s.dc+'d, double check)'):'WhatsApp draft';
-  const markSel='<select class="btn mk" data-mk="1"><option value="">Mark…</option><option'+(st=="Contacted"?" selected":"")+'>Contacted</option><option'+(st=="Viewing booked"?" selected":"")+'>Viewing booked</option><option'+(st=="Not interested"?" selected":"")+'>Not interested</option><option value="__clr">Clear</option></select>';
-  const row=el("div","row"+(st?" done":"")+(blocked?" blk":""));
-  const head = showListing
-    ? '<span class="nm">'+t.name+'</span> <span class="mut">→ '+l.name+' · '+l.district+' · '+rentTxt(l)+'</span>'+(l.availability==="Offer pending"?' <span class="chip a">offer pending, hold</span>':'')
-    : '<span class="nm">'+t.name+'</span> <span class="mut">'+(t.pass_type||'')+' '+(t.nationality||'')+'</span>';
-  row.innerHTML=
-    '<div class="rtop">'+head+' '+vchip(s.verdict)+scoreBar(s.parts)+'<span class="sc">'+s.total+'</span></div>'+
-    '<div class="rtop" style="margin-top:5px">'+
-      '<span class="chip">budget '+(t.budget||t.budget_max||'?')+'</span>'+
-      '<span class="chip">pax '+(t.pax||'?')+'</span>'+
-      '<span class="chip">lease '+(t.lease_months||'?')+'mo</span>'+
-      '<span class="chip">move '+(t.move_in||'?')+'</span>'+
-      '<span class="chip">'+(t.district||'?')+(t.preferred_location?' · '+t.preferred_location.slice(0,28):'')+'</span>'+
-      coldChip(s.dc)+ (st?'<span class="chip a">'+st+'</span>':'')+
-    '</div>'+
-    (blocked
-      ? '<div class="gap" style="color:#ff6b78;font-style:normal">⛔ Do not offer this room to '+fname(t.name)+' — '+(s.flags[0]||'landlord requirement conflict')+'</div>'
-        +'<div class="acts"><a class="btn" target="_blank" href="'+mapLink(l)+'">Map</a>'+markSel+'</div>'
-      : (s.flags.length?'<div class="gap">⚑ '+s.flags.join(' · ')+'</div>':'')
-        +(t.phone?'<div class="mk" style="margin-top:6px">→ you will message <b>'+t.name+'</b> · '+t.phone+'</div>':'')
-        +'<div class="acts">'
-          +(t.phone? '<a class="btn'+(cold?'"':' w"')+(cold?' style="background:#f5a623;color:#3a2600;border-color:#f5a623"':'')+' target="_blank" href="'+waLink(l,t)+'">'+waLabel+'</a>':'<span class="btn mut">no phone on file</span>')
-          +'<button class="btn" data-copy="1">Copy draft</button>'
-          +(t.phone?'<a class="btn" href="tel:'+t.phone+'">Call</a>':'')
-          +'<a class="btn" target="_blank" href="'+mapLink(l)+'">Map</a>'
-          +markSel
-        +'</div>');
-  const cp=row.querySelector('[data-copy]'); if(cp) cp.onclick=()=>{navigator.clipboard.writeText(draft(l,t));cp.textContent="Copied ✓";};
-  row.querySelector('[data-mk]').onchange=e=>{const v=e.target.value;setS(l.id,t.id, v==="__clr"?"":v);};
-  return row;
-}
-
-function render(){
-  $("#sub").textContent="Priority: availability → location → price → landlord requirements   ·   data "+DATA.generated;
-  $("#kpis").innerHTML='<div class="kpi"><b>'+DATA.listings.length+'</b> available listings</div><div class="kpi"><b>'+DATA.tenants.length+'</b> still looking</div><div class="kpi"><b>'+MATCHES.filter(m=>m.s.verdict==="QUALIFIED").length+'</b> qualified matches</div>';
-  ["work","listing","tenant"].forEach(v=>$("#"+v).style.display = v===view?(v==="work"?"block":"grid"):"none");
-  document.querySelectorAll("#tabs .tab").forEach(t=>t.classList.toggle("on",t.dataset.v===view));
-  if(view==="work") renderWork();
-  if(view==="listing") renderListingRail();
-  if(view==="tenant") renderTenantRail();
-  $("#legend").innerHTML="Score = budget 30 + location 25 + lease 15 + move-in 15 + freshness 15. ⚑ flags are landlord gates (gender, ethnicity, pax) or budget/lease gaps — a red Conflict still shows so you can judge, it is not auto hidden. "+
-    "WhatsApp opens a pre-filled draft you send yourself (never auto-sent). Cold &gt;5d and stale leads are marked; re-engage only when a unit opened near their area. Mark status is saved on this device only and never edits the databases. PDPA: keep this file private.";
-}
-function helpStrip(){
-  const real=new Date(); const age=Math.round((real-TODAY)/864e5);
-  const stale = age>2 ? '<div class="wm" style="background:rgba(245,166,35,.16);border-color:rgba(245,166,35,.5)">⚠️ This data is '+age+' days old (from '+DATA.generated+'). Ask Winfred to refresh it so you are working today\'s rooms and tenants.</div>' : '';
-  return el("div","",'<div class="help"><b>How to use:</b> ① Pick the top match &nbsp; ② Read the details and any ⚑ flag &nbsp; ③ Tap <b>WhatsApp</b> to open a ready message — <b>you</b> press send. This tool never messages anyone by itself and never changes your databases.</div>'+stale);
-}
-function renderWork(){
-  const box=$("#work"); box.innerHTML="";
-  box.appendChild(helpStrip());
-  const seen=new Set();
-  const rows=MATCHES.filter(m=>m.s.verdict!=="BLOCKED"&&m.l.availability!=="Offer pending").filter(passFilter).sort((a,b)=>b.s.total-a.s.total);
-  const prim=[]; for(const m of rows){ if(!seen.has(m.t.id)){seen.add(m.t.id);prim.push(m);} }
-  const list=prim.slice(0,25);
-  box.appendChild(el("div","wm","⭐ Top "+list.length+" to action today — highest fit first, one line per tenant (their best available room). Rooms that are not a fit are hidden here."));
-  if(!list.length){ box.appendChild(el("div","empty","No matches with these filters. Tap ↺ Clear filters.")); return; }
-  list.forEach(m=>box.appendChild(matchRow(m,true)));
-}
-function renderListingRail(){
-  const rail=$("#lrail"); rail.innerHTML="";
-  const ls=[...DATA.listings].sort((a,b)=> (a.district||"z").localeCompare(b.district||"z") || (a.rent_min||9999)-(b.rent_min||9999));
-  ls.forEach(l=>{
-    const q=byListing[l.id]||[]; const nq=q.filter(m=>m.s.verdict==="QUALIFIED").length;
-    const c=el("div","lc"+(curL===l.id?" on":""));
-    c.innerHTML='<div class="t">'+l.name+' '+(l.availability==="Offer pending"?'<span class="chip a">offer pending</span>':'')+(l.source==="co-broke"?'<span class="chip">co-broke</span>':'')+'</div>'+
-      '<div class="m">'+l.district+' · '+rentTxt(l)+' · '+(l.address||AREA[l.district]||'')+'</div>'+
-      '<div class="m"><span class="chip g">'+nq+' qualified</span> <span class="chip">'+q.length+' candidates</span></div>';
-    c.onclick=()=>{curL=l.id;renderListingRail();renderListingPanel(l);};
-    rail.appendChild(c);
-  });
-  if(curL){ const l=DATA.listings.find(x=>x.id===curL); if(l) renderListingPanel(l); }
-}
-function renderListingPanel(l){
-  const p=$("#lpanel"); const g=l.gates;
-  const req=[]; if(g.max_pax)req.push("max "+g.max_pax+"pax"); if(g.lease_min)req.push(g.lease_min+"mo min"); if(g.gender!=="any")req.push(g.gender.replace("_"," ")); if(g.ethnicity.rule!=="any"&&g.ethnicity.rule!=="note")req.push(g.ethnicity.rule+" "+g.ethnicity.races.join("/")); if(g.pets)req.push("pets "+g.pets); if(g.smoking)req.push("smoke "+g.smoking); if(g.cooking)req.push("cooking "+g.cooking.slice(0,22));
-  let h='<div class="phead"><div><div class="big">'+l.name+' · '+rentTxt(l)+'</div>'+
-    '<div class="mut">'+l.district+' · '+(l.address||'')+' · '+(l.property_type||'')+'</div>'+
-    '<div class="chips">'+req.map(r=>'<span class="chip">'+r+'</span>').join('')+'</div>'+
-    (l.rooms?'<div class="mut" style="margin-top:6px">'+l.rooms+'</div>':'')+
-    (l.viewing?'<div class="chips"><span class="chip g">🕐 viewing: '+l.viewing+'</span></div>':'')+
-    (l.availability==="Offer pending"?'<div class="chips"><span class="chip a">⚠ offer pending, hold new offers</span></div>':'')+'</div>'+
-    '<div>'+
-    '<a class="btn" target="_blank" href="'+mapLink(l)+'">📍 Map</a> '+
-    (l.phone?'<a class="btn w" target="_blank" href="'+waPlain(l.phone,"Hi "+fname(l.name)+", checking on the room at "+(l.address||AREA[l.district]||"your unit")+", is it still available and when can tenants view")+'">WhatsApp landlord</a> <a class="btn" href="tel:'+l.phone+'">Call landlord</a>':'')+
-    '</div></div>';
-  p.innerHTML=h;
-  const q=(byListing[l.id]||[]).filter(passFilterListing);
-  if(!q.length){ p.appendChild(el("div","empty","No tenants match the current filters for this listing.")); return; }
-  q.slice(0,60).forEach(m=>p.appendChild(matchRow(m,false)));
-}
-function passFilterListing(m){ const f=F(); if(f.v&&m.s.verdict!==f.v)return false; if(f.cold&&m.s.dc!=null&&m.s.dc>5)return false; if(f.hide&&getS(m.l.id,m.t.id))return false; if(f.q){const hay=(m.t.name+" "+m.t.preferred_location+" "+m.t.district).toLowerCase();if(!hay.includes(f.q))return false;} return true; }
-function renderTenantRail(){
-  const rail=$("#trail"); rail.innerHTML="";
-  const f=F();
-  let ts=[...DATA.tenants];
-  if(f.q) ts=ts.filter(t=>(t.name+" "+t.preferred_location+" "+t.district+" "+(t.nationality||"")+" "+(t.phone||"")).toLowerCase().includes(f.q));
-  ts.sort((a,b)=> (byTenant[b.id]?.[0]?.s.total||0)-(byTenant[a.id]?.[0]?.s.total||0));
-  ts.slice(0,120).forEach(t=>{
-    const best=byTenant[t.id]?.[0]; const nq=(byTenant[t.id]||[]).filter(m=>m.s.verdict==="QUALIFIED").length;
-    const c=el("div","lc"+(curT===t.id?" on":""));
-    c.innerHTML='<div class="t">'+t.name+'</div><div class="m">'+(t.district||t.preferred_location||'?')+' · budget '+(t.budget||t.budget_max||'?')+' · '+(t.pax||'?')+'pax</div>'+
-      '<div class="m"><span class="chip g">'+nq+' fit</span> '+(best?'<span class="chip">top '+best.s.total+'</span>':'')+'</div>';
-    c.onclick=()=>{curT=t.id;renderTenantRail();renderTenantPanel(t);};
-    rail.appendChild(c);
-  });
-  if(curT){ const t=DATA.tenants.find(x=>x.id===curT); if(t) renderTenantPanel(t); }
-}
-function renderTenantPanel(t){
-  const p=$("#tpanel");
-  p.innerHTML='<div class="phead"><div><div class="big">'+t.name+'</div><div class="mut">'+(t.preferred_location||t.district||'')+' · budget '+(t.budget||t.budget_max||'?')+' · '+(t.pax||'?')+'pax · lease '+(t.lease_months||'?')+'mo · move '+(t.move_in||'?')+'</div>'+
-    '<div class="chips"><span class="chip">'+(t.gender||'?')+'</span><span class="chip">'+(t.ethnicity||'?')+'</span><span class="chip">'+(t.nationality||'?')+'</span><span class="chip">'+(t.pass_type||'?')+'</span><span class="chip">'+(t.occupation||'?')+'</span>'+coldChip(days(t.last_contact))+'</div></div></div>';
-  const q=(byTenant[t.id]||[]).filter(m=>{const f=F();if(f.v&&m.s.verdict!==f.v)return false;if(f.d&&m.l.district!==f.d)return false;if(f.r&&m.l.rent_min&&m.l.rent_min>f.r)return false;return true;});
-  if(!q.length){ p.appendChild(el("div","empty","No available listing fits this tenant right now.")); return; }
-  q.forEach(m=>p.appendChild(matchRow(m,true)));
-}
-
-// init
-(function(){
-  const ds=[...new Set(DATA.listings.map(l=>l.district).filter(Boolean))].sort();
-  ds.forEach(d=>{const o=el("option");o.value=d;o.textContent=d+" "+(AREA[d]||"");$("#fd").appendChild(o);});
-  document.querySelectorAll("#tabs .tab").forEach(t=>t.onclick=()=>{view=t.dataset.v;render();});
-  ["q","fd","fv","fr","fc","fh"].forEach(id=>$("#"+id).addEventListener("input",render));
-  $("#clr").onclick=()=>{["q","fr","fd","fv"].forEach(id=>$("#"+id).value="");$("#fc").checked=false;$("#fh").checked=false;render();};
-  render();
-})();
+__SCORING__
+</script>
+<script>
+__APP_JS__
 </script>
 </body>
 </html>
