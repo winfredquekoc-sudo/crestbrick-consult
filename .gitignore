@@ -58,7 +58,8 @@ docs/area-demand.csv
 docs/landlord-database.csv
 docs/tenant-database.csv
 docs/*database*.csv
-scripts/matchmaker/matchmaker-data.json
+scripts/matchmaker/matchmaker-data*.json
+scripts/matchmaker/deploy/index.html
 scripts/patch_tenant_nightly*.py
 __pycache__/
 
