@@ -135,11 +135,6 @@
       "permanent": true
     },
     {
-      "source": "/links",
-      "destination": "/links.html",
-      "permanent": false
-    },
-    {
       "source": "/:path*",
       "has": [
         {
