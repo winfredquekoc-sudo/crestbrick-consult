@@ -2193,9 +2193,6 @@
   <url>
     <loc>https://winfredquek.com/listings</loc>
     <image:image>
-      <image:loc>https://winfredquek.com/img/listings/master-room-toa-payoh-1.jpg</image:loc>
-    </image:image>
-    <image:image>
       <image:loc>https://winfredquek.com/img/listings/studio-34-jalan-tanjong-1.jpg</image:loc>
     </image:image>
     <image:image>
@@ -2233,6 +2230,9 @@
     </image:image>
     <image:image>
       <image:loc>https://winfredquek.com/img/listings/listing-2-livingroom.jpg</image:loc>
+    </image:image>
+    <image:image>
+      <image:loc>https://winfredquek.com/img/listings/master-room-toa-payoh-1.jpg</image:loc>
     </image:image>
     <image:image>
       <image:loc>https://winfredquek.com/img/listings/master-room-toa-payoh-2.jpg</image:loc>
