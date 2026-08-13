@@ -114,3 +114,36 @@ if [ "$STATUS" != "401" ]; then
 fi
 
 echo "verified: $PROD_ALIAS returns 401 (auth wall active) — safe to share only with Winfred's own MM_USER/MM_PASS"
+
+# --- the CRM API must sit behind the SAME wall as the app. /api/crm can read and write
+# every note, stage and phone number in the CRM, so an /api route that answered without
+# auth would hand all of it out even while "/" still looked locked. This check is the
+# reason middleware.js's matcher must never be narrowed to exclude /api. ---
+API_STATUS="$($CURL -o /dev/null -w '%{http_code}' "$PROD_ALIAS/api/crm")"
+if [ "$API_STATUS" != "401" ]; then
+  echo "############################################################" >&2
+  echo "# DEPLOY.SH: THE CRM API IS NOT BEHIND THE AUTH WALL        #" >&2
+  echo "# $PROD_ALIAS/api/crm returned $API_STATUS, expected 401.   #" >&2
+  echo "# It can read and write every CRM note and phone number.    #" >&2
+  echo "# Rolling back immediately.                                 #" >&2
+  echo "############################################################" >&2
+  rollback_and_verify
+  exit 1
+fi
+echo "verified: $PROD_ALIAS/api/crm returns 401 (CRM API is behind the same wall)"
+
+# --- backend reachability. Needs credentials, so it only runs when MM_USER/MM_PASS are
+# exported locally; without them the deploy is still complete and the wall is still
+# proven, we just cannot see past it from here. Never fails the deploy: a healthy app
+# with no database is the supported local-only mode, not a broken deploy. ---
+if [ -n "${MM_USER:-}" ] && [ -n "${MM_PASS:-}" ]; then
+  HEALTH="$($CURL -u "$MM_USER:$MM_PASS" "$PROD_ALIAS/api/health")"
+  case "$HEALTH" in
+    *'"mode":"cloud"'*)             echo "verified: CRM backend is live — $HEALTH" ;;
+    *'"mode":"local-only"'*)        echo "note: DATABASE_URL is not set on the Vercel project, so the app runs local-only — CRM writes stay on each device and do not sync. Set DATABASE_URL to switch it on." ;;
+    *'"mode":"cloud-unreachable"'*) echo "WARNING: DATABASE_URL is set but the database did not answer. Every CRM write will queue on the device until it does. Response: $HEALTH" >&2 ;;
+    *)                              echo "WARNING: unexpected /api/health response: $HEALTH" >&2 ;;
+  esac
+else
+  echo "note: export MM_USER and MM_PASS before running this to also check the CRM backend's database connection."
+fi
