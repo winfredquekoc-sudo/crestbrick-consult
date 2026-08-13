@@ -141,7 +141,7 @@ def test_move_in_norm_export_integration():
     blank = fake_tenant(id="T964", move_in_date="")
     tenants, _ = ed.build_tenants(
         [immediate, explicit_day, unparseable, already_clean, blank],
-        {"phones": [], "ids": [], "name_markers": []}, None, TODAY)
+        {"phones": [], "ids": [], "name_markers": []}, None, TODAY, [])
     by_id = {t["id"]: t for t in tenants}
 
     check("'Immediately' -> move_in kept verbatim for display", by_id["T960"]["move_in"] == "Immediately")
@@ -247,7 +247,7 @@ def test_dup_groups_and_dup_of():
     t1 = fake_tenant(id="T901", name="Tan Ah Test", phone="90000001")
     t2 = fake_tenant(id="T902", name="Tan Ah Test Two", phone="+65 9000 0001")  # same phone, different formatting
     t3 = fake_tenant(id="T903", name="Lim Ah Test", phone="90000099")           # unique phone
-    tenants = ed.build_tenants([t1, t2, t3], {"phones": [], "ids": [], "name_markers": []}, None, TODAY)[0]
+    tenants = ed.build_tenants([t1, t2, t3], {"phones": [], "ids": [], "name_markers": []}, None, TODAY, [])[0]
     groups = ed.apply_tenant_dup_groups(tenants)
     by_id = {t["id"]: t for t in tenants}
     check("two tenants sharing a normalized phone get the same dup_group",
@@ -276,7 +276,7 @@ def test_exclusion_filter():
 
     cfg = {"phones": ["+65 9000 0012"], "ids": ["T913"], "name_markers": ["propnex"]}
     tenants, excl_counts = ed.build_tenants(
-        [kept, db_excluded, phone_excluded, id_excluded, marker_excluded, flagged_not_dropped], cfg, None, TODAY)
+        [kept, db_excluded, phone_excluded, id_excluded, marker_excluded, flagged_not_dropped], cfg, None, TODAY, [])
     ids_out = {t["id"] for t in tenants}
 
     check("normal tenant kept", "T910" in ids_out)
@@ -307,7 +307,7 @@ def test_schema_v2_shape():
     required = ["id","name","availability","district","address","map_query","rent_min","rent_max","viewing",
                 "rooms","property_type","phone","source","gates","req_raw",
                 "units","available_from","fixed_viewing","photos","listing_url",
-                "first_seen","days_listed","is_cobroke","dup_of","reconfirm_due","lifecycle"]
+                "first_seen","days_listed","is_cobroke","dup_of","reconfirm_due","days_since_confirmed","lifecycle"]
     missing_keys = [k for k in required if k not in l]
     check("all schema v2 listing keys present", not missing_keys, f"missing {missing_keys}")
     check("units always >=1 entry", isinstance(l["units"], list) and len(l["units"]) >= 1)
@@ -315,15 +315,17 @@ def test_schema_v2_shape():
     check("days_listed is 0 on first sighting", l["days_listed"] == 0)
     check("is_cobroke reflects source", l["is_cobroke"] is False)
     check("lifecycle mapped for an active listing", l["lifecycle"] == "available", f"got {l['lifecycle']}")
+    check("days_since_confirmed present and numeric", isinstance(l["days_since_confirmed"], int))
 
     section("schema v2 shape — tenants")
-    tenants, _ = ed.build_tenants([fake_tenant(id="T930")], {"phones": [], "ids": [], "name_markers": []}, None, TODAY)
+    tenants, _ = ed.build_tenants([fake_tenant(id="T930")], {"phones": [], "ids": [], "name_markers": []}, None, TODAY, [])
     t = tenants[0]
     # (73) status/listing_enquired/budget_note cut from the shipped payload — zero
     # reads anywhere and no dedicated correctness test of their own (see export_data.py).
-    required_t = ["id","name","preferred_location","preferred_districts","district","budget",
-                  "budget_min","budget_max","pax","gender","ethnicity","nationality","pass_type","occupation",
-                  "move_in","move_in_norm","lease_months","phone","last_contact",
+    required_t = ["id","name","preferred_location","preferred_districts","district","district_inferred",
+                  "district_source","district_conflict","budget",
+                  "budget_min","budget_max","budget_contradiction","pax","gender","ethnicity","nationality",
+                  "pass_type","occupation","move_in","move_in_norm","lease_months","phone","last_contact",
                   "last_wa","lang","dup_group","missing","intake_complete","work_anchor",
                   "is_agent_suspect"]
     missing_keys_t = [k for k in required_t if k not in t]
@@ -332,6 +334,8 @@ def test_schema_v2_shape():
     check("last_wa null when wa_conn is None (bridge unavailable)", t["last_wa"] is None)
     check("lang defaults en when bridge unavailable", t["lang"] == "en")
     check("complete fixture -> intake_complete True", t["intake_complete"] is True, f"missing={t['missing']}")
+    check("explicit district on fixture -> district_inferred False", t["district_inferred"] is False)
+    check("no WA bridge -> budget_contradiction None, never a guess", t["budget_contradiction"] is None)
 
     section("schema v2 shape — health block")
     health = ed.compute_health(listings, tenants)
@@ -341,13 +345,181 @@ def test_schema_v2_shape():
 
 def test_missing_and_intake_complete():
     section("missing[] / intake_complete on a sparse record")
+    # district is left with genuinely nothing to infer from (no preferred_districts,
+    # no preferred_location) -- otherwise build_tenants' district inference (item 1)
+    # would legitimately recover it from the fixture's own defaults and this would
+    # stop testing a sparse record.
     sparse = fake_tenant(id="T940", budget=None, budget_min="", budget_max=None,
-                          move_in_date="", no_of_pax=None, lease_term_months=None, district="")
-    tenants, _ = ed.build_tenants([sparse], {"phones": [], "ids": [], "name_markers": []}, None, TODAY)
+                          move_in_date="", no_of_pax=None, lease_term_months=None,
+                          district="", preferred_districts=[], preferred_location="")
+    tenants, _ = ed.build_tenants([sparse], {"phones": [], "ids": [], "name_markers": []}, None, TODAY, [])
     t = tenants[0]
     check("missing[] flags all 5 gaps", set(t["missing"]) == {"budget","move_in","pax","lease_months","district"},
           f"got {t['missing']}")
     check("intake_complete False when fields missing", t["intake_complete"] is False)
+
+
+# =========================================== district inference [item 1] ====
+def test_infer_district_extensions():
+    section("infer_district: the ground-truthed place map wins over a disagreeing typed district, "
+            "flagged rather than silent (item 4 fix)")
+    dist_area = {"D19": "Hougang, Sengkang, Punggol", "D15": "Katong, Marine Parade, East Coast"}
+    kws = ed.build_area_keywords(dist_area)
+
+    d, src, conflict = ed.infer_district("D9", [], "Cherryhill", kws)
+    check("explicit district already set -> returned unchanged, no inference",
+          d == "D9" and src is None and conflict is None)
+    d, src, conflict = ed.infer_district("", ["D3"], "Cherryhill", kws)
+    check("preferred_districts[0] wins over free text",
+          d == "D3" and src == "preferred_districts" and conflict is None)
+
+    d, src, conflict = ed.infer_district("", [], "Cherryhill (D20)", kws)
+    check("'Cherryhill (D20)' -> the place map's D19 wins (Lorong Lew Lian IS D19), not the typed D20",
+          d == "D19" and src == "known_place", f"got {(d, src)}")
+    check("the disagreement is flagged, not silently overridden",
+          conflict == {"place": "cherryhill", "place_district": "D19", "typed_district": "D20"},
+          f"got {conflict}")
+
+    d2, src2, conflict2 = ed.infer_district("", [], "Cherryhill area (D20)", kws)
+    check("'Cherryhill area (D20)' -> same override, same conflict shape",
+          d2 == "D19" and src2 == "known_place" and conflict2 is not None)
+
+    d, src, conflict = ed.infer_district("", [], "Cherryhill", kws)
+    check("'Cherryhill' with no typed district -> place map D19, no conflict (nothing to disagree with)",
+          d == "D19" and src == "known_place" and conflict is None)
+    d, src, conflict = ed.infer_district("", [], "Cherryhill / Lorong Lew Lian", kws)
+    check("'Cherryhill / Lorong Lew Lian' -> D19 (longer keyword still resolves to the same district)",
+          d == "D19" and src == "known_place")
+    d, src, _ = ed.infer_district("", [], "Haig Road area", kws)
+    check("'Haig Road area' -> D15 via place map, tagged known_place (building level)",
+          d == "D15" and src == "known_place")
+    d, src, _ = ed.infer_district("", [], "Jalan Batu", kws)
+    check("'Jalan Batu' -> D15 via place map (ground-truthed against LL089)",
+          d == "D15" and src == "known_place")
+    d, src, conflict = ed.infer_district("", [], "somewhere unrecognisable", kws)
+    check("no explicit district, no place match, no area keyword -> ''",
+          d == "" and src is None and conflict is None)
+    check("blank preferred_location -> ''", ed.infer_district("", [], "", kws)[0] == "")
+    d, src, _ = ed.infer_district("", [], "near Hougang MRT", kws)
+    check("existing coarse area keyword still resolves (Hougang itself, not just Cherryhill), "
+          "tagged area_keyword (genuinely district-level) not known_place",
+          d == "D19" and src == "area_keyword", f"got {(d, src)}")
+
+
+def test_build_tenants_district_inference():
+    section("build_tenants: district actually backfilled from preferred_location free text")
+    dist_area = {"D19": "Hougang, Sengkang, Punggol", "D15": "Katong, Marine Parade, East Coast"}
+    kws = ed.build_area_keywords(dist_area)
+    recoverable = fake_tenant(id="T970", district="", preferred_districts=[],
+                               preferred_location="Cherryhill (Lorong Lew Lian)")
+    # TN546/TN548-shaped: typed "(D20)" disagrees with Cherryhill's real D19 (item 4)
+    conflicting = fake_tenant(id="T971", district="", preferred_districts=[],
+                               preferred_location="Cherryhill (D20)")
+    unrecoverable = fake_tenant(id="T972", district="", preferred_districts=[],
+                                 preferred_location="somewhere unrecognisable")
+    already_has_district = fake_tenant(id="T973", district="D15", preferred_location="Cherryhill")
+    tenants, _ = ed.build_tenants(
+        [recoverable, conflicting, unrecoverable, already_has_district],
+        {"phones": [], "ids": [], "name_markers": []}, None, TODAY, kws)
+    by_id = {t["id"]: t for t in tenants}
+
+    check("'Cherryhill (Lorong Lew Lian)' recovered to D19",
+          by_id["T970"]["district"] == "D19", f"got {by_id['T970']['district']}")
+    check("recovered district is flagged district_inferred=True", by_id["T970"]["district_inferred"] is True)
+    check("recovered tenant no longer flagged missing district", "district" not in by_id["T970"]["missing"])
+    check("district_source tags known_place (building level, not district-wide)",
+          by_id["T970"]["district_source"] == "known_place")
+    check("no conflict on a non-disagreeing recovery", by_id["T970"]["district_conflict"] is None)
+
+    check("'Cherryhill (D20)' now resolves to the place map's D19, NOT the typed D20",
+          by_id["T971"]["district"] == "D19" and by_id["T971"]["district_inferred"] is True,
+          f"got {by_id['T971']['district']}")
+    check("the override is flagged on the record, never silent",
+          by_id["T971"]["district_conflict"] == {"place": "cherryhill", "place_district": "D19",
+                                                   "typed_district": "D20"},
+          f"got {by_id['T971']['district_conflict']}")
+
+    check("unrecognisable free text -> district stays blank, still flagged missing",
+          by_id["T972"]["district"] == "" and "district" in by_id["T972"]["missing"]
+          and by_id["T972"]["district_inferred"] is False)
+    check("no district_source/conflict when nothing was inferred",
+          by_id["T972"]["district_source"] is None and by_id["T972"]["district_conflict"] is None)
+    check("tenant with an explicit district already set is untouched (district_inferred False)",
+          by_id["T973"]["district"] == "D15" and by_id["T973"]["district_inferred"] is False)
+    check("explicit/stated district carries no source tag either (nothing was inferred)",
+          by_id["T973"]["district_source"] is None)
+
+
+# ======================================= budget contradiction [item 3] ======
+class _FakeWaConn:
+    """Minimal sqlite3-connection-shaped stub, keyed by jid, so
+    find_budget_contradiction()/build_landlord_responsiveness() can be exercised
+    without a real WhatsApp store. rows_by_jid: {jid: [(content, ts, is_from_me), ...]}."""
+    def __init__(self, rows_by_jid):
+        self._rows_by_jid = rows_by_jid
+        self._last_jid = None
+        self._last_sql = ""
+    def execute(self, sql, params=()):
+        self._last_sql = sql
+        self._last_jid = params[0] if params else None
+        return self
+
+    def fetchall(self):
+        # mimics real sqlite column projection: find_budget_contradiction() SELECTs
+        # content only (its WHERE clause also mentions is_from_me, so check the
+        # SELECT list specifically, not just substring presence anywhere in the
+        # SQL); build_landlord_responsiveness() SELECTs all three columns.
+        rows = self._rows_by_jid.get(self._last_jid, [])
+        if self._last_sql.lstrip().startswith("SELECT content FROM"):
+            return [(r[0],) for r in rows]
+        return [tuple(r) for r in rows]
+
+    def fetchone(self):
+        # only enrich.fetch_wa_info() (a pre-existing, already-tested function) uses
+        # fetchone(); this stub just needs to not crash when build_tenants' own
+        # last_wa/lang lookup runs alongside the new budget-contradiction lookup.
+        rows = self.fetchall()
+        return rows[0] if rows else None
+
+
+def test_budget_contradiction_detection():
+    section("find_budget_contradiction: only flags with BOTH a stretch phrase AND a $ figure above budget")
+    stretch = _FakeWaConn({"jid1": [("no keen thx i only want under 1200, max 1250 if it includes good utility",
+                                      "2026-08-01T10:00:00+08:00", 0)]})
+    result = ed.find_budget_contradiction(stretch, "jid1", 1100)
+    check("real stretch phrase + figure clearing the threshold -> flagged",
+          result is not None and result["mentioned"] == 1250 and result["stated_budget"] == 1100,
+          f"got {result}")
+    check("quote is the verbatim message, truncated to 200 chars",
+          result["quote"].startswith("no keen thx"))
+
+    bare_number = _FakeWaConn({"jid2": [("the room is $1200, nice view", "2026-08-01T10:00:00+08:00", 0)]})
+    check("bare $ figure with no stretch phrase -> never flagged (could be anything)",
+          ed.find_budget_contradiction(bare_number, "jid2", 900) is None)
+
+    trivial = _FakeWaConn({"jid3": [("Budget:max 900", "2026-08-01T10:00:00+08:00", 0)]})
+    check("mentioned amount too close to stated (<5%/$50) -> not flagged as noise",
+          ed.find_budget_contradiction(trivial, "jid3", 870) is None)
+
+    lower = _FakeWaConn({"jid4": [("can go up to 800", "2026-08-01T10:00:00+08:00", 0)]})
+    check("mentioned amount BELOW stated budget -> not a contradiction",
+          ed.find_budget_contradiction(lower, "jid4", 1000) is None)
+
+    check("no connection (bridge unavailable) -> None, never a guess",
+          ed.find_budget_contradiction(None, "jid5", 900) is None)
+    check("no jid -> None", ed.find_budget_contradiction(stretch, "", 900) is None)
+    check("no stated budget to compare against -> None", ed.find_budget_contradiction(stretch, "jid6", None) is None)
+
+
+def test_build_tenants_budget_contradiction_integration():
+    section("build_tenants wires find_budget_contradiction through using the tenant's own jid")
+    conn = _FakeWaConn({"jidT980": [("no keen thx i only want under 1200, max 1250 if it includes good utility",
+                                      "2026-08-01T10:00:00+08:00", 0)]})
+    t = fake_tenant(id="T980", jid="jidT980", budget=1100, budget_min="", budget_max="")
+    tenants, _ = ed.build_tenants([t], {"phones": [], "ids": [], "name_markers": []}, conn, TODAY, [])
+    bc = tenants[0]["budget_contradiction"]
+    check("budget_contradiction populated end-to-end through build_tenants",
+          bc is not None and bc["mentioned"] == 1250, f"got {bc}")
 
 
 # ===================================================================== delta
@@ -370,7 +542,67 @@ def test_delta_computation():
     check("availability change detected",
           delta["availability_changes"] == [{"id": "LL01", "from": "Available", "to": "Offer pending"}],
           f"got {delta['availability_changes']}")
+    check("tenant_lost_ids detects a tenant present in prev but gone from cur",
+          delta["tenant_lost_ids"] == ["T02"], f"got {delta['tenant_lost_ids']}")
     check("no prev -> delta is None (first run)", ed.compute_delta(None, cur_listings, cur_tenants) is None)
+
+
+# ============================================= week_delta [idea 40] =========
+def test_week_delta():
+    section("compute_week_delta: rolls compute_delta() forward through prev, ages out past the window")
+    listings = [{"id": "LL01", "name": "Listing One", "district": "D15", "first_seen": "2026-08-10"},
+                {"id": "LL02", "name": "Listing Two", "district": "D16", "first_seen": "2026-07-01"}]
+    delta = {"gone_listings": [{"id": "LL03", "name": "Gone One"}],
+             "availability_changes": [{"id": "LL01", "from": "Available", "to": "Offer pending"}],
+             "tenant_lost_ids": ["T50"]}
+    wd = ed.compute_week_delta(None, delta, listings, TODAY)
+    check("window_days is 7", wd["window_days"] == 7)
+    check("this build's own delta shows up in gone_listings",
+          wd["gone_listings"] == [{"id": "LL03", "name": "Gone One"}], f"got {wd['gone_listings']}")
+    check("tenants_lost carries the id through", wd["tenants_lost"] == ["T50"], f"got {wd['tenants_lost']}")
+    check("new_stock derived straight from first_seen, within the 7 day window only",
+          [l["id"] for l in wd["new_stock"]] == ["LL01"], f"got {wd['new_stock']}")
+
+    section("a second build rolls the first build's event forward and accumulates")
+    prev_with_week = {"week_delta": wd}
+    delta2 = {"gone_listings": [{"id": "LL04", "name": "Gone Two"}],
+              "availability_changes": [], "tenant_lost_ids": ["T51"]}
+    wd2 = ed.compute_week_delta(prev_with_week, delta2, listings, TODAY)
+    check("both builds' gone_listings accumulate within the window",
+          {g["id"] for g in wd2["gone_listings"]} == {"LL03", "LL04"}, f"got {wd2['gone_listings']}")
+    check("both builds' tenants_lost accumulate", set(wd2["tenants_lost"]) == {"T50", "T51"}, f"got {wd2}")
+
+    section("events older than the window age out")
+    stale_event = {"date": (TODAY - datetime.timedelta(days=10)).isoformat(),
+                    "gone_listings": [{"id": "LL99", "name": "Ancient"}],
+                    "availability_changes": [], "tenant_lost_ids": ["T99"]}
+    prev_stale = {"week_delta": {"events": [stale_event]}}
+    wd3 = ed.compute_week_delta(prev_stale, None, listings, TODAY)
+    check("a 10 day old event is aged out of a 7 day window", wd3["gone_listings"] == [], f"got {wd3}")
+    check("no delta this run (delta=None) -> nothing new added, only aging applied", wd3["events"] == [])
+
+    section("events [item 7]: repeat no-op builds collapse into ONE event instead of stacking a copy per run")
+    empty_delta = {"gone_listings": [], "availability_changes": [], "tenant_lost_ids": []}
+    wd_run1 = ed.compute_week_delta(None, empty_delta, listings, TODAY)
+    check("first empty build stores exactly one event", len(wd_run1["events"]) == 1, f"got {wd_run1['events']}")
+    prev_after_run1 = {"week_delta": wd_run1}
+    wd_run2 = ed.compute_week_delta(prev_after_run1, empty_delta, listings, TODAY)
+    check("a second identical no-op build (same day, same empty content) does NOT append a duplicate",
+          len(wd_run2["events"]) == 1, f"got {wd_run2['events']}")
+    prev_after_run2 = {"week_delta": wd_run2}
+    wd_run3 = ed.compute_week_delta(prev_after_run2, empty_delta, listings, TODAY)
+    wd_run4 = ed.compute_week_delta({"week_delta": wd_run3}, empty_delta, listings, TODAY)
+    check("four identical no-op builds still leave exactly one event (the real bug: 4 identical "
+          "empty events from one day's 4 builds)", len(wd_run4["events"]) == 1, f"got {wd_run4['events']}")
+
+    prev_after_noop = {"week_delta": wd_run4}
+    real_delta = {"gone_listings": [{"id": "LL05", "name": "Actually Gone"}],
+                  "availability_changes": [], "tenant_lost_ids": []}
+    wd_run5 = ed.compute_week_delta(prev_after_noop, real_delta, listings, TODAY)
+    check("a build with genuinely NEW content still appends (dedup never eats real changes)",
+          len(wd_run5["events"]) == 2, f"got {wd_run5['events']}")
+    check("the real change is reflected in the aggregate output",
+          wd_run5["gone_listings"] == [{"id": "LL05", "name": "Actually Gone"}], f"got {wd_run5}")
 
 
 # ============================================================ config files
@@ -554,6 +786,461 @@ def test_supply_overview():
     listings = ed.build_listings(landlords, {"D15": "East Coast"}, {}, {}, {}, TODAY)
     check("only the active landlord appears in the app's own listings[]",
           [l["id"] for l in listings] == ["LL950"], f"got {[l['id'] for l in listings]}")
+
+
+# ============================================== portfolio views (5 new keys)
+def test_all_landlords_and_tenants_shape():
+    section("build_all_landlords: full portfolio, every status, ported from the monolith")
+    dist_area = {"D15": "East Coast, Marine Parade", "D9": "Orchard, River Valley"}
+    area_keywords = ed.build_area_keywords(dist_area)
+    landlords = [
+        fake_landlord(id="LLA1", status="active", contact_label_source="own"),
+        fake_landlord(id="LLA2", status="closed (tenanted 1 aug)"),
+        # a bracketed name that will not match anything in the real
+        # ~/.claude/state/cobroke-agents.json, so this stays offline/deterministic
+        fake_landlord(id="LLA3", status="active",
+                      contact_label_source="co-broke listing (Xqzzytestagent), added 28 Jul 2026"),
+    ]
+    all_landlords = ed.build_all_landlords(landlords, dist_area, area_keywords)
+    check("all_landlords is non-empty", len(all_landlords) > 0)
+    check("all_landlords keeps every status, unlike build_listings()", len(all_landlords) == 3,
+          f"got {len(all_landlords)}")
+    required_ll = ["id", "name", "availability", "status_raw", "sort", "district", "primary_district",
+                   "address", "map_query", "rent_min", "rent_max", "viewing", "rooms", "property_type",
+                   "phone", "last_contact", "follow_up", "source", "cea", "commission_est", "handed_off"]
+    for r in all_landlords:
+        missing = [k for k in required_ll if k not in r]
+        check(f"all_landlords[{r['id']}] has the full field set", not missing, f"missing {missing}")
+    by_id = {r["id"]: r for r in all_landlords}
+    check("cea is None for a non co-broke record (never checks the landlord's own phone)",
+          by_id["LLA1"]["cea"] is None)
+    check("cea populated for a co-broke record — agent name extracted from the bracket, never raises",
+          by_id["LLA3"]["cea"] is not None and by_id["LLA3"]["cea"].get("agent") == "Xqzzytestagent",
+          f"got {by_id['LLA3']['cea']}")
+
+    section("build_all_tenants: full portfolio, every status")
+    tenants = [fake_tenant(id="TA1"), fake_tenant(id="TA2", excluded=True, exclude_reason="not interested")]
+    all_tenants = ed.build_all_tenants(tenants, area_keywords)
+    check("all_tenants is non-empty", len(all_tenants) > 0)
+    check("all_tenants keeps every status, unlike build_tenants()", len(all_tenants) == 2, f"got {len(all_tenants)}")
+    required_tn = ["id", "name", "looking", "status_raw", "sort", "preferred_location", "district",
+                   "primary_district", "budget", "pax", "gender", "nationality", "occupation", "move_in",
+                   "lease_months", "phone", "last_contact", "listing_enquired", "missing"]
+    for r in all_tenants:
+        missing = [k for k in required_tn if k not in r]
+        check(f"all_tenants[{r['id']}] has the full field set", not missing, f"missing {missing}")
+
+
+def test_sales_shape():
+    section("build_sales: separate track for landlord records marked deal_type sale/sale-or-rent")
+    dist_area = {"D15": "East Coast, Marine Parade"}
+    area_keywords = ed.build_area_keywords(dist_area)
+    landlords = [
+        fake_landlord(id="LLS1", deal_type="sale", status="active",
+                      rooms_and_rent="Asking $505k, negotiable", rent_min=490, rent_max=490),
+        fake_landlord(id="LLS2", deal_type="rent"),  # not a sale record — excluded
+    ]
+    sales = ed.build_sales(landlords, dist_area, area_keywords)
+    check("only sale/sale-or-rent deal_type records are included", [r["id"] for r in sales] == ["LLS1"],
+          f"got {[r['id'] for r in sales]}")
+    required_s = ["id", "name", "sale_status", "sort", "status_raw", "district", "primary_district",
+                  "address", "map_query", "asking_price", "price_text", "property_type", "phone",
+                  "last_contact", "follow_up", "source", "cea"]
+    missing = [k for k in required_s if k not in sales[0]]
+    check("sale record has the full field set", not missing, f"missing {missing}")
+    check("asking_price parsed from free text, ignoring the mis-parsed rent_min/rent_max artifact",
+          sales[0]["asking_price"] == 505000, f"got {sales[0]['asking_price']}")
+    check("price_text carries the verbatim source text", sales[0]["price_text"] == "Asking $505k, negotiable")
+    check("cea is None for a non co-broke sale record", sales[0]["cea"] is None)
+
+
+def test_revival_and_duplicate_phones():
+    section("build_revival: still-looking tenants past the lead cutoff, matched to a live listing")
+    dist_area = {"D15": "East Coast, Marine Parade"}
+    area_keywords = ed.build_area_keywords(dist_area)
+    quiet_tenant = fake_tenant(id="TR1", name="Quiet Tan", phone="90000021", last_contact="2026-06-01",
+                                district="D15", budget=1200, budget_max=1200, no_of_pax=1,
+                                preferred_districts=["D15"])
+    fresh_tenant = fake_tenant(id="TR2", name="Fresh Tan", phone="90000022", last_contact="2026-08-10")
+    landlords = [fake_landlord(id="LLR1", status="active", district="D15", rent_min=1100, rent_max=1300)]
+    revival = ed.build_revival([quiet_tenant, fresh_tenant], landlords, dist_area, area_keywords, TODAY)
+    check("only the tenant past the 30 day lead cutoff appears", [r["name"] for r in revival] == ["Quiet Tan"],
+          f"got {[r['name'] for r in revival]}")
+    r = revival[0]
+    required_r = ["name", "phone", "days_quiet", "budget", "district", "pax", "tier", "match"]
+    missing = [k for k in required_r if k not in r]
+    check("revival record has the full field set", not missing, f"missing {missing}")
+    check("matched against the available listing (district + budget both line up -> good)",
+          r["match"] is not None and r["tier"] == "good", f"got {r}")
+    check("nested match carries exactly id/name/district/rent_min/rent_max",
+          set(r["match"].keys()) == {"id", "name", "district", "rent_min", "rent_max"}, f"got {r['match']}")
+
+    section("compute_duplicate_phones: same number saved under more than one record")
+    landlords_dup = [fake_landlord(id="LLD1", landlord_name="Dup Landlord", phone="6590009999"),
+                      fake_landlord(id="LLD2", landlord_name="Solo Landlord", phone="6590001111")]
+    all_ll = ed.build_all_landlords(landlords_dup, dist_area, area_keywords)
+    tenants_dup = [fake_tenant(id="TD1", name="Dup Tenant", phone="6590009999"),
+                   fake_tenant(id="TD2", name="Solo Tenant", phone="6590002222")]
+    dup = ed.compute_duplicate_phones(all_ll, tenants_dup)
+    check("only the genuinely shared phone number is reported", [d["phone"] for d in dup] == ["6590009999"],
+          f"got {dup}")
+    check("duplicate_phones entries genuinely have more than one owner", all(len(d["owners"]) > 1 for d in dup),
+          f"got {dup}")
+    check("owners are tagged LL:/TN:", set(dup[0]["owners"]) == {"LL:Dup Landlord", "TN:Dup Tenant"},
+          f"got {dup[0]['owners']}")
+
+
+# ============================================= enrichment queue [5,6] =======
+def test_enrichment_queue():
+    section("unlock_value_for [item 3]: sums per-field gated counts (restricted to "
+            "availability=='Available'), no longer a distinct-listing union that let "
+            "district (unconditional on every listing) cap EVERY district-missing tenant "
+            "at the same ceiling regardless of what else they were missing")
+    listings = [
+        {"id": "LL1", "name": "L1", "district": "D15", "rent_min": 1200, "available_from": "2026-09-01",
+         "availability": "Available", "gates": {"max_pax": 2, "lease_min": 6}},
+        {"id": "LL2", "name": "L2", "district": "D16", "rent_min": None, "available_from": None,
+         "availability": "Available", "gates": {"max_pax": None, "lease_min": None}},
+        # no district at all -- must NOT count toward "district" (item 3's docstring fix:
+        # district only counts listings that themselves HAVE a district to be adjacent to)
+        {"id": "LL3", "name": "L3", "district": "", "rent_min": 800, "available_from": None,
+         "availability": "Available", "gates": {"max_pax": None, "lease_min": None}},
+        # Offer pending -- must be excluded entirely; the docstring claims "currently
+        # AVAILABLE listings" and this now actually enforces that instead of trusting the
+        # caller
+        {"id": "LL4", "name": "L4", "district": "D17", "rent_min": 1000, "available_from": "2026-09-15",
+         "availability": "Offer pending", "gates": {"max_pax": 1, "lease_min": 12}},
+    ]
+    check("no missing fields -> 0 unlock value", ed.unlock_value_for([], listings) == 0)
+    check("budget missing counts only Available listings with a price floor (LL1, LL3; LL4 excluded)",
+          ed.unlock_value_for(["budget"], listings) == 2, f"got {ed.unlock_value_for(['budget'], listings)}")
+    check("pax missing counts only Available listings gating on max_pax (LL1 only)",
+          ed.unlock_value_for(["pax"], listings) == 1)
+    check("district missing counts only Available listings that themselves have a district (LL1, LL2; LL3 excluded)",
+          ed.unlock_value_for(["district"], listings) == 2, f"got {ed.unlock_value_for(['district'], listings)}")
+    check("missing fields SUM independently now (LL1 gates on both budget and pax -> counted for EACH, "
+          "not deduped to one listing) -- budget(2) + pax(1) = 3",
+          ed.unlock_value_for(["budget", "pax"], listings) == 3,
+          f"got {ed.unlock_value_for(['budget', 'pax'], listings)}")
+
+    section("the real degenerate case (item 3): missing several gated fields must outrank missing only district")
+    listings2 = [
+        {"id": "LL1", "district": "D15", "rent_min": 1200, "available_from": "2026-09-01",
+         "availability": "Available", "gates": {"max_pax": 2, "lease_min": 6}},
+        {"id": "LL2", "district": "D16", "rent_min": 1100, "available_from": "2026-09-10",
+         "availability": "Available", "gates": {"max_pax": 1, "lease_min": 3}},
+    ]
+    district_only = ed.unlock_value_for(["district"], listings2)
+    all_four = ed.unlock_value_for(["budget", "pax", "lease_months", "move_in"], listings2)
+    check("missing only district no longer automatically ties/outranks missing 4 gated fields",
+          all_four > district_only, f"district_only={district_only} all_four={all_four}")
+
+    tenants = [
+        {"id": "T1", "name": "A", "phone": "1", "missing": ["budget"]},
+        {"id": "T2", "name": "B", "phone": "2", "missing": ["pax"]},
+        {"id": "T3", "name": "C", "phone": "3", "missing": ["district"]},
+        {"id": "T4", "name": "D", "phone": "4", "missing": []},
+        {"id": "T5", "name": "E", "phone": "5", "missing": ["budget", "pax"]},
+    ]
+    q = ed.build_enrichment_queue(tenants, listings)
+    check("tenant with no missing fields is excluded from the queue",
+          "T4" not in {r["id"] for r in q}, f"got {[r['id'] for r in q]}")
+    check("queue has exactly the 4 tenants with gaps", len(q) == 4, f"got {len(q)}")
+    check("highest unlock_value (T5, missing budget+pax, sums to 3) ranks first",
+          q[0]["id"] == "T5" and q[0]["unlock_value"] == 3, f"got {q[0]}")
+
+
+# ==================================== live demand / zero-stock [4,23,25] ====
+def test_live_area_demand_and_zero_stock_alert():
+    section("build_live_area_demand extends area_demand with THIS build's live counts")
+    adem_districts = [
+        {"district": "D15", "area": "Katong", "unmatched_waiting": 10, "supply_gap": 10, "sourcing_priority": "HIGH"},
+        {"district": "D16", "area": "Bedok", "unmatched_waiting": 5, "supply_gap": 5, "sourcing_priority": "MED"},
+    ]
+    listings = [{"id": "LL1", "district": "D15"}]
+    # D16's 3 waiting tenants: 2 recovered from a single named building (district_source
+    # "known_place" -- e.g. all 3 named "Cherryhill"), 1 genuinely district-wide (stated
+    # outright, no district_source at all). item 5: the payload must let a reader tell
+    # "10 people asked about ONE building" apart from real district-wide demand.
+    tenants = [{"district": "D15"}, {"district": "D15"},
+               {"district": "D16", "district_source": "known_place"},
+               {"district": "D16", "district_source": "known_place"},
+               {"district": "D16", "district_source": None}]
+    rows = ed.build_live_area_demand(adem_districts, listings, tenants)
+    by_d = {r["district"]: r for r in rows}
+    check("existing area_demand fields carried through unchanged",
+          by_d["D15"]["unmatched_waiting"] == 10 and by_d["D15"]["sourcing_priority"] == "HIGH")
+    check("live_available_listings counts THIS build's listings, not the static snapshot",
+          by_d["D15"]["live_available_listings"] == 1, f"got {by_d['D15']}")
+    check("live_waiting_tenants counts THIS build's tenants",
+          by_d["D16"]["live_waiting_tenants"] == 3, f"got {by_d['D16']}")
+    check("live_waiting_building_level isolates the known_place (single-building) subset",
+          by_d["D16"]["live_waiting_building_level"] == 2, f"got {by_d['D16']}")
+    check("D15 has zero building-level waiting (neither tenant carries district_source)",
+          by_d["D15"]["live_waiting_building_level"] == 0)
+    check("live_gap floors at 0 (never negative)",
+          by_d["D15"]["live_gap"] == max(2 - 1, 0), f"got {by_d['D15']}")
+
+    section("build_zero_stock_alert: >=3 waiting AND 0 available listings")
+    alert = ed.build_zero_stock_alert(rows, min_waiting=3)
+    check("D16 qualifies (3 waiting, 0 listings)", [r["district"] for r in alert] == ["D16"], f"got {alert}")
+    check("D15 does not qualify (has a listing)", "D15" not in {r["district"] for r in alert})
+    check("the alert row carries the building-vs-district breakdown through (item 5) -- "
+          "2 of D16's 3 waiting are building-level, not genuine district-wide demand",
+          alert[0]["live_waiting_building_level"] == 2, f"got {alert[0]}")
+
+
+# ================================== landlord responsiveness [idea 24] =======
+def test_landlord_responsiveness():
+    section("_chat_asks: bursts collapse into one ask, unanswered stays open, latency measured from the last nag")
+    rows_answered = [
+        ("hi is the room still available", "2026-08-01T09:00:00+08:00", 1),
+        ("just checking in", "2026-08-01T09:05:00+08:00", 1),          # same ask (burst)
+        ("yes still available", "2026-08-01T11:05:00+08:00", 0),        # reply closes it
+    ]
+    asks = ed._chat_asks(rows_answered)
+    check("a burst of outbound messages collapses into ONE ask", len(asks) == 1, f"got {asks}")
+    check("latency measured from the LAST message of the burst (09:05) to the reply (11:05) = 2h",
+          abs((asks[0]["answered_at"] - asks[0]["end"]).total_seconds() - 2 * 3600) < 1)
+
+    rows_gap = [
+        ("hello?", "2026-08-01T09:00:00+08:00", 1),
+        ("following up", "2026-08-05T09:00:00+08:00", 1),  # >24h later, still no reply -- a SEPARATE ask
+    ]
+    asks_gap = ed._chat_asks(rows_gap)
+    check("a >24h gap with no reply splits into two asks, the first left unanswered",
+          len(asks_gap) == 2 and asks_gap[0]["answered_at"] is None, f"got {asks_gap}")
+
+    rows_trailing = [("still nothing back?", "2026-08-01T09:00:00+08:00", 1)]
+    asks_trailing = ed._chat_asks(rows_trailing)
+    check("chat ends on an outbound message with no reply -> unanswered",
+          len(asks_trailing) == 1 and asks_trailing[0]["answered_at"] is None)
+
+    section("_chat_asks [item 1 fix]: a live back-and-forth doesn't fragment into a fake ask per turn")
+    rows_live_chat = [
+        ("hi is unit available", "2026-08-01T09:00:00+08:00", 1),   # first ever -> genuine ask
+        ("yes", "2026-08-01T09:01:00+08:00", 0),                     # closes it, 1 min latency
+        ("great can I view sat", "2026-08-01T09:02:00+08:00", 1),    # 1 min after landlord's reply --
+                                                                       # continuing the SAME live exchange,
+                                                                       # not a fresh ask (absorbed)
+        ("sure 2pm works", "2026-08-01T09:03:00+08:00", 0),          # nothing pending to close
+        ("perfect thanks", "2026-08-01T09:04:00+08:00", 1),          # still live, still absorbed
+    ]
+    asks_live = ed._chat_asks(rows_live_chat)
+    check("5 messages, 1 real question, but only ONE timed ask (not one per turn boundary)",
+          len(asks_live) == 1, f"got {asks_live}")
+    check("that one ask's latency is the genuine 1 minute, not diluted/inflated by the live chatter",
+          abs((asks_live[0]["answered_at"] - asks_live[0]["end"]).total_seconds() - 60) < 1)
+
+    section("_chat_asks: a genuine ask AFTER the landlord has gone quiet a meaningful while still gets timed")
+    rows_after_silence = rows_live_chat + [
+        ("still there? following up on the room", "2026-08-04T09:00:00+08:00", 1),  # landlord silent since
+                                                                                       # 09:03 -- 3 days later,
+                                                                                       # well past the gate
+        ("sorry yes still avail", "2026-08-04T09:10:00+08:00", 0),
+    ]
+    asks_after = ed._chat_asks(rows_after_silence)
+    check("the follow-up after real silence opens a SECOND genuine, timed ask",
+          len(asks_after) == 2, f"got {asks_after}")
+    check("its latency is the real 10 minutes", abs((asks_after[1]["answered_at"] - asks_after[1]["end"])
+          .total_seconds() - 600) < 1)
+
+    section("build_landlord_responsiveness: minutes not hours, worst-case surfaces a vanishing landlord, "
+            "re-sorted on (unanswered, worst-case, median) rather than median alone")
+    conn = _FakeWaConn({
+        "jidFast": [("hi", "2026-08-01T09:00:00+08:00", 1), ("yes available", "2026-08-01T09:06:00+08:00", 0)],
+        "jidSlow": [("hi", "2026-08-01T09:00:00+08:00", 1), ("yes available", "2026-08-03T09:00:00+08:00", 0)],
+        "jidGhost": [("hi are you there", "2026-08-01T09:00:00+08:00", 1)],
+        # LL039-shaped: usually replies in a couple of minutes (3 fast, genuinely separate
+        # asks, each after a real >2h gap) but ONE ask vanishes for 5 days -- exactly the
+        # case a median alone hides.
+        "jidChattyFlaky": [
+            ("hi is unit available", "2026-08-01T09:00:00+08:00", 1),
+            ("yes", "2026-08-01T09:01:00+08:00", 0),
+            ("great can I view sat", "2026-08-01T09:02:00+08:00", 1),   # live chatter, absorbed
+            ("sure 2pm works", "2026-08-01T09:03:00+08:00", 0),
+            ("perfect thanks", "2026-08-01T09:04:00+08:00", 1),        # live chatter, absorbed
+            ("hi again", "2026-08-02T09:00:00+08:00", 1),
+            ("yes still avail", "2026-08-02T09:03:00+08:00", 0),
+            ("checking in", "2026-08-03T09:00:00+08:00", 1),
+            ("yes", "2026-08-03T09:02:00+08:00", 0),
+            ("still keen to close?", "2026-08-04T09:00:00+08:00", 1),
+            ("yes sorry been busy", "2026-08-09T09:00:00+08:00", 0),   # 5 days later
+        ],
+    })
+    landlords = [
+        fake_landlord(id="LLF", landlord_name="Fast Landlord", chat_jid="jidFast"),
+        fake_landlord(id="LLS", landlord_name="Slow Landlord", chat_jid="jidSlow"),
+        fake_landlord(id="LLG", landlord_name="Ghost Landlord", chat_jid="jidGhost"),
+        fake_landlord(id="LLC", landlord_name="Chatty Flaky Landlord", chat_jid="jidChattyFlaky"),
+        fake_landlord(id="LLN", landlord_name="No Chat Landlord", chat_jid=""),
+    ]
+    resp = ed.build_landlord_responsiveness(conn, landlords)
+    by_id = {r["id"]: r for r in resp}
+    check("landlord with no chat_jid is left out entirely, never a fabricated 0",
+          "LLN" not in by_id, f"got {list(by_id)}")
+    check("fast landlord: median/worst-case both in MINUTES (6, not 0.1h) and 0 unanswered",
+          by_id["LLF"]["median_reply_minutes"] == 6 and by_id["LLF"]["worst_case_reply_minutes"] == 6
+          and by_id["LLF"]["unanswered_count"] == 0, f"got {by_id['LLF']}")
+    check("ghost landlord (never replied) has 1 unanswered and no median/worst-case",
+          by_id["LLG"]["unanswered_count"] == 1 and by_id["LLG"]["median_reply_minutes"] is None
+          and by_id["LLG"]["worst_case_reply_minutes"] is None, f"got {by_id['LLG']}")
+    check("chatty-flaky landlord: only 4 real asks (not one per live-chat turn)",
+          by_id["LLC"]["n_asks"] == 4, f"got {by_id['LLC']}")
+    check("its median stays low (2.5 min) -- looks great on a median-only view",
+          by_id["LLC"]["median_reply_minutes"] == 2.5, f"got {by_id['LLC']}")
+    check("but worst_case_reply_minutes exposes the real 5 day vanish (7200 min), invisible in the median",
+          by_id["LLC"]["worst_case_reply_minutes"] == 7200, f"got {by_id['LLC']}")
+    check("re-sort: LLF (worst-case 6 min) now ranks ABOVE LLC (worst-case 7200 min) despite LLC's "
+          "lower median -- the old median-only sort would have ranked the chattiest/flakiest landlord "
+          "first, which was the bug",
+          resp.index(by_id["LLF"]) < resp.index(by_id["LLC"]), f"got {[r['id'] for r in resp]}")
+    check("ghost (1 unanswered) ranks last regardless of worst-case",
+          resp[-1]["id"] == "LLG", f"got {[r['id'] for r in resp]}")
+    check("no connection (bridge unavailable) -> empty list, never fabricated",
+          ed.build_landlord_responsiveness(None, landlords) == [])
+
+
+# =========================================== price vs closes [idea 26] ======
+def test_price_check():
+    section("build_price_check: bands AND flags suppressed below min_n, never a confident band on 1-2 points")
+    landlords = [
+        fake_landlord(id="LLC1", status="closed (tenanted)", district="D19", rent_min=1400, rent_max=1400),
+        fake_landlord(id="LLC2", status="closed (tenanted)", district="D19", rent_min=1300, rent_max=1300),
+        # only 2 closes in D22 -- must be suppressed entirely, not shown as a low-confidence band
+        fake_landlord(id="LLC3", status="closed (tenanted)", district="D22", rent_min=1200, rent_max=1200),
+        fake_landlord(id="LLC4", status="closed (tenanted)", district="D22", rent_min=1100, rent_max=1100),
+    ]
+    pc = ed.build_price_check(landlords, [], min_n=3)
+    check("a district with n=2 closes is suppressed outright, not emitted as a shaky band",
+          not any(b["district"] == "D22" for b in pc["bands"]), f"got {pc['bands']}")
+    check("D19 with n<3 (only 2 closes) is also suppressed", pc["bands"] == [], f"got {pc['bands']}")
+
+    landlords3 = landlords + [
+        fake_landlord(id="LLC5", status="closed (tenanted)", district="D19", rent_min=1500, rent_max=1500)]
+    pc3 = ed.build_price_check(landlords3, [], min_n=3)
+    band = next(b for b in pc3["bands"] if b["district"] == "D19")
+    check("n=3 in D19 -> a band is emitted, WITH its sample size",
+          band["n"] == 3 and band["median"] == 1400, f"got {band}")
+
+    over = {"id": "LO1", "name": "Overpriced", "district": "D19", "rent_min": 2500, "rent_max": 2500}
+    under = {"id": "LO2", "name": "Underpriced", "district": "D19", "rent_min": 500, "rent_max": 500}
+    fine = {"id": "LO3", "name": "In band", "district": "D19", "rent_min": 1450, "rent_max": 1450}
+    no_price = {"id": "LO4", "name": "No price", "district": "D19", "rent_min": None, "rent_max": None}
+    pc4 = ed.build_price_check(landlords3, [over, under, fine, no_price], min_n=3)
+    flags_by_id = {f["listing_id"]: f for f in pc4["flags"]}
+    check("well above the band -> flagged above_market", flags_by_id["LO1"]["direction"] == "above_market")
+    check("well below the band -> flagged below_market", flags_by_id["LO2"]["direction"] == "below_market")
+    check("within the band -> not flagged", "LO3" not in flags_by_id)
+    check("no price data -> skipped, never guessed", "LO4" not in flags_by_id)
+    check("every flag carries the band's sample size", flags_by_id["LO1"]["band_n"] == 3)
+
+    section("build_price_check [item 2]: LL007-shaped mis-parse -- rent_min/rent_max mix a room "
+            "price with an unrelated whole-unit price for the SAME record")
+    mixed_room_and_whole = fake_landlord(
+        id="LLC6", status="closed (tenanted)", district="D19", property_type="HDB EA flat room",
+        rooms_and_rent="Common $850 (was $1,000); whole unit $5,000", rent_min=850, rent_max=5000)
+    check("_room_rent_for_band prefers rent_max but rejects it as out-of-bound and falls back to "
+          "the genuine in-bound rent_min",
+          ed._room_rent_for_band(mixed_room_and_whole) == 850,
+          f"got {ed._room_rent_for_band(mixed_room_and_whole)}")
+    pc_mixed = ed.build_price_check(landlords3 + [mixed_room_and_whole], [], min_n=3)
+    band_d19 = next(b for b in pc_mixed["bands"] if b["district"] == "D19")
+    check("D19 band now n=4 (LLC1/2/5 + the recovered 850), max is the genuine 1500 -- "
+          "the raw rent_max=5000 whole-unit price never enters the band",
+          band_d19["n"] == 4 and band_d19["min"] == 850 and band_d19["max"] == 1500,
+          f"got {band_d19}")
+
+    section("build_price_check [item 2]: LL012-shaped multi-room record excluded outright, "
+            "not sanity-bounded in")
+    multi_room = fake_landlord(
+        id="LLC7", status="closed (tenanted)", district="D22", property_type="Condo (multi-room, 2 units)",
+        rooms_and_rent="Caspian: master $2,200 now/CC3 $1,100; Summerdale: master $2,000/SC5 $1,000",
+        rent_min=1000, rent_max=2200)
+    check("a multi-room property_type yields no usable per-room rent at all",
+          ed._room_rent_for_band(multi_room) is None)
+    landlords_d22 = [
+        fake_landlord(id="LLC8", status="closed (tenanted)", district="D22", rent_min=1300, rent_max=1300),
+        fake_landlord(id="LLC9", status="closed (tenanted)", district="D22", rent_min=1200, rent_max=1200),
+        multi_room,
+    ]
+    pc_multi = ed.build_price_check(landlords_d22, [], min_n=3)
+    check("with the multi-room record excluded, D22 has only 2 genuine room closes -- "
+          "suppressed below min_n rather than emitting a band inflated by the multi-room aggregate",
+          not any(b["district"] == "D22" for b in pc_multi["bands"]), f"got {pc_multi['bands']}")
+
+    section("build_price_check: a rent outside the ROOM_RENT bound (mis-parse noise) is rejected, "
+            "not just multi-room property types")
+    out_of_bound = fake_landlord(id="LLC10", status="closed (tenanted)", district="D25",
+                                  property_type="HDB common room", rent_min=None, rent_max=50)
+    check("a rent far below any plausible room rent -> no usable band value",
+          ed._room_rent_for_band(out_of_bound) is None)
+
+
+# ============================================ days-to-fill [idea 27] ========
+def test_days_to_fill():
+    section("build_days_to_fill: suppressed to insufficient_data with 0 usable (first_seen, close) pairs")
+    landlords_no_data = [fake_landlord(id="LLF1", status="closed (tenanted 9 Jul 2026)", district="D15")]
+    dtf = ed.build_days_to_fill(landlords_no_data, {}, TODAY, min_n=3)
+    check("no seen-registry entry for the closed listing -> 0 usable samples",
+          dtf["overall"]["n"] == 0 and dtf["overall"]["status"] == "insufficient_data",
+          f"got {dtf['overall']}")
+    check("median_days is None when insufficient, never a guessed number",
+          dtf["overall"]["median_days"] is None)
+    check("by_district stays empty below min_n", dtf["by_district"] == [])
+
+    section("with a real first_seen AND a parseable close date, a genuine sample is counted")
+    landlords_with_data = [
+        fake_landlord(id="LLF2", status="closed (tenanted 15 Jul 2026)", district="D15"),
+        fake_landlord(id="LLF3", status="closed (tenanted 20 Jul 2026)", district="D15"),
+        fake_landlord(id="LLF4", status="closed (tenanted 25 Jul 2026)", district="D15"),
+    ]
+    seen = {"LLF2": "2026-07-01", "LLF3": "2026-07-01", "LLF4": "2026-07-01"}  # 14/19/24 days to fill
+    dtf2 = ed.build_days_to_fill(landlords_with_data, seen, TODAY, min_n=3)
+    check("3 usable samples -> status ok", dtf2["overall"]["status"] == "ok", f"got {dtf2['overall']}")
+    check("median_days computed from the 3 real samples", dtf2["overall"]["median_days"] == 19,
+          f"got {dtf2['overall']}")
+    check("by_district emits D15 once n reaches min_n", any(b["district"] == "D15" for b in dtf2["by_district"]))
+
+
+# ============================================ stale landlord chase [28] =====
+def test_stale_landlord_chase():
+    section("build_stale_landlord_chase: overdue listings only, most overdue first")
+    listings = [
+        {"id": "LL1", "name": "Fresh", "district": "D15", "phone": "1", "reconfirm_due": False, "days_since_confirmed": 2},
+        {"id": "LL2", "name": "Overdue A", "district": "D16", "phone": "2", "reconfirm_due": True, "days_since_confirmed": 20},
+        {"id": "LL3", "name": "Overdue B", "district": "D17", "phone": "3", "reconfirm_due": True, "days_since_confirmed": 40},
+    ]
+    chase = ed.build_stale_landlord_chase(listings)
+    check("only reconfirm_due listings appear", {r["id"] for r in chase} == {"LL2", "LL3"}, f"got {chase}")
+    check("most overdue (highest days_since_confirmed) ranks first",
+          [r["id"] for r in chase] == ["LL3", "LL2"], f"got {[r['id'] for r in chase]}")
+
+
+# ================================================ learning block [11] =======
+def test_learning_block():
+    section("build_learning_block: honestly dormant, never fakes usable triples")
+    lb = ed.build_learning_block()
+    check("usable_triples is 0 (no local source links tenant to closed listing)",
+          lb["usable_triples"] == 0, f"got {lb}")
+    check("needed_for_meaningful_fit is a positive floor", lb["needed_for_meaningful_fit"] > 0)
+    check("status reads as the spec's literal phrasing",
+          lb["status"] == f"dormant, needs {lb['needed_for_meaningful_fit']} more closes", f"got {lb['status']}")
+    check("note explains WHY (no local linkage + CRM unreachable offline), not just the number",
+          "Postgres" in lb["note"] and "closed_won" in lb["note"], f"got {lb['note']}")
+    check("source_wired=False [item 8]: an explicit, self-evident placeholder marker -- so "
+          "usable_triples=0 can never be mistaken for a real computed zero once the CRM starts "
+          "recording closes and this is still not wired up",
+          lb["source_wired"] is False, f"got {lb}")
+
+
+# ==================================== source availability [item 6] ==========
+def test_source_availability():
+    section("build_source_availability: explicit marker so 'computed, found nothing' is never "
+            "confused with 'could not compute' (a WA bridge outage otherwise silently empties "
+            "budget_contradictions and landlord_responsiveness with no trace)")
+    check("bridge available -> wa_bridge True", ed.build_source_availability(object())["wa_bridge"] is True)
+    check("bridge unavailable (None) -> wa_bridge False", ed.build_source_availability(None) == {"wa_bridge": False})
 
 
 def test_load_busy_blocks():
@@ -1147,7 +1834,12 @@ def main():
     test_exclusion_filter()
     test_schema_v2_shape()
     test_missing_and_intake_complete()
+    test_infer_district_extensions()
+    test_build_tenants_district_inference()
+    test_budget_contradiction_detection()
+    test_build_tenants_budget_contradiction_integration()
     test_delta_computation()
+    test_week_delta()
     test_exclusions_config_autocreate()
     test_state_files_fail_closed()
     test_key_id_safety()
@@ -1156,6 +1848,17 @@ def main():
 
     test_lifecycle_mapping()
     test_supply_overview()
+    test_all_landlords_and_tenants_shape()
+    test_sales_shape()
+    test_revival_and_duplicate_phones()
+    test_enrichment_queue()
+    test_live_area_demand_and_zero_stock_alert()
+    test_landlord_responsiveness()
+    test_price_check()
+    test_days_to_fill()
+    test_stale_landlord_chase()
+    test_learning_block()
+    test_source_availability()
     test_load_busy_blocks()
     test_build_history_entry_shape()
     test_build_history_tail_roundtrip()

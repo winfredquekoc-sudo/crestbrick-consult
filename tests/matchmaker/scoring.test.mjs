@@ -534,6 +534,169 @@ test("pass2: priceElasticity reports how many additional tenants qualify at each
   assert.equal(Scoring.priceElasticity(l, [], TODAY).length, 0);
 });
 
+// =====================================================================
+// SECTION 3.5 — PASS 3 EXTENSIONS (dead/cold split, fit/completeness,
+// recency, long available penalty, best room, explain line)
+// =====================================================================
+
+test("pass3: isDead/isDeadBlocked split the dead lead hard block from the cold ranking signal (the live bug fix)", () => {
+  // Live bug this fixes: COLD_DAYS_THRESHOLD (5) used to ALSO gate outreach.
+  // Winfred widened the actual dead rule to 30 days on 12 Aug 2026 — a
+  // 6 day quiet tenant must rank as "cold" (ranking/freshness/badge only)
+  // but must NOT be blocked; only a >30 day quiet tenant is dead.
+  const quiet6 = tenant({ last_contact: daysAgoStr(6) });
+  const quiet31 = tenant({ last_contact: daysAgoStr(31) });
+
+  assert.equal(Scoring.coldDays(quiet6, TODAY), 6);
+  assert.equal(Scoring.isCold(quiet6, TODAY), true);       // still cold for ranking (>5)
+  assert.equal(Scoring.isDead(quiet6, TODAY), false);       // NOT dead (<=30)
+  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet6, TODAY), false), false);
+
+  assert.equal(Scoring.coldDays(quiet31, TODAY), 31);
+  assert.equal(Scoring.isDead(quiet31, TODAY), true);       // dead (>30) -> blocked for a tenant
+  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet31, TODAY), false), true);
+
+  // Landlords are EXEMPT from the dead rule (Winfred's standing rule) — a
+  // 31 day quiet landlord must never be blocked, explicit isLandlord flag.
+  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet31, TODAY), true), false);
+
+  // Unknown contact history is never dead, same reasoning as isCold.
+  assert.equal(Scoring.isDead(tenant({ last_contact: "" }), TODAY), false);
+
+  assert.equal(Scoring.COLD_DAYS_THRESHOLD, 5);
+  assert.equal(Scoring.DEAD_DAYS_THRESHOLD, 30);
+});
+
+test("pass3: score() exposes `dead` (DEAD_DAYS_THRESHOLD) alongside `dc`, distinct from the ranking-only cold signal", () => {
+  const l = listing();
+  const r6 = Scoring.score(l, tenant({ last_contact: daysAgoStr(6) }), TODAY);
+  assert.equal(r6.dc, 6);
+  assert.equal(r6.dead, false);
+  const r31 = Scoring.score(l, tenant({ last_contact: daysAgoStr(31) }), TODAY);
+  assert.equal(r31.dc, 31);
+  assert.equal(r31.dead, true);
+});
+
+test("pass3: fit/completeness split match quality from data completeness (idea 8)", () => {
+  // Perfect match on the 2 dims we DO know (budget, location); lease/movein/
+  // fresh are unknown (3 unknown fields) — fit should read high, completeness low.
+  const l = listing({ district: "D15", rent_min: 1200, rent_max: 1200 });
+  const t = tenant({ preferred_districts: ["D15"], district: "D15", budget: 1200 });
+  const r = Scoring.score(l, t, TODAY);
+  assert.equal(r.fit, 100);          // both known dims maxed out -> high fit
+  assert.equal(r.completeness, 40);  // 2 of 5 scoring inputs known -> low completeness
+  // Legacy total/parts are UNCHANGED (parity locked) — this is exactly the
+  // bug idea 8 fixes: total still drags on the unknown-field defaults.
+  assert.equal(r.total, 73);
+  assert.deepEqual(r.parts, { budget: 30, location: 25, lease: 8, movein: 8, fresh: 2 });
+});
+
+test("pass3: fit is null only when nothing is known at all; completeness still reads 0", () => {
+  const l = { id: "LLX", district: "", gates: baseGates() };
+  const t = { id: "TX", preferred_districts: [], district: "", budget: null, budget_max: null,
+              pax: 1, gender: "", ethnicity: "", lease_months: null, move_in: "", last_contact: "" };
+  const r = Scoring.score(l, t, TODAY);
+  assert.equal(r.completeness, 0);
+  assert.equal(r.fit, null);
+});
+
+test("pass3: fitRecencyMultiplier moves fit but never total/parts.fresh (idea 10, judgement call curve)", () => {
+  assert.equal(Scoring.fitRecencyMultiplier(3), 1.10);
+  assert.equal(Scoring.fitRecencyMultiplier(40), 0.85);
+  assert.equal(Scoring.fitRecencyMultiplier(null), 1.0);
+
+  const l = listing({ district: "D15", rent_min: 1200, rent_max: 1200 });
+  const fresh3 = tenant({ preferred_districts: ["D15"], budget: 1200, last_contact: daysAgoStr(3) });
+  const stale40 = tenant({ preferred_districts: ["D15"], budget: 1200, last_contact: daysAgoStr(40) });
+  const rFresh = Scoring.score(l, fresh3, TODAY);
+  const rStale = Scoring.score(l, stale40, TODAY);
+
+  // "a 3 day old lead is worth more than a perfect 40 day old one" — same
+  // budget/location fit, but the 3 day lead must out rank the 40 day one.
+  assert.ok(rFresh.fit > rStale.fit, `fresh ${rFresh.fit} should beat stale ${rStale.fit}`);
+  assert.equal(rFresh.fit, 100);  // (1+1+1)/3 = 100 base, x1.10 recency, clamped at 100
+  assert.equal(rStale.fit, 66);   // (1+1+0.333)/3 = 78 base, x0.85 recency = 66
+
+  // total/parts.fresh stay parity locked — the legacy 15 point flat slice
+  // is completely unaffected by the recency multiplier.
+  assert.equal(rFresh.parts.fresh, 15); // dc=3 <=7
+  assert.equal(rStale.parts.fresh, 5);  // dc=40 -> the 30<d<=90 bucket, unchanged legacy behavior
+});
+
+test("pass3: listingAgePenalty discounts fit for long available listings (idea 12), reusing DAYS_LISTED_ELASTICITY_THRESHOLD", () => {
+  assert.equal(Scoring.DAYS_LISTED_ELASTICITY_THRESHOLD, 21);
+  assert.equal(Scoring.listingAgePenalty(21), 1.0);   // boundary: not yet penalised
+  assert.equal(Scoring.listingAgePenalty(22), 0.92);
+  assert.equal(Scoring.listingAgePenalty(46), 0.82);
+  assert.equal(Scoring.listingAgePenalty(91), 0.70);
+  assert.equal(Scoring.listingAgePenalty(null), 1.0);
+
+  const lFresh = listing({ district: "D15", rent_min: 1200, rent_max: 1200, days_listed: 5 });
+  const lStale = listing({ district: "D15", rent_min: 1200, rent_max: 1200, days_listed: 60 });
+  const t = tenant({ preferred_districts: ["D15"], budget: 1200 });
+  const rFresh = Scoring.score(lFresh, t, TODAY);
+  const rStale = Scoring.score(lStale, t, TODAY);
+  assert.ok(rStale.fit < rFresh.fit, `stale listing ${rStale.fit} should score lower fit than fresh listing ${rFresh.fit}`);
+  assert.equal(rFresh.fit, 100);
+  assert.equal(rStale.fit, 82); // 100 base x0.82 (46-90 day bucket)
+  // total/parts still parity locked — listing age never touched total.
+  assert.equal(rFresh.total, rStale.total);
+});
+
+test("pass3: bestUnit surfaces a second best room to offer as an alternative (idea 9/13) — budget only, honestly: units[] carries no other per-room signal", () => {
+  const l = listing({
+    district: "D9", rent_min: 900, rent_max: 900,
+    units: [
+      { unit_type: "common", rent_min: 900, rent_max: 900 },
+      { unit_type: "master", rent_min: 1400, rent_max: 1400 },
+      { unit_type: "master ensuite", rent_min: 1800, rent_max: 1800 }
+    ]
+  });
+  const t = tenant({ preferred_districts: ["D9"], budget: 1500 });
+  const bu = Scoring.bestUnit(l, t);
+  assert.equal(bu.unit.unit_type, "master");        // best fit at budget 1500
+  assert.equal(bu.secondUnit.unit_type, "common");   // next best (whole unit flag, still scores 14)
+  assert.ok(bu.secondSb <= bu.sb);
+
+  const r = Scoring.score(l, t, TODAY);
+  assert.equal(r.unit.unit_type, "master");
+  assert.equal(r.unit2.unit_type, "common");
+
+  // single unit listing -> nothing else to offer
+  const single = Scoring.bestUnit(listing({ rent_min: 900, rent_max: 900 }), t);
+  assert.equal(single.secondUnit, null);
+  assert.equal(single.secondSb, null);
+});
+
+test("pass3: explainMatch/score().explain surfaces carried dimensions and cold/dead/stale-listing/hard-block notes (idea 14)", () => {
+  const l = listing({ district: "D15", rent_min: 1200, rent_max: 1200, days_listed: 25 });
+  const tCold = tenant({
+    preferred_districts: ["D15"], district: "D15", budget: 1200, pax: 1,
+    lease_months: 12, move_in: "2026-08-11", last_contact: daysAgoStr(10)
+  });
+  const rCold = Scoring.score(l, tCold, TODAY);
+  assert.ok(Array.isArray(rCold.explain.carried) && rCold.explain.carried.length > 0, JSON.stringify(rCold.explain));
+  rCold.explain.carried.forEach(c => assert.ok(c.code && c.label));
+  assert.ok(rCold.explain.notes.some(n => n.code === "cold"), JSON.stringify(rCold.explain.notes));
+  assert.ok(!rCold.explain.notes.some(n => n.code === "dead"));
+  assert.ok(rCold.explain.notes.some(n => n.code === "stale_listing"), JSON.stringify(rCold.explain.notes));
+
+  const tDead = tenant({
+    preferred_districts: ["D15"], district: "D15", budget: 1200, pax: 1,
+    lease_months: 12, move_in: "2026-08-11", last_contact: daysAgoStr(35)
+  });
+  const rDead = Scoring.score(l, tDead, TODAY);
+  assert.equal(rDead.dead, true);
+  assert.ok(rDead.explain.notes.some(n => n.code === "dead"));
+  assert.ok(!rDead.explain.notes.some(n => n.code === "cold")); // dead supersedes the cold note
+
+  const lBlock = listing({ district: "D9", rent_min: 2000, rent_max: 2000 });
+  const tBlock = tenant({ preferred_districts: ["D9"], budget: 1000 });
+  const rBlock = Scoring.score(lBlock, tBlock, TODAY);
+  assert.equal(rBlock.verdict, "BLOCKED");
+  assert.ok(rBlock.explain.notes.some(n => n.code === "hard_block"));
+});
+
 // ---------------------------------------------------------------------------
 // Section 3 (HARDENING) — app.js safety helpers.
 //
@@ -590,7 +753,7 @@ function makeColdBlocked(today) {
 
 const appIsMarkKey = new Function(
   'const MARK_PREFIX = "cbk_", SCRATCH_KEY = "cbk_scratch", OFFER_PREFIX = "cbk_offer_";\n' +
-  'const PREFS_KEY = "cbk_prefs", HISTORY_KEY = "cbk_history", REVEALS_KEY = "cbk_reveals", ERR_KEY = "cbk_errors";\n' +
+  'const PREFS_KEY = "cbk_prefs", HISTORY_KEY = "cbk_history", ERR_KEY = "cbk_errors";\n' +
   extractFn("isMarkKey") + "\nreturn isMarkKey;"
 )();
 
@@ -628,32 +791,39 @@ test("hardening: escUrl() allows real link schemes and drops script bearing ones
   assert.ok(!appEsc.escUrl('https://example.com/"onload="x').includes('"'));
 });
 
-test("hardening: coldBlocked() is the one 5 day rule, and exempts co-broke", () => {
+test("hardening: coldBlocked() is the one 30 day DEAD rule, and exempts co-broke", () => {
   const today = new Date(2026, 7, 11);
   const appCold = makeColdBlocked(today);
-  const cold = { id: "T1", name: "Tan Ah Test", last_contact: "2026-07-27" };   // 15 days
+  const quiet = { id: "T1", name: "Tan Ah Test", last_contact: "2026-07-27" };  // 15 days
+  const dead = { id: "T4", name: "Goh Ah Test", last_contact: "2026-07-01" };   // 41 days
   const fresh = { id: "T2", name: "Lim Ah Test", last_contact: "2026-08-10" };  // 1 day
   const unknown = { id: "T3", name: "Ng Ah Test" };                             // no signal
   const own = { id: "LL1", name: "Test Block", is_cobroke: false };
   const cobroke = { id: "LL2", name: "Other Block", is_cobroke: true };
   const bySource = { id: "LL3", name: "Third Block", source: "co-broke" };
 
-  // The badge said "cold 15d" while the Draft button still produced a full
-  // message — badge and enforcement now read the same function.
-  assert.equal(Scoring.coldDays(cold, today), 15);
-  assert.equal(appCold(own, cold), true);
+  // THE REGRESSION THIS TEST NOW EXISTS FOR. Blocking used to fire at 5 days,
+  // which gagged 151 of 218 real tenants when Winfred's rule (widened 5 -> 14 ->
+  // 30 on 12 Aug 2026) should have blocked 68. A 15 day tenant is quiet, not
+  // dead: they still show the amber badge and rank lower, but they must remain
+  // fully contactable.
+  assert.equal(Scoring.coldDays(quiet, today), 15);
+  assert.equal(appCold(own, quiet), false, "a 15 day tenant is quiet, not dead — must stay contactable");
+  assert.equal(Scoring.isColdFromDays(15), true, "...while still counting as cold for ranking and the badge");
 
-  // landlord / co-broke contact is never blocked by the tenant cold rule
-  assert.equal(appCold(cobroke, cold), false);
-  assert.equal(appCold(bySource, cold), false);
+  assert.equal(appCold(own, dead), true);
+
+  // landlord / co-broke contact is never blocked by the tenant dead rule
+  assert.equal(appCold(cobroke, dead), false);
+  assert.equal(appCold(bySource, dead), false);
 
   assert.equal(appCold(own, fresh), false);
-  assert.equal(appCold(null, cold), true);      // tenant only contexts (health tab) still apply it
+  assert.equal(appCold(null, dead), true);      // tenant only contexts (health tab) still apply it
   assert.equal(appCold(own, unknown), false);   // unknown is not proof of death — app stays permissive,
                                                 // queue_drafts.py refuses these separately at dispatch time
-  // boundary: exactly 5 days is not cold, 6 is
-  assert.equal(appCold(own, { last_contact: "2026-08-06" }), false);
-  assert.equal(appCold(own, { last_contact: "2026-08-05" }), true);
+  // boundary: exactly 30 days is not dead, 31 is
+  assert.equal(appCold(own, { last_contact: "2026-07-12" }), false);
+  assert.equal(appCold(own, { last_contact: "2026-07-11" }), true);
 });
 
 // This draft is the one piece of text that goes to a LANDLORD about tenants,
@@ -702,22 +872,23 @@ test("hardening: the per tenant cold memo answers per tenant, never across them"
   const appCold = makeColdBlocked(today);
   const own = { id: "LL1", name: "Test Block", is_cobroke: false };
 
-  const coldT = { id: "T1", name: "Tan Ah Test", last_contact: "2026-07-27" };
-  const freshT = { id: "T2", name: "Lim Ah Test", last_contact: "2026-08-10" };
-  assert.equal(appCold(own, coldT), true);
-  assert.equal(appCold(own, freshT), false, "the cold answer must not carry over to the next tenant");
+  const deadT = { id: "T1", name: "Tan Ah Test", last_contact: "2026-07-01" };   // 41 days
+  const freshT = { id: "T2", name: "Lim Ah Test", last_contact: "2026-08-10" };  // 1 day
+  assert.equal(appCold(own, deadT), true);
+  assert.equal(appCold(own, freshT), false, "the dead answer must not carry over to the next tenant");
   // repeat reads (what the pair sweep actually does) stay stable and correct
   for (let i = 0; i < 5; i++) {
-    assert.equal(appCold(own, coldT), true);
+    assert.equal(appCold(own, deadT), true);
     assert.equal(appCold(own, freshT), false);
   }
   assert.equal(appCold.COLD_CACHE.size, 2, "one entry per tenant, not per pair");
 
   // Tenants with no id (the boundary fixtures below, and any caller passing a
-  // bare object) must never share a single null-keyed slot.
+  // bare object) must never share a single null-keyed slot. Straddling the 30
+  // day boundary is what makes a leaked answer visible.
   const before = appCold.COLD_CACHE.size;
-  assert.equal(appCold(own, { last_contact: "2026-08-05" }), true);
-  assert.equal(appCold(own, { last_contact: "2026-08-06" }), false,
+  assert.equal(appCold(own, { last_contact: "2026-07-11" }), true);
+  assert.equal(appCold(own, { last_contact: "2026-07-12" }), false,
     "an unkeyed tenant must not inherit the previous unkeyed tenant's answer");
   assert.equal(appCold.COLD_CACHE.size, before, "unkeyed tenants must not enter the cache at all");
 
@@ -725,14 +896,19 @@ test("hardening: the per tenant cold memo answers per tenant, never across them"
   [null, undefined, 0, 5, 6, 15, 400].forEach(dc => {
     assert.equal(Scoring.isColdFromDays(dc), dc != null && dc > Scoring.COLD_DAYS_THRESHOLD, "dc=" + dc);
   });
-  assert.equal(Scoring.isCold(coldT, today), Scoring.isColdFromDays(Scoring.coldDays(coldT, today)));
+  assert.equal(Scoring.isCold(deadT, today), Scoring.isColdFromDays(Scoring.coldDays(deadT, today)));
+  // and the same for the rule that actually blocks — a 41 day tenant is both
+  // cold (ranking) and dead (blocking); a 15 day one is only the first.
+  assert.equal(Scoring.isDeadFromDays(Scoring.coldDays(deadT, today)), true);
+  assert.equal(Scoring.isDeadFromDays(15), false);
+  assert.equal(Scoring.isColdFromDays(15), true);
 });
 
 test("hardening: isMarkKey() keeps import out of every non mark cbk_ key", () => {
   assert.equal(appIsMarkKey("cbk_LL1_T1"), true);
   assert.equal(appIsMarkKey("cbk_LL001_TMP2"), true);
   // all of these share the cbk_ prefix — an imported blob must not reach them
-  ["cbk_prefs", "cbk_history", "cbk_reveals", "cbk_errors", "cbk_scratch",
+  ["cbk_prefs", "cbk_history", "cbk_errors", "cbk_scratch",
    "cbk_offer_LL1_T1", "cbk_backup_mon"].forEach(k => {
     assert.equal(appIsMarkKey(k), false, k + " must not be writable as a mark");
   });
@@ -796,58 +972,40 @@ test("hardening: undoToast() escapes its message — a hostile tenant name canno
   assert.ok(box.innerHTML.includes("&lt;img"), "payload should be escaped, not silently dropped: " + box.innerHTML);
 });
 
-function makePhoneSpanHtml({ prefs, dataObj, nowReal, revealed }) {
+// The masking/assistant-mode feature was removed entirely (Winfred, 13 Aug
+// 2026): he is the only user, the app sits behind Basic Auth, and masking was
+// display-only — the numbers were always in the payload regardless. A phone
+// now renders in full wherever it renders at all; phoneSpanHtml keeps its
+// (kind, id, phone) signature only so every call site stays unchanged.
+function makePhoneSpanHtml() {
   const src =
     extractLine("const ESC_MAP") + "\n" +
     extractFn("esc") + "\n" +
-    extractFn("normPhone") + "\n" +
-    extractFn("maskPhone") + "\n" +
-    "const PREFS = " + JSON.stringify(prefs) + ";\n" +
-    "const DATA = " + JSON.stringify(dataObj || {}) + ";\n" +
-    "const NOW_REAL = new Date(" + (nowReal || new Date()).getTime() + ");\n" +
-    // phonesForceMasked() reads NOW_REAL_SGT (Singapore calendar day), not
-    // NOW_REAL directly — see that function's comment in app.js — so this
-    // slice needs it defined too, exactly as the real core-state block does.
-    "const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);\n" +
-    "const REVEALED = new Set(" + JSON.stringify(revealed || []) + ");\n" +
-    extractFn("phonesForceMasked") + "\n" +
-    extractFn("maskingActive") + "\n" +
-    extractFn("assistantMode") + "\n" +
-    extractFn("isRevealed") + "\n" +
     extractFn("phoneSpanHtml") + "\n" +
     "return phoneSpanHtml;";
-  return new Function("Scoring", src)(Scoring);
+  return new Function(src)();
 }
 
-test("hardening: phoneSpanHtml() checks assistant mode before global masking — a phone cannot leak when assistant mode is on", () => {
-  // The exact real world sequence that produced the bug: Winfred had global
-  // masking OFF (unmasked numbers for himself), then handed the device over
-  // and flipped assistant mode ON without separately turning masking back on.
-  // dataObj: {} -> phonesForceMasked() reads dataAgeTier as "unknown", never "red".
-  const assistantOnMaskOff = makePhoneSpanHtml({ prefs: { masked: false, assistant_mode: true } });
-  const leaked = assistantOnMaskOff("tenant", "T1", "91234567");
-  assert.ok(!leaked.includes("91234567"), "raw phone leaked through assistant mode: " + leaked);
-  assert.ok(leaked.includes("assistant mode"), "expected the assistant mode disabled span: " + leaked);
+test("hardening: phoneSpanHtml() always renders the real phone number, still escaped", () => {
+  const phoneSpanHtml = makePhoneSpanHtml();
 
-  // Defence in depth: the "masking fully off, not in assistant mode" branch
-  // must still escape — a phone value is data derived text like any other.
-  const unmaskedNotAssistant = makePhoneSpanHtml({ prefs: { masked: false, assistant_mode: false } });
+  // The common case: the real number renders in full, with no mask, no
+  // tap-to-reveal affordance, and no assistant-mode disabled state.
+  const rendered = phoneSpanHtml("tenant", "T1", "91234567");
+  assert.ok(rendered.includes("91234567"), "the real phone number must render: " + rendered);
+  assert.ok(!rendered.includes("data-reveal"), "no reveal affordance should remain: " + rendered);
+  assert.ok(!/masked|assistant mode/i.test(rendered), "no masking/assistant-mode remnant should remain: " + rendered);
+  assert.equal(rendered, "91234567");
+
+  // Defence in depth: a phone value is data derived text like any other and
+  // must still be escaped, even though it is never masked.
   const hostilePhone = '"><img src=x onerror=alert(1)>';
-  const escaped = unmaskedNotAssistant("tenant", "T2", hostilePhone);
-  assert.ok(!/<img/i.test(escaped), "a live tag survived an unmasked phone value: " + escaped);
+  const escaped = phoneSpanHtml("tenant", "T2", hostilePhone);
+  assert.ok(!/<img/i.test(escaped), "a live tag survived a phone value: " + escaped);
 
-  // Ordinary masked behavior (the common case) is unaffected by the reordering.
-  const maskedDefault = makePhoneSpanHtml({ prefs: { masked: true, assistant_mode: false } });
-  const masked = maskedDefault("tenant", "T3", "91234567");
-  assert.ok(!masked.includes("91234567"), "should still be masked by default: " + masked);
-  assert.ok(masked.includes("data-reveal"), "should still offer the tap to reveal affordance: " + masked);
-
-  // A previously revealed number still shows in plain text when NOT in assistant mode.
-  const revealedCase = makePhoneSpanHtml({ prefs: { masked: true, assistant_mode: false }, revealed: ["tenant:T4"] });
-  assert.ok(revealedCase("tenant", "T4", "91234567").includes("91234567"));
-  // But assistant mode overrides even an already revealed number.
-  const revealedButAssistant = makePhoneSpanHtml({ prefs: { masked: true, assistant_mode: true }, revealed: ["tenant:T4"] });
-  assert.ok(!revealedButAssistant("tenant", "T4", "91234567").includes("91234567"));
+  // No phone on file renders nothing, same as before.
+  assert.equal(phoneSpanHtml("tenant", "T3", ""), "");
+  assert.equal(phoneSpanHtml("tenant", "T3", null), "");
 });
 
 // =====================================================================
@@ -1006,11 +1164,11 @@ test("tz-matrix: gcalLink encodes a Singapore wall clock time (not UTC, not the 
     const fs = require("fs");
     ${EXTRACT_FN_SRC}
     const appSrc = fs.readFileSync(${JSON.stringify(APP_JS_PATH)}, "utf8");
-    const build = new Function("assistantMode", "displayPhone", "fname", "areaName", "isoLocal",
+    const build = new Function("displayPhone", "fname", "areaName", "isoLocal",
       extractFn(appSrc, "gcalLink") + "\\nreturn gcalLink;"
     );
     const isoLocal = new Function(extractFn(appSrc, "isoLocal") + "\\nreturn isoLocal(arguments[0]);");
-    const gcalLink = build(() => false, () => "", (n) => n, (l) => l.address, (d) => isoLocal(d));
+    const gcalLink = build(() => "", (n) => n, (l) => l.address, (d) => isoLocal(d));
     // 7pm SGT must appear in the link as 1900 local + ctz=Singapore, never as
     // 1900Z (which Google reads as UTC — 7pm UTC is 3am the NEXT DAY in SGT).
     const l = { name: "Test Listing", address: "1 Test Ave" };

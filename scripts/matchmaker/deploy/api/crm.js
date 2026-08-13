@@ -52,10 +52,14 @@ async function readBody(req) {
 
 async function snapshot(client) {
   const [entities, notes, tasks, match, activity] = await Promise.all([
+    // crm_entity was the only one of these five queries with no LIMIT — notes/tasks/
+    // activity are capped below at 2000/1000/300. This table holds every tenant,
+    // landlord and listing key ever seen, all with names and phone numbers, so an
+    // unbounded select here is the largest single PII payload this endpoint can return.
     client.query(`select key, kind, ref_id, name, phone, stage, next_action,
                          to_char(next_due,'YYYY-MM-DD') as next_due, flagged,
                          to_char(contacted_on,'YYYY-MM-DD') as contacted_on, archived
-                  from crm_entity`),
+                  from crm_entity order by updated_at desc nulls last, key limit 5000`),
     // `id desc` is a tiebreaker, not decoration: now() is the transaction timestamp, so
     // two notes written in one batch share created_at exactly and would otherwise come
     // back in whatever order the planner felt like — the drawer shows these newest first.
@@ -142,7 +146,7 @@ async function applyOp(client, o) {
       const id = parseInt(o.id, 10);
       if (Number.isFinite(id)) {
         await client.query(
-          `update crm_task set title = coalesce($2, title), due = $3, done = $4,
+          `update crm_task set title = coalesce($2, title), due = coalesce($3, due), done = $4,
                                done_at = case when $4 then now() else null end
            where id = $1`,
           [id, str(o.title, 300), date(o.due), bool(o.done)]

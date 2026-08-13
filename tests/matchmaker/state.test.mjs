@@ -84,8 +84,8 @@ function makeDevice(opts) {
       "isMarkKey", "isOfferKey", "exportBlob", "tsOfRaw", "importBlob", "mergeLogInto",
       "writeAutoBackup", "listBackups", "restoreBackup", "rejectionHistogramHtml",
       "pushErrorEntry", "safeSet", "invalidateMarkCacheKey",
-      "HISTORY_KEY", "REVEALS_KEY", "ERR_KEY", "SCRATCH_KEY",
-      "HISTORY_CAP", "REVEALS_CAP", "ERR_CAP", "SCRATCH_IMPORT_CAP",
+      "HISTORY_KEY", "ERR_KEY", "SCRATCH_KEY",
+      "HISTORY_CAP", "ERR_CAP", "SCRATCH_IMPORT_CAP",
     ].join(", ") + ", setDeviceName: (n) => { PREFS.device_name = n; } };"
   )(store, (m) => toasts.push(m), WEEKDAY_NAMES, now, Scoring.sgtDay(now), DATA, Scoring);
   api.store = store;
@@ -154,9 +154,8 @@ test("migration: fuzzed localStorage of mixed legacy/v2/corrupt values never thr
     } else { seed[key] = pick(CORRUPT); delete valid[key]; }
   }
   // non mark keys sharing the cbk_ prefix, some of them corrupt too
-  seed["cbk_prefs"] = '{"masked":true,"device_name":"phone"}';
+  seed["cbk_prefs"] = '{"device_name":"phone","theme":"dark"}';
   seed["cbk_history"] = '{"not":"an array"}';
-  seed["cbk_reveals"] = "]]] broken";
   seed["cbk_errors"] = "17";
   seed["cbk_scratch"] = '{"not":"an array"}';
   seed["cbk_offer_LL1_TN1"] = '{"stage":1,"ts":1754870000000}';
@@ -190,7 +189,6 @@ test("migration: fuzzed localStorage of mixed legacy/v2/corrupt values never thr
   // corrupt containers degrade to empty rather than throwing
   assert.deepEqual(d.readScratch(), []);
   assert.deepEqual(d.readRingBuffer(d.HISTORY_KEY), []);
-  assert.deepEqual(d.readRingBuffer(d.REVEALS_KEY), []);
 
   // no valid entry was lost through export -> import into a fresh device
   const blob = d.exportBlob();
@@ -255,7 +253,7 @@ test("merge: latest ts wins per key, legacy strings count as ts 0, ties go to th
 });
 
 test("merge: a hostile blob cannot reach prefs, a backup slot, or Object.prototype", () => {
-  const d = makeDevice({ device: "laptop", seed: { "cbk_prefs": '{"masked":true,"assistant_mode":true,"device_name":"laptop"}' } });
+  const d = makeDevice({ device: "laptop", seed: { "cbk_prefs": '{"theme":"dark","device_name":"laptop"}' } });
   d.writeAutoBackup();
   // writeAutoBackup() now keys off NOW_REAL_SGT (the Singapore calendar day),
   // not NOW_REAL's own getters — match that here so this stays correct under
@@ -266,8 +264,7 @@ test("merge: a hostile blob cannot reach prefs, a backup slot, or Object.prototy
   const hostile = JSON.parse(JSON.stringify({
     version: 2,
     marks: {
-      "cbk_prefs": '{"masked":false,"assistant_mode":false}',        // privacy switches off
-      "cbk_reveals": "[]",                                            // wipe the PDPA trail
+      "cbk_prefs": '{"theme":"light"}',                               // prefs via the marks map
       "cbk_errors": "[]",
       "cbk_history": "[]",
       "cbk_scratch": "[]",
@@ -279,13 +276,13 @@ test("merge: a hostile blob cannot reach prefs, a backup slot, or Object.prototy
       "constructor": '{"polluted":true}',
       "cbk_LL9_TN9": markRaw("Contacted", 5000),                      // one legitimate entry
     },
-    overrides: { "cbk_prefs": '{"masked":false}', "not_an_override": "{}" },
+    overrides: { "cbk_prefs": '{"theme":"light"}', "not_an_override": "{}" },
     offers: { "cbk_prefs": '{"stage":4}', "cbk_offer_": '{"stage":4}' },
   }));
 
   const res = d.importBlob(hostile);
 
-  assert.equal(d.store.getItem("cbk_prefs"), '{"masked":true,"assistant_mode":true,"device_name":"laptop"}', "prefs must be untouchable by an import");
+  assert.equal(d.store.getItem("cbk_prefs"), '{"theme":"dark","device_name":"laptop"}', "prefs must be untouchable by an import");
   assert.equal(d.store.getItem(backupKey), backupBefore, "a backup slot must be untouchable by an import");
   assert.equal(d.store.getItem("cbk_backup_mon"), null);
   assert.equal(d.store.getItem("cbk_offer_LL1_TN1"), null, "an offer key must not be writable through the marks map");
@@ -528,18 +525,20 @@ test("backups: the daily slots are restorable, which is the only thing that make
 
 test("rings: caps are enforced on WRITE, at the cap and above it", () => {
   const d = makeDevice({});
-  const cap = d.REVEALS_CAP;
-  assert.equal(cap, 500);
   assert.equal(d.HISTORY_CAP, 1000);
   assert.equal(d.ERR_CAP, 50);
 
-  for (let i = 0; i < cap; i++) d.pushRingBuffer(d.REVEALS_KEY, cap, { kind: "tenant", id: "TN" + i, ts: i });
-  let arr = d.readRingBuffer(d.REVEALS_KEY);
+  // pushRingBuffer/readRingBuffer are generic — exercised here against an
+  // arbitrary key (not one of the app's own named logs) so the write-cap
+  // mechanics are covered independently of which log happens to use them.
+  const key = "cbk_testring", cap = 500;
+  for (let i = 0; i < cap; i++) d.pushRingBuffer(key, cap, { kind: "tenant", id: "TN" + i, ts: i });
+  let arr = d.readRingBuffer(key);
   assert.equal(arr.length, cap, "exactly at the cap, nothing has been dropped yet");
   assert.equal(arr[0].id, "TN0");
 
-  d.pushRingBuffer(d.REVEALS_KEY, cap, { kind: "tenant", id: "TNlast", ts: cap });
-  arr = d.readRingBuffer(d.REVEALS_KEY);
+  d.pushRingBuffer(key, cap, { kind: "tenant", id: "TNlast", ts: cap });
+  arr = d.readRingBuffer(key);
   assert.equal(arr.length, cap, "one past the cap stays at the cap");
   assert.equal(arr[0].id, "TN1", "the oldest entry is the one dropped");
   assert.equal(arr[cap - 1].id, "TNlast");
@@ -548,9 +547,9 @@ test("rings: caps are enforced on WRITE, at the cap and above it", () => {
   // the very next write rather than being allowed to keep growing
   const over = [];
   for (let i = 0; i < cap + 250; i++) over.push({ kind: "tenant", id: "OLD" + i, ts: i });
-  d.store.setItem(d.REVEALS_KEY, JSON.stringify(over));
-  d.pushRingBuffer(d.REVEALS_KEY, cap, { kind: "tenant", id: "TNnew", ts: 99999 });
-  arr = d.readRingBuffer(d.REVEALS_KEY);
+  d.store.setItem(key, JSON.stringify(over));
+  d.pushRingBuffer(key, cap, { kind: "tenant", id: "TNnew", ts: 99999 });
+  arr = d.readRingBuffer(key);
   assert.equal(arr.length, cap);
   assert.equal(arr[cap - 1].id, "TNnew");
 
@@ -559,15 +558,13 @@ test("rings: caps are enforced on WRITE, at the cap and above it", () => {
   assert.equal(d.readRingBuffer(d.ERR_KEY).length, d.ERR_CAP);
 });
 
-test("rings: an import cannot push a log past its cap", () => {
+test("rings: an import cannot push the history log past its cap", () => {
   const d = makeDevice({});
-  const reveals = [], history = [];
+  const history = [];
   for (let i = 0; i < 4000; i++) {
-    reveals.push({ kind: "tenant", id: "TN" + i, ts: i });
     history.push({ lid: "LL1", tid: "TN" + i, v: "Contacted", ts: i });
   }
-  d.importBlob({ reveals, history });
-  assert.equal(d.readRingBuffer(d.REVEALS_KEY).length, d.REVEALS_CAP);
+  d.importBlob({ history });
   assert.equal(d.readRingBuffer(d.HISTORY_KEY).length, d.HISTORY_CAP);
   // capped from the OLD end, so what survives is the most recent activity
   assert.equal(d.readRingBuffer(d.HISTORY_KEY)[d.HISTORY_CAP - 1].ts, 3999);

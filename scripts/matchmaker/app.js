@@ -13,11 +13,11 @@
  * PASS 2 section map (search these headers): error diagnostics (69) · core
  * state · formatting · co-broke/whole-unit/lifecycle · draft text · links ·
  * localStorage model (marks/overrides/scratch) · PASS 2 prefs/history/
- * reveals/offers/backups · scoring integration · matching engine · filters ·
+ * offers/backups · scoring integration · matching engine · filters ·
  * row rendering · top level render · worklist+triage · listing rail+panel ·
  * batch viewing builder · tenant rail+panel · whole unit view · dispatch
  * drawer · decline/snooze/quick add · command palette (51) · gallery (34) ·
- * idle lock (20/49) · stats tab (13/27/45/49/69) · init.
+ * idle lock (20) · stats tab (13/27/45/69) · init.
  */
 
 // ===================== error diagnostics ring buffer (69) =====================
@@ -62,7 +62,10 @@ function esc(v) { return v == null ? "" : String(v).replace(/[&<>"']/g, c => ESC
 function escUrl(v) {
   const s = (v == null ? "" : String(v)).trim();
   if (!s) return "";
-  if (/^(?:https?:|tel:|mailto:|obsidian:)/i.test(s) || s[0] === "/" || s[0] === "#") return esc(s);
+  // s[1] !== "/" excludes protocol relative URLs ("//evil.com/x.png") — the
+  // browser resolves those as a full off-site request under the page's own
+  // scheme, which a single leading slash check alone would wrongly admit.
+  if (/^(?:https?:|tel:|mailto:|obsidian:)/i.test(s) || (s[0] === "/" && s[1] !== "/") || s[0] === "#") return esc(s);
   return "";
 }
 
@@ -210,7 +213,6 @@ const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);                  // device-local 
 const AREA = DATA.districts || {};
 let view = "work", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
 let ALL_TENANTS = [], MATCHES = [], byListing = {}, byTenant = {}, CURRENT_WORKLIST = [];
-let REVEALED = new Set();     // (20) "kind:id" tap-revealed phones this session only — resets on reload
 let IDLE_TIMER = null;        // (20)/(49) idle lock
 const IDLE_MS = 10 * 60 * 1000;
 
@@ -306,16 +308,6 @@ function isWholeUnitTenant(t) {
 function lifecycleOf(l) { return (l && l.lifecycle) || "available"; }
 function isActiveLifecycle(l) { const c = lifecycleOf(l); return c === "available" || c === "renewal_watch" || c === "unknown"; }
 
-// ===================== formatting: phone masking (20)/(49) =====================
-// "9xxx x123" — first digit real, next 3 masked, space, next masked, last 3 real.
-// Falls back to a generic mask for anything that isn't a plain 8 digit SG number.
-function maskPhone(phone) {
-  if (!phone) return "";
-  let d = normPhone(phone);
-  if (d.length === 10 && d.slice(0, 2) === "65") d = d.slice(2);
-  if (d.length !== 8) return "••••";
-  return d[0] + "xxx x" + d.slice(5);
-}
 function daysAgoLabel(days) {
   if (days == null) return "an unknown time";
   if (days <= 0) return "today";
@@ -445,16 +437,23 @@ function waLink(l, t) {
 }
 function waPlain(phone, msg) { const p = normPhone(phone); return p ? ("https://wa.me/" + p + (msg ? "?text=" + encodeURIComponent(msg) : "")) : ""; }
 function mapLink(l) { return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(l.map_query || areaName(l)); }
-function coldTitle() { return "cold >5 days — dead per your rule"; }
-// The 5 day dead lead rule, in ONE place. Every tenant facing action (draft
-// body, copy, call, WhatsApp, queue) asks this and nothing else, so the "cold
-// Nd" badge on a row and what that row will actually let you do can never
-// drift apart again. Landlord and co-broke contact is exempt by design: pass
-// the listing and a co-broke listing answers false, or pass null when the
-// action targets the tenant regardless of listing (health tab one question).
+function coldTitle() { return "quiet >30 days — dead per your rule"; }
+// The DEAD lead rule, in ONE place. Every tenant facing action (draft body,
+// copy, call, WhatsApp, queue) asks this and nothing else, so the badge on a row
+// and what that row will actually let you do can never drift apart again.
+//
+// This asks isDeadFromDays (30 days), NOT isColdFromDays (5). The two were the
+// same constant until 13 Aug 2026, which meant the 5 day ranking signal was also
+// gagging outreach: 151 of 218 tenants were unreachable when Winfred's actual
+// rule — widened from 5 to 14 to 30 — should have blocked 68. Cold still drives
+// ranking, the freshness score and the amber badge; only dead blocks a send.
+//
+// Landlord and co-broke contact is exempt by design: pass the listing and a
+// co-broke listing answers false, or pass null when the action targets the
+// tenant regardless of listing (health tab one question).
 function coldBlocked(l, t) {
   if (l && isCobroke(l)) return false;
-  return isColdT(t);
+  return Scoring.isDeadFromDays(coldDaysOf(t));
 }
 // (73) coldDays(t) reads only frozen payload fields (t.last_contact,
 // t.last_wa.ts) against TODAY, which is itself pinned to DATA.generated for the
@@ -488,35 +487,473 @@ function coldRefusalHtml(t) {
   const dc = coldDaysOf(t);
   return '<div class="draftlabel">No draft</div><div class="draftbox mut">' +
     esc(fname(t.name)) + ' last replied ' + esc(daysAgoLabel(dc)) +
-    '. Dead per your 5 day rule, so no message is drafted here. Landlord and co-broke contact is unaffected.</div>';
+    '. Dead per your 30 day rule, so no message is drafted here. Landlord and co-broke contact is unaffected.</div>';
 }
-// (49) single choke point for every WhatsApp/Call button in a modal or
-// popover (viewing pack, shortlist draft, reconfirm draft, ...) — keeps
-// assistant mode's "hides ALL phones, WhatsApp/Call included" promise
-// consistent everywhere a wa.me/tel: link is offered, not just the per pair
-// worklist rows (rowActionsHtml has its own equivalent check inline).
+// Single choke point for every WhatsApp/Call button in a modal or popover
+// (viewing pack, shortlist draft, reconfirm draft, ...) — keeps the dead lead
+// rule consistent everywhere a wa.me/tel: link is offered, not just the per
+// pair worklist rows (rowActionsHtml has its own equivalent check inline).
 function waButtonHtml(phone, msg, label, coldBlocked) {
   if (!phone) return "";
-  if (assistantMode()) return '<span class="btn disabled" title="assistant mode — numbers hidden">' + esc(label) + '</span>';
   if (coldBlocked) return '<span class="btn disabled" title="' + coldTitle() + '">' + esc(label) + '</span>';
   return '<a class="btn w" target="_blank" rel="noopener noreferrer" href="' + escUrl(waPlain(phone, msg)) + '">' + esc(label) + '</a>';
 }
 function callButtonHtml(phone, label, coldBlocked) {
   if (!phone) return "";
-  if (assistantMode()) return '<span class="btn disabled" title="assistant mode — numbers hidden">' + esc(label) + '</span>';
   if (coldBlocked) return '<span class="btn disabled" title="' + coldTitle() + '">' + esc(label) + '</span>';
   return '<a class="btn" href="' + escUrl("tel:" + normPhone(phone)) + '">' + esc(label) + '</a>';
 }
-// Same lockout, for a link that is already fully built (l.listing_url is
-// itself a wa.me deep link per the data lane — not something to run through
-// waPlain(phone, msg) again).
+// For a link that is already fully built (l.listing_url is itself a wa.me
+// deep link per the data lane — not something to run through waPlain(phone,
+// msg) again).
 function linkButtonHtml(href, label) {
   if (!href) return "";
-  if (assistantMode()) return '<span class="btn disabled" title="assistant mode — numbers hidden">' + esc(label) + '</span>';
   const safe = escUrl(href);
   if (!safe) return "";
   return '<a class="btn" target="_blank" rel="noopener noreferrer" href="' + safe + '">' + esc(label) + '</a>';
 }
+
+// ===================== CRM store (cloud-backed durability layer) =====================
+// The durable half of the app. Everything Winfred RECORDS through the drawer below
+// (stage, next action, notes, tasks) lives here and syncs to Postgres via /api/crm —
+// see deploy/api/crm.js for the wire contract. Everything the app KNOWS (names,
+// phones, budgets, last message dates) still comes from DATA, is rebuilt by build.py,
+// and is never written back to — keeping those two apart is what stops a nightly
+// rebuild and this app from ever overwriting each other.
+//
+// Offline first on purpose: every write lands in localStorage and renders
+// immediately, then queues for the server. The queue survives a reload, so a write
+// made on the MRT with no signal is still there when the connection returns. If
+// DATABASE_URL was never set on the Vercel project the API answers 501 and the app
+// simply stays local — a supported mode, not a failure, and the app must behave
+// identically either way.
+//
+// Storage keys use "cbkcrm_" (no underscore between cbk and crm), not "cbk_crm_": the
+// mark prefix is MARK_PREFIX="cbk_" and isMarkKey()/exportBlob() classify ANYTHING
+// starting with it as a listing/tenant mark unless explicitly excluded — a
+// "cbk_crm_v1" key would misparse as mark cbk_<lid="crm">_<tid="v1"> and get swept
+// into state export/import. "cbkcrm_" does not start with "cbk_" so it stays
+// invisible to that logic without teaching isMarkKey a new exception.
+const CRM = (function () {
+  const LKEY = "cbkcrm_v1", QKEY = "cbkcrm_queue_v1", MKEY = "cbkcrm_migrated_v1";
+  const API = "/api/crm";
+  let S = { entities: {}, notes: [], tasks: [], match: {}, activity: [] };
+  let queue = [], mode = "local", lastErr = "", timer = null, retryTimer = null, backoff = 0, booted = false, nextTmp = -1;
+  const RETRY_MIN = 5000, RETRY_MAX = 60000;
+
+  const j = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
+  const todayStr = () => new Date().toISOString().slice(0, 10);
+
+  // (item 4/5) Immediate, synchronous persist — used where a caller needs to
+  // KNOW the write actually landed before doing anything else (migrate()'s
+  // flag ordering, a fresh server snapshot). Empty catch used to mean quota
+  // exhaustion here failed completely silently — the drawer kept rendering
+  // from in-memory S so a note looked saved until the next reload wiped it.
+  // Mirrors safeSet's toast so every storage-full failure in this app reads
+  // the same way to the user, mark layer or CRM layer.
+  let saveScheduled = false;
+  function saveSync() {
+    saveScheduled = false;
+    try { localStorage.setItem(LKEY, JSON.stringify(S)); localStorage.setItem(QKEY, JSON.stringify(queue)); return true; }
+    catch (e) { toast("Device storage is full — that CRM change was not saved. Export state, then clear old browser data."); return false; }
+  }
+  // (item 4) Debounced persist for the hot interactive path (push() below,
+  // called once per pair from bulk actions). Coalesces N synchronous writes
+  // in the same call stack into exactly one JSON.stringify(S)+queue at the
+  // end of that stack via a microtask — which always drains before control
+  // returns to the browser (i.e. before a tab close can race it) — instead of
+  // re-serialising the whole growing store on every single op. Measured: four
+  // identical 300 pair bulk batches went 60/134/219/308ms before this: each
+  // push() paid for a full store snapshot, and that snapshot only gets bigger
+  // as the day goes on.
+  function scheduleSave() {
+    if (saveScheduled) return;
+    saveScheduled = true;
+    Promise.resolve().then(saveSync);
+  }
+  // (item 4) O(1) lookup so push() below can compact repeat writes to the
+  // same entity/pair instead of appending a new queue entry every time —
+  // without this a queue rebuilt via .find() per push is itself an O(n) scan
+  // against an ever growing array, i.e. the exact quadratic cost this is
+  // fixing, just moved one level down. Rebuilt (not incrementally patched)
+  // anywhere `queue` itself is reassigned wholesale (boot's initial load,
+  // migrate's concat, flush's post send slice) so a stale entry can never
+  // point at an op object that has already left the array.
+  let entityOpIndex = new Map(), matchOpIndex = new Map();
+  function reindexQueue() {
+    entityOpIndex = new Map(); matchOpIndex = new Map();
+    queue.forEach(o => {
+      if (o.op === "entity" && o.key) entityOpIndex.set(o.key, o);
+      else if (o.op === "match" && o.listing_id) matchOpIndex.set(o.listing_id + "|" + o.tenant_id, o);
+    });
+  }
+
+  // A person/record, not a row — keyed by phone whenever there is one so the same
+  // human matches across every place they appear (worklist row, roster, drawer).
+  // Records with no phone fall back to kind:id.
+  function keyOf(s) { if (!s) return null; const p = normPhone(s.phone); return p ? ("phone:" + p) : (s.id != null ? ((s.kind || "person") + ":" + s.id) : null); }
+  function ent(s) { const k = keyOf(s); return k ? (S.entities[k] || null) : null; }
+  function ensure(k, s) { return S.entities[k] || (S.entities[k] = { key: k, kind: (s && s.kind) || "person", ref_id: s && s.id, name: s && s.name, phone: s && s.phone, stage: "new", flagged: false, archived: false }); }
+
+  // (item 4) entity/match ops compact in place — a bulk action re-marking the
+  // same pair, or a drawer edited twice before the next flush, updates the
+  // still queued op instead of appending a duplicate, so a queue built while
+  // offline (mode:"local" never drains it — see schedule() below) grows with
+  // the number of DISTINCT pairs/records actually touched, not the number of
+  // writes made to them. note/task ops are never compacted here — each one is
+  // a genuinely distinct piece of content, not a repeatable status.
+  function push(op) {
+    if (op.op === "entity" && op.key) {
+      const existing = entityOpIndex.get(op.key);
+      if (existing) { existing.patch = Object.assign({}, existing.patch, op.patch); existing.kind = op.kind; existing.ref_id = op.ref_id; existing.name = op.name; existing.phone = op.phone; }
+      else { queue.push(op); entityOpIndex.set(op.key, op); }
+    } else if (op.op === "match" && op.listing_id) {
+      const mk = op.listing_id + "|" + op.tenant_id;
+      const existing = matchOpIndex.get(mk);
+      if (existing) existing.status = op.status;
+      else { queue.push(op); matchOpIndex.set(mk, op); }
+    } else {
+      queue.push(op);
+    }
+    scheduleSave(); schedule();
+  }
+  function schedule() { if (mode === "local") return; clearTimeout(timer); timer = setTimeout(flush, 600); }
+  // A failed flush must keep retrying on its own — the realistic outage is the
+  // backend or its database being briefly unreachable while the browser still
+  // thinks it is online, and without this the queue would sit untouched until the
+  // next write or the next reload, which for a note typed just before locking the
+  // phone could be days.
+  function retryLater() {
+    clearTimeout(retryTimer);
+    backoff = backoff ? Math.min(backoff * 2, RETRY_MAX) : RETRY_MIN;
+    retryTimer = setTimeout(() => { if (mode === "local") return; queue.length ? flush() : resync(); }, backoff);
+  }
+  // Re-GET when there is nothing to send. Recovers the pill from "offline" once the
+  // backend is reachable again, and picks up anything written on Winfred's other device.
+  async function resync() {
+    try {
+      const r = await fetch(API, { headers: { "Accept": "application/json" } });
+      if (r.status === 501) { mode = "local"; paint(); return; }
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      adopt(await r.json()); mode = "cloud"; lastErr = ""; backoff = 0;
+      saveSync(); paint(); if (window.render) render();
+    } catch (e) { mode = "offline"; lastErr = String(e && e.message || e); paint(); retryLater(); }
+  }
+  async function flush() {
+    if (mode === "local" || !queue.length || mode === "syncing") return;
+    const sending = queue.slice(0, 200), prev = mode;
+    mode = "syncing"; paint();
+    try {
+      const r = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ops: sending }) });
+      // 501 = no DATABASE_URL on this deployment. Stop trying, but KEEP the queue —
+      // if this is a misconfiguration rather than a deliberate local-only deploy,
+      // discarding it here would throw away real writes the next correct deploy
+      // would otherwise pick up.
+      if (r.status === 501) { mode = "local"; saveSync(); paint(); return; }
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      adopt(await r.json());
+      queue = queue.slice(sending.length); reindexQueue(); mode = "cloud"; lastErr = ""; backoff = 0; clearTimeout(retryTimer);
+      saveSync(); paint(); if (queue.length) schedule(); else if (window.render) render();
+    } catch (e) {
+      // Keep the queue — it is persisted, so nothing is lost. It goes out on the
+      // retry below, on the next write, on the next boot, or on 'online', whichever
+      // comes first.
+      mode = prev === "syncing" ? "offline" : prev; if (mode !== "local") mode = "offline";
+      lastErr = String(e && e.message || e); paint(); retryLater();
+    }
+  }
+  // Server snapshot becomes the truth for everything already acknowledged; anything
+  // still queued locally is re-applied on top so an in-flight write does not
+  // visibly revert on screen while its POST is still in the air.
+  function adopt(d) {
+    const e = {}; (d.entities || []).forEach(x => e[x.key] = x);
+    const m = {}; (d.match || []).forEach(x => m[x.listing_id + "|" + x.tenant_id] = x.status);
+    S = { entities: e, notes: d.notes || [], tasks: d.tasks || [], match: m, activity: d.activity || [] };
+    queue.forEach(replay);
+  }
+  // (item 3) Every op type the queue can hold must be replayable, not just
+  // entity/match — adopt() above REPLACES S.notes/S.tasks wholesale with the
+  // server's snapshot, so any note/task op still sitting in the queue (not
+  // yet acknowledged — e.g. tail ops beyond flush()'s 200 per batch cap, or
+  // anything queued while resync() runs) used to vanish from S the moment a
+  // snapshot landed, then get persisted that way by the save() right after —
+  // a note Winfred just typed disappearing from the drawer because a GET came
+  // back while it was still in flight. tempId (set by addNote/addTask below)
+  // is what lets a still local only note/task be reconstructed here; a "task"
+  // op with a real `id` instead is an update to one the server already knows
+  // about, patched onto the matching entry if the snapshot already has it.
+  function replay(o) {
+    if (o.op === "entity" && o.key) { const x = ensure(o.key, o); Object.assign(x, o.patch || {}); }
+    else if (o.op === "match" && o.listing_id) { const k = o.listing_id + "|" + o.tenant_id; o.status ? S.match[k] = o.status : delete S.match[k]; }
+    else if (o.op === "note" && o.tempId != null) {
+      if (o.key) ensure(o.key, o);
+      if (!S.notes.some(n => n.id === o.tempId)) S.notes.unshift({ id: o.tempId, key: o.key || null, body: o.body, created_at: o.created_at || new Date().toISOString() });
+    }
+    else if (o.op === "note_delete" && o.id != null) { S.notes = S.notes.filter(n => n.id !== o.id); }
+    else if (o.op === "task" && o.tempId != null) {
+      if (o.key) ensure(o.key, o);
+      if (!S.tasks.some(t => t.id === o.tempId)) S.tasks.push({ id: o.tempId, key: o.key || null, title: o.title, due: o.due || null, done: !!o.done, created_at: o.created_at || new Date().toISOString() });
+    }
+    else if (o.op === "task" && o.id != null) {
+      const t = S.tasks.find(x => x.id === o.id);
+      if (t) Object.assign(t, { title: o.title, due: o.due, done: o.done });
+    }
+    else if (o.op === "task_delete" && o.id != null) { S.tasks = S.tasks.filter(t => t.id !== o.id); }
+  }
+
+  // One-time import of pre-existing device-local state (marks, verdict overrides,
+  // offer stages — mirrored on write from here on by mirrorMatchToCRM/setOfferStage
+  // below) so nothing Winfred already recorded before the CRM shipped is lost the
+  // day it goes live. Runs once; MKEY guards the repeat. crmMatchStatusFor/isMarkKey/
+  // isOfferKey/readMark/readOffer/OFFER_PREFIX/OFFER_STAGES are all function
+  // declarations or module-level consts defined later in this file — safe to
+  // reference here because this function body only runs when CRM.boot() calls it,
+  // long after the whole script has finished its first synchronous pass.
+  function migrate() {
+    if (localStorage.getItem(MKEY)) return;
+    const ops = [];
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i); if (!k) continue;
+        if (isMarkKey(k)) {
+          const rest = k.slice(MARK_PREFIX.length), us = rest.indexOf("_");
+          if (us === -1) continue;
+          const lid = rest.slice(0, us), tid = rest.slice(us + 1);
+          const status = crmMatchStatusFor(lid, tid);
+          if (status) ops.push({ op: "match", listing_id: lid, tenant_id: tid, status });
+          // "Contacted" is the one mark signal worth promoting to a durable
+          // per-person stamp. Preserve the MARK's OWN timestamp as the contacted
+          // date, not today's date — a stamp from 9 Aug must stay 9 Aug.
+          const mk = readMark(lid, tid);
+          if (mk && mk.v === "Contacted" && mk.ts) {
+            const t = ALL_TENANTS.find(x => x.id === tid) || (DATA.all_tenants || []).find(x => x.id === tid);
+            const subj = { kind: "tenant", id: tid, name: t && t.name, phone: t && t.phone };
+            const key = keyOf(subj);
+            if (key) ops.push({ op: "entity", key, kind: "tenant", ref_id: tid, name: subj.name, phone: subj.phone, patch: { contacted_on: new Date(mk.ts).toISOString().slice(0, 10) } });
+          }
+        } else if (isOfferKey(k)) {
+          const rest = k.slice(OFFER_PREFIX.length), us = rest.indexOf("_");
+          if (us === -1) continue;
+          const lid = rest.slice(0, us), tid = rest.slice(us + 1);
+          const o = readOffer(lid, tid); if (!o) continue;
+          const t = ALL_TENANTS.find(x => x.id === tid) || (DATA.all_tenants || []).find(x => x.id === tid);
+          const subj = { kind: "tenant", id: tid, name: t && t.name, phone: t && t.phone };
+          const key = keyOf(subj);
+          if (key) ops.push({ op: "entity", key, kind: "tenant", ref_id: tid, name: subj.name, phone: subj.phone, patch: { stage: o.stage >= OFFER_STAGES.length - 1 ? "closed_won" : "offer" } });
+        }
+      }
+    } catch (e) { /* best effort — a migration failure must never block boot */ }
+    ops.forEach(o => { if (o.op === "entity") { const x = ensure(o.key, o); Object.assign(x, o.patch); } else replay(o); });
+    if (ops.length) { queue = queue.concat(ops); reindexQueue(); }
+    // (item 6) Flag only AFTER the migrated data is durably written, and only
+    // if that write actually succeeded — saveSync() (unlike the old bare
+    // save()) reports failure. The 18 byte flag write fitting when the real
+    // migrated data does not is exactly the case where migration must be
+    // retried next boot, not marked done with nothing migrated.
+    if (saveSync()) { try { localStorage.setItem(MKEY, todayStr()); } catch (e) { /* best effort marker only — migrated data is already durable */ } }
+  }
+
+  function paint() {
+    const pillEl = document.getElementById("syncPill"); if (!pillEl) return;
+    const n = queue.length;
+    const map = {
+      local: ["local only", "mut", "Saved on this device only — no cloud backend is configured, so nothing syncs to your phone or survives clearing this browser."],
+      cloud: [n ? ("syncing " + n) : "synced", n ? "a" : "g", n ? ("Sending " + n + " pending change(s).") : "All changes saved to the cloud."],
+      syncing: ["syncing…", "a", "Sending changes."],
+      offline: ["offline · " + n + " queued", "r", "Cannot reach the CRM backend" + (lastErr ? (" (" + lastErr + ")") : "") + ". Your changes are saved on this device and will send automatically once it is reachable."],
+    };
+    const [txt, cls, tip] = map[mode] || map.local;
+    pillEl.className = "chip " + cls; pillEl.textContent = (mode === "cloud" && !n ? "☁ " : mode === "local" ? "▣ " : "⟳ ") + txt; pillEl.title = tip;
+  }
+
+  return {
+    get mode() { return mode; }, get pending() { return queue.length; }, paint, flush, keyOf,
+    async boot() {
+      if (booted) return; booted = true;
+      S = j(LKEY, S); queue = j(QKEY, []);
+      // (item 7) A hostile/corrupt cbkcrm_v1 blob that parses but is not the
+      // shape this store expects (a bare number/string/array, or an object
+      // missing one of these fields) used to throw the moment S.entities/
+      // S.match got assigned below — an unguarded synchronous throw this
+      // early in an async function rejects boot()'s own promise before the
+      // first await, which with no .catch() on the call site (see init, this
+      // file's bottom) left the CRM permanently unsynced for the session with
+      // nothing on screen to explain why. Reset to a fresh, well shaped store
+      // instead of trusting the parsed shape.
+      if (!S || typeof S !== "object" || Array.isArray(S)) S = { entities: {}, notes: [], tasks: [], match: {}, activity: [] };
+      if (!S.entities || typeof S.entities !== "object") S.entities = {};
+      if (!S.match || typeof S.match !== "object") S.match = {};
+      if (!Array.isArray(S.notes)) S.notes = [];
+      if (!Array.isArray(S.tasks)) S.tasks = [];
+      if (!Array.isArray(S.activity)) S.activity = [];
+      if (!Array.isArray(queue)) queue = [];
+      reindexQueue();
+      migrate();
+      paint();
+      try {
+        const r = await fetch(API, { headers: { "Accept": "application/json" } });
+        if (r.status === 501) { mode = "local"; }
+        else if (r.ok) { adopt(await r.json()); mode = "cloud"; saveSync(); }
+        else throw new Error("HTTP " + r.status);
+      } catch (e) { mode = "offline"; lastErr = String(e && e.message || e); }
+      paint(); if (window.render) render();
+      if (mode !== "local" && queue.length) flush();
+      else if (mode === "offline") retryLater();   // reachable again later even with nothing queued
+      window.addEventListener("online", () => { if (mode === "offline") { backoff = 0; flush(); } });
+      // Coming back to the app is the moment a stalled queue most wants a retry, and
+      // it costs nothing when there is nothing pending.
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "visible" && mode !== "local" && queue.length) { backoff = 0; flush(); }
+      });
+    },
+    entity: ent,
+    stage(s) { const e = ent(s); return e ? (e.stage || "new") : "new"; },
+    setStage(s, v) {
+      const k = keyOf(s); if (!k) return; Object.assign(ensure(k, s), { stage: v });
+      push({ op: "entity", key: k, kind: s.kind, ref_id: s.id, name: s.name, phone: s.phone, patch: { stage: v } });
+    },
+    setPlan(s, action, due) {
+      const k = keyOf(s); if (!k) return; Object.assign(ensure(k, s), { next_action: action || null, next_due: due || null });
+      push({ op: "entity", key: k, kind: s.kind, ref_id: s.id, name: s.name, phone: s.phone, patch: { next_action: action || null, next_due: due || null } });
+    },
+    matchStatus(l, t) { return S.match[l + "|" + t] || ""; },
+    setMatchStatus(l, t, v) {
+      v ? S.match[l + "|" + t] = v : delete S.match[l + "|" + t];
+      push({ op: "match", listing_id: l, tenant_id: t, status: v || "" });
+    },
+    notes(s) { const k = keyOf(s); return k ? S.notes.filter(n => n.key === k) : []; },
+    addNote(s, body) {
+      const k = keyOf(s); if (!k || !body) return; ensure(k, s);
+      const id = nextTmp--, created_at = new Date().toISOString();
+      S.notes.unshift({ id, key: k, body, created_at });
+      // tempId travels with the queued op so delNote/replay can find this
+      // exact still unsynced write again (see both below and replay() above).
+      push({ op: "note", tempId: id, key: k, kind: s.kind, ref_id: s.id, name: s.name, phone: s.phone, body, created_at });
+    },
+    // (item 3) A temp id (negative — see nextTmp above) means this note has
+    // never reached the server: the ORIGINAL "note" add op is still sitting
+    // in the queue with nothing to delete server side yet. The old code only
+    // pushed note_delete for id>0 and left that add op queued regardless — a
+    // note deleted before its first sync got silently resurrected into
+    // Postgres on the next successful flush. Cancel the still queued add
+    // outright instead; nothing was ever sent, so there is nothing to undo.
+    delNote(id) {
+      S.notes = S.notes.filter(n => n.id !== id);
+      if (id > 0) { push({ op: "note_delete", id }); }
+      else {
+        const before = queue.length;
+        queue = queue.filter(o => !(o.op === "note" && o.tempId === id));
+        if (queue.length !== before) scheduleSave();
+      }
+    },
+    tasks(s) { if (!s) return S.tasks.slice(); const k = keyOf(s); return S.tasks.filter(t => t.key === k); },
+    addTask(s, title, due) {
+      if (!title) return; const k = s ? keyOf(s) : null; if (k) ensure(k, s);
+      const id = nextTmp--, created_at = new Date().toISOString();
+      S.tasks.push({ id, key: k, title, due: due || null, done: false, created_at });
+      push(Object.assign({ op: "task", tempId: id, title, due: due || null, created_at }, k ? { key: k, kind: s.kind, ref_id: s.id, name: s.name, phone: s.phone } : {}));
+    },
+    // (item 3) Same temp id problem as delNote: a task added while offline has
+    // no server id yet, so toggling it used to be a no-op on the queue (guarded
+    // by id>0) — completion never left the device, and the queued add's fixed
+    // done:false would win the moment it finally synced. Mutate that still
+    // queued add op in place instead; there is nothing server side to patch yet.
+    toggleTask(id) {
+      const t = S.tasks.find(x => x.id === id); if (!t) return; t.done = !t.done;
+      if (id > 0) { push({ op: "task", id, title: t.title, due: t.due, done: t.done }); }
+      else {
+        const q = queue.find(o => o.op === "task" && o.tempId === id);
+        if (q) { q.done = t.done; scheduleSave(); }
+      }
+    },
+    delTask(id) {
+      S.tasks = S.tasks.filter(x => x.id !== id);
+      if (id > 0) { push({ op: "task_delete", id }); }
+      else {
+        const before = queue.length;
+        queue = queue.filter(o => !(o.op === "task" && o.tempId === id));
+        if (queue.length !== before) scheduleSave();
+      }
+    },
+    activity(s) { if (!s) return S.activity.slice(); const k = keyOf(s); return S.activity.filter(a => a.key === k); },
+    all() { return Object.values(S.entities); },
+    // ---- backup/export bridge (item 1) ----
+    // Raw snapshot for exportBlob()/writeAutoBackup() below — this is the ONLY
+    // durable copy of every stage, note and task Winfred has ever recorded
+    // when DATABASE_URL is unset (the normal, supported mode — see this
+    // module's header comment), so it has to travel with state export/import/
+    // backup exactly like marks/overrides/offers/scratch do, not be left out.
+    exportState() {
+      return { entities: Object.values(S.entities), notes: S.notes.slice(), tasks: S.tasks.slice(), match: Object.assign({}, S.match) };
+    },
+    // Merge policy: if this device's CRM store is empty (the realistic case —
+    // browser data was just cleared, or this is a restore onto a fresh
+    // profile) the backup becomes the whole store outright. Otherwise merge
+    // additively and only fill in what is missing — an import must never
+    // overwrite or drop anything already recorded on this device, same rule
+    // as importBlob() uses for marks/overrides/offers.
+    importState(blob) {
+      const empty = { entities: 0, notes: 0, tasks: 0, match: 0 };
+      if (!blob || typeof blob !== "object") return empty;
+      if (!Object.keys(S.entities).length && !S.notes.length && !S.tasks.length && !Object.keys(S.match).length) {
+        const e = {}, restoreOps = [];
+        (Array.isArray(blob.entities) ? blob.entities : []).forEach(x => {
+          if (!x || !x.key) return;
+          e[x.key] = Object.assign({}, x);
+          // Idempotent patch (every non identity field) — safe to requeue even
+          // if this exact record already reached a server from wherever it was
+          // exported, so a restored device still gets its own copy onto a
+          // backend that only appears later instead of the data staying
+          // screen-only.
+          const patch = Object.assign({}, x);
+          delete patch.key; delete patch.kind; delete patch.ref_id; delete patch.name; delete patch.phone;
+          restoreOps.push({ op: "entity", key: x.key, kind: x.kind, ref_id: x.ref_id, name: x.name, phone: x.phone, patch });
+        });
+        const notes = Array.isArray(blob.notes) ? blob.notes.slice() : [];
+        const tasks = Array.isArray(blob.tasks) ? blob.tasks.slice() : [];
+        // Only requeue notes/tasks that never reached a server (temp/negative
+        // id) — a positive id already exists there and requeuing it as a plain
+        // "note"/"task" add (no upsert by id in this wire protocol) would
+        // duplicate it once this device eventually flushes.
+        notes.forEach(n => { if (n && n.id < 0) restoreOps.push({ op: "note", tempId: n.id, key: n.key, body: n.body, created_at: n.created_at }); });
+        tasks.forEach(t => { if (t && t.id < 0) restoreOps.push({ op: "task", tempId: t.id, key: t.key, title: t.title, due: t.due, done: t.done, created_at: t.created_at }); });
+        const match = (blob.match && typeof blob.match === "object") ? Object.assign({}, blob.match) : {};
+        Object.keys(match).forEach(k => {
+          const us = k.indexOf("|");
+          if (us !== -1) restoreOps.push({ op: "match", listing_id: k.slice(0, us), tenant_id: k.slice(us + 1), status: match[k] });
+        });
+        S = { entities: e, notes, tasks, match, activity: S.activity };
+        if (restoreOps.length) { queue = queue.concat(restoreOps); reindexQueue(); }
+        saveSync();
+        return { entities: Object.keys(e).length, notes: notes.length, tasks: tasks.length, match: Object.keys(match).length };
+      }
+      let entC = 0, noteC = 0, taskC = 0, matchC = 0;
+      (Array.isArray(blob.entities) ? blob.entities : []).forEach(x => {
+        if (x && x.key && !S.entities[x.key]) { S.entities[x.key] = Object.assign({}, x); entC++; }
+      });
+      const noteIds = new Set(S.notes.map(n => n.key + "|" + n.id));
+      (Array.isArray(blob.notes) ? blob.notes : []).forEach(n => {
+        if (!n || n.id == null || !n.key) return;
+        const idn = n.key + "|" + n.id;
+        if (!noteIds.has(idn)) { S.notes.push(Object.assign({}, n)); noteIds.add(idn); noteC++; }
+      });
+      const taskIds = new Set(S.tasks.map(t => (t.key || "") + "|" + t.id));
+      (Array.isArray(blob.tasks) ? blob.tasks : []).forEach(t => {
+        if (!t || t.id == null) return;
+        const idt = (t.key || "") + "|" + t.id;
+        if (!taskIds.has(idt)) { S.tasks.push(Object.assign({}, t)); taskIds.add(idt); taskC++; }
+      });
+      if (blob.match && typeof blob.match === "object") {
+        Object.keys(blob.match).forEach(k => { if (!(k in S.match)) { S.match[k] = blob.match[k]; matchC++; } });
+      }
+      saveSync();
+      return { entities: entC, notes: noteC, tasks: taskC, match: matchC };
+    },
+  };
+})();
+const STAGE_LABELS = { new: "New", contacted: "Contacted", qualified: "Qualified", viewing_set: "Viewing set", viewed: "Viewed", offer: "Offer", closed_won: "Closed won", closed_lost: "Lost", dormant: "Dormant" };
+const STAGE_ORDER = ["new", "contacted", "qualified", "viewing_set", "viewed", "offer", "closed_won", "closed_lost", "dormant"];
+function subjOf(kind, o) { return { kind, id: o.id, name: o.name, phone: o.phone }; }
 
 // ===================== localStorage model =====================
 // marks: cbk_<lid>_<tid> -> JSON {v,ts,reason?,viewing_date?,snooze_until?,note?}
@@ -568,9 +1005,10 @@ function patchMark(lid, tid, patch) {
   if (!safeSet(key, JSON.stringify(next))) return cur;
   MARK_CACHE.delete(key);   // (71) next readMark(lid,tid) re-reads the value just written
   if (patch && patch.v) pushMarkHistory(lid, tid, patch.v);
+  mirrorMatchToCRM(lid, tid);   // durable copy — see crmMatchStatusFor's comment
   return next;
 }
-function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); }
+function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); mirrorMatchToCRM(lid, tid); }
 
 function overrideKey(lid, tid) { return OVERRIDE_PREFIX + lid + "_" + tid; }
 function readOverride(lid, tid) {
@@ -586,8 +1024,28 @@ function setOverride(lid, tid, verdict, why) {
   const key = overrideKey(lid, tid);
   safeSet(key, JSON.stringify({ verdict, ts: Date.now(), why: why || null }));
   MARK_CACHE.delete(key);   // (71)
+  mirrorMatchToCRM(lid, tid);
 }
-function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); }
+function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); mirrorMatchToCRM(lid, tid); }
+// CRM durability bridge (see the CRM store's own header comment). crm_match_status
+// has exactly one free-text `status` column per (listing_id, tenant_id) pair — no
+// separate slots for the mark's reason/snooze/note, or for the override verdict — so
+// this composes the pair's whole locally-meaningful state into one short summary
+// string rather than losing everything but the bare status label. It is a forward-only
+// durability copy: nothing in this app parses it back out of the CRM snapshot, exactly
+// like the CRM store's own composite text fields in other apps. Called from every
+// mark/override write above (patchMark/clearMarkV/setOverride/clearOverride) — one
+// choke point, so a future new writer of either key only has to remember to call it
+// once, here.
+function crmMatchStatusFor(lid, tid) {
+  const mk = readMark(lid, tid), ov = readOverride(lid, tid);
+  const parts = [];
+  if (mk && mk.v) parts.push(mk.v);
+  if (mk && mk.snooze_until) parts.push("snoozed:" + mk.snooze_until);
+  if (ov && ov.verdict) parts.push("override:" + ov.verdict);
+  return parts.join(" | ").slice(0, 60);
+}
+function mirrorMatchToCRM(lid, tid) { if (typeof CRM !== "undefined") CRM.setMatchStatus(lid, tid, crmMatchStatusFor(lid, tid)); }
 // (71) Invalidation for a write this tab did NOT make. Every writer above drops
 // its own key inline, which is sufficient while one tab is the only thing
 // touching this origin's storage — but a second tab (a browser tab alongside
@@ -602,8 +1060,8 @@ function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStora
 // pre-cache read-through behaviour.
 function invalidateMarkCacheKey(key) {
   if (key == null) { MARK_CACHE.clear(); return; }
-  // cbk_ also prefixes scratch/reveals/prefs/backup/offer keys, which never
-  // enter MARK_CACHE — deleting one of those is a harmless no-op, and matching
+  // cbk_ also prefixes scratch/prefs/backup/offer keys, which never enter
+  // MARK_CACHE — deleting one of those is a harmless no-op, and matching
   // broadly is the safer direction here.
   if (key.indexOf(MARK_PREFIX) === 0 || key.indexOf(OVERRIDE_PREFIX) === 0) MARK_CACHE.delete(key);
 }
@@ -644,12 +1102,16 @@ function addScratchTenant(t) {
   return t;
 }
 
-// ===================== PASS 2 — prefs, history log, reveals, offers, backups =====================
-const PREFS_KEY = "cbk_prefs", HISTORY_KEY = "cbk_history", REVEALS_KEY = "cbk_reveals";
-const HISTORY_CAP = 1000, REVEALS_CAP = 500;
+// ===================== PASS 2 — prefs, history log, offers, backups =====================
+const PREFS_KEY = "cbk_prefs", HISTORY_KEY = "cbk_history";
+const HISTORY_CAP = 1000;
 const OFFER_PREFIX = "cbk_offer_";
 const OFFER_STAGES = ["Holding deposit", "LOI", "Intake form complete", "Tenancy agreement", "Keys"];
-const PREFS_DEFAULTS = { masked: true, assistant_mode: false, theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now() };
+// Phone numbers render in full, always (Winfred, 13 Aug 2026): he is the only
+// user, the app is already behind Basic Auth, and masking was only ever
+// display-only — the numbers sat in the payload either way. The masking and
+// assistant-mode toggles were removed entirely, not just disabled.
+const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now() };
 
 function loadPrefs() {
   try {
@@ -661,13 +1123,12 @@ function loadPrefs() {
 function savePrefs() { return safeSet(PREFS_KEY, JSON.stringify(PREFS)); }
 let PREFS = loadPrefs();
 
-// Cap is enforced on WRITE (not just on read) so neither log can grow past its
+// Cap is enforced on WRITE (not just on read) so a log can never grow past its
 // bound, including when the stored array arrives already over cap from an
 // import or an older build. A non array under the key is reset rather than
 // pushed onto: arr.push would throw, the catch below would swallow it, and
 // every later write would be lost in silence — for cbk_history that is the
-// weekly funnel quietly reading zero forever, and for cbk_reveals it is the
-// PDPA accountability trail quietly not recording.
+// weekly funnel quietly reading zero forever.
 function pushRingBuffer(key, cap, entry) {
   try {
     const raw = localStorage.getItem(key);
@@ -684,101 +1145,36 @@ function readRingBuffer(key) {
 }
 function pushMarkHistory(lid, tid, v) { if (v) pushRingBuffer(HISTORY_KEY, HISTORY_CAP, { lid, tid, v, ts: Date.now() }); }
 
-// ---- privacy: masking (20), assistant mode + hard expiry force (48/49) ----
-// NOW_REAL_SGT, not TODAY — TODAY is PARSED FROM DATA.generated, so comparing
-// DATA.generated_ts against TODAY is always ~0 days and this would never
-// fire. Real wall clock time is the whole point of "how stale is this data",
-// and it has to be the real Singapore calendar day (NOW_REAL_SGT), not the
-// viewing device's own — a masking force flipping on/off purely because
-// Winfred is traveling would be exactly the kind of TZ flap this data age
-// banner exists to avoid.
-function phonesForceMasked() { return Scoring.dataAgeTier(DATA.generated_ts || DATA.generated, NOW_REAL_SGT).tier === "red"; }
-function maskingActive() { return PREFS.masked || phonesForceMasked(); }
-function assistantMode() { return !!PREFS.assistant_mode; }
-function isRevealed(kind, id) { return REVEALED.has(kind + ":" + id); }
-function revealNow(kind, id) {
-  if (assistantMode()) return; // (49) reveal is disabled entirely in assistant mode, not just hidden
-  REVEALED.add(kind + ":" + id);
-  pushRingBuffer(REVEALS_KEY, REVEALS_CAP, { kind, id, ts: Date.now() });
-}
-// Single choke point for the header/palette "Toggle phone masking" switch —
-// unlike a per number tap (revealNow above), this one flip unmasks EVERY
-// phone number in the app at once, so it belongs in the same PDPA reveals log
-// the stats tab calls "your accountability trail" — a log that only covered
-// individual taps was trivially bypassable by the coarser, more powerful
-// switch sitting right next to it.
-function toggleGlobalMask() {
-  const wasMasked = maskingActive();
-  PREFS.masked = !PREFS.masked;
-  if (wasMasked && !maskingActive()) pushRingBuffer(REVEALS_KEY, REVEALS_CAP, { kind: "mask_toggle", id: "all", ts: Date.now() });
-  savePrefs();
-  render();
-}
-// The single call site everywhere a phone number might render as text.
-// assistantMode() is checked FIRST and unconditionally, same as every other
-// phone/contact gate in this file (waButtonHtml/callButtonHtml/linkButtonHtml)
-// — assistant mode's promise is "hides every phone number with no way to
-// reveal them", full stop, regardless of whatever PREFS.masked happens to be
-// set to underneath it (e.g. Winfred had unmasked numbers for himself, then
-// handed the device over and flipped assistant mode on without also turning
-// masking back on).
-function displayPhone(kind, id, phone) {
-  if (!phone) return "";
-  if (assistantMode()) return "";
-  if (!maskingActive()) return phone;
-  if (isRevealed(kind, id)) return phone;
-  return maskPhone(phone);
-}
-// displayPhone() feeds plain text contexts (calendar link details); phoneSpanHtml
-// below is the HTML one and escapes on its own.
+// ---- phone display ----
+// Phone numbers render in full, always — see PREFS_DEFAULTS' comment. Both
+// functions keep their (kind, id, phone) signature even though kind/id are no
+// longer read, so every call site across the file (worklist rows, rosters,
+// dup lists, gallery, gcalLink) stays unchanged.
+function displayPhone(kind, id, phone) { return phone || ""; }
+// displayPhone() feeds plain text contexts (calendar link details);
+// phoneSpanHtml below is the single place a phone renders as HTML, and
+// escapes on its own.
 function phoneSpanHtml(kind, id, phone) {
   if (!phone) return "";
-  // aria-label overrides what a screen reader announces without touching what
-  // sighted users see — the partial digits stay visible, but the accessible
-  // name announces the (reveal) action instead of leaking those digits through
-  // the announcement. Neither branch below is reveal-able (assistant mode
-  // disables reveal entirely), so the label says so honestly rather than
-  // reusing "activate to reveal" wording that would not actually be true here.
-  if (assistantMode()) return '<span class="masked" title="assistant mode — numbers hidden" aria-label="phone hidden — assistant mode">' + esc(maskPhone(phone)) + '</span>';
-  if (!maskingActive()) return esc(phone);
-  if (isRevealed(kind, id)) return esc(phone);
-  // role=button + tabindex=0 make this keyboard operable (see wireRevealTaps'
-  // keydown handler below) — before this it was mouse/touch only, unreachable
-  // by Tab and silent to a screen reader about being interactive at all.
-  return '<span class="masked" data-reveal="' + esc(kind + ":" + id) + '" title="tap to reveal (logged)" role="button" tabindex="0" aria-label="phone hidden — activate to reveal">' + esc(maskPhone(phone)) + ' 👁</span>';
-}
-function wireRevealTaps(container) {
-  container.querySelectorAll("[data-reveal]").forEach(s => {
-    const reveal = (e) => {
-      // Defensive: a second activation (mouse click or Enter/Space repeat)
-      // after this span has already lost data-reveal below must be a no-op,
-      // not a throw from split(":") on undefined.
-      if (!s.dataset.reveal) return;
-      e.stopPropagation();
-      const [kind, id] = s.dataset.reveal.split(":");
-      revealNow(kind, id);
-      // Targeted update only — a full render() here would rebuild the panel
-      // this span lives in and collapse whatever expandable list/preview the
-      // reveal tap was inside, so the user taps reveal and immediately sees
-      // nothing revealed. Other copies of the same masked number elsewhere on
-      // the page pick up the change on the next render() (isRevealed() already
-      // reflects it, since REVEALED was updated above).
-      const src = kind === "tenant" ? ALL_TENANTS.find(x => x.id === id) : (DATA.listings || []).find(x => x.id === id);
-      if (src && src.phone) {
-        s.textContent = src.phone;
-        s.removeAttribute("data-reveal"); s.removeAttribute("title");
-        s.removeAttribute("role"); s.removeAttribute("tabindex"); s.removeAttribute("aria-label");
-      }
-    };
-    s.onclick = reveal;
-    s.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(e); } });
-  });
+  return esc(phone);
 }
 
 // ---- offer checklist (41) ----
 function offerKey(lid, tid) { return OFFER_PREFIX + lid + "_" + tid; }
 function readOffer(lid, tid) { try { const raw = localStorage.getItem(offerKey(lid, tid)); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
-function setOfferStage(lid, tid, stageIdx) { return safeSet(offerKey(lid, tid), JSON.stringify({ stage: stageIdx, ts: Date.now() })); }
+function setOfferStage(lid, tid, stageIdx) {
+  const ok = safeSet(offerKey(lid, tid), JSON.stringify({ stage: stageIdx, ts: Date.now() }));
+  // Mirror onto the tenant's CRM entity stage — an offer in progress is a person
+  // moving through the funnel, not a per-pair status, so this is the one write in
+  // this file that targets CRM's `entity` op (patchMark/setOverride above target
+  // the per-pair `match` op instead). "Keys" (the final stage) reads as closed_won.
+  if (ok && typeof CRM !== "undefined") {
+    const t = ALL_TENANTS.find(x => x.id === tid) || (DATA.all_tenants || []).find(x => x.id === tid);
+    const subj = { kind: "tenant", id: tid, name: t && t.name, phone: t && t.phone };
+    if (CRM.keyOf(subj)) CRM.setStage(subj, stageIdx >= OFFER_STAGES.length - 1 ? "closed_won" : "offer");
+  }
+  return ok;
+}
 function activeOffers() {
   const out = [];
   for (let i = 0; i < localStorage.length; i++) {
@@ -799,12 +1195,12 @@ function activeOffers() {
 // string value untouched (legacy bare string or JSON) — nothing is decoded
 // then re-encoded, so import writes back byte for byte what export read.
 // A mark key is cbk_<listingId>_<tenantId> and nothing else. Every other cbk_*
-// key in this app (prefs, history, reveals, errors, scratch, offers, backups)
-// shares that prefix, so "starts with cbk_" alone is NOT a safe test — import
+// key in this app (prefs, history, errors, scratch, offers, backups) shares
+// that prefix, so "starts with cbk_" alone is NOT a safe test — import
 // in particular must not be able to write cbk_prefs through the marks map.
 function isMarkKey(k) {
   return !!k && k.indexOf(MARK_PREFIX) === 0 && k !== SCRATCH_KEY && k.indexOf(OFFER_PREFIX) !== 0
-    && k !== PREFS_KEY && k !== HISTORY_KEY && k !== REVEALS_KEY && k !== ERR_KEY && k.indexOf("cbk_backup_") !== 0;
+    && k !== PREFS_KEY && k !== HISTORY_KEY && k !== ERR_KEY && k.indexOf("cbk_backup_") !== 0;
 }
 // Offers travel in their own map, NOT through marks: isMarkKey() deliberately
 // rejects cbk_offer_* so an import can never reach a reserved key, and leaving
@@ -827,7 +1223,12 @@ function exportBlob() {
   return {
     version: 2, exported_ts: new Date().toISOString(),
     marks, overrides, offers, scratch: readScratch(),
-    reveals: readRingBuffer(REVEALS_KEY), history: readRingBuffer(HISTORY_KEY)
+    history: readRingBuffer(HISTORY_KEY),
+    // (item 1) cbkcrm_v1/cbkcrm_queue_v1 hold every stage, note and task Winfred
+    // has recorded — with no backend configured (the normal mode) that data
+    // exists ONLY in this browser profile, so an export that omits it is not a
+    // backup of the app's state, just of the older mark layer. See CRM.exportState.
+    crm: (typeof CRM !== "undefined") ? CRM.exportState() : null
   };
 }
 function tsOfRaw(raw) {
@@ -842,7 +1243,7 @@ function tsOfRaw(raw) {
 // the import, since the user just explicitly asked to import). Scratch tenants
 // merge by id, keeping the local record and re-keying an incoming one that
 // collides — never clobber a local edit, never silently drop a person either.
-// The two logs (reveals, mark history) merge through mergeLogInto below.
+// The mark history log merges through mergeLogInto below.
 //
 // Log merge: exact de-dupe on the record's own identity, then ts sort and the
 // same cap the live writer enforces. Exact de-dupe is what makes importing the
@@ -866,11 +1267,11 @@ function mergeLogInto(key, cap, incoming, identity) {
   return safeSet(key, JSON.stringify(local)) ? added : 0;  // never report entries that were not persisted
 }
 function importBlob(blob) {
-  const result = { marks: 0, overrides: 0, offers: 0, scratch: 0, reveals: 0, history: 0 };
+  const result = { marks: 0, overrides: 0, offers: 0, scratch: 0, history: 0, crm: null };
   if (!blob || typeof blob !== "object") return result;
   const marks = blob.marks || {};
   for (const k in marks) {
-    if (!isMarkKey(k)) continue;   // never let an import reach cbk_prefs / cbk_reveals / a backup slot
+    if (!isMarkKey(k)) continue;   // never let an import reach cbk_prefs / a backup slot
     if (tsOfRaw(marks[k]) >= tsOfRaw(localStorage.getItem(k))) { if (safeSet(k, marks[k])) { result.marks++; MARK_CACHE.delete(k); } }
   }
   const overrides = blob.overrides || {};
@@ -913,8 +1314,11 @@ function importBlob(blob) {
     });
     writeScratch(local);
   }
-  result.reveals = mergeLogInto(REVEALS_KEY, REVEALS_CAP, blob.reveals, r => r.kind + ":" + r.id + ":" + r.ts);
   result.history = mergeLogInto(HISTORY_KEY, HISTORY_CAP, blob.history, r => r.lid + ":" + r.tid + ":" + r.v + ":" + r.ts);
+  // (item 1) merges cbkcrm_v1's stages/notes/tasks/match back in — see
+  // CRM.importState for the merge policy (empty store -> replace, otherwise
+  // fill gaps only, never overwrite).
+  if (blob.crm && typeof CRM !== "undefined") result.crm = CRM.importState(blob.crm);
   return result;
 }
 function downloadJSON(obj, filename) {
@@ -933,11 +1337,11 @@ function writeAutoBackup() {
   // device's own clock reads while Winfred is traveling.
   const wd = WEEKDAY_NAMES[NOW_REAL_SGT.getDay()];
   // Slot contents are deliberately slimmer than a manual export: seven rolling
-  // copies of the 1000 entry history log and the 500 entry reveals log would be
-  // several hundred KB of the same quota whose exhaustion makes safeSet() drop
-  // a live mark. What a backup exists to bring back is the state itself.
+  // copies of the 1000 entry history log would be several hundred KB of the
+  // same quota whose exhaustion makes safeSet() drop a live mark. What a
+  // backup exists to bring back is the state itself.
   const slot = exportBlob();
-  delete slot.history; delete slot.reveals;
+  delete slot.history;
   try { localStorage.setItem(BACKUP_PREFIX + wd, JSON.stringify(slot)); } catch (e) { /* quota — skip, not fatal */ }
 }
 // These seven rolling slots were written on every load and read by nothing:
@@ -1043,9 +1447,9 @@ function nbaFor(m) {
     isCold: isColdT(m.t),  // cold styling stays TODAY pinned, consistent with the row's own cold badge
     today: NOW_REAL_SGT,                 // but mk.ts/mk.viewing_date are REAL timestamps, and the "today" they compare
                                           // against has to be the real Singapore day too (not NOW_REAL's device-local
-                                          // one) — same bug class as phonesForceMasked, would silently never fire the
-                                          // nudge/collect verdict chip once the dataset is even a little stale, or fire
-                                          // a day early/late purely from the viewing device's own timezone
+                                          // one) — otherwise this would silently never fire the nudge/collect verdict
+                                          // chip once the dataset is even a little stale, or fire a day early/late
+                                          // purely from the viewing device's own timezone
     needsInfoReasons: m.s.needsInfoReasons
   });
 }
@@ -1262,7 +1666,7 @@ function gcalLink(l, t, dateStr, timeStr) {
   const [Y, M, D] = dateStr.split("-").map(Number);
   const endDateStr = dayRoll ? isoLocal(new Date(Y, M - 1, D + dayRoll)) : dateStr;
   const end = endDateStr.replace(/-/g, "") + "T" + pad(eh) + pad(em) + "00";
-  const phoneBit = (!assistantMode() && t.phone) ? (" " + displayPhone("tenant", t.id, t.phone)) : "";
+  const phoneBit = t.phone ? (" " + displayPhone("tenant", t.id, t.phone)) : "";
   const details = "Viewing with " + fname(t.name) + phoneBit;
   return "https://www.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent("Viewing — " + l.name) +
     "&dates=" + start + "/" + end + "&details=" + encodeURIComponent(details) + "&location=" + encodeURIComponent(l.address || areaName(l)) + "&ctz=Asia%2FSingapore";
@@ -1297,7 +1701,7 @@ function openViewingPack(l, t, dateStr, timeStr) {
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
 // `cold` drops "Queued" from the options: queueing is an outbound send action
-// (it feeds the morning dispatch export), so the 5 day rule applies to it the
+// (it feeds the morning dispatch export), so the dead lead rule applies to it the
 // same way it applies to WhatsApp, Call and Draft.
 function markSelectHtml(st, cold, tname) {
   const opts = ["Contacted", "Viewing booked", "Not interested"].concat(cold ? [] : ["Queued"]);
@@ -1313,15 +1717,11 @@ function rowActionsHtml(l, t, cold) {
   const cobroke = isCobroke(l);
   const hasTarget = cobroke ? !!l.phone : !!t.phone;
   const label = cobroke ? "WhatsApp co-broke agent" : "WhatsApp draft";
-  // (49) assistant mode hides ALL phones — landlord/co-broke included, unlike
-  // the cold rule below which explicitly never disables landlord contact.
-  const lockedOut = assistantMode();
   // One source of truth for the rule — matchRow passes what coldBlocked() said,
   // and this function must not re-derive it differently.
   const blocked = cold && !cobroke;
   let waBtn;
   if (!hasTarget) waBtn = '<span class="btn mut">' + (cobroke ? "no phone on file for the co-broke agent" : "no phone on file") + '</span>';
-  else if (lockedOut) waBtn = '<span class="btn disabled" title="assistant mode — numbers hidden">' + esc(label) + '</span>';
   else if (blocked) waBtn = '<span class="btn disabled" title="' + coldTitle() + '">' + esc(label) + '</span>';
   else waBtn = '<a class="btn w" target="_blank" rel="noopener noreferrer" href="' + escUrl(waLink(l, t)) + '">' + esc(label) + '</a>';
   // Draft is an outbound action too: greyed for a cold tenant, exactly like
@@ -1334,8 +1734,7 @@ function rowActionsHtml(l, t, cold) {
   const callTarget = cobroke ? l.phone : t.phone;
   let callBtn = "";
   if (callTarget) {
-    if (lockedOut) callBtn = '<span class="btn disabled" title="assistant mode — numbers hidden">Call</span>';
-    else if (blocked) callBtn = '<span class="btn disabled" title="' + coldTitle() + '">Call</span>';
+    if (blocked) callBtn = '<span class="btn disabled" title="' + coldTitle() + '">Call</span>';
     else callBtn = '<a class="btn" href="' + escUrl("tel:" + normPhone(callTarget)) + '">Call</a>';
   }
   return waBtn + draftBtn + callBtn + '<a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>';
@@ -1408,13 +1807,12 @@ function matchRow(m, showListing, opts) {
     (m.s.near_miss && blocked ? ('<div class="gap" style="color:#e39a1c;font-style:normal">Negotiable gap — $' + esc(m.s.near_miss_gap) + ' short of landlord\'s min</div>') : '') +
     (blocked
       ? ('<div class="gap" style="color:#ff6b78;font-style:normal">⛔ Do not offer this room to ' + esc(fname(t.name)) + ' — ' + esc(m.s.flags[0] || 'landlord requirement conflict') + '</div>'
-        + '<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + markSelectHtml(st, cold, t.name) + '</div>')
+        + '<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + markSelectHtml(st, cold, t.name) + crmBtn("tenant", t) + '</div>')
       : ((m.s.flags.length ? ('<div class="gap">⚑ ' + esc(m.s.flags.join(' · ')) + '</div>') : '')
         + (t.phone ? ('<div class="mk" style="margin-top:6px">→ you will message <b>' + esc(t.name) + '</b> · ' + phoneSpanHtml("tenant", t.id, t.phone) + '</div>') : '')
-        + '<div class="acts">' + rowActionsHtml(l, t, cold) + markSelectHtml(st, cold, t.name) + '</div>'));
+        + '<div class="acts">' + rowActionsHtml(l, t, cold) + markSelectHtml(st, cold, t.name) + crmBtn("tenant", t) + '</div>'));
 
   wireRowEvents(row, l, t, m, eff);
-  wireRevealTaps(row);
   wireNbaChip(row, l, t);
   return row;
 }
@@ -1431,7 +1829,6 @@ function toggleDupGroupList(row, gid) {
   const html = members.map(x => '<div>' + esc(x.name) + ' · ' + (x.phone ? phoneSpanHtml("tenant", x.id, x.phone) : 'no phone') + '</div>').join("");
   const box = el("div", "dup-list", html);
   row.appendChild(box);
-  wireRevealTaps(box);
 }
 function wireNbaChip(row, l, t) {
   const chip = row.querySelector('[data-nba]');
@@ -1459,8 +1856,7 @@ function renderNearMissSection(container, matches, showListing) {
 
 // ===================== top level render =====================
 // (48) Hard expiry, three states. Green stays a quiet inline dot (no banner);
-// amber/red get a full width banner. Red also forces phone masking — see
-// phonesForceMasked(), read wherever a phone renders (displayPhone/phoneSpanHtml).
+// amber/red get a full width banner.
 // (item 2) red tier banner announces assertively — but only the first time it
 // renders. render() re-runs this on every mark/filter/tab change, and #sub's
 // innerHTML is rebuilt wholesale each time, so a plain always-on aria-live
@@ -1474,7 +1870,7 @@ function dataAgeBannerHtml() {
   if (t.tier === "red") {
     const live = AGE_BANNER_ANNOUNCED ? "" : ' role="alert" aria-live="assertive"';
     AGE_BANNER_ANNOUNCED = true;
-    return '<div class="wm banner-red"' + live + '>🔴 Data is ' + esc(t.days) + ' days old — rebuild: <code>python3 scripts/matchmaker/build.py</code>. Phone numbers are masked until you do.</div>';
+    return '<div class="wm banner-red"' + live + '>🔴 Data is ' + esc(t.days) + ' days old — rebuild: <code>python3 scripts/matchmaker/build.py</code>.</div>';
   }
   if (t.tier === "amber") return '<div class="wm banner-amber">🟡 Data is ' + esc(t.days) + ' days old (from ' + esc(DATA.generated) + '). Ask Winfred to refresh it so you are working today\'s rooms and tenants.</div>';
   if (t.tier === "green") return '<span class="agedot" title="data is ' + esc(t.days) + ' day(s) old">🟢 up to date</span>';
@@ -1500,26 +1896,29 @@ function render() {
     '<div class="kpi"><b>' + (DATA.listings || []).length + '</b> available listings</div>' +
     '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
     '<div class="kpi"><b>' + MATCHES.filter(m => effective(m).verdict === "QUALIFIED").length + '</b> qualified matches</div>';
-  ["work", "listing", "tenant", "whole", "stats"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
+  ["work", "pipeline", "listing", "tenant", "whole", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
   document.querySelectorAll("#tabs .tab").forEach(tb => {
     const on = tb.dataset.v === view;
     tb.classList.toggle("on", on);
     tb.setAttribute("aria-selected", on ? "true" : "false");
   });
   if (view === "work") renderWork(); else renderTriageBar(null);
+  if (view === "pipeline") renderPipeline();
   if (view === "listing") renderListingRail();
   if (view === "tenant") renderTenantRail();
   if (view === "whole") renderWholeUnit();
   if (view === "stats") renderStats();
+  if (view === "landlords") renderLandlordsRoster();
+  if (view === "alltenants") renderAllTenantsRoster();
+  if (view === "sales") renderSalesRoster();
+  if (view === "revival") renderRevival();
+  CRM.paint();
   $("#legend").innerHTML = "Score = budget 30 + location 25 + lease 15 + move in 15 + freshness 15 (urgency and MRT adjacency can add a little more, capped at 100). ⚑ flags are landlord preference gates (gender, ethnicity, pax) or budget/lease gaps — a red conflict still shows so you can judge, it is not auto hidden. " +
-    "WhatsApp opens a pre filled draft you send yourself (never auto sent). Cold over 5 days tenants have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. PDPA: keep this file private.";
+    "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over 30 days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
+    (CRM.mode === "local" ? "The 🗂 CRM drawer and Pipeline tab are saved on this device only — no cloud backend is configured." : "The 🗂 CRM drawer and Pipeline tab sync to your private CRM database and survive a rebuild.") +
+    " PDPA: keep this file private.";
   const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + snoozedActive().length + '</span>';
   const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + queuedMatches().length + '</span>';
-  const mb = $("#maskbtn");
-  if (mb) {
-    mb.textContent = (assistantMode() ? "🔒 Assistant" : PREFS.masked ? "🔒 Masked" : "🔓 Unmasked");
-    mb.setAttribute("aria-label", "Phone masking: " + (assistantMode() ? "assistant mode" : PREFS.masked ? "masked" : "unmasked") + " — tap to toggle");
-  }
   updateFacetedCounts();
   measureHeaderHeight();   // (56)/(item 4) re-measure after every header content change, not just window resize
 }
@@ -1713,7 +2112,7 @@ function triageAction(key, m) {
   if (!m) return;
   // Queueing a cold tenant is refused here as well as in the Mark dropdown —
   // this is the keyboard q / triage bar route into the same outbound action.
-  if (key === "q" && coldBlocked(m.l, m.t)) { toast(fname(m.t.name) + " is cold over 5 days — not queueing"); return; }
+  if (key === "q" && coldBlocked(m.l, m.t)) { toast(fname(m.t.name) + " is quiet over 30 days — not queueing"); return; }
   // c/v/q now route through the exact same calls the row's own Mark dropdown
   // uses (wireRowEvents' mkSel.onchange) instead of a separate raw patchMark:
   // the keyboard/triage-bar path is the FAST, high frequency one, so it is
@@ -1944,7 +2343,6 @@ function toggleDupListingList(card, dups) {
     box.appendChild(row);
   });
   card.appendChild(box);
-  wireRevealTaps(box);
 }
 // (65) closed/paused/tenanted supply is NOT in DATA.listings (scoring never
 // sees it) — it lives in the separate DATA.supply_overview array (every
@@ -2126,7 +2524,7 @@ function wireBatchBuilder(container, l) {
     // but a stale batchSelection must not slip one through either.
     const chosen = ids.map(id => (byListing[l.id] || []).find(x => x.t.id === id)).filter(Boolean).filter(m => !coldBlocked(l, m.t));
     const out = $("#batchout"); out.innerHTML = "";
-    if (chosen.length < 2) { toast("Need at least 2 tenants who are not cold over 5 days"); return; }
+    if (chosen.length < 2) { toast("Need at least 2 tenants who are not quiet over 30 days"); return; }
     const clashes = busyBlockClashes(dateI.value, hh0 * 60 + mm0, hh0 * 60 + mm0 + chosen.length * interval);
     if (clashes.length) out.appendChild(el("div", "wm banner-amber", "⚠ Clashes with: " + esc(clashes.join(", ")) + " — double check before sending"));
     let summary = "Viewings " + dateI.value + " at " + l.name + ":\n";
@@ -2192,11 +2590,7 @@ function clientSlug(t) { return (t.name || "tenant").toLowerCase().trim().replac
 function tenantToolsHtml(t) {
   const parts = ['<button class="btn" data-gallery="1">🖼 Gallery</button>', '<button class="btn" data-clientchip="1">📋 /client ' + esc(clientSlug(t)) + '</button>'];
   // (67) only ever renders if the data lane supplies a confidently joined note slug — never guessed client side.
-  // Gated on assistant mode too: this deep link opens the tenant's full vault
-  // note (WhatsApp chat tail included) in the Obsidian app on THIS device —
-  // exactly the kind of live PII link assistant mode promises to remove before
-  // the device is handed to someone else.
-  if (t.obsidian_slug && !assistantMode()) parts.push('<a class="btn" href="' + escUrl("obsidian://open?vault=Winfred%20Brain&file=" + encodeURIComponent(t.obsidian_slug)) + '">🧠 Obsidian note</a>');
+  if (t.obsidian_slug) parts.push('<a class="btn" href="' + escUrl("obsidian://open?vault=Winfred%20Brain&file=" + encodeURIComponent(t.obsidian_slug)) + '">🧠 Obsidian note</a>');
   return '<div class="acts" style="margin-top:8px">' + parts.join('') + '</div>';
 }
 function wireTenantTools(p, t) {
@@ -2265,6 +2659,357 @@ function renderWholeUnit() {
     if (!matches.length) return;
     box.appendChild(el("div", "section-hd", esc(t.name)));
     matches.forEach(m => box.appendChild(matchRow(m, true)));
+  });
+}
+
+// ===================== landlord / all tenants / sales / revival rosters =====================
+// Ported from the pre-v2 monolith (matchmaker/crm-cloud-backend:template.html) so nothing
+// Winfred uses daily regresses when v2 ships. These 4 tabs read straight off
+// DATA.all_landlords / DATA.all_tenants / DATA.sales / DATA.revival / DATA.duplicate_phones —
+// payload contract keys another agent is adding concurrently. Every read below degrades to
+// an empty state rather than throwing when a key is missing or empty on a given build.
+const DUP_PHONES = new Set((DATA.duplicate_phones || []).map(d => d.phone).filter(Boolean));
+
+// Region grouping, ported for parity with the source app. Not currently wired into the
+// All Tenants grouping below — that groups by primary_district instead, matching exactly
+// what Winfred already sees today in the deployed monolith. Left available for a future
+// pass that wants area level grouping.
+const REGION_DISTRICTS = { East: ["D15", "D16", "D17", "D18"], West: ["D5", "D21", "D22", "D23"], North: ["D25", "D26", "D27", "D28"], Northeast: ["D19", "D20"] };
+(function () {
+  const assigned = new Set(Object.values(REGION_DISTRICTS).flat());
+  const allDistricts = Array.from({ length: 28 }, (_, i) => "D" + (i + 1));
+  REGION_DISTRICTS.Central = allDistricts.filter(d => !assigned.has(d));
+})();
+const _D2R = {};
+Object.keys(REGION_DISTRICTS).forEach(r => REGION_DISTRICTS[r].forEach(d => { _D2R[d] = r; }));
+function regionOf(t) {
+  const cands = [t.primary_district, t.district].filter(Boolean);
+  for (const d of cands) { if (_D2R[d]) return _D2R[d]; }
+  const loc = (t.preferred_location || "").trim().toLowerCase();
+  if (!loc) return "Location not captured";
+  if (/\b(east|bedok|tampines|changi|katong|siglap|simei|pasir ris|eunos|marine parade)\b/.test(loc)) return "East";
+  if (/\b(west|jurong|clementi|boon lay|pioneer|bukit batok|lakeside|choa chu kang|tengah)\b/.test(loc)) return "West";
+  if (/\b(north|woodlands|yishun|sembawang|admiralty|khatib|canberra)\b/.test(loc)) return "North";
+  if (/\b(serangoon|hougang|punggol|sengkang|kovan|ang mo kio|amk|lew lian|cherryhill|nex)\b/.test(loc)) return "Northeast";
+  if (/\b(town|orchard|central|novena|newton|river valley|tanjong pagar|smu|cbd|bugis|lavender|farrer park)\b/.test(loc)) return "Central";
+  // last resort: match the free text against the district area names already carried in
+  // AREA, so a place name never hardcoded above still lands in the right region.
+  for (const d in AREA) {
+    if (!_D2R[d]) continue;
+    for (const part of String(AREA[d] || "").toLowerCase().split(/[,/]/)) {
+      const a = part.trim();
+      if (a.length > 3 && loc.includes(a)) return _D2R[d];
+    }
+  }
+  return "Other areas";
+}
+
+// Shows where a tenant actually wants to live, not just the raw district code — district
+// stays on the end of the line as a fallback for tenants whose location was never captured.
+function tenantWhere(t) {
+  const loc = (t.preferred_location || "").trim();
+  const d = (t.district || "").trim();
+  if (!loc) return d || "location not captured";
+  const short = loc.length > 44 ? loc.slice(0, 44).replace(/[ ,]+$/, "") + "…" : loc;
+  return d ? short + " · " + d : short;
+}
+
+function statusChip(av) {
+  if (av === "Available") return '<span class="chip g">🟢 Available</span>';
+  if (av === "Offer pending") return '<span class="chip a">🟡 Offer pending</span>';
+  if (av === "Pending") return '<span class="chip">⚪ Pending intake</span>';
+  if (av === "Taken") return '<span class="chip r">🔴 Taken</span>';
+  return '<span class="chip mut">⚫ Off market</span>';
+}
+function saleStatusChip(st) {
+  if (st === "Available") return '<span class="chip g">🟢 Available</span>';
+  if (st === "Pending") return '<span class="chip a">⚪ Pending</span>';
+  return '<span class="chip mut">⚫ Closed</span>';
+}
+function tenantLookingChip(lk) {
+  if (lk === "Still looking") return '<span class="chip g">🟢 Still looking</span>';
+  if (lk === "Found") return '<span class="chip">✅ Found a place</span>';
+  return '<span class="chip mut">⚫ Not looking</span>';
+}
+function revivalTierChip(tier) {
+  if (tier === "good") return '<span class="chip g">✅ good match waiting</span>';
+  if (tier === "weak") return '<span class="chip a">❓ weak match</span>';
+  return '<span class="chip mut">— no match right now</span>';
+}
+// CEA register status of the co-broke agent who brought a landlord/sale listing, verified
+// by contact number at build time. The record's own phone belongs to the OWNER and is never
+// checked — they are not a salesperson.
+function ceaChip(r) {
+  const c = r && r.cea;
+  if (!c) return "";
+  const who = c.agent ? esc(c.agent) : "agent";
+  const t = c.reg_no ? (esc(c.name) + " · " + esc(c.reg_no) + " · " + esc(c.agency) + " · valid to " + esc(c.valid_until)) : "";
+  if (c.status === "active")
+    return '<span class="chip g" title="' + t + '">✅ ' + who + ' · CEA ' + esc(c.reg_no) + '</span>'
+      + (c.disciplinary ? '<span class="chip r" title="Disciplinary actions on record">⚠ disciplinary</span>' : '');
+  if (c.status === "expired")
+    return '<span class="chip r" title="' + t + '">❌ ' + who + ' · CEA EXPIRED ' + esc(c.valid_until) + '</span>';
+  if (c.status === "not_registered")
+    return '<span class="chip r" title="No registered salesperson at this agent\'s contact number. Verify before sharing client info or splitting commission.">⚠ ' + who + ' NOT on CEA register</span>';
+  if (c.status === "agent_unknown")
+    return '<span class="chip a" title="Co-broke listing but the counterpart agent is not identified, so no CEA check was possible.">' + who + ' not identified</span>';
+  return '<span class="chip a" title="Register lookup unavailable at build time">CEA unchecked</span>';
+}
+
+function dupBanner() {
+  const dups = DATA.duplicate_phones || [];
+  if (!dups.length) return "";
+  return '<div class="wm">⚠ ' + dups.length + ' phone number(s) shared across more than one record — likely a duplicate or data entry collision: ' +
+    dups.map(d => esc((d.owners || []).join(" = "))).join(" · ") + '</div>';
+}
+function copyBtn(label, rows, box) {
+  const b = el("button", "btn", label);
+  b.onclick = () => { navigator.clipboard.writeText(rows.join("\n")); b.textContent = "Copied ✓ (" + rows.length + ")"; setTimeout(() => { b.textContent = label; }, 2000); };
+  box.appendChild(b);
+  return b;
+}
+
+// ---- flag wrong (landlord roster only) — device local, v2 has no CRM backend to key this to ----
+const FLAG_PREFIX = "cbk_flag_landlord_";
+function isFlaggedLandlord(l) { return localStorage.getItem(FLAG_PREFIX + l.id) === "1"; }
+function toggleFlaggedLandlord(l) {
+  const key = FLAG_PREFIX + l.id;
+  if (localStorage.getItem(key) === "1") localStorage.removeItem(key); else safeSet(key, "1");
+  render();
+}
+
+// ---- short check-in drafts for these 4 rosters (same voice as the rest of the app: no
+// hyphens, no sign off) ----
+function landlordCheckInDraft(l) {
+  return "Hi " + fname(l.name) + ", just checking in, is the room at " + (l.address || areaName(l)) + " still available?";
+}
+function tenantCheckInDraft(t) {
+  return "Hi " + fname(t.name) + ", checking in on your room search, still looking? Let me know your latest budget and move in date and I will send matches.";
+}
+function saleCheckInDraft(s) {
+  return "Hi " + fname(s.name) + ", checking in on the sale at " + (s.address || areaName(s)) + ", still on the market?";
+}
+function revivalDraft(r) {
+  if (r.match) return "Hi " + fname(r.name) + ", following up on your room search, a unit just opened in " + (r.match.district || "the area") + ". Want the details?";
+  return "Hi " + fname(r.name) + ", checking in, are you still looking for a room? Let me know your latest budget and move in date and I will send options.";
+}
+
+function renderLandlordsRoster() {
+  const box = $("#landlords"); box.innerHTML = "";
+  box.appendChild(el("div", "help", "🏢 <b>Full landlord roster</b> — every landlord in the database, every status. This is the same data Claude Code reads; nothing here is filtered for matching. 🚩 Flag wrong lets you mark a status you know is stale so you can send the correction back."));
+  const db = dupBanner();
+  if (db) box.innerHTML += db;
+
+  const f = F();
+  let ls = (DATA.all_landlords || []).slice();
+  if (f.d) ls = ls.filter(l => l.primary_district === f.d);
+  if (f.q) {
+    const hay = l => (String(l.name || "") + " " + (l.district || "") + " " + (AREA[l.district] || "") + " " + (l.address || "") + " " + (l.phone || "")).toLowerCase();
+    ls = ls.filter(l => hay(l).includes(f.q));
+  }
+  ls.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+
+  const actionsRow = el("div", "acts");
+  const stale = ls.filter(l => l.availability === "Available" && l.phone && (Scoring.daysAgo(l.last_contact, TODAY) == null || Scoring.daysAgo(l.last_contact, TODAY) > 14));
+  copyBtn("📋 Copy stale check in list (" + stale.length + ")",
+    stale.map(l => (l.name || "?") + " | " + l.phone + " | " + landlordCheckInDraft(l)),
+    actionsRow);
+  const flaggedList = ls.filter(l => isFlaggedLandlord(l));
+  copyBtn("🚩 Copy flagged list (" + flaggedList.length + ")",
+    flaggedList.map(l => (l.id || "?") + " " + (l.name || "?") + " — marked wrong by Winfred"),
+    actionsRow);
+  box.appendChild(actionsRow);
+
+  if (!ls.length) { box.appendChild(el("div", "empty", "No landlords match the current search/district filter.")); return; }
+
+  ls.forEach(l => {
+    const dc = Scoring.daysAgo(l.last_contact, TODAY);
+    const flagged = isFlaggedLandlord(l);
+    // Taken/Off market landlords get no contact action — some of these are explicit
+    // "never re-engage" drops. Map stays (harmless); WhatsApp/Call are the outbound
+    // contact risk, so they are suppressed here, same as the source app.
+    const blockedContact = l.availability === "Taken" || l.availability === "Off market";
+    const row = el("div", "row" + (flagged ? " done" : ""));
+    const mapHtml = '<a class="btn" target="_blank" rel="noopener noreferrer" href="' + escUrl(mapLink(l)) + '">📍 Map</a>';
+    const actsHtml = blockedContact
+      ? '<div class="acts">' + mapHtml + ' <span class="btn mut">' + esc(String(l.availability || "").toLowerCase()) + ' — no contact action</span>' +
+          '<button class="btn" data-flag="1">' + (flagged ? "↺ Unflag" : "🚩 Flag wrong") + '</button>' + crmBtn("landlord", l) + '</div>'
+      : '<div class="acts">' + mapHtml + ' ' +
+          waButtonHtml(l.phone, landlordCheckInDraft(l), "WhatsApp landlord", false) +
+          callButtonHtml(l.phone, "Call", false) +
+          (!l.phone ? '<span class="btn mut">no phone on file</span>' : '') +
+          '<button class="btn" data-flag="1">' + (flagged ? "↺ Unflag" : "🚩 Flag wrong") + '</button>' + crmBtn("landlord", l) + '</div>';
+    row.innerHTML =
+      '<div class="rtop"><span class="nm">' + esc(l.name || "?") + '</span> ' + statusChip(l.availability) +
+        (l.source === "co-broke" ? '<span class="chip">co-broke</span>' + ceaChip(l) : '') +
+        (l.handed_off ? '<span class="chip a">🤝 handed off</span>' : '') +
+        (l.commission_est ? '<span class="chip">💰 ~$' + esc(l.commission_est) + ' est.</span>' : '') +
+        (DUP_PHONES.has(l.phone) ? '<span class="chip a">⚠ duplicate phone on file</span>' : '') +
+        (flagged ? '<span class="chip r">🚩 flagged wrong</span>' : '') +
+      '</div>' +
+      '<div class="rtop" style="margin-top:5px">' +
+        '<span class="chip">' + esc(l.district || "?") + (l.property_type ? ' · ' + esc(l.property_type) : '') + '</span>' +
+        '<span class="chip">' + esc(rentTxt(l)) + '</span>' +
+        (l.address ? '<span class="chip">' + esc(String(l.address).slice(0, 40)) + '</span>' : '') +
+        (l.phone ? '<span class="chip">' + phoneSpanHtml("landlord", l.id, l.phone) + '</span>' : '') +
+        coldChip(dc) +
+      '</div>' +
+      (l.rooms ? '<div class="gap">' + esc(String(l.rooms).slice(0, 140)) + '</div>' : '') +
+      (l.follow_up ? '<div class="gap">📝 ' + esc(String(l.follow_up).slice(0, 160)) + '</div>' : '') +
+      actsHtml;
+    const flagBtn = row.querySelector("[data-flag]");
+    if (flagBtn) flagBtn.onclick = () => toggleFlaggedLandlord(l);
+    box.appendChild(row);
+  });
+}
+
+function allTenantRow(t) {
+  const dc = Scoring.daysAgo(t.last_contact, TODAY);
+  const missing = Array.isArray(t.missing) ? t.missing : [];
+  const looking = t.looking === "Still looking";
+  const row = el("div", "row");
+  const areaHtml = '<a class="btn" target="_blank" rel="noopener noreferrer" href="' + escUrl(mapLink({ address: t.preferred_location, district: t.district })) + '">📍 Area</a>';
+  const actsHtml = looking
+    // coldBlocked(null, t), NOT false. This row builder was copied from the landlord
+    // one, where a hardcoded false is correct because landlords are exempt. Carried onto
+    // a TENANT row it bypassed the dead-lead rule entirely: 154 live wa.me links, 72 of
+    // them to tenants over 30 days quiet, each with the message body already composed.
+    ? '<div class="acts">' + areaHtml + ' ' + waButtonHtml(t.phone, coldBlocked(null, t) ? "" : tenantCheckInDraft(t), "WhatsApp", coldBlocked(null, t)) + callButtonHtml(t.phone, "Call", coldBlocked(null, t)) +
+        (!t.phone ? '<span class="btn mut">no phone on file</span>' : '') + crmBtn("tenant", t) + '</div>'
+    : '<div class="acts"><span class="btn mut">' + esc(String(t.looking || "").toLowerCase()) + ' — no contact action</span>' + crmBtn("tenant", t) + '</div>';
+  row.innerHTML =
+    '<div class="rtop"><span class="nm">' + esc(t.name || "?") + '</span> ' + tenantLookingChip(t.looking) +
+      (missing.length ? '<span class="chip a">⚠ missing ' + esc(missing.join("/")) + '</span>' : '') +
+      (DUP_PHONES.has(t.phone) ? '<span class="chip a">⚠ duplicate phone on file</span>' : '') +
+    '</div>' +
+    '<div class="rtop" style="margin-top:5px">' +
+      '<span class="chip">' + esc(tenantWhere(t)) + '</span>' +
+      '<span class="chip">budget ' + esc(t.budget != null ? t.budget : "?") + '</span>' +
+      '<span class="chip">' + esc(t.pax != null ? t.pax : "?") + 'pax</span>' +
+      '<span class="chip">move ' + esc(t.move_in || "?") + '</span>' +
+      (t.phone ? '<span class="chip">' + phoneSpanHtml("alltenant", t.id, t.phone) + '</span>' : '') +
+      coldChip(dc) +
+    '</div>' +
+    (t.listing_enquired ? '<div class="gap">enquired: ' + esc(t.listing_enquired) + '</div>' : '') +
+    actsHtml;
+  return row;
+}
+function renderAllTenantsRoster() {
+  const box = $("#alltenants"); box.innerHTML = "";
+  box.appendChild(el("div", "help", "🙋‍♀️ <b>Full tenant roster</b>, grouped by district — every tenant, every status (still looking, found a place, no longer looking). Tenants with no district on file sit in their own group at the end rather than being mixed in. Missing key info is flagged inline."));
+
+  const f = F();
+  let ts = (DATA.all_tenants || []).slice();
+  if (f.d) ts = ts.filter(t => t.primary_district === f.d);
+  if (f.q) {
+    const hay = t => (String(t.name || "") + " " + (t.district || "") + " " + (t.preferred_location || "") + " " + (t.phone || "")).toLowerCase();
+    ts = ts.filter(t => hay(t).includes(f.q));
+  }
+  if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
+
+  ts.sort((a, b) => String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
+
+  let shown = 0, curGroup = null;
+  for (const t of ts) {
+    if (shown >= 400) break;
+    const g = t.primary_district || "";
+    if (g !== curGroup) {
+      curGroup = g;
+      const label = g ? (g + " — " + (AREA[g] || "")) : "Unspecified location";
+      const n = ts.filter(x => (x.primary_district || "") === g).length;
+      box.appendChild(el("div", "section-hd", esc(label + " (" + n + ")")));
+    }
+    box.appendChild(allTenantRow(t));
+    shown++;
+  }
+  if (ts.length > 400) box.appendChild(el("div", "mut", "showing first 400 of " + ts.length + " — narrow with search/district filters"));
+}
+
+function renderSalesRoster() {
+  const box = $("#sales"); box.innerHTML = "";
+  box.appendChild(el("div", "help", "🏡 <b>Sale listings</b> — landlord contacts flagged as a sale deal, not a rental, kept as a separate track. Asking price is parsed best effort from freeform notes — the raw note is always shown too since parsing SG price shorthand is not perfect."));
+
+  const f = F();
+  let ss = (DATA.sales || []).slice();
+  if (f.d) ss = ss.filter(s => s.primary_district === f.d);
+  if (f.q) {
+    const hay = s => (String(s.name || "") + " " + (s.district || "") + " " + (s.address || "") + " " + (s.phone || "")).toLowerCase();
+    ss = ss.filter(s => hay(s).includes(f.q));
+  }
+  ss.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+  if (!ss.length) { box.appendChild(el("div", "empty", "No sale listings match the current filters.")); return; }
+
+  ss.forEach(s => {
+    const dc = Scoring.daysAgo(s.last_contact, TODAY);
+    const blockedContact = s.sale_status === "Closed";
+    const row = el("div", "row");
+    const mapHtml = '<a class="btn" target="_blank" rel="noopener noreferrer" href="' + escUrl(mapLink(s)) + '">📍 Map</a>';
+    const actsHtml = blockedContact
+      ? '<div class="acts">' + mapHtml + ' <span class="btn mut">closed — no contact action</span>' + crmBtn("sale", s) + '</div>'
+      : '<div class="acts">' + mapHtml + ' ' + waButtonHtml(s.phone, saleCheckInDraft(s), "WhatsApp", false) + callButtonHtml(s.phone, "Call", false) +
+          (!s.phone ? '<span class="btn mut">no phone on file</span>' : '') + crmBtn("sale", s) + '</div>';
+    row.innerHTML =
+      '<div class="rtop"><span class="nm">' + esc(s.name || "?") + '</span> ' + saleStatusChip(s.sale_status) +
+        (s.source === "co-broke" ? '<span class="chip">co-broke</span>' + ceaChip(s) : '') +
+      '</div>' +
+      '<div class="rtop" style="margin-top:5px">' +
+        '<span class="chip">' + esc(s.district || "?") + (s.property_type ? ' · ' + esc(s.property_type) : '') + '</span>' +
+        '<span class="chip">' + (s.asking_price ? 'asking ~$' + esc(Number(s.asking_price).toLocaleString()) : 'price TBC') + '</span>' +
+        (s.address ? '<span class="chip">' + esc(String(s.address).slice(0, 40)) + '</span>' : '') +
+        (s.phone ? '<span class="chip">' + phoneSpanHtml("sale", s.id, s.phone) + '</span>' : '') +
+        coldChip(dc) +
+      '</div>' +
+      (s.price_text ? '<div class="gap">' + esc(String(s.price_text).slice(0, 140)) + '</div>' : '') +
+      (s.follow_up ? '<div class="gap">📝 ' + esc(String(s.follow_up).slice(0, 160)) + '</div>' : '') +
+      actsHtml;
+    box.appendChild(row);
+  });
+}
+
+// ---- revival tab — reuses revival_board.py's own scan (exported into DATA.revival by
+// export_data.py, not recomputed here). It has no EV/priority score of its own, only a
+// good/weak/none match tier, so rows are ranked in whatever order DATA.revival provides.
+function renderRevival() {
+  const box = $("#revival"); box.innerHTML = "";
+  box.appendChild(el("div", "help", "♻️ <b>Revival board</b> — still looking tenants past the lead cutoff, cross checked against currently available listings. This reuses revival_board.py's own matching (not the main score engine above), so there is no 0 to 100 score here, only a good/weak/none match tier. Review list only, nothing sends itself."));
+
+  const rows = DATA.revival || [];
+  if (!rows.length) { box.appendChild(el("div", "empty", "No revival candidates — every still looking tenant is within the lead cutoff.")); return; }
+
+  const f = F();
+  let rs = rows.slice();
+  if (f.q) {
+    const hay = r => (String(r.name || "") + " " + (r.district || "") + " " + (r.phone || "")).toLowerCase();
+    rs = rs.filter(r => hay(r).includes(f.q));
+  }
+  if (f.d) rs = rs.filter(r => r.district === f.d);
+  if (!rs.length) { box.appendChild(el("div", "empty", "No revival candidates match the current search/district filter.")); return; }
+
+  rs.forEach((r, i) => {
+    const snippet = r.match
+      ? "best option: " + (r.match.name || r.match.id || "(no name saved)") + " · " + (r.match.district || "") + " · " + (r.match.rent_min || r.match.rent_max ? ("$" + (r.match.rent_min || r.match.rent_max)) : "rent TBC")
+      : "no current listing fits";
+    const row = el("div", "row");
+    row.innerHTML =
+      '<div class="rtop"><span class="sc" style="min-width:24px">#' + (i + 1) + '</span><span class="nm">' + esc(r.name || "?") + '</span>' + revivalTierChip(r.tier) + '</div>' +
+      '<div class="rtop" style="margin-top:5px">' +
+        '<span class="chip">' + esc(r.district || "?") + '</span>' +
+        '<span class="chip">budget ' + esc(r.budget != null ? r.budget : "?") + '</span>' +
+        '<span class="chip">' + esc(r.pax != null ? r.pax : "?") + 'pax</span>' +
+        (r.phone ? '<span class="chip">' + phoneSpanHtml("revival", r.phone, r.phone) + '</span>' : '') +
+        (r.days_quiet != null ? '<span class="chip r">quiet ' + esc(r.days_quiet) + 'd</span>' : '<span class="chip">no contact date</span>') +
+      '</div>' +
+      '<div class="gap">' + esc(snippet) + '</div>' +
+      (r.phone
+        // Every row on this tab is by definition past the 30 day cutoff, so a hardcoded
+        // false here meant 72 of 72 rows offered a one-tap send with the body already
+        // written — to exactly the people Winfred's rule says never to re-engage, and the
+        // same shape of mistake as the July backfill blast. The rule wins until he says
+        // otherwise; the tab still shows WHO went cold and what would have matched them,
+        // which is the part worth looking at.
+        ? '<div class="acts">' + waButtonHtml(r.phone, "", "WhatsApp", true) + callButtonHtml(r.phone, "Call", true) + '</div>'
+        : '<div class="acts"><span class="btn mut">no phone on file</span></div>');
+    box.appendChild(row);
   });
 }
 
@@ -2496,8 +3241,6 @@ function paletteActions() {
     { label: "Open Snoozed", run: () => openSnoozedList() },
     { label: "Bulk action on filtered set", run: () => openBulkActionModal() },
     { label: "Export state", run: () => downloadJSON(exportBlob(), "matchmaker-state-" + DATA.generated + ".json") },
-    { label: "Toggle phone masking", run: () => toggleGlobalMask() },
-    { label: "Toggle assistant mode", run: () => { PREFS.assistant_mode = !PREFS.assistant_mode; savePrefs(); render(); } },
     { label: "Toggle day/night", run: () => toggleTheme() },
     { label: "Toggle density", run: () => toggleDensity() }
   ];
@@ -2682,7 +3425,7 @@ function openBulkActionModal() {
     // rather than the whole bulk being refused. Contacted / Not interested are
     // bookkeeping and apply to everything as before.
     const target = chosenV === "Queued" ? set.filter(m => !coldBlocked(m.l, m.t)) : set;
-    if (!target.length) { toast("Every row in that set is cold over 5 days — nothing queued"); return; }
+    if (!target.length) { toast("Every row in that set is quiet over 30 days — nothing queued"); return; }
     const skipped = set.length - target.length;
     bulkApplyMark(target, patch, chosenV + " applied to " + target.length + " rows" + (skipped ? (" (" + skipped + " cold skipped)") : ""));
   };
@@ -2738,7 +3481,7 @@ function rejectionHistogramHtml() {
   for (let i = 0; i < localStorage.length; i++) {
     const k = localStorage.key(i);
     if (!k || k.indexOf(MARK_PREFIX) !== 0 || k === SCRATCH_KEY || k.indexOf(OFFER_PREFIX) === 0) continue;
-    if ([PREFS_KEY, HISTORY_KEY, REVEALS_KEY, ERR_KEY].indexOf(k) !== -1 || k.indexOf("cbk_backup_") === 0) continue;
+    if ([PREFS_KEY, HISTORY_KEY, ERR_KEY].indexOf(k) !== -1 || k.indexOf("cbk_backup_") === 0) continue;
     const rest = k.slice(MARK_PREFIX.length);
     const us = rest.indexOf("_");
     if (us === -1) continue;
@@ -2783,7 +3526,7 @@ function renderHealthRow(container, label, field, list, kind) {
   head.appendChild(toggleBtn);
   const detail = el("div", ""); detail.style.cssText = "display:none;margin-top:8px";
   list.forEach(x => {
-    // Landlords (kind === "listing") are exempt from the 5 day rule; a cold
+    // Landlords (kind === "listing") are exempt from the 30 day dead rule; a cold
     // tenant gets no question drafted at all, not just a greyed Copy button.
     const cold = kind === "tenant" && coldBlocked(null, x);
     if (cold) {
@@ -2812,11 +3555,6 @@ function renderHealthSection(container) {
   renderHealthRow(container, "tenants missing lease length", "lease_months", tenantsMissing("lease_months"), "tenant");
   renderHealthRow(container, "tenants missing district", "district", tenantsMissing("district"), "tenant");
   renderHealthRow(container, "listings with unparsed requirements", null, (DATA.listings || []).filter(isUnparsedReqRaw), "listing");
-}
-function revealsListHtml() {
-  const items = readRingBuffer(REVEALS_KEY).slice().reverse().slice(0, 100);
-  if (!items.length) return '<div class="empty">No reveals logged yet. This is your PDPA accountability trail — every tap to reveal a masked phone number is logged here.</div>';
-  return items.map(r => '<div class="row"><span class="chip">' + esc(r.kind) + '</span> ' + esc(r.id) + ' <span class="mut">' + esc(new Date(r.ts).toLocaleString()) + '</span></div>').join("");
 }
 function diagnosticsText() {
   const errs = readRingBuffer(ERR_KEY);
@@ -2866,8 +3604,10 @@ function exportImportHtml() {
     backupsHtml();
 }
 function importSummary(r) {
-  return "Imported " + r.marks + " marks, " + r.overrides + " overrides, " + r.offers + " offers, " +
-    r.scratch + " scratch, " + r.reveals + " reveals, " + r.history + " history";
+  let s = "Imported " + r.marks + " marks, " + r.overrides + " overrides, " + r.offers + " offers, " +
+    r.scratch + " scratch, " + r.history + " history";
+  if (r.crm) s += ", CRM " + r.crm.entities + " records/" + r.crm.notes + " notes/" + r.crm.tasks + " tasks/" + r.crm.match + " match";
+  return s;
 }
 function wireExportImport(container) {
   const exp = container.querySelector("[data-exportstate]");
@@ -2922,24 +3662,151 @@ function renderStats() {
   renderHealthSection(box);
   const bh = buildHistoryHtml();
   if (bh) box.appendChild(el("div", "", bh));
-  box.appendChild(el("div", "section-hd", "Reveals log (PDPA)"));
-  box.appendChild(el("div", "", revealsListHtml()));
   const eiBox = el("div", "", exportImportHtml());
   box.appendChild(eiBox);
   wireExportImport(eiBox);
   const deviceBox = el("div", "", '<div class="section-hd">Device</div><div class="mut">Marks on this device are stamped as: <b>' + esc(PREFS.device_name || "not set") + '</b> <button class="btn" data-changedevice="1">Change</button></div>');
   box.appendChild(deviceBox);
   const cd = deviceBox.querySelector('[data-changedevice]'); if (cd) cd.onclick = () => promptDeviceName(true);
-  // (49) assistant mode — the only place this stronger lockdown can be turned
-  // on. Deliberately not a one tap header button like the plain mask toggle:
-  // it disables reveal entirely and hides landlord/co broke contact too, so
-  // it gets a clearer, more deliberate spot with an explanation.
-  const assistBox = el("div", "", '<div class="section-hd">Assistant mode</div>' +
-    '<div class="mut">Hides every phone number with no way to reveal them, and turns off WhatsApp/Call buttons for landlord and co-broke contacts too — for handing this device to someone else. Currently: <b>' + (PREFS.assistant_mode ? "on" : "off") + '</b></div>' +
-    '<button class="btn" data-toggleassist="1">' + (PREFS.assistant_mode ? "Turn off assistant mode" : "Turn on assistant mode") + '</button>');
-  box.appendChild(assistBox);
-  const ta = assistBox.querySelector('[data-toggleassist]');
-  if (ta) ta.onclick = () => { PREFS.assistant_mode = !PREFS.assistant_mode; savePrefs(); render(); };
+}
+
+// ===================== CRM drawer + Pipeline tab =====================
+// One record component for every subject type (tenant/landlord/sale/listing). Rows
+// carry the subject on data attributes rather than a closure so the 🗂 CRM button
+// survives render() rebuilding the DOM underneath it — see the [data-crm] delegated
+// listener in init below.
+function todayISO() { return isoLocal(new Date()); }
+let CUR_SUBJ = null, CRM_DRAWER_WRAP = null;
+function crmBtn(kind, o) {
+  const subj = subjOf(kind, o);
+  const e = CRM.entity(subj), st = (e && e.stage && e.stage !== "new") ? STAGE_LABELS[e.stage] : null;
+  const n = e ? CRM.notes(subj).length : 0;
+  return '<button class="btn" data-crm="' + esc(kind) + '" data-crm-id="' + esc(o.id) + '" data-crm-name="' + esc(o.name || "") +
+    '" data-crm-phone="' + esc(o.phone || "") + '">🗂 ' + (st ? esc(st) : "CRM") + (n ? (" · " + n + "📝") : "") + '</button>';
+}
+function openCRM(s) {
+  CUR_SUBJ = s;
+  const wrap = el("div", "drawer-wrap");
+  wrap.innerHTML = '<aside class="drawer crm-drawer" id="crmDrawer" role="dialog" aria-label="CRM record"></aside>';
+  wrap.onclick = (e) => { if (e.target === wrap) closeCRM(); };
+  CRM_DRAWER_WRAP = wrap;
+  mountOverlay(wrap, { label: "CRM record", onEscape: closeCRM });
+  renderDrawer();
+}
+function closeCRM() {
+  CUR_SUBJ = null;
+  if (CRM_DRAWER_WRAP) { CRM_DRAWER_WRAP.remove(); CRM_DRAWER_WRAP = null; }
+  render();
+}
+function renderDrawer() {
+  const s = CUR_SUBJ; if (!s || !CRM_DRAWER_WRAP) return;
+  const d = CRM_DRAWER_WRAP.querySelector("#crmDrawer"); if (!d) return;
+  const e = CRM.entity(s) || {}, cur = e.stage || "new";
+  const notes = CRM.notes(s), tasks = CRM.tasks(s), acts = CRM.activity(s);
+  const overdue = t => !t.done && t.due && t.due < todayISO();
+  d.innerHTML =
+    '<div class="dhead"><div><h3>' + esc(s.name || "?") + '</h3>' +
+      '<div class="sub">' + esc(s.kind || "") + (s.phone ? (' · ' + esc(s.phone)) : '') + (CRM.keyOf(s) ? '' : ' · <b>no phone or id — cannot save</b>') + '</div></div>' +
+      '<button class="dclose" id="dClose" title="Close" aria-label="Close">×</button></div>' +
+    '<div class="dbody">' +
+      '<div class="dsec"><span class="lbl">Stage</span><div class="stagerow">' +
+        STAGE_ORDER.map(k => '<span class="pick' + (k === cur ? " sel" : "") + '" data-stage="' + k + '">' + esc(STAGE_LABELS[k]) + '</span>').join("") +
+      '</div></div>' +
+      '<div class="dsec"><span class="lbl">Next action</span>' +
+        '<input id="dAction" placeholder="e.g. confirm Friday viewing slot" value="' + esc(e.next_action || "") + '">' +
+        '<input id="dDue" type="date" value="' + esc(e.next_due || "") + '"></div>' +
+      '<div class="dsec"><span class="lbl">Notes (' + notes.length + ')</span>' +
+        '<textarea id="dNote" placeholder="What happened? Saved with today\'s date."></textarea>' +
+        '<button class="btn" id="dAddNote">+ Add note</button>' +
+        notes.map(n => '<div class="crm-note"><span class="when">' + esc((n.created_at || "").slice(0, 10)) + '</span>' +
+          esc(n.body) + '<span class="del" data-delnote="' + n.id + '" title="Delete note">×</span></div>').join("") +
+      '</div>' +
+      '<div class="dsec"><span class="lbl">Tasks</span>' +
+        '<input id="dTask" placeholder="Task, then Enter">' +
+        '<input id="dTaskDue" type="date">' +
+        (tasks.length ? tasks.map(t => '<label class="crm-task' + (t.done ? " done" : "") + '"><input type="checkbox" data-task="' + t.id + '"' + (t.done ? " checked" : "") + '>' +
+          '<span class="t">' + esc(t.title) + (t.due ? ('<span class="due' + (overdue(t) ? " over" : "") + '">due ' + esc(t.due) + '</span>') : '') + '</span>' +
+          '<span class="del" data-deltask="' + t.id + '" title="Delete task">×</span></label>').join("") : '<div class="mut" style="font-size:12px">No tasks yet.</div>') +
+      '</div>' +
+      (acts.length ? ('<div class="dsec"><span class="lbl">History</span>' +
+        acts.slice(0, 20).map(a => '<div class="mut" style="font-size:12px">' + esc((a.at || "").slice(0, 10)) + ' — ' + esc(a.verb) + (a.detail ? (': ' + esc(a.detail.slice(0, 80))) : '') + '</div>').join("") + '</div>') : '') +
+    '</div>';
+  d.querySelector("#dClose").onclick = closeCRM;
+  d.querySelectorAll("[data-stage]").forEach(p => p.onclick = () => { CRM.setStage(s, p.dataset.stage); renderDrawer(); });
+  const commitPlan = () => CRM.setPlan(s, d.querySelector("#dAction").value.trim(), d.querySelector("#dDue").value || null);
+  d.querySelector("#dAction").onchange = commitPlan; d.querySelector("#dDue").onchange = commitPlan;
+  const addNote = () => { const v = d.querySelector("#dNote").value.trim(); if (!v) return; CRM.addNote(s, v); renderDrawer(); };
+  d.querySelector("#dAddNote").onclick = addNote;
+  d.querySelector("#dNote").onkeydown = ev => { if (ev.key === "Enter" && (ev.metaKey || ev.ctrlKey)) { ev.preventDefault(); addNote(); } };
+  d.querySelector("#dTask").onkeydown = ev => {
+    if (ev.key !== "Enter") return; const v = d.querySelector("#dTask").value.trim(); if (!v) return;
+    CRM.addTask(s, v, d.querySelector("#dTaskDue").value || null); renderDrawer();
+  };
+  d.querySelectorAll("[data-task]").forEach(c => c.onchange = () => { CRM.toggleTask(parseInt(c.dataset.task, 10)); renderDrawer(); });
+  d.querySelectorAll("[data-deltask]").forEach(x => x.onclick = () => { CRM.delTask(parseInt(x.dataset.deltask, 10)); renderDrawer(); });
+  d.querySelectorAll("[data-delnote]").forEach(x => x.onclick = () => { CRM.delNote(parseInt(x.dataset.delnote, 10)); renderDrawer(); });
+}
+
+// Deliberately shows only records Winfred has actually touched — a column per stage
+// over the whole tenant/landlord database would just be the roster tabs again.
+function renderPipeline() {
+  const box = $("#pipeline"); box.innerHTML = "";
+  box.appendChild(el("div", "help", "📈 <b>Pipeline</b> — every record you have given a stage, a note or a task via the 🗂 CRM button. " +
+    (CRM.mode === "local"
+      ? "⚠️ No cloud backend is configured, so this is saved on <b>this device only</b> — it will not appear on your phone and is lost if you clear this browser."
+      : "This is the part of the app saved to your CRM database and it survives a rebuild; the roster tabs are rebuilt from the rental databases every night.") +
+    " Tap any card to reopen its CRM record."));
+  const f = F();
+  const touched = CRM.all().filter(e => (e.stage && e.stage !== "new") || e.next_action || CRM.notes(e).length || CRM.tasks(e).length);
+  const openTasks = CRM.tasks().filter(t => !t.done);
+  const due = openTasks.filter(t => t.due && t.due <= todayISO());
+  const plans = CRM.all().filter(e => e.next_due && e.next_due <= todayISO());
+
+  if (due.length || plans.length) {
+    const b = el("div", "");
+    b.appendChild(el("div", "section-hd", "🔔 Due now (" + (due.length + plans.length) + ")"));
+    due.forEach(t => {
+      const e = t.key ? CRM.all().find(x => x.key === t.key) : null;
+      const r = el("div", "row", "<div class='rtop'><span class='nm'>" + esc(t.title) + "</span><span class='chip r'>due " + esc(t.due) + "</span>" +
+        (e ? ("<span class='chip'>" + esc(e.name || "?") + "</span>") : "") + "</div>");
+      if (e) r.onclick = () => openCRM(e);
+      b.appendChild(r);
+    });
+    plans.forEach(e => {
+      const r = el("div", "row", "<div class='rtop'><span class='nm'>" + esc(e.name || "?") + "</span><span class='chip a'>" + esc(e.next_action || "follow up") + "</span><span class='chip r'>" + esc(e.next_due) + "</span></div>");
+      r.onclick = () => openCRM(e);
+      b.appendChild(r);
+    });
+    box.appendChild(b);
+  }
+
+  if (!touched.length) {
+    box.appendChild(el("div", "empty", "Nothing in the pipeline yet. Open any tenant, landlord or listing and tap 🗂 CRM to set a stage, leave a note or add a task."));
+    return;
+  }
+  const q = (f.q || "");
+  const grid = el("div", "pipe");
+  // No stage filter here: `touched` already excludes untouched stage:"new"
+  // records (see its own filter above) — a record that only ever got a note
+  // or task, with the stage left at the "new" default, is still touched and
+  // must still get a column, or it renders 0 cards with no search active
+  // (repro: add a note without changing stage).
+  STAGE_ORDER.forEach(k => {
+    let rows = touched.filter(e => (e.stage || "new") === k);
+    if (q) rows = rows.filter(e => ((e.name || "") + " " + (e.phone || "") + " " + (e.kind || "")).toLowerCase().includes(q));
+    if (!rows.length) return;
+    const col = el("div", "pcol", "<h4>" + esc(STAGE_LABELS[k]) + " (" + rows.length + ")</h4>");
+    rows.forEach(e => {
+      const nt = CRM.notes(e).length, tk = CRM.tasks(e).filter(t => !t.done).length;
+      const c = el("div", "pcard", "<b>" + esc(e.name || "?") + "</b><span class='mut'>" + esc(e.kind || "") + (e.phone ? (" · " + esc(e.phone)) : "") + "</span>" +
+        (e.next_action ? ("<div class='mut' style='margin-top:3px'>→ " + esc(e.next_action) + (e.next_due ? (" (" + esc(e.next_due) + ")") : "") + "</div>") : "") +
+        (nt || tk ? ("<div class='mut' style='margin-top:3px'>" + (nt ? (nt + "📝 ") : "") + (tk ? (tk + "☑") : "") + "</div>") : ""));
+      c.onclick = () => openCRM(e);
+      col.appendChild(c);
+    });
+    grid.appendChild(col);
+  });
+  box.appendChild(grid.children.length ? grid : el("div", "empty", "No pipeline records match the current search."));
 }
 
 // ===================== init =====================
@@ -2968,7 +3835,6 @@ function renderStats() {
   const snoozeBtn = $("#snoozechip"); if (snoozeBtn) snoozeBtn.onclick = openSnoozedList;
   const dispatchBtn = $("#dispatchchip"); if (dispatchBtn) dispatchBtn.onclick = openDispatchDrawer;
   const paletteBtn = $("#palettebtn"); if (paletteBtn) paletteBtn.onclick = openCommandPalette;
-  const maskBtn = $("#maskbtn"); if (maskBtn) maskBtn.onclick = () => toggleGlobalMask();
   const themeBtn = $("#themebtn"); if (themeBtn) themeBtn.onclick = toggleTheme;
   const densityBtn = $("#densitybtn"); if (densityBtn) densityBtn.onclick = toggleDensity;
   const bulkBtn = $("#bulkbtn"); if (bulkBtn) bulkBtn.onclick = openBulkActionModal;
@@ -3009,8 +3875,31 @@ function renderStats() {
   registerServiceWorker();  // (52)
   writeAutoBackup();        // (47)
 
+  // 🗂 CRM opens the record drawer. Delegated on document (not wired per row) so it
+  // survives every render() clearing the DOM underneath it — same reason the wa.me
+  // contacted-stamp listener below is delegated too. stopPropagation because these
+  // buttons sit inside rows that have their own click behaviour (e.g. the
+  // listing/tenant rail's row-select) — without it, opening a record would also
+  // trigger whatever the row itself does on click.
+  document.addEventListener("click", (e) => {
+    const c = e.target.closest("[data-crm]");
+    if (!c) return;
+    e.preventDefault(); e.stopPropagation();
+    openCRM({ kind: c.getAttribute("data-crm"), id: c.getAttribute("data-crm-id"), name: c.getAttribute("data-crm-name"), phone: c.getAttribute("data-crm-phone") });
+  });
+  // Escape-to-close and focus trapping are handled by mountOverlay itself (see
+  // openCRM's onEscape:closeCRM) — no separate listener needed here.
+
   rebuildMatches();
   render();
+  // boot() is async — an unhandled rejection here (e.g. a corrupt cbkcrm_v1
+  // blob that survives its own guards, or a synchronous storage throw) would
+  // otherwise leave the CRM permanently unsynced for the session with no
+  // visible signal at all.
+  CRM.boot().catch(e => {
+    try { pushErrorEntry({ ts: Date.now(), kind: "error", msg: "CRM.boot failed: " + String(e && e.message || e), src: "", line: 0, col: 0, stack: (e && e.stack) ? String(e.stack).slice(0, 600) : "" }); } catch (e2) { /* diagnostics best effort */ }
+    toast("CRM could not start — working in local only mode this session. Reload to retry.");
+  });
 
   // (70) ask for a device name once, after first paint so it never blocks getting into the app.
   if (!PREFS.device_name) setTimeout(() => promptDeviceName(false), 400);

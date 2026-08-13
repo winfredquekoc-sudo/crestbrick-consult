@@ -648,7 +648,13 @@ def main():
         data["build_history"] = read_build_history_tail(BUILD_HISTORY_PATH, BUILD_HISTORY_TAIL - 1) + [history_entry]
 
         data, path, size_kb = inline_and_write(data, now)            # [61] ring update inside
-    except SystemExit:
+    except BaseException:
+        # BaseException, not just SystemExit: an unhandled non-SystemExit exception
+        # anywhere in this block (a bad payload shape fail() never anticipated, a
+        # KeyboardInterrupt mid-build, an unexpected bug) used to skip this restore
+        # entirely and leave OUT advanced past PREV with no artifact ever shipped —
+        # exactly the failure this block exists to prevent. Catching only SystemExit
+        # covered intentional aborts via fail() but nothing else.
         restore_prev()
         raise
 

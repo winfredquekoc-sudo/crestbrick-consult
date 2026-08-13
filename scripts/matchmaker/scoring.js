@@ -60,7 +60,19 @@ var BUDGET_HARD_BLOCK_RATIO = 0.9;   // legacy: budget < 0.9 * rent_min -> hard 
 // deliberate, documented reading of the spec's "budget >= 0.92 x rent_min"
 // near miss rule. See build report for the full reasoning.
 var NEAR_MISS_CLEARANCE = 0.92;
-var COLD_DAYS_THRESHOLD = 5;         // >5 days = cold, per standing 5 day rule
+// COLD_DAYS_THRESHOLD used to ALSO be the hard block on tenant facing outreach
+// (draft/WhatsApp/call/queue) — that was wrong. Winfred widened the actual
+// "this lead is dead" rule to 30 days on 12 Aug 2026 (DEAD_DAYS_THRESHOLD,
+// below), but the two concepts had collapsed onto this one constant, so 155
+// of 218 tenants were being gagged when only 72 should have been. From now
+// on COLD_DAYS_THRESHOLD drives ONLY ranking (urgencyMult, price elasticity
+// reasoning, next best action's "nudge" suggestion) and the freshness score
+// component + the amber "quiet Nd" chip — it must never gate an action again.
+var COLD_DAYS_THRESHOLD = 5;
+// The ONLY threshold that hard blocks outreach. isDead()/isDeadFromDays()
+// below are the sole authority for "is this lead dead" — see isDeadBlocked()
+// for the mandatory landlord/co-broke exemption.
+var DEAD_DAYS_THRESHOLD = 30;
 var LOOKALIKE_PENALTY = 8;           // display only; applied by app.js using isSimilarListing()
 var WHOLE_UNIT_FLAG = "budget well above room (may want whole unit)";
 
@@ -220,19 +232,36 @@ function scoreUnitBudget(unit, b) {
 // best fitting one. v1 listings (no units[]) get a synthesized single unit
 // mirroring l.rent_min/rent_max — this is what keeps parity with the
 // original single rent_min/rent_max scoring intact.
+//
+// Also tracks the SECOND best unit (idea 9/13) so a room that doesn't win
+// can still be offered as an alternative in the same listing — e.g. "master
+// isn't in budget, but the common room is". This is honestly only a budget
+// side "best room": l.units[] (see export_data.py's enrich.parse_units)
+// carries unit_type/rent_min/rent_max ONLY, no per-room district/lease/
+// availability, so there is no payload signal to differentiate rooms on any
+// OTHER dimension. If per-room data ever grows those fields, scoreUnitBudget
+// is the one place to extend into a fuller per-unit score.
 function bestUnit(l, t) {
   var b = (t && t.budget != null) ? t.budget : ((t && t.budget_max != null) ? t.budget_max : null);
   var units = (l && Array.isArray(l.units) && l.units.length)
     ? l.units
     : [{ unit_type: null, rent_min: l && l.rent_min, rent_max: l && l.rent_max }];
-  var best = null;
+  var best = null, second = null;
   for (var i = 0; i < units.length; i++) {
     var r = scoreUnitBudget(units[i], b);
+    var scored = { unit: units[i], sb: r.sb, flags: r.flags, hardBudget: r.hardBudget };
     if (!best || r.sb > best.sb) {
-      best = { unit: units[i], sb: r.sb, flags: r.flags, hardBudget: r.hardBudget };
+      second = best;
+      best = scored;
+    } else if (!second || r.sb > second.sb) {
+      second = scored;
     }
   }
-  return { budget: b, unit: best.unit, sb: best.sb, flags: best.flags, hardBudget: best.hardBudget };
+  // second is null when there is only one unit — nothing else to offer.
+  return {
+    budget: b, unit: best.unit, sb: best.sb, flags: best.flags, hardBudget: best.hardBudget,
+    secondUnit: second ? second.unit : null, secondSb: second ? second.sb : null
+  };
 }
 
 // ---------------------------------------------------------------------
@@ -351,6 +380,34 @@ function isCold(t, today) {
   return isColdFromDays(coldDays(t, today));
 }
 
+// The dead lead rule (30 days, Winfred's standing rule as of 12 Aug 2026) —
+// this and ONLY this decides whether outreach is hard blocked. Unknown
+// contact date is treated as "not dead" for the same reason isColdFromDays
+// treats it as "not cold": we don't know, so we don't disable outreach on an
+// absence of a signal.
+function isDeadFromDays(dc) {
+  return dc != null && dc > DEAD_DAYS_THRESHOLD;
+}
+function isDead(t, today) {
+  return isDeadFromDays(coldDays(t, today));
+}
+// LANDLORDS ARE EXEMPT FROM THE DEAD RULE — this is Winfred's standing rule,
+// not a scoring nuance (see feedback_lead_cutoff.md). The dead/cold signal
+// this file computes is a TENANT quietness signal; a landlord or co-broke
+// contact going quiet must never be read as "this lead is dead" and must
+// never block a message to them. app.js's own coldBlocked() already keeps
+// landlord/co-broke listings out of this path entirely (it never calls
+// isDead on a landlord contact in the first place), but this wrapper exists
+// so any OTHER caller of a scoring export for a landlord side action — this
+// file's own contract, not app.js's — cannot silently inherit the tenant
+// dead rule just because it happens to have a days-quiet number in hand.
+// Pass `isLandlord: true` explicitly; there is no implicit default that
+// blocks a landlord.
+function isDeadBlocked(dc, isLandlord) {
+  if (isLandlord) return false; // explicit, always-on exemption — never conditional
+  return isDeadFromDays(dc);
+}
+
 function freshnessScoreFromDays(dc) {
   var sf = 2;
   if (dc != null) {
@@ -360,6 +417,96 @@ function freshnessScoreFromDays(dc) {
     else sf = 2;
   }
   return sf;
+}
+
+// ---------------------------------------------------------------------
+// fit / completeness (idea 8) — split "how well does this match" from "how
+// much do we even know about this tenant". `total`/`parts` above stay
+// EXACTLY as they were (parity locked, see the header note) — a missing
+// field there silently defaults to a middling score and drags total down,
+// which is the whole bug idea 8 exists to fix: a tenant missing district +
+// move-in + budget cannot beat ~55 today no matter how well they'd actually
+// fit, because "unknown" and "known but mediocre" both read as low numbers.
+// `fit`/`completeness` are NEW, additive fields — nothing upstream that
+// reads `total`/`parts` needs to change.
+// ---------------------------------------------------------------------
+
+var DIMENSION_MAX = { budget: 30, location: 25, lease: 15, movein: 15, fresh: 15 };
+
+// Which of the 5 scored dimensions do we actually have a signal for. Kept as
+// its own explicit list rather than inferred from the parts scores, because
+// a genuinely low KNOWN score (e.g. a hard budget block, sb=4) must not be
+// mistaken for "we don't know" — each check here mirrors the exact condition
+// that made scoreUnitBudget/locationScore/leaseScore/moveInScore/coldDays
+// fall through to their own "unknown" default branch above.
+function scoringInputsKnown(l, t, bu, dc) {
+  return {
+    budget: bu.budget != null,
+    location: !!((t && t.district) || (t && t.preferred_districts && t.preferred_districts.length)),
+    lease: !!(t && t.lease_months != null),
+    movein: !!(t && (t.move_in_norm || t.move_in)),
+    fresh: dc != null
+  };
+}
+
+// fit = average of (part score / that dimension's max) over KNOWN
+// dimensions only, scaled to 0-100 — an unknown dimension is excluded from
+// both the sum and the count, not defaulted to 0 or to the legacy middling
+// default. completeness = what fraction of the 5 scoring inputs are known,
+// 0-100. Returns fit: null when NOTHING is known (nothing to average).
+function fitAndCompleteness(parts, known) {
+  var dims = ["budget", "location", "lease", "movein", "fresh"];
+  var knownCount = 0, fracSum = 0;
+  for (var i = 0; i < dims.length; i++) {
+    var k = dims[i];
+    if (known[k]) {
+      knownCount++;
+      fracSum += parts[k] / DIMENSION_MAX[k];
+    }
+  }
+  var completeness = Math.round((knownCount / dims.length) * 100);
+  var fit = knownCount > 0 ? Math.round((fracSum / knownCount) * 100) : null;
+  return { fit: fit, completeness: completeness };
+}
+
+// ---------------------------------------------------------------------
+// recency weighting (idea 10) — applied to `fit`, NOT to `total`/`parts`,
+// which stay parity locked. "A 3 day old lead is worth more than a perfect
+// 40 day old one" needs freshness to move the number by more than a flat
+// 15/100 slice ever could, especially now that `fit` can read 100 for a
+// stale-but-otherwise-matched tenant with no signal at all that they're
+// going cold. This multiplies fit instead.
+//
+// The numbers below are a JUDGEMENT CALL, not a fitted decay curve — there
+// is no dataset here to fit a half life or exponent against, and a formula
+// that LOOKS scientific without data behind it would just be fake
+// precision. They reuse the SAME day boundaries freshnessScoreFromDays
+// already uses (7/30/90) so this file only has one definition of "what
+// counts as recent", applied at two different strengths: the flat 15 point
+// slice of total, and this +/-35% swing on fit.
+function fitRecencyMultiplier(dc) {
+  if (dc == null) return 1.0;  // unknown contact history — no opinion, don't punish twice
+  if (dc <= 7) return 1.10;
+  if (dc <= 30) return 1.00;
+  if (dc <= 90) return 0.85;
+  return 0.65;
+}
+
+// ---------------------------------------------------------------------
+// long available penalty (idea 12) — a listing sitting unrented a long time
+// usually means something's off (price, photos, description). Reuses
+// DAYS_LISTED_ELASTICITY_THRESHOLD (21 days), the "long available" cutoff
+// this file already defined for price elasticity gating, rather than
+// inventing a second definition of "a while" in the same module. Applied to
+// `fit` for the same parity reason recency is: `total`/`parts` never move.
+// Same judgement call caveat as fitRecencyMultiplier — these are reasonable
+// steps, not a fitted curve.
+function listingAgePenalty(daysListed) {
+  if (daysListed == null) return 1.0;
+  if (daysListed <= DAYS_LISTED_ELASTICITY_THRESHOLD) return 1.0;
+  if (daysListed <= 45) return 0.92;
+  if (daysListed <= 90) return 0.82;
+  return 0.70;
 }
 
 // ---------------------------------------------------------------------
@@ -428,6 +575,47 @@ function hardGates(l, t) {
 }
 
 // ---------------------------------------------------------------------
+// explain line (idea 14) — a short, machine readable breakdown of why a
+// match ranked where it did, for the v2 .explain UI panel to render. Does
+// NOT build any UI itself — plain data only, same discipline as the rest of
+// this file. "Carried"/"dragged" are deliberately narrow (top 2 each,
+// thresholds at 70%/40% of a dimension's max) so the panel shows a quick
+// read, not a wall of numbers.
+function explainMatch(parts, known, dc, dead, daysListed, hard) {
+  var dims = [
+    { code: "budget", label: "budget" },
+    { code: "location", label: "location" },
+    { code: "lease", label: "lease length" },
+    { code: "movein", label: "move in timing" },
+    { code: "fresh", label: "how recently in touch" }
+  ];
+  var scored = [];
+  for (var i = 0; i < dims.length; i++) {
+    var d = dims[i];
+    if (!known[d.code]) continue;
+    scored.push({ code: d.code, label: d.label, frac: parts[d.code] / DIMENSION_MAX[d.code] });
+  }
+  scored.sort(function (a, b) { return b.frac - a.frac; });
+  var carried = scored.filter(function (s) { return s.frac >= 0.7; }).slice(0, 2)
+    .map(function (s) { return { code: s.code, label: s.label + " is a strong fit" }; });
+  var dragged = scored.filter(function (s) { return s.frac <= 0.4; }).slice(-2)
+    .map(function (s) { return { code: s.code, label: s.label + " is a weak spot" }; });
+
+  var notes = [];
+  if (dead) {
+    notes.push({ code: "dead", label: "quiet over " + DEAD_DAYS_THRESHOLD + "d — outreach blocked" });
+  } else if (dc != null && dc > COLD_DAYS_THRESHOLD) {
+    notes.push({ code: "cold", label: "quiet " + dc + "d — affects ranking only, outreach still allowed" });
+  }
+  if (daysListed != null && daysListed > DAYS_LISTED_ELASTICITY_THRESHOLD) {
+    notes.push({ code: "stale_listing", label: "listing available " + daysListed + "d — long available penalty applied" });
+  }
+  if (hard) notes.push({ code: "hard_block", label: "hard blocked by a landlord gate" });
+
+  return { carried: carried, dragged: dragged, notes: notes };
+}
+
+// ---------------------------------------------------------------------
 // main score
 // ---------------------------------------------------------------------
 
@@ -475,13 +663,28 @@ function score(l, t, today) {
     }
   }
 
+  // idea 8/10/12/14 — additive, do not touch total/parts above (parity locked).
+  var parts = { budget: bu.sb, location: sl, lease: leaseResult.sle, movein: sm, fresh: sf };
+  var known = scoringInputsKnown(l, t, bu, dc);
+  var fc = fitAndCompleteness(parts, known);
+  var daysListed = (l && l.days_listed != null) ? l.days_listed : null;
+  var fitMult = fitRecencyMultiplier(dc) * listingAgePenalty(daysListed);
+  var fit = fc.fit != null ? Math.max(0, Math.min(100, Math.round(fc.fit * fitMult))) : null;
+  var dead = isDeadFromDays(dc);
+  var explain = explainMatch(parts, known, dc, dead, daysListed, hard);
+
   return {
     total: total,
-    parts: { budget: bu.sb, location: sl, lease: leaseResult.sle, movein: sm, fresh: sf },
+    parts: parts,
     flags: flags,
     verdict: verdict,
     dc: dc,
+    dead: dead,
     unit: bu.unit,
+    unit2: bu.secondUnit,
+    fit: fit,
+    completeness: fc.completeness,
+    explain: explain,
     gateHits: gateHits,
     needsInfoReasons: needsInfoReasons,
     near_miss: near_miss,
@@ -663,6 +866,7 @@ function priceElasticity(l, tenants, today) {
 var Scoring = {
   score: score, verdict: verdict, urgencyMult: urgencyMult, coldDays: coldDays, isCold: isCold,
   isColdFromDays: isColdFromDays,
+  isDeadFromDays: isDeadFromDays, isDead: isDead, isDeadBlocked: isDeadBlocked,
   nearMiss: nearMiss, bestUnit: bestUnit, applyOverride: applyOverride,
   locationScore: locationScore, leaseScore: leaseScore, moveInScore: moveInScore,
   scoreUnitBudget: scoreUnitBudget, workAnchorBonus: workAnchorBonus, hardGates: hardGates,
@@ -671,12 +875,17 @@ var Scoring = {
   nextBestAction: nextBestAction, weeklyFunnel: weeklyFunnel,
   dataAgeDays: dataAgeDays, dataAgeTier: dataAgeTier,
   discountListing: discountListing, priceElasticity: priceElasticity,
+  scoringInputsKnown: scoringInputsKnown, fitAndCompleteness: fitAndCompleteness,
+  fitRecencyMultiplier: fitRecencyMultiplier, listingAgePenalty: listingAgePenalty,
+  explainMatch: explainMatch,
   ADJ: ADJ, MRT_LINES: MRT_LINES,
   BUDGET_HARD_BLOCK_RATIO: BUDGET_HARD_BLOCK_RATIO, NEAR_MISS_CLEARANCE: NEAR_MISS_CLEARANCE,
-  COLD_DAYS_THRESHOLD: COLD_DAYS_THRESHOLD, LOOKALIKE_PENALTY: LOOKALIKE_PENALTY,
+  COLD_DAYS_THRESHOLD: COLD_DAYS_THRESHOLD, DEAD_DAYS_THRESHOLD: DEAD_DAYS_THRESHOLD,
+  LOOKALIKE_PENALTY: LOOKALIKE_PENALTY,
   WHOLE_UNIT_FLAG: WHOLE_UNIT_FLAG,
   NUDGE_AFTER_DAYS: NUDGE_AFTER_DAYS, DATA_AGE_AMBER_DAYS: DATA_AGE_AMBER_DAYS, DATA_AGE_RED_DAYS: DATA_AGE_RED_DAYS,
-  PRICE_ELASTICITY_DELTAS: PRICE_ELASTICITY_DELTAS, DAYS_LISTED_ELASTICITY_THRESHOLD: DAYS_LISTED_ELASTICITY_THRESHOLD
+  PRICE_ELASTICITY_DELTAS: PRICE_ELASTICITY_DELTAS, DAYS_LISTED_ELASTICITY_THRESHOLD: DAYS_LISTED_ELASTICITY_THRESHOLD,
+  DIMENSION_MAX: DIMENSION_MAX
 };
 
 // Exposed two ways on purpose:

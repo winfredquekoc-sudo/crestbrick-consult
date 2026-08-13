@@ -54,9 +54,23 @@ fi
 
 # --- hard precondition: refuse to deploy this folder without its own auth
 # middleware present, regardless of what's already live on Vercel. This is
-# exactly the check that would have caught the 11 Aug incident. ---
+# exactly the check that would have caught the 11 Aug incident. Presence
+# alone is not enough — a truncated or gutted middleware.js (syntactically
+# present, functionally inert) would pass a bare -f check, so also assert it
+# still references MM_USER/MM_PASS and still answers with a 401. This is a
+# cheap grep, not a real invocation, so it cannot catch every way the file
+# could be broken — but it catches the specific failure mode (file present,
+# logic gone) that a presence-only check misses entirely. ---
 if [ ! -f "$HERE/middleware.js" ]; then
   echo "deploy.sh: ABORTED — $HERE/middleware.js is missing. Refusing to deploy the PII app without auth middleware present." >&2
+  exit 1
+fi
+if ! grep -q "MM_USER" "$HERE/middleware.js" || ! grep -q "MM_PASS" "$HERE/middleware.js"; then
+  echo "deploy.sh: ABORTED — $HERE/middleware.js no longer references MM_USER/MM_PASS. It is present but does not look like it enforces auth — refusing to deploy the PII app." >&2
+  exit 1
+fi
+if ! grep -q "401" "$HERE/middleware.js"; then
+  echo "deploy.sh: ABORTED — $HERE/middleware.js does not appear to return a 401 response anywhere. It is present but does not look like it enforces auth — refusing to deploy the PII app." >&2
   exit 1
 fi
 
@@ -65,8 +79,23 @@ if [ ! -f "$SRC" ]; then
   exit 1
 fi
 
+# --- capture the build_id of the artifact about to ship. build.py stamps
+# this into the DATA payload it inlines (see scripts/matchmaker/build.py's
+# final print line and export_data.py's build_id). Reading it back out of
+# $SRC — the exact bytes about to be copied and deployed below — rather than
+# trusting anything printed earlier in this shell session means this value
+# can never drift from what's actually shipped. It is the one string that
+# lets us tell "the production alias answered" apart from "the production
+# alias answered with THIS deploy", which a bare 401/200 status code cannot. ---
+BUILD_ID="$(grep -o '"build_id": *"[^"]*"' "$SRC" | head -1 | sed -E 's/.*"([^"]+)"$/\1/')"
+if [ -z "$BUILD_ID" ]; then
+  echo "deploy.sh: ABORTED — could not find a build_id in $SRC's payload. Re-run python3 scripts/matchmaker/build.py." >&2
+  exit 1
+fi
+echo "deploy.sh: shipping build_id $BUILD_ID"
+
 cp "$SRC" "$HERE/index.html"
-echo "deploying PII artifact to crestbrick-matchmaker-private — deploy/middleware.js confirmed present, MM_USER/MM_PASS must already be set on the Vercel project"
+echo "deploying PII artifact to crestbrick-matchmaker-private — deploy/middleware.js confirmed present and MM_USER/MM_PASS-referencing, MM_USER/MM_PASS must already be set on the Vercel project"
 
 cd "$HERE"
 OUT="$(vercel --prod --yes 2>&1 | tee /dev/stderr)"
@@ -93,6 +122,44 @@ else
   exit 1
 fi
 
+# --- production alias build identity: alias propagation can lag behind
+# `vercel --prod --yes` returning, so a probe against $PROD_ALIAS taken
+# immediately after may still be answered by the PREVIOUS deployment, not
+# the one just shipped. A 401 from the old deployment and a 401 from the new
+# one are byte-identical, so the checks below cannot tell them apart on
+# their own — this is exactly how a shared marker gave a false "deployed"
+# confirmation on an earlier PR. The only thing that discriminates old vs.
+# new is content unique to the new build, and build_id (captured above from
+# $SRC) is that content. It is baked into the DATA payload, which is inside
+# the Basic Auth wall, so reading it requires MM_USER/MM_PASS. When they are
+# exported, poll (bounded) until the alias serves THIS build_id before
+# trusting anything else read from it. When they are absent, say so plainly
+# — the checks below still prove an auth wall is present, but NOT that it is
+# this deployment's wall. ---
+BUILD_CONFIRMED=0
+if [ -n "${MM_USER:-}" ] && [ -n "${MM_PASS:-}" ]; then
+  echo "deploy.sh: confirming $PROD_ALIAS is serving build_id $BUILD_ID before trusting its auth checks..."
+  ATTEMPTS=0
+  MAX_ATTEMPTS=20
+  SLEEP_SECS=3
+  while [ "$ATTEMPTS" -lt "$MAX_ATTEMPTS" ]; do
+    ATTEMPTS=$((ATTEMPTS + 1))
+    BODY="$($CURL -u "$MM_USER:$MM_PASS" "$PROD_ALIAS" || true)"
+    if printf '%s' "$BODY" | grep -q "\"build_id\": *\"$BUILD_ID\""; then
+      BUILD_CONFIRMED=1
+      echo "deploy.sh: confirmed — $PROD_ALIAS is serving build_id $BUILD_ID (attempt $ATTEMPTS/$MAX_ATTEMPTS, ~$(( (ATTEMPTS - 1) * SLEEP_SECS ))s elapsed)."
+      break
+    fi
+    sleep "$SLEEP_SECS"
+  done
+  if [ "$BUILD_CONFIRMED" -ne 1 ]; then
+    echo "deploy.sh: FAILED — $PROD_ALIAS never served build_id $BUILD_ID after $MAX_ATTEMPTS attempts (~$((MAX_ATTEMPTS * SLEEP_SECS))s). It is still serving a stale deployment (or something else is wrong). Do NOT treat this deploy as live — check the Vercel dashboard, and re-run this script once the alias has propagated." >&2
+    exit 1
+  fi
+else
+  echo "deploy.sh: MM_USER/MM_PASS not set — cannot read the Basic Auth walled body to confirm $PROD_ALIAS is serving build_id $BUILD_ID (this build) rather than a stale deployment. The checks below can only prove an auth wall is present on whatever answers — NOT that it is this build's auth wall. Export MM_USER and MM_PASS for a real confirmation." >&2
+fi
+
 # --- production alias: this is the URL that actually matters, and the one
 # platform SSO does NOT cover. It must be 401, full stop. ---
 STATUS="$($CURL -o /dev/null -w '%{http_code}' "$PROD_ALIAS")"
@@ -113,7 +180,11 @@ if [ "$STATUS" != "401" ]; then
   exit 1
 fi
 
-echo "verified: $PROD_ALIAS returns 401 (auth wall active) — safe to share only with Winfred's own MM_USER/MM_PASS"
+if [ "$BUILD_CONFIRMED" -eq 1 ]; then
+  echo "verified: $PROD_ALIAS returns 401 (auth wall active) AND is confirmed serving build_id $BUILD_ID (this build) — safe to share only with Winfred's own MM_USER/MM_PASS"
+else
+  echo "verified: $PROD_ALIAS returns 401 (auth wall active) — build identity NOT confirmed (MM_USER/MM_PASS were not set), so this does NOT prove build_id $BUILD_ID (this build) is what's being served, only that whatever is being served is behind the wall"
+fi
 
 # --- the CRM API must sit behind the SAME wall as the app. /api/crm can read and write
 # every note, stage and phone number in the CRM, so an /api route that answered without
@@ -130,7 +201,11 @@ if [ "$API_STATUS" != "401" ]; then
   rollback_and_verify
   exit 1
 fi
-echo "verified: $PROD_ALIAS/api/crm returns 401 (CRM API is behind the same wall)"
+if [ "$BUILD_CONFIRMED" -eq 1 ]; then
+  echo "verified: $PROD_ALIAS/api/crm returns 401 (CRM API is behind the same wall, confirmed on build_id $BUILD_ID)"
+else
+  echo "verified: $PROD_ALIAS/api/crm returns 401 (CRM API is behind the same wall) — build identity NOT confirmed (MM_USER/MM_PASS were not set)"
+fi
 
 # --- backend reachability. Needs credentials, so it only runs when MM_USER/MM_PASS are
 # exported locally; without them the deploy is still complete and the wall is still

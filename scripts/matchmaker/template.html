@@ -24,20 +24,25 @@
       <div class="sub" id="sub"></div>
     </div>
     <div class="kpis" id="kpis"></div>
+    <span class="chip mut" id="syncPill" title="CRM sync status">▣ local only</span>
   </div>
   <div class="tabs" id="tabs" role="tablist" aria-label="Matchmaker views">
     <div class="tab on" data-v="work" role="tab" tabindex="0" aria-selected="true" aria-controls="work" id="tab-work">⭐ Today's Worklist</div>
+    <div class="tab" data-v="pipeline" role="tab" tabindex="0" aria-selected="false" aria-controls="pipeline" id="tab-pipeline">📈 Pipeline</div>
     <div class="tab" data-v="listing" role="tab" tabindex="0" aria-selected="false" aria-controls="listing" id="tab-listing">🏠 By Listing</div>
     <div class="tab" data-v="tenant" role="tab" tabindex="0" aria-selected="false" aria-controls="tenant" id="tab-tenant">🙋 By Tenant</div>
     <div class="tab" data-v="whole" role="tab" tabindex="0" aria-selected="false" aria-controls="whole" id="tab-whole">🏘 Whole Unit</div>
     <div class="tab" data-v="stats" role="tab" tabindex="0" aria-selected="false" aria-controls="stats" id="tab-stats">📊 Stats</div>
+    <div class="tab" data-v="landlords" role="tab" tabindex="0" aria-selected="false" aria-controls="landlords" id="tab-landlords">🏢 Landlords</div>
+    <div class="tab" data-v="alltenants" role="tab" tabindex="0" aria-selected="false" aria-controls="alltenants" id="tab-alltenants">🙋‍♀️ All Tenants</div>
+    <div class="tab" data-v="sales" role="tab" tabindex="0" aria-selected="false" aria-controls="sales" id="tab-sales">🏡 For Sale</div>
+    <div class="tab" data-v="revival" role="tab" tabindex="0" aria-selected="false" aria-controls="revival" id="tab-revival">♻️ Revival</div>
   </div>
   <div class="hrow" style="margin-top:8px">
     <button class="hbtn" id="addtenant" type="button">+ Tenant</button>
     <button class="hbtn" id="dispatchchip" type="button">Dispatch <span class="cnt">0</span></button>
     <button class="hbtn" id="snoozechip" type="button">Snoozed <span class="cnt">0</span></button>
     <button class="hbtn" id="palettebtn" type="button" title="Command palette">⌘K Find</button>
-    <button class="hbtn" id="maskbtn" type="button" title="Toggle phone masking">🔒 Masked</button>
     <button class="hbtn" id="themebtn" type="button" title="Toggle day/night">🌙</button>
     <button class="hbtn" id="densitybtn" type="button" title="Toggle density">☰ Density</button>
   </div>
@@ -59,6 +64,7 @@
 </header>
 <main>
   <div id="work" role="tabpanel" aria-labelledby="tab-work"></div>
+  <div id="pipeline" style="display:none" role="tabpanel" aria-labelledby="tab-pipeline"></div>
   <div id="listing" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-listing">
     <div class="rail" id="lrail"></div>
     <div class="panel" id="lpanel"><div class="empty">Pick a listing on the left to see ranked tenants.</div></div>
@@ -69,6 +75,10 @@
   </div>
   <div id="whole" style="display:none" role="tabpanel" aria-labelledby="tab-whole"></div>
   <div id="stats" style="display:none" role="tabpanel" aria-labelledby="tab-stats"></div>
+  <div id="landlords" style="display:none" role="tabpanel" aria-labelledby="tab-landlords"></div>
+  <div id="alltenants" style="display:none" role="tabpanel" aria-labelledby="tab-alltenants"></div>
+  <div id="sales" style="display:none" role="tabpanel" aria-labelledby="tab-sales"></div>
+  <div id="revival" style="display:none" role="tabpanel" aria-labelledby="tab-revival"></div>
   <div class="legend" id="legend"></div>
 </main>
 <script>const DATA = __DATA__;</script>

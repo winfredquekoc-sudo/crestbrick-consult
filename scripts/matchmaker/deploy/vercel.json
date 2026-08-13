@@ -1,7 +1,7 @@
 {
   "headers": [
     {
-      "source": "/",
+      "source": "/(.*)",
       "headers": [
         { "key": "Cache-Control", "value": "no-store" },
         { "key": "X-Content-Type-Options", "value": "nosniff" },

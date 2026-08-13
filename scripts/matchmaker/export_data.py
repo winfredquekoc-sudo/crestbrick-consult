@@ -7,7 +7,7 @@ Pure-ish builder functions (build_listings, build_tenants, compute_*, apply_*) t
 already-loaded data and do no file I/O themselves, so tests/matchmaker/test_export.py
 can exercise them directly with fixtures. Only main() touches real paths.
 """
-import json, os, re, sys, hashlib, datetime
+import json, os, re, sys, hashlib, datetime, importlib.util, sqlite3, statistics
 import enrich
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
@@ -90,6 +90,216 @@ def parse_ethnicity(txt):
 def maps_query(addr, district, dist_area):
     q = addr or dist_area.get(district, district or "")
     return (str(q).strip() + " Singapore") if q else ""
+
+
+# ------------------------------------------------- portfolio view helpers --
+# Supporting fields for the full-portfolio views (all_landlords/all_tenants/sales/
+# revival/duplicate_phones) below, ported from the monolith lineage
+# (matchmaker/crm-cloud-backend:scripts/matchmaker/export_data.py).
+
+def src_of(l):
+    return "co-broke" if "co-broke" in (l.get("contact_label_source") or "").lower() else "own"
+
+
+# Condo/street-level names volunteered in tenant free text that are more specific
+# than area-demand.json's broad neighbourhood keywords (e.g. "Cherryhill"/"Lorong
+# Lew Lian" for Hougang) and would otherwise never match anything in
+# build_area_keywords()'s coarser list. Kept separate from area-demand.json (a
+# generated file) so it survives regeneration. Ground-truthed against this
+# dataset's own records where one exists (Jalan Batu -> D15 per landlord LL089's
+# own district field); Cherryhill/Lorong Lew Lian -> D19 per URA postal sector 53
+# (Hougang) -- note some tenant free text says "Cherryhill (D20)", which is a
+# DISAGREEING typed district in the SAME free text; infer_district() now trusts
+# this ground-truthed place map over that typed figure (see infer_district()'s
+# own docstring -- a prior version let the typed figure win, silently filing 4
+# of 17 Cherryhill tenants into D20 where no Cherryhill listing could ever match
+# them). "Building"/"street" level matches like this are also NARROWER than a
+# genuine district-wide signal -- see the "known_place" vs "area_keyword" source
+# tag below, consumed by build_live_area_demand()/build_zero_stock_alert() so a
+# sourcing signal built entirely from one building's name doesn't read as
+# district-wide demand.
+KNOWN_PLACE_DISTRICTS = {
+    "lorong lew lian": "D19",
+    "cherryhill": "D19",
+    "jalan batu": "D15",
+    "haig road": "D15",
+}
+
+EXPLICIT_DISTRICT_RE = re.compile(r"\bd\s?-?\s?(\d{1,2})\b", re.I)
+
+
+def build_area_keywords(dist_area):
+    """[district, keyword] pairs sorted longest-keyword-first, so e.g. "bukit batok"
+    matches before the shorter "batok" (and "lorong lew lian" before "cherryhill").
+    Feeds infer_district()."""
+    kws = []
+    for d, area in dist_area.items():
+        for kw in [k.strip().lower() for k in (area or "").split(",") if k.strip()]:
+            kws.append((d, kw))
+    for kw, d in KNOWN_PLACE_DISTRICTS.items():
+        kws.append((d, kw))
+    kws.sort(key=lambda x: -len(x[1]))
+    return kws
+
+
+def infer_district(explicit_district, preferred_districts, preferred_location, area_keywords):
+    """District inference from free-text location -- ~46% of tenants have no
+    structured district/preferred_districts at all, only a preferred_location
+    string ("Bayshore / East", "Jalan Batu (Katong)"). Without this the roster
+    sort degenerates to "no district" for nearly half the list, which is what
+    looked like everyone lumped together. Match against each district's known
+    area-name keywords as a best-effort.
+
+    Returns (district, source, conflict):
+      district -- the resolved code, or "" if nothing recognisable.
+      source   -- how it was resolved: None (explicit_district/preferred_districts
+                  were already given -- no inference happened), "preferred_districts",
+                  "typed_in_text" (an explicit "(D##)"/"D##" in the free text),
+                  "known_place" (KNOWN_PLACE_DISTRICTS -- a single named
+                  building/street, e.g. Cherryhill or Jalan Batu, ground-truthed
+                  to one district but BUILDING level, not district-wide demand),
+                  or "area_keyword" (area-demand.json's own broad neighbourhood
+                  keyword list -- genuinely district-level).
+      conflict -- None, or a dict describing a KNOWN_PLACE_DISTRICTS ground truth
+                  that disagreed with an explicit "(D##)" typed in the SAME free
+                  text (e.g. "Cherryhill (D20)" when Cherryhill is actually D19).
+                  The place name wins the district (it is ground-truthed against
+                  this dataset's own records; a typed district in casual free
+                  text is not -- see KNOWN_PLACE_DISTRICTS above), but the
+                  override is never silent: conflict carries both values so a
+                  reader can see exactly what was overridden and why.
+    """
+    if explicit_district: return explicit_district, None, None
+    if preferred_districts: return preferred_districts[0], "preferred_districts", None
+    loc = (preferred_location or "").lower()
+    if not loc: return "", None, None
+
+    keyword_district, keyword_kw = None, None
+    for d, kw in area_keywords:
+        if kw in loc:
+            keyword_district, keyword_kw = d, kw
+            break
+
+    typed_district = None
+    m = EXPLICIT_DISTRICT_RE.search(loc)
+    if m:
+        n = int(m.group(1))
+        if 1 <= n <= 28: typed_district = f"D{n}"
+
+    if keyword_kw in KNOWN_PLACE_DISTRICTS and typed_district and typed_district != keyword_district:
+        conflict = {"place": keyword_kw, "place_district": keyword_district, "typed_district": typed_district}
+        return keyword_district, "known_place", conflict
+    if typed_district:
+        return typed_district, "typed_in_text", None
+    if keyword_district:
+        source = "known_place" if keyword_kw in KNOWN_PLACE_DISTRICTS else "area_keyword"
+        return keyword_district, source, None
+    return "", None, None
+
+
+STATUS_ORDER = {"Available": 0, "Offer pending": 1, "Pending": 2, "Taken": 3, "Off market": 4}
+TENANT_STATUS_ORDER = {"Still looking": 0, "Found": 1, "Not looking": 2}
+SALE_STATUS_ORDER = {"Available": 0, "Pending": 1, "Closed": 2}
+
+
+def sale_status(status_raw):
+    st = (status_raw or "").lower()
+    if st.startswith("closed") or st.startswith("archived"): return "Closed"
+    if st in ("sale-active", "active"): return "Available"
+    return "Pending"
+
+
+# rent_min/rent_max are NOT usable for sale records: they hold mis-parsed artifacts
+# from an upstream extraction bug (e.g. rent_min/max = 490/490 when the actual
+# asking price is $505,000, per its own rooms_and_rent text). Parse the asking
+# price from the free-text field instead; keep the raw text too since parsing SG
+# price shorthand ("$505k", "505,000") from freeform notes is inherently best-effort.
+def parse_price(txt):
+    if not txt: return None
+    nums = []
+    for m in re.finditer(r"\$?\s?([\d,]{3,})\s*k\b", txt, re.I):
+        nums.append(int(m.group(1).replace(",", "")) * 1000)
+    for m in re.finditer(r"\$\s?([\d,]{5,})(?!\s*k)", txt):
+        nums.append(int(m.group(1).replace(",", "")))
+    return max(nums) if nums else None
+
+
+def commission_est(rent_min, rent_max):
+    # Rough proxy only (1 month's rent, the common SG co-broke convention) — actual
+    # terms vary per listing (0.5mth/1yr, 1mth, 1% non-exclusive etc. are all seen in
+    # follow_up notes) and aren't captured as a structured field. Label as an estimate.
+    r = rent_max or rent_min
+    return r or None
+
+
+HANDED_OFF_MARKERS = ["handed to", "co-broke leads", "ziing", "stepped back"]
+def handed_off(l):
+    txt = ((l.get("follow_up") or "") + " " + (l.get("status") or "")).lower()
+    return any(m in txt for m in HANDED_OFF_MARKERS)
+
+
+# ---- CEA register check for co-broke counterparties only ----------------------------
+# Winfred, 13 Aug 2026: verify the agent by CONTACT NUMBER (CEA's own anti scam advice),
+# and only for co-broke sources — an ordinary landlord is not a salesperson. Every lookup
+# is cached in ~/.claude/state/cea-phone-cache.json so a number is hit once, not per build.
+_CEA_MOD = None
+def _cea():
+    global _CEA_MOD
+    if _CEA_MOD is None:
+        p = os.path.expanduser("~/.claude/bin/cea-phone-check.py")
+        spec = importlib.util.spec_from_file_location("cea_phone_check", p)
+        _CEA_MOD = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(_CEA_MOD)
+    return _CEA_MOD
+
+_COBROKE_AGENTS = None
+def _cobroke_agent_phone(name):
+    """Phone for a co-broke agent by name, from ~/.claude/state/cobroke-agents.json."""
+    global _COBROKE_AGENTS
+    if _COBROKE_AGENTS is None:
+        try:
+            with open(os.path.expanduser("~/.claude/state/cobroke-agents.json")) as f:
+                _COBROKE_AGENTS = json.load(f).get("agents", [])
+        except Exception:
+            _COBROKE_AGENTS = []
+    n = (name or "").strip().lower()
+    if not n:
+        return ""
+    for a in _COBROKE_AGENTS:
+        an = (a.get("name") or "").strip().lower()
+        if an and (an == n or an.startswith(n) or n.startswith(an.split()[0])):
+            return re.sub(r"\D", "", a.get("jid") or a.get("phone") or "")
+    return ""
+
+def cea_check(l, source):
+    """Verify the CO-BROKE AGENT on a co-broke listing — never the landlord.
+
+    contact_label_source reads like "co-broke listing (Denise), added 28 Jul 2026": the
+    name in brackets is the counterpart agent, while the record's own phone belongs to the
+    OWNER. Checking the record phone flagged two ordinary landlords as unregistered agents
+    (Winfred, 13 Aug 2026). Never raises: an offline build degrades to 'unknown'.
+    """
+    if source != "co-broke":
+        return None
+    label = l.get("contact_label_source") or ""
+    m = re.search(r"co-?broke[^()]*\(([^)]+)\)", label, re.I)
+    agent = (m.group(1).strip() if m else "")
+    if not agent:
+        return {"status": "agent_unknown"}
+    phone = _cobroke_agent_phone(agent)
+    if not phone:
+        return {"status": "agent_unknown", "agent": agent}
+    try:
+        matches, _ = _cea().lookup(phone)
+    except Exception:
+        return {"status": "unknown", "agent": agent}
+    if not matches:
+        return {"status": "not_registered", "agent": agent}
+    r = matches[0]
+    return {"status": "active" if r.get("active") else "expired", "agent": agent,
+            "name": r.get("name", ""), "reg_no": r.get("reg_no", ""),
+            "agency": r.get("agency", ""), "valid_until": r.get("valid_until", ""),
+            "disciplinary": bool(r.get("disciplinary"))}
 
 
 # -------------------------------------------------------------- state io --
@@ -178,7 +388,7 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
         lid = l.get("id")
         rent_min = (lambda a,b:(min(a,b) if a and b else a))(num(l.get("rent_min")), num(l.get("rent_max")))
         rent_max = (lambda a,b:(max(a,b) if a and b else b))(num(l.get("rent_min")), num(l.get("rent_max")))
-        source = "co-broke" if "co-broke" in (l.get("contact_label_source") or "").lower() else "own"
+        source = src_of(l)
         listing_key = l.get("listing_key") or ""
 
         fseen = seen_registry.get(lid)
@@ -196,9 +406,10 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
         # copy means "at 14 days, it is due", so the code has to agree at the
         # boundary rather than only firing from day 15.
         if confirmed_at:
-            reconfirm_due = (today - datetime.date.fromisoformat(confirmed_at)).days >= 14
+            days_since_confirmed = (today - datetime.date.fromisoformat(confirmed_at)).days
         else:
-            reconfirm_due = days_listed >= 14
+            days_since_confirmed = days_listed
+        reconfirm_due = days_since_confirmed >= 14
 
         photo_info = photo_url_index.get((lid or "").upper(), {})
 
@@ -239,6 +450,7 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
             "is_cobroke": source == "co-broke",
             "dup_of": None,
             "reconfirm_due": reconfirm_due,
+            "days_since_confirmed": days_since_confirmed,
             "lifecycle": lifecycle(l),
         })
     return out
@@ -263,6 +475,17 @@ def apply_listing_dup_of(listings):
     return count
 
 
+# [idea 28] "available" is only trustworthy as of the landlord's last confirmation
+# -- build_listings() already computes days_since_confirmed/reconfirm_due per
+# listing; this just selects and ranks the overdue ones into their own list so
+# the UI doesn't have to filter listings[] itself before offering a room.
+def build_stale_landlord_chase(listings):
+    rows = [l for l in listings if l.get("reconfirm_due")]
+    rows.sort(key=lambda l: -(l.get("days_since_confirmed") or 0))
+    return [{"id": l["id"], "name": l["name"], "district": l["district"], "phone": l["phone"],
+             "days_since_confirmed": l["days_since_confirmed"]} for l in rows]
+
+
 def build_supply_overview(landlords):
     # [65] Every landlord record regardless of status, reduced to the fields a
     # portfolio wide "supply view" needs (see build.py's digest generator). The
@@ -283,8 +506,83 @@ def build_supply_overview(landlords):
     return out
 
 
+def build_all_landlords(landlords, dist_area, area_keywords):
+    """Full landlord portfolio view (every status, unlike build_listings()/
+    build_supply_overview() which have their own narrower purposes) for the app's
+    roster screen. Ported from the monolith lineage."""
+    out = []
+    for l in landlords:
+        av = availability(l)
+        pd, _pd_source, _pd_conflict = infer_district(l.get("district") or "", [], l.get("full_address") or "", area_keywords)
+        rent_min = (lambda a,b:(min(a,b) if a and b else a))(num(l.get("rent_min")), num(l.get("rent_max")))
+        rent_max = (lambda a,b:(max(a,b) if a and b else b))(num(l.get("rent_min")), num(l.get("rent_max")))
+        source = src_of(l)
+        out.append({
+            "id": l.get("id"), "name": l.get("landlord_name"), "availability": av,
+            "status_raw": l.get("status") or "", "sort": STATUS_ORDER.get(av, 9),
+            "district": l.get("district") or "", "primary_district": pd,
+            "address": l.get("full_address") or "",
+            "map_query": maps_query(l.get("full_address"), l.get("district"), dist_area),
+            "rent_min": rent_min, "rent_max": rent_max,
+            "viewing": l.get("viewing_availability") or "",
+            "rooms": l.get("rooms_and_rent") or "", "property_type": l.get("property_type") or "",
+            "phone": l.get("phone") or "", "last_contact": l.get("last_contact") or "",
+            "follow_up": l.get("follow_up") or "",
+            "source": source, "cea": cea_check(l, source),
+            "commission_est": commission_est(num(l.get("rent_min")), num(l.get("rent_max"))),
+            "handed_off": handed_off(l),
+        })
+    out.sort(key=lambda r: (r["sort"], r["primary_district"] or "zzz", r["name"] or ""))
+    return out
+
+
+# Phrases that signal the tenant is stating a HIGHER ceiling than their intake
+# budget, in their own words -- kept intentionally narrow. A bare "$1,200" mention
+# with none of these phrases is never enough on its own (could be a listing price
+# someone quoted them, a unit number, a friend's budget); see
+# find_budget_contradiction() for the full evidence requirement.
+BUDGET_STRETCH_RE = re.compile(
+    r"(?:can (?:go|stretch|increase|pay|afford)|willing to (?:go|pay)|budget (?:can|could) go|"
+    r"max(?:imum)?(?: budget)?(?: is| of)?)\s*(?:up to|to)?\s*\$?\s?(\d[\d,]*\.?\d*\s?k?)\b",
+    re.I)
+BUDGET_CONTRADICTION_MIN_RATIO = 1.05  # mentioned $ must clear stated budget by >=5%...
+BUDGET_CONTRADICTION_MIN_DELTA = 50    # ...AND by >=$50, so a same-figure restatement in a
+                                        # filled-in intake form ("budget 870" vs their own
+                                        # "Budget:max 900") reads as rounding, not a real signal.
+
+
+def find_budget_contradiction(conn, jid, stated_budget):
+    """Scan this tenant's own inbound WA messages for a self-stated higher budget
+    ceiling than their intake record shows. Requires BOTH a recognisable phrase
+    (BUDGET_STRETCH_RE) AND a parsed $ figure meaningfully above stated_budget --
+    never just a bare number. No match, no bridge, or no stated_budget to compare
+    against -> None, never a guess. conn may be None (bridge unavailable/closed);
+    never raises."""
+    if not conn or not jid or stated_budget is None:
+        return None
+    try:
+        rows = conn.execute(
+            "SELECT content FROM messages WHERE chat_jid=? AND is_from_me=0 "
+            "AND content IS NOT NULL AND content!='' ORDER BY timestamp DESC LIMIT 200",
+            (jid,)).fetchall()
+    except sqlite3.Error:
+        return None
+    for (content,) in rows:
+        if not content:
+            continue
+        m = BUDGET_STRETCH_RE.search(content)
+        if not m:
+            continue
+        n = enrich._tok_to_num(m.group(1))
+        if n is None:
+            continue
+        if n > stated_budget * BUDGET_CONTRADICTION_MIN_RATIO and (n - stated_budget) >= BUDGET_CONTRADICTION_MIN_DELTA:
+            return {"quote": content.strip()[:200], "stated_budget": stated_budget, "mentioned": n}
+    return None
+
+
 # -------------------------------------------------------------- tenants ---
-def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today):
+def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
     out = []
     excl_counts = {"db": 0, "config_phone": 0, "config_id": 0, "config_name_marker": 0}
     phones_cfg = {enrich.normalize_phone(p) for p in (exclusions_cfg.get("phones") or [])}
@@ -331,8 +629,32 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today):
         raw_last_contact = t.get("last_contact") or ""
         last_contact = enrich.norm_date(raw_last_contact) or raw_last_contact
         pax = num(t.get("no_of_pax")); lease_months = num(t.get("lease_term_months"))
-        district = t.get("district") or ""
         preferred_location = t.get("preferred_location") or ""
+        preferred_districts = ([str(x).strip() for x in t["preferred_districts"] if str(x).strip()]
+                                if isinstance(t.get("preferred_districts"), list)
+                                else [d.strip() for d in (t.get("preferred_districts") or "").split(",") if d.strip()])
+        # ~113 of 218 still-looking tenants have a blank district field but DO name a
+        # place in preferred_location free text ("Cherryhill (Lorong Lew Lian)",
+        # "Haig Road area") -- infer_district() already exists for this (built for the
+        # portfolio-view "primary_district" field) but was never applied to the
+        # "district" field this app actually gates/matches on. district_inferred flags
+        # which rows came from inference so the UI can badge them distinctly from a
+        # tenant-stated district. district_source/district_conflict carry infer_district()'s
+        # own provenance through -- see its docstring: "known_place" rows are one named
+        # building (e.g. all 17 "Cherryhill" tenants), not genuine district-wide demand,
+        # and a conflict means a KNOWN_PLACE_DISTRICTS ground truth overrode a disagreeing
+        # typed "(D##)" in the tenant's own free text.
+        district_raw = t.get("district") or ""
+        district = district_raw
+        district_inferred = False
+        district_source = None
+        district_conflict = None
+        if not district:
+            inferred, district_source, district_conflict = infer_district(
+                "", preferred_districts, preferred_location, area_keywords)
+            if inferred:
+                district = inferred
+                district_inferred = True
         gender = t.get("gender") or ""; nationality = t.get("nationality") or ""; pass_type = t.get("pass_type") or ""
         occupation = t.get("occupation") or ""
 
@@ -352,6 +674,8 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today):
 
         jid = t.get("jid") or ""
         last_wa, lang = enrich.fetch_wa_info(wa_conn, jid)
+        budget_contradiction = find_budget_contradiction(
+            wa_conn, jid, budget if budget is not None else budget_max)
 
         # (73) status/listing_enquired/budget_note deliberately NOT exported as of
         # cycle 7: zero reads in app.js/scoring.js/template.html/build.py and no
@@ -365,11 +689,11 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today):
         out.append({
             "id": t.get("id"), "name": name,
             "preferred_location": preferred_location,
-            "preferred_districts": ([str(x).strip() for x in t["preferred_districts"] if str(x).strip()]
-                                     if isinstance(t.get("preferred_districts"), list)
-                                     else [d.strip() for d in (t.get("preferred_districts") or "").split(",") if d.strip()]),
-            "district": district,
+            "preferred_districts": preferred_districts,
+            "district": district, "district_inferred": district_inferred,
+            "district_source": district_source, "district_conflict": district_conflict,
             "budget": budget, "budget_min": budget_min, "budget_max": budget_max,
+            "budget_contradiction": budget_contradiction,
             "pax": pax, "gender": gender, "ethnicity": t.get("ethnicity") or "",
             "nationality": nationality, "pass_type": pass_type,
             "occupation": occupation, "move_in": move_in, "move_in_norm": move_in_norm,
@@ -395,6 +719,112 @@ def apply_tenant_dup_groups(tenants):
     return gid
 
 
+def build_all_tenants(tenants_raw, area_keywords):
+    """Full tenant portfolio view (every status, unlike build_tenants() above which
+    filters to still-looking only) for the app's roster screen. Ported from the
+    monolith lineage. district/location is the PRIMARY sort grouping (Winfred:
+    tenants were "all lumped together" under status alone) — status and
+    data-completeness are secondary within each area group. Unmatched location
+    falls into a final "zzz" bucket the UI labels "Unspecified location"."""
+    out = []
+    for t in tenants_raw:
+        lk = looking(t)
+        budget = num(t.get("budget")) or num(t.get("budget_max"))
+        raw_pd = ([str(x).strip() for x in t["preferred_districts"] if str(x).strip()]
+                  if isinstance(t.get("preferred_districts"), list)
+                  else [d.strip() for d in (t.get("preferred_districts") or "").split(",") if d.strip()])
+        pd, _pd_source, _pd_conflict = infer_district(t.get("district") or "", raw_pd, t.get("preferred_location") or "", area_keywords)
+        missing = []
+        if not budget: missing.append("budget")
+        if not t.get("move_in_date"): missing.append("move-in")
+        if not num(t.get("no_of_pax")): missing.append("pax")
+        if not num(t.get("lease_term_months")): missing.append("lease")
+        if not pd: missing.append("district")
+        out.append({
+            "id": t.get("id"), "name": t.get("name"), "looking": lk,
+            "status_raw": t.get("status") or "", "sort": TENANT_STATUS_ORDER.get(lk, 9),
+            "preferred_location": t.get("preferred_location") or "", "district": t.get("district") or "",
+            "primary_district": pd,
+            "budget": budget, "pax": num(t.get("no_of_pax")), "gender": t.get("gender") or "",
+            "nationality": t.get("nationality") or "", "occupation": t.get("occupation") or "",
+            "move_in": t.get("move_in_date") or "", "lease_months": num(t.get("lease_term_months")),
+            "phone": t.get("phone") or "", "last_contact": t.get("last_contact") or "",
+            "listing_enquired": t.get("listing_enquired") or "", "missing": missing,
+        })
+    out.sort(key=lambda r: (r["primary_district"] or "zzz", r["sort"], len(r["missing"]) == 0, r["name"] or ""))
+    return out
+
+
+# --------------------------------------------------------------- sales ----
+def build_sales(landlords, dist_area, area_keywords):
+    """Separate track from rentals (deal_type: sale / sale-or-rent). Ported from
+    the monolith lineage."""
+    out = []
+    for l in landlords:
+        if (l.get("deal_type") or "") not in ("sale", "sale-or-rent"): continue
+        txt = l.get("rooms_and_rent") or ""
+        ss = sale_status(l.get("status"))
+        pd, _pd_source, _pd_conflict = infer_district(l.get("district") or "", [], l.get("full_address") or "", area_keywords)
+        source = src_of(l)
+        out.append({
+            "id": l.get("id"), "name": l.get("landlord_name"), "sale_status": ss,
+            "sort": SALE_STATUS_ORDER.get(ss, 9), "status_raw": l.get("status") or "",
+            "district": l.get("district") or "", "primary_district": pd,
+            "address": l.get("full_address") or "",
+            "map_query": maps_query(l.get("full_address"), l.get("district"), dist_area),
+            "asking_price": parse_price(txt), "price_text": txt,
+            "property_type": l.get("property_type") or "", "phone": l.get("phone") or "",
+            "last_contact": l.get("last_contact") or "", "follow_up": l.get("follow_up") or "",
+            "source": source, "cea": cea_check(l, source),
+        })
+    out.sort(key=lambda r: (r["sort"], r["primary_district"] or "zzz", r["name"] or ""))
+    return out
+
+
+# ---------------------------------------------------- duplicate phones ----
+def compute_duplicate_phones(all_landlords, tenants_raw):
+    """Same number saved as more than one landlord/tenant record — almost always a
+    data-entry collision (dup contact, or a landlord who is also a tenant
+    elsewhere) worth a human glance rather than silently treated as two separate
+    people. Ported from the monolith lineage. Deliberately compares raw phone
+    strings as stored (not normalized) to match records the way they were entered."""
+    owners = {}
+    for l in all_landlords:
+        if l["phone"]: owners.setdefault(l["phone"], []).append("LL:" + (l["name"] or l["id"]))
+    for t in tenants_raw:
+        p = t.get("phone") or ""
+        if p: owners.setdefault(p, []).append("TN:" + (t.get("name") or t.get("id")))
+    return [{"phone": p, "owners": o} for p, o in owners.items() if len(o) > 1]
+
+
+# -------------------------------------------------------------- revival ---
+def build_revival(tenants_raw, landlords, dist_area, area_keywords, today):
+    """Reuse revival_board.py's own scan rather than re-implementing it — see that
+    module's own docstring for the lead-cutoff / match-tier logic. revival_board.py
+    normally runs standalone and does `from export_data import ...`, which only
+    resolves when a module literally named "export_data" is already in
+    sys.modules. When this file runs as __main__ (exactly how build.py invokes it)
+    no such name exists yet, so alias this already-executing module in under that
+    name before importing revival_board -- avoids a second, wasteful re-execution
+    of this whole file. When this module is imported normally (e.g. under test as
+    `import export_data as ed`) sys.modules already carries the right name and the
+    setdefault is a no-op."""
+    sys.modules.setdefault("export_data", sys.modules[__name__])
+    import revival_board as _revival_board
+    avail_for_revival = [{
+        "id": l.get("id"), "name": l.get("landlord_name"), "district": l.get("district") or "",
+        "rent_min": num(l.get("rent_min")), "rent_max": num(l.get("rent_max")),
+    } for l in landlords if availability(l) == "Available"]
+    rows = _revival_board.build_rows(tenants_raw, avail_for_revival, today, area_keywords)
+    return [{
+        "name": r["name"], "phone": r["phone"], "days_quiet": r["dq"], "budget": r["budget"],
+        "district": r["district"], "pax": r["pax"], "tier": r["tier"],
+        "match": ({"id": r["match"]["id"], "name": r["match"]["name"], "district": r["match"]["district"],
+                   "rent_min": r["match"]["rent_min"], "rent_max": r["match"]["rent_max"]}
+                  if r["match"] else None),
+    } for r in rows]
+
+
 # ------------------------------------------------------------- health -----
 def compute_health(listings, tenants):
     def unparsed(l):
@@ -412,15 +842,432 @@ def compute_health(listings, tenants):
     }
 
 
+# ------------------------------------------- enrichment queue [ideas 5-7] --
+def unlock_value_for(missing, listings):
+    """Sum, across the tenant's own missing intake fields, of how many CURRENTLY
+    AVAILABLE listings that specific field's gate applies to -- filtered here to
+    availability=="Available" rather than trusting the caller, so the docstring's
+    own claim is actually enforced. This used to be a distinct-listing UNION
+    ("blocked by AT LEAST ONE missing field") rather than a sum, but "district"
+    applies to literally every listing unconditionally (adjacency scoring is
+    universal) -- under a union that makes district alone hit the ceiling
+    (=len(listings)) for EVERY district-missing tenant regardless of what else
+    they're missing, since the union with an unconditional field can never
+    exceed and never differ from "every listing". On the real book that was 91
+    of 218 tenants tied at the exact same top score, with a tenant missing only
+    district outranking (via the fewest-missing-fields tie-break) one missing
+    budget+pax+lease+move_in. Summing means a tenant missing several gated
+    fields accumulates each field's own count -- budget/pax/lease_months/move_in
+    only count a listing when that listing actually gates on the field (has a
+    price floor / a max_pax / a lease_min / a known available_from); district
+    still counts every listing WITH a district set (location scoring applies
+    universally, but only where there's something to be adjacent to)."""
+    if not missing:
+        return 0
+    avail = [l for l in listings if l.get("availability") == "Available"]
+    value = 0
+    for l in avail:
+        g = l.get("gates") or {}
+        if "budget" in missing and l.get("rent_min") is not None: value += 1
+        if "pax" in missing and g.get("max_pax") is not None: value += 1
+        if "lease_months" in missing and g.get("lease_min") is not None: value += 1
+        if "move_in" in missing and l.get("available_from") is not None: value += 1
+        if "district" in missing and l.get("district"): value += 1
+    return value
+
+
+def build_enrichment_queue(tenants, listings):
+    """Ranked "which 5 minutes of asking unlocks the most" list: every still-looking
+    tenant with >=1 missing intake field, sorted by unlock_value descending (ties
+    broken by fewest missing fields first -- the quicker ask)."""
+    rows = []
+    for t in tenants:
+        missing = t.get("missing") or []
+        if not missing:
+            continue
+        rows.append({
+            "id": t["id"], "name": t["name"], "phone": t.get("phone") or "",
+            "missing": missing, "unlock_value": unlock_value_for(missing, listings),
+        })
+    rows.sort(key=lambda r: (-r["unlock_value"], len(r["missing"])))
+    return rows
+
+
+# ------------------------------------------ live demand/supply [23,24,25] --
+def build_live_area_demand(adem_districts, listings, tenants):
+    """Extends v2's existing area_demand rows with counts computed from THIS
+    build's own listings[]/tenants[] (post district-inference), rather than only
+    carrying the separately scheduled build_area_demand.py snapshot's precomputed
+    active_listings/supply_gap through unchanged -- additive, none of the existing
+    keys are removed or recalculated.
+
+    live_waiting_building_level is a SUBSET of live_waiting_tenants: tenants whose
+    district came from infer_district()'s "known_place" source (a single named
+    building/street, e.g. all 17 "Cherryhill" tenants -- see KNOWN_PLACE_DISTRICTS)
+    rather than a genuine district-wide area_keyword or a stated district. On the
+    real book every one of the 22 district-inference "recoveries" came from
+    KNOWN_PLACE_DISTRICTS, none from the broader area-demand keyword lists -- so
+    without this breakdown, D15/D19's live_waiting_tenants reads as district-wide
+    sourcing demand when it is really "10 people asked about ONE building." A
+    reader can now tell live_waiting_tenants - live_waiting_building_level for the
+    genuinely district-wide count."""
+    live_listings, live_waiting, live_waiting_building = {}, {}, {}
+    for l in listings:
+        d = l.get("district") or ""
+        if d: live_listings[d] = live_listings.get(d, 0) + 1
+    for t in tenants:
+        d = t.get("district") or ""
+        if not d: continue
+        live_waiting[d] = live_waiting.get(d, 0) + 1
+        if t.get("district_source") == "known_place":
+            live_waiting_building[d] = live_waiting_building.get(d, 0) + 1
+
+    rows = []
+    for d in adem_districts:
+        district = d["district"]
+        avail = live_listings.get(district, 0)
+        waiting = live_waiting.get(district, 0)
+        rows.append({
+            "district": district, "area": d["area"],
+            "unmatched_waiting": d.get("unmatched_waiting"), "supply_gap": d.get("supply_gap"),
+            "sourcing_priority": d.get("sourcing_priority"),
+            "live_available_listings": avail, "live_waiting_tenants": waiting,
+            "live_waiting_building_level": live_waiting_building.get(district, 0),
+            "live_gap": max(waiting - avail, 0),
+        })
+    return rows
+
+
+def build_zero_stock_alert(live_area_demand, min_waiting=3):
+    """[idea 25] Areas with real waiting demand and literally nothing live to show
+    them -- Winfred's sourcing signal. Sorted by waiting count descending."""
+    rows = [r for r in live_area_demand
+            if r["live_waiting_tenants"] >= min_waiting and r["live_available_listings"] == 0]
+    rows.sort(key=lambda r: -r["live_waiting_tenants"])
+    return rows
+
+
+# ------------------------------------- landlord responsiveness [idea 24] --
+ASK_GAP_HOURS = 24  # a same-sender follow-up within this window counts as part of
+                     # the same "ask" (a nudge/reminder), not a fresh unanswered prompt
+
+# A burst of Winfred's own messages only STARTS a genuinely-timed "ask" if the
+# landlord had been silent at least this long beforehand. Without this, every
+# turn boundary in a live back-and-forth (both sides replying within seconds)
+# becomes its own "ask" with a latency near zero -- on the real book LL039's 118
+# messages produced 33 fake sub-minute "asks" and a median that rounded to 0.0h,
+# hiding a genuine 5.7-DAY wait buried in the same chat. 2 hours is long enough
+# that no ordinary live exchange crosses it mid-conversation, short enough that a
+# genuine same-day follow-up question still gets timed.
+MIN_SILENCE_BEFORE_ASK_HOURS = 2
+
+def _parse_wa_ts(raw):
+    if not raw:
+        return None
+    s = str(raw).strip()
+    if "T" not in s and " " in s:
+        s = s.replace(" ", "T", 1)
+    s = s.replace("Z", "+00:00")
+    try:
+        return datetime.datetime.fromisoformat(s)
+    except ValueError:
+        return None
+
+
+def _chat_asks(rows):
+    """rows: (content, ts_raw, is_from_me) ASC by timestamp. An "ask" is a run of
+    Winfred's own messages with no landlord reply and no gap over ASK_GAP_HOURS; it
+    closes on the landlord's first reply after it (latency = reply time minus the
+    LAST message of the ask -- how long the landlord made Winfred wait after he
+    stopped talking) or stays open ("unanswered") if a new ask starts, or the chat
+    ends, before any reply ever comes.
+
+    A fresh burst is only opened as a timed ask when the landlord's own last
+    message (if any) was at least MIN_SILENCE_BEFORE_ASK_HOURS ago -- otherwise
+    it's just Winfred's half of an active live exchange (he just got a reply and
+    is continuing the conversation), not a fresh prompt awaiting one. That burst
+    is silently absorbed: not timed, not counted as unanswered either."""
+    asks = []
+    current = None
+    last_landlord_ts = None
+
+    def genuine_ask(ts):
+        return last_landlord_ts is None or (ts - last_landlord_ts).total_seconds() >= MIN_SILENCE_BEFORE_ASK_HOURS * 3600
+
+    for _content, ts_raw, is_from_me in rows:
+        ts = _parse_wa_ts(ts_raw)
+        if ts is None:
+            continue
+        if is_from_me:
+            if current is None:
+                if genuine_ask(ts):
+                    current = {"start": ts, "end": ts}
+            elif (ts - current["end"]).total_seconds() > ASK_GAP_HOURS * 3600:
+                asks.append({**current, "answered_at": None})
+                current = {"start": ts, "end": ts} if genuine_ask(ts) else None
+            else:
+                current["end"] = ts
+        else:
+            if current is not None:
+                asks.append({**current, "answered_at": ts})
+                current = None
+            last_landlord_ts = ts
+    if current is not None:
+        asks.append({**current, "answered_at": None})
+    return asks
+
+
+def build_landlord_responsiveness(conn, landlords):
+    """Per landlord: median AND worst-case reply latency in MINUTES (not rounded
+    hours -- a real reply can be seconds, and rounding to hours loses that), plus
+    unanswered count, read only from the WhatsApp store's own timestamps (never
+    written to). Landlords with no chat_jid, no chat history, or a closed/
+    unavailable bridge are simply left out (nothing to compute) rather than given
+    a fabricated 0.
+
+    worst_case_reply_minutes (the slowest single answered ask) is reported
+    alongside the median because a median alone hides exactly the case this
+    field exists for: a landlord who usually replies in minutes but occasionally
+    vanishes for days. Chose worst-case (max) over an interpolated p90 because
+    per-landlord sample sizes here are small (a handful of asks each) -- a p90
+    on n<10 is not a meaningful percentile, whereas max is exact and honest.
+
+    Ranked (unanswered_count, worst_case_reply_minutes, median_reply_minutes)
+    ascending -- fewest ghosted asks first, then the lowest worst-case wait, then
+    fastest typical reply. The old sort (fastest median first) ranked whichever
+    landlord had the most rapid live back-and-forth chatter first, since that
+    inflated their "asks" count with near-zero fake latencies and dragged the
+    median down -- it was ranking chattiness, not reliability."""
+    if not conn:
+        return []
+    out = []
+    for l in landlords:
+        jid = l.get("chat_jid") or ""
+        if not jid:
+            continue
+        try:
+            rows = conn.execute(
+                "SELECT content, timestamp, is_from_me FROM messages WHERE chat_jid=? "
+                "ORDER BY timestamp ASC", (jid,)).fetchall()
+        except sqlite3.Error:
+            continue
+        if not rows:
+            continue
+        asks = _chat_asks(rows)
+        lat_minutes = [(a["answered_at"] - a["end"]).total_seconds() / 60 for a in asks if a["answered_at"]]
+        unanswered = sum(1 for a in asks if a["answered_at"] is None)
+        if not lat_minutes and not unanswered:
+            continue
+        out.append({
+            "id": l.get("id"), "name": l.get("landlord_name"),
+            "n_asks": len(asks), "n_answered": len(lat_minutes),
+            "median_reply_minutes": round(statistics.median(lat_minutes), 1) if lat_minutes else None,
+            "worst_case_reply_minutes": round(max(lat_minutes), 1) if lat_minutes else None,
+            "unanswered_count": unanswered,
+        })
+    out.sort(key=lambda r: (r["unanswered_count"],
+                             r["worst_case_reply_minutes"] is None, r["worst_case_reply_minutes"] or 0,
+                             r["median_reply_minutes"] is None, r["median_reply_minutes"] or 0))
+    return out
+
+
+# --------------------------------------- price vs closes honesty [idea 26] --
+# A single ROOM's plausible SG monthly rent. Room-rental data in this book runs
+# $850-$1,700 in practice; widened well beyond that on both ends (co-living/
+# premium rooms, off-season markdowns) so this only screens obvious mis-parses,
+# not legitimate outliers -- see build_price_check()'s own docstring for why
+# rent_min/rent_max cannot be trusted raw for this.
+ROOM_RENT_MIN = 400
+ROOM_RENT_MAX = 3000
+
+# property_type text that means the record can't represent a single room's
+# price at all: a landlord record covering multiple rooms across >1 physical
+# unit (e.g. "Condo (multi-room, 2 units)") mixes several different rooms'
+# rents into one rent_min/rent_max pair, or "whole flat/unit/house" records are
+# priced as one lump sum, not a per-room rate.
+MULTI_ROOM_PROPERTY_RE = re.compile(r"\bmulti[- ]?room\b|\bwhole\s*(?:flat|unit|house)\b", re.I)
+
+CLOSED_PRICE_MIN_N = 3
+
+
+def _room_rent_for_band(l):
+    """Best-effort single ROOM rent for build_price_check()'s same-district
+    bands. rent_min/rent_max are NOT trustworthy raw for this: the same upstream
+    mis-parse the file already warns about for sale records (~line 178) also
+    hits rentals whose free text lists MORE THAN ONE price -- e.g. LL007's
+    "Common $850 (was $1,000); whole unit $5,000" parses to rent_min=850/
+    rent_max=5000, so the raw rent_max is a DIFFERENT unit's (the whole flat's)
+    price, not this room's. Prefers rent_max, falling back to rent_min, but only
+    accepts a candidate within the ROOM_RENT_MIN..ROOM_RENT_MAX sanity bound --
+    catches LL007 (5000 rejected, falls back to the genuine 850) without needing
+    to re-parse rooms_and_rent. Records whose property_type itself says
+    multi-room/whole-unit (e.g. LL012's "Condo (multi-room, 2 units)", which
+    bundles rents from TWO different physical units into one rent_min/rent_max
+    pair) are excluded outright -- no single number in that record represents
+    ONE room's price, sane-bounded or not."""
+    if MULTI_ROOM_PROPERTY_RE.search(l.get("property_type") or ""):
+        return None
+    for candidate in (num(l.get("rent_max")), num(l.get("rent_min"))):
+        if candidate is not None and ROOM_RENT_MIN <= candidate <= ROOM_RENT_MAX:
+            return candidate
+    return None
+
+
+def build_price_check(landlords, listings, min_n=CLOSED_PRICE_MIN_N):
+    """Compares each currently AVAILABLE listing's rent against a same-district
+    band of Winfred's own past closes (lifecycle()=="tenanted"). With ~20 total
+    closes spread across up to 28 districts, most districts land at n=1 or n=2 --
+    a "band" from one data point is worse than no band, so both the band AND any
+    flag built on it are suppressed outright below min_n. Per-close rent comes
+    from _room_rent_for_band() (see its own docstring) rather than raw rent_max/
+    rent_min, which can silently mix a room price with an unrelated whole-unit
+    or multi-room price for the SAME record; closes with no sane per-room price
+    at all are skipped, never guessed."""
+    closed_by_district = {}
+    for l in landlords:
+        if lifecycle(l) != "tenanted":
+            continue
+        d = l.get("district") or ""
+        r = _room_rent_for_band(l)
+        if not d or r is None:
+            continue
+        closed_by_district.setdefault(d, []).append(r)
+
+    bands = {}
+    for d, vals in closed_by_district.items():
+        if len(vals) < min_n:
+            continue
+        bands[d] = {"district": d, "n": len(vals), "min": min(vals), "max": max(vals),
+                    "median": statistics.median(vals)}
+
+    flags = []
+    for l in listings:
+        band = bands.get(l.get("district") or "")
+        if not band:
+            continue
+        rep = l.get("rent_max") or l.get("rent_min")
+        if rep is None:
+            continue
+        if rep > band["max"] * 1.15:
+            direction = "above_market"
+        elif rep < band["min"] * 0.85:
+            direction = "below_market"
+        else:
+            continue
+        flags.append({"listing_id": l["id"], "name": l["name"], "district": l["district"],
+                       "listing_rent": rep, "band_median": band["median"], "band_n": band["n"],
+                       "direction": direction})
+    return {"min_n": min_n, "bands": sorted(bands.values(), key=lambda b: b["district"]), "flags": flags}
+
+
+# ------------------------------------------- days-to-fill honesty [idea 27] --
+DAYS_TO_FILL_MIN_N = 3
+
+def _extract_close_date(status_raw, last_contact, today):
+    # reuse the same D-Month-Year free text parser used for tenant move_in dates --
+    # status text carries the same "9 Jul 2026" shape ("closed (tenanted 9 Jul 2026)")
+    d = enrich.norm_move_in(status_raw, today)
+    if d:
+        return d
+    return enrich.norm_date(last_contact)
+
+
+def build_days_to_fill(landlords, seen_registry, today, min_n=DAYS_TO_FILL_MIN_N):
+    """Days between a listing's first_seen (the seen registry -- the same file
+    build_listings() stamps) and its close date, grouped by district. Needs BOTH
+    ends for the SAME listing id. None of the currently closed records have both:
+    the seen registry only started tracking first_seen once this app began
+    watching a listing, and every current close either predates that or was never
+    captured while still available -- reported honestly as 0 usable samples
+    (status "insufficient_data") rather than guessed. Will fill in as listings
+    that ARE being tracked eventually close."""
+    samples_by_district, all_samples = {}, []
+    for l in landlords:
+        if lifecycle(l) != "tenanted":
+            continue
+        fseen = seen_registry.get(l.get("id"))
+        if not fseen:
+            continue
+        close = _extract_close_date(l.get("status") or "", l.get("last_contact") or "", today)
+        if not close:
+            continue
+        try:
+            days = (datetime.date.fromisoformat(close) - datetime.date.fromisoformat(fseen)).days
+        except ValueError:
+            continue
+        if not (0 <= days <= 365):
+            continue
+        all_samples.append(days)
+        d = l.get("district") or ""
+        if d:
+            samples_by_district.setdefault(d, []).append(days)
+
+    by_district = [{"district": d, "n": len(v), "median_days": statistics.median(v)}
+                   for d, v in samples_by_district.items() if len(v) >= min_n]
+    overall = {"n": len(all_samples),
+               "status": "ok" if len(all_samples) >= min_n else "insufficient_data",
+               "median_days": statistics.median(all_samples) if len(all_samples) >= min_n else None}
+    return {"min_n": min_n, "overall": overall, "by_district": sorted(by_district, key=lambda b: b["district"]),
+            "note": ("needs a first_seen date (seen registry) AND a parseable close date for the SAME "
+                     "listing; suppressed to insufficient_data below min_n rather than guessed")}
+
+
+# --------------------------------------------- outcome capture [idea 11] --
+LEARNING_MIN_TRIPLES = 30  # heuristic floor (not a rigorous power calc): enough rows
+                            # that a handful of scoring dimensions (budget, district,
+                            # gender, ethnicity, pax/lease) each get a few observations
+                            # per outcome class. Meant as "clearly not yet", not a claim
+                            # that 30 is exactly the right number.
+
+def build_learning_block(min_triples=LEARNING_MIN_TRIPLES):
+    """(tenant, listing, outcome) triples usable for weight-fitting the scoring
+    model. Currently 0, always: the CRM's crm_match_status table (status=
+    closed_won) is the intended future source once it accumulates real data, but
+    it lives in Postgres behind the deployed app and this offline build has no
+    credentials or network path to read it. Neither local database
+    (landlord-db.json / tenant-db.json) has a field linking a specific tenant to
+    the specific listing they actually closed on -- a tenant's own "matches"/
+    "suggested_new" are this build's scoring CANDIDATES, not a recorded outcome.
+    Never fabricated -- stays 0 until a real linked source exists.
+
+    usable_triples=0 is honest TODAY (there is genuinely no source at all, not
+    just a source that happens to be empty), but a bare 0 sitting in an integer
+    field is indistinguishable from a real computed zero once the CRM DOES start
+    recording closes and this block is still not wired up -- it would then read
+    0 forever, silently, with nothing to say it was never actually computed.
+    source_wired=False is the explicit, self-evident marker: any reader can
+    check it instead of trusting usable_triples' magnitude to mean "nothing to
+    learn from" versus "not even measuring yet". Flip it to True only once this
+    function is actually reading a real linked source."""
+    usable = 0
+    needed = max(min_triples - usable, 0)
+    return {
+        "usable_triples": usable, "needed_for_meaningful_fit": min_triples,
+        "source_wired": False,
+        "status": f"dormant, needs {needed} more closes",
+        "note": ("0 usable (tenant, listing, outcome) triples exist locally. crm_match_status "
+                 "(status=closed_won) is the intended source once it accumulates data, but it lives "
+                 "in Postgres behind the deployed app -- unreachable from this offline build. Neither "
+                 "landlord-db.json nor tenant-db.json links a tenant to the listing they actually "
+                 "closed on. source_wired=False marks this as never-computed, not a computed zero -- "
+                 "check that flag rather than trusting usable_triples' value alone."),
+    }
+
+
 # -------------------------------------------------------------- delta -----
 def compute_delta(prev, listings, tenants):
     if not prev: return None
     prev_listings = {l["id"]: l for l in prev.get("listings") or []}
     prev_tenant_ids = {t["id"] for t in prev.get("tenants") or []}
     cur_listing_ids = {l["id"] for l in listings}
+    cur_tenant_ids = {t["id"] for t in tenants}
     new_tenant_ids = [t["id"] for t in tenants if t["id"] not in prev_tenant_ids]
     new_listing_ids = [l["id"] for l in listings if l["id"] not in prev_listings]
     gone_listings = [{"id": pid, "name": pl.get("name")} for pid, pl in prev_listings.items() if pid not in cur_listing_ids]
+    # symmetric to gone_listings: a still-looking tenant last build who is no longer
+    # still-looking this build (found/excluded/went stale) -- feeds week_delta's
+    # "tenants lost" without any new mechanism of its own.
+    tenant_lost_ids = [tid for tid in prev_tenant_ids if tid not in cur_tenant_ids]
     availability_changes = []
     for l in listings:
         pl = prev_listings.get(l["id"])
@@ -430,6 +1277,66 @@ def compute_delta(prev, listings, tenants):
         "prev_generated": prev.get("generated"),
         "new_tenant_ids": new_tenant_ids, "new_listing_ids": new_listing_ids,
         "gone_listings": gone_listings, "availability_changes": availability_changes,
+        "tenant_lost_ids": tenant_lost_ids,
+    }
+
+
+WEEK_DELTA_WINDOW_DAYS = 7
+
+def compute_week_delta(prev, delta, listings, today):
+    """Rolling WEEK_DELTA_WINDOW_DAYS-day view built from the SAME delta/seen
+    machinery compute_delta()/build_listings() already use -- no separate archive.
+    Each build's own compute_delta() output becomes one dated event, carried
+    forward through matchmaker-data.prev.json (the same roll-forward this file
+    already does for `delta` itself) and aged out once older than the window.
+    new_stock is read directly off this build's own first_seen stamps (the seen
+    registry), which is exact; gone_listings/availability_changes/tenants_lost
+    accuracy is bounded by how often the build actually runs (several times a day
+    in practice, per matchmaker-build-history.jsonl) since each is only sampled
+    at build time, not tracked continuously.
+
+    events grew one entry per build with no dedup -- several no-op builds in the
+    same day (nothing changed since the last one) each appended an identical
+    empty event, so a busy day's events[] filled up with copies carrying zero new
+    information. When this run's content (gone_listings/availability_changes/
+    tenant_lost_ids) is IDENTICAL to the most recently stored event, that event
+    is refreshed in place (its date bumped to today) instead of appended again --
+    a genuinely new event (different content) still always appends, so the
+    week's real history of changes is preserved."""
+    cutoff = (today - datetime.timedelta(days=WEEK_DELTA_WINDOW_DAYS)).isoformat()
+    prev_week = (prev or {}).get("week_delta") or {}
+    events = [e for e in (prev_week.get("events") or []) if (e.get("date") or "") >= cutoff]
+    if delta:
+        new_event = {
+            "date": today.isoformat(),
+            "gone_listings": delta["gone_listings"],
+            "availability_changes": delta["availability_changes"],
+            "tenant_lost_ids": delta["tenant_lost_ids"],
+        }
+        same_as_last = events and all(
+            events[-1].get(k) == new_event[k]
+            for k in ("gone_listings", "availability_changes", "tenant_lost_ids"))
+        if same_as_last:
+            events[-1] = new_event
+        else:
+            events.append(new_event)
+
+    gone_by_id, tenants_lost, avail_changes = {}, set(), []
+    for e in events:
+        for g in e.get("gone_listings") or []:
+            gone_by_id[g["id"]] = g
+        for tid in e.get("tenant_lost_ids") or []:
+            tenants_lost.add(tid)
+        avail_changes.extend(e.get("availability_changes") or [])
+
+    new_stock = [{"id": l["id"], "name": l["name"], "district": l["district"], "first_seen": l["first_seen"]}
+                 for l in listings if l.get("first_seen") and l["first_seen"] >= cutoff]
+
+    return {
+        "window_days": WEEK_DELTA_WINDOW_DAYS, "since": cutoff,
+        "gone_listings": list(gone_by_id.values()), "availability_changes": avail_changes,
+        "tenants_lost": sorted(tenants_lost), "new_stock": new_stock,
+        "events": events,  # raw log carried forward next run; UI can ignore this
     }
 
 
@@ -464,6 +1371,20 @@ def validate_key_ids(listings, tenants):
     return problems
 
 
+# ---------------------------------------------------- source availability --
+def build_source_availability(wa_conn):
+    """Explicit signal so the UI (and any human reading the payload) can tell
+    "computed this and genuinely found nothing" from "could not compute at
+    all". A WhatsApp bridge outage silently empties BOTH budget_contradictions
+    (find_budget_contradiction returns None for every tenant) AND
+    landlord_responsiveness (build_landlord_responsiveness returns []) with no
+    marker anywhere in the payload -- "0 contradictions" then reads identically
+    whether Winfred genuinely has none right now, or the bridge was locked when
+    this build ran. wa_bridge=False means both those blocks are not to be
+    trusted as "checked and clean" for this build."""
+    return {"wa_bridge": wa_conn is not None}
+
+
 # --------------------------------------------------------------- main -----
 def main():
     # today MUST be derived from the same explicit +08:00 `now` that stamps
@@ -493,18 +1414,46 @@ def main():
     photo_url_index = enrich.load_photo_url_index(LISTINGS_JSON_PATH)
 
     wa_conn = enrich.open_wa_bridge(WA_DB_PATH)
+    source_availability = build_source_availability(wa_conn)  # [item 6] before any close() below
     if wa_conn is None:
-        print("warning: WhatsApp bridge unavailable/locked — last_wa and lang left null/default for all tenants")
+        print("warning: WhatsApp bridge unavailable/locked — last_wa and lang left null/default for all tenants, "
+              "budget_contradictions/landlord_responsiveness cannot be computed this build (see source_availability)")
+
+    area_keywords = build_area_keywords(dist_area)  # built before build_tenants -- it needs
+                                                     # this for district inference (item 1)
 
     listings = build_listings(land["landlords"], dist_area, fixed_viewing_index, photo_url_index, seen_registry, today)
     dedup_listing_pairs = apply_listing_dup_of(listings)
     save_seen_registry(SEEN_PATH, seen_registry)
     supply_overview = build_supply_overview(land["landlords"])  # [65] all statuses, digest only
+    stale_landlord_chase = build_stale_landlord_chase(listings)  # [idea 28]
 
     tenants_all_statuses = len(ten["tenants"])
-    tenants, excl_counts = build_tenants(ten["tenants"], exclusions_cfg, wa_conn, today)
+    tenants, excl_counts = build_tenants(ten["tenants"], exclusions_cfg, wa_conn, today, area_keywords)
     dedup_tenant_groups = apply_tenant_dup_groups(tenants)
+    districts_recovered = sum(1 for t in tenants if t.get("district_inferred"))
+    budget_contradictions = [
+        {"tenant_id": t["id"], "name": t["name"], "phone": t.get("phone") or "", **t["budget_contradiction"]}
+        for t in tenants if t.get("budget_contradiction")
+    ]
+
+    # landlord_responsiveness also needs the WA bridge, so keep wa_conn open until
+    # this is done -- it used to close right after build_tenants.
+    landlord_responsiveness = build_landlord_responsiveness(wa_conn, land["landlords"])  # [idea 24]
     if wa_conn: wa_conn.close()
+
+    all_landlords = build_all_landlords(land["landlords"], dist_area, area_keywords)
+    all_tenants = build_all_tenants(ten["tenants"], area_keywords)
+    sales = build_sales(land["landlords"], dist_area, area_keywords)
+    duplicate_phones = compute_duplicate_phones(all_landlords, ten["tenants"])
+    revival = build_revival(ten["tenants"], land["landlords"], dist_area, area_keywords, today)
+
+    enrichment_queue = build_enrichment_queue(tenants, listings)  # [ideas 5,6]
+    live_area_demand = build_live_area_demand(adem["districts"], listings, tenants)  # [ideas 4,23]
+    zero_stock_alert = build_zero_stock_alert(live_area_demand)  # [idea 25]
+    price_check = build_price_check(land["landlords"], listings)  # [idea 26]
+    days_to_fill = build_days_to_fill(land["landlords"], seen_registry, today)  # [idea 27]
+    learning = build_learning_block()  # [idea 11]
 
     key_problems = validate_key_ids(listings, tenants)
     if key_problems:
@@ -518,6 +1467,7 @@ def main():
         try: prev = json.load(open(PREV))
         except (OSError, ValueError): prev = None
     delta = compute_delta(prev, listings, tenants)
+    week_delta = compute_week_delta(prev, delta, listings, today)  # [idea 40]
 
     source_counts = {
         "listings_available": len(listings), "tenants_looking": len(tenants),
@@ -530,14 +1480,19 @@ def main():
         "generated": today.isoformat(), "generated_ts": generated_ts, "build_id": build_id,
         "priority": ["availability","location","price","landlord requirements"],
         "counts": {"available_listings": len(listings), "still_looking_tenants": len(tenants)},
-        "source_counts": source_counts, "tenants_all_statuses": tenants_all_statuses,
-        "delta": delta, "health": health,
+        "source_counts": source_counts, "source_availability": source_availability,
+        "tenants_all_statuses": tenants_all_statuses,
+        "delta": delta, "week_delta": week_delta, "health": health,
         "districts": dist_area,
-        "area_demand": [{"district":d["district"],"area":d["area"],"unmatched_waiting":d.get("unmatched_waiting"),
-                         "supply_gap":d.get("supply_gap"),"sourcing_priority":d.get("sourcing_priority")}
-                        for d in adem["districts"]],
+        "area_demand": live_area_demand,
         "supply_overview": supply_overview, "busy_blocks": busy_blocks,
         "listings": listings, "tenants": tenants,
+        "all_landlords": all_landlords, "all_tenants": all_tenants, "sales": sales,
+        "revival": revival, "duplicate_phones": duplicate_phones,
+        "enrichment_queue": enrichment_queue, "budget_contradictions": budget_contradictions,
+        "zero_stock_alert": zero_stock_alert, "landlord_responsiveness": landlord_responsiveness,
+        "price_check": price_check, "days_to_fill": days_to_fill,
+        "stale_landlord_chase": stale_landlord_chase, "learning": learning,
     }
     # Same directory as OUT (so os.replace stays an atomic same filesystem
     # rename) but named matchmaker-data.tmp.json, not matchmaker-data.json.tmp:
@@ -549,11 +1504,20 @@ def main():
     os.replace(tmp, OUT)  # atomic — a crash mid write never leaves a truncated OUT
     print("wrote", OUT)
     print("listings:", len(listings), "| tenants:", len(tenants))
+    print("all_landlords:", len(all_landlords), "| all_tenants:", len(all_tenants), "| sales:", len(sales),
+          "| revival:", len(revival), "| duplicate_phones:", len(duplicate_phones))
     print("source_counts:", json.dumps(source_counts, ensure_ascii=False))
+    print("source_availability:", json.dumps(source_availability, ensure_ascii=False))
     print("health:", json.dumps(health, ensure_ascii=False))
     print("delta:", "null (first run)" if delta is None else
           f"{len(delta['new_tenant_ids'])} new tenants, {len(delta['new_listing_ids'])} new listings, "
           f"{len(delta['gone_listings'])} gone, {len(delta['availability_changes'])} availability changes")
+    print(f"districts recovered by inference: {districts_recovered}")
+    print(f"enrichment_queue: {len(enrichment_queue)} | budget_contradictions: {len(budget_contradictions)} "
+          f"| zero_stock_alert: {len(zero_stock_alert)} | landlord_responsiveness: {len(landlord_responsiveness)}")
+    print(f"price_check bands: {len(price_check['bands'])} | flags: {len(price_check['flags'])} "
+          f"| days_to_fill: {days_to_fill['overall']} | stale_landlord_chase: {len(stale_landlord_chase)}")
+    print(f"learning: {learning['status']}")
 
 if __name__ == "__main__":
     # A fail closed state file is an expected, actionable outcome, not a crash:
