@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-13T00:30:05+08:00",
-  "count": 9,
+  "synced_at": "2026-08-14T00:30:02+08:00",
+  "count": 10,
   "listings": [
     {
       "id": "common-room-bayshore-park-ll070",
@@ -17,16 +17,31 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park."
     },
     {
-      "id": "master-room-blk-62-bayshore-park-ll088",
-      "title": "Master Room — Blk 62 Bayshore Park",
+      "id": "common-room-blk-125-bedok-reservoir-area-ll104",
+      "title": "Common Room — Blk 125 Bedok Reservoir area",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1300,
+      "price_label": "S$1,300 / mo",
+      "address": "Blk 125 Bedok Reservoir area",
+      "district": "D16",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20125%20Bedok%20Reservoir%20area.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20125%20Bedok%20Reservoir%20area."
+    },
+    {
+      "id": "room-blk-62-bayshore-park-ll088",
+      "title": "Room — Blk 62 Bayshore Park",
       "type": "Condo",
       "transaction": "rent",
-      "price": 1250,
-      "price_label": "S$1,250 / mo",
+      "price": 600,
+      "price_label": "From S$600 / mo",
       "address": "Blk 62 Bayshore Park",
       "district": "D16",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%2062%20Bayshore%20Park."
+      "highlights": [
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%2062%20Bayshore%20Park.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%2062%20Bayshore%20Park."
     },
     {
       "id": "studio-34-jalan-tanjong-ll077",
@@ -77,6 +92,36 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010."
     },
     {
+      "id": "common-room-cherryhill-ll097",
+      "title": "Common Room — Cherryhill (Bishan)",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1150,
+      "price_label": "From S$1,150 / mo",
+      "address": "Cherryhill",
+      "district": "D20",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Cherryhill.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Cherryhill."
+    },
+    {
+      "id": "master-room-blk-503-ang-mo-kio-ave-8-ll106",
+      "title": "Master Room — Blk 503 Ang Mo Kio Ave 8",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "Blk 503 Ang Mo Kio Ave 8",
+      "district": "D20",
+      "highlights": [
+        "Near MRT",
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208."
+    },
+    {
       "id": "room-851-jurong-west-ll017",
       "title": "Room — 851 Jurong West",
       "type": "HDB",
@@ -89,18 +134,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
     },
     {
-      "id": "whole-unit-blk-26-teck-whye-lane-ll083",
-      "title": "Whole Unit — Blk 26 Teck Whye Lane (Bukit Batok)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price_label": "POA",
-      "address": "Blk 26 Teck Whye Lane",
-      "district": "D23",
-      "image": "/img/listings/whole-unit-blk-26-teck-whye-lane-1.jpg",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Blk%2026%20Teck%20Whye%20Lane."
-    },
-    {
       "id": "common-room-54-sunrise-terrace-ll028",
       "title": "Common Room — 54 Sunrise Terrace",
       "type": "Landed",
@@ -111,22 +144,6 @@
       "district": "D28",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace."
-    },
-    {
-      "id": "common-room-blk-110a-depot-road-ll082",
-      "title": "Common Room — Blk 110A Depot Road (Harbourfront)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1200,
-      "price_label": "From S$1,200 / mo",
-      "address": "Blk 110A Depot Road",
-      "district": "D4",
-      "highlights": [
-        "Available now"
-      ],
-      "image": "/img/listings/common-room-blk-110a-depot-road-1.jpg",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20110A%20Depot%20Road."
     }
   ]
 }
