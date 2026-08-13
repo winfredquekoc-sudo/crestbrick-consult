@@ -2731,26 +2731,25 @@ function saleStatusChip(st) {
   if (st === "Pending") return '<span class="chip a">⚪ Pending</span>';
   return '<span class="chip mut">⚫ Closed</span>';
 }
-// Gender is not decoration here: 4 of the 8 available listings carry a landlord
-// gender gate, so a blank one makes half the stock unscoreable for that tenant and
-// the match lands in NEEDS_INFO rather than QUALIFIED. 64 of 218 tenants are blank,
-// so the missing case gets an amber chip that says what it costs, not a quiet "?".
+// Informational, at Winfred's direction (13 Aug 2026): he wants to SEE a tenant's
+// gender at a glance. A landlord's stated preference is a preference, not a hard
+// requirement, so a blank one is not an alarm and must not be styled as a problem —
+// it is simply a detail he does not have yet.
 //
-// The raw field is messy — "female", "f", "couple", "1 female 1 male" all appear.
-// scoring.js gates on /^f/i and /^m/i, so anything starting with another character
-// (a couple, a mixed pair) satisfies NEITHER gate and is treated as unknown there.
-// This chip mirrors that reality instead of implying a cleaner answer than exists.
+// The raw field is messy — "female", "f", "couple", "1 female 1 male" all appear —
+// so the chip shows what is actually recorded rather than tidying it into a cleaner
+// answer than exists. The only case worth a second look is a mixed/couple value,
+// because it describes more than one person.
 function genderChip(t) {
   const raw = String((t && t.gender) || "").trim();
   if (!raw) {
-    // Every one of these leads DID come in over WhatsApp — the thread exists. But of
-    // the 64 blanks, only 3 ever stated a gender; the rest simply never said, so there
-    // is nothing to extract (checked against the real message store, 13 Aug 2026).
-    // Guessing from a first name is not an option: the book is Malaysian, Indian,
-    // Chinese and Indonesian names where that inference is unreliable, and a wrong
-    // guess routes someone at a gender-gated room they cannot actually take.
-    // So make it one tap to ASK, which is the only thing that actually resolves it.
-    // Respects the dead-lead rule — no ask link for anyone past the 30 day cutoff.
+    // Every one of these leads did come in over WhatsApp, but of the 64 blanks only 3
+    // ever stated a gender — the rest simply never said (checked against the real
+    // message store, 13 Aug 2026), so there is nothing to extract. Guessing from a
+    // first name is not an option either: this book is Malaysian, Indian, Chinese and
+    // Indonesian names, where that inference is unreliable.
+    // So the blank offers a quiet one-tap ask and otherwise stays out of the way.
+    // Still honours the dead-lead rule — no ask link past the 30 day cutoff.
     const askable = t && t.phone && !coldBlocked(null, t);
     if (askable) {
       // oneQuestionDraft is v2's existing single-missing-field ask, so this reuses the
@@ -2759,11 +2758,11 @@ function genderChip(t) {
       // first blank-gender tenant and silently truncated the All Tenants roster to 24 of
       // 554 rows. Reusing a helper that provably exists here is the point.)
       const msg = oneQuestionDraft(t, "gender");
-      return '<a class="chip a" style="text-decoration:none" target="_blank" rel="noopener noreferrer"' +
+      return '<a class="chip mut" style="text-decoration:none" target="_blank" rel="noopener noreferrer"' +
         ' href="' + escUrl(waPlain(t.phone, msg)) + '"' +
-        ' title="No gender on file, and they never stated it. 4 of 8 listings gate on gender, so those cannot be scored until you know. Tap to ask.">⚠ gender? — tap to ask</a>';
+        ' title="No gender on file — tap to ask them.">gender? — ask</a>';
     }
-    return '<span class="chip a" title="No gender on file — 4 of 8 listings gate on it, so those cannot be scored for this tenant">⚠ gender not on file</span>';
+    return '<span class="chip mut" title="No gender on file">gender not on file</span>';
   }
   // Mixed/couple MUST be tested before the /^m/i and /^f/i prefixes. "Mixed (2 female
   // + 2 male siblings and husband)" starts with an m and was being rendered "♂ Male" —
@@ -2772,11 +2771,11 @@ function genderChip(t) {
   // this chip deliberately disagrees with it and says "confirm", because the honest
   // answer is that the field cannot resolve a gate on its own.
   if (/mixed|couple|both|\band\b|\+|\bfamily\b|female.*male|male.*female/i.test(raw)) {
-    return '<span class="chip a" title="Not a single male/female value — a landlord gender gate cannot be resolved from this. Confirm who is actually taking the room before offering.">⚧ ' + esc(raw) + '</span>';
+    return '<span class="chip" title="More than one person — worth confirming who is actually taking the room">⚧ ' + esc(raw) + '</span>';
   }
   if (/^f/i.test(raw)) return '<span class="chip">♀ ' + esc(raw) + '</span>';
   if (/^m/i.test(raw)) return '<span class="chip">♂ ' + esc(raw) + '</span>';
-  return '<span class="chip a" title="Unrecognised gender value — confirm before offering a gender-gated room">⚧ ' + esc(raw) + '</span>';
+  return '<span class="chip" title="Unrecognised value — shown exactly as recorded">⚧ ' + esc(raw) + '</span>';
 }
 function tenantLookingChip(lk) {
   if (lk === "Still looking") return '<span class="chip g">🟢 Still looking</span>';
