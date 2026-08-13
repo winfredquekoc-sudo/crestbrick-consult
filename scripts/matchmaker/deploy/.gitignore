@@ -1,0 +1,10 @@
+# deploy.sh copies the built app to index.html here on EVERY deploy, and that file is the
+# full PII artifact — every tenant and landlord name, phone number and note. It is a
+# build output that happens to land inside the repo, so it must never be committable.
+# This lives in the deploy folder rather than the root .gitignore so it cannot be left
+# behind if the folder is ever copied or moved.
+index.html
+
+# Vercel installs from package.json; a local `npm i` here must not reach a commit.
+node_modules/
+.vercel

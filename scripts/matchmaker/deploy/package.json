@@ -1,0 +1,11 @@
+{
+  "name": "crestbrick-matchmaker-private",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Matchmaker PII app: static shell + CRM API. No build step on purpose — Vercel serves index.html from the root and turns api/*.js into functions. Adding a build script here would change that.",
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "pg": "^8.13.1"
+  }
+}
