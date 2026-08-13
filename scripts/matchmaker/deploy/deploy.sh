@@ -106,6 +106,42 @@ if [ -z "$URL" ]; then
   exit 1
 fi
 
+# --- promote, and PROVE the alias moved. -------------------------------------
+# `vercel --prod` builds a production deployment but does NOT necessarily move the
+# production alias onto it — observed live on 13 Aug 2026: the deploy reported
+# success while crestbrick-matchmaker-private.vercel.app was still serving a
+# deployment from ten hours earlier, and an explicit `vercel promote` was needed.
+#
+# The auth probes below cannot catch this on their own. Both the old and the new
+# deployment answer 401 on "/" AND on "/api/crm" — the middleware runs before
+# routing, so even a deployment with no /api directory at all returns 401 there.
+# That is a shared marker, and shared markers are exactly what produced a false
+# "deployed" confirmation once before. Deployment identity is the only honest
+# discriminator available without credentials, so compare it explicitly.
+DEPLOY_ID="$(printf '%s\n' "$OUT" | grep -Eo 'dpl_[A-Za-z0-9]+' | head -1)"
+alias_dpl() { (cd "$HERE" && vercel inspect "$PROD_ALIAS" 2>&1) | grep -Eo 'dpl_[A-Za-z0-9]+' | head -1; }
+if [ -n "$DEPLOY_ID" ]; then
+  if [ "$(alias_dpl)" != "$DEPLOY_ID" ]; then
+    echo "deploy.sh: production alias is NOT on the deployment just built — promoting $DEPLOY_ID..." >&2
+    (cd "$HERE" && vercel promote "$DEPLOY_ID" --yes) || {
+      echo "deploy.sh: promote FAILED — $PROD_ALIAS is still serving an older build. Promote from the Vercel dashboard before treating this deploy as done." >&2
+      exit 1
+    }
+    for _ in 1 2 3 4 5 6 7 8 9 10; do
+      [ "$(alias_dpl)" = "$DEPLOY_ID" ] && break
+      sleep 3
+    done
+  fi
+  if [ "$(alias_dpl)" = "$DEPLOY_ID" ]; then
+    echo "deploy.sh: confirmed — $PROD_ALIAS resolves to $DEPLOY_ID (this build)."
+  else
+    echo "deploy.sh: FAILED — $PROD_ALIAS still does not resolve to $DEPLOY_ID after promoting. Do not treat this build as live." >&2
+    exit 1
+  fi
+else
+  echo "deploy.sh: could not parse a deployment id from the vercel output — cannot prove the alias moved onto this build. Check the dashboard before treating it as live." >&2
+fi
+
 # --- hash suffixed deployment URL: either the app's own middleware answers
 # 401 directly, or platform SSO intercepts first with a 302 to its sso-api.
 # Both mean auth is intact; anything else is a real failure. ---
