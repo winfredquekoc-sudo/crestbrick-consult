@@ -509,6 +509,26 @@
       "source": "/insights/dunearn-house-review-singapore-2026",
       "destination": "/insights/dunearn-house-review-2026",
       "permanent": true
+    },
+    {
+      "source": "/insights/cooling-measures",
+      "destination": "/insights/cooling-measures-timeline",
+      "permanent": true
+    },
+    {
+      "source": "/insights/singapore-rental-yield-district-2026",
+      "destination": "/insights/singapore-property-yield-by-district",
+      "permanent": true
+    },
+    {
+      "source": "/insights/walk-up-apartments-singapore",
+      "destination": "/insights/walk-up-apartment-investment-singapore",
+      "permanent": true
+    },
+    {
+      "source": "/launches/briefs/thomson-modern-upper-thomson-parcel-b",
+      "destination": "/launches/briefs/springleaf-residence",
+      "permanent": true
     }
   ],
   "buildCommand": "npm run build",
