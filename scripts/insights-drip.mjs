@@ -29,12 +29,25 @@ const HUB_ID = `${manifest.cluster}-cards`;
 const due = manifest.articles.filter(a => a.date <= TARGET).sort((a, b) => a.id - b.id);
 
 const P = {
-  sitemap: join(ROOT, 'public/sitemap.xml'),
+  // NOTE: public/sitemap.xml is a sitemap INDEX (see scripts/gen-sitemap.mjs)
+  // — its child sitemaps are per content type, so drip-published insights
+  // articles splice into the insights child, not the index. Splicing into
+  // the index itself would silently no-op (no </urlset> to match, since an
+  // index is a <sitemapindex>, not a <urlset>) and the article would never
+  // surface in search. The next `node scripts/gen-sitemap.mjs` run (part of
+  // `npm run build`) regenerates this file wholesale from the real public/
+  // tree anyway, so this splice only needs to hold the gap until then.
+  sitemap: join(ROOT, 'public/sitemap-insights.xml'),
   news: join(ROOT, 'public/news-sitemap.xml'),
   llms: join(ROOT, 'public/llms.txt'),
   hub: join(ROOT, 'public/insights.html'),
 };
-let sm = readFileSync(P.sitemap, 'utf8');
+if (!existsSync(P.sitemap) && !DRY) {
+  // gen-sitemap.mjs normally creates this; guard so a drip run standalone
+  // (before the first build) doesn't crash on a missing child sitemap.
+  writeFileSync(P.sitemap, '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>\n');
+}
+let sm = existsSync(P.sitemap) ? readFileSync(P.sitemap, 'utf8') : '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n</urlset>\n';
 let nws = readFileSync(P.news, 'utf8');
 let llms = readFileSync(P.llms, 'utf8');
 let hub = readFileSync(P.hub, 'utf8');

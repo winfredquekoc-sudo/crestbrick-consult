@@ -57,7 +57,7 @@
 
   <!-- JSON-LD: AggregateRating + Review schema (BUILD 78) -->
   <script type="application/ld+json">
-  {
+{
   "@context": "https://schema.org",
   "@type": "LocalBusiness",
   "name": "Winfred Quek - Crestbrick Property Advisory",
@@ -68,11 +68,18 @@
     "@type": "Country",
     "name": "Singapore"
   },
-  "identifier": {
-    "@type": "PropertyValue",
-    "propertyID": "CEA",
-    "value": "R073319H"
-  },
+  "identifier": [
+    {
+      "@type": "PropertyValue",
+      "propertyID": "CEA",
+      "value": "R073319H"
+    },
+    {
+      "@type": "PropertyValue",
+      "propertyID": "CEA-Agency",
+      "value": "L31010886H"
+    }
+  ],
   "aggregateRating": {
     "@type": "AggregateRating",
     "ratingValue": "5.0",
@@ -323,6 +330,7 @@
  Anonymized to protect privacy, shared with consent. These are the moments
  the framework did its job, or the moments I told a client to pause. Both matter.
  </p>
+  <p class="text-sm text-[var(--ink-muted)] mt-4">Want the full walkthroughs? Read the <a href="/case-studies" class="underline decoration-[var(--accent)] underline-offset-4 hover:text-[var(--accent)]">Property Case Studies</a>.</p>
 </section>
 
 <section class="max-w-6xl mx-auto px-6 pb-16">
@@ -517,7 +525,7 @@
  The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
  </p>
   </div>
-<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%27d%20like%20to%20hear%20from%20a%20past%20client%20before%20engaging." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg hover:shadow-xl hover:scale-[1.03] transition-all duration-200" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
