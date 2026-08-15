@@ -66,6 +66,9 @@ function urlFor(file) {
 
 // ---------------------------------------------------------------------------
 // 3. Exclude noindex pages (parsed from the robots meta tag, not hardcoded).
+// This is what keeps public/llms-full-context.html (set noindex in PR #38)
+// out of the sitemap set — a noindexed URL in a sitemap is a contradictory
+// signal, so it's covered by this generic check rather than a one-off list.
 // ---------------------------------------------------------------------------
 const ROBOTS_RE = /<meta\s+name=["']robots["']\s+content=["']([^"']*)["']/i;
 function isNoindex(file) {
@@ -171,12 +174,16 @@ function urlsetXml(recs) {
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${body}\n</urlset>\n`;
 }
 
-const now = new Date().toISOString();
 const childFiles = [];
 for (const [type, recs] of [...byType.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
   const filename = `sitemap-${type}.xml`;
   const xml = urlsetXml(recs);
-  childFiles.push({ type, filename, count: recs.length });
+  // Index-level lastmod = the latest of this child's own (git-derived) url
+  // lastmods, not wall-clock "now" — a run-time stamp here would rewrite
+  // sitemap.xml on every invocation regardless of content, breaking the
+  // idempotence promised above.
+  const latest = recs.reduce((max, r) => Math.max(max, new Date(r.lastmod).getTime()), 0);
+  childFiles.push({ type, filename, count: recs.length, lastmod: new Date(latest).toISOString() });
   if (!DRY) writeFileSync(join(PUBLIC, filename), xml);
 }
 
@@ -189,11 +196,15 @@ for (const [type, recs] of [...byType.entries()].sort((a, b) => a[0].localeCompa
 const IMAGE_SITEMAP = 'sitemap-images.xml';
 if (existsSync(join(PUBLIC, IMAGE_SITEMAP))) {
   const count = (readFileSync(join(PUBLIC, IMAGE_SITEMAP), 'utf8').match(/<url>/g) || []).length;
-  childFiles.push({ type: 'images', filename: IMAGE_SITEMAP, count });
+  // mtime, not "now" — this script never writes sitemap-images.xml itself, so
+  // the file's own last-write time is the only real signal, and it stays
+  // stable across gen-sitemap.mjs re-runs.
+  const lastmod = statSync(join(PUBLIC, IMAGE_SITEMAP)).mtime.toISOString();
+  childFiles.push({ type: 'images', filename: IMAGE_SITEMAP, count, lastmod });
 }
 
 const indexXml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${
-  childFiles.map(c => `  <sitemap>\n    <loc>${BASE}/${c.filename}</loc>\n    <lastmod>${now}</lastmod>\n  </sitemap>`).join('\n')
+  childFiles.map(c => `  <sitemap>\n    <loc>${BASE}/${c.filename}</loc>\n    <lastmod>${c.lastmod}</lastmod>\n  </sitemap>`).join('\n')
 }\n</sitemapindex>\n`;
 
 if (!DRY) writeFileSync(join(PUBLIC, 'sitemap.xml'), indexXml);
