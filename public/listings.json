@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-15T00:30:05+08:00",
-  "count": 12,
+  "synced_at": "2026-08-16T00:30:03+08:00",
+  "count": 13,
   "listings": [
     {
       "id": "common-room-bayshore-park-ll070",
@@ -77,6 +77,18 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013."
+    },
+    {
+      "id": "master-room-blk-143-lorong-ah-soo-ll100",
+      "title": "Master Room — Blk 143 Lorong Ah Soo (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1350,
+      "price_label": "S$1,350 / mo",
+      "address": "Blk 143 Lorong Ah Soo",
+      "district": "D19",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20143%20Lorong%20Ah%20Soo.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20143%20Lorong%20Ah%20Soo."
     },
     {
       "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
