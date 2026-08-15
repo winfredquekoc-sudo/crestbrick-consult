@@ -102,8 +102,11 @@
   }
 
   // Breadcrumbs (if more than 1 path segment)
+  // Only inject BreadcrumbList schema if a static one isn't already in the page
+  const hasStaticBreadcrumb = [...document.querySelectorAll('script[type="application/ld+json"]')]
+    .some(s => { try { const d = JSON.parse(s.textContent); return d['@type'] === 'BreadcrumbList' || (d['@graph'] && d['@graph'].some(n => n['@type'] === 'BreadcrumbList')); } catch(e) { return false; } });
   const segments = path.split('/').filter(Boolean);
-  if (segments.length >= 1) {
+  if (!hasStaticBreadcrumb && segments.length >= 1) {
     const items = [{ '@type':'ListItem','position':1,'name':'Home','item':'https://winfredquek.com/' }];
     let cumulative = 'https://winfredquek.com';
     segments.forEach((seg, i) => {
