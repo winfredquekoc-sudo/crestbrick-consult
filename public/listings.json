@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-14T00:30:02+08:00",
-  "count": 10,
+  "synced_at": "2026-08-16T00:30:03+08:00",
+  "count": 13,
   "listings": [
     {
       "id": "common-room-bayshore-park-ll070",
@@ -61,13 +61,13 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
     },
     {
-      "id": "room-blk-160-ll099",
-      "title": "Room — Blk 160 (Tampines)",
+      "id": "common-room-blk-160-pasir-ris-street-13-ll099",
+      "title": "Common Room — Blk 160 Pasir Ris Street 13",
       "type": "HDB",
       "transaction": "rent",
       "price": 1300,
       "price_label": "S$1,300 / mo",
-      "address": "Blk 160",
+      "address": "Blk 160 Pasir Ris Street 13",
       "district": "D18",
       "highlights": [
         "Furnished",
@@ -75,8 +75,20 @@
         "Own bathroom",
         "Available now"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20160."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013."
+    },
+    {
+      "id": "master-room-blk-143-lorong-ah-soo-ll100",
+      "title": "Master Room — Blk 143 Lorong Ah Soo (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1350,
+      "price_label": "S$1,350 / mo",
+      "address": "Blk 143 Lorong Ah Soo",
+      "district": "D19",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20143%20Lorong%20Ah%20Soo.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20143%20Lorong%20Ah%20Soo."
     },
     {
       "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
@@ -120,6 +132,37 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208."
+    },
+    {
+      "id": "common-room-blk-403-jurong-west-street-42-ll105",
+      "title": "Common Room — Blk 403 Jurong West Street 42",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 950,
+      "price_label": "S$950 / mo",
+      "address": "Blk 403 Jurong West Street 42",
+      "district": "D22",
+      "highlights": [
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20403%20Jurong%20West%20Street%2042.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20403%20Jurong%20West%20Street%2042."
+    },
+    {
+      "id": "common-room-blk-639-jurong-west-street-61-ll108",
+      "title": "Common Room — Blk 639 Jurong West Street 61",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1000,
+      "price_label": "From S$1,000 / mo",
+      "address": "Blk 639 Jurong West Street 61",
+      "district": "D22",
+      "highlights": [
+        "Utilities included",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20639%20Jurong%20West%20Street%2061.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20639%20Jurong%20West%20Street%2061."
     },
     {
       "id": "room-851-jurong-west-ll017",
