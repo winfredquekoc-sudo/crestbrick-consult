@@ -180,6 +180,18 @@ for (const [type, recs] of [...byType.entries()].sort((a, b) => a[0].localeCompa
   if (!DRY) writeFileSync(join(PUBLIC, filename), xml);
 }
 
+// ---------------------------------------------------------------------------
+// 7b. Reference the standalone image sitemap (built separately by
+//     scripts/gen-image-sitemap.py, a Python script with no relation to the
+//     HTML crawl above) in the index. This script only owns the index plus
+//     the HTML-derived children, so the image sitemap is listed, not written.
+// ---------------------------------------------------------------------------
+const IMAGE_SITEMAP = 'sitemap-images.xml';
+if (existsSync(join(PUBLIC, IMAGE_SITEMAP))) {
+  const count = (readFileSync(join(PUBLIC, IMAGE_SITEMAP), 'utf8').match(/<url>/g) || []).length;
+  childFiles.push({ type: 'images', filename: IMAGE_SITEMAP, count });
+}
+
 const indexXml = `<?xml version="1.0" encoding="UTF-8"?>\n<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${
   childFiles.map(c => `  <sitemap>\n    <loc>${BASE}/${c.filename}</loc>\n    <lastmod>${now}</lastmod>\n  </sitemap>`).join('\n')
 }\n</sitemapindex>\n`;
