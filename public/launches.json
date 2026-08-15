@@ -195,9 +195,9 @@
       "units": 499,
       "unit_mix": "Condo (low-mid rise up to 16 storeys)",
       "psf": "~S$2,200-2,500 psf",
-      "launch": "Q1-Q2 2026 (preview Mar 2026)",
-      "status": "upcoming",
-      "note": "Lentor Hills Road; Kingsford, Lentor MRT TE line; TOP Q1 2029"
+      "launch": "Q1 to Q2 2026 (booked 18 Jul 2026)",
+      "status": "active",
+      "note": "Lentor Hills Road; Kingsford, Lentor MRT TE line; TOP Q1 2029; pricing released 4 Jul 2026"
     },
     {
       "slug": "chuan-grove-residences",
@@ -273,9 +273,9 @@
       "tenure": "99-yr leasehold",
       "units": 380,
       "unit_mix": "Condo",
-      "psf": "~S$2,900-3,200 psf",
-      "launch": "Q3 2026",
-      "status": "upcoming",
+      "psf": "S$3,140 psf avg (56% sold at launch)",
+      "launch": "Q3 2026 (launched 25 to 26 Jul 2026)",
+      "status": "active",
       "image_placeholder": true,
       "note": "Dunearn Road GLS; near Sixth Avenue MRT (Downtown Line); low-density 145,173 sqft site"
     },
