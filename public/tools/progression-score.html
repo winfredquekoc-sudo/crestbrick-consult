@@ -13,7 +13,8 @@
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="preload" href="/fonts/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/fonts/fonts.css"></noscript>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
@@ -246,6 +247,7 @@
     #wa-float.wa-pulsing { animation: wa-pulse 1s ease-out 2; }
   </style>
   <meta property="og:image" content="https://winfredquek.com/img/og/tools.jpg" />
+  <meta property="og:locale" content="en_SG" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Property Progression Score | Free Money, Timing & Safety Self-Assessment | Winfred Quek" />
   <meta name="twitter:description" content="Free 5 minute Property Progression Score. Answer 14 questions across Money, Timing and Safety, get your 0 to 100 score, instantly, no sign up." />
