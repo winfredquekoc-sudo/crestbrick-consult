@@ -24,12 +24,12 @@
       'identifier': {'@type':'PropertyValue','propertyID':'CEA Estate Agency Licence No.','value':'L31010886H'},
       'address': {
         '@type': 'PostalAddress',
-        'streetAddress': '62 Ubi Road 1, #05-04 Oxley BizHub 2',
+        'streetAddress': '11A Hamilton Rd, #02-00',
         'addressLocality': 'Singapore',
-        'postalCode': '408734',
+        'postalCode': '209182',
         'addressCountry': 'SG'
       },
-      'geo': {'@type':'GeoCoordinates','latitude': 1.331994, 'longitude': 103.89194}
+      'geo': {'@type':'GeoCoordinates','latitude': 1.31145416896641, 'longitude': 103.86077886072}
     },
     'areaServed': {'@type':'Country','name':'Singapore'},
     'knowsAbout': [
@@ -55,7 +55,7 @@
     },
     'sameAs': [
       'https://www.linkedin.com/in/winfredquek',
-      'https://www.instagram.com/winfredquek',
+      'https://www.instagram.com/imwinfred',
       'https://t.me/imwinfred'
     ]
   };
