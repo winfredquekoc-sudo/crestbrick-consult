@@ -311,7 +311,7 @@ def build_listing(l, dist_area):
     if not title_loc:
         return None
 
-    title = f"{unit_type} — {title_loc}".strip(" —")
+    title = f"{unit_type}, {title_loc}".strip(" ,")
     if reserved:
         title += " (Reserved)"
 
@@ -507,7 +507,7 @@ def render_jsonld_html(listings):
     payload = {
         "@context": "https://schema.org",
         "@type": "ItemList",
-        "name": "Active Property Listings — Winfred Quek",
+        "name": "Active Property Listings, Winfred Quek",
         "url": "https://winfredquek.com/listings",
         "numberOfItems": len(listings),
         "itemListElement": items,
