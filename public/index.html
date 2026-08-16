@@ -12,6 +12,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/" />
+  <meta property="og:locale" content="en_SG" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Winfred Quek, Investor minded property advisor" />
   <meta name="twitter:description" content="Your next move deserves more than a good agent. Book a 30 min strategy call, zero commitment." />
@@ -23,7 +24,8 @@
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/fonts/fonts.css">
+  <link rel="preload" href="/fonts/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/fonts/fonts.css"></noscript>
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -50,15 +52,23 @@
       "telephone": "+65-8161-8149",
       "email": "winfredquekoc@gmail.com",
       "priceRange": "$$$",
-      "areaServed": {
-        "@type": "Country",
-        "name": "Singapore"
-      },
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "Singapore"
+        },
+        { "@type": "Place", "name": "Bedok, Upper East Coast (D16)" },
+        { "@type": "Place", "name": "Tampines, Pasir Ris (D18)" },
+        { "@type": "Place", "name": "Serangoon, Hougang, Punggol (D19)" },
+        { "@type": "Place", "name": "Bishan, Ang Mo Kio (D20)" },
+        { "@type": "Place", "name": "Jurong, Boon Lay (D22)" },
+        { "@type": "Place", "name": "Seletar, Yio Chu Kang (D28)" }
+      ],
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "62 Ubi Road 1, #05-04 Oxley BizHub 2",
+        "streetAddress": "11A Hamilton Rd, #02-00",
         "addressLocality": "Singapore",
-        "postalCode": "408734",
+        "postalCode": "209182",
         "addressCountry": "SG"
       },
       "knowsAbout": [
@@ -76,7 +86,7 @@
       },
       "sameAs": [
         "https://www.linkedin.com/in/winfredquek",
-        "https://www.instagram.com/winfredquek",
+        "https://www.instagram.com/imwinfred",
         "https://t.me/imwinfred",
         "https://crestbrick.com",
         "https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true"
@@ -89,8 +99,8 @@
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 1.3322321484208,
-        "longitude": 103.892253981066
+        "latitude": 1.31145416896641,
+        "longitude": 103.86077886072
       },
       "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
@@ -100,11 +110,10 @@
           "Wednesday",
           "Thursday",
           "Friday",
-          "Saturday",
-          "Sunday"
+          "Saturday"
         ],
-        "opens": "11:00",
-        "closes": "21:00"
+        "opens": "10:00",
+        "closes": "20:00"
       }
     },
     {
@@ -165,7 +174,7 @@
       ],
       "sameAs": [
         "https://www.linkedin.com/in/winfredquek",
-        "https://www.instagram.com/winfredquek",
+        "https://www.instagram.com/imwinfred",
         "https://t.me/imwinfred",
         "https://crestbrick.com",
         "https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true"
@@ -187,10 +196,18 @@
       "provider": {
         "@id": "https://winfredquek.com/#winfred"
       },
-      "areaServed": {
-        "@type": "Country",
-        "name": "Singapore"
-      },
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "Singapore"
+        },
+        { "@type": "Place", "name": "Bedok, Upper East Coast (D16)" },
+        { "@type": "Place", "name": "Tampines, Pasir Ris (D18)" },
+        { "@type": "Place", "name": "Serangoon, Hougang, Punggol (D19)" },
+        { "@type": "Place", "name": "Bishan, Ang Mo Kio (D20)" },
+        { "@type": "Place", "name": "Jurong, Boon Lay (D22)" },
+        { "@type": "Place", "name": "Seletar, Yio Chu Kang (D28)" }
+      ],
       "serviceType": [
         "Property advisory",
         "Decoupling strategy",
@@ -207,8 +224,8 @@
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 1.3322321484208,
-        "longitude": 103.892253981066
+        "latitude": 1.31145416896641,
+        "longitude": 103.86077886072
       },
       "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
@@ -218,11 +235,10 @@
           "Wednesday",
           "Thursday",
           "Friday",
-          "Saturday",
-          "Sunday"
+          "Saturday"
         ],
-        "opens": "11:00",
-        "closes": "21:00"
+        "opens": "10:00",
+        "closes": "20:00"
       }
     },
     {
@@ -232,6 +248,14 @@
       "name": "Winfred Quek, Crestbrick",
       "publisher": {
         "@id": "https://winfredquek.com/#agent"
+      },
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://winfredquek.com/search?q={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
       }
     },
     {
@@ -247,15 +271,23 @@
       },
       "address": {
         "@type": "PostalAddress",
-        "streetAddress": "62 Ubi Road 1, #05-04 Oxley BizHub 2",
+        "streetAddress": "11A Hamilton Rd, #02-00",
         "addressLocality": "Singapore",
-        "postalCode": "408734",
+        "postalCode": "209182",
         "addressCountry": "SG"
       },
-      "areaServed": {
-        "@type": "Country",
-        "name": "Singapore"
-      },
+      "areaServed": [
+        {
+          "@type": "Country",
+          "name": "Singapore"
+        },
+        { "@type": "Place", "name": "Bedok, Upper East Coast (D16)" },
+        { "@type": "Place", "name": "Tampines, Pasir Ris (D18)" },
+        { "@type": "Place", "name": "Serangoon, Hougang, Punggol (D19)" },
+        { "@type": "Place", "name": "Bishan, Ang Mo Kio (D20)" },
+        { "@type": "Place", "name": "Jurong, Boon Lay (D22)" },
+        { "@type": "Place", "name": "Seletar, Yio Chu Kang (D28)" }
+      ],
       "logo": {
         "@type": "ImageObject",
         "url": "https://winfredquek.com/apple-touch-icon.png",
@@ -264,8 +296,8 @@
       },
       "geo": {
         "@type": "GeoCoordinates",
-        "latitude": 1.3322321484208,
-        "longitude": 103.892253981066
+        "latitude": 1.31145416896641,
+        "longitude": 103.86077886072
       },
       "openingHoursSpecification": {
         "@type": "OpeningHoursSpecification",
@@ -275,11 +307,10 @@
           "Wednesday",
           "Thursday",
           "Friday",
-          "Saturday",
-          "Sunday"
+          "Saturday"
         ],
-        "opens": "11:00",
-        "closes": "21:00"
+        "opens": "10:00",
+        "closes": "20:00"
       }
     }
   ]

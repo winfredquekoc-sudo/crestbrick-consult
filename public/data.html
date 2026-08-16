@@ -11,6 +11,7 @@
   <meta property="og:description" content="ABSD, BSD, SSD, TDSR, LTV, property tax, CPF, HDB MOP rules all current rates in one reference page." />
   <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
   <meta property="og:url" content="https://winfredquek.com/data" />
+  <meta property="og:locale" content="en_SG" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Singapore Property Data &amp; Statistics 2026" />
   <meta name="twitter:description" content="ABSD, BSD, SSD, TDSR, LTV, property tax, CPF, HDB MOP rules all current rates in one reference page." />
@@ -33,7 +34,7 @@
       "value": "L31010886H"
     }
   },
-  "dateModified": "2026-05-19",
+  "dateModified": "2026-08-16",
   "keywords": [
     "ABSD rates 2026",
     "BSD Singapore",
@@ -262,13 +263,14 @@
         <thead><tr><th>LTV Scenario</th><th>Max Loan to Value</th><th>Min Cash Down</th><th>Min Cash + CPF Down</th></tr></thead>
         <tbody>
           <tr><td>First property loan (no other outstanding loans)</td><td class="highlight-cell">75%</td><td>5%</td><td>25%</td></tr>
-          <tr><td>Second property loan (one outstanding)</td><td class="highlight-cell">55%</td><td>25%</td><td>45%</td></tr>
-          <tr><td>Third+ property loan (two or more outstanding)</td><td class="highlight-cell">45%</td><td>25%</td><td>55%</td></tr>
+          <tr><td>Second property loan (one outstanding)</td><td class="highlight-cell">45%</td><td>25%</td><td>55%</td></tr>
+          <tr><td>Third+ property loan (two or more outstanding)</td><td class="highlight-cell">35%</td><td>25%</td><td>65%</td></tr>
           <tr><td>HDB concessionary loan (first time, BTO/resale)</td><td class="highlight-cell">80%</td><td>0% cash (CPF only)</td><td>20%</td></tr>
         </tbody>
       </table>
     </div>
     <p class="source">Source: MAS Property Loan Rules. Maximum tenure: 30 years (private), 25 years (HDB). Age cap: loan cannot extend past age 65 for HDB; 65 to 75 for private (bank dependent). Foreign income haircut: 30%.</p>
+    <p class="source">Note: Figures above apply where loan tenure is 30 years or less and loan tenure plus the borrower's age at the end of the loan does not exceed 65. Where either condition is not met, Max LTV drops further: 55% for a 1st property loan, 25% for a 2nd (1 outstanding), 15% for a 3rd+ (2+ outstanding).</p>
   </div>
 
   <!-- Property Tax -->
@@ -277,19 +279,30 @@
     <p class="sub">Annual property tax based on Annual Value (AV) IRAS's estimate of annual market rental. Owner occupier rates are lower than non-owner-occupier rates.</p>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Annual Value (AV) Tier</th><th>Owner Occupier Rate</th><th>Non-Owner-Occupier Rate</th></tr></thead>
+        <thead><tr><th>Annual Value (AV) Tier</th><th>Owner Occupier Rate</th></tr></thead>
         <tbody>
-          <tr><td>First $12,000</td><td>0%</td><td>12%</td></tr>
-          <tr><td>Next $43,000 ($12,001 to $55,000)</td><td>4%</td><td>12%</td></tr>
-          <tr><td>Next $15,000 ($55,001 to $70,000)</td><td>6%</td><td>12%</td></tr>
-          <tr><td>Next $15,000 ($70,001 to $85,000)</td><td>8%</td><td>12%</td></tr>
-          <tr><td>Next $15,000 ($85,001 to $100,000)</td><td>10%</td><td>12%</td></tr>
-          <tr><td>Above $100,000</td><td>14%</td><td>20%</td></tr>
+          <tr><td>First $12,000</td><td>0%</td></tr>
+          <tr><td>Next $43,000 ($12,001 to $55,000)</td><td>4%</td></tr>
+          <tr><td>Next $15,000 ($55,001 to $70,000)</td><td>6%</td></tr>
+          <tr><td>Next $15,000 ($70,001 to $85,000)</td><td>8%</td></tr>
+          <tr><td>Next $15,000 ($85,001 to $100,000)</td><td>10%</td></tr>
+          <tr><td>Above $100,000</td><td>14%</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="source">Source: IRAS Property Tax. Rates revised for non-owner-occupier property effective January 2024 (progressive from 12% to 20%). AV is set by IRAS based on comparable market rents not the actual rent received. Property tax is payable annually by 31 January.</p>
-    <p class="source">Illustrative: A condo with AV of $36,000 (owner occupier) pays: first $12,000 × 0% + next $24,000 × 4% = $960/year. Same condo as investment (non-OO) pays $36,000 × 12% = $4,320/year.</p>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Annual Value (AV) Tier</th><th>Non-Owner-Occupier Rate</th></tr></thead>
+        <tbody>
+          <tr><td>First $30,000</td><td>12%</td></tr>
+          <tr><td>Next $15,000 ($30,001 to $45,000)</td><td>20%</td></tr>
+          <tr><td>Next $15,000 ($45,001 to $60,000)</td><td>28%</td></tr>
+          <tr><td>Above $60,000</td><td>36%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="source">Source: IRAS Property Tax. Non-owner-occupier property is progressive from 12% to 36% of AV, revised effective January 2024. AV is set by IRAS based on comparable market rents not the actual rent received. Property tax is payable annually by 31 January.</p>
+    <p class="source">Illustrative: A condo with AV of $36,000 (owner occupier) pays: first $12,000 × 0% + next $24,000 × 4% = $960/year. Same condo as investment (non-OO) pays $30,000 × 12% + $6,000 × 20% = $4,800/year.</p>
   </div>
 
   <!-- CPF -->
@@ -326,8 +339,8 @@
           <tr><td>Whole flat rental</td><td>After MOP (5 years)</td><td>SC owners may rent entire flat with HDB approval. PR rules are more restrictive.</td></tr>
           <tr><td>Room rental</td><td>Any time (with HDB approval)</td><td>Up to 6 occupants total (including owners). Foreigner tenants require additional clearance in some cases.</td></tr>
           <tr><td>Private property purchase during MOP</td><td class="highlight-cell">Not allowed</td><td>HDB owners cannot own private residential property during MOP.</td></tr>
-          <tr><td>Private property purchase after MOP</td><td>Allowed (with ABSD)</td><td>SC pays 20% ABSD on condo (second property). LTV 55% if HDB loan outstanding.</td></tr>
-          <tr><td>15 month HDB resale wait (for private property owners)</td><td class="highlight-cell">15 months</td><td>Must elapse from private property transfer before buying HDB resale. BTO applications not affected.</td></tr>
+          <tr><td>Private property purchase after MOP</td><td>Allowed (with ABSD)</td><td>SC pays 20% ABSD on condo (second property). LTV 45% if HDB loan outstanding (25% for longer tenure/older borrowers).</td></tr>
+          <tr><td>15 month HDB resale wait (for private property owners)</td><td class="highlight-cell">Removed 28 Jul 2026</td><td>No wait for cash/bank loan resale purchases since 28 Jul 2026 (HDB loan buyers still face a 30 month wait). BTO applications not affected.</td></tr>
           <tr><td>HDB Resale Levy</td><td>$15,000 to $55,000</td><td>Payable when buying second subsidised flat. Amount depends on flat type sold.</td></tr>
         </tbody>
       </table>
@@ -349,12 +362,13 @@
           <tr><td>First Timer Requirement</td><td>At least one first timer</td><td>Second timers may apply under second timer scheme with resale levy.</td></tr>
           <tr><td>MOP</td><td class="highlight-cell">5 years</td><td>Same as HDB. No open market resale within 5 years.</td></tr>
           <tr><td>Resale to PRs allowed</td><td>After 5 years (MOP)</td><td>SC and PR buyers eligible after MOP on open market.</td></tr>
-          <tr><td>Full privatisation (foreigners allowed)</td><td class="highlight-cell">After 10 years</td><td>EC treated identically to private condo after 10 year mark. ABSD applies to foreign buyers at their applicable rate.</td></tr>
+          <tr><td>Full privatisation (foreigners allowed)</td><td class="highlight-cell">After 10 years</td><td>EC treated identically to private condo after 10 year mark. ABSD applies to foreign buyers at their applicable rate. This is the rule for every EC on the market or already in the pipeline today.</td></tr>
+          <tr><td>MOP and privatisation, EC land tendered from 8 May 2026</td><td class="highlight-cell">10 years MOP, 15 years full privatisation</td><td>MND doubled the MOP and pushed full privatisation out by 5 more years for EC Government Land Sale sites with a tender closing date on or after 8 May 2026. No EC on sale in 2026 falls under this yet; expect it in launches from around 2029 onward.</td></tr>
           <tr><td>Payment Scheme</td><td>Normal Progressive Payment</td><td>DPS (Deferred Payment Scheme) abolished for ECs in 2024. Payments from construction milestones.</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="source">Source: HDB EC Eligibility; URA EC Privatisation. Income ceiling effective from September 2024 launch onwards.</p>
+    <p class="source">Source: HDB EC Eligibility; URA EC Privatisation; MND, Strengthening the Executive Condominium Housing Scheme and Supporting First Time Home Buyers (8 May 2026). Income ceiling effective from September 2024 launch onwards.</p>
   </div>
 
   <!-- CTA -->

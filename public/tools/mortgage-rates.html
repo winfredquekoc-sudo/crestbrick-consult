@@ -18,8 +18,10 @@
 <link rel="stylesheet" href="/tw.css">
 <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="stylesheet" href="/tools/_shared.css">
+  <link rel="preload" href="/fonts/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/fonts/fonts.css"></noscript>
+<link rel="preload" href="/tools/_shared.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="/tools/_shared.css"></noscript>
 <style>
 .rates-table{width:100%;border-collapse:collapse;background:#1a1c24;border-radius:10px;overflow:hidden;border:1px solid var(--rule);font-size:14px;}
 .rates-table th{background:var(--ink);color:var(--bg);padding:.9rem 1rem;text-align:left;font-family:Inter,sans-serif;font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
@@ -32,6 +34,7 @@
     .card, .bg-[#1c1e26], [class*="bg-[#1c1e26]"], div[style*="background:#fff"], div[style*="background:white"] { --ink-soft: #4a4640; --ink-muted: #64605c; }
   </style>
   <meta property="og:image" content="https://winfredquek.com/img/og/tools.jpg" />
+  <meta property="og:locale" content="en_SG" />
 <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>  <!-- tool-schema (auto) -->
   <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},{"@type":"ListItem","position":2,"name":"Tools","item":"https://winfredquek.com/tools"},{"@type":"ListItem","position":3,"name":"Singapore Mortgage Rates 2026","item":"https://winfredquek.com/tools/mortgage-rates"}]}
