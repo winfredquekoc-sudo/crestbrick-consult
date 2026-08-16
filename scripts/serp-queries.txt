@@ -1,4 +1,4 @@
-# serp-queries.txt — 20 target queries for scripts/serp-snapshot.sh
+# serp-queries.txt — target queries for scripts/serp-snapshot.sh
 # One query per target page cluster on winfredquek.com. Blank lines and lines
 # starting with # are ignored. Edit freely, the snapshot script re-reads this
 # file on every run.
@@ -22,3 +22,9 @@ en bloc probability singapore
 new launch condo singapore 2026
 how to sell hdb flat singapore
 singapore property investor advisor
+hdb mop timeline
+hdb upgrade to condo
+foreign buyer absd
+sora mortgage rate singapore
+property rental yield singapore
+decoupling calculator singapore

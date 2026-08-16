@@ -30,7 +30,7 @@
       "name": "Crestbrick Pte Ltd",
       "identifier": "L31010886H"
     },
-    "dateModified": "2026-05-19",
+    "dateModified": "2026-08-16",
     "speakable": {
       "@type": "SpeakableSpecification",
       "cssSelector": [
@@ -152,7 +152,7 @@
     <nav aria-label="Breadcrumb" class="mb-4"><p class="section-label" style="margin-bottom:.5rem;"><a href="/" style="color:var(--accent);">Home</a> / <span style="color:var(--ink-muted);">Property Rules 2026</span></p></nav>
     <p class="section-label" style="margin-bottom:.75rem;">Legal Reference · Singapore Property 2026</p>
     <h1 class="serif balance" style="font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.1;color:var(--ink);margin-bottom:.75rem;">Singapore Property Rules: Complete Reference 2026</h1>
-    <p style="color:var(--ink-soft);max-width:65ch;margin-bottom:1rem;">Every operative rule stated precisely with the applicable number, who it applies to, and the source authority. Dense reference format. Updated May 2026.</p>
+    <p style="color:var(--ink-soft);max-width:65ch;margin-bottom:1rem;">Every operative rule stated precisely with the applicable number, who it applies to, and the source authority. Dense reference format. Updated August 2026.</p>
     <p style="font-size:.85rem;color:var(--ink-muted);">Compiled by Winfred Quek · CEA R073319H · Crestbrick Pte Ltd</p>
     <div class="jump-nav">
       <a href="#absd-rules" class="jump-btn">ABSD Rules</a>
@@ -243,7 +243,7 @@
     <h3>SSD Rate Table, property bought on or after 4 Jul 2025</h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Holding Period (from OTP exercise date)</th><th>SSD Rate</th></tr></thead>
+        <thead><tr><th>Holding Period (from OTP exercise, or S&amp;P date if no OTP)</th><th>SSD Rate</th></tr></thead>
         <tbody>
           <tr><td>0 to 12 months (Year 1)</td><td>16%</td></tr>
           <tr><td>12 to 24 months (Year 2)</td><td>12%</td></tr>
@@ -257,7 +257,7 @@
     <h3>SSD Rate Table, property bought before 4 Jul 2025</h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Holding Period (from OTP exercise date)</th><th>SSD Rate</th></tr></thead>
+        <thead><tr><th>Holding Period (from OTP exercise, or S&amp;P date if no OTP)</th><th>SSD Rate</th></tr></thead>
         <tbody>
           <tr><td>0 to 12 months (Year 1)</td><td>12%</td></tr>
           <tr><td>12 to 24 months (Year 2)</td><td>8%</td></tr>
@@ -268,13 +268,13 @@
     </div>
 
     <h3>Key Rules</h3>
-    <div class="rule-item"><span class="rule-key">Clock start</span><span class="rule-val">OTP exercise date of the purchase not TOP, not key collection. New launch buyers whose OTP was exercised 4+ years before TOP (3+ years for pre 4 Jul 2025 purchases) are already SSD free at handover.</span></div>
+    <div class="rule-item"><span class="rule-key">Clock start</span><span class="rule-val">Date of purchase per IRAS: the date the OTP is exercised, or the date the Sale and Purchase Agreement is signed where there is no OTP, not the later completion date and not TOP or key collection. New launch buyers whose OTP was exercised 4+ years before TOP (3+ years for pre 4 Jul 2025 purchases) are already SSD free at handover.</span></div>
     <div class="rule-item"><span class="rule-key">Basis</span><span class="rule-val">Higher of sale price or market value at date of sale. Seller cannot argue a below market sale to reduce SSD.</span></div>
     <div class="rule-item"><span class="rule-key">Applies to</span><span class="rule-val">Residential property only. Commercial and industrial property are not subject to SSD.</span></div>
     <div class="rule-item"><span class="rule-key">Restructuring</span><span class="rule-val">A spousal share transfer (restructuring) within the applicable holding period of original purchase triggers SSD on the transferred share at the applicable rate for that year. Factor SSD into restructuring break even analysis.</span></div>
     <div class="rule-item"><span class="rule-key">Inherited property</span><span class="rule-val">If an inherited property is sold within the applicable holding period of the deceased's original purchase, SSD may apply. The holding period runs from the deceased's acquisition date.</span></div>
     <div class="rule-item"><span class="rule-key">HDB flats</span><span class="rule-val">HDB flats cannot be sold on open market within the 5 year MOP regardless of SSD. SSD as a separate concept applies primarily to private residential property.</span></div>
-    <p class="source" style="margin-top:1rem;">Source: IRAS Seller's Stamp Duty. Holding period measured from OTP exercise date of purchase to OTP exercise date of sale. Reinstated to 4 years / up to 16% effective 4 Jul 2025.</p>
+    <p class="source" style="margin-top:1rem;">Source: IRAS Seller's Stamp Duty (iras.gov.sg/taxes/stamp-duty/for-property/selling-or-disposing-property/seller's-stamp-duty-(ssd)-for-residential-property). Holding period measured from OTP exercise (or S&amp;P signing) date of purchase to the same for the sale. Reinstated to 4 years / up to 16% effective 4 Jul 2025.</p>
   </div>
 
   <!-- TDSR / MSR / LTV -->
@@ -299,12 +299,13 @@
         <thead><tr><th>Loan Scenario</th><th>Max LTV</th><th>Min Cash Down</th><th>Min Cash+CPF Down</th></tr></thead>
         <tbody>
           <tr><td>1st property loan (no outstanding loans)</td><td>75%</td><td>5%</td><td>25%</td></tr>
-          <tr><td>2nd property loan (1 outstanding)</td><td>55%</td><td>25%</td><td>45%</td></tr>
-          <tr><td>3rd+ property loan (2+ outstanding)</td><td>45%</td><td>25%</td><td>55%</td></tr>
+          <tr><td>2nd property loan (1 outstanding)</td><td>45%</td><td>25%</td><td>55%</td></tr>
+          <tr><td>3rd+ property loan (2+ outstanding)</td><td>35%</td><td>25%</td><td>65%</td></tr>
           <tr><td>HDB concessionary loan</td><td>80%</td><td> </td><td>20%</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="text-xs" style="color:var(--ink-muted);margin:.5rem 0 0;">Figures above apply where loan tenure is 30 years or less and loan tenure plus the borrower's age at the end of the loan does not exceed 65. Where either condition is not met, Max LTV drops further: 55% for a 1st property loan, 25% for a 2nd (1 outstanding), 15% for a 3rd+ (2+ outstanding).</p>
     <div class="rule-item"><span class="rule-key">Loan tenure</span><span class="rule-val">Max 30 years (private property bank loan); 25 years (HDB concessionary loan). Loan cannot extend past borrower's age 65 for HDB; 65 to 75 for private (bank dependent).</span></div>
     <div class="rule-item"><span class="rule-key">Outstanding loan count</span><span class="rule-val">Counts all outstanding residential property loans worldwide in the borrower's name, including HDB loans, co-borrower positions, and guarantor obligations that are on balance sheet.</span></div>
     <p class="source" style="margin-top:1rem;">Source: MAS Notice 632 (property loans); MAS Notice 645 (housing loans for individuals). HDB concessionary loan: HDB Financial Matters.</p>
@@ -326,9 +327,9 @@
     <div class="rule-item"><span class="rule-key">Standard MOP</span><span class="rule-val">5 years from key collection date (BTO) or completion date (resale). No open market sale permitted during MOP.</span></div>
     <div class="rule-item"><span class="rule-key">PLH MOP</span><span class="rule-val">10 years for Prime Location Public Housing flats. Additional restrictions on resale income post MOP.</span></div>
     <div class="rule-item"><span class="rule-key">Private property during MOP</span><span class="rule-val">Prohibited. HDB owners cannot purchase private residential property during MOP. Violation may result in compulsory acquisition.</span></div>
-    <div class="rule-item"><span class="rule-key">Private property after MOP</span><span class="rule-val">Permitted. SC pays 20% ABSD as second property buyer. LTV drops to 55% if HDB loan is still outstanding. HDB notification required.</span></div>
+    <div class="rule-item"><span class="rule-key">Private property after MOP</span><span class="rule-val">Permitted. SC pays 20% ABSD as second property buyer. LTV drops to 45% if HDB loan is still outstanding (25% if loan tenure exceeds 30 years or age plus tenure exceeds 65, see LTV table above). HDB notification required.</span></div>
     <div class="rule-item"><span class="rule-key">Whole flat rental</span><span class="rule-val">Permitted after 5 year MOP for SC owners with HDB approval. Rental period and tenant nationality subject to HDB's prevailing guidelines.</span></div>
-    <div class="rule-item"><span class="rule-key">15 month wait out</span><span class="rule-val">Private property sellers (or transferors) must wait 15 months from legal transfer date before buying HDB resale flat. BTO application unaffected.</span></div>
+    <div class="rule-item"><span class="rule-key">15 month wait out (removed 28 Jul 2026)</span><span class="rule-val">Private property sellers no longer face a wait: eligible private property owners and former owners can buy a non subsidised HDB resale flat immediately, provided the purchase uses cash or a bank loan, not an HDB loan. BTO application unaffected.</span></div>
     <div class="rule-item"><span class="rule-key">HDB resale levy</span><span class="rule-val">$15,000 to $55,000(based on sold flat type) payable when subsidised flat household buys second subsidised flat. Paid from CPF OA or cash.</span></div>
     <div class="rule-item"><span class="rule-key">Ethnic Integration Policy</span><span class="rule-val">Block and neighbourhood ethnic quotas. Seller cannot sell to buyer of same ethnicity if quota is reached. Affects resale liquidity in affected blocks.</span></div>
     <p class="source" style="margin-top:1rem;">Source: HDB Eligibility Conditions; Housing and Development Act (Cap. 129).</p>
@@ -366,8 +367,8 @@
     <h3>What Foreigners Can Buy</h3>
     <div class="rule-item"><span class="rule-key">Private condo / apartment</span><span class="rule-val">Yes, freely. 60% ABSD applies (or FTA rate for qualifying nationals). No additional approval required.</span></div>
     <div class="rule-item"><span class="rule-key">HDB flats</span><span class="rule-val">No. Prohibited under Housing and Development Act. No exceptions for non-citizens, non-PRs.</span></div>
-    <div class="rule-item"><span class="rule-key">EC (new, within 10 years)</span><span class="rule-val">No. Only SC/PR eligible buyers may purchase ECs within the first 10 years.</span></div>
-    <div class="rule-item"><span class="rule-key">EC (after 10 years / privatised)</span><span class="rule-val">Yes. Treated as private condo. 60% ABSD applies to foreign buyers.</span></div>
+    <div class="rule-item"><span class="rule-key">EC (new, within 10 years)</span><span class="rule-val">No. Only SC/PR eligible buyers may purchase ECs within the first 10 years. This is the rule for every EC on the market or already in the pipeline today; EC land tendered from 8 May 2026 onward carries a 15 year wait instead of 10.</span></div>
+    <div class="rule-item"><span class="rule-key">EC (after 10 years / privatised)</span><span class="rule-val">Yes. Treated as private condo. 60% ABSD applies to foreign buyers. The 10 year mark applies to every EC on the market today; it moves to 15 years for EC land tendered from 8 May 2026 onward.</span></div>
     <div class="rule-item"><span class="rule-key">Landed (outside Sentosa Cove)</span><span class="rule-val">Restricted. SLA approval required. Rarely granted; requires demonstration of substantial economic contribution.</span></div>
     <div class="rule-item"><span class="rule-key">Landed (Sentosa Cove)</span><span class="rule-val">Permitted. 60% ABSD applies. SLA approval not required (Sentosa Cove is a designated residential enclave open to foreigners).</span></div>
     <div class="rule-item"><span class="rule-key">Commercial / industrial</span><span class="rule-val">Yes, freely. No ABSD on non-residential property.</span></div>
@@ -389,26 +390,38 @@
     <h2 id="property-tax-rules">Property Tax Rules</h2>
     <div class="rule-summary">Property tax is an annual tax levied by IRAS on all property in Singapore, based on Annual Value (AV) IRAS's assessment of the property's annual rental potential. Owner occupiers receive lower rates than landlords and investors.</div>
 
-    <h3>Rate Structure</h3>
+    <h3>Owner Occupier Rate Structure</h3>
     <div class="table-wrap">
       <table>
-        <thead><tr><th>Annual Value Tier</th><th>Owner Occupier Rate</th><th>Non-Owner-Occupier Rate</th></tr></thead>
+        <thead><tr><th>Annual Value Tier</th><th>Owner Occupier Rate</th></tr></thead>
         <tbody>
-          <tr><td>First $12,000</td><td>0%</td><td>12%</td></tr>
-          <tr><td>$12,001 to $55,000</td><td>4%</td><td>12%</td></tr>
-          <tr><td>$55,001 to $70,000</td><td>6%</td><td>12%</td></tr>
-          <tr><td>$70,001 to $85,000</td><td>8%</td><td>12%</td></tr>
-          <tr><td>$85,001 to $100,000</td><td>10%</td><td>12%</td></tr>
-          <tr><td>Above $100,000</td><td>14%</td><td>20%</td></tr>
+          <tr><td>First $12,000</td><td>0%</td></tr>
+          <tr><td>$12,001 to $55,000</td><td>4%</td></tr>
+          <tr><td>$55,001 to $70,000</td><td>6%</td></tr>
+          <tr><td>$70,001 to $85,000</td><td>8%</td></tr>
+          <tr><td>$85,001 to $100,000</td><td>10%</td></tr>
+          <tr><td>Above $100,000</td><td>14%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <h3>Non-Owner-Occupier Rate Structure</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Annual Value Tier</th><th>Non-Owner-Occupier Rate</th></tr></thead>
+        <tbody>
+          <tr><td>First $30,000</td><td>12%</td></tr>
+          <tr><td>$30,001 to $45,000</td><td>20%</td></tr>
+          <tr><td>$45,001 to $60,000</td><td>28%</td></tr>
+          <tr><td>Above $60,000</td><td>36%</td></tr>
         </tbody>
       </table>
     </div>
     <div class="rule-item"><span class="rule-key">Annual Value (AV)</span><span class="rule-val">IRAS assessed estimated annual rent at market rates. Not the actual rent received. IRAS revises AV periodically based on market rental evidence.</span></div>
     <div class="rule-item"><span class="rule-key">Owner occupier eligibility</span><span class="rule-val">Only one residential property may be owner occupier rated per owner. The owner must physically reside there. Investor held units (rented out) qualify for non-owner-occupier rates.</span></div>
     <div class="rule-item"><span class="rule-key">Payment</span><span class="rule-val">Payable annually by 31 January. IRAS issues bills in December for the following year. Payment by GIRO, PayNow, or AXS.</span></div>
-    <div class="rule-item"><span class="rule-key">Non-OO rate (investment property)</span><span class="rule-val">Progressive from 12% to 20% for AV above $100,000. Revised January 2024 (previously 10% to 20%). Materially increases holding cost for high AV investment properties.</span></div>
+    <div class="rule-item"><span class="rule-key">Non-OO rate (investment property)</span><span class="rule-val">Progressive from 12% to 36% of AV, in four bands split at $30,000, $45,000 and $60,000. Effective 1 January 2024. Materially increases holding cost for high AV investment properties.</span></div>
     <div class="rule-item"><span class="rule-key">HDB flats</span><span class="rule-val">Lower AV typically; owner occupier rates apply. Most HDB owners pay minimal property tax ($0, $500/year).</span></div>
-    <p class="source" style="margin-top:1rem;">Source: IRAS Property Tax; Property Tax Act (Cap. 254). Non-OO progressive rate structure effective 1 January 2024.</p>
+    <p class="source" style="margin-top:1rem;">Source: IRAS Property Tax (iras.gov.sg/taxes/property-tax/property-owners/property-tax-rates); Property Tax Act (Cap. 254). Non-OO progressive rate structure effective 1 January 2024.</p>
   </div>
 
   <!-- Cooling Measures -->
@@ -421,9 +434,9 @@
     <div class="rule-item"><span class="rule-key">ABSD (April 2023)</span><span class="rule-val">SC: 0%/20%/30%. PR: 5%/30%/35%. Foreigner: 60%. Entity: 65%. Introduced/raised to current levels on 27 April 2023. The single largest transaction cost for multi property buyers.</span></div>
     <div class="rule-item"><span class="rule-key">TDSR cap (2013, revised)</span><span class="rule-val">55% of gross monthly income cap on all debt servicing. Stress tested at 4% p.a. Applies to all bank loans for property.</span></div>
     <div class="rule-item"><span class="rule-key">MSR cap (2013)</span><span class="rule-val">30% of gross monthly income for HDB and EC mortgage servicing. Binding constraint for most HDB/EC buyers.</span></div>
-    <div class="rule-item"><span class="rule-key">LTV limits</span><span class="rule-val">75%/55%/45% for 1st/2nd/3rd+ property loans. Down payment requirements increase with each additional outstanding loan.</span></div>
+    <div class="rule-item"><span class="rule-key">LTV limits</span><span class="rule-val">75%/45%/35% for 1st/2nd/3rd+ property loans (55%/25%/15% where loan tenure exceeds 30 years or age plus tenure exceeds 65). Down payment requirements increase with each additional outstanding loan.</span></div>
     <div class="rule-item"><span class="rule-key">SSD (reinstated 4 Jul 2025)</span><span class="rule-val">16%/12%/8%/4% for sale within year 1/2/3/4, for property bought on or after 4 Jul 2025 (12%/8%/4% within year 1/2/3 for earlier purchases). Discourages short term flipping of residential property.</span></div>
-    <div class="rule-item"><span class="rule-key">15 month HDB wait out (Sep 2022)</span><span class="rule-val">Private property owners must wait 15 months from transfer date before buying HDB resale flat. Prevents cashed up private property sellers from inflating HDB resale prices.</span></div>
+    <div class="rule-item"><span class="rule-key">15 month HDB wait out (Sep 2022 to 28 Jul 2026)</span><span class="rule-val">Required private property owners to wait 15 months from transfer date before buying HDB resale flat. Removed with immediate effect on 28 Jul 2026 for purchases financed with cash or a bank loan.</span></div>
     <div class="rule-item"><span class="rule-key">ABSD trust surcharge (May 2022)</span><span class="rule-val">65% upfront ABSD on all living trust residential property acquisitions. Refundable to individual rate for named beneficiaries. Closes discretionary trust avoidance structure.</span></div>
 
     <h3>Supply Side Measures</h3>
@@ -445,10 +458,12 @@
           <tr><td>February 2023</td><td>BSD top tiers raised (5%/6%)</td><td>Tightening</td></tr>
           <tr><td>April 2023</td><td>ABSD raised (foreigner 60%, entity 65%)</td><td>Tightening</td></tr>
           <tr><td>January 2024</td><td>Property tax non-OO rates raised</td><td>Tightening</td></tr>
+          <tr><td>4 July 2025</td><td>SSD holding period extended to 4 years, rates raised</td><td>Tightening</td></tr>
+          <tr><td>28 July 2026</td><td>15 month HDB wait out removed</td><td>Relaxation</td></tr>
         </tbody>
       </table>
     </div>
-    <p class="source" style="margin-top:1rem;">Source: MND press releases; MAS; IRAS; HDB. No major measure relaxation since 2016. Measures reviewed periodically by inter-agency committee.</p>
+    <p class="source" style="margin-top:1rem;">Source: MND press releases; MAS; IRAS; HDB. First major relaxation since 2016 was the 28 Jul 2026 removal of the 15 month HDB wait out. Measures reviewed periodically by inter-agency committee.</p>
   </div>
 
   <!-- CTA -->
