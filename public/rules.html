@@ -299,12 +299,13 @@
         <thead><tr><th>Loan Scenario</th><th>Max LTV</th><th>Min Cash Down</th><th>Min Cash+CPF Down</th></tr></thead>
         <tbody>
           <tr><td>1st property loan (no outstanding loans)</td><td>75%</td><td>5%</td><td>25%</td></tr>
-          <tr><td>2nd property loan (1 outstanding)</td><td>55%</td><td>25%</td><td>45%</td></tr>
-          <tr><td>3rd+ property loan (2+ outstanding)</td><td>45%</td><td>25%</td><td>55%</td></tr>
+          <tr><td>2nd property loan (1 outstanding)</td><td>45%</td><td>25%</td><td>55%</td></tr>
+          <tr><td>3rd+ property loan (2+ outstanding)</td><td>35%</td><td>25%</td><td>65%</td></tr>
           <tr><td>HDB concessionary loan</td><td>80%</td><td> </td><td>20%</td></tr>
         </tbody>
       </table>
     </div>
+    <p class="text-xs" style="color:var(--ink-muted);margin:.5rem 0 0;">Figures above apply where loan tenure is 30 years or less and loan tenure plus the borrower's age at the end of the loan does not exceed 65. Where either condition is not met, Max LTV drops further: 55% for a 1st property loan, 25% for a 2nd (1 outstanding), 15% for a 3rd+ (2+ outstanding).</p>
     <div class="rule-item"><span class="rule-key">Loan tenure</span><span class="rule-val">Max 30 years (private property bank loan); 25 years (HDB concessionary loan). Loan cannot extend past borrower's age 65 for HDB; 65 to 75 for private (bank dependent).</span></div>
     <div class="rule-item"><span class="rule-key">Outstanding loan count</span><span class="rule-val">Counts all outstanding residential property loans worldwide in the borrower's name, including HDB loans, co-borrower positions, and guarantor obligations that are on balance sheet.</span></div>
     <p class="source" style="margin-top:1rem;">Source: MAS Notice 632 (property loans); MAS Notice 645 (housing loans for individuals). HDB concessionary loan: HDB Financial Matters.</p>
@@ -326,7 +327,7 @@
     <div class="rule-item"><span class="rule-key">Standard MOP</span><span class="rule-val">5 years from key collection date (BTO) or completion date (resale). No open market sale permitted during MOP.</span></div>
     <div class="rule-item"><span class="rule-key">PLH MOP</span><span class="rule-val">10 years for Prime Location Public Housing flats. Additional restrictions on resale income post MOP.</span></div>
     <div class="rule-item"><span class="rule-key">Private property during MOP</span><span class="rule-val">Prohibited. HDB owners cannot purchase private residential property during MOP. Violation may result in compulsory acquisition.</span></div>
-    <div class="rule-item"><span class="rule-key">Private property after MOP</span><span class="rule-val">Permitted. SC pays 20% ABSD as second property buyer. LTV drops to 55% if HDB loan is still outstanding. HDB notification required.</span></div>
+    <div class="rule-item"><span class="rule-key">Private property after MOP</span><span class="rule-val">Permitted. SC pays 20% ABSD as second property buyer. LTV drops to 45% if HDB loan is still outstanding (25% if loan tenure exceeds 30 years or age plus tenure exceeds 65, see LTV table above). HDB notification required.</span></div>
     <div class="rule-item"><span class="rule-key">Whole flat rental</span><span class="rule-val">Permitted after 5 year MOP for SC owners with HDB approval. Rental period and tenant nationality subject to HDB's prevailing guidelines.</span></div>
     <div class="rule-item"><span class="rule-key">15 month wait out (removed 28 Jul 2026)</span><span class="rule-val">Private property sellers no longer face a wait: eligible private property owners and former owners can buy a non subsidised HDB resale flat immediately, provided the purchase uses cash or a bank loan, not an HDB loan. BTO application unaffected.</span></div>
     <div class="rule-item"><span class="rule-key">HDB resale levy</span><span class="rule-val">$15,000 to $55,000(based on sold flat type) payable when subsidised flat household buys second subsidised flat. Paid from CPF OA or cash.</span></div>
@@ -421,7 +422,7 @@
     <div class="rule-item"><span class="rule-key">ABSD (April 2023)</span><span class="rule-val">SC: 0%/20%/30%. PR: 5%/30%/35%. Foreigner: 60%. Entity: 65%. Introduced/raised to current levels on 27 April 2023. The single largest transaction cost for multi property buyers.</span></div>
     <div class="rule-item"><span class="rule-key">TDSR cap (2013, revised)</span><span class="rule-val">55% of gross monthly income cap on all debt servicing. Stress tested at 4% p.a. Applies to all bank loans for property.</span></div>
     <div class="rule-item"><span class="rule-key">MSR cap (2013)</span><span class="rule-val">30% of gross monthly income for HDB and EC mortgage servicing. Binding constraint for most HDB/EC buyers.</span></div>
-    <div class="rule-item"><span class="rule-key">LTV limits</span><span class="rule-val">75%/55%/45% for 1st/2nd/3rd+ property loans. Down payment requirements increase with each additional outstanding loan.</span></div>
+    <div class="rule-item"><span class="rule-key">LTV limits</span><span class="rule-val">75%/45%/35% for 1st/2nd/3rd+ property loans (55%/25%/15% where loan tenure exceeds 30 years or age plus tenure exceeds 65). Down payment requirements increase with each additional outstanding loan.</span></div>
     <div class="rule-item"><span class="rule-key">SSD (reinstated 4 Jul 2025)</span><span class="rule-val">16%/12%/8%/4% for sale within year 1/2/3/4, for property bought on or after 4 Jul 2025 (12%/8%/4% within year 1/2/3 for earlier purchases). Discourages short term flipping of residential property.</span></div>
     <div class="rule-item"><span class="rule-key">15 month HDB wait out (Sep 2022 to 28 Jul 2026)</span><span class="rule-val">Required private property owners to wait 15 months from transfer date before buying HDB resale flat. Removed with immediate effect on 28 Jul 2026 for purchases financed with cash or a bank loan.</span></div>
     <div class="rule-item"><span class="rule-key">ABSD trust surcharge (May 2022)</span><span class="rule-val">65% upfront ABSD on all living trust residential property acquisitions. Refundable to individual rate for named beneficiaries. Closes discretionary trust avoidance structure.</span></div>
