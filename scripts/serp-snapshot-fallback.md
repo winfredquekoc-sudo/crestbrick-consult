@@ -136,12 +136,15 @@ unchanged. Moot until/unless Microsoft ships a genuine successor API.
 
 **Never scrape Google directly** for this — ToS risk and no rate-limit
 courtesy path — which is exactly why `serp-snapshot.sh` was built around
-SearXNG in the first place. Worth noting in the same breath: `~/.claude/bin/
-keyword-rank-tracker.sh` (Monday 06:00 SGT, `com.crestbrick.keyword-rank-
-tracker.plist`) already does scrape `google.com/search` directly today for a
-separate 10-keyword list. That predates this SearXNG effort and still runs.
-Flagging it here since it's directly relevant to "never scrape Google
-directly," but fixing it is outside this task's scope.
+SearXNG in the first place. The one job that did scrape Google directly —
+`~/.claude/bin/keyword-rank-tracker.sh` (Monday 06:00 SGT,
+`com.crestbrick.keyword-rank-tracker.plist`) — was retired 16 Aug 2026: its
+history (`~/.claude/state/keyword-ranks.jsonl`) shows it never returned a
+single rank since its first run on 3 May 2026 (Google stonewalled the scrape
+from day one), so it produced only null rows and a misleading weekly "not in
+top 30" Telegram report. Its 6 keywords not already covered here were merged
+into `scripts/serp-queries.txt`; its plist and script are archived under
+`~/.claude/archived-launchagents/2026-08-16/` and `~/.claude/bin/archive/`.
 
 ## Recommendation
 
