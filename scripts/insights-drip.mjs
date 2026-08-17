@@ -21,6 +21,83 @@ const TARGET = typeof args.date === 'string' ? args.date : new Date().toISOStrin
 const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const firstSentence = s => { const m = String(s || '').match(/^.*?[.!?](\s|$)/); return (m ? m[0] : String(s || '')).trim(); };
 
+// Publish-time structural gate (12% historical defect rate: callout divs closed
+// with </p>, FAQ schema drifting from visible text). Runs on every staged file
+// before it is copied into public/insights — a failure skips the article for
+// this run only (no copy, no sitemap/llms/hub mutation), so it stays due and
+// retries once someone fixes the staged file.
+const BLOCK_TAGS = new Set(['div', 'section', 'main', 'article', 'aside']);
+const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  mdash: '—', ndash: '–', middot: '·', bull: '•', minus: '−',
+  rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', hellip: '…',
+  times: '×', divide: '÷', copy: '©', reg: '®', trade: '™',
+  asymp: '≈', rarr: '→', larr: '←', le: '≤', ge: '≥',
+  deg: '°', plusmn: '±' };
+const decodeEntities = s => String(s)
+  .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
+  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
+  .replace(/&([a-zA-Z]+);/g, (m, name) => ENTITIES[name] ?? m);
+const normText = s => decodeEntities(String(s).replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
+const visibleText = html => normText(
+  html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
+);
+
+// Stack-checks div/section/main/article/aside open/close over the raw markup.
+function tagBalanceError(html) {
+  const stripped = html
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ');
+  const stack = [];
+  const re = /<(\/)?(\w+)([^>]*)>/g;
+  let m;
+  while ((m = re.exec(stripped))) {
+    const tag = m[2].toLowerCase();
+    if (!BLOCK_TAGS.has(tag)) continue;
+    if (m[1]) {
+      const top = stack[stack.length - 1];
+      if (top !== tag) return `mismatched close </${tag}>${top ? ` — expected </${top}>` : ' — nothing open'}`;
+      stack.pop();
+    } else if (!/\/\s*$/.test(m[3])) {
+      stack.push(tag);
+    }
+  }
+  if (stack.length) return `unclosed <${stack[stack.length - 1]}> (${stack.length} tag(s) left open: ${stack.join(', ')})`;
+  return null;
+}
+
+// Every FAQPage question/answer in JSON-LD must appear in the page's visible text.
+function faqParityError(html) {
+  const body = visibleText(html);
+  const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+  let m;
+  while ((m = re.exec(html))) {
+    let data;
+    try { data = JSON.parse(m[1]); } catch { continue; }
+    for (const node of Array.isArray(data['@graph']) ? data['@graph'] : [data]) {
+      const type = node && node['@type'];
+      if (type !== 'FAQPage' && !(Array.isArray(type) && type.includes('FAQPage'))) continue;
+      for (const q of node.mainEntity || []) {
+        const rawName = (q?.name ?? '').replace(/\s+/g, ' ').trim();
+        const question = normText(rawName);
+        const answer = normText(q?.acceptedAnswer?.text ?? '');
+        if (question && !body.includes(question)) return `FAQ question not in visible text: "${rawName.slice(0, 80)}"`;
+        if (answer && !body.includes(answer)) return `FAQ answer not in visible text (Q: "${rawName.slice(0, 60)}")`;
+      }
+    }
+  }
+  return null;
+}
+
+function publishGateError(src) {
+  try {
+    const html = readFileSync(src, 'utf8');
+    return tagBalanceError(html) || faqParityError(html);
+  } catch (e) {
+    return `gate check failed: ${e.message}`;
+  }
+}
+
 const manifest = JSON.parse(readFileSync(join(STAGED, 'manifest.json'), 'utf8'));
 const LABEL = manifest.hubLabel || 'Guides';
 const LLMS_HEAD = manifest.llmsSection || '## Property guides (2026)';
@@ -76,14 +153,19 @@ for (const a of due) {
     // refresh entry: overwrite the live article and bump its sitemap lastmod
     const src = join(STAGED, 'staged/insights', `${a.slug}.html`);
     if (!existsSync(src)) { console.error(`  ! no file for ${a.slug} — skipping`); continue; }
+    const gateErr = publishGateError(src);
+    if (gateErr) { console.log(`PUBLISH GATE BLOCKED ${a.slug}: ${gateErr}`); continue; }
     if (!DRY) copyFileSync(src, dst);
     const lm = new RegExp(`(<loc>${url.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}</loc>\\s*<lastmod>)[^<]*`);
     if (lm.test(sm)) sm = sm.replace(lm, `$1${a.date}`);
     did = true;
   } else if (!existsSync(dst)) {
     const src = join(STAGED, 'staged/insights', `${a.slug}.html`);
-    if (existsSync(src)) { if (!DRY) copyFileSync(src, dst); did = true; }
-    else { console.error(`  ! no file for ${a.slug} — skipping`); continue; }
+    if (!existsSync(src)) { console.error(`  ! no file for ${a.slug} — skipping`); continue; }
+    const gateErr = publishGateError(src);
+    if (gateErr) { console.log(`PUBLISH GATE BLOCKED ${a.slug}: ${gateErr}`); continue; }
+    if (!DRY) copyFileSync(src, dst);
+    did = true;
   }
   if (!sm.includes(`<loc>${url}</loc>`)) {
     sm = sm.replace('</urlset>', `  <url>\n    <loc>${url}</loc>\n    <lastmod>${a.date}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.8</priority>\n  </url>\n</urlset>`);
