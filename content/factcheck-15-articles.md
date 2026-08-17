@@ -121,9 +121,12 @@ All confirmed 2026-05-20 — Winfred-confirmed + verified against CPF/IRAS/HDB. 
 
 ## 15. singapore-property-tax-investor-guide.html
 **Errors to fix:**
-- [ ] L176-206: the entire 2026 property tax rate table — the owner-occupied schedule (0/4/6/10/14/23%) looks like outdated pre-2025 tiers; owner-occupied top rate is now higher. Replace both tables with current IRAS figures.
-- [ ] L252/L256: worked examples ($4,500 and $16,200 owner-occ; $8,640 and $25,200 NOO) don't match the article's own rate table — recompute after the table is fixed.
-- [ ] L252: "12% on first $75k, 20% on remainder" applied to an AV of $72,000 — nonsensical (AV is below $75k).
+- [x] L176-206: the entire 2026 property tax rate table — the owner-occupied schedule (0/4/6/10/14/23%) looks like outdated pre-2025 tiers; owner-occupied top rate is now higher. Replace both tables with current IRAS figures.
+- [x] L252/L256: worked examples ($4,500 and $16,200 owner-occ; $8,640 and $25,200 NOO) don't match the article's own rate table — recompute after the table is fixed.
+- [x] L252: "12% on first $75k, 20% on remainder" applied to an AV of $72,000 — nonsensical (AV is below $75k).
+
+**Resolved 17 Aug 2026:** live tables now carry the current IRAS schedules (owner occupied 0/4/6/10/14/20/26/32%, non owner occupied 12/20/28/36%); the stale figures and the "12% on first $75k" text no longer appear anywhere in the file; all five worked example rows verify against both schedules after PR #57 fixed the last error (AV $120,000 non owner occupied tax $21,600 → $32,400, annual difference $7,780 → $18,580) and aligned the Winfred's Take range ($15,000 to $32,000). Verify items below remain unchecked.
+
 **Verify:** L308-314 Section 14A depreciation ("25% declining balance or 3-year write-off"); L442 commercial property tax flat 10%.
 
 ---
