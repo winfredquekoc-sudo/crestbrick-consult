@@ -17,6 +17,12 @@ h1 IS a question, answered by the "Quick answer" lead; some articles carry
 question as an h2 heading. None match the structured patterns, so "unmatched"
 must not mean "gone".
 
+A further class of page is Q&A structured but has no FAQ section at all:
+every h2/h3 is a question, answered by the paragraph directly beneath (see
+qa_article_pairs). That fallback only engages when the structured patterns
+above found zero pairs and a FAQPage block exists, the exact SUSPECT gate,
+so it never competes with a real FAQ section's markup.
+
   --root DIR      repo root (default: parent of this script's scripts/ dir)
   --fix           write repairs (default is report only)
   --json PATH     also write a machine readable dump of the report
@@ -37,6 +43,12 @@ FAQQ_PAIR = re.compile(r'<p\s+class="faq-q">(.*?)</p>\s*<p(?![^>]*class="faq-q")
 H3_PAIR = re.compile(r"<h3\b(?:\s[^>]*)?>(.*?)</h3>\s*<p(?:\s[^>]*)?>(.*?)</p>", re.S | re.I)
 DETAILS_PAIR = re.compile(r"<details\b(?:\s[^>]*)?>\s*<summary\b(?:\s[^>]*)?>(.*?)</summary>(.*?)</details>", re.S | re.I)
 DETAILS_P = re.compile(r"<p(?:\s[^>]*)?>(.*?)</p>", re.S | re.I)
+H23_TAG = re.compile(r"<(h2|h3)\b[^>]*>(.*?)</\1>", re.S | re.I)
+LIST_TAG = re.compile(r"<(ul|ol)\b(?:\s[^>]*)?>(.*?)</\1>", re.S | re.I)
+LI_TAG = re.compile(r"<li(?:\s[^>]*)?>(.*?)</li>", re.S | re.I)
+CLASS_ATTR = re.compile(r'class=(["\'])(.*?)\1', re.S | re.I)
+TABLE_TAG = re.compile(r"<table\b(?:\s[^>]*)?>(.*?)</table>", re.S | re.I)
+CELL_TAG = re.compile(r"<t[hd](?:\s[^>]*)?>(.*?)</t[hd]>", re.S | re.I)
 
 DEFAULT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Typography fold for the keep-rule containment test ONLY (never drift
@@ -113,7 +125,65 @@ def page_is_faq_only(src):
     return bool(re.search(r"\bFAQs?\s*$", text, re.I))
 
 
-def extract_visible_pairs(src):
+def qa_article_pairs(vis_src):
+    """SUSPECT-only fallback: Q&A format articles answer question-form h2/h3
+    section headings with the content directly beneath, no "Frequently asked
+    questions" block to scope by. The boundary for "the answer" is the next
+    h2/h3 of either kind, not just the next question, so a non-question
+    sub-heading sitting between a question and its answer correctly starves
+    that question of an answer rather than reaching past it.
+
+    Within that span, whichever of the first <p> or the first <ul>/<ol>
+    starts first supplies the answer: a bare <p> is used as is, a list's
+    <li>s are joined with a single space (the DETAILS_PAIR convention for
+    joining multiple <p>s, applied to list items instead). First list only,
+    matched non-greedy to its own closing tag -- these pages have flat lists,
+    no nested ones to worry about.
+
+    A <p> carrying "text-xs" in its class (the site's fine-print idiom) is
+    never picked as the answer -- a rates section's own disclaimer paragraph
+    would otherwise silently become "the answer" to a rates question. When
+    the span has no acceptable <p> and no list anywhere at all, the last
+    resort is a lone <table>'s th/td cells, joined the same way a list's
+    <li>s are: still a verbatim, if terse, answer instead of none. Two
+    tables in one span usually means two rate regimes (owner occupied vs
+    not); emitting only the first would silently ship half the answer, so
+    such a span starves loudly (KEPT or SUSPECT) instead.
+    """
+    am = ARTICLE_TAG.search(vis_src)
+    base, end = (am.start(1), am.end(1)) if am else (0, len(vis_src))
+    region = vis_src[base:end]
+    heads = list(H23_TAG.finditer(region))
+    pairs = []
+    for i, m in enumerate(heads):
+        if not norm_visible(m.group(2)).endswith("?"):
+            continue
+        bound = heads[i + 1].start() if i + 1 < len(heads) else len(region)
+        pm = None
+        for cand in DETAILS_P.finditer(region, m.end(), bound):
+            opening = cand.group(0).split(">", 1)[0] + ">"
+            cm = CLASS_ATTR.search(opening)
+            if cm and "text-xs" in cm.group(2):
+                continue
+            pm = cand
+            break
+        lm = LIST_TAG.search(region, m.end(), bound)
+        if lm and (not pm or lm.start() < pm.start()):
+            ans = " ".join(LI_TAG.findall(lm.group(2)))
+            if ans:
+                pairs.append((base + m.start(), m.group(2), ans))
+        elif pm:
+            pairs.append((base + m.start(), m.group(2), pm.group(1)))
+        else:
+            tms = list(TABLE_TAG.finditer(region, m.end(), bound))
+            if len(tms) == 1:
+                ans = " ".join(CELL_TAG.findall(tms[0].group(1)))
+                if ans:
+                    pairs.append((base + m.start(), m.group(2), ans))
+    return pairs
+
+
+def extract_visible_pairs(src, has_schema=False):
     """[(pos, question_raw_html, answer_raw_html), ...] in document order.
 
     Each answer is the single <p> immediately after its question marker
@@ -123,6 +193,11 @@ def extract_visible_pairs(src):
     </details> is a hard boundary. A candidate is dropped unless its question
     ends with "?", so a non-question heading followed by a bare <p> can never
     be mistaken for one.
+
+    has_schema (mainEntity is non-empty, the exact SUSPECT gate in classify)
+    unlocks qa_article_pairs when the structured patterns above find nothing:
+    inert whenever the standard path already found something, or there is no
+    FAQPage block to fall back for.
     """
     vis_src = SCRIPT_STYLE.sub(" ", src)
     spans = faq_spans(vis_src)
@@ -140,6 +215,8 @@ def extract_visible_pairs(src):
             ans_raw = " ".join(DETAILS_P.findall(m.group(2)))
             pairs.append((a + m.start(), m.group(1), ans_raw))
     pairs = [p for p in pairs if norm_visible(p[1]).endswith("?")]
+    if not pairs and has_schema:
+        pairs = qa_article_pairs(vis_src)
     pairs.sort(key=lambda t: t[0])
     return pairs
 
@@ -248,8 +325,8 @@ def compare(visible_pairs, schema_pairs, corpus_lower, min_ratio):
 def scan_file(path):
     with open(path, encoding="utf-8", errors="replace", newline="") as f:
         src = f.read()
-    visible_pairs = extract_visible_pairs(src)
     schema_pairs, raw_entries, block_info, bad, faqpage_blocks = extract_schema(src)
+    visible_pairs = extract_visible_pairs(src, bool(schema_pairs))
     corpus_lower = visible_text_corpus(src).lower().translate(_TYPOGRAPHY_FOLD)
     return src, visible_pairs, schema_pairs, raw_entries, block_info, bad, faqpage_blocks, corpus_lower
 
