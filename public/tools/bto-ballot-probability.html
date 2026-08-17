@@ -85,7 +85,7 @@ if (pct<15) advice='Very low. Resale is likely faster + cheaper if you cannot wa
 else if (pct<35) advice='Low. Plan for 2 application cycles minimum. Have a resale Plan B.';
 else if (pct<60) advice='Moderate. Reasonable to apply, but do not bank on first try.';
 else advice='Decent odds. Worth applying if your timeline allows 4-5 years to keys.';
-document.getElementById('rationale').innerHTML=`<b>Read:</b> ${advice}<br><br><b>Note:</b> Real ballot is RANDOM after priority filtering - this estimates your odds of being SHORTLISTED, not assigned a specific unit you want. Actual unit selection comes 4-6 months after ballot.<br><br><b>Sources:</b> Historical 2023-2025 application rates from HDB. Always verify current cycle subscription rates.`;
+document.getElementById('rationale').innerHTML=`<b>Read:</b> ${advice}<br><br><b>Note:</b> Real ballot is RANDOM after priority filtering: this estimates your odds of being SHORTLISTED, not assigned a specific unit you want. Actual unit selection comes 4-6 months after ballot.<br><br><b>Sources:</b> Historical 2023-2025 application rates from HDB. Always verify current cycle subscription rates.`;
 document.getElementById('result').classList.add('show');
 }
 calc();

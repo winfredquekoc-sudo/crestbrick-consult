@@ -61,7 +61,7 @@ const levy={'2r':15000,'3r':30000,'4r':40000,'5r':45000,'exec':50000,'ec':55000}
 const amt=levy[first];
 let display, note;
 if (second==='no'){display='S$0';note='No resale levy. You only owe the levy when buying a second SUBSIDISED flat (BTO, SBF, EC). Resale HDB and private property do not trigger levy.';}
-else {display='S$'+amt.toLocaleString();note=`<b>Levy of S$${amt.toLocaleString()}</b> payable to HDB at the second flat purchase. Levy is paid via cash/CPF at second flat completion. Strategy: this is non-recoverable - factor it into the upgrade math when comparing BTO vs resale paths.`;}
+else {display='S$'+amt.toLocaleString();note=`<b>Levy of S$${amt.toLocaleString()}</b> payable to HDB at the second flat purchase. Levy is paid via cash/CPF at second flat completion. Strategy: this is non-recoverable, factor it into the upgrade math when comparing BTO vs resale paths.`;}
 document.getElementById('amt').textContent=display;
 document.getElementById('note').innerHTML=note;
 document.getElementById('result').classList.add('show');
