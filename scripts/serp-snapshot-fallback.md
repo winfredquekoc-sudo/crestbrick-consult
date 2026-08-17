@@ -1,5 +1,15 @@
 # serp-snapshot.sh backend is down — diagnosis and options
 
+**Resolved 17 Aug 2026 — Option A implemented.** Colima (installed via brew,
+login autostart through `brew services`) + a `searxng/searxng:latest`
+container (`--restart unless-stopped`, bound to 127.0.0.1:8888 only, JSON
+format enabled, limiter off) now serve the backend. The snapshot runs weekly
+(Mon 06:00 SGT, `com.crestbrick.serp-snapshot`) via
+`~/.claude/bin/serp-snapshot-weekly.sh`, which executes this repo's script
+from a worktree pinned to origin/main. Baseline run 17 Aug: 3/26 queries in
+the top 20. Everything below is the point-in-time diagnosis, kept as the
+record of why this shape was chosen.
+
 16 Aug 2026. `scripts/serp-snapshot.sh` depends on a local SearXNG instance at
 `http://localhost:8888`. It has been unreachable since at least 5 Aug (the only
 row in `~/.claude/state/serp-history.csv` past that date is the script's own
