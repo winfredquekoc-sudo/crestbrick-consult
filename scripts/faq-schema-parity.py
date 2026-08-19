@@ -48,6 +48,16 @@ _TYPOGRAPHY_FOLD = str.maketrans({"‘": "'", "’": "'", "“": '"',
                                    "”": '"', "–": "-", "—": "-", "\xa0": " "})
 
 
+def rel_display(path, root):
+    # os.path.relpath never raises on POSIX even for out-of-root paths (it just
+    # grows a "../.." prefix), but --files can point anywhere (e.g. a staging
+    # tree) -- fall back to the absolute path rather than trust that cross-platform.
+    try:
+        return os.path.relpath(path, root)
+    except ValueError:
+        return os.path.abspath(path)
+
+
 def excerpt(a, b, width=40):
     n = min(len(a), len(b))
     i = 0
@@ -255,7 +265,7 @@ def to_jsonable(results, root):
 def run_scan(files, root, min_ratio):
     results, raw = {}, {}
     for path in files:
-        rel = os.path.relpath(path, root)
+        rel = rel_display(path, root)
         src, vis, sch, raw_entries, blk, bad, nblocks, corpus_lower = scan_file(path)
         state, defects, kept = classify(vis, sch, blk, bad, nblocks, corpus_lower, min_ratio)
         results[rel] = (state, defects, kept)
@@ -302,10 +312,13 @@ def main():
     ap.add_argument("--json", dest="json_path", default=None)
     ap.add_argument("--min-ratio", type=float, default=0.6)
     ap.add_argument("--strict", action="store_true")
+    ap.add_argument("--files", nargs="+", default=None,
+                     help="scan exactly these files instead of the public/insights + public/answers globs")
     a = ap.parse_args()
 
-    files = [str(f) for f in sorted(Path(a.root, "public/insights").glob("*.html")) +
-             sorted(Path(a.root, "public/answers").glob("*.html"))]
+    files = a.files if a.files else \
+        [str(f) for f in sorted(Path(a.root, "public/insights").glob("*.html")) +
+         sorted(Path(a.root, "public/answers").glob("*.html"))]
 
     def exit_code(s):
         report_only = s["no_schema"] or s["suspect"] or s["suspect_multi"] or s["kept_unverified"]

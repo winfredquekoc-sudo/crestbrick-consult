@@ -16,8 +16,8 @@ LD_BLOCK = re.compile(r'(<script[^>]*type=["\']application/ld\+json["\'][^>]*>)(
 H2_TAG = re.compile(r"<h2\b([^>]*)>(.*?)</h2>", re.S | re.I)
 H1_TAG = re.compile(r"<h1\b[^>]*>(.*?)</h1>", re.S | re.I)
 ARTICLE_TAG = re.compile(r"<article\b[^>]*>(.*?)</article>", re.S | re.I)
-FAQQ_PAIR = re.compile(r'<p\s+class="faq-q">(.*?)</p>\s*<p(?![^>]*class="faq-q")(?:\s[^>]*)?>(.*?)</p>', re.S | re.I)
-H3_PAIR = re.compile(r"<h3\b(?:\s[^>]*)?>(.*?)</h3>\s*<p(?:\s[^>]*)?>(.*?)</p>", re.S | re.I)
+FAQQ_PAIR = re.compile(r'<p\s+class="faq-q"(?:\s[^>]*)?>((?:(?!</p>).)*)</p>\s*<p(?![^>]*class="faq-q")(?:\s[^>]*)?>(.*?)</p>', re.S | re.I)
+H3_PAIR = re.compile(r"<h3\b(?:\s[^>]*)?>((?:(?!</h3>).)*)</h3>\s*<p(?:\s[^>]*)?>(.*?)</p>", re.S | re.I)
 DETAILS_PAIR = re.compile(r"<details\b(?:\s[^>]*)?>\s*<summary\b(?:\s[^>]*)?>(.*?)</summary>(.*?)</details>", re.S | re.I)
 DETAILS_P = re.compile(r"<p(?:\s[^>]*)?>(.*?)</p>", re.S | re.I)
 

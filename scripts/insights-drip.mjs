@@ -6,8 +6,11 @@
 //
 // Usage: node scripts/insights-drip.mjs --root=<repo-root> --staged=<state-dir> [--date=YYYY-MM-DD] [--dry-run]
 
-import { readFileSync, writeFileSync, existsSync, copyFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { readFileSync, writeFileSync, existsSync, copyFileSync, unlinkSync } from 'node:fs';
+import { join, resolve, dirname } from 'node:path';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import { fileURLToPath } from 'node:url';
 
 const args = Object.fromEntries(process.argv.slice(2).map(a => {
   const m = a.match(/^--([^=]+)(?:=(.*))?$/); return m ? [m[1], m[2] ?? true] : [a, true];
@@ -27,20 +30,6 @@ const firstSentence = s => { const m = String(s || '').match(/^.*?[.!?](\s|$)/);
 // this run only (no copy, no sitemap/llms/hub mutation), so it stays due and
 // retries once someone fixes the staged file.
 const BLOCK_TAGS = new Set(['div', 'section', 'main', 'article', 'aside']);
-const ENTITIES = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
-  mdash: '—', ndash: '–', middot: '·', bull: '•', minus: '−',
-  rsquo: '’', lsquo: '‘', rdquo: '”', ldquo: '“', hellip: '…',
-  times: '×', divide: '÷', copy: '©', reg: '®', trade: '™',
-  asymp: '≈', rarr: '→', larr: '←', le: '≤', ge: '≥',
-  deg: '°', plusmn: '±' };
-const decodeEntities = s => String(s)
-  .replace(/&#x([0-9a-fA-F]+);/g, (_, h) => String.fromCodePoint(parseInt(h, 16)))
-  .replace(/&#(\d+);/g, (_, d) => String.fromCodePoint(Number(d)))
-  .replace(/&([a-zA-Z]+);/g, (m, name) => ENTITIES[name] ?? m);
-const normText = s => decodeEntities(String(s).replace(/<[^>]+>/g, ' ')).replace(/\s+/g, ' ').trim();
-const visibleText = html => normText(
-  html.replace(/<script[^>]*>[\s\S]*?<\/script>/gi, ' ').replace(/<style[^>]*>[\s\S]*?<\/style>/gi, ' ')
-);
 
 // Stack-checks div/section/main/article/aside open/close over the raw markup.
 function tagBalanceError(html) {
@@ -66,36 +55,77 @@ function tagBalanceError(html) {
   return null;
 }
 
-// Every FAQPage question/answer in JSON-LD must appear in the page's visible text.
-function faqParityError(html) {
-  const body = visibleText(html);
-  const re = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
-  let m;
-  while ((m = re.exec(html))) {
-    let data;
-    try { data = JSON.parse(m[1]); } catch { continue; }
-    for (const node of Array.isArray(data['@graph']) ? data['@graph'] : [data]) {
-      const type = node && node['@type'];
-      if (type !== 'FAQPage' && !(Array.isArray(type) && type.includes('FAQPage'))) continue;
-      for (const q of node.mainEntity || []) {
-        const rawName = (q?.name ?? '').replace(/\s+/g, ' ').trim();
-        const question = normText(rawName);
-        const answer = normText(q?.acceptedAnswer?.text ?? '');
-        if (question && !body.includes(question)) return `FAQ question not in visible text: "${rawName.slice(0, 80)}"`;
-        if (answer && !body.includes(answer)) return `FAQ answer not in visible text (Q: "${rawName.slice(0, 60)}")`;
-      }
+// FAQ schema/visible-text parity delegates to scripts/faq-schema-parity.py
+// (the python parity library _faq_lib.py is the single source of truth) —
+// this JS used to reimplement the comparison and strip tags by joining with a
+// space instead of nothing, spuriously failing prose answers with inline tags.
+const PY = process.env.PYTHON || '/usr/bin/python3';
+const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
+const PARITY_SCANNER = join(SCRIPT_DIR, 'faq-schema-parity.py');
+
+// One subprocess call per drip run, batched over every candidate file, rather
+// than one per article. Returns { byAbsPath } normally, or { fatal } when the
+// scanner itself is unusable — callers must fail closed on `fatal`, never
+// publish an article whose FAQ schema couldn't actually be verified.
+function runFaqScanner(absPaths) {
+  if (!absPaths.length) return { byAbsPath: {} };
+  const jsonPath = join(tmpdir(), `faq-parity-${process.pid}-${Date.now()}.json`);
+  const fail = reason => {
+    // Loud (stdout, not stderr) and non-zero: the driver captures stdout and
+    // alerts only on a non-zero exit, so a quiet stderr line here would let a
+    // missing/broken python halt publishing forever with nobody told.
+    console.log(`PUBLISH GATE: FAQ parity scanner ${reason} — failing closed, blocking all articles this run`);
+    process.exitCode = 1;
+    return { byAbsPath: {}, fatal: 'FAQ parity scanner unavailable this run' };
+  };
+  try {
+    const res = spawnSync(PY, [PARITY_SCANNER, '--files', ...absPaths, '--json', jsonPath], { encoding: 'utf8' });
+    if (res.error) return fail(`failed to start (${res.error.message})`);
+    if (res.status !== 0 && res.status !== 1) return fail(`exited ${res.status}: ${(res.stderr || '').trim().slice(0, 300)}`);
+    let parsed;
+    try {
+      parsed = JSON.parse(readFileSync(jsonPath, 'utf8'));
+    } catch (e) {
+      return fail(`produced unparseable JSON (${e.message})`);
     }
+    if (!parsed || typeof parsed.root !== 'string') return fail('produced JSON with an unexpected shape');
+    // Reverse parsed.root + key -> absolute path instead of reimplementing the
+    // scanner's own relpath/fallback logic here; robust either way it renders keys.
+    const byAbsPath = {};
+    for (const [key, entry] of Object.entries(parsed.files || {})) byAbsPath[resolve(parsed.root, key)] = entry;
+    return { byAbsPath };
+  } finally {
+    try { unlinkSync(jsonPath); } catch { /* best effort */ }
   }
-  return null;
 }
 
-function publishGateError(src) {
+function describeFaqDefect(entry) {
+  if (entry.state === 'SUSPECT_MULTI') return 'SUSPECT_MULTI: more than one FAQPage block in this file';
+  const types = [...new Set((entry.defects || []).map(d => d.type))].join(', ') || entry.state;
+  const d0 = entry.defects?.[0] ?? {};
+  const detail = d0.type === 'QUESTION_DRIFT' ? d0.visible_question : (d0.question ?? d0.error ?? '');
+  return `${types}: ${String(detail).slice(0, 100)}`;
+}
+
+function publishGateError(src, scan) {
+  let html;
   try {
-    const html = readFileSync(src, 'utf8');
-    return tagBalanceError(html) || faqParityError(html);
+    html = readFileSync(src, 'utf8');
   } catch (e) {
     return `gate check failed: ${e.message}`;
   }
+  const tagErr = tagBalanceError(html);
+  if (tagErr) return tagErr;
+  if (scan.fatal) return scan.fatal;
+  const entry = scan.byAbsPath[resolve(src)];
+  if (!entry) return null; // CLEAN is the only state to_jsonable omits
+  // SUSPECT means the scanner verified nothing at all for this file, so it
+  // blocks rather than warn-and-publish — weaker than the old substring gate otherwise.
+  if (entry.state === 'SUSPECT') return 'FAQ schema unverifiable (SUSPECT layout)';
+  // BAD_JSON (malformed JSON-LD) counts as a defect in the scanner's own exit
+  // code, so it blocks here too — never auto-fixed, same as SUSPECT_MULTI.
+  if (entry.state === 'DEFECTS' || entry.state === 'SUSPECT_MULTI' || entry.state === 'BAD_JSON') return describeFaqDefect(entry);
+  return null;
 }
 
 const manifest = JSON.parse(readFileSync(join(STAGED, 'manifest.json'), 'utf8'));
@@ -144,6 +174,17 @@ if (!hub.includes(`id="${HUB_ID}"`)) {
   hub = hub.replace('<!-- Category filter -->', section);
 }
 
+// Batch every file this run might copy/refresh into the one scanner call,
+// before the per-article loop below spends it.
+const gateCandidates = [];
+for (const a of due) {
+  const dst = join(ROOT, 'public/insights', `${a.slug}.html`);
+  if (!(a.refresh || !existsSync(dst))) continue;
+  const src = join(STAGED, 'staged/insights', `${a.slug}.html`);
+  if (existsSync(src)) gateCandidates.push(resolve(src));
+}
+const faqScan = runFaqScanner(gateCandidates);
+
 const published = [];
 for (const a of due) {
   const url = `https://winfredquek.com/insights/${a.slug}`;
@@ -153,7 +194,7 @@ for (const a of due) {
     // refresh entry: overwrite the live article and bump its sitemap lastmod
     const src = join(STAGED, 'staged/insights', `${a.slug}.html`);
     if (!existsSync(src)) { console.error(`  ! no file for ${a.slug} — skipping`); continue; }
-    const gateErr = publishGateError(src);
+    const gateErr = publishGateError(src, faqScan);
     if (gateErr) { console.log(`PUBLISH GATE BLOCKED ${a.slug}: ${gateErr}`); continue; }
     if (!DRY) copyFileSync(src, dst);
     const lm = new RegExp(`(<loc>${url.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}</loc>\\s*<lastmod>)[^<]*`);
@@ -162,7 +203,7 @@ for (const a of due) {
   } else if (!existsSync(dst)) {
     const src = join(STAGED, 'staged/insights', `${a.slug}.html`);
     if (!existsSync(src)) { console.error(`  ! no file for ${a.slug} — skipping`); continue; }
-    const gateErr = publishGateError(src);
+    const gateErr = publishGateError(src, faqScan);
     if (gateErr) { console.log(`PUBLISH GATE BLOCKED ${a.slug}: ${gateErr}`); continue; }
     if (!DRY) copyFileSync(src, dst);
     did = true;
