@@ -55,6 +55,17 @@ function tagBalanceError(html) {
   return null;
 }
 
+// Publish-time dash gate (18/19 Aug regressions: em/en dashes and double hyphen
+// run-ons repeatedly reached prod despite generator instructions not to use them).
+// Scans the raw markup for encoded entities and literal dash characters — a hit
+// skips the article for this run only, same as the structural gate above.
+const DASH_RE = /&mdash;|&ndash;|&#8211;|&#8212;|&#x2013;|&#x2014;|[—–―]| -- /g;
+function dashError(html) {
+  // Style blocks excluded: CSS glyph content (e.g. accordion markers) is not reader text.
+  const hits = html.replace(/<style\b[^>]*>[\s\S]*?<\/style\s*>/gi, '').match(DASH_RE);
+  return hits ? `dash characters (${hits.length}) found` : null;
+}
+
 // FAQ schema/visible-text parity delegates to scripts/faq-schema-parity.py
 // (the python parity library _faq_lib.py is the single source of truth) —
 // this JS used to reimplement the comparison and strip tags by joining with a
@@ -116,6 +127,8 @@ function publishGateError(src, scan) {
   }
   const tagErr = tagBalanceError(html);
   if (tagErr) return tagErr;
+  const dashErr = dashError(html);
+  if (dashErr) return dashErr;
   if (scan.fatal) return scan.fatal;
   const entry = scan.byAbsPath[resolve(src)];
   if (!entry) return null; // CLEAN is the only state to_jsonable omits
