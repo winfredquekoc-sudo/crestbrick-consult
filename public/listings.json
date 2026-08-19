@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-18T00:30:05+08:00",
-  "count": 15,
+  "synced_at": "2026-08-20T00:30:02+08:00",
+  "count": 17,
   "listings": [
     {
       "id": "common-room-blk-47-marine-parade-ll110",
@@ -74,6 +74,22 @@
       "image": "/img/listings/studio-34-jalan-tanjong-1.jpg",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Studio%20in%2034%20Jalan%20Tanjong."
+    },
+    {
+      "id": "whole-unit-766-bedok-reservoir-road-ll109",
+      "title": "Whole Unit — 766 Bedok Reservoir Road",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 6200,
+      "price_label": "S$6,200 / mo",
+      "address": "766 Bedok Reservoir Road",
+      "district": "D16",
+      "sqft": 518,
+      "highlights": [
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20766%20Bedok%20Reservoir%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20766%20Bedok%20Reservoir%20Road."
     },
     {
       "id": "common-room-blk-160-pasir-ris-street-13-ll099",
@@ -217,6 +233,21 @@
       "district": "D28",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2054%20Sunrise%20Terrace."
+    },
+    {
+      "id": "common-room-88-telok-blangah-heights-ll112",
+      "title": "Common Room — 88 Telok Blangah Heights",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "88 Telok Blangah Heights",
+      "district": "D4",
+      "highlights": [
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights."
     }
   ]
 }
