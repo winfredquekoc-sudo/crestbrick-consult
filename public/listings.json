@@ -1,9 +1,24 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-17T00:30:03+08:00",
-  "count": 13,
+  "synced_at": "2026-08-18T00:30:05+08:00",
+  "count": 15,
   "listings": [
+    {
+      "id": "common-room-blk-47-marine-parade-ll110",
+      "title": "Common Room — Blk 47 Marine Parade",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1500,
+      "price_label": "S$1,500 / mo",
+      "address": "Blk 47 Marine Parade",
+      "district": "D15",
+      "highlights": [
+        "Utilities included"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2047%20Marine%20Parade.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2047%20Marine%20Parade."
+    },
     {
       "id": "common-room-bayshore-park-ll070",
       "title": "Common Room — Bayshore Park",
@@ -132,6 +147,21 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208."
+    },
+    {
+      "id": "common-room-138a-yuan-ching-road-ll111",
+      "title": "Common Room — 138A Yuan Ching Road (Jurong)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1000,
+      "price_label": "S$1,000 / mo",
+      "address": "138A Yuan Ching Road",
+      "district": "D22",
+      "highlights": [
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road."
     },
     {
       "id": "common-room-blk-403-jurong-west-street-42-ll105",
