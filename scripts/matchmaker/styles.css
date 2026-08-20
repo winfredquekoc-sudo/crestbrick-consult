@@ -83,6 +83,8 @@ select.mk{padding:3px 6px}
 .badge.scratch{background:rgba(155,140,255,.18);color:var(--purple-ink)}
 .badge.cobroke{background:rgba(91,140,255,.18);color:var(--acc)}
 .badge.overridden{background:rgba(245,166,35,.18);color:var(--amb-ink)}
+.badge.urgent{background:rgba(224,49,49,.18);color:#c92a2a;font-weight:700}
+.badge.inforich{background:rgba(34,139,230,.15);color:#1864ab}
 .badge.declined{background:rgba(255,92,108,.14);color:var(--red-ink)}
 
 /* triage mode: focused card, key legend, sticky bottom action bar */
@@ -345,3 +347,53 @@ body.density-compact .lc{padding:7px 9px}
    focus-triggered scrolling in evergreen browsers, so this one rule covers
    keyboard Tab, j/k, and any future scrollIntoView() call alike. */
 .row{scroll-margin-top:calc(var(--header-h,140px) + 12px);scroll-margin-bottom:76px}
+
+/* ---------- 🗺 Map view ---------- */
+.mapwrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;margin-top:8px}
+.mapwrap svg{width:100%;height:auto;display:block}
+.mapland{fill:var(--panel2);stroke:var(--line);stroke-width:2.5;stroke-linejoin:round}
+.rglabel{font-size:15px;font-weight:800;letter-spacing:3px;text-anchor:middle;pointer-events:none;opacity:.9}
+.rglegend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:6px 0 2px;font-size:12px;color:var(--mut)}
+.rglegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.mapdemand circle{stroke-width:1.2}
+.mapdemand text{fill:var(--mut);font-size:12px;text-anchor:middle;pointer-events:none}
+.mappin{cursor:pointer}
+.mappin circle{stroke-width:2}
+.mappin.hasq circle{fill:#2fbf71;stroke:#1d7a49}
+.mappin.noq circle{fill:#e0a63a;stroke:#96690f}
+.mappin.approx circle{fill-opacity:.25}
+.mappin.sel circle{stroke:var(--ink);stroke-width:3}
+.mappin text{fill:var(--ink);font-size:11px;text-anchor:middle;pointer-events:none;font-weight:600}
+.mappanel{margin-top:10px}
+.maphead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.mapsec{margin:12px 0 6px;font-weight:700}
+.mapseek{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.mapgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;margin-top:8px}
+@media(max-width:900px){.mapgrid{grid-template-columns:1fr}}
+.maphrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.maphrow b{margin-right:auto}
+.maptablewrap{overflow-x:auto;background:var(--panel);border:1px solid var(--line);border-radius:10px}
+.maptable{width:100%;border-collapse:collapse;font-size:13px}
+.maptable th,.maptable td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.maptable th{color:var(--mut);font-weight:600;white-space:nowrap}
+.maptable td:first-child{color:var(--mut);white-space:nowrap}
+.mapmatches td:first-child{color:var(--ink)}
+.mrow{cursor:pointer}
+.mrow:hover td{background:rgba(88,140,255,.07)}
+.mrow.dim{opacity:.45}
+.mrow.selrow td{background:rgba(88,140,255,.14)}
+.fitcell{display:flex;gap:7px;align-items:center;min-width:86px}
+.fitbar{flex:1;height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;min-width:44px}
+.fitbar i{display:block;height:100%;background:linear-gradient(90deg,#e0a63a,#2fbf71);border-radius:4px}
+.chip.vQ{background:rgba(47,191,113,.16);color:#2fbf71}
+.chip.vN{background:rgba(224,166,58,.16);color:#e0a63a}
+.chip.vD{background:rgba(224,73,73,.14);color:#e06060}
+.mappin .ring{fill:none;stroke:#588cff;stroke-width:2;stroke-dasharray:4 3}
+.mapfits{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+
+.msubtabs{display:flex;gap:6px;margin-top:8px}
+.msubtabs .hbtn.on{background:var(--panel2);border-color:#588cff;color:var(--ink)}
+.xrow>td{background:var(--panel2);padding:10px}
+.xslot .maphead{margin-top:6px}
+.mfil th{padding:3px 6px}
+.mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}

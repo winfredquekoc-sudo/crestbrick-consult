@@ -347,7 +347,17 @@ function lastMessageContext(t) {
   if (!t.last_wa || t.last_wa.from_me || !t.last_wa.snippet) return "";
   return "You mentioned “" + t.last_wa.snippet + "”";
 }
+function draftAddr(l) {
+  // first outreach never carries the unit number (same rule as the intake engine:
+  // "I will send the unit number nearer") and drops parenthetical DB noise
+  let a = String(l.address || "").replace(/#\d+-\d+[A-Za-z]?/g, "").replace(/\(.*?\)/g, "").replace(/\s{2,}/g, " ").replace(/[ ,]+$/, "").trim();
+  if (!a || a.length < 6) a = listingShort(l) + " in " + areaName(l);
+  return a;
+}
 function draftEN(l, t, slotOverride) {
+  // Winfred's template (20 Aug 2026): address + budget fit + view? — with the close
+  // depending on supply: a landlord-fixed viewing slot is offered as is (those listings
+  // cannot take arbitrary times), anything else asks the tenant for their dates.
   const fn = fname(t.name), area = areaName(l);
   const hasBudget = t.budget != null || t.budget_max != null;
   if (!hasBudget) {
@@ -356,11 +366,10 @@ function draftEN(l, t, slotOverride) {
   const unit = Scoring.bestUnit(l, t).unit;
   const unitLabel = unitTypeLabel(unit && unit.unit_type);
   const rt = rentTxtForUnit(unit, l);
-  const ctx = lastMessageContext(t);
-  const slot = slotOverride || draftSlot(l, t);
-  let msg = "Hi " + fn + ", saw you are looking around " + area + ". I have a " + unitLabel + " at " + l.name + " that fits your budget at " + rt + ".";
-  if (ctx) msg += " " + ctx + ".";
-  msg += " Viewing this " + slot + ", can you make it?";
+  let msg = "Hi " + fn + ", I have a " + unitLabel + " rental at " + draftAddr(l) + " that fits your budget at " + rt + ". Would you like to view it?";
+  const fixedSlot = slotOverride || ((l.fixed_viewing && l.fixed_viewing.weekday && l.fixed_viewing.time_label) ? draftSlot(l, t) : "");
+  if (fixedSlot) msg += " The landlord does viewings " + fixedSlot + ", can you make it?";
+  else msg += " Please give me a few available dates and times.";
   return msg;
 }
 function draftZH(l, t, slotOverride) {
@@ -440,15 +449,15 @@ function waLink(l, t) {
 }
 function waPlain(phone, msg) { const p = normPhone(phone); return p ? ("https://wa.me/" + p + (msg ? "?text=" + encodeURIComponent(msg) : "")) : ""; }
 function mapLink(l) { return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(l.map_query || areaName(l)); }
-function coldTitle() { return "quiet >30 days — dead per your rule"; }
+function coldTitle() { return "quiet >45 days — dead per your rule"; }
 // The DEAD lead rule, in ONE place. Every tenant facing action (draft body,
 // copy, call, WhatsApp, queue) asks this and nothing else, so the badge on a row
 // and what that row will actually let you do can never drift apart again.
 //
-// This asks isDeadFromDays (30 days), NOT isColdFromDays (5). The two were the
+// This asks isDeadFromDays (DEAD_DAYS_THRESHOLD, 45 since 21 Aug 2026), NOT isColdFromDays (5). The two were the
 // same constant until 13 Aug 2026, which meant the 5 day ranking signal was also
 // gagging outreach: 151 of 218 tenants were unreachable when Winfred's actual
-// rule — widened from 5 to 14 to 30 — should have blocked 68. Cold still drives
+// rule — widened from 5 to 14 to 30, then 45 (21 Aug 2026) — should have blocked 68. Cold still drives
 // ranking, the freshness score and the amber badge; only dead blocks a send.
 //
 // Landlord and co-broke contact is exempt by design: pass the listing and a
@@ -490,7 +499,7 @@ function coldRefusalHtml(t) {
   const dc = coldDaysOf(t);
   return '<div class="draftlabel">No draft</div><div class="draftbox mut">' +
     esc(fname(t.name)) + ' last replied ' + esc(daysAgoLabel(dc)) +
-    '. Dead per your 30 day rule, so no message is drafted here. Landlord and co-broke contact is unaffected.</div>';
+    '. Dead per your 45 day rule, so no message is drafted here. Landlord and co-broke contact is unaffected.</div>';
 }
 // Single choke point for every WhatsApp/Call button in a modal or popover
 // (viewing pack, shortlist draft, reconfirm draft, ...) — keeps the dead lead
@@ -1425,7 +1434,7 @@ function bulkApplyMark(matches, patch, label) {
 
 // ===================== scoring integration (override aware) =====================
 function effective(m) { const ov = readOverride(m.l.id, m.t.id); return ov ? Scoring.applyOverride(m.s, ov) : m.s; }
-function worklistRank(m) { return m.s.total * Scoring.urgencyMult(m.t, TODAY); }
+function worklistRank(m) { return (m.t.priority ? 1e9 : 0) + m.s.total * Scoring.urgencyMult(m.t, TODAY); }
 function isSnoozedNow(m) {
   const mk = readMark(m.l.id, m.t.id);
   if (!mk || !mk.snooze_until) return false;
@@ -1518,7 +1527,7 @@ function scoreBar(p, total) {
   const fitTotal = total != null ? total : (p.budget + p.location + p.lease + p.movein + p.fresh);
   return '<span class="sb" role="img" aria-label="' + esc("fit " + fitTotal + " of 100") + '" title="budget ' + p.budget + ' · location ' + p.location + ' · lease ' + p.lease + ' · move in ' + p.movein + ' · fresh ' + p.fresh + '">' + seg.map(s => '<i style="width:' + s[1] + 'px;background:' + s[0] + '"></i>').join('') + '</span>';
 }
-function coldChip(dc) { if (dc == null) return '<span class="chip">no contact date</span>'; if (dc <= 5) return '<span class="chip g">heard ' + dc + 'd ago</span>'; if (dc <= 30) return '<span class="chip a">cold ' + dc + 'd</span>'; return '<span class="chip r">stale ' + dc + 'd</span>'; }
+function coldChip(dc) { if (dc == null) return '<span class="chip">no contact date</span>'; if (dc <= 5) return '<span class="chip g">heard ' + dc + 'd ago</span>'; if (dc <= 45) return '<span class="chip a">cold ' + dc + 'd</span>'; return '<span class="chip r">stale ' + dc + 'd</span>'; }
 
 function explainHtml(l, t, m, eff) {
   const parts = [];
@@ -1776,6 +1785,12 @@ function matchRow(m, showListing, opts) {
   row.dataset.l = l.id; row.dataset.t = t.id;
 
   const badges = [];
+  // (76) URGENT = gave us >=10/14 profile fields AND told us they will pay the agent fee.
+  // Leads the badge list on purpose: it is the only badge that means "work this one first".
+  if (t.priority) badges.push('<span class="badge urgent">PRIORITY</span>');
+  if (t.segment === 'URGENT') badges.push('<span class="badge urgent">URGENT · pays fee</span>');
+  else if (t.segment === 'FEE WILLING') badges.push('<span class="badge urgent">pays fee</span>');
+  else if (t.segment === 'INFO RICH') badges.push('<span class="badge inforich">full profile</span>');
   if (t._scratch) badges.push('<span class="badge scratch">scratch</span>');
   if (eff.overridden) badges.push('<span class="badge overridden">overridden</span>');
   if (declinedSimilar) badges.push('<span class="badge declined">declined similar</span>');
@@ -1869,15 +1884,25 @@ function renderNearMissSection(container, matches, showListing) {
 // tier text is produced and every render after that omits the live-region
 // markup — the banner still shows, it just stops re-announcing itself.
 let AGE_BANNER_ANNOUNCED = false;
+// "21 Aug 2026, 02:25" from generated_ts's own string — the ts is already SGT,
+// so never route it through Date(): a viewer in another timezone would see the
+// refresh time shifted and think the data is fresher/staler than it is.
+function stampLabel() {
+  const m = String(DATA.generated_ts || "").match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/);
+  if (!m) return String(DATA.generated || "");
+  const MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return (+m[3]) + " " + MON[+m[2] - 1] + " " + m[1] + ", " + m[4] + ":" + m[5];
+}
 function dataAgeBannerHtml() {
   const t = Scoring.dataAgeTier(DATA.generated_ts || DATA.generated, NOW_REAL_SGT);
+  const asOf = esc(stampLabel());
   if (t.tier === "red") {
     const live = AGE_BANNER_ANNOUNCED ? "" : ' role="alert" aria-live="assertive"';
     AGE_BANNER_ANNOUNCED = true;
-    return '<div class="wm banner-red"' + live + '>🔴 Data is ' + esc(t.days) + ' days old — rebuild: <code>python3 scripts/matchmaker/build.py</code>.</div>';
+    return '<div class="wm banner-red"' + live + '>🔴 Data is ' + esc(t.days) + ' days old (last update ' + asOf + ') — rebuild: <code>python3 scripts/matchmaker/build.py</code>.</div>';
   }
-  if (t.tier === "amber") return '<div class="wm banner-amber">🟡 Data is ' + esc(t.days) + ' days old (from ' + esc(DATA.generated) + '). Ask Winfred to refresh it so you are working today\'s rooms and tenants.</div>';
-  if (t.tier === "green") return '<span class="agedot" title="data is ' + esc(t.days) + ' day(s) old">🟢 up to date</span>';
+  if (t.tier === "amber") return '<div class="wm banner-amber">🟡 Data is ' + esc(t.days) + ' days old (last update ' + asOf + '). Ask Winfred to refresh it so you are working today\'s rooms and tenants.</div>';
+  if (t.tier === "green") return '<span class="agedot" title="data is ' + esc(t.days) + ' day(s) old">🟢 up to date as of ' + asOf + '</span>';
   return "";
 }
 // (56) real header height, for the sticky context bar's CSS offset (see
@@ -1900,7 +1925,7 @@ function render() {
     '<div class="kpi"><b>' + (DATA.listings || []).length + '</b> available listings</div>' +
     '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
     '<div class="kpi"><b>' + MATCHES.filter(m => effective(m).verdict === "QUALIFIED").length + '</b> qualified matches</div>';
-  ["work", "pipeline", "listing", "tenant", "whole", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
+  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
   document.querySelectorAll("#tabs .tab").forEach(tb => {
     const on = tb.dataset.v === view;
     tb.classList.toggle("on", on);
@@ -1911,6 +1936,7 @@ function render() {
   if (view === "listing") renderListingRail();
   if (view === "tenant") renderTenantRail();
   if (view === "whole") renderWholeUnit();
+  if (view === "mapview") renderMapView();
   if (view === "stats") renderStats();
   if (view === "landlords") renderLandlordsRoster();
   if (view === "alltenants") renderAllTenantsRoster();
@@ -1918,7 +1944,7 @@ function render() {
   if (view === "revival") renderRevival();
   CRM.paint();
   $("#legend").innerHTML = "Score = budget 30 + location 25 + lease 15 + move in 15 + freshness 15 (urgency and MRT adjacency can add a little more, capped at 100). ⚑ flags are landlord preference gates (gender, ethnicity, pax) or budget/lease gaps — a red conflict still shows so you can judge, it is not auto hidden. " +
-    "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over 30 days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
+    "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over 45 days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
     (CRM.mode === "local" ? "The 🗂 CRM drawer and Pipeline tab are saved on this device only — no cloud backend is configured." : "The 🗂 CRM drawer and Pipeline tab sync to your private CRM database and survive a rebuild.") +
     " PDPA: keep this file private.";
   const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + snoozedActive().length + '</span>';
@@ -2116,7 +2142,7 @@ function triageAction(key, m) {
   if (!m) return;
   // Queueing a cold tenant is refused here as well as in the Mark dropdown —
   // this is the keyboard q / triage bar route into the same outbound action.
-  if (key === "q" && coldBlocked(m.l, m.t)) { toast(fname(m.t.name) + " is quiet over 30 days — not queueing"); return; }
+  if (key === "q" && coldBlocked(m.l, m.t)) { toast(fname(m.t.name) + " is quiet over 45 days — not queueing"); return; }
   // c/v/q now route through the exact same calls the row's own Mark dropdown
   // uses (wireRowEvents' mkSel.onchange) instead of a separate raw patchMark:
   // the keyboard/triage-bar path is the FAST, high frequency one, so it is
@@ -2528,7 +2554,7 @@ function wireBatchBuilder(container, l) {
     // but a stale batchSelection must not slip one through either.
     const chosen = ids.map(id => (byListing[l.id] || []).find(x => x.t.id === id)).filter(Boolean).filter(m => !coldBlocked(l, m.t));
     const out = $("#batchout"); out.innerHTML = "";
-    if (chosen.length < 2) { toast("Need at least 2 tenants who are not quiet over 30 days"); return; }
+    if (chosen.length < 2) { toast("Need at least 2 tenants who are not quiet over 45 days"); return; }
     const clashes = busyBlockClashes(dateI.value, hh0 * 60 + mm0, hh0 * 60 + mm0 + chosen.length * interval);
     if (clashes.length) out.appendChild(el("div", "wm banner-amber", "⚠ Clashes with: " + esc(clashes.join(", ")) + " — double check before sending"));
     let summary = "Viewings " + dateI.value + " at " + l.name + ":\n";
@@ -2564,7 +2590,7 @@ function renderTenantRail() {
   const f = F();
   let ts = [...ALL_TENANTS];
   if (f.q) ts = ts.filter(t => (t.name + " " + t.preferred_location + " " + t.district + " " + (t.nationality || "") + " " + (t.phone || "")).toLowerCase().includes(f.q));
-  ts.sort((a, b) => (byTenant[b.id]?.[0]?.s.total || 0) - (byTenant[a.id]?.[0]?.s.total || 0));
+  ts.sort((a, b) => ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)) || (byTenant[b.id]?.[0]?.s.total || 0) - (byTenant[a.id]?.[0]?.s.total || 0));
   if (!ts.length) { rail.appendChild(el("div", "empty", "No tenants match this search. Try clearing the search box above.")); return; }
   const shown = ts.slice(0, tenantRailLimit);
   shown.forEach(t => {
@@ -2749,7 +2775,7 @@ function genderChip(t) {
     // first name is not an option either: this book is Malaysian, Indian, Chinese and
     // Indonesian names, where that inference is unreliable.
     // So the blank offers a quiet one-tap ask and otherwise stays out of the way.
-    // Still honours the dead-lead rule — no ask link past the 30 day cutoff.
+    // Still honours the dead-lead rule — no ask link past the 45 day cutoff.
     const askable = t && t.phone && !coldBlocked(null, t);
     if (askable) {
       // oneQuestionDraft is v2's existing single-missing-field ask, so this reuses the
@@ -2924,7 +2950,7 @@ function allTenantRow(t) {
     // coldBlocked(null, t), NOT false. This row builder was copied from the landlord
     // one, where a hardcoded false is correct because landlords are exempt. Carried onto
     // a TENANT row it bypassed the dead-lead rule entirely: 154 live wa.me links, 72 of
-    // them to tenants over 30 days quiet, each with the message body already composed.
+    // them to tenants over 45 days quiet, each with the message body already composed.
     ? '<div class="acts">' + areaHtml + ' ' + waButtonHtml(t.phone, coldBlocked(null, t) ? "" : tenantCheckInDraft(t), "WhatsApp", coldBlocked(null, t)) + callButtonHtml(t.phone, "Call", coldBlocked(null, t)) +
         (!t.phone ? '<span class="btn mut">no phone on file</span>' : '') + crmBtn("tenant", t) + '</div>'
     : '<div class="acts"><span class="btn mut">' + esc(String(t.looking || "").toLowerCase()) + ' — no contact action</span>' + crmBtn("tenant", t) + '</div>';
@@ -2959,7 +2985,7 @@ function renderAllTenantsRoster() {
   }
   if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
 
-  ts.sort((a, b) => String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
+  ts.sort((a, b) => ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)) || String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
 
   let shown = 0, curGroup = null;
   for (const t of ts) {
@@ -3704,6 +3730,456 @@ function promptDeviceName(force) {
   wrap.querySelector("[data-skip]").onclick = () => wrap.remove();
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
+
+// ---------- 🗺 Map dashboard (20 Aug 2026) ----------
+// One connected surface: pin -> landlord details + scored tenant table -> tenant profile
+// -> that tenant's other strong fits -> click one -> the map jumps there. "Fit" is the
+// Scoring.score total (0-100) with the landlord-requirement gates as named blockers — it
+// is a ranked fit, not a literal probability, and manual overrides (effective()) apply
+// here exactly as on the roster tabs so the two views can never disagree.
+const MAP_CENTROIDS = { D1:[1.284,103.851],D2:[1.276,103.846],D3:[1.290,103.805],D4:[1.271,103.820],
+  D5:[1.293,103.770],D6:[1.290,103.850],D7:[1.302,103.856],D8:[1.311,103.856],D9:[1.305,103.832],
+  D10:[1.315,103.807],D11:[1.325,103.837],D12:[1.327,103.855],D13:[1.331,103.878],D14:[1.318,103.890],
+  D15:[1.303,103.902],D16:[1.323,103.930],D17:[1.357,103.988],D18:[1.352,103.944],D19:[1.368,103.890],
+  D20:[1.360,103.840],D21:[1.335,103.776],D22:[1.339,103.707],D23:[1.377,103.763],D24:[1.398,103.700],
+  D25:[1.437,103.786],D26:[1.398,103.823],D27:[1.428,103.835],D28:[1.397,103.873] };
+const MAP_ADJ = { D1:["D2","D4","D6","D7"],D2:["D1","D3","D4"],D3:["D2","D4","D5","D10"],
+  D4:["D1","D2","D3","D5"],D5:["D3","D4","D10","D21","D22"],D6:["D1","D7","D9"],
+  D7:["D1","D6","D8","D9","D12","D14"],D8:["D7","D9","D11","D12","D13"],D9:["D6","D7","D8","D10","D11"],
+  D10:["D3","D5","D9","D11","D21"],D11:["D8","D9","D10","D12","D20","D26"],D12:["D7","D8","D11","D13","D20"],
+  D13:["D8","D12","D14","D19","D20"],D14:["D7","D13","D15","D16","D19"],D15:["D14","D16"],
+  D16:["D14","D15","D17","D18"],D17:["D16","D18"],D18:["D16","D17","D19","D28"],
+  D19:["D13","D14","D18","D20","D28"],D20:["D11","D12","D13","D19","D26","D28"],D21:["D5","D10","D23"],
+  D22:["D5","D23","D24"],D23:["D21","D22","D24","D25"],D24:["D22","D23","D25"],D25:["D23","D24","D26","D27"],
+  D26:["D11","D20","D25","D27","D28"],D27:["D25","D26","D28"],D28:["D18","D19","D20","D26","D27"] };
+const MAP_OUTLINE = [[103.605,1.265],[103.66,1.255],[103.72,1.27],[103.76,1.27],[103.80,1.26],
+  [103.85,1.265],[103.87,1.295],[103.91,1.30],[103.965,1.315],[104.025,1.32],[104.045,1.335],
+  [104.02,1.365],[103.98,1.38],[103.945,1.405],[103.905,1.415],[103.875,1.44],[103.835,1.445],
+  [103.79,1.455],[103.755,1.44],[103.73,1.445],[103.70,1.42],[103.675,1.395],[103.64,1.36],[103.615,1.32]];
+// Region segmentation (Winfred, 21 Aug 2026: "segment it according to locations").
+// Property-market convention, not URA gospel: D13 stays Central (Macpherson/
+// Braddell reads city-fringe to tenants), D21 goes West (Clementi corridor).
+const MAP_REGIONS = [
+  { key: "west",    label: "WEST",       color: "88,166,255", dists: ["D5","D21","D22","D23","D24"] },
+  { key: "north",   label: "NORTH",      color: "108,204,140", dists: ["D25","D26","D27"] },
+  { key: "ne",      label: "NORTH-EAST", color: "240,130,170", dists: ["D19","D20","D28"] },
+  { key: "east",    label: "EAST",       color: "245,185,80",  dists: ["D14","D15","D16","D17","D18"] },
+  { key: "central", label: "CENTRAL",    color: "178,140,235", dists: ["D1","D2","D3","D4","D6","D7","D8","D9","D10","D11","D12","D13"] },
+];
+const REGION_OF = {};
+MAP_REGIONS.forEach(r => r.dists.forEach(d => { REGION_OF[d] = r; }));
+// Andrew monotone-chain convex hull — regions have 3-12 static points, cost is nil.
+function hull(pts) {
+  const p = [...pts].sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  if (p.length < 3) return p;
+  const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const lo = [], up = [];
+  for (const q of p) { while (lo.length > 1 && cross(lo[lo.length - 2], lo[lo.length - 1], q) <= 0) lo.pop(); lo.push(q); }
+  for (const q of p.reverse()) { while (up.length > 1 && cross(up[up.length - 2], up[up.length - 1], q) <= 0) up.pop(); up.push(q); }
+  return lo.slice(0, -1).concat(up.slice(0, -1));
+}
+// Closed Catmull-Rom-ish smoothing via quadratic midpoints — turns both the
+// island outline and the region hulls from hard-cornered blobs into coastlines.
+function smoothPath(pts) {
+  if (pts.length < 3) return "";
+  const mid = (a, b) => [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2];
+  let d = "M" + mid(pts[0], pts[1]).map(n => n.toFixed(1)).join(",");
+  for (let i = 1; i <= pts.length; i++) {
+    const p = pts[i % pts.length], m = mid(p, pts[(i + 1) % pts.length]);
+    d += " Q" + p.map(n => n.toFixed(1)).join(",") + " " + m.map(n => n.toFixed(1)).join(",");
+  }
+  return d + " Z";
+}
+let mapSelected = null, mapTenantSel = null, mapShowAll = false;
+let mapSubTab = "map", mapLLExpand = null, mapTNExpand = null, mapTNAll = false;
+function mapProject(lat, lng) {
+  const W = 1000, H = 660, LN0 = 103.59, LN1 = 104.06, LA0 = 1.14, LA1 = 1.48;
+  return [(lng - LN0) / (LN1 - LN0) * W, (LA1 - lat) / (LA1 - LA0) * H];
+}
+function mapFitLabel(m) {
+  // real verdict domain is BLOCKED / NEEDS_INFO / QUALIFIED (scoring.js) — the first
+  // map cut checked DISQUALIFIED/NEAR, which never match, and mislabelled blocked
+  // tenants as fits (caught 20 Aug 2026 when the Blocked filter matched 0 of 247)
+  const eff = effective(m);
+  if (eff.verdict === "BLOCKED") return ["Blocked", "vD"];
+  if (eff.verdict === "NEEDS_INFO") return ["Needs info", "vN"];
+  return [m.s.total >= 80 ? "Strong fit" : (m.s.total >= 60 ? "Good fit" : "Possible"), "vQ"];
+}
+function renderMapView() {
+  const box = $("#mapview"); box.innerHTML = "";
+  box.appendChild(el("div", "help",
+    "🗺 <b>Map dashboard.</b> Bubbles = tenant demand per district. Pins = live listings (green has qualified " +
+    "matches, amber none yet, hollow = district-centre position only). Click a pin → landlord details + every " +
+    "tenant scored against that unit. Click a tenant row → full profile. A selected tenant's other strong fits " +
+    "glow dashed on the map — click one to jump. Fit % is the same score as every other tab, not a guarantee."));
+  const demand = {};
+  ALL_TENANTS.forEach(t => (t.preferred_districts || []).forEach(k => { demand[k] = (demand[k] || 0) + 1; }));
+  const stb = el("div", "msubtabs");
+  [["map", "🗺 Map"], ["ll", "🏢 Landlords"], ["tn", "🙋 Tenants"]].forEach(([k, lab]) => {
+    const b = el("button", "hbtn" + (mapSubTab === k ? " on" : ""), lab);
+    b.onclick = () => { mapSubTab = k; renderMapView(); };
+    stb.appendChild(b);
+  });
+  box.appendChild(stb);
+  if (mapSubTab === "ll") { renderMapLLTable(box, demand); return; }
+  if (mapSubTab === "tn") { renderMapTNTable(box, demand); return; }
+  const tenSel = ALL_TENANTS.find(x => x.id === mapTenantSel) || null;
+  const tenTop = new Set(tenSel ? (byTenant[tenSel.id] || []).slice(0, 5).map(m => m.l.id) : []);
+  const parts = [];
+  parts.push('<defs><filter id="rgblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="14"/></filter></defs>');
+  parts.push('<path class="mapland" d="' + smoothPath(MAP_OUTLINE.map(c => mapProject(c[1], c[0]))) + '"/>');
+  // Region zones: blurred fat-stroked hull over each region's district centroids,
+  // clipped to nothing (pure backdrop) — the segmentation the pins sit on.
+  for (const rg of MAP_REGIONS) {
+    const pts = rg.dists.map(d => MAP_CENTROIDS[d]).filter(Boolean).map(c => mapProject(c[0], c[1]));
+    if (pts.length < 2) continue;
+    const h = hull(pts);
+    const d = h.length >= 3 ? smoothPath(h)
+      : "M" + pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" L");
+    parts.push('<path class="rgzone" filter="url(#rgblur)" ' +
+      'style="fill:rgba(' + rg.color + ',.13);stroke:rgba(' + rg.color + ',.38);stroke-width:46;stroke-linejoin:round;stroke-linecap:round" d="' + d + '"/>');
+    const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
+    const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
+    // label offsets keep CENTRAL/EAST caps clear of the dense downtown bubbles
+    const dy = rg.key === "central" ? 58 : rg.key === "east" ? 44 : -34;
+    parts.push('<text class="rglabel" x="' + cx.toFixed(1) + '" y="' + (cy + dy).toFixed(1) +
+      '" style="fill:rgba(' + rg.color + ',.75)">' + rg.label + '</text>');
+  }
+  const maxD = Math.max(1, ...Object.values(demand));
+  for (const [dk, n] of Object.entries(demand)) {
+    const c = MAP_CENTROIDS[dk]; if (!c) continue;
+    const [x, y] = mapProject(c[0], c[1]);
+    const r = 8 + Math.sqrt(n / maxD) * 26;
+    const rc = (REGION_OF[dk] || {}).color || "88,140,255";
+    parts.push('<g class="mapdemand"><circle style="fill:rgba(' + rc + ',.16);stroke:rgba(' + rc + ',.5)" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r.toFixed(1) + '"/>' +
+      '<text x="' + x.toFixed(1) + '" y="' + (y + 3.5).toFixed(1) + '">' + esc(dk) + '·' + n + '</text></g>');
+  }
+  const seen = {};
+  (DATA.listings || []).forEach(l => {
+    if (l.lat == null) return;
+    let [x, y] = mapProject(l.lat, l.lng);
+    const key = x.toFixed(0) + "," + y.toFixed(0);
+    const k = (seen[key] = (seen[key] || 0) + 1) - 1;
+    if (k > 0) { x += 16 * Math.cos(k * 2.4); y += 16 * Math.sin(k * 2.4); }
+    const q = qualifiedCount(l), sel = mapSelected === l.id;
+    parts.push('<g class="mappin ' + (q > 0 ? "hasq" : "noq") + (l.geo_src === "approx" ? " approx" : "") +
+      (sel ? " sel" : "") + (tenTop.has(l.id) ? " tfit" : "") +
+      '" data-l="' + esc(l.id) + '" role="button" tabindex="0" aria-label="' + esc(listingShort(l)) + '">' +
+      (tenTop.has(l.id) ? '<circle class="ring" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="15"/>' : '') +
+      '<circle cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + (sel ? 11 : 8) + '"/>' +
+      '<text x="' + x.toFixed(1) + '" y="' + (y - 13).toFixed(1) + '">' + esc(l.district || "") + (q > 0 ? " ✓" + q : "") + '</text></g>');
+  });
+  const grid = el("div", "mapgrid");
+  const left = el("div", "mapleft");
+  left.appendChild(el("div", "mapwrap",
+    '<svg viewBox="0 0 1000 660" preserveAspectRatio="xMidYMid meet" aria-label="Singapore listings map">' + parts.join("") + '</svg>' +
+    '<div class="rglegend">' + MAP_REGIONS.map(rg =>
+      '<span><i style="background:rgba(' + rg.color + ',.55)"></i>' + rg.label.charAt(0) + rg.label.slice(1).toLowerCase() + '</span>').join("") +
+    '</div>'));
+  const right = el("div", "mapright");
+  grid.appendChild(left); grid.appendChild(right);
+  box.appendChild(grid);
+  const tableBox = el("div"); box.appendChild(tableBox);
+  const profBox = el("div"); box.appendChild(profBox);
+  left.querySelectorAll(".mappin").forEach(g => {
+    const act = () => { mapSelected = (mapSelected === g.dataset.l ? null : g.dataset.l); mapShowAll = false; renderMapView(); };
+    g.onclick = act;
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
+  });
+  const l = (DATA.listings || []).find(x => x.id === mapSelected);
+  if (l) {
+    renderMapLL(l, right, demand);
+    renderMapMatches(l, tableBox);
+    if (tenSel) renderMapProfile(tenSel, l, profBox);
+  } else {
+    renderMapOverview(right, demand);
+  }
+}
+function renderMapOverview(panel, demand) {
+  const supply = {};
+  (DATA.listings || []).forEach(l => { if (l.district) supply[l.district] = (supply[l.district] || 0) + 1; });
+  const rows = Object.keys(demand).sort((a, b) => demand[b] - demand[a]).slice(0, 10).map(d =>
+    '<tr><td>' + esc(d) + ' <span class="mut">' + esc(AREA[d] || "") + '</span></td>' +
+    '<td>' + demand[d] + '</td><td>' + (supply[d] || 0) + '</td>' +
+    '<td>' + ((supply[d] || 0) === 0 ? '<span class="chip vD">no stock</span>' : "") + '</td></tr>').join("");
+  panel.appendChild(el("div", "maphead",
+    '<b>Demand vs your supply</b><div class="mut" style="margin:4px 0 8px">Click a pin for landlord details, ' +
+    'scored tenants and profiles. Districts below are where tenants are asking and you have little or nothing.</div>' +
+    '<table class="maptable"><thead><tr><th>District</th><th>Want it</th><th>Your listings</th><th></th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>'));
+}
+function renderMapLLTable(box, demand) {
+  const ls = [...(DATA.listings || [])].sort((a, b) => (a.district || "").localeCompare(b.district || "") || (a.id || "").localeCompare(b.id || ""));
+  box.appendChild(el("div", "mapsec", "🏢 Live landlord supply (" + ls.length + ") — click a row for details and the same actions as Today's Worklist"));
+  const rows = ls.map(l =>
+    '<tr class="mrow' + (mapLLExpand === l.id ? " selrow" : "") + '" data-l="' + esc(l.id) + '">' +
+    '<td>' + esc(l.id) + '</td>' +
+    '<td><b>' + esc(l.name || "—") + '</b></td>' +
+    '<td>' + (l.phone ? ('<a href="tel:' + esc(l.phone) + '" onclick="event.stopPropagation()">' + esc(l.phone) + '</a>' +
+      ' · <a href="' + esc(waPlain(l.phone, "")) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">WA</a>') : "—") + '</td>' +
+    '<td>' + esc(l.district || "?") + ' <span class="mut">' + esc(AREA[l.district] || "") + '</span></td>' +
+    '<td>' + esc(String(l.address || "").slice(0, 44)) + '</td>' +
+    '<td>' + esc(rentTxt(l)) + '</td>' +
+    '<td>' + esc(l.availability || "") + '</td>' +
+    '<td>' + esc(l.viewing || "—") + '</td>' +
+    '<td>' + (l.days_listed != null ? esc(l.days_listed) + "d" : "—") + '</td>' +
+    '<td>' + qualifiedCount(l) + ' ✓ / ' + (demand[l.district] || 0) + ' want ' + esc(l.district || "") + '</td>' +
+    '</tr>' +
+    (mapLLExpand === l.id ? '<tr class="xrow"><td colspan="10"><div class="xslot" data-x="' + esc(l.id) + '"></div></td></tr>' : "")
+  ).join("");
+  box.appendChild(el("div", "maptablewrap",
+    '<table class="maptable mapmatches"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
+    '<th>Address</th><th>Rent</th><th>Status</th><th>Viewing</th><th>Listed</th><th>Matches / demand</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>'));
+  box.querySelectorAll(".mrow").forEach(r => {
+    r.onclick = () => { mapLLExpand = (mapLLExpand === r.dataset.l ? null : r.dataset.l); renderMapView(); };
+  });
+  const slot = box.querySelector(".xslot");
+  if (slot) {
+    const l = ls.find(x => x.id === mapLLExpand);
+    const go = el("button", "hbtn", "Show on map 🗺");
+    go.onclick = (e) => { e.stopPropagation(); mapSelected = l.id; mapTenantSel = null; mapSubTab = "map"; renderMapView(); };
+    slot.appendChild(go);
+    renderMapLL(l, slot, demand);
+    slot.appendChild(el("div", "mapsec", "Top tenants for this unit — worklist actions apply"));
+    (byListing[l.id] || []).filter(m => effective(m).verdict !== "BLOCKED").slice(0, 5)
+      .forEach(m => slot.appendChild(matchRow(m, false, {})));
+    slot.onclick = (e) => e.stopPropagation();
+  }
+}
+function renderMapTNTable(box, demand) {
+  const ts = [...ALL_TENANTS].sort((a, b) => ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)) || ((byTenant[b.id] || [{ s: { total: 0 } }])[0].s.total) - ((byTenant[a.id] || [{ s: { total: 0 } }])[0].s.total));
+  const shown = mapTNAll ? ts : ts.slice(0, 100);
+  box.appendChild(el("div", "mapsec", "🙋 Tenants still looking (" + ts.length + ", best fit first) — click a row for the profile and the same actions as Today's Worklist"));
+  const rows = shown.map(t => {
+    const best = (byTenant[t.id] || [])[0];
+    const cold = Scoring.isCold(t, TODAY);
+    const waT = (!cold && t.phone) ? waPlain(t.phone, "") : "";
+    return '<tr class="mrow' + (mapTNExpand === t.id ? " selrow" : "") + '" data-t="' + esc(t.id) + '">' +
+    '<td><b>' + esc(t.name || t.id) + '</b>' + (t.priority ? ' <span class="badge urgent">priority</span>' : '') + (t.segment ? ' <span class="badge ' + (t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
+    '<td>' + (t.phone ? ('<a href="tel:' + esc(t.phone) + '" onclick="event.stopPropagation()">' + esc(t.phone) + '</a>' +
+      (waT ? ' · <a href="' + esc(waT) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">WA</a>'
+           : (cold ? ' <span class="chip mut">cold</span>' : ""))) : "—") + '</td>' +
+    '<td>' + esc(t.budget || t.budget_max || "?") + '</td>' +
+    '<td>' + esc(t.pax || "?") + '</td>' +
+    '<td>' + esc([t.pass_type, t.nationality].filter(Boolean).join(" ")) + '</td>' +
+    '<td>' + esc(t.move_in || "?") + '</td>' +
+    '<td>' + esc(t.lease_months ? t.lease_months + "mo" : "?") + '</td>' +
+    '<td>' + esc((t.preferred_districts || []).join(" ") || t.district || "?") + '</td>' +
+    '<td>' + esc(t.last_contact || "—") + '</td>' +
+    '<td>' + (best ? (esc(listingShort(best.l)).slice(0, 26) + " · <b>" + best.s.total + "</b>") : "—") + '</td>' +
+    '</tr>' +
+    (mapTNExpand === t.id ? '<tr class="xrow"><td colspan="10"><div class="xslot" data-x="' + esc(t.id) + '"></div></td></tr>' : "");
+  }).join("");
+  box.appendChild(el("div", "maptablewrap",
+    '<table class="maptable mapmatches"><thead><tr><th>Tenant</th><th>Phone</th><th>Budget</th><th>Pax</th>' +
+    '<th>Pass</th><th>Move in</th><th>Lease</th><th>Wants</th><th>Last contact</th><th>Best fit</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>'));
+  if (!mapTNAll && ts.length > 100) {
+    const b = el("button", "hbtn", "Show all " + ts.length);
+    b.onclick = () => { mapTNAll = true; renderMapView(); };
+    box.appendChild(b);
+  }
+  box.querySelectorAll(".mrow").forEach(r => {
+    r.onclick = () => { mapTNExpand = (mapTNExpand === r.dataset.t ? null : r.dataset.t); renderMapView(); };
+  });
+  const slot = box.querySelector(".xslot");
+  if (slot) {
+    const t = ALL_TENANTS.find(x => x.id === mapTNExpand);
+    const best = (byTenant[t.id] || [])[0];
+    if (best) {
+      const go = el("button", "hbtn", "Show on map 🗺");
+      go.onclick = (e) => { e.stopPropagation(); mapSelected = best.l.id; mapTenantSel = t.id; mapSubTab = "map"; renderMapView(); };
+      slot.appendChild(go);
+    }
+    slot.appendChild(el("div", "mapsec", "Their best rooms — worklist actions apply"));
+    const _cards = (byTenant[t.id] || []).filter(m => effective(m).verdict !== "BLOCKED").slice(0, 3);
+    _cards.forEach(m => slot.appendChild(matchRow(m, true, {})));
+    if (!_cards.length) {
+      const _cold = Scoring.isCold(t, TODAY);
+      const _wa = (!_cold && t.phone) ? waPlain(t.phone, "") : "";
+      slot.appendChild(el("div", "mut", "No unblocked rooms for this tenant right now." +
+        (_wa ? ' <a href="' + esc(_wa) + '" target="_blank" rel="noopener">WhatsApp them directly</a> (no draft — every current unit is gated).'
+             : (_cold ? " Cold over 30 days — no automated contact per standing rule." : ""))));
+    }
+    slot.onclick = (e) => e.stopPropagation();
+  }
+}
+function renderMapLL(l, panel, demand) {
+  const g = l.gates || {};
+  const eth = g.ethnicity && g.ethnicity.rule ? (g.ethnicity.rule + " " + (g.ethnicity.races || []).join("/")) : "";
+  const gate = (lab, v) => v ? '<tr><td>' + lab + '</td><td>' + esc(String(v)) + '</td></tr>' : "";
+  const reqRows = gate("Gender", g.gender && String(g.gender).replace("_", " ")) + gate("Ethnicity", eth) +
+    gate("Max pax", g.max_pax) + gate("Min lease", g.lease_min ? g.lease_min + " mo" : "") +
+    gate("Cooking", g.cooking) + gate("Pets", g.pets) + gate("Smoking", g.smoking) + gate("Occupation", g.occupation) +
+    gate("Other", (l.req_raw && l.req_raw.other) || "");
+  const wa = l.phone ? waPlain(l.phone, "") : "";
+  panel.appendChild(el("div", "maphead",
+    '<div class="maphrow"><b>🏢 ' + esc(listingShort(l)) + '</b>' +
+    '<button class="hbtn" data-act="openlisting">Open in By Listing ↗</button>' +
+    '<button class="hbtn" data-act="clear">✕</button></div>' +
+    '<div style="margin:4px 0">' +
+    '<span class="chip">' + esc(l.district || "?") + " " + esc(AREA[l.district] || "") + '</span>' +
+    '<span class="chip">' + esc(rentTxt(l)) + '</span>' +
+    '<span class="chip">' + esc(l.availability || "") + '</span>' +
+    (l.days_listed != null ? '<span class="chip mut">listed ' + esc(l.days_listed) + 'd</span>' : "") +
+    (l.geo_src === "approx" ? '<span class="chip mut">pin approximate</span>' : "") +
+    '<span class="chip">demand here: ' + (demand[l.district] || 0) + ' tenants</span></div>' +
+    '<table class="maptable"><tbody>' +
+    '<tr><td>Landlord</td><td>' + esc(l.name || "(name not saved)") + '</td></tr>' +
+    '<tr><td>Phone</td><td>' + (l.phone ? ('<a href="tel:' + esc(l.phone) + '">' + esc(l.phone) + '</a>' +
+      (wa ? ' · <a href="' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp</a>' : "")) : "—") + '</td></tr>' +
+    '<tr><td>Address</td><td>' + esc(l.address || "—") +
+      (l.map_query ? ' · <a href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(l.map_query) + '" target="_blank" rel="noopener">Maps</a>' : "") + '</td></tr>' +
+    '<tr><td>Rooms / rent</td><td>' + esc(l.rooms || "—") + '</td></tr>' +
+    '<tr><td>Type</td><td>' + esc(l.property_type || "—") + '</td></tr>' +
+    '<tr><td>Viewing</td><td>' + esc(l.viewing || "ask landlord") + '</td></tr>' +
+    (l.listing_url ? '<tr><td>Listing</td><td><a href="' + esc(l.listing_url) + '" target="_blank" rel="noopener">portal link</a></td></tr>' : "") +
+    (l.photos ? '<tr><td>Photos</td><td><a href="' + esc(l.photos) + '" target="_blank" rel="noopener">album</a></td></tr>' : "") +
+    '</tbody></table>' +
+    (reqRows ? ('<div class="mapsec" style="margin-top:8px">Landlord requirements (the gates the fit score applies)</div>' +
+      '<table class="maptable"><tbody>' + reqRows + '</tbody></table>') : '<div class="mut" style="margin-top:6px">No requirement gates recorded.</div>')));
+  panel.querySelector('[data-act="openlisting"]').onclick = () => { curL = l.id; view = "listing"; render(); };
+  panel.querySelector('[data-act="clear"]').onclick = () => { mapSelected = null; mapTenantSel = null; renderMapView(); };
+}
+let mapMatchFil = { fitMin: "", verdict: "", tenant: "", budget: "", pax: "", gender: "", movein: "", lease: "", pass: "", wants: "", blocker: "" };
+function mapMatchCells(m) {
+  const t = m.t, eff = effective(m), lab = mapFitLabel(m);
+  const cold = Scoring.isCold(t, TODAY);
+  return {
+    fit: m.s.total, verdict: lab[0], vcls: lab[1], dq: eff.verdict === "BLOCKED",
+    tenant: (t.name || t.id) + " " + (t.segment || ""),
+    budget: (t.budget && t.budget_max && String(t.budget) !== String(t.budget_max))
+      ? (t.budget + " to " + t.budget_max) : String(t.budget || t.budget_max || "?"),
+    budgetNum: (() => { const ns = String(t.budget_max || t.budget || "").match(/\d{3,5}/g); return ns ? Math.max(...ns.map(Number)) : null; })(),
+    pax: String(t.pax || "?"), movein: String(t.move_in || "?"),
+    gender: String(t.gender || "?"),
+    genderOk: (() => {
+      const gate = String((m.l.gates || {}).gender || "").toLowerCase();
+      if (!gate) return null;
+      const gl = String(t.gender || "").trim().toLowerCase();
+      if (/couple|\+/.test(gl)) return false;       // any single-gender gate rejects a couple
+      const g = gl.charAt(0);
+      if (g !== "m" && g !== "f") return null;      // unknown gender: no verdict, not a fail
+      return gate.startsWith("female") ? g === "f" : (gate.startsWith("male") ? g === "m" : null);
+    })(),
+    lease: t.lease_months ? t.lease_months + "mo" : "?",
+    pass: [t.pass_type, t.nationality].filter(Boolean).join(" "),
+    wants: [(t.preferred_districts || []).join(" "), t.preferred_location].filter(Boolean).join(" · "),
+    blocker: (eff.verdict !== "QUALIFIED" ? (m.s.flags[0] || "") : "") + (cold ? " cold " + Scoring.coldDays(t, TODAY) + "d" : ""),
+    t: t
+  };
+}
+function mapMatchPass(c) {
+  const f = mapMatchFil;
+  if (f.fitMin !== "" && c.fit < Number(f.fitMin)) return false;
+  if (f.verdict && c.verdict !== f.verdict) return false;
+  // a numeric budget filter means "can pay at least this" (1300 -> 1300 and up);
+  // non numeric input falls back to plain text matching
+  if (f.budget && /^\d+$/.test(f.budget.trim())) {
+    if (c.budgetNum == null || c.budgetNum < Number(f.budget.trim())) return false;
+  } else if (f.budget && c.budget.toLowerCase().indexOf(f.budget.toLowerCase()) === -1) return false;
+  for (const k of ["tenant", "gender", "pax", "movein", "lease", "pass", "wants", "blocker"])
+    if (f[k] && c[k].toLowerCase().indexOf(f[k].toLowerCase()) === -1) return false;
+  return true;
+}
+function renderMapMatches(l, box) {
+  const all = (byListing[l.id] || []).map(mapMatchCells);
+  const sec = el("div");
+  const count = el("div", "mapsec");
+  sec.appendChild(count);
+  const filterRow =
+    '<tr class="mfil">' +
+    '<th><input data-mf="fitMin" type="number" placeholder="min" value="' + esc(mapMatchFil.fitMin) + '"></th>' +
+    '<th><select data-mf="verdict">' + ["", "Strong fit", "Good fit", "Possible", "Needs info", "Blocked"].map(v =>
+      '<option value="' + v + '"' + (mapMatchFil.verdict === v ? " selected" : "") + '>' + (v || "All") + '</option>').join("") + '</select></th>' +
+    ["tenant", "budget", "pax", "gender", "movein", "lease", "pass", "wants", "blocker"].map(k =>
+      '<th><input data-mf="' + k + '" type="text" placeholder="' + (k === "budget" ? "min $" : "filter") + '" value="' + esc(mapMatchFil[k]) + '"></th>').join("") +
+    '</tr>';
+  const wrap = el("div", "maptablewrap",
+    '<table class="maptable mapmatches"><thead><tr><th>Fit</th><th>Verdict</th><th>Tenant</th><th>Budget</th>' +
+    '<th>Pax</th><th>Gender</th><th>Move in</th><th>Lease</th><th>Pass</th><th>Wants (location)</th><th>Blocker / notes</th></tr>' +
+    filterRow + '</thead><tbody></tbody></table>');
+  sec.appendChild(wrap);
+  const moreBtn = el("button", "hbtn"); sec.appendChild(moreBtn);
+  box.appendChild(sec);
+  const body = wrap.querySelector("tbody");
+  const paint = () => {
+    const hits = all.filter(mapMatchPass);
+    const shown = mapShowAll ? hits : hits.slice(0, 25);
+    count.textContent = "🎯 Every tenant scored against " + listingShort(l) + " — showing " + shown.length +
+      " of " + hits.length + (hits.length !== all.length ? " filtered (" + all.length + " total)" : "") +
+      " · click a row for the full profile";
+    body.innerHTML = shown.map(c =>
+      '<tr class="mrow' + (c.dq ? " dim" : "") + (mapTenantSel === c.t.id ? " selrow" : "") + '" data-t="' + esc(c.t.id) + '">' +
+      '<td><div class="fitcell"><div class="fitbar"><i style="width:' + Math.max(2, c.fit) + '%"></i></div><b>' + c.fit + '</b></div></td>' +
+      '<td><span class="chip ' + c.vcls + '">' + c.verdict + '</span></td>' +
+      '<td><b>' + esc(c.t.name || c.t.id) + '</b>' + (c.t.priority ? ' <span class="badge urgent">priority</span>' : '') + (c.t.segment ? ' <span class="badge ' + (c.t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(c.t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
+      '<td>' + esc(c.budget) + '</td><td>' + esc(c.pax) + '</td>' +
+      '<td>' + esc(c.gender) + (c.genderOk === true ? ' <span class="chip vQ">✓</span>' : (c.genderOk === false ? ' <span class="chip vD">✗ gate</span>' : "")) + '</td>' +
+      '<td>' + esc(c.movein) + '</td>' +
+      '<td>' + esc(c.lease) + '</td><td>' + esc(c.pass) + '</td>' +
+      '<td>' + esc(c.wants || "—") + '</td>' +
+      '<td class="mut">' + esc(c.blocker) + '</td></tr>').join("");
+    body.querySelectorAll(".mrow").forEach(r => {
+      r.onclick = () => { mapTenantSel = (mapTenantSel === r.dataset.t ? null : r.dataset.t); renderMapView(); };
+    });
+    if (!mapShowAll && hits.length > 25) {
+      moreBtn.style.display = ""; moreBtn.textContent = "Show all " + hits.length;
+      moreBtn.onclick = () => { mapShowAll = true; paint(); };
+    } else moreBtn.style.display = "none";
+  };
+  // one shared timer, but apply() syncs EVERY input into state — a per-input apply
+  // with a shared timer silently dropped a field edited <140ms before another one
+  let deb = null;
+  const applyAll = () => {
+    wrap.querySelectorAll("[data-mf]").forEach(i => { mapMatchFil[i.dataset.mf] = i.value; });
+    paint();
+  };
+  wrap.querySelectorAll("[data-mf]").forEach(inp => {
+    inp.addEventListener(inp.tagName === "SELECT" ? "change" : "input",
+      () => { clearTimeout(deb); deb = setTimeout(applyAll, 140); });
+    inp.onclick = (e) => e.stopPropagation();
+  });
+  paint();
+}
+function renderMapProfile(t, l, box) {
+  const m = (byListing[l.id] || []).find(x => x.t.id === t.id);
+  const cold = Scoring.isCold(t, TODAY);
+  const wa = (!cold && m) ? waLink(l, t) : "";
+  const row = (lab, v) => '<tr><td>' + lab + '</td><td>' + (v == null || v === "" ? "—" : v) + '</td></tr>';
+  const fits = (byTenant[t.id] || []).filter(x => effective(x).verdict !== "BLOCKED").slice(0, 5);
+  box.appendChild(el("div", "maphead", 
+    '<div class="maphrow"><b>🙋 ' + esc(t.name || t.id) + '</b>' +
+    (m ? '<span class="chip ' + mapFitLabel(m)[1] + '">' + mapFitLabel(m)[0] + ' · ' + m.s.total + '</span>' : "") +
+    '<button class="hbtn" data-act="closep">✕</button></div>' +
+    '<table class="maptable"><tbody>' +
+    row("Phone", t.phone ? ('<a href="tel:' + esc(t.phone) + '">' + esc(t.phone) + '</a>' +
+      (wa ? ' · <a href="' + esc(wa) + '" target="_blank" rel="noopener">WhatsApp draft for this unit</a>' :
+        (cold ? ' · <span class="mut">cold ' + Scoring.coldDays(t, TODAY) + 'd — no auto contact</span>' : ""))) : "—") +
+    row("Budget", esc(t.budget || t.budget_max || "")) + row("Pax", esc(t.pax || "")) +
+    row("Gender", esc(t.gender || "")) + row("Ethnicity / nationality", esc([t.ethnicity, t.nationality].filter(Boolean).join(" · "))) +
+    row("Pass", esc(t.pass_type || "")) + row("Occupation", esc(t.occupation || "")) +
+    row("Move in", esc(t.move_in || "")) + row("Lease", esc(t.lease_months ? t.lease_months + " months" : "")) +
+    row("Wants", esc([(t.preferred_districts || []).join(" "), t.preferred_location].filter(Boolean).join(" · "))) +
+    row("Last contact", esc(t.last_contact || "")) +
+    row("Missing from profile", esc((t.missing || []).join(", "))) +
+    '</tbody></table>' +
+    (m && m.s.flags.length ? ('<div class="mut" style="margin-top:6px">⚑ vs this unit: ' + esc(m.s.flags.join(" · ")) + '</div>') : "") +
+    (fits.length ? ('<div class="mapsec" style="margin-top:8px">This tenant\'s strongest fits (click to jump the map)</div>') : "")));
+  const head = box.lastChild;
+  head.querySelector('[data-act="closep"]').onclick = () => { mapTenantSel = null; renderMapView(); };
+  if (fits.length) {
+    const rowEl = el("div", "mapfits");
+    fits.forEach(x => {
+      const b = el("button", "hbtn", esc(listingShort(x.l)) + " · " + x.s.total);
+      b.onclick = () => { mapSelected = x.l.id; mapShowAll = false; renderMapView(); };
+      rowEl.appendChild(b);
+    });
+    head.appendChild(rowEl);
+  }
+}
+
 function renderStats() {
   const box = $("#stats"); box.innerHTML = "";
   box.appendChild(el("div", "help", "Everything on this tab lives only on this device — nothing is sent anywhere. Export state before switching devices, or before clearing browser data."));
