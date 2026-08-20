@@ -1654,6 +1654,67 @@ def test_js_syntax_gate():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_supply_gap_chase():
+    section("build_supply_gap_chase: who to call in starved districts, exclusions respected")
+    tenants = ([{"preferred_districts": ["D14"]}] * 5
+               + [{"preferred_districts": ["D16"]}] * 12
+               + [{"preferred_districts": ["D9"]}] * 2)
+    listings = [{"district": "D16"}, {"district": "D9"}, {"district": "D9"}]
+    lls = [
+        fake_landlord(id="LLC1", landlord_name="Dormant Gap", status="dormant", district="D14"),
+        fake_landlord(id="LLC2", landlord_name="Stalled Gap", status="stalled", district="D16"),
+        fake_landlord(id="LLC3", landlord_name="Active Gap", status="active", district="D14"),
+        fake_landlord(id="LLC4", landlord_name="Dormant NoGap", status="dormant", district="D9"),
+        fake_landlord(id="LLC5", landlord_name="DNC Gap", status="dormant", district="D14", do_not_contact=True),
+        fake_landlord(id="LLC6", landlord_name="Excluded Gap", status="dormant", district="D14", phone="82890755"),
+        fake_landlord(id="LLC7", landlord_name="Dropped Gap", status="closed (dropped)", district="D14"),
+    ]
+    rows = ed.build_supply_gap_chase(lls, listings, tenants, {"phones": ["82890755"]})
+    got = [r["id"] for r in rows]
+    check("dormant + stalled landlords in gap districts appear", set(got) == {"LLC1", "LLC2"}, str(got))
+    check("active landlords are not chase targets (they are already live)", "LLC3" not in got)
+    check("a district whose demand is met is not a gap", "LLC4" not in got, "D9 has 2 waiting / 2 live")
+    check("do_not_contact never appears", "LLC5" not in got)
+    check("exclusions-config phones never appear (the Anne rule)", "LLC6" not in got)
+    check("closed landlords never appear", "LLC7" not in got)
+    check("rows carry the demand numbers that justify the call",
+          all(("waiting" in r and "live_supply" in r) for r in rows))
+
+
+def test_closes_ledger_and_fee_patterns():
+    section("record_closes: the available -> tenanted transition is stamped once; fee regexes")
+    import tempfile
+    with tempfile.TemporaryDirectory() as td:
+        path = os.path.join(td, "closes.json")
+        prev = {"listings": [{"id": "LLX1"}, {"id": "LLX2"}]}
+        lls = [fake_landlord(id="LLX1", status="closed (tenanted)"),
+               fake_landlord(id="LLX2", status="active"),
+               fake_landlord(id="LLX3", status="closed (tenanted)")]  # never seen live by prev
+        ledger = ed.record_closes(lls, prev, TODAY, path=path)
+        check("a listing live last build and tenanted now is stamped today",
+              ledger.get("LLX1") == TODAY.isoformat(), str(ledger))
+        check("a still-active listing is not stamped", "LLX2" not in ledger)
+        check("a close never observed live is not guessed", "LLX3" not in ledger)
+        again = ed.record_closes(lls, prev, datetime.date(2030, 1, 1), path=path)
+        check("re-running never restamps an existing close (idempotent)",
+              again.get("LLX1") == TODAY.isoformat(), str(again))
+        dtf = ed.build_days_to_fill([fake_landlord(id="LLX1", status="closed (tenanted)")],
+                                    {"LLX1": (TODAY - datetime.timedelta(days=9)).isoformat()},
+                                    TODAY, min_n=1, closes=ledger)
+        check("days_to_fill uses the ledger close date",
+              (dtf.get("overall") or {}).get("median_days") == 9, str(dtf))
+
+    pos = ["I am willing to pay the agent fee", "can pay commission no problem",
+           "ok with the agent fee", "愿意付中介费"]
+    neg = ["no agent fee right?", "can you waive the fee", "I don't want to pay agent fee",
+           "looking for fee free room", "不付中介"]
+    for m in pos:
+        check("fee-positive: " + m[:30], bool(ed.FEE_POS_RE.search(m)) and not ed.FEE_NEG_RE.search(m))
+    for m in neg:
+        check("fee-negative never counts: " + m[:30],
+              not (ed.FEE_POS_RE.search(m) and not ed.FEE_NEG_RE.search(m)))
+
+
 def test_queue_cold_rule():
     section("queue_drafts: 45 day dead-lead rule and no signal refusal at dispatch time")
     import queue_drafts as qd  # noqa: E402
@@ -1915,6 +1976,8 @@ def main():
 
     test_js_safe_json()
     test_js_syntax_gate()
+    test_supply_gap_chase()
+    test_closes_ledger_and_fee_patterns()
     test_queue_cold_rule()
     test_deploy_auth_and_cache_posture()
     test_queue_no_double_send()

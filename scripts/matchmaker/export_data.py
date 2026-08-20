@@ -16,6 +16,7 @@ OUT = os.path.join(HERE, "matchmaker-data.json")
 PREV = os.path.join(HERE, "matchmaker-data.prev.json")
 EXCLUSIONS_PATH = os.path.expanduser("~/.claude/state/matchmaker-exclusions.json")
 FEE_WILLING_PATH = os.path.expanduser("~/.claude/state/tenant-fee-willing.json")
+PRIORITY_PATH = os.path.expanduser("~/.claude/state/tenant-priority.json")  # hand kept, same {phones, ids} schema as fee willing (Winfred, 21 Aug 2026)
 GEOCACHE_PATH = os.path.expanduser("~/.claude/state/matchmaker-geocache.json")
 
 # Approximate postal-district centroids (fallback when geocoding is unavailable). Good to
@@ -676,7 +677,7 @@ def find_budget_contradiction(conn, jid, stated_budget):
 _PROFILE_FIELDS = ("name","nationality","ethnicity","gender","age","pass_type","occupation",
                    "employment_type","no_of_pax","move_in_date","lease_term_months","budget",
                    "preferred_location","email")
-INFO_RICH_MIN = 10
+INFO_RICH_MIN = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")))["info_rich_min"]
 
 def load_fee_willing(path):
     try:
@@ -689,6 +690,72 @@ def load_fee_willing(path):
                          "build a roster that silently drops the URGENT segment." % (path, e))
     return ({enrich.normalize_phone(p) for p in (cfg.get("phones") or [])},
             set(cfg.get("ids") or []))
+
+# A message must clear the positive pattern AND not trip the negative one --
+# "can you waive the agent fee" and "no agent fee right?" are the OPPOSITE
+# signal and are exactly how these phrases usually appear in chats.
+FEE_POS_RE = re.compile(
+    r"(willing\s+to\s+pay.{0,24}(?:fee|commission)"
+    r"|can\s+pay.{0,18}(?:agent\s*)?(?:fee|commission)"
+    r"|(?:ok|okay|fine|no\s+problem|alright)\s+(?:with\s+)?(?:paying\s+)?(?:the\s+)?agent\s*fee"
+    r"|agent\s*fee\s+is\s+(?:ok|okay|fine|no\s+problem)"
+    r"|i(?:'|’)?ll\s+pay\s+(?:the\s+)?(?:agent\s*)?(?:fee|commission)"
+    r"|愿意付中介|可以付中介|中介费没问题|包中介费)",
+    re.I,
+)
+FEE_NEG_RE = re.compile(
+    r"(no\s+agent\s*fee|without\s+(?:agent\s*)?fee|waive.{0,12}fee"
+    r"|(?:don.?t|won.?t|not|cannot|can.?t|unable\s+to)\s+(?:want\s+to\s+)?pay"
+    r"|fee\s*free|zero\s+(?:agent\s*)?fee|不付中介|免中介)",
+    re.I,
+)
+
+def detect_fee_willing_from_chats(wa_conn, tenants_raw, today, path=FEE_WILLING_PATH):
+    """Scan each still-looking tenant's recent inbound for an explicit
+    willing-to-pay-agent-fee statement and record the ids into the fee-willing
+    state file (the URGENT segment's input). Additive only: manual entries are
+    never touched, an id is never removed, and any failure leaves the file as
+    it was -- the segment must not flap on a scan bug."""
+    if wa_conn is None:
+        return 0
+    try:
+        try:
+            cfg = json.load(open(path))
+        except (OSError, ValueError):
+            cfg = {}
+        ids = set(cfg.get("ids") or [])
+        detected = cfg.get("chat_detected") or {}
+        added = 0
+        for t in tenants_raw:
+            tid, jid = t.get("id"), (t.get("jid") or "").strip()
+            if not tid or not jid or tid in ids:
+                continue
+            if looking(t) != "Still looking":
+                continue
+            try:
+                rows = wa_conn.execute(
+                    "SELECT content FROM messages WHERE chat_jid=? AND is_from_me=0 "
+                    "AND content IS NOT NULL AND content!='' ORDER BY timestamp DESC LIMIT 40",
+                    (jid,)).fetchall()
+            except Exception:
+                continue
+            for (c,) in rows:
+                if FEE_POS_RE.search(c) and not FEE_NEG_RE.search(c):
+                    ids.add(tid)
+                    detected[tid] = {"date": today.isoformat(), "snippet": c[:120]}
+                    added += 1
+                    break
+        if added:
+            cfg["ids"] = sorted(ids)
+            cfg["chat_detected"] = detected
+            cfg.setdefault("phones", cfg.get("phones") or [])
+            tmp = path + ".tmp"
+            json.dump(cfg, open(tmp, "w"), indent=1, ensure_ascii=False)
+            os.replace(tmp, path)
+        return added
+    except Exception as e:
+        print("warning: fee-willing chat scan failed (%s) — URGENT segment uses the file as is" % e)
+        return 0
 
 def profile_filled(t):
     return sum(1 for f in _PROFILE_FIELDS if str(t.get(f) or "").strip())
@@ -705,6 +772,7 @@ def tenant_segment(t, filled, fee_willing):
 def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
     out = []
     fee_phones, fee_ids = load_fee_willing(FEE_WILLING_PATH)
+    prio_phones, prio_ids = load_fee_willing(PRIORITY_PATH)
     excl_counts = {"db": 0, "config_phone": 0, "config_id": 0, "config_name_marker": 0}
     phones_cfg = {enrich.normalize_phone(p) for p in (exclusions_cfg.get("phones") or [])}
     ids_cfg = set(exclusions_cfg.get("ids") or [])
@@ -712,9 +780,17 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
 
     for t in tenants_raw:
         if looking(t) != "Still looking":
-            if t.get("excluded"):
-                excl_counts["db"] += 1
-            continue
+            # Priority override (Winfred, 21 Aug 2026): a tenant on the hand kept
+            # priority list stays in the pool even when the blanket excluded_india
+            # nationality rule would drop them (first case: TN615 Vivek, EP, viewing
+            # booked). Priority NEVER overrides found / do_not_contact / stale /
+            # closed — only the nationality exclusion.
+            _ms = (t.get("match_status") or "").lower()
+            _prio_hit = (enrich.normalize_phone(t.get("phone")) in prio_phones) or (t.get("id") in prio_ids)
+            if not (_prio_hit and _ms == "excluded_india" and looking({**t, "match_status": "active"}) == "Still looking"):
+                if t.get("excluded"):
+                    excl_counts["db"] += 1
+                continue
 
         phone_norm = enrich.normalize_phone(t.get("phone"))
         name = t.get("name") or ""
@@ -809,10 +885,12 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
         # signal per standing agent-exclusion policy, not dead code).
         _filled = profile_filled(t)
         _fee = (phone_norm in fee_phones) or (t.get("id") in fee_ids)
+        _prio = (phone_norm in prio_phones) or (t.get("id") in prio_ids)
         out.append({
             "id": t.get("id"), "name": name,
             "profile_filled": _filled, "profile_total": len(_PROFILE_FIELDS),
             "pays_agent_fee": bool(_fee),
+            "pinned": bool(_prio),
             "segment": tenant_segment(t, _filled, _fee),
             "preferred_location": preferred_location,
             "preferred_districts": preferred_districts,
@@ -1073,6 +1151,46 @@ def build_zero_stock_alert(live_area_demand, min_waiting=3):
     return rows
 
 
+def build_supply_gap_chase(landlords, listings, tenants, exclusions_cfg):
+    """Landlords worth a call in the districts where demand starves supply.
+    The map's demand-vs-supply table names the gap; this names WHO to chase:
+    dormant/stalled landlords (relationships that exist but went quiet) sitting
+    in a gap district. Never anyone closed, do_not_contact, or in the
+    exclusions config -- a gap is not licence to ring someone who said no.
+    Gap = zero live supply with >=3 waiting, or demand at least 3x supply with
+    >=10 waiting (the D16 shape: 41 waiting on 5 rooms)."""
+    demand, supply = {}, {}
+    for t in tenants:
+        for d in (t.get("preferred_districts") or []):
+            demand[d] = demand.get(d, 0) + 1
+    for l in listings:
+        d = l.get("district") or ""
+        if d:
+            supply[d] = supply.get(d, 0) + 1
+    gaps = [d for d, n in demand.items()
+            if (supply.get(d, 0) == 0 and n >= 3) or (n >= 10 and n >= 3 * max(supply.get(d, 0), 1))]
+    gaps.sort(key=lambda d: -(demand.get(d, 0) - supply.get(d, 0)))
+    phones_cfg = {enrich.normalize_phone(p) for p in (exclusions_cfg.get("phones") or [])}
+    out = []
+    for l in landlords:
+        st = str(l.get("status") or "").strip().lower()
+        if not (st.startswith("dormant") or st.startswith("stalled")):
+            continue
+        if l.get("do_not_contact"):
+            continue
+        d = l.get("district") or ""
+        if d not in gaps:
+            continue
+        if enrich.normalize_phone(l.get("phone")) in phones_cfg:
+            continue
+        out.append({"id": l.get("id"), "name": l.get("landlord_name"), "phone": l.get("phone"),
+                    "district": d, "status": st, "last_contact": str(l.get("last_contact") or "")[:10],
+                    "waiting": demand.get(d, 0), "live_supply": supply.get(d, 0)})
+    out.sort(key=lambda r: r["last_contact"], reverse=True)
+    out.sort(key=lambda r: gaps.index(r["district"]))
+    return out
+
+
 # ------------------------------------- landlord responsiveness [idea 24] --
 ASK_GAP_HOURS = 24  # a same-sender follow-up within this window counts as part of
                      # the same "ask" (a nudge/reminder), not a fresh unanswered prompt
@@ -1288,6 +1406,36 @@ def build_price_check(landlords, listings, min_n=CLOSED_PRICE_MIN_N):
 
 # ------------------------------------------- days-to-fill honesty [idea 27] --
 DAYS_TO_FILL_MIN_N = 3
+CLOSES_PATH = os.path.expanduser("~/.claude/state/matchmaker-closes.json")
+
+def load_closes(path=CLOSES_PATH):
+    try:
+        d = json.load(open(path))
+        return d if isinstance(d, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+def record_closes(landlords, prev, today, path=CLOSES_PATH):
+    """The reason days_to_fill sat at 0 samples: statuses read "closed (tenanted)"
+    with no date, so no (first_seen, close) pair ever completed. This ledger stamps
+    the close date at the moment of TRANSITION -- a listing that was in the
+    previous build's live listings[] and is tenanted now closed today, as far as
+    this app can observe. Append-only per listing id; re-runs change nothing."""
+    closes = load_closes(path)
+    prev_live = {x.get("id") for x in ((prev or {}).get("listings") or [])}
+    added = 0
+    for l in landlords:
+        lid = l.get("id")
+        if not lid or lid in closes or lifecycle(l) != "tenanted":
+            continue
+        if lid in prev_live:
+            closes[lid] = today.isoformat()
+            added += 1
+    if added:
+        tmp = path + ".tmp"
+        json.dump(closes, open(tmp, "w"), indent=1)
+        os.replace(tmp, path)
+    return closes
 
 def _extract_close_date(status_raw, last_contact, today):
     # reuse the same D-Month-Year free text parser used for tenant move_in dates --
@@ -1298,7 +1446,7 @@ def _extract_close_date(status_raw, last_contact, today):
     return enrich.norm_date(last_contact)
 
 
-def build_days_to_fill(landlords, seen_registry, today, min_n=DAYS_TO_FILL_MIN_N):
+def build_days_to_fill(landlords, seen_registry, today, min_n=DAYS_TO_FILL_MIN_N, closes=None):
     """Days between a listing's first_seen (the seen registry -- the same file
     build_listings() stamps) and its close date, grouped by district. Needs BOTH
     ends for the SAME listing id. None of the currently closed records have both:
@@ -1314,7 +1462,8 @@ def build_days_to_fill(landlords, seen_registry, today, min_n=DAYS_TO_FILL_MIN_N
         fseen = seen_registry.get(l.get("id"))
         if not fseen:
             continue
-        close = _extract_close_date(l.get("status") or "", l.get("last_contact") or "", today)
+        close = ((closes or {}).get(l.get("id"))
+                 or _extract_close_date(l.get("status") or "", l.get("last_contact") or "", today))
         if not close:
             continue
         try:
@@ -1555,6 +1704,9 @@ def main():
     stale_landlord_chase = build_stale_landlord_chase(listings)  # [idea 28]
 
     tenants_all_statuses = len(ten["tenants"])
+    fee_detected = detect_fee_willing_from_chats(wa_conn, ten["tenants"], today)
+    if fee_detected:
+        print(f"fee-willing: {fee_detected} tenant(s) newly detected from chat — feeding the URGENT segment")
     tenants, excl_counts = build_tenants(ten["tenants"], exclusions_cfg, wa_conn, today, area_keywords)
     dedup_tenant_groups = apply_tenant_dup_groups(tenants)
     districts_recovered = sum(1 for t in tenants if t.get("district_inferred"))
@@ -1574,11 +1726,21 @@ def main():
     duplicate_phones = compute_duplicate_phones(all_landlords, ten["tenants"])
     revival = build_revival(ten["tenants"], land["landlords"], dist_area, area_keywords, today)
 
+    # prev hoisted above the analytics blocks: record_closes() needs last build's
+    # live listings to see an available -> tenanted transition. compute_delta()
+    # below reuses this same load.
+    prev = None
+    if os.path.exists(PREV):
+        try: prev = json.load(open(PREV))
+        except (OSError, ValueError): prev = None
+
     enrichment_queue = build_enrichment_queue(tenants, listings)  # [ideas 5,6]
     live_area_demand = build_live_area_demand(adem["districts"], listings, tenants)  # [ideas 4,23]
     zero_stock_alert = build_zero_stock_alert(live_area_demand)  # [idea 25]
+    supply_gap_chase = build_supply_gap_chase(land["landlords"], listings, tenants, exclusions_cfg)
     price_check = build_price_check(land["landlords"], listings)  # [idea 26]
-    days_to_fill = build_days_to_fill(land["landlords"], seen_registry, today)  # [idea 27]
+    closes_ledger = record_closes(land["landlords"], prev, today)
+    days_to_fill = build_days_to_fill(land["landlords"], seen_registry, today, closes=closes_ledger)  # [idea 27]
     learning = build_learning_block()  # [idea 11]
 
     key_problems = validate_key_ids(listings, tenants)
@@ -1588,10 +1750,6 @@ def main():
     health = compute_health(listings, tenants)
     busy_blocks = load_busy_blocks(BUSY_BLOCKS_PATH)  # [68] optional, dormant until a UI clash check exists
 
-    prev = None
-    if os.path.exists(PREV):
-        try: prev = json.load(open(PREV))
-        except (OSError, ValueError): prev = None
     delta = compute_delta(prev, listings, tenants)
     week_delta = compute_week_delta(prev, delta, listings, today)  # [idea 40]
 
@@ -1616,7 +1774,8 @@ def main():
         "all_landlords": all_landlords, "all_tenants": all_tenants, "sales": sales,
         "revival": revival, "duplicate_phones": duplicate_phones,
         "enrichment_queue": enrichment_queue, "budget_contradictions": budget_contradictions,
-        "zero_stock_alert": zero_stock_alert, "landlord_responsiveness": landlord_responsiveness,
+        "zero_stock_alert": zero_stock_alert, "supply_gap_chase": supply_gap_chase,
+        "landlord_responsiveness": landlord_responsiveness,
         "price_check": price_check, "days_to_fill": days_to_fill,
         "stale_landlord_chase": stale_landlord_chase, "learning": learning,
     }
