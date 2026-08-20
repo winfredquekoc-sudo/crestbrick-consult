@@ -1,16 +1,32 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-20T00:30:02+08:00",
-  "count": 17,
+  "synced_at": "2026-08-21T00:30:07+08:00",
+  "count": 19,
   "listings": [
+    {
+      "id": "room-hillcrest-villa-ll124",
+      "title": "Room — Hillcrest Villa (Newton)",
+      "type": "Landed",
+      "transaction": "rent",
+      "price": 2500,
+      "price_label": "From S$2,500 / mo",
+      "address": "Hillcrest Villa",
+      "district": "D11",
+      "sqft": 350,
+      "highlights": [
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa."
+    },
     {
       "id": "common-room-blk-47-marine-parade-ll110",
       "title": "Common Room — Blk 47 Marine Parade",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1500,
-      "price_label": "S$1,500 / mo",
+      "price": 1350,
+      "price_label": "From S$1,350 / mo",
       "address": "Blk 47 Marine Parade",
       "district": "D15",
       "highlights": [
@@ -152,7 +168,7 @@
       "type": "HDB",
       "transaction": "rent",
       "price": 1200,
-      "price_label": "S$1,200 / mo",
+      "price_label": "From S$1,200 / mo",
       "address": "Blk 503 Ang Mo Kio Ave 8",
       "district": "D20",
       "highlights": [
@@ -209,6 +225,21 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20639%20Jurong%20West%20Street%2061.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20639%20Jurong%20West%20Street%2061."
+    },
+    {
+      "id": "common-room-blk-703-jurong-west-ll117",
+      "title": "Common Room — Blk 703 Jurong West",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 800,
+      "price_label": "From S$800 / mo",
+      "address": "Blk 703 Jurong West",
+      "district": "D22",
+      "highlights": [
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20703%20Jurong%20West.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20703%20Jurong%20West."
     },
     {
       "id": "room-851-jurong-west-ll017",
