@@ -343,6 +343,67 @@ function draftSlot(l, t) {
   const d = nextWeekdayDate(useSat ? "sat" : "sun", NOW_REAL_SGT, sgtNowMinutes(), GENERIC_SLOT_START_MIN);
   return (useSat ? "Sat" : "Sun") + " 3pm" + (d ? (" (" + shortDate(d) + ")") : "");
 }
+// ---- concrete viewing-slot proposals (Winfred's own data: a specific time
+// offer books 96.6% vs 30.7% for an open "give me some dates") ----------------
+// Parses the landlord's free-text `viewing` field conservatively: only weekday
+// tokens, dayparts and before/after caps are trusted; a text that opens with a
+// dated log line ("21 Aug 9:30am: 2 viewers confirmed...") is a diary, not a
+// standing availability, and is skipped entirely.
+const WD_TOKENS = { mon: 1, tue: 2, tues: 2, wed: 3, thu: 4, thur: 4, thurs: 4, fri: 5, sat: 6, sun: 0 };
+function parseViewingWindows(txt) {
+  const s = String(txt || "").toLowerCase();
+  if (!s || /^\s*\d{1,2}\s+(jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/.test(s)) return null;
+  const days = new Set();
+  if (/anytime|any\s+day|every\s*day|daily|flexible/.test(s)) [0,1,2,3,4,5,6].forEach(d => days.add(d));
+  if (/weekend/.test(s)) { days.add(6); days.add(0); }
+  if (/weekday/.test(s)) [1,2,3,4,5].forEach(d => days.add(d));
+  for (const [tok, d] of Object.entries(WD_TOKENS)) if (new RegExp("\\b" + tok, "i").test(s)) days.add(d);
+  let lo = null, hi = null;
+  const before = s.match(/before\s+(\d{1,2})\s*(am|pm)?/);
+  if (before) hi = (+before[1] % 12) + (before[2] === "am" ? 0 : 12);
+  const after = s.match(/after\s+(\d{1,2})\s*(am|pm)?/);
+  if (after) lo = (+after[1] % 12) + (after[2] === "am" ? 0 : 12);
+  if (/morning/.test(s)) { lo = lo == null ? 10 : lo; if (!/afternoon|evening|night/.test(s) && hi == null) hi = 12; }
+  if (/evening|night/.test(s) && lo == null) lo = 19;
+  const avoid = s.match(/avoid\s+(\d{1,2})\s*(am|pm)?\s*(?:to|-|–)\s*(\d{1,2})\s*(am|pm)?/);
+  const av = avoid ? [(+avoid[1] % 12) + (avoid[2] === "am" ? 0 : 12),
+                      (+avoid[3] % 12) + (avoid[4] === "am" ? 0 : 12)] : null;
+  if (!days.size && lo == null && hi == null) return null;
+  if (!days.size) [0,1,2,3,4,5,6].forEach(d => days.add(d));
+  return { days: days, lo: lo == null ? 10 : lo, hi: hi == null ? 21 : hi, avoid: av };
+}
+function fmtHour(h) { return h < 12 ? h + "am" : (h === 12 ? "12pm" : (h - 12) + "pm"); }
+const WD_NAMES = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+function proposeSlots(l) {
+  const w = parseViewingWindows(l.viewing);
+  if (!w) return [];
+  const pickHour = variant => {
+    // second proposal prefers a different time of day so the pair reads like a
+    // real choice ("Sat 11am or Sun 3pm"), not the same slot twice
+    const cands = variant ? [15, 14, 19, 11] : [11, 14, 15, 19];
+    for (const h of cands) {
+      if (h < w.lo || h >= w.hi) continue;
+      if (w.avoid && h >= w.avoid[0] && h < w.avoid[1]) continue;
+      return h;
+    }
+    return null;
+  };
+  const out = [];
+  // NOW_REAL_SGT is a full ISO instant; shift +8h and read UTC fields so the
+  // weekday/date are Singapore's regardless of the viewing device's timezone
+  const base = new Date(new Date(NOW_REAL_SGT).getTime() + 8 * 3600000);
+  for (let i = 1; i <= 10 && out.length < 2; i++) {
+    const d = new Date(base.getTime() + i * 86400000);
+    if (!w.days.has(d.getUTCDay())) continue;
+    const h = pickHour(out.length === 1);
+    if (h == null) continue;
+    out.push(WD_NAMES[d.getUTCDay()] + " " + d.getUTCDate() + " " +
+      ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"][d.getUTCMonth()] + ", " + fmtHour(h));
+  }
+  // one slot proposal only reads pushy-precise; two reads like a human offering
+  // a choice — require both or fall back to the open ask
+  return out.length === 2 ? out : [];
+}
 function lastMessageContext(t) {
   if (!t.last_wa || t.last_wa.from_me || !t.last_wa.snippet) return "";
   return "You mentioned “" + t.last_wa.snippet + "”";
@@ -350,7 +411,7 @@ function lastMessageContext(t) {
 function draftAddr(l) {
   // first outreach never carries the unit number (same rule as the intake engine:
   // "I will send the unit number nearer") and drops parenthetical DB noise
-  let a = String(l.address || "").replace(/#\d+-\d+[A-Za-z]?/g, "").replace(/\(.*?\)/g, "").replace(/\s{2,}/g, " ").replace(/[ ,]+$/, "").trim();
+  let a = String(l.address || "").replace(/#\d+-\d+[A-Za-z]?/g, "").replace(/\(.*?\)/g, "").replace(/\s{2,}/g, " ").replace(/\s*,(\s*,)+/g, ",").replace(/[ ,]+$/, "").trim();
   if (!a || a.length < 6) a = listingShort(l) + " in " + areaName(l);
   return a;
 }
@@ -368,7 +429,12 @@ function draftEN(l, t, slotOverride) {
   const rt = rentTxtForUnit(unit, l);
   let msg = "Hi " + fn + ", I have a " + unitLabel + " rental at " + draftAddr(l) + " that fits your budget at " + rt + ". Would you like to view it?";
   const fixedSlot = slotOverride || ((l.fixed_viewing && l.fixed_viewing.weekday && l.fixed_viewing.time_label) ? draftSlot(l, t) : "");
-  if (fixedSlot) msg += " The landlord does viewings " + fixedSlot + ", can you make it?";
+  if (fixedSlot) { msg += " The landlord does viewings " + fixedSlot + ", can you make it?"; return msg; }
+  // A concrete pair of slots from the landlord's stated windows beats the open
+  // ask (96.6% vs 30.7% booking rate in Winfred's own appointment data). No
+  // parseable window -> the open ask stands.
+  const slots = proposeSlots(l);
+  if (slots.length === 2) msg += " Would " + slots[0] + " or " + slots[1] + " work for you?";
   else msg += " Please give me a few available dates and times.";
   return msg;
 }
@@ -449,7 +515,7 @@ function waLink(l, t) {
 }
 function waPlain(phone, msg) { const p = normPhone(phone); return p ? ("https://wa.me/" + p + (msg ? "?text=" + encodeURIComponent(msg) : "")) : ""; }
 function mapLink(l) { return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(l.map_query || areaName(l)); }
-function coldTitle() { return "quiet >45 days — dead per your rule"; }
+function coldTitle() { return "quiet >" + Scoring.DEAD_DAYS_THRESHOLD + " days — dead per your rule"; }
 // The DEAD lead rule, in ONE place. Every tenant facing action (draft body,
 // copy, call, WhatsApp, queue) asks this and nothing else, so the badge on a row
 // and what that row will actually let you do can never drift apart again.
@@ -499,7 +565,7 @@ function coldRefusalHtml(t) {
   const dc = coldDaysOf(t);
   return '<div class="draftlabel">No draft</div><div class="draftbox mut">' +
     esc(fname(t.name)) + ' last replied ' + esc(daysAgoLabel(dc)) +
-    '. Dead per your 45 day rule, so no message is drafted here. Landlord and co-broke contact is unaffected.</div>';
+    '. Dead per your ' + Scoring.DEAD_DAYS_THRESHOLD + ' day rule, so no message is drafted here. Landlord and co-broke contact is unaffected.</div>';
 }
 // Single choke point for every WhatsApp/Call button in a modal or popover
 // (viewing pack, shortlist draft, reconfirm draft, ...) — keeps the dead lead
@@ -1434,7 +1500,7 @@ function bulkApplyMark(matches, patch, label) {
 
 // ===================== scoring integration (override aware) =====================
 function effective(m) { const ov = readOverride(m.l.id, m.t.id); return ov ? Scoring.applyOverride(m.s, ov) : m.s; }
-function worklistRank(m) { return (m.t.priority ? 1e9 : 0) + m.s.total * Scoring.urgencyMult(m.t, TODAY); }
+function worklistRank(m) { return (m.t.pinned ? 1e9 : 0) + m.s.total * Scoring.urgencyMult(m.t, TODAY); }
 function isSnoozedNow(m) {
   const mk = readMark(m.l.id, m.t.id);
   if (!mk || !mk.snooze_until) return false;
@@ -1527,7 +1593,7 @@ function scoreBar(p, total) {
   const fitTotal = total != null ? total : (p.budget + p.location + p.lease + p.movein + p.fresh);
   return '<span class="sb" role="img" aria-label="' + esc("fit " + fitTotal + " of 100") + '" title="budget ' + p.budget + ' · location ' + p.location + ' · lease ' + p.lease + ' · move in ' + p.movein + ' · fresh ' + p.fresh + '">' + seg.map(s => '<i style="width:' + s[1] + 'px;background:' + s[0] + '"></i>').join('') + '</span>';
 }
-function coldChip(dc) { if (dc == null) return '<span class="chip">no contact date</span>'; if (dc <= 5) return '<span class="chip g">heard ' + dc + 'd ago</span>'; if (dc <= 45) return '<span class="chip a">cold ' + dc + 'd</span>'; return '<span class="chip r">stale ' + dc + 'd</span>'; }
+function coldChip(dc) { if (dc == null) return '<span class="chip">no contact date</span>'; if (dc <= 5) return '<span class="chip g">heard ' + dc + 'd ago</span>'; if (dc <= Scoring.DEAD_DAYS_THRESHOLD) return '<span class="chip a">cold ' + dc + 'd</span>'; return '<span class="chip r">stale ' + dc + 'd</span>'; }
 
 function explainHtml(l, t, m, eff) {
   const parts = [];
@@ -1787,7 +1853,7 @@ function matchRow(m, showListing, opts) {
   const badges = [];
   // (76) URGENT = gave us >=10/14 profile fields AND told us they will pay the agent fee.
   // Leads the badge list on purpose: it is the only badge that means "work this one first".
-  if (t.priority) badges.push('<span class="badge urgent">PRIORITY</span>');
+  if (t.pinned) badges.push('<span class="badge urgent">PRIORITY</span>');
   if (t.segment === 'URGENT') badges.push('<span class="badge urgent">URGENT · pays fee</span>');
   else if (t.segment === 'FEE WILLING') badges.push('<span class="badge urgent">pays fee</span>');
   else if (t.segment === 'INFO RICH') badges.push('<span class="badge inforich">full profile</span>');
@@ -1944,7 +2010,7 @@ function render() {
   if (view === "revival") renderRevival();
   CRM.paint();
   $("#legend").innerHTML = "Score = budget 30 + location 25 + lease 15 + move in 15 + freshness 15 (urgency and MRT adjacency can add a little more, capped at 100). ⚑ flags are landlord preference gates (gender, ethnicity, pax) or budget/lease gaps — a red conflict still shows so you can judge, it is not auto hidden. " +
-    "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over 45 days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
+    "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
     (CRM.mode === "local" ? "The 🗂 CRM drawer and Pipeline tab are saved on this device only — no cloud backend is configured." : "The 🗂 CRM drawer and Pipeline tab sync to your private CRM database and survive a rebuild.") +
     " PDPA: keep this file private.";
   const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + snoozedActive().length + '</span>';
@@ -2098,9 +2164,46 @@ function updateFacetedCounts() {
 }
 
 // ===================== worklist + triage mode =====================
+// One missing answer per tenant, ranked by how much match coverage it unlocks
+// (DATA.enrichment_queue's unlock_value). One tap opens a pre-filled WA draft
+// asking exactly that question — never auto-sent, dead-rule enforced.
+const ASK_Q = {
+  budget: "what monthly budget are you comfortable with?",
+  move_in: "when are you looking to move in?",
+  pax: "how many people will be staying?",
+  lease_months: "how long a lease are you looking at?",
+  district: "which area would you like to stay in?",
+};
+function askStrip() {
+  const q = (DATA.enrichment_queue || []);
+  const rows = [];
+  for (const e of q) {
+    if (rows.length >= 6) break;
+    const t = ALL_TENANTS.find(x => x.id === e.id);
+    if (!t || Scoring.isDead(t, NOW_REAL_SGT)) continue;
+    const field = (e.missing || [])[0];
+    if (!field || !ASK_Q[field] || !e.phone) continue;
+    const msg = "Hi " + fname(e.name || "") + ", quick question so I can match you to the right room faster: " + ASK_Q[field];
+    rows.push({ e, field, link: waPlain(e.phone, msg) });
+  }
+  const box = el("div", "askstrip");
+  if (!rows.length) return box;
+  box.appendChild(el("div", "wm", "❓ <b>5 minutes of asking</b> — one question each, biggest match unlock first. Opens a draft, you send it."));
+  const wrap = el("div", "askchips");
+  rows.forEach(r => {
+    const a = document.createElement("a");
+    a.className = "askchip"; a.href = r.link; a.target = "_blank"; a.rel = "noopener";
+    a.innerHTML = esc(fname(r.e.name || r.e.id)) + ' <span class="mut">' + esc(r.field.replace("_", " ")) +
+      ' · +' + esc(String(r.e.unlock_value)) + '</span>';
+    wrap.appendChild(a);
+  });
+  box.appendChild(wrap);
+  return box;
+}
 function renderWork() {
   const box = $("#work"); box.innerHTML = "";
   box.appendChild(helpStrip());
+  box.appendChild(askStrip());
   const seen = new Set();
   const rows = MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending")
     .filter(m => !isSnoozedNow(m)).filter(passFilter)
@@ -2142,7 +2245,7 @@ function triageAction(key, m) {
   if (!m) return;
   // Queueing a cold tenant is refused here as well as in the Mark dropdown —
   // this is the keyboard q / triage bar route into the same outbound action.
-  if (key === "q" && coldBlocked(m.l, m.t)) { toast(fname(m.t.name) + " is quiet over 45 days — not queueing"); return; }
+  if (key === "q" && coldBlocked(m.l, m.t)) { toast(fname(m.t.name) + " is quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days — not queueing"); return; }
   // c/v/q now route through the exact same calls the row's own Mark dropdown
   // uses (wireRowEvents' mkSel.onchange) instead of a separate raw patchMark:
   // the keyboard/triage-bar path is the FAST, high frequency one, so it is
@@ -2554,7 +2657,7 @@ function wireBatchBuilder(container, l) {
     // but a stale batchSelection must not slip one through either.
     const chosen = ids.map(id => (byListing[l.id] || []).find(x => x.t.id === id)).filter(Boolean).filter(m => !coldBlocked(l, m.t));
     const out = $("#batchout"); out.innerHTML = "";
-    if (chosen.length < 2) { toast("Need at least 2 tenants who are not quiet over 45 days"); return; }
+    if (chosen.length < 2) { toast("Need at least 2 tenants who are not quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days"); return; }
     const clashes = busyBlockClashes(dateI.value, hh0 * 60 + mm0, hh0 * 60 + mm0 + chosen.length * interval);
     if (clashes.length) out.appendChild(el("div", "wm banner-amber", "⚠ Clashes with: " + esc(clashes.join(", ")) + " — double check before sending"));
     let summary = "Viewings " + dateI.value + " at " + l.name + ":\n";
@@ -2590,7 +2693,7 @@ function renderTenantRail() {
   const f = F();
   let ts = [...ALL_TENANTS];
   if (f.q) ts = ts.filter(t => (t.name + " " + t.preferred_location + " " + t.district + " " + (t.nationality || "") + " " + (t.phone || "")).toLowerCase().includes(f.q));
-  ts.sort((a, b) => ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)) || (byTenant[b.id]?.[0]?.s.total || 0) - (byTenant[a.id]?.[0]?.s.total || 0));
+  ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || (byTenant[b.id]?.[0]?.s.total || 0) - (byTenant[a.id]?.[0]?.s.total || 0));
   if (!ts.length) { rail.appendChild(el("div", "empty", "No tenants match this search. Try clearing the search box above.")); return; }
   const shown = ts.slice(0, tenantRailLimit);
   shown.forEach(t => {
@@ -2985,7 +3088,7 @@ function renderAllTenantsRoster() {
   }
   if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
 
-  ts.sort((a, b) => ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)) || String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
+  ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
 
   let shown = 0, curGroup = null;
   for (const t of ts) {
@@ -3752,10 +3855,20 @@ const MAP_ADJ = { D1:["D2","D4","D6","D7"],D2:["D1","D3","D4"],D3:["D2","D4","D5
   D19:["D13","D14","D18","D20","D28"],D20:["D11","D12","D13","D19","D26","D28"],D21:["D5","D10","D23"],
   D22:["D5","D23","D24"],D23:["D21","D22","D24","D25"],D24:["D22","D23","D25"],D25:["D23","D24","D26","D27"],
   D26:["D11","D20","D25","D27","D28"],D27:["D25","D26","D28"],D28:["D18","D19","D20","D26","D27"] };
-const MAP_OUTLINE = [[103.605,1.265],[103.66,1.255],[103.72,1.27],[103.76,1.27],[103.80,1.26],
-  [103.85,1.265],[103.87,1.295],[103.91,1.30],[103.965,1.315],[104.025,1.32],[104.045,1.335],
-  [104.02,1.365],[103.98,1.38],[103.945,1.405],[103.905,1.415],[103.875,1.44],[103.835,1.445],
-  [103.79,1.455],[103.755,1.44],[103.73,1.445],[103.70,1.42],[103.675,1.395],[103.64,1.36],[103.615,1.32]];
+// Hand-authored Singapore silhouette, clockwise from Tuas — dense enough that
+// smoothPath() reads as the actual coastline (Changi's eastern hook, the Marina
+// bulge, Kranji's northwest dip), not a potato. [lng, lat].
+const MAP_OUTLINE = [
+  [103.607,1.276],[103.618,1.263],[103.637,1.262],[103.652,1.285],[103.666,1.297],
+  [103.682,1.289],[103.706,1.289],[103.730,1.282],[103.755,1.270],[103.783,1.266],
+  [103.803,1.258],[103.822,1.256],[103.843,1.260],[103.860,1.268],[103.877,1.280],
+  [103.895,1.291],[103.916,1.298],[103.940,1.308],[103.965,1.318],[103.990,1.330],
+  [104.012,1.342],[104.030,1.350],[104.044,1.361],[104.038,1.377],[104.021,1.388],
+  [103.996,1.397],[103.968,1.399],[103.941,1.410],[103.917,1.408],[103.900,1.418],
+  [103.879,1.427],[103.861,1.419],[103.846,1.434],[103.829,1.447],[103.806,1.454],
+  [103.779,1.457],[103.756,1.447],[103.733,1.445],[103.713,1.437],[103.696,1.424],
+  [103.679,1.407],[103.666,1.389],[103.653,1.364],[103.641,1.339],[103.630,1.314],
+  [103.618,1.294]];
 // Region segmentation (Winfred, 21 Aug 2026: "segment it according to locations").
 // Property-market convention, not URA gospel: D13 stays Central (Macpherson/
 // Braddell reads city-fringe to tenants), D21 goes West (Clementi corridor).
@@ -3826,10 +3939,14 @@ function renderMapView() {
   const tenSel = ALL_TENANTS.find(x => x.id === mapTenantSel) || null;
   const tenTop = new Set(tenSel ? (byTenant[tenSel.id] || []).slice(0, 5).map(m => m.l.id) : []);
   const parts = [];
-  parts.push('<defs><filter id="rgblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="14"/></filter></defs>');
-  parts.push('<path class="mapland" d="' + smoothPath(MAP_OUTLINE.map(c => mapProject(c[1], c[0]))) + '"/>');
+  const landD = smoothPath(MAP_OUTLINE.map(c => mapProject(c[1], c[0])));
+  parts.push('<defs><filter id="rgblur" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="11"/></filter>' +
+    '<clipPath id="landclip"><path d="' + landD + '"/></clipPath></defs>');
+  parts.push('<rect class="mapsea" x="0" y="0" width="1000" height="660" rx="14"/>');
+  parts.push('<path class="mapland" d="' + landD + '"/>');
   // Region zones: blurred fat-stroked hull over each region's district centroids,
-  // clipped to nothing (pure backdrop) — the segmentation the pins sit on.
+  // clipped to the coastline so the tint segments the ISLAND, not the sea.
+  parts.push('<g clip-path="url(#landclip)">');
   for (const rg of MAP_REGIONS) {
     const pts = rg.dists.map(d => MAP_CENTROIDS[d]).filter(Boolean).map(c => mapProject(c[0], c[1]));
     if (pts.length < 2) continue;
@@ -3837,13 +3954,19 @@ function renderMapView() {
     const d = h.length >= 3 ? smoothPath(h)
       : "M" + pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" L");
     parts.push('<path class="rgzone" filter="url(#rgblur)" ' +
-      'style="fill:rgba(' + rg.color + ',.13);stroke:rgba(' + rg.color + ',.38);stroke-width:46;stroke-linejoin:round;stroke-linecap:round" d="' + d + '"/>');
+      'style="fill:rgba(' + rg.color + ',.16);stroke:rgba(' + rg.color + ',.42);stroke-width:60;stroke-linejoin:round;stroke-linecap:round" d="' + d + '"/>');
+  }
+  parts.push('</g>');
+  parts.push('<path class="mapcoast" d="' + landD + '"/>');
+  for (const rg of MAP_REGIONS) {
+    const pts = rg.dists.map(d => MAP_CENTROIDS[d]).filter(Boolean).map(c => mapProject(c[0], c[1]));
+    if (!pts.length) continue;
     const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
     const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
     // label offsets keep CENTRAL/EAST caps clear of the dense downtown bubbles
     const dy = rg.key === "central" ? 58 : rg.key === "east" ? 44 : -34;
     parts.push('<text class="rglabel" x="' + cx.toFixed(1) + '" y="' + (cy + dy).toFixed(1) +
-      '" style="fill:rgba(' + rg.color + ',.75)">' + rg.label + '</text>');
+      '" style="fill:rgba(' + rg.color + ',.8)">' + rg.label + '</text>');
   }
   const maxD = Math.max(1, ...Object.values(demand));
   for (const [dk, n] of Object.entries(demand)) {
@@ -3907,6 +4030,22 @@ function renderMapOverview(panel, demand) {
     'scored tenants and profiles. Districts below are where tenants are asking and you have little or nothing.</div>' +
     '<table class="maptable"><thead><tr><th>District</th><th>Want it</th><th>Your listings</th><th></th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>'));
+  const chase = DATA.supply_gap_chase || [];
+  if (chase.length) {
+    const crows = chase.slice(0, 12).map(c =>
+      '<tr><td>' + esc(c.name || c.id) + ' <span class="mut">' + esc(c.status) + '</span></td>' +
+      '<td>' + esc(c.district) + ' <span class="mut">' + c.waiting + ' waiting / ' + c.live_supply + ' live</span></td>' +
+      '<td class="nowrap">' + (c.phone ? ('<a href="tel:' + esc(c.phone) + '">📞</a> <a href="' +
+        esc(waPlain(c.phone, "Hi " + fname(c.name || "") + ", tenants are actively asking me for rooms around " +
+          (AREA[c.district] || c.district) + " right now. Is your unit available to rent out? I have screened tenants ready to view.")) +
+        '" target="_blank" rel="noopener">💬</a>') : "") + '</td></tr>').join("");
+    panel.appendChild(el("div", "maphead",
+      '<b>📞 Source these — quiet landlords in starved districts</b><div class="mut" style="margin:4px 0 8px">' +
+      'Dormant or stalled relationships sitting exactly where the demand table above is starving. ' +
+      'Landlords are exempt from the dead-lead rule — call or drop a line.</div>' +
+      '<table class="maptable"><thead><tr><th>Landlord</th><th>Gap</th><th>Reach</th></tr></thead>' +
+      '<tbody>' + crows + '</tbody></table>'));
+  }
 }
 function renderMapLLTable(box, demand) {
   const ls = [...(DATA.listings || [])].sort((a, b) => (a.district || "").localeCompare(b.district || "") || (a.id || "").localeCompare(b.id || ""));
@@ -3948,7 +4087,7 @@ function renderMapLLTable(box, demand) {
   }
 }
 function renderMapTNTable(box, demand) {
-  const ts = [...ALL_TENANTS].sort((a, b) => ((b.priority ? 1 : 0) - (a.priority ? 1 : 0)) || ((byTenant[b.id] || [{ s: { total: 0 } }])[0].s.total) - ((byTenant[a.id] || [{ s: { total: 0 } }])[0].s.total));
+  const ts = [...ALL_TENANTS].sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || ((byTenant[b.id] || [{ s: { total: 0 } }])[0].s.total) - ((byTenant[a.id] || [{ s: { total: 0 } }])[0].s.total));
   const shown = mapTNAll ? ts : ts.slice(0, 100);
   box.appendChild(el("div", "mapsec", "🙋 Tenants still looking (" + ts.length + ", best fit first) — click a row for the profile and the same actions as Today's Worklist"));
   const rows = shown.map(t => {
@@ -3956,7 +4095,7 @@ function renderMapTNTable(box, demand) {
     const cold = Scoring.isCold(t, TODAY);
     const waT = (!cold && t.phone) ? waPlain(t.phone, "") : "";
     return '<tr class="mrow' + (mapTNExpand === t.id ? " selrow" : "") + '" data-t="' + esc(t.id) + '">' +
-    '<td><b>' + esc(t.name || t.id) + '</b>' + (t.priority ? ' <span class="badge urgent">priority</span>' : '') + (t.segment ? ' <span class="badge ' + (t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
+    '<td><b>' + esc(t.name || t.id) + '</b>' + (t.pinned ? ' <span class="badge urgent">priority</span>' : '') + (t.segment ? ' <span class="badge ' + (t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
     '<td>' + (t.phone ? ('<a href="tel:' + esc(t.phone) + '" onclick="event.stopPropagation()">' + esc(t.phone) + '</a>' +
       (waT ? ' · <a href="' + esc(waT) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">WA</a>'
            : (cold ? ' <span class="chip mut">cold</span>' : ""))) : "—") + '</td>' +
@@ -4114,7 +4253,7 @@ function renderMapMatches(l, box) {
       '<tr class="mrow' + (c.dq ? " dim" : "") + (mapTenantSel === c.t.id ? " selrow" : "") + '" data-t="' + esc(c.t.id) + '">' +
       '<td><div class="fitcell"><div class="fitbar"><i style="width:' + Math.max(2, c.fit) + '%"></i></div><b>' + c.fit + '</b></div></td>' +
       '<td><span class="chip ' + c.vcls + '">' + c.verdict + '</span></td>' +
-      '<td><b>' + esc(c.t.name || c.t.id) + '</b>' + (c.t.priority ? ' <span class="badge urgent">priority</span>' : '') + (c.t.segment ? ' <span class="badge ' + (c.t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(c.t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
+      '<td><b>' + esc(c.t.name || c.t.id) + '</b>' + (c.t.pinned ? ' <span class="badge urgent">priority</span>' : '') + (c.t.segment ? ' <span class="badge ' + (c.t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(c.t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
       '<td>' + esc(c.budget) + '</td><td>' + esc(c.pax) + '</td>' +
       '<td>' + esc(c.gender) + (c.genderOk === true ? ' <span class="chip vQ">✓</span>' : (c.genderOk === false ? ' <span class="chip vD">✗ gate</span>' : "")) + '</td>' +
       '<td>' + esc(c.movein) + '</td>' +

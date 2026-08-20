@@ -351,14 +351,23 @@ body.density-compact .lc{padding:7px 9px}
 /* ---------- 🗺 Map view ---------- */
 .mapwrap{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:8px;margin-top:8px}
 .mapwrap svg{width:100%;height:auto;display:block}
-.mapland{fill:var(--panel2);stroke:var(--line);stroke-width:2.5;stroke-linejoin:round}
-.rglabel{font-size:15px;font-weight:800;letter-spacing:3px;text-anchor:middle;pointer-events:none;opacity:.9}
+.mapsea{fill:rgba(88,140,255,.07)}
+.mapland{fill:var(--panel2);stroke:none}
+.mapcoast{fill:none;stroke:var(--line);stroke-width:2.5;stroke-linejoin:round;filter:drop-shadow(0 2px 6px rgba(0,0,0,.25))}
+.rglabel{font-size:15px;font-weight:800;letter-spacing:3px;text-anchor:middle;pointer-events:none;opacity:.9;paint-order:stroke;stroke:var(--panel2);stroke-width:4px}
 .rglegend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:6px 0 2px;font-size:12px;color:var(--mut)}
 .rglegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.askstrip{margin:6px 0}
+.askchips{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.askchip{display:inline-block;padding:6px 11px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:var(--ink);text-decoration:none;font-size:13px;font-weight:600}
+.askchip:hover{border-color:var(--acc)}
+.nowrap{white-space:nowrap}
 .mapdemand circle{stroke-width:1.2}
 .mapdemand text{fill:var(--mut);font-size:12px;text-anchor:middle;pointer-events:none}
 .mappin{cursor:pointer}
-.mappin circle{stroke-width:2}
+.mappin circle{stroke-width:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.35))}
+.mappin text{paint-order:stroke;stroke:var(--panel2);stroke-width:3px}
+.mapdemand text{paint-order:stroke;stroke:var(--panel2);stroke-width:3px}
 .mappin.hasq circle{fill:#2fbf71;stroke:#1d7a49}
 .mappin.noq circle{fill:#e0a63a;stroke:#96690f}
 .mappin.approx circle{fill-opacity:.25}
