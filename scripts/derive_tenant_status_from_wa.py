@@ -103,37 +103,88 @@ REJECT_BUDGET_RE = re.compile(
 )
 REJECT_FOUND_RE = re.compile(
     r'(found\s+(?:a\s+|another\s+|the\s+)?(?:place|room|unit|apartment|flat|somewhere|house)'
-    r'|already\s+(?:found|rented|booked|secured|taken|got)\b'
-    r'|secured\s+(?:a\s+)?(?:place|room|unit)|got\s+(?:a\s+)?(?:place|room|unit)\b'
-    r'|signed\s+(?:the\s+|a\s+)?(?:lease|ta|tenancy))',
+    r'|already\s+(?:found|rented|booked|secured|taken|got|settled|signed)\b'
+    r'|secured\s+(?:a\s+)?(?:place|room|unit)'
+    r'|got\s+(?:a\s+|the\s+|my\s+|another\s+)?(?:place|room|unit)\b'
+    r'|settled\s+(?:already|le|liao|down)|moved\s+in\s+already'
+    r'|renting\s+(?:another|elsewhere|somewhere\s+else)'
+    r'|signed\s+(?:the\s+|a\s+)?(?:lease|ta|tenancy)'
+    # Chinese: 已经找到/租到/租好/定好 (already found/rented/settled), 找到(了)房/房间/地方
+    r'|已经\s*(?:找到|租到|租好|定好|订好)|(?:找到|租到|租好)\s*(?:了|房|房间|房子|地方|别的))',
     re.I,
 )
 REJECT_OFF_RE = re.compile(
-    r'(not\s+interested|no\s+longer\s+(?:interested|looking|need)'
-    r'|no\s+need\s+(?:already|anymore|now)|don.?t\s+need\s+(?:already|anymore|it\s+anymore)'
+    r'(not\s+interested|no\s+longer\s+(?:interested|looking|need|require)'
+    r'|no\s+(?:more\s+)?need\s+(?:already|anymore|now|le|liao|alr)'
+    r'|no\s+more\s+need(?:ed)?|don.?t\s+need\s+(?:already|anymore|it\s+anymore)'
     r'|please\s+stop|stop\s+(?:messaging|sending|texting)|unsubscribe'
-    r'|remove\s+me|not\s+anymore|changed\s+my\s+mind|decided\s+not\s+to)',
+    r'|remove\s+me|not\s+anymore|changed\s+my\s+mind|decided\s+not\s+to'
+    # Chinese: 不需要了/不用了/不找了/不租了 (no longer need / stopped looking)
+    r'|不\s*(?:需要|用|找|租)\s*了)',
     re.I,
 )
-# Guard: if the same last inbound clearly continues the search, do NOT reject.
+# Guard: if the same inbound clearly continues the search (asks for alternatives
+# or viewing), do NOT reject. Lookbehinds keep "no longer looking for" and
+# "not looking for" out of the still-looking guard they would otherwise trip.
 STILL_LOOKING_RE = re.compile(
     r'(any\s+other|anything\s+else|cheaper|lower\s+budget|still\s+looking'
-    r'|other\s+option|other\s+listing|something\s+(?:else|cheaper|smaller))',
+    r'|(?<!longer\s)(?<!not\s)looking\s+for|other\s+option|other\s+listing'
+    r'|something\s+(?:else|cheaper|smaller)'
+    r'|can\s+(?:i|we)\s+view|when\s+can|like\s+to\s+view|interested\s+in\s+view'
+    r'|可以看|想看|约看|还在找)',
+    re.I,
+)
+# Pleasantry noise the decision scan may step over: "ok thanks 🙏" after
+# "found a room already" must not hide the decision two messages up.
+NOISE_RE = re.compile(
+    r'^\W*(?:ok(?:ay)*|okie+|noted|thanks?(?:\s+(?:you|a\s+lot|so\s+much))?|thank\s+you'
+    r'|thx|tq|sure|alright|alr|got\s+it|welcome|no\s+problem|np|cool|nice|great'
+    r'|good\s+(?:morning|afternoon|evening|night|day)|bye|see\s+you|cheers|sorry'
+    r'|好的?|谢谢您?|收到|嗯+|行)\W*$',
     re.I,
 )
 
-def reject_kind(last_inbound):
-    """Returns ('budget'|'found'|'off', None) for a rejecting last inbound, else None."""
-    if not last_inbound:
+def is_noise(msg):
+    m = (msg or "").strip()
+    if len(m) <= 3:
+        return True
+    return bool(NOISE_RE.match(m))
+
+def classify_one(msg):
+    """('budget'|'found'|'off') for one rejecting message, 'active' for one that
+    clearly continues the search, else None (neutral)."""
+    if not msg:
         return None
-    if STILL_LOOKING_RE.search(last_inbound):
-        return None  # they are still asking for alternatives — not a rejection
-    if REJECT_OFF_RE.search(last_inbound):
+    if STILL_LOOKING_RE.search(msg):
+        return "active"
+    if REJECT_OFF_RE.search(msg):
         return "off"
-    if REJECT_FOUND_RE.search(last_inbound):
+    if REJECT_FOUND_RE.search(msg):
         return "found"
-    if REJECT_BUDGET_RE.search(last_inbound):
+    if REJECT_BUDGET_RE.search(msg):
         return "budget"
+    return None
+
+def reject_kind(inbounds, depth=10):
+    """Walk the tenant's inbound messages newest-first and return the most recent
+    DECISION: ('budget'|'found'|'off') for a rejection, else None.
+
+    Testing only the literal last inbound missed most real rejections — chats end
+    with "ok thanks 🙏", not with the decision (found 21 Aug 2026: 78 of 251
+    rostered tenants sat at rejected/found in the DB or their chats). Pleasantry
+    noise is stepped over; the first substantive message settles it either way —
+    a neutral substantive message means their latest word is NOT a rejection, so
+    an older "found a place" must not reject them (they may have resumed looking;
+    a resumed search re-enters through Part B, not through this reconciler).
+    """
+    for msg in list(reversed(inbounds or []))[:depth]:
+        kind = classify_one(msg)
+        if kind == "active":
+            return None
+        if kind:
+            return kind
+        if not is_noise(msg):
+            return None
     return None
 
 # ── Status model ────────────────────────────────────────────────────────────────
@@ -193,7 +244,7 @@ def fetch_rows(con, jids):
     for jid in jids:
         try:
             cur = con.execute(
-                "SELECT id, is_from_me, content FROM messages "
+                "SELECT id, is_from_me, content, timestamp FROM messages "
                 "WHERE chat_jid = ? AND content IS NOT NULL AND content != '' "
                 "ORDER BY timestamp",
                 (jid,),
@@ -204,28 +255,46 @@ def fetch_rows(con, jids):
             if r["id"] in seen_ids:
                 continue
             seen_ids.add(r["id"])
-            rows.append((int(r["is_from_me"] or 0), r["content"]))
-    return rows
+            rows.append((r["timestamp"] or "", int(r["is_from_me"] or 0), r["content"]))
+    # a tenant whose chat spans multiple jids (@s.whatsapp.net + @lid) must still
+    # read in true time order — "latest word wins" is wrong otherwise
+    rows.sort(key=lambda r: r[0])
+    return [(m, c) for _ts, m, c in rows]
 
 # ── Analysis ──────────────────────────────────────────────────────────────────
+
+# Engine sends the bridge sometimes stores as is_from_me=0 (same quirk the form
+# scan already handles). Without this guard "the room is already taken" or the
+# blank form itself would count as the TENANT speaking and poison the rejection
+# scan ("already taken" matches REJECT_FOUND_RE).
+OUR_ECHO_RE = re.compile(
+    r'(More rooms available on my rental channel'
+    r'|already\s+(?:taken|rented\s+out)\b.*(?:room|unit)|room\s+is\s+(?:already\s+)?taken'
+    r'|I will send the unit number)',
+    re.I,
+)
 
 def analyze(rows, jid_in_conv):
     """From a tenant's chat rows (ASC), derive WA evidence."""
     had_form = jid_in_conv          # conversation-state.json is the primary form-sent signal
     had_profile = False
-    last_inbound = None
+    inbounds = []
     for is_me, content in rows:
         if not content:
             continue
         filled = is_filled_profile(content)
         if is_me == 0:
-            last_inbound = content
+            if (ALREADY_SENT_RE.search(content) and not filled) or OUR_ECHO_RE.search(content):
+                # our own send mis-stored as inbound -> form marker, never tenant speech
+                had_form = True
+                continue
+            inbounds.append(content)
             if filled:
                 had_profile = True
         elif ALREADY_SENT_RE.search(content) and not filled:
             # outbound blank form (manual phone send OR bot send) -> form was sent
             had_form = True
-    return had_form, had_profile, last_inbound
+    return had_form, had_profile, inbounds
 
 def main():
     t = json.load(open(TDB))
@@ -244,7 +313,23 @@ def main():
         if x.get("excluded"):
             continue
         cur = x.get("status")
-        if cur in SKIP:
+        # "never reopens closed" was documented but never enforced: closed statuses are
+        # multi-word ("closed (stale)") so the exact-match SKIP set missed them and
+        # RANK.get(closed,0)=0 let an old returned profile promote them back to
+        # profile-received — the stale sweep then re-closed the same ~167 rows every
+        # run for weeks (found 20 Aug 2026 via the double "closed 167" log). A closed
+        # tenant reopens only by hand or by NEW inbound through Part B, never by this
+        # whole-history reconciler.
+        # An already-rejected row with contact_state still "active" carries no
+        # sub-kind — mostly Part B AI writes that set status without one. Those
+        # rows are immortal (close_stale treats rejected as terminal) AND
+        # indistinguishable from a re-engageable budget objection, which is how
+        # 78 found/not-interested tenants sat on the match roster on 21 Aug 2026.
+        # Re-derive ONLY the sub-kind for them: found -> found_place, off ->
+        # not_interested; budget/none stays active. Status itself never changes.
+        reclassify_only = (cur == "rejected"
+                           and (x.get("contact_state") or "active") == "active")
+        if not reclassify_only and (cur in SKIP or str(cur or "").lower().startswith("closed")):
             continue
         jids = candidate_jids(x, pn_to_lid)
         if not jids:
@@ -253,11 +338,24 @@ def main():
         rows = fetch_rows(con, jids)
         if not rows and not jid_in_conv:
             continue
-        had_form, had_profile, last_inbound = analyze(rows, jid_in_conv)
+        had_form, had_profile, inbounds = analyze(rows, jid_in_conv)
+
+        if reclassify_only:
+            rk = reject_kind(inbounds)
+            new_cs = {"off": "not_interested", "found": "found_place"}.get(rk)
+            if new_cs and x.get("contact_state") != new_cs:
+                rec = {"id": x.get("id"), "name": x.get("name"),
+                       "from": cur, "to": cur,
+                       "contact_state": f"{x.get('contact_state')} -> {new_cs}"}
+                x["contact_state"] = new_cs
+                x["contact_state_updated"] = TODAY_SGT
+                counts[f"rejected contact_state -> {new_cs}"] += 1
+                changes.append(rec)
+            continue
 
         new_status = None
         new_cs = None
-        rk = reject_kind(last_inbound)
+        rk = reject_kind(inbounds)
         if rk:
             new_status = "rejected"
             new_cs = {"off": "not_interested", "found": "found_place",

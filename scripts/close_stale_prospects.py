@@ -5,9 +5,10 @@ close_stale_prospects.py — auto-close prospective tenants who have gone quiet.
 Rule (per Winfred, 4 Jul 2026): a prospect whose last_contact is more than
 STALE_DAYS (30) days ago is undesirable and is closed automatically.
 
-Closes only non-terminal, non-deal statuses. Never touches: rejected, tenanted,
+Closes only non-terminal, non-deal statuses. Never touches: tenanted,
 found_place, deposit-pending, anything already closed, excluded records, or
-contact_state found_place / do_not_contact / not_interested. Records with no
+contact_state found_place / do_not_contact / not_interested. A "rejected"
+status alone does NOT protect a row (see TERMINAL_STATUS). Records with no
 last_contact at all fall back to data_collected; if neither exists the record
 is left alone (nothing to age against).
 
@@ -24,7 +25,12 @@ ROOT = os.path.expanduser("~/crestbrick-consult")
 P = os.path.join(ROOT, "_templates/tenant-db.json")
 STALE_DAYS = 30
 
-TERMINAL_STATUS = {"rejected", "tenanted", "found_place", "deposit-pending"}
+# "rejected" is deliberately NOT terminal here: a rejection with contact_state
+# still "active" is a listing-level objection (too far / over budget), and those
+# must age out like any open row — treating them as terminal made them immortal,
+# and by 21 Aug 2026 they were 31% of the match roster months after going quiet.
+# A real found/not-interested rejection is protected via TERMINAL_CONTACT below.
+TERMINAL_STATUS = {"tenanted", "found_place", "deposit-pending"}
 TERMINAL_CONTACT = {"found_place", "do_not_contact", "not_interested"}
 
 

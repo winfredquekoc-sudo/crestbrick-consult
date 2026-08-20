@@ -7,7 +7,7 @@ Pure-ish builder functions (build_listings, build_tenants, compute_*, apply_*) t
 already-loaded data and do no file I/O themselves, so tests/matchmaker/test_export.py
 can exercise them directly with fixtures. Only main() touches real paths.
 """
-import json, os, re, sys, hashlib, datetime, importlib.util, sqlite3, statistics
+import json, os, re, sys, hashlib, datetime, importlib.util, sqlite3, statistics, time
 import enrich
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
@@ -15,6 +15,81 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, "matchmaker-data.json")
 PREV = os.path.join(HERE, "matchmaker-data.prev.json")
 EXCLUSIONS_PATH = os.path.expanduser("~/.claude/state/matchmaker-exclusions.json")
+FEE_WILLING_PATH = os.path.expanduser("~/.claude/state/tenant-fee-willing.json")
+GEOCACHE_PATH = os.path.expanduser("~/.claude/state/matchmaker-geocache.json")
+
+# Approximate postal-district centroids (fallback when geocoding is unavailable). Good to
+# a neighbourhood, not a block — pins from this table are marked approx and drawn hollow.
+DISTRICT_CENTROIDS = {
+ "D1":(1.284,103.851),"D2":(1.276,103.846),"D3":(1.290,103.805),"D4":(1.271,103.820),
+ "D5":(1.293,103.770),"D6":(1.290,103.850),"D7":(1.302,103.856),"D8":(1.311,103.856),
+ "D9":(1.305,103.832),"D10":(1.315,103.807),"D11":(1.325,103.837),"D12":(1.327,103.855),
+ "D13":(1.331,103.878),"D14":(1.318,103.890),"D15":(1.303,103.902),"D16":(1.323,103.930),
+ "D17":(1.357,103.988),"D18":(1.352,103.944),"D19":(1.368,103.890),"D20":(1.360,103.840),
+ "D21":(1.335,103.776),"D22":(1.339,103.707),"D23":(1.377,103.763),"D24":(1.398,103.700),
+ "D25":(1.437,103.786),"D26":(1.398,103.823),"D27":(1.428,103.835),"D28":(1.397,103.873)}
+
+def _load_geocache():
+    try:
+        with open(GEOCACHE_PATH) as f: return json.load(f)
+    except (OSError, ValueError): return {}
+
+_GEOCACHE = _load_geocache()
+_GEOCACHE_DIRTY = False
+_GEOCODE_BUDGET = 20   # max live lookups per export; the rest fall back to cache/centroid
+
+def geocode(query, district):
+    """(lat, lng, src) for a listing. Cache -> OneMap (budgeted, silent on failure) ->
+    district centroid. src is 'exact' or 'approx' so the UI can draw approx pins hollow."""
+    global _GEOCACHE_DIRTY, _GEOCODE_BUDGET
+    key = (query or "").strip().lower()
+    if key and key in _GEOCACHE:
+        c = _GEOCACHE[key]
+        if c: return c["lat"], c["lng"], "exact"
+    elif key and _GEOCODE_BUDGET > 0:
+        _GEOCODE_BUDGET -= 1
+        import urllib.request, urllib.parse
+        # raw DB addresses carry noise OneMap can't match ("(full addr withheld)", unit
+        # numbers) — try the postal code first, then a de-noised street, then the raw text
+        cands = []
+        pm = re.search(r"[sS]?(\d{6})\b", key)
+        if pm: cands.append(pm.group(1))
+        street = re.sub(r"\(.*?\)|#\d+-\d+[a-z]?|\bs\d{6}\b|\bblk\b", " ", key)
+        street = re.sub(r"[,;].*$", "", street).strip()
+        if street and street not in cands: cands.append(street[:80])
+        if key[:80] not in cands: cands.append(key[:80])
+        hit = None
+        for cand in cands:
+            # OneMap throttles rapid-fire requests (observed: 2 hits then straight
+            # refusals on 20 Aug 2026) — pace every call and retry once per candidate
+            for attempt in (1, 2):
+                try:
+                    time.sleep(0.6)
+                    u = ("https://www.onemap.gov.sg/api/common/elastic/search?returnGeom=Y"
+                         "&getAddrDetails=N&searchVal=" + urllib.parse.quote(cand))
+                    req = urllib.request.Request(u, headers={"User-Agent": "crestbrick-matchmaker/1.0"})
+                    with urllib.request.urlopen(req, timeout=6) as r:
+                        res = (json.load(r).get("results") or [])
+                    if res:
+                        hit = {"lat": float(res[0]["LATITUDE"]), "lng": float(res[0]["LONGITUDE"])}
+                    break
+                except Exception:
+                    if attempt == 2: pass
+            if hit: break
+        _GEOCACHE[key] = hit    # negative-cache misses so they never re-query
+        _GEOCACHE_DIRTY = True
+        if hit:
+            return hit["lat"], hit["lng"], "exact"
+    lat, lng = DISTRICT_CENTROIDS.get(district or "", (1.352, 103.82))
+    return lat, lng, "approx"
+
+def _save_geocache():
+    if not _GEOCACHE_DIRTY: return
+    try:
+        tmp = GEOCACHE_PATH + ".tmp"
+        with open(tmp, "w") as f: json.dump(_GEOCACHE, f, indent=1)
+        os.replace(tmp, GEOCACHE_PATH)
+    except OSError: pass
 SEEN_PATH = os.path.expanduser("~/.claude/state/matchmaker-seen.json")
 LISTING_INDEX_PATH = os.path.expanduser("~/.claude/state/listing-templates/listing-index.json")
 LISTINGS_JSON_PATH = os.path.join(ROOT, "public/listings.json")
@@ -52,9 +127,14 @@ def lifecycle(l):
 def looking(t):
     ms = (t.get("match_status") or "").lower(); cs = (t.get("contact_state") or "").lower()
     stt = (t.get("status") or "").lower()
-    if ms in ("found","in_deal") or cs=="found" or stt=="tenanted": return "Found"
+    # cs "found_place" is what derive_tenant_status_from_wa.py actually writes — the
+    # bare "found" here matched nothing, so tenants who said "found a room already"
+    # kept exporting as Still looking (31% of the roster by 21 Aug 2026).
+    if (ms in ("found","in_deal") or cs in ("found","found_place")
+        or stt=="tenanted" or stt.startswith("closed (tenanted")): return "Found"
     if (t.get("excluded") or cs in ("do_not_contact","not_interested")
-        or ms in ("do_not_contact","excluded_india","excluded_family") or ms.startswith("stale") or stt=="excluded"):
+        or ms in ("do_not_contact","excluded_india","excluded_family") or ms.startswith("stale")
+        or stt=="excluded" or stt.startswith("closed") or stt=="archived"):
         return "Not looking"
     return "Still looking"
 
@@ -413,10 +493,13 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
 
         photo_info = photo_url_index.get((lid or "").upper(), {})
 
+        _glat, _glng, _gsrc = geocode(l.get("full_address") or l.get("rooms_and_rent") or "",
+                                      l.get("district") or "")
         out.append({
             "id": lid, "name": l.get("landlord_name"), "availability": av,
             "district": l.get("district") or "", "address": l.get("full_address") or "",
             "map_query": maps_query(l.get("full_address"), l.get("district"), dist_area),
+            "lat": _glat, "lng": _glng, "geo_src": _gsrc,
             "rent_min": rent_min, "rent_max": rent_max,
             "viewing": l.get("viewing_availability") or "",
             "rooms": l.get("rooms_and_rent") or "", "property_type": l.get("property_type") or "",
@@ -582,8 +665,46 @@ def find_budget_contradiction(conn, jid, stated_budget):
 
 
 # -------------------------------------------------------------- tenants ---
+# --- URGENT segment (Winfred, 20 Aug 2026) -------------------------------------
+# Two independent signals, both required:
+#   (a) they gave us real information  -> >=10 of the 14 intake fields present
+#   (b) they said they will pay the agent fee -> tenant-fee-willing.json
+# (b) lives in its own state file rather than tenant-db.json because that DB is
+# rebuilt from WhatsApp nightly and hand-added fields do not survive the rebuild.
+# Nothing populates (b) automatically: the intake form has never asked, so every
+# entry is Winfred marking it after the fact.
+_PROFILE_FIELDS = ("name","nationality","ethnicity","gender","age","pass_type","occupation",
+                   "employment_type","no_of_pax","move_in_date","lease_term_months","budget",
+                   "preferred_location","email")
+INFO_RICH_MIN = 10
+
+def load_fee_willing(path):
+    try:
+        with open(path) as f:
+            cfg = json.load(f)
+    except FileNotFoundError:
+        return set(), set()
+    except (OSError, ValueError) as e:
+        raise SystemExit("export_data.py: %s is unreadable (%s). Fix or delete it — refusing to "
+                         "build a roster that silently drops the URGENT segment." % (path, e))
+    return ({enrich.normalize_phone(p) for p in (cfg.get("phones") or [])},
+            set(cfg.get("ids") or []))
+
+def profile_filled(t):
+    return sum(1 for f in _PROFILE_FIELDS if str(t.get(f) or "").strip())
+
+def tenant_segment(t, filled, fee_willing):
+    if fee_willing and filled >= INFO_RICH_MIN:
+        return "URGENT"
+    if fee_willing:
+        return "FEE WILLING"
+    if filled >= INFO_RICH_MIN:
+        return "INFO RICH"
+    return ""
+
 def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
     out = []
+    fee_phones, fee_ids = load_fee_willing(FEE_WILLING_PATH)
     excl_counts = {"db": 0, "config_phone": 0, "config_id": 0, "config_name_marker": 0}
     phones_cfg = {enrich.normalize_phone(p) for p in (exclusions_cfg.get("phones") or [])}
     ids_cfg = set(exclusions_cfg.get("ids") or [])
@@ -686,8 +807,13 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
         # Contrast with intake_complete (kept — has its own dedicated correctness
         # test) and is_agent_suspect (kept — looks like a dormant agent-exclusion
         # signal per standing agent-exclusion policy, not dead code).
+        _filled = profile_filled(t)
+        _fee = (phone_norm in fee_phones) or (t.get("id") in fee_ids)
         out.append({
             "id": t.get("id"), "name": name,
+            "profile_filled": _filled, "profile_total": len(_PROFILE_FIELDS),
+            "pays_agent_fee": bool(_fee),
+            "segment": tenant_segment(t, _filled, _fee),
             "preferred_location": preferred_location,
             "preferred_districts": preferred_districts,
             "district": district, "district_inferred": district_inferred,
@@ -1501,6 +1627,7 @@ def main():
     # coverage for however briefly it exists between this write and the rename.
     tmp = os.path.join(HERE, "matchmaker-data.tmp.json")
     json.dump(data, open(tmp, "w"), ensure_ascii=False)
+    _save_geocache()
     os.replace(tmp, OUT)  # atomic — a crash mid write never leaves a truncated OUT
     print("wrote", OUT)
     print("listings:", len(listings), "| tenants:", len(tenants))
