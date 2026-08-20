@@ -249,8 +249,8 @@ def render(leads, scanned, days):
     lines.append("")
     lines.append("# Lead Revival Board")
     lines.append("")
-    lines.append("HOT and WARM leads are actionable now. COLD entries are past the five "
-                  "day dead lead rule and are manual judgment calls only. Landlords are "
+    lines.append("HOT and WARM leads are actionable now. COLD entries past the thirty "
+                  "day dead lead line are manual judgment calls only. Landlords are "
                   "fully excluded from this scan so they never sit in COLD by that rule.")
     lines.append("")
     lines.append(f"HOT {counts.get('HOT', 0)} | WARM {counts.get('WARM', 0)} | "
@@ -280,7 +280,9 @@ def render(leads, scanned, days):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--days", type=int, default=30)
+    # 45: scan window must reach the dead-lead cutoff (30 -> 45, 21 Aug 2026) or
+    # chats quiet 30-45 days — live and revivable under the rule — are never seen
+    ap.add_argument("--days", type=int, default=45)
     args = ap.parse_args()
     leads, scanned = scan(args.days)
     out = render(leads, scanned, args.days)

@@ -16,7 +16,22 @@ ROOT = os.path.expanduser("~/crestbrick-consult")
 TENANT_DB_PATH = os.path.join(ROOT, "_templates/tenant-db.json")
 WA_DB_PATH = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 QUEUE_PATH = os.path.expanduser("~/.claude/state/morning-dispatch-queue.json")
-COLD_DAYS = 5
+# Named DEAD, not COLD, on purpose — mirroring scoring.js's split of the same two
+# ideas. Collapsing them onto one constant is a bug this codebase has already had
+# once: the app hard blocked outreach at the COLD value and gagged 155 of 218 tenants
+# when only 72 were actually dead (see scoring.js:63). That split landed 13 Aug 2026
+# but never reached this file, which kept hard refusing at 5 days while Winfred's
+# real dead-lead rule had been widened to 30 on 12 Aug — so from 12 to 17 Aug it
+# silently declined to draft to anyone quiet 6+ days, leads he still considers live.
+# It erred safe (refusing more than policy requires, never less), which is why it
+# went unnoticed. Cold is a ranking signal; only DEAD may block an action.
+# Landlords/co-broke are exempt from the rule but never reach this path — the
+# matchmaker queue carries tenants only.
+# Read from config.json (single home for the thresholds, 21 Aug 2026) — this
+# file holding its own literal is exactly how it sat at 5 for five days after
+# the rule moved to 30, and at 30 for a day after the rule moved to 45.
+DEAD_DAYS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                        "config.json")))["dead_days"]
 
 
 def freshest_days(tenant, last_wa, today):
@@ -70,7 +85,7 @@ def pending_recipients(queue_path):
 
 def classify_items(items, tenants_by_id, wa_conn, today, queued_ids=None, queued_jids=None):
     """Returns (approved, refused, skipped, duplicates). approved carries the
-    resolved jid; refused = cold rule (or unknown recency, refused to be safe);
+    resolved jid; refused = dead-lead rule (or unknown recency, refused to be safe);
     skipped = we could not identify a real tenant/jid at all (never guessed);
     duplicates = this recipient is already awaiting send, so queueing again
     would double message them."""
@@ -88,7 +103,7 @@ def classify_items(items, tenants_by_id, wa_conn, today, queued_ids=None, queued
         jid = t.get("jid")
         if not jid:
             skipped.append((tid, name, "no jid on file for this tenant — never guessing")); continue
-        # Checked before the cold lookup: an already queued recipient is settled
+        # Checked before the recency lookup: an already queued recipient is settled
         # regardless of how recently they were active, and this keeps one
         # exported-twice batch from re-running a bridge query per duplicate.
         if tid in queued_ids or jid in queued_jids:
@@ -97,8 +112,8 @@ def classify_items(items, tenants_by_id, wa_conn, today, queued_ids=None, queued
         days = freshest_days(t, last_wa, today)
         if days is None:
             refused.append((tid, name, "no contact date on file — cannot verify recency, refusing")); continue
-        if days > COLD_DAYS:
-            refused.append((tid, name, f"last activity {days}d ago (>{COLD_DAYS}d cold rule)")); continue
+        if days > DEAD_DAYS:
+            refused.append((tid, name, f"last activity {days}d ago (>{DEAD_DAYS}d dead-lead rule)")); continue
         # One message per recipient per batch: the same tenant queued against
         # two different listings exports as two items with different text, and
         # sending both at 08:00 would still read as a double message.
@@ -151,7 +166,7 @@ def main():
     # Explicit +08:00, matching build.py/export_data.py's own generated_ts
     # convention — correct on the SGT machine this normally runs on (launchd,
     # per crestbrick-consult's WA pipeline deploy model), and degrades sanely
-    # if it is ever invoked from elsewhere: the 5 day cold-refusal boundary
+    # if it is ever invoked from elsewhere: the DEAD_DAYS refusal boundary
     # stays anchored to Singapore's calendar day rather than silently
     # inheriting whatever TZ the invoking shell/cron happens to carry.
     today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date()
@@ -160,7 +175,7 @@ def main():
         items, tenants_by_id, wa_conn, today, queued_ids, queued_jids)
     if wa_conn: wa_conn.close()
 
-    print(f"\n{len(approved)} ready to queue, {len(refused)} refused (cold rule), "
+    print(f"\n{len(approved)} ready to queue, {len(refused)} refused (dead-lead rule), "
           f"{len(duplicates)} already queued, {len(skipped)} skipped (no id/jid)\n")
     for tid, name, reason in skipped:
         print(f"  SKIP    {name} ({tid}): {reason}")

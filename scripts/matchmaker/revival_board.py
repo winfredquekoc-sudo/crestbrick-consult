@@ -16,7 +16,9 @@ ROOT = os.path.expanduser("~/crestbrick-consult")
 sys.path.insert(0, os.path.join(ROOT, "scripts", "matchmaker"))
 from export_data import availability, build_area_keywords, infer_district, looking, num  # noqa: E402
 
-LEAD_CUTOFF_DAYS = 30  # feedback_lead_cutoff.md — leads quieter than this are not revival candidates
+# feedback_lead_cutoff.md — leads quieter than this are not revival candidates.
+# Same rule as dispatch blocking, so same config.json home (45 as of 21 Aug 2026).
+LEAD_CUTOFF_DAYS = json.load(open(os.path.join(ROOT, "scripts", "matchmaker", "config.json")))["dead_days"]
 BOARD = os.path.expanduser(
     "~/Desktop/Real Estate Related/Winfred Brain/Deals/Matchmaker Revival board.md")
 

@@ -864,7 +864,7 @@ def test_revival_and_duplicate_phones():
     fresh_tenant = fake_tenant(id="TR2", name="Fresh Tan", phone="90000022", last_contact="2026-08-10")
     landlords = [fake_landlord(id="LLR1", status="active", district="D15", rent_min=1100, rent_max=1300)]
     revival = ed.build_revival([quiet_tenant, fresh_tenant], landlords, dist_area, area_keywords, TODAY)
-    check("only the tenant past the 30 day lead cutoff appears", [r["name"] for r in revival] == ["Quiet Tan"],
+    check("only the tenant past the 45 day lead cutoff appears", [r["name"] for r in revival] == ["Quiet Tan"],
           f"got {[r['name'] for r in revival]}")
     r = revival[0]
     required_r = ["name", "phone", "days_quiet", "budget", "district", "pax", "tier", "match"]
@@ -1655,13 +1655,13 @@ def test_js_syntax_gate():
 
 
 def test_queue_cold_rule():
-    section("queue_drafts: 30 day dead-lead rule and no signal refusal at dispatch time")
+    section("queue_drafts: 45 day dead-lead rule and no signal refusal at dispatch time")
     import queue_drafts as qd  # noqa: E402
     today = datetime.date(2026, 8, 11)
 
     fresh = {"id": "T1", "last_contact": "2026-08-10", "jid": "9000000190001@lid"}
-    # 15 days: dead under the old 5 day value, LIVE under the 30 day dead-lead rule.
-    # This fixture is the regression lock for the 17 Aug widening — if COLD_DAYS ever
+    # 15 days: dead under the old 5 day value, LIVE under the dead-lead rule.
+    # This fixture is the regression lock for the 17 Aug widening — if the rule ever
     # drifts back below 30, this is the check that fails first.
     midband = {"id": "T2", "last_contact": "2026-07-27", "jid": "9000000290001@lid"}
     dead = {"id": "T5", "last_contact": "2026-06-25", "jid": "9000000590001@lid"}  # 47 days
@@ -1680,9 +1680,9 @@ def test_queue_cold_rule():
     skipped_ids = [s[0] for s in skipped]
 
     check("fresh tenant is approved", "T1" in approved_ids, str(approved_ids))
-    check("15d tenant is approved — live under the 30 day rule, was wrongly refused at 5",
+    check("15d tenant is approved — live under the dead-lead rule, was wrongly refused at 5",
           "T2" in approved_ids, str(approved_ids))
-    check("dead >30d tenant is refused", "T5" in refused_ids, str(refused_ids))
+    check("dead >45d tenant is refused", "T5" in refused_ids, str(refused_ids))
     check("no signal tenant is refused, never guessed fresh", "T3" in refused_ids, str(refused_ids))
     check("tenant with no jid is skipped, never guessed", "T4" in skipped_ids, str(skipped_ids))
     check("unknown tenant id is skipped", "T_UNKNOWN" in skipped_ids, str(skipped_ids))
@@ -1697,13 +1697,18 @@ def test_queue_cold_rule():
         ap, _rf, _sk, _dp = qd.classify_items(item, {"TB": t}, None, today)
         return "approved" if ap else "refused"
 
-    check("30 day boundary: exactly 30 days still queues",
-          verdict("2026-07-12") == "approved", verdict("2026-07-12"))
-    check("30 day boundary: 31 days does not",
-          verdict("2026-07-11") == "refused", verdict("2026-07-11"))
+    check("45 day boundary: exactly 45 days still queues",
+          verdict("2026-06-27") == "approved", verdict("2026-06-27"))
+    check("45 day boundary: 46 days does not",
+          verdict("2026-06-26") == "refused", verdict("2026-06-26"))
     # Named DEAD_DAYS, not COLD_DAYS: cold is a ranking signal, only dead may block
     # an action. scoring.js:63 records what conflating them cost last time.
-    check("DEAD_DAYS matches the dead-lead rule", qd.DEAD_DAYS == 30, str(qd.DEAD_DAYS))
+    check("DEAD_DAYS matches the dead-lead rule (45, widened 21 Aug 2026)",
+          qd.DEAD_DAYS == 45, str(qd.DEAD_DAYS))
+    cfg = json.load(open(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                                      "scripts", "matchmaker", "config.json")))
+    check("DEAD_DAYS is read from config.json, the thresholds' single home",
+          qd.DEAD_DAYS == cfg["dead_days"], f"{qd.DEAD_DAYS} vs config {cfg['dead_days']}")
     check("no COLD_DAYS constant survives to be conflated again",
           not hasattr(qd, "COLD_DAYS"))
 

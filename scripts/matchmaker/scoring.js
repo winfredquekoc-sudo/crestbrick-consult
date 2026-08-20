@@ -72,7 +72,7 @@ var COLD_DAYS_THRESHOLD = 5;
 // The ONLY threshold that hard blocks outreach. isDead()/isDeadFromDays()
 // below are the sole authority for "is this lead dead" — see isDeadBlocked()
 // for the mandatory landlord/co-broke exemption.
-var DEAD_DAYS_THRESHOLD = 30;
+var DEAD_DAYS_THRESHOLD = 45;  // 30 -> 45 per Winfred, 21 Aug 2026
 var LOOKALIKE_PENALTY = 8;           // display only; applied by app.js using isSimilarListing()
 var WHOLE_UNIT_FLAG = "budget well above room (may want whole unit)";
 
@@ -380,7 +380,7 @@ function isCold(t, today) {
   return isColdFromDays(coldDays(t, today));
 }
 
-// The dead lead rule (30 days, Winfred's standing rule as of 12 Aug 2026) —
+// The dead lead rule (45 days, Winfred's standing rule as of 21 Aug 2026) —
 // this and ONLY this decides whether outreach is hard blocked. Unknown
 // contact date is treated as "not dead" for the same reason isColdFromDays
 // treats it as "not cold": we don't know, so we don't disable outreach on an
