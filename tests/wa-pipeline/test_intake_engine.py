@@ -72,7 +72,11 @@ st = {"version":1,"conversations":{}}
 jid = "6591234567@s.whatsapp.net"
 a1 = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("first enquiry -> SEND_FORM", a1 and a1["type"]=="SEND_FORM")
-ok("SEND_FORM is TWO messages (unit info, then form)", a1 and len(a1.get("texts",[]))==2)
+ok("SEND_FORM is THREE messages (unit info, form, channel pitch)", a1 and len(a1.get("texts",[]))==3)
+ok("3rd message is the channel pitch, sent standalone (Winfred, 18 Aug 2026)",
+   a1 and a1["texts"][2]==E.CHANNEL_PITCH and E.CHANNEL in a1["texts"][2])
+ok("channel pitch is its OWN message, never appended to the form",
+   a1 and E.CHANNEL not in a1["texts"][1])
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
 ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
@@ -228,7 +232,7 @@ ok("capture_availability mirrors real slot state (bedok)", aA.get("capture_avail
 print("== 9. AVAILABLE VIEWING SLOT + the two-message split ==")
 sV={"version":1,"conversations":{}}
 aV=E.handle_event(sV,{"jid":"6590005555@s.whatsapp.net","msg_id":"v1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
-ok("SEND_FORM carries two messages", aV and aV["type"]=="SEND_FORM" and len(aV.get("texts",[]))==2)
+ok("SEND_FORM carries three messages", aV and aV["type"]=="SEND_FORM" and len(aV.get("texts",[]))==3)
 ok("msg1 is unit info, no form fields", aV and ("Caspian" in aV["texts"][0] or "Lakeside" in aV["texts"][0]) and "• Name:" not in aV["texts"][0])
 ok("viewing line in msg1 iff listing has a real future slot",
    aV and (("Available viewing:" in aV["texts"][0]) == (E.next_future_slot("caspian") is not None)))
@@ -538,7 +542,8 @@ ok("non-open regression: full form still required", set(E.missing_required({"nam
 # 14 field INTAKE_FORM) -> brief reply with the open-intake must-knows -> viewing offered.
 _so={"version":1,"conversations":{"6590999009":{"pn":"6590999009","listing_key":"bayshore","stage":"NEW","profile":{},"processed_ids":[],"form_sent":False,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":False,"status":"new","last_inbound":None}}}
 _so1=E.handle_event(_so,{"jid":"6590999009@s.whatsapp.net","msg_id":"o1","text":"hi is the bayshore room available to rent?","is_from_me":0})
-_form=(_so1.get("texts") or [_so1.get("text") or ""])[-1]
+_texts=(_so1.get("texts") or [_so1.get("text") or ""])
+_form=next((t for t in _texts if "fill this in" in (t or "").lower()), _texts[-1])
 ok("open enquiry -> SEND_FORM with the FULL form (short form retired 13 Jul 2026)",
    _so1.get("type")=="SEND_FORM" and "Name:" in _form and "Budget:" in _form and "Occupation" in _form)
 _so["conversations"]["6590999009"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
@@ -599,8 +604,12 @@ print("== FIXED VIEWING SLOT offered on a BUYER (sale) enquiry (3 Aug 2026: Kemb
 ok("kembangan-villas has a fixed_viewing rule -> next Sat 1 Aug, 11:00-12:00",
    (lambda s: s and s["date"]=="2026-08-01" and s["start"]=="11:00" and s["end"]=="12:00")(
      E._fixed_viewing_slot("kembangan-villas","2026-07-30")))
-ok("sin-ming-rd-23 has a fixed_viewing rule -> next Sat 1 Aug, 13:00-14:30",
-   (lambda s: s and s["date"]=="2026-08-01" and s["start"]=="13:00" and s["end"]=="14:30")(
+# sin-ming-rd-23's exact slot time is landlord-set and can legitimately change (was
+# 13:00-14:30, updated to 14:30-15:30 by 13 Aug 2026) -- read the CURRENT config from the
+# registry rather than hardcoding a value that will go stale, only the mechanism is under test.
+_smcfg = (E.listing_reqs().get("sin-ming-rd-23",{}) or {}).get("fixed_viewing") or {}
+ok("sin-ming-rd-23 has a fixed_viewing rule -> next Sat, matches its OWN registry start/end",
+   (lambda s: s and s["date"]=="2026-08-01" and s["start"]==_smcfg.get("start") and s["end"]==_smcfg.get("end"))(
      E._fixed_viewing_slot("sin-ming-rd-23","2026-07-30")))
 # end to end: the first buyer-form message includes the fixed slot, and it is tracked under
 # its OWN state key (buyer_offered_slot_id) so it never touches the rental viewing_asked /
@@ -620,7 +629,8 @@ aM=E.handle_event(sM,{"jid":"6590221101@s.whatsapp.net","msg_id":"M1",
    "text":"Hi Winfred Quek,\nI am interested in:\nSALE - 23 Sin Ming Road\n2 Beds /  S$ 368,000\n\nThanks",
    "is_from_me":0,"listing_key":"sin-ming-rd-23"})
 ok("23 Sin Ming Road buyer enquiry -> SEND_BUYER_FORM with the fixed slot appended",
-   aM and aM["type"]=="SEND_BUYER_FORM" and "Viewing:" in aM["text"] and "1 to 2.30pm" in aM["text"])
+   aM and aM["type"]=="SEND_BUYER_FORM" and "Viewing:" in aM["text"]
+   and _smcfg.get("time_label","\x00") in aM["text"])
 
 # regression: a sale enquiry with no listing_key match (or a listing with no fixed_viewing
 # rule) still sends the plain buyer form -- no "Viewing:" line, no crash on next_slot(None).
@@ -679,6 +689,70 @@ ok("buyer 'too small for us' reply -> profile captured (name/budget/financing), 
    aU2 is not None and recU.get("buyer",{}).get("budget")==2000000 and recU.get("buyer",{}).get("financing")=="valid")
 ok("buyer 'too small for us' reply -> conversation stays open (no rental terminal/redirect)",
    not recU.get("terminal") and recU.get("stage") != "CLOSED_UNIT_REJECTED")
+
+print("== Chinese supply precision (real-history replay R3, 11 Aug 2026) ==")
+# Bare 房东 / 我的房 in _LANDLORD_SUPPLY matched TENANTS talking about their landlord or
+# their rented room (曹廷溪, mid-tenancy, 让房东再看一下信箱 -> classified landlord). Only
+# first-person / action supply phrasings may match; tenant demand phrasings must veto.
+_jz = "6580000000@s.whatsapp.net"  # no DB history -> blob is the text alone
+ok("tenant mentions THEIR landlord (房东说/问房东) -> not supply",
+   E.supply_side_kind(_jz, "我今天让房东再看一下信箱") is None
+   and E.supply_side_kind(_jz, "房东说可以，我下周搬进来") is None)
+ok("tenant about their own rented room (我的房间...) -> not supply",
+   E.supply_side_kind(_jz, "我的房间空调坏了") is None)
+ok("tenant availability question 有房间出租吗 -> demand veto, not supply",
+   E.supply_side_kind(_jz, "请问有房间出租吗？我想租一间") is None)
+ok("real landlord 我是房东/帮我出租 -> still supply confident",
+   E.supply_side_kind(_jz, "我是房东，帮我出租房间", with_confidence=True) == ("landlord", True))
+ok("real landlord 我有房间出租，找租客 -> still supply",
+   E.supply_side_kind(_jz, "我有房间出租，找租客") == "landlord")
+ok("real landlord 单位出租 posting -> still supply",
+   E.supply_side_kind(_jz, "单位出租，中介勿扰") == "landlord")
+ok("carousell neighbour entry unaffected -> still supply",
+   E.supply_side_kind(_jz, "i am the landlord from carosell") == "landlord")
+
+print("== channel pitch as a standalone message (Winfred, 18 Aug 2026) ==")
+import wa_intake_runner as _RCP
+ok("CHANNEL_PITCH carries the channel link", E.CHANNEL in E.CHANNEL_PITCH)
+ok("CHANNEL_PITCH has no hyphen (standing prospect-facing rule)", "-" not in E.CHANNEL_PITCH.split("https://")[0])
+ok("CHANNEL_PITCH classified as an engine send (outbound prefix)",
+   any(E.CHANNEL_PITCH.lower().startswith(p) for p in E._ENGINE_PREFIXES))
+ok("CHANNEL_PITCH recognised by is_bot_message (inbound echo)", E.is_bot_message(E.CHANNEL_PITCH))
+ok("CHANNEL_PITCH recognised by the runner as our own echo", _RCP._is_our_echo(E.CHANNEL_PITCH) is True)
+ok("CHANNEL_PITCH yields no phantom profile fields",
+   all(v in (None,"") for v in E.extract_profile(E.CHANNEL_PITCH).values()))
+ok("INTAKE_FORM itself still carries no channel link", E.CHANNEL not in E.INTAKE_FORM)
+ok("INTAKE_FORM still has all 14 field labels after the split",
+   all(x in E.INTAKE_FORM for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:",
+       "Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
+_sB={"version":1,"conversations":{}}
+_aB=E.handle_event(_sB,{"jid":"6591112223@s.whatsapp.net","msg_id":"cp1","text":"Hi, I am interested in a HDB for sale, budget 800k","is_from_me":0})
+ok("buyer (sale) enquiry does NOT get the rental channel pitch",
+   not _aB or E.CHANNEL not in " ".join(_aB.get("texts") or [_aB.get("text") or ""]))
+
+# ---- hot_matches: cross-listing screen feeds alerts only, never the flow ----
+_hm_reqs = {
+    "hm-a": {"listing_key": "hm-a", "status": "open", "requirements": {}},
+    "hm-b": {"listing_key": "hm-b", "status": "open", "requirements": {}},
+    "hm-c": {"listing_key": "hm-c", "status": "open", "requirements": {}},
+}
+_hold_reqs, _hold_unavail, _hold_qualify = E.listing_reqs, E._listing_unavailable, E.qualify
+E.listing_reqs = lambda: _hm_reqs
+E._listing_unavailable = lambda lk, reqs=None: ("tenanted" if lk == "hm-c" else None)
+E.qualify = lambda req, profile: (("QUALIFIED", []) if req["listing_key"] != "hm-x" else ("DISQUALIFIED", ["x"]))
+_hm = E.hot_matches({"name": "T"}, exclude_key="hm-a")
+ok("hot_matches skips the listing already being discussed", "hm-a" not in _hm)
+ok("hot_matches skips unavailable listings", "hm-c" not in _hm)
+ok("hot_matches returns the other qualified listings", _hm == ["hm-b"])
+E.qualify = lambda req, profile: ("DISQUALIFIED", ["no"])
+ok("hot_matches empty when nothing qualifies", E.hot_matches({"name": "T"}) == [])
+def _boom(req, profile): raise RuntimeError("qualify exploded")
+E.qualify = _boom
+ok("hot_matches swallows a qualify failure (alert feed must never break intake)",
+   E.hot_matches({"name": "T"}) == [])
+E.listing_reqs, E._listing_unavailable, E.qualify = _hold_reqs, _hold_unavail, _hold_qualify
+ok("runner formats the hot line", _RCP._hot_line({"hot_matches": ["a", "b"]}) == "\n🔥 Also fits: a, b")
+ok("runner hot line is empty without matches", _RCP._hot_line({}) == "")
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

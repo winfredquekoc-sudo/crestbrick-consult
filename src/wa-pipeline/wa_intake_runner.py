@@ -89,6 +89,14 @@ _OUTBOUND_ONLY = (
     "almost there :) to send your profile", "almost there :) i still need",
     "could you confirm this so i can send your profile",
     "when are you able to view", "by sharing these details you agree",
+    # viewing-first texts (11 Aug 2026) — echoed engine sends must never read as inbound
+    "keen to view? i can put you in", "are you free to view on", "i can arrange for viewing",
+    "to confirm your viewing slot with the landlord",
+    "can i just check your", "just need your profile above", "ok can, your viewing is on",
+    "what time will you be coming? i will keep", "see you then, i will send the unit number",
+    "on your question, let me check with the owner", "viewing slot:",
+    "no worries, which day and time would work better",
+    "more rooms available on my rental channel",
 )
 
 def _is_our_echo(content):
@@ -179,7 +187,7 @@ def run():
 
         if "last_rowid" in wm:
             rows = con.execute(
-                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp FROM messages "
+                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp, media_type FROM messages "
                 f"WHERE rowid > ? AND chat_jid LIKE '%@lid' ORDER BY rowid", (wm["last_rowid"],)
             ).fetchall()
         else:
@@ -187,7 +195,7 @@ def run():
             # the mixed +08:00/-04:00 offsets, so rows the string comparison hid (real leads)
             # are recovered here; the stale-row guard below keeps old history out.
             rows = con.execute(
-                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp FROM messages "
+                f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp, media_type FROM messages "
                 f"WHERE datetime(timestamp) > datetime(?) AND chat_jid LIKE '%@lid' ORDER BY rowid",
                 (wm.get("last_ts", ""),)
             ).fetchall()
@@ -224,7 +232,7 @@ def run():
                       "enquiries are DEFERRED (no forms sent, nothing lost) until the file "
                       "is fixed — the engine cannot verify who is a landlord.")
         landlords = frozenset()
-    for _rowid, _mid, _jid, _ifm, _content, _ts in rows:
+    for _rowid, _mid, _jid, _ifm, _content, _ts, _mtype in rows:
         if _ifm and not E.is_engine_outbound(_content):
             try:
                 _pn = E.resolve_pn(_jid)
@@ -241,7 +249,7 @@ def run():
                 _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
     reqs_tick = E.listing_reqs()   # one disk read per tick, not one per row
     last_rowid = wm.get("last_rowid")
-    for rowid, rid, jid, ifm, content, ts in rows:
+    for rowid, rid, jid, ifm, content, ts, mtype in rows:
         last_rowid = rowid if (last_rowid is None or rowid > last_rowid) else last_rowid
         # stale backfill guard: the bridge re-syncs reconnect gaps with old-stamped rows.
         # Genuinely old history must never be auto-served as a fresh enquiry.
@@ -261,7 +269,8 @@ def run():
             _pn0 = E.resolve_pn(jid)
             if _pn0 and _pn0 in landlords:
                 continue
-            ev = {"jid": jid, "msg_id": str(rid), "text": content or "", "is_from_me": bool(ifm)}
+            ev = {"jid": jid, "msg_id": str(rid), "text": content or "", "is_from_me": bool(ifm),
+                  "media_type": mtype or ""}
             if not ifm:
                 ev["listing_key"] = match_listing(content, reqs_tick)
             # a bot-template outbound is OUR send (no takeover); any other outbound = Winfred by hand.
@@ -296,13 +305,18 @@ def run():
                     # but tells HIM the screening result so a qualified tenant is never missed.
                     v = a.get("verdict"); why = a.get("why") or []
                     if v == "QUALIFIED":
-                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}. Full profile in, fits the landlord's criteria. Worth offering a viewing.")
+                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}. Full profile in, fits the landlord's criteria. Worth offering a viewing.{_hot_line(a)}")
                     elif v == "NEEDS_INFO":
-                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) for {lk} is almost there. Still unclear: {'; '.join(why)}.")
+                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) for {lk} is almost there. Still unclear: {'; '.join(why)}.{_hot_line(a)}")
                     elif v == "DISQUALIFIED":
-                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) does NOT fit {lk}. Reason: {'; '.join(why)}.")
+                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) does NOT fit {lk}. Reason: {'; '.join(why)}.{_hot_line(a)}")
                 elif a["type"] == "OFFER_VIEWING" and a.get("copilot"):
-                    notify_winfred(f"Co-pilot offered a viewing (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}, so I sent them the next slot and asked them to reply YES. Step in if you want to take it from here.")
+                    notify_winfred(f"Co-pilot offered a viewing (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}, so I sent them the next slot and asked them to reply YES. Step in if you want to take it from here.{_hot_line(a)}")
+                elif a["type"] == "OFFER_VIEWING" and a.get("hot_matches"):
+                    # the auto-offer itself needs no ping, but a fresh tenant who fits OTHER
+                    # live rooms too is a hot lead Winfred should hear about within a tick,
+                    # not at the next 3-hourly batch refresh
+                    notify_winfred(f"Hot prospect: {nm} ({a['pn']}) qualified for {lk} (viewing slot offered automatically).{_hot_line(a)}")
                 elif a["type"] == "SUGGEST_ALT":
                     notify_winfred(f"Cross sell: {nm} ({a['pn']}) rejected the unit, so I suggested {a.get('listing_key')} (same district) with its post and next slot. Conversation rebound to the new listing.")
                 elif a["type"] == "CAP_REACHED":
@@ -348,7 +362,11 @@ def run():
                 _log("STALE_SKIP", a.get("pn"),
                      a.get("type") + f" :: triggering inbound is {_real_age_hours(ts)/24:.1f}d old (>5d rule)")
                 E.save_state(state); acted += 1; continue
-            if _grec.get("manual_takeover") and not a.get("copilot"):
+            if (_grec.get("manual_takeover") and not a.get("copilot")
+                    and a.get("type") != "SEND_SUPPLY_FORM"):
+                # SEND_SUPPLY_FORM is exempt: the supply branch latches takeover BEFORE the
+                # send, so without this the landlord onboarding form is silently suppressed
+                # (runner-integration catch c74, 11 Aug 2026)
                 _log("TAKEOVER_SKIP", a.get("pn"), a.get("type") + " :: manual takeover latched")
                 E.save_state(state); acted += 1; continue
             # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day
@@ -357,7 +375,10 @@ def run():
             # holding it overnight dead-ends a converting lead, which is not spam.
             _today_sgt = time.strftime("%Y-%m-%d",
                          time.gmtime(time.time() + 8 * 3600))
-            if a.get("type") != "CONFIRM_VIEWING":
+            # ASK_ONE and OFFER_VIEWING are direct replies to a prospect's own message in
+            # the booking flow — the viewing-first happy path is 3 touches, and capping it
+            # at 2 dropped the offer right after a YES (adversarial-review P2-8)
+            if a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
                 if (_grec.get("sends_today_date") == _today_sgt
                         and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
                     _log("DAILY_CAP_SKIP", a.get("pn"),
@@ -457,6 +478,12 @@ def _tg_send(msg):
         return r.returncode == 0 and '"ok":true' in (r.stdout or "")
     except Exception:
         return False
+
+def _hot_line(a):
+    """One extra Telegram line when the engine's cross-listing screen found other
+    live rooms this profile qualifies for (see intake_engine.hot_matches)."""
+    hm = a.get("hot_matches") or []
+    return ("\n🔥 Also fits: " + ", ".join(hm)) if hm else ""
 
 def notify_winfred(msg):
     """Telegram ping to Winfred. Fires even in DRY_RUN (it is a note to him, not a prospect

@@ -36,6 +36,11 @@ LANDLORD_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.js
 REQUIRED_FIELDS = ["name","nationality","ethnicity","gender","age",
                    "pass_type","no_of_pax","move_in_date","lease_term_months","budget"]
 
+# Rides in FRONT of the intake form when message 1 offered a concrete slot: the form is
+# framed as the ticket to the viewing, not a gate (Winfred, 11 Aug 2026). Must stay in
+# _ENGINE_PREFIXES so the echoed send never latches manual takeover.
+VIEWING_TICKET_PREFIX = ("To confirm your viewing slot with the landlord I just need your "
+                         "profile \U0001F447\n\n")
 INTAKE_FORM = (
     "Pls fill this in so I can send your profile to the landlord :)\n"
     "• Email address:\n"
@@ -347,8 +352,23 @@ def listing_unit_message(listing_key):
             # strip any CEA signoff baked into the template (no CEA in tenant-facing DMs)
             head = re.sub(r'\s*Winfred Quek\s*\|\s*CEA\s*R073319H', '', head, flags=re.I).rstrip()
             slot = next_future_slot(listing_key)
-            avail = ("\n\nAvailable viewing: " + slot["label"]) if (slot and slot.get("label")) else ""
+            # VIEWING-FIRST (Winfred, 11 Aug 2026): message 1 always carries an ACTIVE viewing
+            # CTA — his own 60-day data has a specific slot converting 96.6% vs 30.7% for an
+            # open ask. The form is the ticket to the slot, not a gate in front of it.
+            if slot and slot.get("label"):
+                avail = ("\n\nAre you free to view on " + slot["label"]
+                         + "? I can arrange for viewing \U0001F642")
+            else:
+                avail = ("\n\nViewings are running this week. What day and time suit you? "
+                         "I will arrange it with the owner.")
             return head + avail
+    # no unit template for this listing: still lead with the slot CTA when one exists —
+    # ang-mo-kio-539 (the push listing) had NO template and its first touch went out as a
+    # bare form with no CTA at all (cycle-27 catch, 11 Aug 2026)
+    slot = next_future_slot(listing_key)
+    if slot and slot.get("label"):
+        return ("Are you free to view on " + slot["label"]
+                + "? I can arrange for viewing \U0001F642")
     return None
 
 def listing_message(listing_key):
@@ -384,6 +404,21 @@ _SUPPLY_NEG = (
     "i'm a landlord","im a landlord","i am the owner","i'm the owner","as a landlord","for my place",
     "招租","房东","我的房",
 )
+# Commission NEGOTIATION from the fee-payer's side. Only an owner paying the fee asks for it
+# to come down; a co-broke agent leads with an agency name or "co-broke". "your commission"
+# sitting in the AGENT keyword list muted a live landlord for 5 days ("But can your commission
+# lower ?", GoldMind Circle 6 Aug 2026, engine state excluded:agent) — these phrases are
+# LANDLORD signals and must win over the residual commission keywords in excluded_reason.
+_LANDLORD_FEE_NEG = (
+    "commission lower","lower your commission","lower the commission","reduce your commission",
+    "reduce the commission","reduce commission","commission too high","commission so high",
+    "commission can lower","can your commission","cheaper commission","commission cheaper",
+    "commission negotiable","negotiate the commission","negotiate your commission",
+    "waive the commission","waive your commission","waive commission",
+    "half month commission","1/2 month commission","0.5 month commission",
+    "half a month commission","half month comm","1/2 month comm","0.5 month comm",
+    "佣金太高","佣金可以","佣金少","中介费太高","中介费可以","中介费少",
+)
 # HIGH-PRECISION landlord/owner-supply markers — safe to match across the whole thread
 # (unlike the generic negations above, which only veto the single current message). A real
 # tenant never types these, so reading them across a contact's first few messages catches a
@@ -399,11 +434,49 @@ _LANDLORD_SUPPLY = (
     "i'm a landlord","im a landlord","i am a landlord","i am the owner","i'm the owner",
     "as a landlord","as the owner","my room posting","my posting","my listing",
     "my property for rent","my unit for rent","my room for rent",
+    # article variants real landlords actually type (replay 8 Aug 2026: "I am the landlord"
+    # fell through while "I am a landlord" matched — 13 of 19 real openers missed; Brenda got
+    # the tenant form off exactly this gap on 5 Aug 2026)
+    "i am the landlord","i'm the landlord","im the landlord","i am landlord","i'm landlord",
+    "im landlord","am the landlord",
+    "looking tenant","looking for tenants","any good tenant","any good tenants",
+    "interested tenants","you have ready tenants","have ready tenants",
+    # possessive availability statements — only an owner says "MY room is available"
+    "my room is available","my room is still","my room available","my unit is available",
+    "my unit is still","my unit available","my place is available",
+    "we have 2 room","we have 2 rooms","we have two rooms","i have 2 rooms","i have two rooms",
+    "i have a whole flat","i got a whole flat","my whole flat",
+    # renting TO someone = choosing a tenant, the landlord's side of the verb
+    "like to rent to","want to rent to","prefer to rent to","willing to rent to",
+    "looking to rent to",
+    "i am not stay there","i am not staying there","i do not stay there","i dont stay there",
+    "i don't stay there","i don't stay in the unit","i dont stay in the unit",
+    # landlord-onboarding form echoes: anyone answering OUR landlord form field names is a
+    # landlord (David +6596976160 forwarded a filled form and was merged into a tenant profile).
+    # NOT "preferred lease duration" — that line also appears in other agencies' TENANT profile
+    # templates (Sungha Song regression, 11 Aug 2026).
+    "owner name:","sole owner","is mop met","asking rent and flexibility",
+    "how to handle viewings",
+    # landlord closures: "I have tenant move in soon" (Hannah Hoang) — only an owner says this
+    "i have tenant move","have tenant moving in","i have tenant already","found tenant already",
+    "got tenant already","i found tenant","tenant confirmed already",
+    # "wld u b interested to check and evaluate the rooms first?" (Wen) — inviting US to assess
+    "evaluate the room","evaluate the rooms","evaluate my room",
     # Carousell is where Winfred reaches OUT to landlords; a contact who mentions it on WhatsApp
     # is a landlord replying to that outreach (tenants arrive via PropertyGuru / 99.co, not here).
-    "carousell","carousel",
-    "招租","房东","我的房","房间出租","单位出租",
-)
+    # Misspellings included — "I am the landlord from carosell" (Chua Li Xian) missed the clean one.
+    "carousell","carousel","carosell","carrousel",
+    # First-person / action phrasings only — bare 房东 ("landlord") and 我的房 ("my room")
+    # matched TENANTS talking about their landlord or their rented room (曹廷溪, real-history
+    # replay R3, 11 Aug 2026). Tenants say 房东说/问房东; only owners say 我是房东.
+    "招租","房间出租","单位出租",
+    "我是房东","我是屋主","找租客","帮我出租","我要出租","我想出租","我有房间",
+)  # NOTE: fee-neg phrases are deliberately NOT part of supply — a TENANT asking "can your
+# commission be lower?" must never get the landlord form (adversarial-review P1-4, 11 Aug 2026);
+# excluded_reason uses _LANDLORD_FEE_NEG as a veto against the agent keywords only.
+# "My kim keat ave room is still avail" — possessive + availability with words in between,
+# unreachable by substring. Tenants say "the/your room", never "my room", about OUR listing.
+_MY_ROOM_AVAIL_RE = re.compile(r"\bmy [a-z0-9 ]{0,24}\b(room|unit|flat|place)s? (is |are )?(still )?avail")
 # SELLER-supply markers (selling their own property). A seller is SUPPLY for a sale, the
 # mirror of a landlord being supply for a rental, and must never get the buyer (demand) form.
 # High precision: possessive "my" or explicit "to sell" intent only, so a buyer who says
@@ -418,7 +491,11 @@ _SELLER_SUPPLY = (
 # Portal enquiry boilerplate = DEMAND side, decisively. A tenant who forwards a PropertyGuru
 # template and then asks "这个房型有几个房间出租?" must never be classed as supply — the CJK
 # phrase 房间出租 appears inside their QUESTION about the unit (real misfire caught in replay).
-_DEMAND_VETO = ("i am interested in", "rent -", "for rent -", "propertyguru", "99.co")
+_DEMAND_VETO = ("i am interested in", "rent -", "for rent -", "propertyguru", "99.co",
+                # Chinese tenant-demand phrasings: 想租 (want to rent), 找房 (looking for a
+                # place), 有…出租吗 (any rooms for rent?) — these contain or accompany the
+                # supply nouns 房间出租/单位出租, so they must veto first (replay R3 class).
+                "想租", "找房", "有房间出租吗", "有单位出租吗", "有房出租吗")
 
 def supply_side_kind(chat_jid, text, with_confidence=False):
     """'landlord' (renting out), 'seller' (selling), or None. Reads across the current
@@ -431,6 +508,7 @@ def supply_side_kind(chat_jid, text, with_confidence=False):
     if any(v in blob for v in _DEMAND_VETO):
         pass                                # portal enquiry template -> demand side, never supply
     elif any(m in blob for m in _LANDLORD_SUPPLY): kind, confident = "landlord", True
+    elif _MY_ROOM_AVAIL_RE.search(blob):           kind, confident = "landlord", True
     elif any(m in blob for m in _SELLER_SUPPLY):   kind, confident = "seller", True
     elif not blob.strip():
         n_img, n_txt = recent_inbound_media(chat_jid)
@@ -710,6 +788,13 @@ def _buyer_followup(rec, ev, pn):
     b = rec.setdefault("buyer", {})
     for k, v in extract_buyer(ev.get("text", "")).items():
         if not b.get(k): b[k] = v
+    # a buyer naming a day/time to view must reach Winfred, complete profile or not — the
+    # old flow swallowed it (silent handoff still holds: no message goes to the buyer)
+    if (_has_viewing_time((ev.get("text") or "").lower())
+            and not rec.get("buyer_time_flagged")):
+        rec["buyer_time_flagged"] = True
+        return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "when": ev.get("text"),
+                "notify": True, "text": None}
     if rec.get("buyer_complete"):
         if "?" in (ev.get("text") or ""):
             return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "text": None,
@@ -823,6 +908,10 @@ def classify_intent(chat_jid, text, listing_key, rec):
     return "unknown", why
 
 BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits","📲 more listings","available viewing",
+    "keen to view? i can put you in","are you free to view on","i can arrange for viewing",
+    "to confirm your viewing slot with the landlord",
+    "can i just check your","just need your profile above","ok can, your viewing is on",
+    "what time will you be coming? i will keep","on your question, let me check with the owner",
                   "your viewing is confirmed","profile does not match","the next viewing is",
                   "you fit what the landlord","when are you able to view","i will send your profile",
                   "good news, there is a viewing","i will hold that slot","reply yes to take this slot",
@@ -830,7 +919,8 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   # full nudge prefixes, not the bare "almost there" a prospect texts en route
                   "almost there :) to send your profile","almost there :) i still need",
                   "could you confirm this so i can send your profile",
-                  "by sharing these details you agree")
+                  "by sharing these details you agree",
+                  "more rooms available on my rental channel")
 def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
@@ -841,6 +931,18 @@ def is_bot_message(text):
 # talks over him. Loose substring matching (BOT_SIGNATURES) remains for inbound echo detection.
 _ENGINE_PREFIXES = (
     "pls fill this in so i can send your profile to the landlord",
+    "to confirm your viewing slot with the landlord i just need your profile",
+    "ok can, your viewing is on",
+    "what time will you be coming? i will keep your slot",
+    "see you then, i will send the unit number nearer",
+    "on your question, let me check with the owner",
+    "pls complete the form above so i can send your profile",
+    "meanwhile pls complete the form above",
+    "can i just check your",
+    "just need your profile above and i can confirm",
+    "no worries, which day and time would work better",
+    "viewing slot:",
+    "are you free to view on",
     "thanks for your enquiry :) to match you to the right unit",
     "happy to set up a viewing :) just drop me",
     "thanks. just need a couple more details to send to the landlord",
@@ -849,6 +951,7 @@ _ENGINE_PREFIXES = (
     "no problem 🙂 i have another room nearby",
     "no worries 🙂 you can see my other available rooms",
     "thanks, you fit what the landlord is looking for",
+    "more rooms available on my rental channel",
 )
 def _template_heads():
     """Cached lowercase first-80-chars of every listing unit message (message 1 sends)."""
@@ -933,6 +1036,40 @@ def _landlord_pn_set():
         if cj: out.add(cj.split("@")[0])
     return frozenset(out)
 
+@functools.lru_cache(maxsize=1)
+def _landlord_form_recipients():
+    """pns + bare chat-jids of every chat WE have sent an owner intake form to (landlord
+    onboarding or seller intake — both carry the '• Owner name:' field, which no tenant form
+    has). Day-one protection: a landlord Winfred onboards by hand is shielded from the tenant
+    flow the moment the form goes out, without waiting for the nightly DB refresh keyed on
+    'Landlord' contact names (MI/Hannah/Wen sat unprotected for days, Aug 2026). Fails OPEN
+    (empty set) like the cobroke gate — the landlord-DB gate stays the fail-closed one."""
+    out = set()
+    try:
+        con = sqlite3.connect(MSG_DB, timeout=10)
+        con.execute("PRAGMA busy_timeout=10000")
+        jids = [j for (j,) in con.execute(
+            "SELECT DISTINCT chat_jid FROM messages WHERE is_from_me=1 "
+            "AND lower(content) LIKE '%owner name:%'")]
+        con.close()
+    except Exception:
+        return frozenset()
+    for j in jids:
+        bare = str(j).split("@")[0]
+        if bare: out.add(bare)
+    if out:
+        try:
+            wcon = sqlite3.connect(WA_DB, timeout=10)
+            wcon.execute("PRAGMA busy_timeout=10000")
+            for lid, pn in wcon.execute("SELECT lid, pn FROM whatsmeow_lid_map"):
+                if str(lid).split("@")[0] in out:
+                    p = re.sub(r"\D", "", str(pn))
+                    if p: out.add(p)
+            wcon.close()
+        except Exception:
+            pass                  # bare jids still protect when the event pn IS the jid user
+    return frozenset(out)
+
 COBROKE_DB = os.path.expanduser("~/.claude/state/cobroke-agents.json")
 
 @functools.lru_cache(maxsize=1)
@@ -962,14 +1099,27 @@ def excluded_reason(pn, text=""):
         return "db_error"
     if pn and pn in lset:                 # authoritative landlord DB: catches outbound-first chats too
         return "landlord"
+    if pn and pn in _landlord_form_recipients():
+        return "landlord"                 # we sent them an owner intake form: supply side, day one
     names, db_ok = _contact_names(pn)
     nm = " ".join(names).lower()
     if "landlord" in nm: return "landlord"
     if pn and pn in _cobroke_agent_pn_set(): return "agent"    # phone gate, not just keywords
     if any(e in nm for e in EXCLUDE_NAMES): return "colleague"
     t = (text or "").lower()
-    if any(a in t or a in nm for a in ("propnex","huttons","orangetee","i take my own com","co-broke","co broke",
-                                       "your commission","my commission","i charge","co broke","cobroke")):
+    # unambiguous agent markers keep priority: an agency name or explicit co-broke language
+    # is an agent no matter what else the message says
+    if any(a in t or a in nm for a in ("propnex","huttons","orangetee","i take my own com",
+                                       "co-broke","co broke","cobroke")):
+        return "agent"
+    # owner-supply or fee-negotiation signals BEAT the residual commission keywords: a landlord
+    # asking to lower OUR fee ("But can your commission lower ?") is not an agent. Return None so
+    # the supply-side branch classifies them and sends the LANDLORD form. (GoldMind Circle sat
+    # excluded:agent for 5 days off exactly this, 6-11 Aug 2026.)
+    if (db_ok and (any(m in t for m in _LANDLORD_FEE_NEG) or any(m in t for m in _LANDLORD_SUPPLY)
+            or any(m in t for m in _SELLER_SUPPLY))):
+        return None
+    if any(a in t or a in nm for a in ("your commission","my commission","i charge")):
         return "agent"
     if not db_ok:
         return "db_error"        # could not verify the contact -> defer to a human, do not auto-send
@@ -1151,6 +1301,31 @@ def policy_excluded(profile, text="", open_intake=False):
     return None
 
 # ---------- manual-takeover co-pilot ----------
+def hot_matches(profile, exclude_key=None, limit=3):
+    """Cross-listing screen for a COMPLETE profile: which OTHER live listings does
+    this tenant qualify() for right now? Speed is Winfred's own conversion lever
+    (a specific offer within minutes books 96.6% vs 30.7% for a slow open ask),
+    and until now a new tenant was only ever screened against the one listing
+    they enquired about — the other 18 rooms waited hours for the next batch
+    refresh. Pure read, alert-feeding only: it never sends anything, and any
+    failure returns [] rather than touching the intake flow."""
+    out = []
+    try:
+        for lk, req in (listing_reqs() or {}).items():
+            if lk == exclude_key:
+                continue
+            if _listing_unavailable(lk):
+                continue
+            v, _why = qualify(req, profile)
+            if v == "QUALIFIED":
+                out.append(lk)
+                if len(out) >= limit:
+                    break
+    except Exception:
+        return []
+    return out
+
+
 def _copilot_verdict(rec):
     """When Winfred is handling a chat by hand (manual_takeover), the engine stays silent to the
     prospect but still screens a COMPLETE, listing-bound profile and returns a COPILOT_VERDICT so
@@ -1189,10 +1364,12 @@ def _copilot_verdict(rec):
             rec["offered_slot_label"] = slot.get("label")
             return {"type": "OFFER_VIEWING", "pn": rec.get("pn"), "slot": slot,
                     "slot_id": rec["offered_slot_id"], "text": _viewing_text(slot),
-                    "notify": True, "copilot": True, "listing_key": lk, "verdict": verdict}
+                    "notify": True, "copilot": True, "listing_key": lk, "verdict": verdict,
+                    "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
     # NEEDS_INFO / DISQUALIFIED, or QUALIFIED with no open slot -> notify Winfred only (he handles).
     return {"type": "COPILOT_VERDICT", "pn": rec.get("pn"), "notify": True, "text": None,
-            "verdict": verdict, "why": why, "listing_key": lk}
+            "verdict": verdict, "why": why, "listing_key": lk,
+            "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
 
 @functools.lru_cache(maxsize=1)
 def _landlord_by_id():
@@ -1238,6 +1415,7 @@ def _room_gone_action(rec, pn, st):
     """The room closed mid-flow. Cross sell once (same rebind as a unit rejection), else
     point at the channel and close. Never offer or confirm a dead room."""
     rec["viewing_asked"] = False; rec["viewing_confirmed"] = False
+    rec["book_intent_asked"] = False    # intent never carries across listings
     rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
     rec["exact_time_locked"] = False
     if not rec.get("alt_suggested"):
@@ -1280,7 +1458,32 @@ def _viewing_reaction(rec, ev, pn):
     st = _listing_unavailable(rec.get("listing_key"))
     if st:
         return _room_gone_action(rec, pn, st)
+    # RE-SCREEN on every reply (adversarial-review P0-1): viewing-first books on partial
+    # profiles, so a later field can disqualify an existing booking ("No. of pax: 3" after
+    # a 1-pax confirm). A booking is only as good as the latest profile.
+    _lk_r = rec.get("listing_key")
+    _listing_r = listing_reqs().get(_lk_r) if _lk_r else None
+    if _listing_r:
+        _pol_r = policy_excluded(rec.get("profile", {}), ev.get("text", ""),
+                                 open_intake=_open_intake(_listing_r))
+        _v_r, _why_r = qualify(_listing_r, rec.get("profile", {}))
+        if _pol_r or _v_r == "DISQUALIFIED":
+            rec["terminal"] = True; rec["viewing_confirmed"] = False
+            rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified_post_booking"
+            _reason_r = _pol_r or _why_r
+            return {"type": "REDIRECT", "pn": pn, "notify": True, "reason": _reason_r,
+                    "text": _redirect_text(_reason_r, rec.get("profile", {}),
+                                           listing_reqs(), _lk_r)}
     txt = (ev.get("text") or "").lower()
+    # viewing-first: once a slot is locked, chase whatever form fields are still missing —
+    # after the booking, never in front of it (Winfred, 11 Aug 2026)
+    _chase = ""
+    try:
+        if missing_required(rec.get("profile", {}), listing_reqs().get(rec.get("listing_key"))):
+            _chase = (" Meanwhile pls complete the form above so the landlord has your "
+                      "details \U0001F64F\U0001F3FB")
+    except Exception:
+        pass
     if _has_viewing_time(txt) and not rec.get("exact_time_locked"):
         if rec.get("viewing_confirmed"):
             # they said YES earlier and are now answering "what time will you be coming?"
@@ -1290,32 +1493,55 @@ def _viewing_reaction(rec, ev, pn):
         # A YES that merely RESTATES the offered slot ("yes can, sunday works", "ok see you
         # sunday 3pm") is a confirmation, not a counter proposal (lifecycle test, 26 Jul 2026).
         # Guard: any hint of negotiation ("instead", "but", "another day") stays a proposal.
-        if (_is_affirmative(ev.get("text"))
+        _lbl_low = (rec.get("offered_slot_label") or "").lower()
+        _days_said = set(re.findall(r"\b(mon|tue|wed|thu|fri|sat|sun)[a-z]*", txt))
+        _days_said = {d[:3] for d in _days_said}
+        _day_mismatch = bool(_days_said) and _lbl_low and not any(d in _lbl_low for d in _days_said)
+        if (_is_affirmative(ev.get("text")) and not _day_mismatch
                 and not re.search(r"\binstead\b|\bbut\b|\bchange\b|\banother\b|\bother (?:day|time)\b|\bcan'?n?o?t\b", txt)):
             rec["viewing_confirmed"] = True
             _lbl = rec.get("offered_slot_label")
             _win = (" The viewing window is " + _lbl + ".") if _lbl else ""
+            _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
             if re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b", txt):
                 rec["exact_time_locked"] = True; rec["exact_time"] = ev.get("text")
                 rec["status"] = "viewing_time_locked"
-                return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"), "notify": True,
-                        "text": "Great, your viewing is confirmed." + _win + " See you then, I will send the unit number closer to the time."}
+                _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+                          "See you then, I will send the unit number nearer the time."]
+                if _chase: _texts.append(_chase.strip())
+                return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
+                        "notify": True, "texts": _texts, "text": _texts[0]}
             rec["status"] = "viewing_confirmed"
-            return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"), "notify": True,
-                    "text": "Great, your viewing is confirmed." + _win + " What time will you be coming? "
-                            "I will reserve your exact slot and share the unit number closer to the time."}
+            _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+                      "What time will you be coming? I will keep your slot and send the unit "
+                      "number nearer the time."]
+            if _chase: _texts.append(_chase.strip())
+            return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
+                    "notify": True, "texts": _texts, "text": _texts[0]}
         rec["status"] = "viewing_time_proposed"
         return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "when": ev.get("text"), "notify": True,
-                "text": "Got it, let me confirm that slot with the owner and revert to you shortly."}
+                "text": "Got it, let me confirm that slot with the owner and get back to you shortly."}
     if "?" in (ev.get("text") or ""):
+        if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
+            # "yes, is there aircon?" — confirm the slot AND hold the question for Winfred
+            rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
+            _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
+            _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+                      "On your question, let me check with the owner and get back to you shortly."]
+            if _chase: _texts.append(_chase.strip())
+            return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
+                    "notify": True, "question": ev.get("text"), "texts": _texts,
+                    "text": _texts[0]}
         return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": None}
     if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
         rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
-        _lbl = rec.get("offered_slot_label")
-        _win = (" The viewing window is " + _lbl + ".") if _lbl else ""
-        return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"), "notify": True,
-                "text": "Great, your viewing is confirmed." + _win + " What time will you be coming? "
-                        "I will reserve your exact slot and share the unit number closer to the time."}
+        _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
+        _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+                  "What time will you be coming? I will keep your slot and send the unit "
+                  "number nearer the time."]
+        if _chase: _texts.append(_chase.strip())
+        return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
+                "notify": True, "texts": _texts, "text": _texts[0]}
     return None
 
 # ---------- core handler: entry point enforces the per-prospect message cap ----------
@@ -1409,6 +1635,7 @@ def _handle_event_inner(state, ev):
             k2, alt_text = alt
             rec["listing_key"] = k2
             rec["viewing_asked"] = False; rec["viewing_confirmed"] = False
+            rec["book_intent_asked"] = False    # intent never carries across listings
             rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
             rec["exact_time_locked"] = False
             rec["sent_count"] = 0; rec["cap_flagged"] = False   # cap is per qualification attempt
@@ -1491,8 +1718,20 @@ def _handle_event_inner(state, ev):
                 return {"type":"SEND_SUPPLY_FORM", "pn":pn, "notify":True, "supply":_supply,
                         "reason":"owner/supply side, " + _label + "; sent their intake form, engine silent hereafter",
                         "text": form}
-            return {"type":"FLAG_HUMAN", "pn":pn,
+            return {"type":"FLAG_HUMAN", "pn":pn, "notify":True,
                     "reason":"owner/supply side, " + _label + " (read across first messages); not a tenant or buyer", "text":None}
+        # PHOTO with no text from a contact with no tenant profile = owner behaviour (Carousell
+        # landlords open with unit photos; Song +6596479676 sat 6 days as a silent not_enquiry).
+        # Flag LOUDLY once, never auto-send at a picture. A captioned photo now carries its
+        # caption as text (bridge fix, 11 Aug 2026) and classifies normally above.
+        if (str(ev.get("media_type") or "") in ("image", "video")
+                and not (ev.get("text") or "").strip()
+                and not rec.get("form_sent") and not rec.get("profile")
+                and not rec.get("photo_flagged")):
+            rec["photo_flagged"] = True; rec["status"] = "photo_no_text"
+            return {"type":"FLAG_HUMAN", "pn":pn, "notify":True, "text":None,
+                    "reason":"sent a photo/video with no text and has no tenant profile — could "
+                             "be a landlord. Engine will not auto-send; check the chat."}
         # INTENT FIRST (before the tenant-enquiry gate): a buyer (sale) enquiry gets the BUYER
         # form (HDB asks HFE, private asks IPA), never the tenant form. Only a non-sale message
         # is then held to the "clear tenant enquiry" gate. Conversation-aware: an ambiguous line
@@ -1530,6 +1769,12 @@ def _handle_event_inner(state, ev):
                 rec["buyer_offered_slot_id"] = slot.get("slot_id")
                 rec["buyer_offered_slot_label"] = slot.get("label")
                 text = text + "\n\nViewing: " + slot["label"] + ". Let me know if you'd like to come by."
+            elif rec.get("listing_key"):
+                # viewing-first for buyers too: no fixed slot -> ask for their window. Winfred
+                # still runs the appointment himself (11 Jul 2026 silent-handoff rule); this
+                # only collects the time, VIEWING_TIME_PROPOSED pings him with it.
+                text = (text + "\n\nWhen are you free to view? Share a day and time and I "
+                        "will line it up with the owner.")
             return {"type":"SEND_BUYER_FORM", "pn":pn, "text": text,
                     "listing_key": rec.get("listing_key"), "property_type": ptype,
                     "reason":"buyer enquiry (" + txr + ", " + ptype + "); sent buyer intake form"
@@ -1570,13 +1815,35 @@ def _handle_event_inner(state, ev):
         # form (Winfred, 13 Jul 2026): the short open-intake form caused form-after-form
         # sequences and violated the standing full-form rule.
         unit = listing_unit_message(lk)
-        form = INTAKE_FORM
-        texts = [unit, form] if unit else [form]
+        # the form rides behind the slot CTA as the TICKET to the viewing (full 14 fields,
+        # verbatim, per the standing full-form rule — only the intro line changes)
+        _slotted = bool(lk) and _has_open_future_slot(lk)
+        form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
+        texts = ([unit, form] if unit else [form]) + [CHANNEL_PITCH]
         # capture landlord availability at first enquiry: flag if this listing has no
         # upcoming viewing slot yet, so Winfred can grab the landlord's next slot.
         need_avail = bool(lk) and not _has_open_future_slot(lk)
         return {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
                 "listing_key":lk, "capture_availability":need_avail}
+
+    # SUPPLY RE-CHECK, post-form: "actually I am the landlord, help me rent out my room"
+    # arriving AFTER the tenant form must flip the record to supply, not keep being chased
+    # as a tenant (fuzz catch c41-60, 11 Aug 2026). Confident phrase match only.
+    if rec.get("form_sent") and not rec.get("supply_flagged"):
+        _sup2, _sup2_conf = supply_side_kind(ev.get("jid"), ev.get("text", ""),
+                                             with_confidence=True)
+        if _sup2 and _sup2_conf:
+            rec["supply_flagged"] = True; rec["status"] = "supply_side:" + _sup2
+            rec["manual_takeover"] = True; rec["copilot_muted"] = True
+            rec["stage"] = "SUPPLY_FORM_SENT"
+            form2 = _supply_form(_sup2)
+            if form2:
+                rec["supply_form_sent"] = True
+                return {"type": "SEND_SUPPLY_FORM", "pn": pn, "notify": True, "supply": _sup2,
+                        "reason": "owner/supply side detected mid-thread; sent their intake "
+                                  "form, engine silent hereafter", "text": form2}
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "owner/supply side detected mid-thread; engine silent hereafter"}
 
     # STAGE 2: have form, not yet offered a viewing. Emit ONLY on a state change.
     if not rec["viewing_asked"] and not rec.get("terminal"):
@@ -1605,6 +1872,138 @@ def _handle_event_inner(state, ev):
                 # fall through: requalify below and continue to the viewing question
             else:
                 return None                    # ambiguous reply; one note only, stay silent
+        # VIEWING-FIRST (Winfred, 11 Aug 2026): booking intent (a YES to the message-1 CTA, or
+        # any proposed day/time) is honoured the moment the landlord's HARD requirements pass —
+        # qualify() only gates on fields the landlord actually rules on. The full form is
+        # chased AFTER the slot is locked, not before: 389 prospects got the form and only 36
+        # ever heard about a viewing under the old order.
+        t_book = (ev.get("text") or "").lower()
+        # a FORM reply's "Move in date: 1 Sep" is not a viewing time — suppress the time
+        # trigger on form-style messages (the complete-profile path offers the viewing anyway)
+        _formish = re.search(r"move.?in|email|pass type|no\.? of pax|employment|lease term|"
+                             r"nationality|ethnicity|occupation|budget\s*:", t_book)
+        # ...but an explicit view verb ("can i view tomorrow 7pm") IS intent, even when form
+        # fields ride along in the same message
+        _view_verb = re.search(r"\bview|come (?:by|down|over)|see the (?:room|unit|place)|drop by",
+                               t_book)
+        # DECLINE of the CTA: "no thanks" / "not keen" must never be answered with a viewing
+        # offer — not by the booking path AND not by the stage-2 auto-offer below (cycle-14
+        # catch, 11 Aug 2026). Explicit decline stems only; form replies are exempt ("No. of
+        # pax" is data), a negation WITH a time is a reschedule and stays in, and questions
+        # ("not sure, is aircon included?") flow to the question paths instead.
+        _decline = (not _formish and not _has_viewing_time(t_book)
+                    and "?" not in (ev.get("text") or "")
+                    and not _is_affirmative(ev.get("text"))
+                    and (len(t_book) <= 40 or re.search(r"\bview|\bslot\b|\bviewing\b", t_book))
+                    and (re.search(r"\b(no thanks?|not keen|not interested|don'?t want|dont want|"
+                                   r"no need|not looking|not proceeding|give (?:it|this) a miss|"
+                                   r"pass on this)\b", t_book)
+                         or re.fullmatch(r"\s*(no|nope|nah)[.! ]*", t_book)))
+        # a "cannot make it" without a replacement time is a reschedule, not a decline
+        if (not _formish and not _has_viewing_time(t_book)
+                and re.search(r"\b(cannot|can'?t) make it\b", t_book)
+                and not rec.get("resched_asked")):
+            rec["resched_asked"] = True
+            return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "notify": True,
+                    "when": ev.get("text"),
+                    "text": "No worries, which day and time would work better for you?"}
+        if _decline:
+            if not rec.get("cta_declined_flagged"):
+                rec["cta_declined_flagged"] = True
+                rec["status"] = "cta_declined"
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True,
+                        "reason": "declined the viewing CTA (\"" + (ev.get("text") or "")[:60]
+                                  + "\"); sent one closer, engine holding",
+                        "text": "No worries \U0001F642 You can see my other available rooms "
+                                "here:\n" + CHANNEL + "\nLet me know if anything catches your "
+                                "eye and I will arrange a viewing."}
+            return None
+        # book intent PERSISTS: once they said yes and we asked for the hard fields, the
+        # field reply itself books the slot — no second yes required
+        if (_is_affirmative(ev.get("text"))
+                or (_has_viewing_time(t_book) and (not _formish or _view_verb))
+                or rec.get("book_intent_asked")):
+            lk_b = rec.get("listing_key"); listing_b = reqs.get(lk_b)
+            if listing_b and not _listing_unavailable(lk_b, reqs):
+                # the booking shortcut must respect the SAME service policy as the full path
+                # (adversarial-review P0-2): a policy-excluded profile never books
+                pol_b = policy_excluded(rec["profile"], ev.get("text", ""),
+                                        open_intake=_open_intake(listing_b))
+                if pol_b:
+                    rec["terminal"] = True; rec["stage"] = "POLICY_EXCLUDED"
+                    rec["status"] = "policy_excluded:" + pol_b
+                    return {"type": "REDIRECT", "pn": pn, "reason": pol_b,
+                            "text": _redirect_text(pol_b, rec["profile"], reqs, lk_b)}
+                v_b, why_b = qualify(listing_b, rec["profile"])
+                if v_b == "QUALIFIED":
+                    rec["viewing_asked"] = True
+                    rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
+                    slot_b = next_slot(lk_b)
+                    rec["offered_slot_id"] = slot_b.get("slot_id") if slot_b else None
+                    rec["offered_slot_label"] = slot_b.get("label") if slot_b else None
+                    act_q = _viewing_reaction(rec, ev, pn)
+                    if act_q and act_q.get("type") == "ANSWER_QUESTION":
+                        # question answered by hand first — no phantom offer left latched
+                        # (adversarial-review P2-9)
+                        rec["viewing_asked"] = False
+                        rec["stage"] = "FORM_SENT"; rec["status"] = "form_sent"
+                        rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
+                        return act_q
+                    return act_q or \
+                           {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b,
+                            "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
+                if v_b == "DISQUALIFIED":
+                    # never book a profile the landlord would reject — kind referral as usual
+                    rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
+                    return {"type":"REDIRECT", "pn":pn, "reason":why_b,
+                            "text":_redirect_text(why_b, rec["profile"], reqs, lk_b)}
+                if v_b == "NEEDS_INFO":
+                    # split the gaps: things the PROSPECT can answer vs listing-side unknowns
+                    # ("listing rent not confirmed") they cannot — 4 of 6 live listings have no
+                    # budget_floor, and asking a tenant to reply with "listing rent not
+                    # confirmed" kills every YES (judge catch, 11 Aug 2026)
+                    _askable, _sensitive = [], False
+                    for w in why_b:
+                        wl = str(w).lower()
+                        if wl.startswith("gender"): _askable.append("your gender")
+                        elif wl.startswith("budget"): _askable.append("your budget")
+                        elif "married" in wl: _askable.append("whether you are a legally married couple")
+                        elif wl.startswith(("ethnicity", "nationality")): _sensitive = True
+                        # listing-side unknowns are NOT the prospect's to answer: drop
+                    if not _askable and not _sensitive:
+                        # only listing-side gaps -> book anyway, tell Winfred to settle the rent
+                        rec["viewing_asked"] = True
+                        rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
+                        slot_b = next_slot(lk_b)
+                        rec["offered_slot_id"] = slot_b.get("slot_id") if slot_b else None
+                        rec["offered_slot_label"] = slot_b.get("label") if slot_b else None
+                        act_b = _viewing_reaction(rec, ev, pn)
+                        if act_b and act_b.get("type") == "ANSWER_QUESTION":
+                            rec["viewing_asked"] = False
+                            rec["stage"] = "FORM_SENT"; rec["status"] = "form_sent"
+                            rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
+                            return act_b
+                        act_b = act_b or \
+                               {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b,
+                                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
+                        act_b["notify"] = True
+                        act_b["reason"] = ((act_b.get("reason") or "") +
+                                           " [listing gap: " + "; ".join(map(str, why_b))
+                                           + " — confirm with the landlord]").strip()
+                        return act_b
+                    if not rec.get("book_intent_asked"):
+                        rec["book_intent_asked"] = True
+                        rec["stage"] = "BOOK_INTENT"; rec["status"] = "book_intent_hard_fields"
+                        if _sensitive:
+                            # never isolate ethnicity/nationality in a one-line ask — the form
+                            # already collects them alongside everything else
+                            txt_b = ("Just need your profile above and I can confirm your "
+                                     "slot \U0001F64F\U0001F3FB")
+                        else:
+                            txt_b = ("Can I just check " + " and ".join(_askable)
+                                     + "? Then I can confirm your slot \U0001F642")
+                        return {"type":"ASK_ONE", "pn":pn, "reason":why_b, "text":txt_b}
+                # SHORT_LEASE (and a repeat NEEDS_INFO) fall through to the standard chase
         miss = missing_required(rec["profile"], reqs.get(rec.get("listing_key")))
         if miss:
             # GRACE PERIOD: never nudge within 3 minutes of the form going out — a message
@@ -1670,13 +2069,20 @@ def _handle_event_inner(state, ev):
         st_now = _listing_unavailable(lk, reqs)
         if st_now:
             return _room_gone_action(rec, pn, st_now)
+        # a QUESTION rides ahead of the auto-offer: answer it first (by hand), the offer
+        # fires on their next message — never reply to "how much is this one?" with
+        # "Reply YES to take this slot" (cycle-17 catch, 11 Aug 2026)
+        if "?" in (ev.get("text") or ""):
+            return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True,
+                    "question": ev.get("text"), "text": None}
         rec["viewing_asked"] = True
         rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
         slot = next_slot(lk)
         rec["offered_slot_id"] = slot.get("slot_id") if slot else None
         rec["offered_slot_label"] = slot.get("label") if slot else None
         return {"type":"OFFER_VIEWING", "pn":pn, "slot":slot,
-                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot)}
+                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot),
+                "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
 
     # STAGE 3: viewing offered -> react to one reply per inbound (shared with the manual co-pilot path)
     return _viewing_reaction(rec, ev, pn)
@@ -1685,7 +2091,9 @@ def _has_viewing_time(t):
     """True if the prospect's reply names a day or a time to view."""
     if not t: return False
     has_time = re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b|\bnoon\b|after\s*\d", t)
-    has_day  = re.search(r"\b(?:mon|tue|wed|thu|fri|sat|sun|today|tomorrow|tmr|weekend)\w*\b"
+    has_day  = re.search(r"\b(?:mon(?:day)?|tues?(?:day)?|wed(?:nesday)?|thur?s?(?:day)?|"
+                         r"fri(?:day)?|sat(?:urday)?|sun(?:day)?|today|tomorrow|tmr|"
+                         r"weekends?)\b"
                          r"|\b\d{1,2}\s*/\s*\d{1,2}\b"
                          r"|\b\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)", t)
     return bool(has_time or has_day)
@@ -1722,6 +2130,12 @@ def _needs_info_text(why):
     return "Almost there. " + "; ".join(why) + ". Could you confirm this so I can send your profile to the landlord?"
 
 CHANNEL = "https://whatsapp.com/channel/0029VbCoWRs4inomDhoAAv0G"
+
+# Sent as its OWN message right after the tenant intake form (Winfred, 18 Aug 2026) —
+# separate so the link keeps its WhatsApp preview instead of being buried under 14 fields.
+# Its opening words are registered in _ENGINE_PREFIXES / BOT_SIGNATURES / the runner's
+# _OUTBOUND_ONLY, or the echoed send would read as a manual reply and mute the engine.
+CHANNEL_PITCH = "More rooms available on my rental channel: " + CHANNEL
 
 _UNIT_REJECT = ("don't like","dont like","didn't like","didnt like","not suitable","too small",
                 "too far","too old","not keen on this","not for me","give it a miss","give this a miss",
