@@ -8,7 +8,7 @@ All fixture people below are invented (SG plausible, obviously fake names/phones
 never real tenant or landlord data. Real data lives only in the gitignored
 _templates/ directory and is never read by this file.
 """
-import contextlib, datetime, io, json, os, sys, tempfile, shutil
+import contextlib, datetime, io, json, os, re, sys, tempfile, shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.normpath(os.path.join(HERE, "..", "..", "scripts", "matchmaker"))
@@ -1655,18 +1655,22 @@ def test_js_syntax_gate():
 
 
 def test_queue_cold_rule():
-    section("queue_drafts: 5 day rule and no signal refusal at dispatch time")
+    section("queue_drafts: 30 day dead-lead rule and no signal refusal at dispatch time")
     import queue_drafts as qd  # noqa: E402
     today = datetime.date(2026, 8, 11)
 
     fresh = {"id": "T1", "last_contact": "2026-08-10", "jid": "9000000190001@lid"}
-    cold = {"id": "T2", "last_contact": "2026-07-27", "jid": "9000000290001@lid"}
+    # 15 days: dead under the old 5 day value, LIVE under the 30 day dead-lead rule.
+    # This fixture is the regression lock for the 17 Aug widening — if COLD_DAYS ever
+    # drifts back below 30, this is the check that fails first.
+    midband = {"id": "T2", "last_contact": "2026-07-27", "jid": "9000000290001@lid"}
+    dead = {"id": "T5", "last_contact": "2026-06-25", "jid": "9000000590001@lid"}  # 47 days
     nosignal = {"id": "T3", "last_contact": "", "jid": "9000000390001@lid"}
     nojid = {"id": "T4", "last_contact": "2026-08-10"}
-    by_id = {t["id"]: t for t in (fresh, cold, nosignal, nojid)}
+    by_id = {t["id"]: t for t in (fresh, midband, dead, nosignal, nojid)}
 
     items = [{"tenant_id": t["id"], "name": "Tan Ah Test", "phone": "90000001", "message": "hi"}
-             for t in (fresh, cold, nosignal, nojid)]
+             for t in (fresh, midband, dead, nosignal, nojid)]
     items.append({"tenant_id": "T_UNKNOWN", "name": "Ghost Test", "phone": "", "message": "hi"})
 
     # wa_conn None exercises the documented degraded path (bridge unavailable)
@@ -1675,17 +1679,33 @@ def test_queue_cold_rule():
     refused_ids = [r[0] for r in refused]
     skipped_ids = [s[0] for s in skipped]
 
-    check("fresh tenant is approved", approved_ids == ["T1"], str(approved_ids))
-    check("cold >5d tenant is refused", "T2" in refused_ids, str(refused_ids))
+    check("fresh tenant is approved", "T1" in approved_ids, str(approved_ids))
+    check("15d tenant is approved — live under the 30 day rule, was wrongly refused at 5",
+          "T2" in approved_ids, str(approved_ids))
+    check("dead >30d tenant is refused", "T5" in refused_ids, str(refused_ids))
     check("no signal tenant is refused, never guessed fresh", "T3" in refused_ids, str(refused_ids))
     check("tenant with no jid is skipped, never guessed", "T4" in skipped_ids, str(skipped_ids))
     check("unknown tenant id is skipped", "T_UNKNOWN" in skipped_ids, str(skipped_ids))
     check("approved items carry the resolved jid",
           all(a.get("jid") for a in approved), "an approved item had no jid")
-    check("5 day boundary: exactly 5 days still queues",
-          qd.freshest_days({"last_contact": "2026-08-06"}, None, today) == 5)
-    check("5 day boundary: 6 days does not",
-          qd.freshest_days({"last_contact": "2026-08-05"}, None, today) == 6)
+
+    # Drive the boundary through classify_items, not freshest_days: the day arithmetic
+    # being right proves nothing about where the refusal actually falls.
+    def verdict(last_contact):
+        t = {"id": "TB", "last_contact": last_contact, "jid": "9000000690001@lid"}
+        item = [{"tenant_id": "TB", "name": "Boundary Test", "phone": "90000006", "message": "hi"}]
+        ap, _rf, _sk, _dp = qd.classify_items(item, {"TB": t}, None, today)
+        return "approved" if ap else "refused"
+
+    check("30 day boundary: exactly 30 days still queues",
+          verdict("2026-07-12") == "approved", verdict("2026-07-12"))
+    check("30 day boundary: 31 days does not",
+          verdict("2026-07-11") == "refused", verdict("2026-07-11"))
+    # Named DEAD_DAYS, not COLD_DAYS: cold is a ranking signal, only dead may block
+    # an action. scoring.js:63 records what conflating them cost last time.
+    check("DEAD_DAYS matches the dead-lead rule", qd.DEAD_DAYS == 30, str(qd.DEAD_DAYS))
+    check("no COLD_DAYS constant survives to be conflated again",
+          not hasattr(qd, "COLD_DAYS"))
 
 
 def test_deploy_auth_and_cache_posture():
@@ -1709,6 +1729,23 @@ def test_deploy_auth_and_cache_posture():
           "MM_PASS" in mw and "process.env.MM_PASS" in mw and "'Basic '" in mw)
     check("deploy.sh explains a 503 rather than leaving it unexplained",
           '"$STATUS" = "503"' in sh, "deploy.sh should name the unset env var case")
+
+    # 20 Aug 2026, 21:00 slot: the deploy shipped and aliased fine, but the CLI's
+    # fast cache-restored build skipped the status lines carrying the dpl_ id, the
+    # no-match grep failed the assignment under pipefail, and set -e killed the
+    # script with zero output — BEFORE the -z guard written for exactly that case.
+    frail = [l for l in sh.splitlines()
+             if re.search(r'="\$\(.*\bgrep\b', l) and "|| true" not in l]
+    check("every grep-parsing assignment tolerates a no-match (pipefail kills it silently otherwise)",
+          frail == [], " / ".join(l.strip()[:70] for l in frail))
+    check("the dpl_ id has an inspect fallback, not just the flaky CLI output parse",
+          'vercel inspect "$URL"' in sh, "expected a vercel inspect fallback on the deployment URL")
+    check("the deployment URL parse excludes the alias itself",
+          'grep -vF "$PROD_ALIAS"' in sh,
+          "inspecting the alias to verify the alias proves nothing")
+    check("an unprovable alias move fails the deploy loudly",
+          "an unproven deploy is a failed deploy" in sh,
+          "the no-deploy-id branch must exit 1, not warn and continue")
 
     # A data-only redeploy never changes sw.js, so nothing re-runs install() —
     # cache-first with no revalidation would serve the first artifact forever.

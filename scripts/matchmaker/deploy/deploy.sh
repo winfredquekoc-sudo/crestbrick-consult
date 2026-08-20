@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-# Manual only — nothing in build.py or any automated job calls this. Run by hand:
+# Called by hand AND by the scheduled rental DB refresh (5 daytime slots, since 20 Aug
+# 2026). build.py still never calls it. This is the ONLY sanctioned deploy path — the
+# middleware.js precondition and alias verification below are why. Run by hand:
 #   python3 scripts/matchmaker/build.py && scripts/matchmaker/deploy/deploy.sh
 # Roll back only, no new deploy:
 #   scripts/matchmaker/deploy/deploy.sh --rollback
@@ -28,7 +30,9 @@ rollback_and_verify() {
   # 11 Aug incident, it only reports "No deployment rollback in progress".
   # The previous production deployment must be targeted explicitly.
   local prev_url
-  prev_url="$( (cd "$HERE" && vercel ls --prod 2>&1) | grep -Eo 'https://[a-z0-9-]+\.vercel\.app' | sed -n '2p')"
+  # || true: under pipefail a no-match grep would kill the script here, silently,
+  # before the empty-check below ever runs — in the ROLLBACK path of all places.
+  prev_url="$( (cd "$HERE" && vercel ls --prod 2>&1) | grep -Eo 'https://[a-z0-9-]+\.vercel\.app' | sed -n '2p' || true)"
   if [ -z "$prev_url" ]; then
     echo "deploy.sh: could not identify the previous production deployment — go to the Vercel dashboard now and roll back manually. Do not treat this app as private until the alias returns 401 again." >&2
     exit 1
@@ -87,7 +91,7 @@ fi
 # can never drift from what's actually shipped. It is the one string that
 # lets us tell "the production alias answered" apart from "the production
 # alias answered with THIS deploy", which a bare 401/200 status code cannot. ---
-BUILD_ID="$(grep -o '"build_id": *"[^"]*"' "$SRC" | head -1 | sed -E 's/.*"([^"]+)"$/\1/')"
+BUILD_ID="$(grep -o '"build_id": *"[^"]*"' "$SRC" | head -1 | sed -E 's/.*"([^"]+)"$/\1/' || true)"
 if [ -z "$BUILD_ID" ]; then
   echo "deploy.sh: ABORTED — could not find a build_id in $SRC's payload. Re-run python3 scripts/matchmaker/build.py." >&2
   exit 1
@@ -99,7 +103,11 @@ echo "deploying PII artifact to crestbrick-matchmaker-private — deploy/middlew
 
 cd "$HERE"
 OUT="$(vercel --prod --yes 2>&1 | tee /dev/stderr)"
-URL="$(printf '%s\n' "$OUT" | grep -Eo 'https://[A-Za-z0-9.-]+\.vercel\.app' | tail -1)"
+# Exclude the alias itself: when the CLI prints "Aliased: <alias>" last, taking
+# the raw last URL would hand the alias to the checks below — and inspecting the
+# alias to verify the alias proves nothing. Only the hash-suffixed deployment
+# URL identifies THIS deploy.
+URL="$(printf '%s\n' "$OUT" | grep -Eo 'https://[A-Za-z0-9.-]+\.vercel\.app' | grep -vF "$PROD_ALIAS" | tail -1 || true)"
 
 if [ -z "$URL" ]; then
   echo "deploy.sh: could not parse a deployed URL from vercel output above — verify auth manually before sharing any link" >&2
@@ -118,7 +126,14 @@ fi
 # That is a shared marker, and shared markers are exactly what produced a false
 # "deployed" confirmation once before. Deployment identity is the only honest
 # discriminator available without credentials, so compare it explicitly.
-DEPLOY_ID="$(printf '%s\n' "$OUT" | grep -Eo 'dpl_[A-Za-z0-9]+' | head -1)"
+# The CLI only sometimes prints a dpl_-prefixed id: slow builds emit status-poll
+# lines that carry it, fast cache-restored builds (~1s) skip them entirely —
+# which is how the 20 Aug 21:00 slot "failed" while the deploy itself shipped
+# fine. Inspecting the deployment URL we just parsed always yields the id.
+DEPLOY_ID="$(printf '%s\n' "$OUT" | grep -Eo 'dpl_[A-Za-z0-9]+' | head -1 || true)"
+if [ -z "$DEPLOY_ID" ]; then
+  DEPLOY_ID="$( (cd "$HERE" && vercel inspect "$URL" 2>&1) | grep -Eo 'dpl_[A-Za-z0-9]+' | head -1 || true)"
+fi
 alias_dpl() { (cd "$HERE" && vercel inspect "$PROD_ALIAS" 2>&1) | grep -Eo 'dpl_[A-Za-z0-9]+' | head -1; }
 if [ -n "$DEPLOY_ID" ]; then
   if [ "$(alias_dpl)" != "$DEPLOY_ID" ]; then
@@ -139,7 +154,8 @@ if [ -n "$DEPLOY_ID" ]; then
     exit 1
   fi
 else
-  echo "deploy.sh: could not parse a deployment id from the vercel output — cannot prove the alias moved onto this build. Check the dashboard before treating it as live." >&2
+  echo "deploy.sh: could not obtain a deployment id from the vercel output OR from inspecting $URL — cannot prove the alias moved onto this build. The upload itself may well have succeeded (check the dashboard), but an unproven deploy is a failed deploy here." >&2
+  exit 1
 fi
 
 # --- hash suffixed deployment URL: either the app's own middleware answers
