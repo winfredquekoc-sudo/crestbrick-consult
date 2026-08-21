@@ -529,6 +529,11 @@
       "source": "/launches/briefs/thomson-modern-upper-thomson-parcel-b",
       "destination": "/launches/briefs/springleaf-residence",
       "permanent": true
+    },
+    {
+      "source": "/answers/how-does-the-hfe-letter-work-and-how-long-does-it-take",
+      "destination": "/insights/hdb-hfe-letter-guide-2026",
+      "permanent": true
     }
   ],
   "buildCommand": "npm run build",

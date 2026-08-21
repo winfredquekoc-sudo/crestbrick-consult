@@ -138,12 +138,17 @@ def main():
     src = (src[:a] + '<article class="max-w-4xl mx-auto px-6 pt-10 pb-24">\n\n'
            + controls + "\n" + body + "\n\n" + src[a_end:])
 
-    src = re.sub(r"<title>.*?</title>",
-                 f"<title>Singapore Property Questions Answered: {total} Direct Answers | Winfred Quek</title>",
-                 src, flags=re.S)
+    title_text = f"Singapore Property Questions Answered: {total} Direct Answers | Winfred Quek"
+    src = re.sub(r"<title>.*?</title>", f"<title>{title_text}</title>", src, flags=re.S)
     for prop in ("description", "og:description", "twitter:description"):
         src = re.sub(rf'(<meta (?:name|property)="{prop}" content=")[^"]*(")',
                      rf"\g<1>{total} direct answers to the Singapore property questions buyers, sellers and landlords actually ask. ABSD, HDB rules, CPF, mortgages, en bloc and more.\g<2>", src)
+    # og:title/twitter:title previously drifted from <title> since only the
+    # description trio was kept in sync here -- keep all three title-bearing
+    # tags identical so social shares and the browser tab never disagree.
+    for prop in ("og:title", "twitter:title"):
+        src = re.sub(rf'(<meta (?:name|property)="{prop}" content=")[^"]*(")',
+                     rf"\g<1>{title_text}\g<2>", src)
 
     if ".ans-controls{" not in src:
         src = src.replace("</style>", css + "  </style>", 1)
