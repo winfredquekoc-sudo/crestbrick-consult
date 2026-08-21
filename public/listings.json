@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-21T00:30:07+08:00",
-  "count": 19,
+  "synced_at": "2026-08-22T00:30:01+08:00",
+  "count": 25,
   "listings": [
     {
       "id": "room-hillcrest-villa-ll124",
@@ -25,8 +25,8 @@
       "title": "Common Room — Blk 47 Marine Parade",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1350,
-      "price_label": "From S$1,350 / mo",
+      "price": 1250,
+      "price_label": "From S$1,250 / mo",
       "address": "Blk 47 Marine Parade",
       "district": "D15",
       "highlights": [
@@ -126,6 +126,30 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013."
     },
     {
+      "id": "room-20-simei-street-1-ll125",
+      "title": "Room — 20 Simei Street 1",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1000,
+      "price_label": "From S$1,000 / mo",
+      "address": "20 Simei Street 1",
+      "district": "D18",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%2020%20Simei%20Street%201.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%2020%20Simei%20Street%201."
+    },
+    {
+      "id": "room-melville-park-ll130",
+      "title": "Room — Melville Park (Tampines)",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1180,
+      "price_label": "From S$1,180 / mo",
+      "address": "Melville Park",
+      "district": "D18",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Melville%20Park.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Melville%20Park."
+    },
+    {
       "id": "master-room-blk-143-lorong-ah-soo-ll100",
       "title": "Master Room — Blk 143 Lorong Ah Soo (Hougang)",
       "type": "HDB",
@@ -161,6 +185,18 @@
       "district": "D20",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Cherryhill.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Cherryhill."
+    },
+    {
+      "id": "master-room-blk-503-ll131",
+      "title": "Master Room — Blk 503 (Bishan)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "From S$1,200 / mo",
+      "address": "Blk 503",
+      "district": "D20",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503."
     },
     {
       "id": "master-room-blk-503-ang-mo-kio-ave-8-ll106",
@@ -254,6 +290,19 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
     },
     {
+      "id": "room-blk-403-ll129",
+      "title": "Room — Blk 403 (Jurong)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 950,
+      "price_label": "S$950 / mo",
+      "address": "Blk 403",
+      "district": "D22",
+      "sqft": 1141,
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20403.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20403."
+    },
+    {
       "id": "common-room-54-sunrise-terrace-ll028",
       "title": "Common Room — 54 Sunrise Terrace",
       "type": "Landed",
@@ -279,6 +328,30 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights."
+    },
+    {
+      "id": "room-blk-681-ll120",
+      "title": "Room — Blk 681 (Lavender)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "S$1,100 / mo",
+      "address": "Blk 681",
+      "district": "D8",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20681.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20681."
+    },
+    {
+      "id": "room-blk-681-ll128",
+      "title": "Room — Blk 681 (Lavender)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "From S$1,100 / mo",
+      "address": "Blk 681",
+      "district": "D8",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20681.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20681."
     }
   ]
 }
