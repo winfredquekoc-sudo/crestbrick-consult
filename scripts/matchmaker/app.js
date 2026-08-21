@@ -3640,6 +3640,21 @@ function registerServiceWorker() {
   fetch("/sw.js", { method: "HEAD" })
     .then(r => (r && r.ok) ? navigator.serviceWorker.register("/sw.js") : null)
     .catch(() => {});
+  // The worker serves the CACHED build instantly and revalidates behind it, so
+  // the first open after every refresh slot shows the PREVIOUS build — which
+  // the visible "up to date as of" stamp turned into an apparent failed update
+  // (21 Aug 2026). When the worker reports it cached a genuinely newer build,
+  // offer a one-tap reload. Never auto-reload: Winfred may be mid-triage.
+  navigator.serviceWorker.addEventListener("message", (e) => {
+    if (!e.data || e.data.type !== "fresh-build") return;
+    if (e.data.build_id === DATA.build_id) return;
+    if (document.querySelector(".freshbar")) return;
+    const bar = document.createElement("button");
+    bar.className = "freshbar";
+    bar.textContent = "🔄 Newer data just downloaded — tap to reload";
+    bar.onclick = () => location.reload();
+    document.body.appendChild(bar);
+  });
 }
 
 // ===================== stats tab (13/27/45/47/48/49/62/69) =====================

@@ -1822,7 +1822,15 @@ def test_deploy_auth_and_cache_posture():
     check("going offline still serves the cached copy",
           ".catch(" in sw and "return cached;" in sw)
     check("the cache name was bumped alongside the logic change",
-          "matchmaker-cache-v2" in sw, "stale clients would keep running the old logic")
+          "matchmaker-cache-v3" in sw, "stale clients would keep running the old logic")
+    # v3: the stale first paint must announce itself. Notify ONLY on a build_id
+    # difference — notifying on every revalidate would nag on every open, and
+    # never notifying is how a fresh deploy read as "failed to update".
+    check("revalidate notifies open pages of a genuinely newer build",
+          "fresh-build" in sw and "build_id" in sw and "postMessage" in sw)
+    app_src = open(os.path.join(os.path.dirname(here), "app.js")).read()
+    check("the app offers the one-tap reload for that notification",
+          "fresh-build" in app_src and "freshbar" in app_src, "sw notification has no listener")
     check("the no-store vs Cache Storage contradiction is written down",
           "no-store" in sw and "PRIVACY NOTE" in sw,
           "vercel.json's no-store does not stop the Cache API persisting this artifact")

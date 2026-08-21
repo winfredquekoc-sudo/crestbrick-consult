@@ -3,10 +3,13 @@
 // nothing else on this origin needs caching, so the fetch handler ignores
 // every other path.
 //
-// CACHE_VERSION: 2 — bump this number (only this number, and the CACHE_NAME
+// CACHE_VERSION: 3 — bump this number (only this number, and the CACHE_NAME
 // string below to match) whenever this file's caching logic changes, so
 // returning visitors evict the old cache instead of running stale logic
 // forever. build.py never touches this file, so the version is hand rolled.
+// v3: the background revalidate now tells open pages when it stored a NEWER
+// build (build_id compared, not mere bytes) — the visible "up to date as of"
+// stamp made the stale first paint look like a failed refresh (21 Aug 2026).
 //
 // PRIVACY NOTE: the cached response IS the PII artifact. deploy/vercel.json
 // sets Cache-Control: no-store on "/", but the Cache Storage API deliberately
@@ -16,7 +19,7 @@
 // in either file, and the compensating controls are the auth wall in front of
 // it plus the app's own masking and idle lock. Anyone reading vercel.json and
 // concluding "this response is never written to disk" would be wrong.
-const CACHE_NAME = "matchmaker-cache-v2";
+const CACHE_NAME = "matchmaker-cache-v3";
 const APP_URL = "/";
 
 self.addEventListener("install", (event) => {
@@ -56,8 +59,27 @@ self.addEventListener("fetch", (event) => {
   event.respondWith(
     caches.open(CACHE_NAME).then((cache) =>
       cache.match(req).then((cached) => {
+        const cachedCopy = cached ? cached.clone() : null;
         const fresh = fetch(req).then((res) => {
-          if (res && res.ok) cache.put(req, res.clone());
+          if (res && res.ok) {
+            const resCopy = res.clone();
+            cache.put(req, res.clone());
+            // The page that just loaded is showing the CACHED build. If the copy
+            // we just stored is a genuinely newer build (build_id differs — a
+            // plain byte compare would false-alarm never, but a notify on every
+            // revalidate would false-alarm always), tell every open page so it
+            // can offer a one-tap reload instead of silently looking stale.
+            if (cachedCopy) {
+              Promise.all([cachedCopy.text(), resCopy.text()]).then(([oldT, newT]) => {
+                const idOf = (t) => (t.match(/"build_id": *"([^"]+)"/) || [])[1];
+                const a = idOf(oldT), b = idOf(newT);
+                if (a && b && a !== b) {
+                  self.clients.matchAll().then((cs) =>
+                    cs.forEach((c) => c.postMessage({ type: "fresh-build", build_id: b })));
+                }
+              }).catch(() => {});
+            }
+          }
           return res;
         }).catch((e) => {
           if (cached) return cached;   // offline with a cached copy is a success
