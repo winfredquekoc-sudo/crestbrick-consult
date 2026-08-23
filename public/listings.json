@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-23T00:30:06+08:00",
-  "count": 22,
+  "synced_at": "2026-08-24T00:30:03+08:00",
+  "count": 25,
   "listings": [
     {
       "id": "room-hillcrest-villa-ll124",
@@ -21,12 +21,44 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa."
     },
     {
+      "id": "master-room-st-francis-court-ll015",
+      "title": "Master Room — St Francis Court (Toa Payoh)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1680,
+      "price_label": "From S$1,680 / mo",
+      "address": "St Francis Court",
+      "district": "D12",
+      "sqft": 200,
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court."
+    },
+    {
+      "id": "common-room-93-paya-lebar-way-ll136",
+      "title": "Common Room — 93 Paya Lebar Way",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "From S$900 / mo",
+      "address": "93 Paya Lebar Way",
+      "district": "D14",
+      "sqft": 170,
+      "highlights": [
+        "Near MRT",
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way."
+    },
+    {
       "id": "common-room-blk-47-marine-parade-ll110",
       "title": "Common Room — Blk 47 Marine Parade",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1250,
-      "price_label": "From S$1,250 / mo",
+      "price": 1300,
+      "price_label": "From S$1,300 / mo",
       "address": "Blk 47 Marine Parade",
       "district": "D15",
       "highlights": [
@@ -126,28 +158,64 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013."
     },
     {
-      "id": "room-20-simei-street-1-ll125",
-      "title": "Room — 20 Simei Street 1",
+      "id": "master-room-20-simei-street-1-ll125",
+      "title": "Master Room — 20 Simei Street 1",
       "type": "Condo",
       "transaction": "rent",
       "price": 1180,
       "price_label": "From S$1,180 / mo",
       "address": "20 Simei Street 1",
       "district": "D18",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%2020%20Simei%20Street%201.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%2020%20Simei%20Street%201."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201."
     },
     {
-      "id": "room-melville-park-ll130",
-      "title": "Room — Melville Park (Tampines)",
-      "type": "Condo",
+      "id": "room-tampines-ll135",
+      "title": "Room — Tampines",
+      "type": "HDB",
       "transaction": "rent",
-      "price": 1180,
-      "price_label": "From S$1,180 / mo",
-      "address": "Melville Park",
+      "price": 1250,
+      "price_label": "S$1,250 / mo",
+      "address": "Tampines",
       "district": "D18",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Melville%20Park.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Melville%20Park."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Tampines.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Tampines."
+    },
+    {
+      "id": "common-room-992b-buangkok-link-ll138",
+      "title": "Common Room — 992B Buangkok Link (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "From S$900 / mo",
+      "address": "992B Buangkok Link",
+      "district": "D19",
+      "highlights": [
+        "Near MRT",
+        "Utilities included",
+        "Furnished",
+        "Aircon",
+        "Own bathroom"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20992B%20Buangkok%20Link.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20992B%20Buangkok%20Link."
+    },
+    {
+      "id": "common-room-156a-bishan-street-11-ll142",
+      "title": "Common Room — 156A Bishan Street 11",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "From S$1,100 / mo",
+      "address": "156A Bishan Street 11",
+      "district": "D20",
+      "highlights": [
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20156A%20Bishan%20Street%2011.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20156A%20Bishan%20Street%2011."
     },
     {
       "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
@@ -175,16 +243,16 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Cherryhill."
     },
     {
-      "id": "master-room-blk-503-ll131",
-      "title": "Master Room — Blk 503 (Bishan)",
+      "id": "common-room-sin-ming-road-ll137",
+      "title": "Common Room — Sin Ming Road (Bishan)",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1200,
-      "price_label": "From S$1,200 / mo",
-      "address": "Blk 503",
+      "price": 1000,
+      "price_label": "S$1,000 / mo",
+      "address": "Sin Ming Road",
       "district": "D20",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sin%20Ming%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sin%20Ming%20Road."
     },
     {
       "id": "master-room-blk-503-ang-mo-kio-ave-8-ll106",
@@ -276,19 +344,6 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
-    },
-    {
-      "id": "room-blk-403-ll129",
-      "title": "Room — Blk 403 (Jurong)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 950,
-      "price_label": "S$950 / mo",
-      "address": "Blk 403",
-      "district": "D22",
-      "sqft": 1141,
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20403.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20403."
     },
     {
       "id": "common-room-54-sunrise-terrace-ll028",
