@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-24T00:30:03+08:00",
-  "count": 25,
+  "synced_at": "2026-08-25T00:30:07+08:00",
+  "count": 30,
   "listings": [
     {
       "id": "room-hillcrest-villa-ll124",
@@ -32,6 +32,18 @@
       "sqft": 200,
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court."
+    },
+    {
+      "id": "room-101a-lorong-2-toa-payoh-ll149",
+      "title": "Room — 101A Lorong 2 Toa Payoh",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "101A Lorong 2 Toa Payoh",
+      "district": "D12",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20101A%20Lorong%202%20Toa%20Payoh.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20101A%20Lorong%202%20Toa%20Payoh."
     },
     {
       "id": "common-room-93-paya-lebar-way-ll136",
@@ -162,10 +174,13 @@
       "title": "Master Room — 20 Simei Street 1",
       "type": "Condo",
       "transaction": "rent",
-      "price": 1180,
-      "price_label": "From S$1,180 / mo",
+      "price": 1400,
+      "price_label": "S$1,400 / mo",
       "address": "20 Simei Street 1",
       "district": "D18",
+      "highlights": [
+        "Available now"
+      ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201."
     },
@@ -222,8 +237,8 @@
       "title": "Common Room — Blk 539 Ang Mo Kio Ave 10",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1000,
-      "price_label": "From S$1,000 / mo",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
       "address": "Blk 539 Ang Mo Kio Ave 10",
       "district": "D20",
       "sqft": 130,
@@ -273,6 +288,21 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208."
     },
     {
+      "id": "whole-unit-bishan-ll150",
+      "title": "Whole Unit — Bishan",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1400,
+      "price_label": "From S$1,400 / mo",
+      "address": "Bishan",
+      "district": "D20",
+      "highlights": [
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Bishan.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Bishan."
+    },
+    {
       "id": "common-room-138a-yuan-ching-road-ll111",
       "title": "Common Room — 138A Yuan Ching Road (Jurong)",
       "type": "HDB",
@@ -286,6 +316,18 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road."
+    },
+    {
+      "id": "common-room-blk-282-toh-guan-road-ll146",
+      "title": "Common Room — Blk 282 Toh Guan Road (Jurong)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 600,
+      "price_label": "From S$600 / mo",
+      "address": "Blk 282 Toh Guan Road",
+      "district": "D22",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road."
     },
     {
       "id": "common-room-blk-403-jurong-west-street-42-ll105",
@@ -334,6 +376,22 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20703%20Jurong%20West."
     },
     {
+      "id": "master-room-blk-528-jurong-west-street-52-ll118",
+      "title": "Master Room — Blk 528 Jurong West Street 52",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1300,
+      "price_label": "S$1,300 / mo",
+      "address": "Blk 528 Jurong West Street 52",
+      "district": "D22",
+      "highlights": [
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20528%20Jurong%20West%20Street%2052.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20528%20Jurong%20West%20Street%2052."
+    },
+    {
       "id": "room-851-jurong-west-ll017",
       "title": "Room — 851 Jurong West",
       "type": "HDB",
@@ -344,6 +402,23 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
+    },
+    {
+      "id": "master-room-blk-233-pending-rd-ll115",
+      "title": "Master Room — Blk 233 Pending Rd (Bukit Batok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "Blk 233 Pending Rd",
+      "district": "D23",
+      "highlights": [
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd."
     },
     {
       "id": "common-room-54-sunrise-terrace-ll028",
