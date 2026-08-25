@@ -110,6 +110,13 @@ def check(path):
     if EXPECT_DARK and re.search(r"body\s*\{[^}]*background:\s*#(?:f{3,6}|faf8f4|fbf6ec|faf6ee)", screen_css, re.I):
         d.append({"type": "LIGHT_THEME"})
 
+    # 10. dual CTA block (Calendly + WhatsApp), insights only
+    if EXPECT_SOURCES:
+        tail = html[-4000:]
+        has_cta = "article-cta" in html or ("calendly.com" in tail and "wa.me" in tail)
+        if not has_cta:
+            d.append({"type": "NO_CTA"})
+
     return d
 
 
