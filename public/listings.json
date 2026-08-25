@@ -1,7 +1,7 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-25T00:30:07+08:00",
+  "synced_at": "2026-08-26T00:30:02+08:00",
   "count": 30,
   "listings": [
     {
@@ -65,19 +65,20 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way."
     },
     {
-      "id": "common-room-blk-47-marine-parade-ll110",
-      "title": "Common Room — Blk 47 Marine Parade",
-      "type": "HDB",
+      "id": "common-room-16-bedok-north-drive-ll122",
+      "title": "Common Room — 16 Bedok North Drive",
+      "type": "Condo",
       "transaction": "rent",
-      "price": 1300,
-      "price_label": "From S$1,300 / mo",
-      "address": "Blk 47 Marine Parade",
-      "district": "D15",
+      "price": 1350,
+      "price_label": "S$1,350 / mo",
+      "address": "16 Bedok North Drive",
+      "district": "D16",
       "highlights": [
-        "Utilities included"
+        "Near MRT",
+        "Available now"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2047%20Marine%20Parade.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2047%20Marine%20Parade."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive."
     },
     {
       "id": "common-room-bayshore-park-ll070",
@@ -108,8 +109,8 @@
       "title": "Room — Blk 62 Bayshore Park",
       "type": "Condo",
       "transaction": "rent",
-      "price": 600,
-      "price_label": "From S$600 / mo",
+      "price": 800,
+      "price_label": "From S$800 / mo",
       "address": "Blk 62 Bayshore Park",
       "district": "D16",
       "highlights": [
@@ -174,8 +175,8 @@
       "title": "Master Room — 20 Simei Street 1",
       "type": "Condo",
       "transaction": "rent",
-      "price": 1400,
-      "price_label": "S$1,400 / mo",
+      "price": 1250,
+      "price_label": "From S$1,250 / mo",
       "address": "20 Simei Street 1",
       "district": "D18",
       "highlights": [
@@ -237,8 +238,8 @@
       "title": "Common Room — Blk 539 Ang Mo Kio Ave 10",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1200,
-      "price_label": "S$1,200 / mo",
+      "price": 1000,
+      "price_label": "From S$1,000 / mo",
       "address": "Blk 539 Ang Mo Kio Ave 10",
       "district": "D20",
       "sqft": 130,
@@ -288,19 +289,20 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208."
     },
     {
-      "id": "whole-unit-bishan-ll150",
-      "title": "Whole Unit — Bishan",
+      "id": "whole-unit-block-31-bishan-loft-ll150",
+      "title": "Whole Unit — Block 31 Bishan Loft",
       "type": "HDB",
       "transaction": "rent",
       "price": 1400,
       "price_label": "From S$1,400 / mo",
-      "address": "Bishan",
+      "address": "Block 31 Bishan Loft",
       "district": "D20",
       "highlights": [
+        "Furnished",
         "Aircon"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Bishan.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Bishan."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Block%2031%20Bishan%20Loft.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Block%2031%20Bishan%20Loft."
     },
     {
       "id": "common-room-138a-yuan-ching-road-ll111",
@@ -381,7 +383,7 @@
       "type": "HDB",
       "transaction": "rent",
       "price": 1300,
-      "price_label": "S$1,300 / mo",
+      "price_label": "From S$1,300 / mo",
       "address": "Blk 528 Jurong West Street 52",
       "district": "D22",
       "highlights": [
