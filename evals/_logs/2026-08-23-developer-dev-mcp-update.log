@@ -1,0 +1,15 @@
+=== prompt ===
+Use the developer agent: higgsfield-mcp dependency has a CVE in axios. Plan the upgrade.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3929
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

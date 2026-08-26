@@ -1,0 +1,538 @@
+[
+  {
+    "id": 649,
+    "slug": "things-to-know-before-renting-singapore-part-1",
+    "cluster": "tenant-prep",
+    "date": "2026-08-26",
+    "title": "Things to Know Before Renting in Singapore: Part 1 – Budgeting & Search",
+    "description": "Getting started with renting in Singapore: budgeting, neighbourhood research, and where to search for flats."
+  },
+  {
+    "id": 650,
+    "slug": "things-to-know-before-renting-singapore-part-2",
+    "cluster": "tenant-prep",
+    "date": "2026-08-27",
+    "title": "Things to Know Before Renting in Singapore: Part 2 – Viewings & Due Diligence",
+    "description": "What to check during property viewings, red flags, neighbourhood walks, and tenant verification."
+  },
+  {
+    "id": 651,
+    "slug": "things-to-know-before-renting-singapore-part-3",
+    "cluster": "tenant-prep",
+    "date": "2026-08-28",
+    "title": "Things to Know Before Renting in Singapore: Part 3 – Negotiation & Agreement",
+    "description": "Negotiating rent, understanding tenancy agreements, clauses to watch, and signature best practices."
+  },
+  {
+    "id": 652,
+    "slug": "things-to-know-before-renting-singapore-part-4",
+    "cluster": "tenant-prep",
+    "date": "2026-08-29",
+    "title": "Things to Know Before Renting in Singapore: Part 4 – Move-In & Security",
+    "description": "Move-in procedures, security deposit handling, documentation, and landlord communication."
+  },
+  {
+    "id": 653,
+    "slug": "things-to-know-before-renting-singapore-part-5",
+    "cluster": "tenant-prep",
+    "date": "2026-08-30",
+    "title": "Things to Know Before Renting in Singapore: Part 5 – Maintenance & Disputes",
+    "description": "Handling maintenance issues, dispute resolution, small claims tribunal, and tenant rights."
+  },
+  {
+    "id": 654,
+    "slug": "things-to-know-before-renting-singapore-part-6",
+    "cluster": "tenant-prep",
+    "date": "2026-08-31",
+    "title": "Things to Know Before Renting in Singapore: Part 6 – Renewal & Exit",
+    "description": "Lease renewal, rent increases, exit strategies, and deposit recovery checklist."
+  },
+  {
+    "id": 655,
+    "slug": "things-to-know-before-renting-singapore-part-7",
+    "cluster": "tenant-prep",
+    "date": "2026-09-01",
+    "title": "Things to Know Before Renting in Singapore: Part 7 – Tax & Permits",
+    "description": "Rental income tax implications, work permit updates, and HDB rental rules for tenants."
+  },
+  {
+    "id": 656,
+    "slug": "things-to-know-before-renting-singapore-part-8",
+    "cluster": "tenant-prep",
+    "date": "2026-09-02",
+    "title": "Things to Know Before Renting in Singapore: Part 8 – Long-Term Tenancy",
+    "description": "Building long-term rental relationships, landlord expectations, and stability strategies."
+  },
+  {
+    "id": 657,
+    "slug": "things-to-know-before-buying-singapore-part-1",
+    "cluster": "buyer-prep",
+    "date": "2026-08-26",
+    "title": "Things to Know Before Buying in Singapore: Part 1 – Financial Readiness",
+    "description": "Assessing financial readiness, savings targets, loan pre-approval, and TDSR calculations."
+  },
+  {
+    "id": 658,
+    "slug": "things-to-know-before-buying-singapore-part-2",
+    "cluster": "buyer-prep",
+    "date": "2026-08-27",
+    "title": "Things to Know Before Buying in Singapore: Part 2 – Property Type Decisions",
+    "description": "HDB vs condo vs EC: comparing eligibility, affordability, resale value, and lifestyle fit."
+  },
+  {
+    "id": 659,
+    "slug": "things-to-know-before-buying-singapore-part-3",
+    "cluster": "buyer-prep",
+    "date": "2026-08-28",
+    "title": "Things to Know Before Buying in Singapore: Part 3 – Location & Neighbourhoods",
+    "description": "Location selection criteria, neighbourhood research, MRT access, school catchment, and resale potential."
+  },
+  {
+    "id": 660,
+    "slug": "things-to-know-before-buying-singapore-part-4",
+    "cluster": "buyer-prep",
+    "date": "2026-08-29",
+    "title": "Things to Know Before Buying in Singapore: Part 4 – Due Diligence",
+    "description": "Property inspection, legal search, defect checks, structural reports, and survey interpretation."
+  },
+  {
+    "id": 661,
+    "slug": "things-to-know-before-buying-singapore-part-5",
+    "cluster": "buyer-prep",
+    "date": "2026-08-30",
+    "title": "Things to Know Before Buying in Singapore: Part 5 – Offers & Negotiation",
+    "description": "Making competitive offers, negotiation tactics, furniture/fittings, and counteroffers."
+  },
+  {
+    "id": 662,
+    "slug": "things-to-know-before-buying-singapore-part-6",
+    "cluster": "buyer-prep",
+    "date": "2026-08-31",
+    "title": "Things to Know Before Buying in Singapore: Part 6 – Contracts & Legals",
+    "description": "Understanding purchase agreements, option periods, legal reviews, and escrow arrangements."
+  },
+  {
+    "id": 663,
+    "slug": "things-to-know-before-buying-singapore-part-7",
+    "cluster": "buyer-prep",
+    "date": "2026-09-01",
+    "title": "Things to Know Before Buying in Singapore: Part 7 – Financing & Costs",
+    "description": "Stamp duty, legal fees, survey costs, agent commissions, and mortgage documentation."
+  },
+  {
+    "id": 664,
+    "slug": "things-to-know-before-buying-singapore-part-8",
+    "cluster": "buyer-prep",
+    "date": "2026-09-02",
+    "title": "Things to Know Before Buying in Singapore: Part 8 – Completion & Handover",
+    "description": "Closing procedures, final inspections, keys transfer, and post-completion steps."
+  },
+  {
+    "id": 665,
+    "slug": "things-to-know-before-selling-singapore-part-1",
+    "cluster": "seller-prep",
+    "date": "2026-08-26",
+    "title": "Things to Know Before Selling in Singapore: Part 1 – Preparation & Timing",
+    "description": "Timing the market, property condition assessment, renovation decisions, and market readiness."
+  },
+  {
+    "id": 666,
+    "slug": "things-to-know-before-selling-singapore-part-2",
+    "cluster": "seller-prep",
+    "date": "2026-08-27",
+    "title": "Things to Know Before Selling in Singapore: Part 2 – Valuation & Pricing",
+    "description": "Understanding property valuation, comparable sales analysis, pricing strategy, and agent selection."
+  },
+  {
+    "id": 667,
+    "slug": "things-to-know-before-selling-singapore-part-3",
+    "cluster": "seller-prep",
+    "date": "2026-08-28",
+    "title": "Things to Know Before Selling in Singapore: Part 3 – Marketing & Viewings",
+    "description": "Effective property marketing, handling showings, buyer questions, and market feedback."
+  },
+  {
+    "id": 668,
+    "slug": "things-to-know-before-selling-singapore-part-4",
+    "cluster": "seller-prep",
+    "date": "2026-08-29",
+    "title": "Things to Know Before Selling in Singapore: Part 4 – Offers & Negotiation",
+    "description": "Evaluating offers, counteroffers, negotiation tactics, and deal structure."
+  },
+  {
+    "id": 669,
+    "slug": "things-to-know-before-selling-singapore-part-5",
+    "cluster": "seller-prep",
+    "date": "2026-08-30",
+    "title": "Things to Know Before Selling in Singapore: Part 5 – Legal & Documentation",
+    "description": "Option period, sale and purchase agreement, legal requirements, and disclosure obligations."
+  },
+  {
+    "id": 670,
+    "slug": "things-to-know-before-selling-singapore-part-6",
+    "cluster": "seller-prep",
+    "date": "2026-08-31",
+    "title": "Things to Know Before Selling in Singapore: Part 6 – Financial Settlements",
+    "description": "Settlement calculations, CPF refunds, outstanding loans, and cash proceeds."
+  },
+  {
+    "id": 671,
+    "slug": "things-to-know-before-selling-singapore-part-7",
+    "cluster": "seller-prep",
+    "date": "2026-09-01",
+    "title": "Things to Know Before Selling in Singapore: Part 7 – Tax & Compliance",
+    "description": "Seller stamp duty, IRAS reporting, CGT implications, and compliance checklist."
+  },
+  {
+    "id": 672,
+    "slug": "things-to-know-before-selling-singapore-part-8",
+    "cluster": "seller-prep",
+    "date": "2026-09-02",
+    "title": "Things to Know Before Selling in Singapore: Part 8 – Closing & Handover",
+    "description": "Final preparations, completion procedures, tenant coordination, and property handover."
+  },
+  {
+    "id": 673,
+    "slug": "benefits-of-agent-representation-buying-part-1",
+    "cluster": "buyer-benefits",
+    "date": "2026-09-03",
+    "title": "Benefits of Agent Representation When Buying Property: Part 1 – Market Knowledge",
+    "description": "How agents leverage market knowledge, pricing expertise, and neighbourhood insights to advantage buyers."
+  },
+  {
+    "id": 674,
+    "slug": "benefits-of-agent-representation-buying-part-2",
+    "cluster": "buyer-benefits",
+    "date": "2026-09-03",
+    "title": "Benefits of Agent Representation When Buying Property: Part 2 – Negotiation",
+    "description": "Strategic negotiation tactics, offer structuring, and price optimization through agent representation."
+  },
+  {
+    "id": 675,
+    "slug": "benefits-of-agent-representation-buying-part-3",
+    "cluster": "buyer-benefits",
+    "date": "2026-09-04",
+    "title": "Benefits of Agent Representation When Buying Property: Part 3 – Due Diligence",
+    "description": "Thorough property inspection, legal review coordination, and defect identification."
+  },
+  {
+    "id": 676,
+    "slug": "benefits-of-agent-representation-buying-part-4",
+    "cluster": "buyer-benefits",
+    "date": "2026-09-04",
+    "title": "Benefits of Agent Representation When Buying Property: Part 4 – Financing Support",
+    "description": "Loan coordination, lender relationships, documentation support, and approval management."
+  },
+  {
+    "id": 677,
+    "slug": "benefits-of-agent-representation-buying-part-5",
+    "cluster": "buyer-benefits",
+    "date": "2026-09-05",
+    "title": "Benefits of Agent Representation When Buying Property: Part 5 – Closing Support",
+    "description": "Final coordination, completion management, handover logistics, and post-closing assistance."
+  },
+  {
+    "id": 678,
+    "slug": "benefits-of-agent-representation-selling-part-1",
+    "cluster": "seller-benefits",
+    "date": "2026-09-05",
+    "title": "Benefits of Agent Representation When Selling Property: Part 1 – Market Positioning",
+    "description": "Strategic property positioning, competitive analysis, and optimal pricing for maximum returns."
+  },
+  {
+    "id": 679,
+    "slug": "benefits-of-agent-representation-selling-part-2",
+    "cluster": "seller-benefits",
+    "date": "2026-09-05",
+    "title": "Benefits of Agent Representation When Selling Property: Part 2 – Marketing & Exposure",
+    "description": "Professional marketing, multi-channel exposure, qualified buyer sourcing, and viewings management."
+  },
+  {
+    "id": 680,
+    "slug": "benefits-of-agent-representation-selling-part-3",
+    "cluster": "seller-benefits",
+    "date": "2026-09-06",
+    "title": "Benefits of Agent Representation When Selling Property: Part 3 – Negotiation",
+    "description": "Sophisticated negotiation strategies, offer evaluation, and deal structure optimization."
+  },
+  {
+    "id": 681,
+    "slug": "benefits-of-agent-representation-selling-part-4",
+    "cluster": "seller-benefits",
+    "date": "2026-09-06",
+    "title": "Benefits of Agent Representation When Selling Property: Part 4 – Legal & Compliance",
+    "description": "Documentation coordination, legal requirement navigation, and regulatory compliance assurance."
+  },
+  {
+    "id": 682,
+    "slug": "benefits-of-agent-representation-selling-part-5",
+    "cluster": "seller-benefits",
+    "date": "2026-09-07",
+    "title": "Benefits of Agent Representation When Selling Property: Part 5 – Settlement & Closing",
+    "description": "Financial settlement coordination, escrow management, and smooth transaction closing."
+  },
+  {
+    "id": 683,
+    "slug": "benefits-of-agent-representation-landlord-part-1",
+    "cluster": "landlord-benefits",
+    "date": "2026-09-07",
+    "title": "Benefits of Agent Representation for Landlords: Part 1 – Tenant Screening",
+    "description": "Professional tenant screening, background verification, and credit checks to protect your property."
+  },
+  {
+    "id": 684,
+    "slug": "benefits-of-agent-representation-landlord-part-2",
+    "cluster": "landlord-benefits",
+    "date": "2026-09-07",
+    "title": "Benefits of Agent Representation for Landlords: Part 2 – Rental Optimization",
+    "description": "Market-rate rental analysis, optimal pricing strategy, and vacancy minimization."
+  },
+  {
+    "id": 685,
+    "slug": "benefits-of-agent-representation-landlord-part-3",
+    "cluster": "landlord-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Landlords: Part 3 – Lease Management",
+    "description": "Agreement drafting, terms protection, and lease documentation compliance."
+  },
+  {
+    "id": 686,
+    "slug": "benefits-of-agent-representation-landlord-part-4",
+    "cluster": "landlord-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Landlords: Part 4 – Maintenance & Collections",
+    "description": "Tenant communication, maintenance coordination, and reliable rent collection."
+  },
+  {
+    "id": 687,
+    "slug": "benefits-of-agent-representation-landlord-part-5",
+    "cluster": "landlord-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Landlords: Part 5 – Dispute Resolution",
+    "description": "Conflict management, tenant issues handling, and dispute resolution support."
+  },
+  {
+    "id": 688,
+    "slug": "benefits-of-agent-representation-tenant-part-1",
+    "cluster": "tenant-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Tenants: Part 1 – Property Search",
+    "description": "Professional property search, access to wider inventory, and neighbourhood expertise."
+  },
+  {
+    "id": 689,
+    "slug": "benefits-of-agent-representation-tenant-part-2",
+    "cluster": "tenant-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Tenants: Part 2 – Negotiation",
+    "description": "Rent negotiation support, lease term optimization, and landlord relationship management."
+  },
+  {
+    "id": 690,
+    "slug": "benefits-of-agent-representation-tenant-part-3",
+    "cluster": "tenant-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Tenants: Part 3 – Due Diligence",
+    "description": "Property inspection assistance, quality checks, and condition documentation."
+  },
+  {
+    "id": 691,
+    "slug": "benefits-of-agent-representation-tenant-part-4",
+    "cluster": "tenant-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Tenants: Part 4 – Documentation & Support",
+    "description": "Agreement review, documentation coordination, and dispute resolution guidance."
+  },
+  {
+    "id": 692,
+    "slug": "benefits-of-agent-representation-tenant-part-5",
+    "cluster": "tenant-benefits",
+    "date": "2026-09-08",
+    "title": "Benefits of Agent Representation for Tenants: Part 5 – Continuity & Renewal",
+    "description": "Renewal support, lease renegotiation, and long-term tenancy management."
+  },
+  {
+    "id": 693,
+    "slug": "property-agent-commission-buying",
+    "cluster": "commissions",
+    "date": "2026-09-08",
+    "title": "Property Agent Commission for Buyers: What's Negotiable in 2026",
+    "description": "How buyer's agent commissions work, market standards, and negotiation strategies with evidence from CEA."
+  },
+  {
+    "id": 694,
+    "slug": "property-agent-commission-selling",
+    "cluster": "commissions",
+    "date": "2026-09-08",
+    "title": "Property Agent Commission for Sellers: What's Negotiable in 2026",
+    "description": "Seller's commission mechanics, typical rates, negotiation approaches, and CEA guidance on commission freedom."
+  },
+  {
+    "id": 695,
+    "slug": "property-agent-commission-renting",
+    "cluster": "commissions",
+    "date": "2026-09-09",
+    "title": "Property Agent Commission for Rentals: What's Negotiable in 2026",
+    "description": "Rental agent commissions, tenant vs landlord splits, and negotiation tactics per CEA guidelines."
+  },
+  {
+    "id": 696,
+    "slug": "hdb-resale-price-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-10",
+    "title": "HDB Resale Price Singapore: What Buyers Should Know in 2026",
+    "description": "Understanding HDB resale pricing, grants, and transaction costs for first-time and upgrading buyers."
+  },
+  {
+    "id": 697,
+    "slug": "home-loan-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-11",
+    "title": "Home Loan Singapore: How to Choose the Right Mortgage in 2026",
+    "description": "HDB vs bank loans, TDSR/MSR caps, fixed vs floating rates, and how to calculate your borrowing capacity."
+  },
+  {
+    "id": 698,
+    "slug": "condo-resale-market-trends-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-12",
+    "title": "Singapore Condo Resale Market Trends: What's Happening Now",
+    "description": "Current market conditions, location premiums, interest rate impacts, and buyer sentiment in the condo market."
+  },
+  {
+    "id": 699,
+    "slug": "tenancy-agreement-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-13",
+    "title": "Tenancy Agreement Singapore: A Renter's Guide to Signing Safely",
+    "description": "Legal requirements, key clauses, tenant rights, and deposit protection in Singapore rental agreements."
+  },
+  {
+    "id": 700,
+    "slug": "bto-application-process",
+    "cluster": "keyword-articles",
+    "date": "2026-09-14",
+    "title": "BTO Application Process 2026: Your Step-by-Step Guide",
+    "description": "Step-by-step BTO pathway, HFE letter requirements, balloting mechanics, and construction timeline."
+  },
+  {
+    "id": 701,
+    "slug": "en-bloc-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-15",
+    "title": "En Bloc Sales in Singapore: What Owners Need to Know in 2026",
+    "description": "Voting thresholds, share calculation, minority rights, costs, and decision factors for en bloc sales."
+  },
+  {
+    "id": 702,
+    "slug": "calculate-rental-yield",
+    "cluster": "keyword-articles",
+    "date": "2026-09-16",
+    "title": "How to Calculate Rental Yield: A Complete Guide for Singapore Investors",
+    "description": "Gross vs net yield formulas, operating expenses, tax treatment, and common pitfalls for property investors."
+  },
+  {
+    "id": 703,
+    "slug": "tdsr-calculator",
+    "cluster": "keyword-articles",
+    "date": "2026-09-17",
+    "title": "TDSR Calculator Singapore: Understanding Your Borrowing Capacity",
+    "description": "TDSR formula explained, debt categories, HDB MSR distinction, and strategies to improve borrowing capacity."
+  },
+  {
+    "id": 704,
+    "slug": "can-foreigners-buy-property-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-18",
+    "title": "Can Foreigners Buy Property in Singapore? A Complete Guide",
+    "description": "Eligible property types, ministerial approval process, ABSD rates (15%), and SGD 1M minimum requirements."
+  },
+  {
+    "id": 705,
+    "slug": "hdb-resale-levy",
+    "cluster": "keyword-articles",
+    "date": "2026-09-19",
+    "title": "HDB Resale Levy: What Second-Time Buyers Must Pay in 2026",
+    "description": "Flat fee (SGD 3-4K), eligibility for second-timers, cost allocation, and why there are no waivers."
+  },
+  {
+    "id": 706,
+    "slug": "cpf-housing-grant",
+    "cluster": "keyword-articles",
+    "date": "2026-09-20",
+    "title": "CPF Housing Grant Singapore: Maximizing Your First-Time Buyer Benefits",
+    "description": "CPF Housing Grant eligibility, quantum amounts, combined grant schemes, and application steps."
+  },
+  {
+    "id": 707,
+    "slug": "absd-rates-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-21",
+    "title": "ABSD Rates Singapore 2026: A Buyer's Guide to Stamp Duty",
+    "description": "ABSD rates by property type and buyer citizenship, when ABSD applies, and calculation methods."
+  },
+  {
+    "id": 708,
+    "slug": "buyers-stamp-duty-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-22",
+    "title": "Buyer's Stamp Duty Singapore: How Much Will You Pay?",
+    "description": "Buyer's stamp duty rates, calculation methodology, exemptions, and timing of payment."
+  },
+  {
+    "id": 709,
+    "slug": "executive-condo-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-23",
+    "title": "Executive Condo Singapore: Are You Eligible? A Complete Buyer's Guide",
+    "description": "EC eligibility criteria, pricing model, resale restrictions, and comparison with HDB and private condos."
+  },
+  {
+    "id": 710,
+    "slug": "hdb-sales-proceeds",
+    "cluster": "keyword-articles",
+    "date": "2026-09-24",
+    "title": "HDB Sales Proceeds: Where Your Money Goes When You Sell",
+    "description": "HDB sales proceeds payout order, loan settlement, CPF refund, and cash disbursement timeline."
+  },
+  {
+    "id": 711,
+    "slug": "property-investment-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-25",
+    "title": "Property Investment Singapore: A Complete Guide to Building Your Portfolio",
+    "description": "HDB vs condo investment strategy, rental yield framework, portfolio diversification, and tax considerations."
+  },
+  {
+    "id": 712,
+    "slug": "renting-in-singapore-as-an-expat",
+    "cluster": "keyword-articles",
+    "date": "2026-09-26",
+    "title": "Renting in Singapore as an Expat: A Practical How-To Guide",
+    "description": "Expat-friendly neighborhoods, HDB vs condo comparison, rental process, and lease clause essentials."
+  },
+  {
+    "id": 713,
+    "slug": "property-agent-commission-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-27",
+    "title": "Property Agent Commission Singapore: How Much Will You Pay?",
+    "description": "Commission mechanics, HDB vs private rates, negotiation strategies, and co-broking costs."
+  },
+  {
+    "id": 714,
+    "slug": "cpf-accrued-interest",
+    "cluster": "keyword-articles",
+    "date": "2026-09-28",
+    "title": "CPF Accrued Interest: What HDB Sellers Must Repay",
+    "description": "Accrual mechanics, repayment calculations, early withdrawal strategies, and CPF quotation interpretation."
+  },
+  {
+    "id": 715,
+    "slug": "how-to-negotiate-rent-singapore",
+    "cluster": "keyword-articles",
+    "date": "2026-09-29",
+    "title": "How to Negotiate Rent in Singapore: A Tenant's Step-by-Step Guide",
+    "description": "Negotiation timing, leverage building, effective scripts, and what not to do when negotiating with landlords."
+  }
+]

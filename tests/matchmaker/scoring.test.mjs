@@ -541,30 +541,30 @@ test("pass2: priceElasticity reports how many additional tenants qualify at each
 
 test("pass3: isDead/isDeadBlocked split the dead lead hard block from the cold ranking signal (the live bug fix)", () => {
   // Live bug this fixes: COLD_DAYS_THRESHOLD (5) used to ALSO gate outreach.
-  // Winfred widened the actual dead rule to 30 days on 12 Aug 2026 — a
-  // 6 day quiet tenant must rank as "cold" (ranking/freshness/badge only)
-  // but must NOT be blocked; only a >30 day quiet tenant is dead.
+  // Winfred widened the actual dead rule to 30 days on 12 Aug 2026, then to
+  // 45 days on 21 Aug 2026 — a 6 day quiet tenant must rank as "cold"
+  // (ranking/freshness/badge only); only a >45 day quiet tenant is dead.
   const quiet6 = tenant({ last_contact: daysAgoStr(6) });
-  const quiet31 = tenant({ last_contact: daysAgoStr(31) });
+  const quiet46 = tenant({ last_contact: daysAgoStr(46) });
 
   assert.equal(Scoring.coldDays(quiet6, TODAY), 6);
   assert.equal(Scoring.isCold(quiet6, TODAY), true);       // still cold for ranking (>5)
-  assert.equal(Scoring.isDead(quiet6, TODAY), false);       // NOT dead (<=30)
+  assert.equal(Scoring.isDead(quiet6, TODAY), false);       // NOT dead (<=45)
   assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet6, TODAY), false), false);
 
-  assert.equal(Scoring.coldDays(quiet31, TODAY), 31);
-  assert.equal(Scoring.isDead(quiet31, TODAY), true);       // dead (>30) -> blocked for a tenant
-  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet31, TODAY), false), true);
+  assert.equal(Scoring.coldDays(quiet46, TODAY), 46);
+  assert.equal(Scoring.isDead(quiet46, TODAY), true);       // dead (>45) -> blocked for a tenant
+  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet46, TODAY), false), true);
 
   // Landlords are EXEMPT from the dead rule (Winfred's standing rule) — a
-  // 31 day quiet landlord must never be blocked, explicit isLandlord flag.
-  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet31, TODAY), true), false);
+  // 46 day quiet landlord must never be blocked, explicit isLandlord flag.
+  assert.equal(Scoring.isDeadBlocked(Scoring.coldDays(quiet46, TODAY), true), false);
 
   // Unknown contact history is never dead, same reasoning as isCold.
   assert.equal(Scoring.isDead(tenant({ last_contact: "" }), TODAY), false);
 
   assert.equal(Scoring.COLD_DAYS_THRESHOLD, 5);
-  assert.equal(Scoring.DEAD_DAYS_THRESHOLD, 30);
+  assert.equal(Scoring.DEAD_DAYS_THRESHOLD, 45);
 });
 
 test("pass3: score() exposes `dead` (DEAD_DAYS_THRESHOLD) alongside `dc`, distinct from the ranking-only cold signal", () => {
@@ -572,9 +572,9 @@ test("pass3: score() exposes `dead` (DEAD_DAYS_THRESHOLD) alongside `dc`, distin
   const r6 = Scoring.score(l, tenant({ last_contact: daysAgoStr(6) }), TODAY);
   assert.equal(r6.dc, 6);
   assert.equal(r6.dead, false);
-  const r31 = Scoring.score(l, tenant({ last_contact: daysAgoStr(31) }), TODAY);
-  assert.equal(r31.dc, 31);
-  assert.equal(r31.dead, true);
+  const r46 = Scoring.score(l, tenant({ last_contact: daysAgoStr(46) }), TODAY);
+  assert.equal(r46.dc, 46);
+  assert.equal(r46.dead, true);
 });
 
 test("pass3: fit/completeness split match quality from data completeness (idea 8)", () => {
@@ -683,7 +683,7 @@ test("pass3: explainMatch/score().explain surfaces carried dimensions and cold/d
 
   const tDead = tenant({
     preferred_districts: ["D15"], district: "D15", budget: 1200, pax: 1,
-    lease_months: 12, move_in: "2026-08-11", last_contact: daysAgoStr(35)
+    lease_months: 12, move_in: "2026-08-11", last_contact: daysAgoStr(50)
   });
   const rDead = Scoring.score(l, tDead, TODAY);
   assert.equal(rDead.dead, true);
@@ -791,11 +791,11 @@ test("hardening: escUrl() allows real link schemes and drops script bearing ones
   assert.ok(!appEsc.escUrl('https://example.com/"onload="x').includes('"'));
 });
 
-test("hardening: coldBlocked() is the one 30 day DEAD rule, and exempts co-broke", () => {
+test("hardening: coldBlocked() is the one 45 day DEAD rule, and exempts co-broke", () => {
   const today = new Date(2026, 7, 11);
   const appCold = makeColdBlocked(today);
   const quiet = { id: "T1", name: "Tan Ah Test", last_contact: "2026-07-27" };  // 15 days
-  const dead = { id: "T4", name: "Goh Ah Test", last_contact: "2026-07-01" };   // 41 days
+  const dead = { id: "T4", name: "Goh Ah Test", last_contact: "2026-06-20" };   // 52 days
   const fresh = { id: "T2", name: "Lim Ah Test", last_contact: "2026-08-10" };  // 1 day
   const unknown = { id: "T3", name: "Ng Ah Test" };                             // no signal
   const own = { id: "LL1", name: "Test Block", is_cobroke: false };
@@ -804,7 +804,7 @@ test("hardening: coldBlocked() is the one 30 day DEAD rule, and exempts co-broke
 
   // THE REGRESSION THIS TEST NOW EXISTS FOR. Blocking used to fire at 5 days,
   // which gagged 151 of 218 real tenants when Winfred's rule (widened 5 -> 14 ->
-  // 30 on 12 Aug 2026) should have blocked 68. A 15 day tenant is quiet, not
+  // 30 on 12 Aug 2026, then 45 on 21 Aug 2026) should have blocked 68. A 15 day tenant is quiet, not
   // dead: they still show the amber badge and rank lower, but they must remain
   // fully contactable.
   assert.equal(Scoring.coldDays(quiet, today), 15);
@@ -821,9 +821,9 @@ test("hardening: coldBlocked() is the one 30 day DEAD rule, and exempts co-broke
   assert.equal(appCold(null, dead), true);      // tenant only contexts (health tab) still apply it
   assert.equal(appCold(own, unknown), false);   // unknown is not proof of death — app stays permissive,
                                                 // queue_drafts.py refuses these separately at dispatch time
-  // boundary: exactly 30 days is not dead, 31 is
-  assert.equal(appCold(own, { last_contact: "2026-07-12" }), false);
-  assert.equal(appCold(own, { last_contact: "2026-07-11" }), true);
+  // boundary: exactly 45 days is not dead, 46 is
+  assert.equal(appCold(own, { last_contact: "2026-06-27" }), false);
+  assert.equal(appCold(own, { last_contact: "2026-06-26" }), true);
 });
 
 // This draft is the one piece of text that goes to a LANDLORD about tenants,
@@ -872,7 +872,7 @@ test("hardening: the per tenant cold memo answers per tenant, never across them"
   const appCold = makeColdBlocked(today);
   const own = { id: "LL1", name: "Test Block", is_cobroke: false };
 
-  const deadT = { id: "T1", name: "Tan Ah Test", last_contact: "2026-07-01" };   // 41 days
+  const deadT = { id: "T1", name: "Tan Ah Test", last_contact: "2026-06-20" };   // 52 days
   const freshT = { id: "T2", name: "Lim Ah Test", last_contact: "2026-08-10" };  // 1 day
   assert.equal(appCold(own, deadT), true);
   assert.equal(appCold(own, freshT), false, "the dead answer must not carry over to the next tenant");
@@ -884,11 +884,11 @@ test("hardening: the per tenant cold memo answers per tenant, never across them"
   assert.equal(appCold.COLD_CACHE.size, 2, "one entry per tenant, not per pair");
 
   // Tenants with no id (the boundary fixtures below, and any caller passing a
-  // bare object) must never share a single null-keyed slot. Straddling the 30
+  // bare object) must never share a single null-keyed slot. Straddling the 45
   // day boundary is what makes a leaked answer visible.
   const before = appCold.COLD_CACHE.size;
-  assert.equal(appCold(own, { last_contact: "2026-07-11" }), true);
-  assert.equal(appCold(own, { last_contact: "2026-07-12" }), false,
+  assert.equal(appCold(own, { last_contact: "2026-06-26" }), true);
+  assert.equal(appCold(own, { last_contact: "2026-06-27" }), false,
     "an unkeyed tenant must not inherit the previous unkeyed tenant's answer");
   assert.equal(appCold.COLD_CACHE.size, before, "unkeyed tenants must not enter the cache at all");
 

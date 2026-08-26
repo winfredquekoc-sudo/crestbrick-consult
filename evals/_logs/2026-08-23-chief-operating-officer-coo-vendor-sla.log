@@ -1,0 +1,15 @@
+=== prompt ===
+Use the chief-operating-officer agent: Vercel had a 12-min outage yesterday. What's our SLA exposure and mitigation?
+
+=== rc ===
+1
+
+=== duration_ms ===
+3865
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

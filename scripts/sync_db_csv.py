@@ -12,11 +12,30 @@ AI curates) are left to the AI passes. Rows present in JSON but missing from
 the CSV are appended with the whitelisted columns filled. CSV-only rows are
 left alone (never deleted here). Dry run by default; --apply writes, with a
 dated .bak alongside.
+
+Landlord mirror is split by deal_type (23 Aug 2026): sale / sale-or-rent rows
+route to docs/seller-database.csv, everything else stays in
+docs/landlord-database.csv. A master row now routed to the other sheet is
+dropped from this sheet's CSV — it is not a genuine CSV-only row, so the
+never-delete rule above does not protect it.
 """
 import csv, json, os, shutil, sys
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
 APPLY = "--apply" in sys.argv
+
+LANDLORD_JSON = os.path.join(ROOT, "_templates/landlord-db.json")
+LANDLORD_CSV = os.path.join(ROOT, "docs/landlord-database.csv")
+SELLER_CSV = os.path.join(ROOT, "docs/seller-database.csv")
+LANDLORD_COLS = ["landlord_name", "phone", "status", "do_not_contact", "district",
+                 "full_address", "rent_min", "rent_max", "viewing_availability",
+                 "viewing_availability_updated", "last_contact", "last_refreshed",
+                 "deal_type", "property_type"]
+
+
+def is_sale(deal_type):
+    return "sale" in (deal_type or "")
+
 
 JOBS = [
     {
@@ -30,13 +49,20 @@ JOBS = [
                  "match_status"],
     },
     {
-        "json": os.path.join(ROOT, "_templates/landlord-db.json"),
+        "json": LANDLORD_JSON,
         "rows_key": None,  # landlords OR records
-        "csv": os.path.join(ROOT, "docs/landlord-database.csv"),
-        "cols": ["landlord_name", "phone", "status", "do_not_contact", "district",
-                 "full_address", "rent_min", "rent_max", "viewing_availability",
-                 "viewing_availability_updated", "last_contact", "last_refreshed",
-                 "deal_type", "property_type"],
+        "csv": LANDLORD_CSV,
+        "cols": LANDLORD_COLS,
+        "route": lambda dt: not is_sale(dt),
+        "sibling_csv": SELLER_CSV,
+    },
+    {
+        "json": LANDLORD_JSON,
+        "rows_key": None,
+        "csv": SELLER_CSV,
+        "cols": LANDLORD_COLS,
+        "route": is_sale,
+        "sibling_csv": LANDLORD_CSV,
     },
 ]
 
@@ -51,12 +77,26 @@ def sval(v):
 
 def sync(job, stamp):
     d = json.load(open(job["json"]))
-    rows_j = d[job["rows_key"]] if job["rows_key"] else (d.get("landlords") or d.get("records") or [])
+    rows_all = d[job["rows_key"]] if job["rows_key"] else (d.get("landlords") or d.get("records") or [])
+    route = job.get("route")
+    rows_j = [r for r in rows_all if route(r.get("deal_type"))] if route else rows_all
     by_id = {str(r.get("id")): r for r in rows_j if r.get("id")}
-    with open(job["csv"], newline="") as f:
-        reader = csv.DictReader(f)
-        fields = reader.fieldnames
-        rows_c = list(reader)
+    other_ids = (({str(r.get("id")) for r in rows_all if r.get("id")} - set(by_id))
+                 if route else set())
+
+    if os.path.exists(job["csv"]):
+        with open(job["csv"], newline="") as f:
+            reader = csv.DictReader(f)
+            fields = reader.fieldnames
+            rows_c = list(reader)
+    else:
+        sib = job.get("sibling_csv")
+        fields = (csv.DictReader(open(sib)).fieldnames if sib and os.path.exists(sib)
+                   else ["id"] + [c for c in job["cols"] if c != "id"])
+        rows_c = []
+    if route:
+        rows_c = [r for r in rows_c if str(r.get("id")) not in other_ids]
+
     cols = [c for c in job["cols"] if c in fields]
     changed, appended = 0, 0
     seen = set()
@@ -80,10 +120,11 @@ def sync(job, stamp):
         rows_c.append(new)
         appended += 1
     name = os.path.basename(job["csv"])
-    print(f"{name}: {changed} cell(s) updated, {appended} row(s) appended"
-          + ("" if APPLY else " [DRY RUN]"))
+    print(f"{name}: {changed} cell(s) updated, {appended} row(s) appended, "
+          f"{len(rows_c)} row(s) total" + ("" if APPLY else " [DRY RUN]"))
     if APPLY and (changed or appended):
-        shutil.copy(job["csv"], job["csv"] + ".bak-sync-" + stamp)
+        if os.path.exists(job["csv"]):
+            shutil.copy(job["csv"], job["csv"] + ".bak-sync-" + stamp)
         tmp = job["csv"] + ".tmp"
         with open(tmp, "w", newline="") as f:
             w = csv.DictWriter(f, fieldnames=fields)

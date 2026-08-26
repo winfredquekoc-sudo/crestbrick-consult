@@ -1,0 +1,15 @@
+=== prompt ===
+Use the market-scout agent: D15 deep-dive: median PSF trend 2022-2026, top 5 transacting projects, and 12-month outlook.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3932
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

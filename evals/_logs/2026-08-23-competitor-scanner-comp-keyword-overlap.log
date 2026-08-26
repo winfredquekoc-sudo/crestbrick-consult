@@ -1,0 +1,15 @@
+=== prompt ===
+Use the competitor-scanner agent: Compare top 20 keywords ranking for stackedhomes.com vs crestbrick-consult.vercel.app. Where are we losing?
+
+=== rc ===
+1
+
+=== duration_ms ===
+3869
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

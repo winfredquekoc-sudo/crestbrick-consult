@@ -21,6 +21,7 @@ APPJS = os.path.join(HERE, "app.js")
 SCORING_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/scoring.test.mjs")
 STATE_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/state.test.mjs")
 EXPORT_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/test_export.py")
+STATE_PY_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/test_state.py")
 STATS_PATH = os.path.expanduser("~/.claude/state/matchmaker-stats.json")
 BUILD_HISTORY_PATH = os.path.expanduser("~/.claude/state/matchmaker-build-history.jsonl")
 TELEGRAM_SEND = os.path.expanduser("~/.claude/bin/telegram_send.sh")
@@ -76,8 +77,26 @@ def atomic_copy(src, dst):
 
 
 # --------------------------------------------------------- [1] run tests --
+def check_config_consistency():
+    """config.json is the single home for thresholds; scoring.js keeps mirror
+    literals because it runs in the browser. A drifted mirror ships wrong
+    behavior silently, so drift fails the build (Winfred, 21 Aug 2026)."""
+    cfg = json.load(open(os.path.join(HERE, "config.json")))
+    src = open(SCORING, encoding="utf-8").read()
+    pairs = (("DEAD_DAYS_THRESHOLD", "dead_days"), ("COLD_DAYS_THRESHOLD", "cold_days"),
+             ("DAYS_LISTED_ELASTICITY_THRESHOLD", "days_listed_elasticity"))
+    for js_name, cfg_key in pairs:
+        m = re.search(r"var %s = (\d+)" % js_name, src)
+        if not m:
+            fail(f"scoring.js no longer declares {js_name} — cannot verify against config.json")
+        if int(m.group(1)) != int(cfg[cfg_key]):
+            fail(f"threshold drift: scoring.js {js_name}={m.group(1)} but config.json {cfg_key}={cfg[cfg_key]} — fix one, they must match")
+    if int(cfg["stale_days"]) != int(cfg["dead_days"]):
+        fail("config.json stale_days != dead_days — same rule seen from two sides, must stay equal")
+
+
 def run_tests():
-    missing = [p for p in (SCORING_TEST, STATE_TEST, EXPORT_TEST) if not os.path.exists(p)]
+    missing = [p for p in (SCORING_TEST, STATE_TEST, EXPORT_TEST, STATE_PY_TEST) if not os.path.exists(p)]
     if missing:
         fail("required test file(s) missing, cannot verify before build:\n  " + "\n  ".join(missing))
     if not shutil.which("node"):
@@ -85,9 +104,9 @@ def run_tests():
     for path in (SCORING_TEST, STATE_TEST):
         if subprocess.run(["node", "--test", path]).returncode != 0:
             fail(f"tests/matchmaker/{os.path.basename(path)} failed — aborting, nothing written")
-    r2 = subprocess.run(["/usr/bin/python3", EXPORT_TEST])
-    if r2.returncode != 0:
-        fail("tests/matchmaker/test_export.py failed — aborting, nothing written")
+    for pt in (EXPORT_TEST, STATE_PY_TEST):
+        if subprocess.run(["/usr/bin/python3", pt]).returncode != 0:
+            fail(f"tests/matchmaker/{os.path.basename(pt)} failed — aborting, nothing written")
 
 
 # ----------------------------------------------------- [2]/[3] export -----
@@ -625,6 +644,7 @@ def main():
     args = ap.parse_args()
 
     now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+    check_config_consistency()
     run_tests()
     snapshot_prev()
     run_export()

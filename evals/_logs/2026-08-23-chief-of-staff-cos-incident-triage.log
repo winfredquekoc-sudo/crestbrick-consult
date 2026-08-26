@@ -1,0 +1,15 @@
+=== prompt ===
+Use the chief-of-staff agent: Telegram bot daemon crashed overnight and 6 leads were missed. Walk me through the triage and accountability.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3892
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

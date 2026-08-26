@@ -1,0 +1,84 @@
+{
+  "id": "WAdigestRO000001",
+  "name": "Crestbrick WA Read Only Digest",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Every 15 min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// n8n Code node: \"Pull new inbound (read only)\"\n// Reads the WhatsApp bridge store READ ONLY. Never writes to it, never sends.\nconst { execFileSync } = require('child_process');\nconst fs = require('fs');\n\nconst HOME = process.env.HOME;\nconst DB = process.env.WA_DIGEST_DB || HOME + '/whatsapp-mcp/whatsapp-bridge/store/messages.db';\nconst WADB = process.env.WA_DIGEST_WADB || HOME + '/whatsapp-mcp/whatsapp-bridge/store/whatsapp.db';\nconst WM = process.env.WA_DIGEST_WM || HOME + '/.claude/state/n8n-wa-readonly-last.json';\nconst LIMIT = 400;\nconst SQLITE = '/usr/bin/sqlite3';\n\nfunction q(db, sql) {\n  const raw = execFileSync(SQLITE, ['-readonly', '-json', db, sql], {\n    encoding: 'utf8', timeout: 25000, maxBuffer: 64 * 1024 * 1024,\n  });\n  return raw.trim() ? JSON.parse(raw) : [];\n}\n\nfunction hold(reason) {\n  // Watermark deliberately untouched so nothing is skipped on the next tick.\n  return [{ json: { held: true, reason: reason.slice(0, 300), count: 0, messages: [] } }];\n}\n\n// Quiet hours 23:00-08:00 SGT: hold WITHOUT advancing the watermark so overnight\n// messages accumulate and land in the first digest after 08:00.\nconst sgHour = Number(new Intl.DateTimeFormat('en-GB', {\n  timeZone: 'Asia/Singapore', hour: '2-digit', hour12: false,\n}).format(new Date()));\nif (process.env.WA_DIGEST_IGNORE_QUIET !== '1' && (sgHour >= 23 || sgHour < 8)) {\n  return [{ json: { held: true, reason: 'quiet hours (SGT ' + sgHour + ')', count: 0, messages: [] } }];\n}\n\nlet last = null;\ntry {\n  const w = JSON.parse(fs.readFileSync(WM, 'utf8'));\n  if (Number.isInteger(w.last_rowid)) last = w.last_rowid;\n} catch (e) { last = null; }\n\nlet maxRow;\ntry {\n  maxRow = Number(q(DB, 'SELECT COALESCE(MAX(rowid),0) AS m FROM messages;')[0].m);\n} catch (e) {\n  return hold('bridge store unreadable: ' + String(e.message));\n}\n\nfunction saveWatermark(rowid) {\n  const tmp = WM + '.tmp';\n  fs.writeFileSync(tmp, JSON.stringify({ last_rowid: rowid }));\n  fs.renameSync(tmp, WM);\n}\n\nif (last === null) {\n  // First run: sit at the newest row. Never backfill the whole history into a digest.\n  saveWatermark(maxRow);\n  return [{ json: { firstRun: true, watermark: maxRow, count: 0, messages: [] } }];\n}\n\nlet rows;\ntry {\n  rows = q(DB,\n    'SELECT m.rowid AS rowid, m.chat_jid AS chat_jid, m.sender AS sender, ' +\n    \"m.content AS content, m.timestamp AS ts, COALESCE(m.media_type,'') AS media_type \" +\n    'FROM messages m ' +\n    'WHERE m.rowid > ' + last + ' AND m.is_from_me = 0 ' +\n    \"AND m.chat_jid NOT LIKE '%@newsletter' AND m.chat_jid <> 'status@broadcast' \" +\n    'ORDER BY m.rowid LIMIT ' + LIMIT + ';');\n} catch (e) {\n  return hold('message read failed: ' + String(e.message));\n}\n\nif (!rows.length) {\n  // Nothing addressed to us, but the store did advance (own sends, newsletters).\n  if (maxRow > last) saveWatermark(maxRow);\n  return [{ json: { count: 0, messages: [], watermark: Math.max(maxRow, last) } }];\n}\n\n// --- identity resolution: @lid -> real phone -> saved contact name ---\nconst lids = [...new Set(rows.map(r => r.chat_jid).filter(j => j.endsWith('@lid'))\n  .map(j => j.slice(0, -4)).filter(s => /^\\d+$/.test(s)))];\nconst phones = [...new Set(rows.map(r => r.chat_jid).filter(j => j.endsWith('@s.whatsapp.net'))\n  .map(j => j.slice(0, -15)).filter(s => /^\\d+$/.test(s)))];\nconst groups = [...new Set(rows.map(r => r.chat_jid).filter(j => j.endsWith('@g.us')))];\n\nconst NAME = \"COALESCE(NULLIF(c.full_name,''), NULLIF(c.push_name,''), NULLIF(c.business_name,''))\";\nconst idn = {};\ntry {\n  if (lids.length) {\n    for (const r of q(WADB,\n      'SELECT l.lid AS lid, l.pn AS pn, (SELECT ' + NAME + ' FROM whatsmeow_contacts c ' +\n      \"WHERE c.their_jid = l.pn || '@s.whatsapp.net' OR c.their_jid = l.lid || '@lid' LIMIT 1) AS name \" +\n      \"FROM whatsmeow_lid_map l WHERE l.lid IN ('\" + lids.join(\"','\") + \"');\")) {\n      idn[r.lid + '@lid'] = { phone: r.pn, name: r.name || null };\n    }\n  }\n  if (phones.length) {\n    for (const r of q(WADB,\n      'SELECT c.their_jid AS jid, ' + NAME + ' AS name FROM whatsmeow_contacts c ' +\n      \"WHERE c.their_jid IN ('\" + phones.map(p => p + '@s.whatsapp.net').join(\"','\") + \"');\")) {\n      idn[r.jid] = { phone: r.jid.split('@')[0], name: r.name || null };\n    }\n  }\n} catch (e) { /* names are a nicety: fall back to the raw jid rather than lose the digest */ }\n\nconst gname = {};\ntry {\n  if (groups.length) {\n    for (const r of q(DB, \"SELECT jid, name FROM chats WHERE jid IN ('\" +\n      groups.filter(g => /^[\\d-]+@g\\.us$/.test(g)).join(\"','\") + \"');\")) gname[r.jid] = r.name;\n  }\n} catch (e) { /* ditto */ }\n\nconst KEYWORDS = ['rent', 'rental', 'view', 'viewing', 'available', 'avail', 'price', 'lease',\n  'deposit', 'agent', 'unit', 'room', 'condo', 'hdb', 'sale', 'buy', 'sell', '\u79df', '\u770b\u623f', '\u623f'];\n\nconst messages = rows.map(r => {\n  const isGroup = r.chat_jid.endsWith('@g.us');\n  const id = idn[r.chat_jid] || {};\n  const body = (r.content || '').trim();\n  const low = body.toLowerCase();\n  return {\n    rowid: r.rowid,\n    chat_jid: r.chat_jid,\n    isGroup,\n    name: isGroup ? (gname[r.chat_jid] || 'group') : (id.name || null),\n    phone: id.phone || null,\n    ts: r.ts,\n    media: r.media_type || null,\n    text: body,\n    isQuestion: body.includes('?') || body.includes('\uff1f'),\n    hits: KEYWORDS.filter(k => low.includes(k)),\n  };\n});\n\nconst lastSeen = rows[rows.length - 1].rowid;\nsaveWatermark(lastSeen);\n\nreturn [{ json: {\n  count: messages.length,\n  watermark: lastSeen,\n  truncated: messages.length === LIMIT,\n  messages,\n} }];\n"
+      },
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Pull new inbound (read only)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// n8n Code node: \"Build digest + send to Telegram\"\n// Plain text only: unescaped Markdown has silently dropped alerts before.\nconst { execFileSync } = require('child_process');\nconst fs = require('fs');\n\nconst HOME = process.env.HOME;\nconst ENVF = process.env.WA_DIGEST_ENV || HOME + '/.telegram-bot.env';\nconst DRY = process.env.WA_DIGEST_DRYRUN === '1';\nconst MAXLEN = 3500;\n\nconst d = $input.first().json;\nif (!d.count) return [{ json: { sent: false, reason: d.held ? 'held: ' + d.reason : 'nothing new' } }];\n\nconst byChat = new Map();\nfor (const m of d.messages) {\n  if (!byChat.has(m.chat_jid)) byChat.set(m.chat_jid, []);\n  byChat.get(m.chat_jid).push(m);\n}\n\nfunction label(m) {\n  if (m.isGroup) return (m.name || 'group') + ' [group]';\n  const who = m.name || 'unsaved contact';\n  return m.phone ? who + ' (+' + m.phone + ')' : who;\n}\n\nconst dm = [...byChat.entries()].filter(([, v]) => !v[0].isGroup);\nconst gp = [...byChat.entries()].filter(([, v]) => v[0].isGroup);\n\nconst lines = ['WhatsApp inbound digest',\n  d.count + ' new message' + (d.count === 1 ? '' : 's') + ' across ' + byChat.size + ' chat' + (byChat.size === 1 ? '' : 's'),\n  ''];\n\nfunction block(entries, heading) {\n  if (!entries.length) return;\n  lines.push(heading);\n  for (const [, msgs] of entries) {\n    const flags = [];\n    if (msgs.some(m => m.isQuestion)) flags.push('question');\n    if (msgs.some(m => m.media)) flags.push('media');\n    const hits = [...new Set(msgs.flatMap(m => m.hits))];\n    if (hits.length) flags.push(hits.slice(0, 4).join('/'));\n    lines.push('- ' + label(msgs[0]) + (flags.length ? '  [' + flags.join(', ') + ']' : ''));\n    for (const m of msgs.slice(-3)) {\n      const t = m.media && !m.text ? '(' + m.media + ')' : m.text.replace(/\\s+/g, ' ').slice(0, 140);\n      lines.push('    ' + t);\n    }\n    if (msgs.length > 3) lines.push('    ...and ' + (msgs.length - 3) + ' more');\n  }\n  lines.push('');\n}\n\nblock(dm, 'Direct chats');\nblock(gp, 'Groups');\nif (d.truncated) lines.push('NOTE: batch capped at 400 rows, more will follow next run.');\nlines.push('Read only digest. Nothing was sent to anyone.');\n\nlet text = lines.join('\\n');\nif (text.length > MAXLEN) text = text.slice(0, MAXLEN - 40) + '\\n...truncated.';\n\nif (DRY) return [{ json: { sent: false, dryRun: true, text } }];\n\nconst env = {};\nfor (const line of fs.readFileSync(ENVF, 'utf8').split('\\n')) {\n  const m = line.match(/^([A-Z_]+)=(.*)$/);\n  if (m) env[m[1]] = m[2].replace(/^[\"']|[\"']$/g, '');\n}\nif (!env.TELEGRAM_BOT_TOKEN || !env.TELEGRAM_WINFRED_CHAT_ID) {\n  return [{ json: { sent: false, reason: 'telegram env missing' } }];\n}\n\n// Token and body both stay out of argv.\nconst out = execFileSync('/bin/sh', ['-c',\n  'curl -s -m 20 -X POST \"https://api.telegram.org/bot$TG_TOKEN/sendMessage\" ' +\n  '-d chat_id=\"$TG_CHAT\" -d disable_web_page_preview=true --data-urlencode text@-'], {\n  env: { ...process.env, TG_TOKEN: env.TELEGRAM_BOT_TOKEN, TG_CHAT: env.TELEGRAM_WINFRED_CHAT_ID },\n  input: text, encoding: 'utf8', timeout: 25000,\n});\n\nlet ok = false;\ntry { ok = JSON.parse(out).ok === true; } catch (e) { ok = false; }\nreturn [{ json: { sent: ok, chats: byChat.size, count: d.count, response: ok ? 'ok' : out.slice(0, 200) } }];\n"
+      },
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "Build digest + notify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Every 15 min": {
+      "main": [
+        [
+          {
+            "node": "Pull new inbound (read only)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull new inbound (read only)": {
+      "main": [
+        [
+          {
+            "node": "Build digest + notify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "saveDataSuccessExecution": "none"
+  },
+  "tags": []
+}

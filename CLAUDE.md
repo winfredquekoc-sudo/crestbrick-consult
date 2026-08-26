@@ -54,6 +54,10 @@ data entry carried out under Winfred's supervision and subject to his review bef
 - NEVER push to `main`, merge a PR, or deploy on my behalf without an explicit "go". Work on a branch, open a PR, and show a plain-English summary of the actual diff first, then wait.
 - Sending client-facing messages to many recipients (WhatsApp broadcasts, redirect blasts) is also a production action: show the draft + recipient list and wait for approval before sending.
 - Verify after every prod change (article live via curl, deploy status, etc.) and report the result plainly.
+- EXCEPTION (Winfred, 20 Aug 2026): the private Matchmaker app auto-deploys on the 5
+  daytime refresh slots (09/12/15/18/21 SGT) WITHOUT a per-ship go — but ONLY through
+  scripts/matchmaker/deploy/deploy.sh (middleware precondition, build_id alias verification,
+  auto-rollback). Inline `vercel deploy` for it remains forbidden everywhere.
 
 ## Model lane (this repo)
 - Fable 5 master plans and orchestrates only (decompose → delegate via subagents → synthesize); it never does bulk reads or routine coding itself.

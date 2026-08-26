@@ -1,0 +1,15 @@
+=== prompt ===
+/afford 25000 0 500000 2000000 (family of 4, 2 kids). Return TDSR headroom, max loan, cash/CPF split, recommended budget.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3884
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

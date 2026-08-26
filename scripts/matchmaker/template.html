@@ -27,7 +27,8 @@
     <span class="chip mut" id="syncPill" title="CRM sync status">▣ local only</span>
   </div>
   <div class="tabs" id="tabs" role="tablist" aria-label="Matchmaker views">
-    <div class="tab on" data-v="work" role="tab" tabindex="0" aria-selected="true" aria-controls="work" id="tab-work">⭐ Today's Worklist</div>
+    <div class="tab on" data-v="mapview" role="tab" tabindex="0" aria-selected="true" aria-controls="mapview" id="tab-mapview">🗺 Dashboard</div>
+    <div class="tab" data-v="work" role="tab" tabindex="0" aria-selected="false" aria-controls="work" id="tab-work">⭐ Today's Worklist</div>
     <div class="tab" data-v="pipeline" role="tab" tabindex="0" aria-selected="false" aria-controls="pipeline" id="tab-pipeline">📈 Pipeline</div>
     <div class="tab" data-v="listing" role="tab" tabindex="0" aria-selected="false" aria-controls="listing" id="tab-listing">🏠 By Listing</div>
     <div class="tab" data-v="tenant" role="tab" tabindex="0" aria-selected="false" aria-controls="tenant" id="tab-tenant">🙋 By Tenant</div>
@@ -74,6 +75,7 @@
     <div class="panel" id="tpanel"><div class="empty">Pick a tenant on the left to see matching available listings.</div></div>
   </div>
   <div id="whole" style="display:none" role="tabpanel" aria-labelledby="tab-whole"></div>
+  <div id="mapview" style="display:none" role="tabpanel" aria-labelledby="tab-mapview"></div>
   <div id="stats" style="display:none" role="tabpanel" aria-labelledby="tab-stats"></div>
   <div id="landlords" style="display:none" role="tabpanel" aria-labelledby="tab-landlords"></div>
   <div id="alltenants" style="display:none" role="tabpanel" aria-labelledby="tab-alltenants"></div>

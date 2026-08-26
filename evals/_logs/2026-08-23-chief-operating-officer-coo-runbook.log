@@ -1,0 +1,15 @@
+=== prompt ===
+Use the chief-operating-officer agent: Create a runbook for restarting the whatsapp-bridge Go binary when it disconnects.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3889
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

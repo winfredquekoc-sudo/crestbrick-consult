@@ -1,0 +1,15 @@
+=== prompt ===
+/afford 20000 0 300000 1800000 — stress-test if SORA-pegged rate rises from 3.5% to 5.0% on a $1.2M outstanding loan, 25 years left.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3860
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

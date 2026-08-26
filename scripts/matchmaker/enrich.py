@@ -269,6 +269,10 @@ SPECIFIC_UNIT_LABELS = [
     (re.compile(r"\bwhole\s*(?:flat|unit|house)\b", re.I), "whole"),
     (re.compile(r"\bstudio\b", re.I), "studio"),
     (re.compile(r"\bmaster\b", re.I), "master"),
+    # room codes landlords use as shorthand (e.g. LL088 "PR1 ... $800; CR3 ... $1,550"):
+    # MBR = master bedroom, PR/CR/SC = pocket/common/small-common (all common-type).
+    (re.compile(r"\bMBR\d*\b", re.I), "master"),
+    (re.compile(r"\b(?:PR|CR|SC)\d+\b", re.I), "common"),
     (re.compile(r"\bcommon\b", re.I), "common"),
 ]
 GENERIC_UNIT_LABEL = (re.compile(r"\broom\b", re.I), "room")

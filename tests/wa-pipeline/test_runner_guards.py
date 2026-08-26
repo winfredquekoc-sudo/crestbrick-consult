@@ -43,7 +43,9 @@ ok("cap constant is 2", getattr(R, "DAILY_SEND_CAP", None) == 2)
 ok("cap guard sits before every real send path", "DAILY_CAP_SKIP" in send_block and "DAILY_SEND_CAP" in send_block)
 ok("cap keyed to the SGT day", "8 * 3600" in send_block and "sends_today_date" in send_block)
 ok("viewing confirmations exempt (a YES must never dead-end overnight)",
-   'a.get("type") != "CONFIRM_VIEWING"' in send_block)
+   '"CONFIRM_VIEWING"' in send_block
+   and ('a.get("type") != "CONFIRM_VIEWING"' in send_block
+        or 'a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_block))
 after_send = src[src.index("count this touch against the per-client daily cap"):]
 ok("counter increments only on a fully delivered send", "sends_today" in after_send[:500]
    and src.index("count this touch") > src.index("_r0.pop(\"partial_sent\", None)"))

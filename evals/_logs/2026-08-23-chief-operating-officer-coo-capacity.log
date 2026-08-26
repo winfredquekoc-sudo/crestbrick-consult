@@ -1,0 +1,15 @@
+=== prompt ===
+Use the chief-operating-officer agent: We are adding 2 new automation jobs (price-watcher, listing-scraper). Do we have launchd capacity and where should they live?
+
+=== rc ===
+1
+
+=== duration_ms ===
+3883
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

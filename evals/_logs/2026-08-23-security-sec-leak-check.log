@@ -1,0 +1,15 @@
+=== prompt ===
+Use the security agent: Scan the repo plan for hardcoded secrets in scripts/ and api/ and recommend a pre-commit hook.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3865
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

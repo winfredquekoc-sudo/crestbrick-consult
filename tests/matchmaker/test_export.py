@@ -806,11 +806,17 @@ def test_all_landlords_and_tenants_shape():
     check("all_landlords keeps every status, unlike build_listings()", len(all_landlords) == 3,
           f"got {len(all_landlords)}")
     required_ll = ["id", "name", "availability", "status_raw", "sort", "district", "primary_district",
-                   "address", "map_query", "rent_min", "rent_max", "viewing", "rooms", "property_type",
-                   "phone", "last_contact", "follow_up", "source", "cea", "commission_est", "handed_off"]
+                   "address", "rent_min", "rent_max", "viewing", "rooms", "property_type",
+                   "phone", "last_contact", "follow_up", "lifecycle", "source", "cea", "commission_est", "handed_off"]
     for r in all_landlords:
         missing = [k for k in required_ll if k not in r]
         check(f"all_landlords[{r['id']}] has the full field set", not missing, f"missing {missing}")
+    # map_query is now conditional — present only when it differs from address
+    # (token-slim). It must never appear equal to address.
+    for r in all_landlords:
+        if "map_query" in r:
+            check(f"all_landlords[{r['id']}] map_query only kept when it adds info",
+                  r["map_query"] != r["address"], "map_query equals address, should have been dropped")
     by_id = {r["id"]: r for r in all_landlords}
     check("cea is None for a non co-broke record (never checks the landlord's own phone)",
           by_id["LLA1"]["cea"] is None)
@@ -823,12 +829,30 @@ def test_all_landlords_and_tenants_shape():
     all_tenants = ed.build_all_tenants(tenants, area_keywords)
     check("all_tenants is non-empty", len(all_tenants) > 0)
     check("all_tenants keeps every status, unlike build_tenants()", len(all_tenants) == 2, f"got {len(all_tenants)}")
-    required_tn = ["id", "name", "looking", "status_raw", "sort", "preferred_location", "district",
-                   "primary_district", "budget", "pax", "gender", "nationality", "occupation", "move_in",
-                   "lease_months", "phone", "last_contact", "listing_enquired", "missing"]
+    # Still-looking rows carry the full field set; not-looking rows are slimmed
+    # to tombstones (token-slim, 22 Aug 2026) — id->name/phone still resolves and
+    # the roster still groups them, but the heavy detail is dropped.
+    required_full = ["id", "name", "looking", "status_raw", "sort", "preferred_location", "district",
+                     "primary_district", "budget", "pax", "gender", "nationality", "occupation", "move_in",
+                     "lease_months", "phone", "last_contact", "listing_enquired", "missing"]
+    required_slim = ["id", "name", "looking", "status_raw", "sort", "district", "primary_district",
+                     "phone", "last_contact"]
+    heavy_dropped = ["budget", "pax", "gender", "nationality", "occupation", "move_in",
+                     "lease_months", "listing_enquired", "missing", "preferred_location"]
+    seen_full = seen_slim = False
     for r in all_tenants:
-        missing = [k for k in required_tn if k not in r]
-        check(f"all_tenants[{r['id']}] has the full field set", not missing, f"missing {missing}")
+        if r["looking"] == "Still looking":
+            seen_full = True
+            missing = [k for k in required_full if k not in r]
+            check(f"all_tenants[{r['id']}] still-looking has the full field set", not missing, f"missing {missing}")
+        else:
+            seen_slim = True
+            missing = [k for k in required_slim if k not in r]
+            check(f"all_tenants[{r['id']}] not-looking has the slim tombstone set", not missing, f"missing {missing}")
+            kept = [k for k in heavy_dropped if k in r]
+            check(f"all_tenants[{r['id']}] tombstone drops heavy fields", not kept, f"still carries {kept}")
+    check("both a full and a slim tenant row were exercised", seen_full and seen_slim,
+          f"seen_full={seen_full} seen_slim={seen_slim}")
 
 
 def test_sales_shape():

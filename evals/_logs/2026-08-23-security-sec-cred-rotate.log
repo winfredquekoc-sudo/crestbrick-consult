@@ -1,0 +1,15 @@
+=== prompt ===
+Use the security agent: How do we rotate the Telegram bot token without downtime on the daemon?
+
+=== rc ===
+1
+
+=== duration_ms ===
+3999
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

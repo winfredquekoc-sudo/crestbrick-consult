@@ -1,0 +1,15 @@
+=== prompt ===
+Use the seo-content-agent agent: Suggest 5 internal-link opportunities from a new 'EC vs Condo' article to existing Crestbrick content.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3949
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

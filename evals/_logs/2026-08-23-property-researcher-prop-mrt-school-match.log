@@ -1,0 +1,15 @@
+=== prompt ===
+Use the property-researcher agent: Best 3-bedder freehold condos within 1km of Nanyang Primary AND 800m of an MRT, budget $3.5M.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3878
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

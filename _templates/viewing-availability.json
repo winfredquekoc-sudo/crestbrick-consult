@@ -1,0 +1,40 @@
+{
+  "cherryhill": {
+    "slots": [
+      {
+        "slot_id": "cherryhill-2026-08-22-1700",
+        "date": "2026-08-22",
+        "start": "17:00",
+        "end": "18:00",
+        "label": "Sat 22 Aug, 5 to 6pm",
+        "capacity": 1,
+        "booked": 0,
+        "status": "open"
+      },
+      {
+        "slot_id": "cherryhill-2026-08-22-1800",
+        "date": "2026-08-22",
+        "start": "18:00",
+        "end": "19:00",
+        "label": "Sat 22 Aug, 6 to 7pm",
+        "capacity": 1,
+        "booked": 0,
+        "status": "open"
+      }
+    ]
+  },
+  "bayshore": {
+    "slots": [
+      {
+        "slot_id": "bayshore-2026-08-21-0930",
+        "date": "2026-08-21",
+        "start": "09:30",
+        "end": "10:30",
+        "label": "Fri 21 Aug, 9.30 to 10.30am",
+        "capacity": 2,
+        "booked": 0,
+        "status": "open"
+      }
+    ]
+  }
+}

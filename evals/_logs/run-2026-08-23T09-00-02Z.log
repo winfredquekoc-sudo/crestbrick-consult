@@ -1,0 +1,58 @@
+=== eval run 2026-08-23T09-00-02Z ===
+[run]  chief-of-staff: 4 case(s)
+  FAIL chief-of-staff/cos-weekly-priorities (4798ms) :: non-zero rc: 1; missing expected_contains: 'priorit'; missing expected_contains: 'week'; missing expected_contains: 'lead'
+  FAIL chief-of-staff/cos-conflict-routing (3803ms) :: non-zero rc: 1; missing expected_contains: 'budget'; missing expected_contains: 'decision'; missing expected_contains: 'trade'
+  FAIL chief-of-staff/cos-quarterly-okr (4030ms) :: non-zero rc: 1; missing expected_contains: 'objective'; missing expected_contains: 'key result'; missing expected_contains: 'Q3'
+  FAIL chief-of-staff/cos-incident-triage (3892ms) :: non-zero rc: 1; missing expected_contains: 'incident'; missing expected_contains: 'root cause'; missing expected_contains: 'owner'
+[run]  chief-operating-officer: 4 case(s)
+  FAIL chief-operating-officer/coo-tool-health (3928ms) :: non-zero rc: 1; missing expected_contains: 'WhatsApp'; missing expected_contains: 'Telegram'; missing expected_contains: 'Vercel'; missing expected_contains: 'cron'
+  FAIL chief-operating-officer/coo-runbook (3889ms) :: non-zero rc: 1; missing expected_contains: 'whatsmeow'; missing expected_contains: 'launchctl'; missing expected_contains: 'restart'
+  FAIL chief-operating-officer/coo-capacity (3883ms) :: non-zero rc: 1; missing expected_contains: 'launchd'; missing expected_contains: 'schedule'; missing expected_contains: 'plist'
+  FAIL chief-operating-officer/coo-vendor-sla (3865ms) :: non-zero rc: 1; missing expected_contains: 'SLA'; missing expected_contains: 'mitigation'; missing expected_contains: 'Vercel'
+[run]  developer: 5 case(s)
+  FAIL developer/dev-website-fix (3951ms) :: non-zero rc: 1; missing expected_contains: 'bg-'; missing expected_contains: 'Tailwind'; missing expected_contains: 'd15'
+  FAIL developer/dev-mcp-update (3929ms) :: non-zero rc: 1; missing expected_contains: 'axios'; missing expected_contains: 'upgrade'; missing expected_contains: 'test'
+  FAIL developer/dev-deploy-discipline (3861ms) :: non-zero rc: 1; missing expected_contains: 'preview'; missing expected_contains: 'verify'; missing expected_contains: 'main'
+  FAIL developer/dev-cron-script (3943ms) :: non-zero rc: 1; missing expected_contains: 'launchd'; missing expected_contains: 'SGT'; missing expected_contains: 'Telegram'
+  FAIL developer/dev-rollback (3836ms) :: non-zero rc: 1; missing expected_contains: 'rollback'; missing expected_contains: 'migration'; missing expected_contains: 'leads'
+[run]  security: 4 case(s)
+  FAIL security/sec-cred-rotate (3999ms) :: non-zero rc: 1; missing expected_contains: 'rotate'; missing expected_contains: 'daemon'
+  FAIL security/sec-pdpa-audit (4168ms) :: non-zero rc: 1; missing expected_contains: 'PDPA'; missing expected_contains: 'deletion'; missing expected_contains: 'data'
+  FAIL security/sec-leak-check (3865ms) :: non-zero rc: 1; missing expected_contains: 'secret'; missing expected_contains: 'pre-commit'; missing expected_contains: 'scan'
+  FAIL security/sec-access-review (3871ms) :: non-zero rc: 1; missing expected_contains: 'Vercel'; missing expected_contains: 'review'
+[run]  financial-advisor: 5 case(s)
+  FAIL financial-advisor/fin-absd-sc-2nd (4057ms) :: non-zero rc: 1; missing expected_contains: 'ABSD'; missing expected_contains: 'BSD'; missing expected_contains: '20%'
+  FAIL financial-advisor/fin-tdsr-msr (3646ms) :: non-zero rc: 1; missing expected_contains: 'TDSR'; missing expected_contains: 'MSR'; missing expected_contains: 'loan'
+  FAIL financial-advisor/fin-decoupling (3943ms) :: non-zero rc: 1; missing expected_contains: 'decouple'; missing expected_contains: 'ABSD'; missing expected_contains: 'stamp duty'
+  FAIL financial-advisor/fin-rental-yield (3883ms) :: non-zero rc: 1; missing expected_contains: 'yield'; missing expected_contains: 'gross'; missing expected_contains: 'net'
+  FAIL financial-advisor/fin-cpf-accrued (3903ms) :: non-zero rc: 1; missing expected_contains: 'CPF'; missing expected_contains: 'accrued interest'; missing expected_contains: '2.5%'
+[run]  seo-content-agent: 4 case(s)
+  FAIL seo-content-agent/seo-d15-deepdive (3809ms) :: non-zero rc: 1; missing expected_contains: 'District 15'; missing expected_contains: 'Katong'; missing expected_contains: 'Marine Parade'
+  FAIL seo-content-agent/seo-absd-explainer (3941ms) :: non-zero rc: 1; missing expected_contains: 'ABSD'; missing expected_contains: 'foreigner'; missing expected_contains: 'SPR'
+  FAIL seo-content-agent/seo-internal-link (3949ms) :: non-zero rc: 1; missing expected_contains: 'internal link'; missing expected_contains: 'EC'; missing expected_contains: 'condo'
+  FAIL seo-content-agent/seo-meta-title (4065ms) :: non-zero rc: 1; missing expected_contains: 'D10'; missing expected_contains: 'meta'; missing expected_contains: 'Singapore'
+[run]  competitor-scanner: 4 case(s)
+  FAIL competitor-scanner/comp-propnex-content (3884ms) :: non-zero rc: 1; missing expected_contains: 'PropNex'; missing expected_contains: 'ERA'; missing expected_contains: 'gap'
+  FAIL competitor-scanner/comp-keyword-overlap (3869ms) :: non-zero rc: 1; missing expected_contains: 'keyword'; missing expected_contains: 'stackedhomes'; missing expected_contains: 'ranking'
+  FAIL competitor-scanner/comp-pricing-sheet (3965ms) :: non-zero rc: 1; missing expected_contains: 'commission'; missing expected_contains: 'fee'; missing expected_contains: 'competitor'
+  FAIL competitor-scanner/comp-launch-watch (3963ms) :: non-zero rc: 1; missing expected_contains: 'Lentor Mansion'; missing expected_contains: 'competitor'
+[run]  market-scout: 4 case(s)
+  FAIL market-scout/scout-d15-deepdive (3932ms) :: non-zero rc: 1; missing expected_contains: 'D15'; missing expected_contains: 'PSF'; missing expected_contains: 'median'
+  FAIL market-scout/scout-launch-radar (3951ms) :: non-zero rc: 1; missing expected_contains: 'CCR'; missing expected_contains: 'launch'; missing expected_contains: 'developer'
+  FAIL market-scout/scout-rental-heatmap (3866ms) :: non-zero rc: 1; missing expected_contains: 'rental'; missing expected_contains: 'district'; missing expected_contains: 'MRT'
+  FAIL market-scout/scout-policy-impact (3694ms) :: non-zero rc: 1; missing expected_contains: 'cooling'; missing expected_contains: 'measure'; missing expected_contains: 'segment'
+[run]  property-researcher: 4 case(s)
+  FAIL property-researcher/prop-project-dossier (3938ms) :: non-zero rc: 1; missing expected_contains: 'Continuum'; missing expected_contains: 'PSF'; missing expected_contains: 'unit mix'
+  FAIL property-researcher/prop-mrt-school-match (3878ms) :: non-zero rc: 1; missing expected_contains: 'Nanyang'; missing expected_contains: 'MRT'; missing expected_contains: 'freehold'
+  FAIL property-researcher/prop-resale-vs-new (3932ms) :: non-zero rc: 1; missing expected_contains: 'resale'; missing expected_contains: 'new launch'; missing expected_contains: 'PSF'
+  FAIL property-researcher/prop-en-bloc-risk (3929ms) :: non-zero rc: 1; missing expected_contains: 'en bloc'; missing expected_contains: 'freehold'; missing expected_contains: 'District 10'
+[run]  afford: 5 case(s)
+  FAIL afford/afford-25k-family (3884ms) :: non-zero rc: 1; missing expected_contains: 'TDSR'; missing expected_contains: 'loan'; missing expected_contains: 'budget'
+  FAIL afford/afford-hdb-upgrader (3815ms) :: non-zero rc: 1; missing expected_contains: 'CPF'; missing expected_contains: 'accrued'; missing expected_contains: 'cash'
+  FAIL afford/afford-ec-eligibility (3886ms) :: non-zero rc: 1; missing expected_contains: 'EC'; missing expected_contains: 'MSR'; missing expected_contains: 'grant'
+  FAIL afford/afford-foreigner-purchase (3802ms) :: non-zero rc: 1; missing expected_contains: 'ABSD'; missing expected_contains: '60%'; missing expected_contains: 'foreigner'
+  FAIL afford/afford-stress-test (3860ms) :: non-zero rc: 1; missing expected_contains: 'SORA'; missing expected_contains: 'stress'; missing expected_contains: 'monthly'
+
+Results: 0/43 passed -> /Users/winfredquek/crestbrick-consult/evals/results/2026-08-23.jsonl
+[telegram] tg-send.sh not found; skipping summary
+=== exit 1 ===

@@ -78,6 +78,23 @@ if ! grep -q "401" "$HERE/middleware.js"; then
   exit 1
 fi
 
+# --- test gate (21 Aug 2026): build.py runs these same suites before writing
+# $SRC, but nothing stops a by-hand deploy of a stale artifact built before a
+# failing change. Cheap (~3s), so run them here too and refuse to ship red.
+REPO="$HOME/crestbrick-consult"
+echo "deploy.sh: running matchmaker test suites (scoring/state/export)..."
+if ! (cd "$REPO" && node --test tests/matchmaker/scoring.test.mjs tests/matchmaker/state.test.mjs >/tmp/mm-test-gate.log 2>&1); then
+  tail -20 /tmp/mm-test-gate.log >&2
+  echo "deploy.sh: ABORTED — scoring/state tests failed (full log: /tmp/mm-test-gate.log). Fix or explicitly revert before deploying." >&2
+  exit 1
+fi
+if ! (cd "$REPO" && /usr/bin/python3 tests/matchmaker/test_export.py >/tmp/mm-test-gate.log 2>&1 && /usr/bin/python3 tests/matchmaker/test_state.py >>/tmp/mm-test-gate.log 2>&1); then
+  tail -20 /tmp/mm-test-gate.log >&2
+  echo "deploy.sh: ABORTED — export tests failed (full log: /tmp/mm-test-gate.log)." >&2
+  exit 1
+fi
+echo "deploy.sh: test gate passed."
+
 if [ ! -f "$SRC" ]; then
   echo "deploy.sh: $SRC not found — run python3 scripts/matchmaker/build.py first" >&2
   exit 1

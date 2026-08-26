@@ -1,0 +1,15 @@
+=== prompt ===
+Use the financial-advisor agent: Married SC couple wants to decouple to buy a 2nd property without ABSD. Walk through legal feasibility and costs.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3943
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

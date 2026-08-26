@@ -514,7 +514,7 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
                 "occupation": r.get("occupation") or "", "cooking": r.get("cooking") or "",
                 "pets": r.get("pets") or "", "smoking": r.get("smoking") or "",
             },
-            "req_raw": {k: v for k, v in r.items() if v},
+            "req_raw": {k: (v[:300] if isinstance(v, str) else v) for k, v in r.items() if v},
             "units": enrich.parse_units(l.get("rooms_and_rent"), l.get("property_type"), rent_min, rent_max),
             "available_from": enrich.find_available_from([l.get("follow_up"), l.get("rooms_and_rent")], today),
             # (73) listing_key/follow_up/confirmed_at deliberately NOT exported as of
@@ -601,21 +601,32 @@ def build_all_landlords(landlords, dist_area, area_keywords):
         rent_min = (lambda a,b:(min(a,b) if a and b else a))(num(l.get("rent_min")), num(l.get("rent_max")))
         rent_max = (lambda a,b:(max(a,b) if a and b else b))(num(l.get("rent_min")), num(l.get("rent_max")))
         source = src_of(l)
-        out.append({
+        address = l.get("full_address") or ""
+        mq = maps_query(l.get("full_address"), l.get("district"), dist_area)
+        follow_up = l.get("follow_up") or ""
+        # Closed rows keep only a short note stub in the roster — the full
+        # history stays in the source DB. Token-slim, 22 Aug 2026.
+        if av in ("Taken", "Off market") and len(follow_up) > 200:
+            follow_up = follow_up[:200]
+        row = {
             "id": l.get("id"), "name": l.get("landlord_name"), "availability": av,
             "status_raw": l.get("status") or "", "sort": STATUS_ORDER.get(av, 9),
             "district": l.get("district") or "", "primary_district": pd,
-            "address": l.get("full_address") or "",
-            "map_query": maps_query(l.get("full_address"), l.get("district"), dist_area),
+            "address": address,
             "rent_min": rent_min, "rent_max": rent_max,
             "viewing": l.get("viewing_availability") or "",
             "rooms": l.get("rooms_and_rent") or "", "property_type": l.get("property_type") or "",
             "phone": l.get("phone") or "", "last_contact": l.get("last_contact") or "",
-            "follow_up": l.get("follow_up") or "",
+            "follow_up": follow_up, "lifecycle": lifecycle(l),
             "source": source, "cea": cea_check(l, source),
             "commission_est": commission_est(num(l.get("rent_min")), num(l.get("rent_max"))),
             "handed_off": handed_off(l),
-        })
+        }
+        # map_query only when it adds something over the plain address the app
+        # already falls back to (mapLink uses map_query || address). Token-slim.
+        if mq and mq != address:
+            row["map_query"] = mq
+        out.append(row)
     out.sort(key=lambda r: (r["sort"], r["primary_district"] or "zzz", r["name"] or ""))
     return out
 
@@ -938,6 +949,20 @@ def build_all_tenants(tenants_raw, area_keywords):
                   if isinstance(t.get("preferred_districts"), list)
                   else [d.strip() for d in (t.get("preferred_districts") or "").split(",") if d.strip()])
         pd, _pd_source, _pd_conflict = infer_district(t.get("district") or "", raw_pd, t.get("preferred_location") or "", area_keywords)
+        # Not-looking tenants (found a place / no longer looking / closed) are
+        # kept as slim tombstones: the roster still groups + shows them and the
+        # id->name/phone fallback lookups still resolve, but the heavy detail
+        # (budget, pax, occupation, move-in, enquiry, missing-flags) is dropped
+        # since you never re-qualify a closed lead. Token-slim, 22 Aug 2026 —
+        # this was ~144 KB, the bulk of the payload. Still-looking rows are full.
+        if lk != "Still looking":
+            out.append({
+                "id": t.get("id"), "name": t.get("name"), "looking": lk,
+                "status_raw": t.get("status") or "", "sort": TENANT_STATUS_ORDER.get(lk, 9),
+                "district": t.get("district") or "", "primary_district": pd,
+                "phone": t.get("phone") or "", "last_contact": t.get("last_contact") or "",
+            })
+            continue
         missing = []
         if not budget: missing.append("budget")
         if not t.get("move_in_date"): missing.append("move-in")
@@ -955,7 +980,7 @@ def build_all_tenants(tenants_raw, area_keywords):
             "phone": t.get("phone") or "", "last_contact": t.get("last_contact") or "",
             "listing_enquired": t.get("listing_enquired") or "", "missing": missing,
         })
-    out.sort(key=lambda r: (r["primary_district"] or "zzz", r["sort"], len(r["missing"]) == 0, r["name"] or ""))
+    out.sort(key=lambda r: (r["primary_district"] or "zzz", r["sort"], len(r.get("missing") or []) == 0, r["name"] or ""))
     return out
 
 
@@ -1766,19 +1791,28 @@ def main():
         "counts": {"available_listings": len(listings), "still_looking_tenants": len(tenants)},
         "source_counts": source_counts, "source_availability": source_availability,
         "tenants_all_statuses": tenants_all_statuses,
-        "delta": delta, "week_delta": week_delta, "health": health,
+        "delta": delta, "health": health,
         "districts": dist_area,
         "area_demand": live_area_demand,
-        "supply_overview": supply_overview, "busy_blocks": busy_blocks,
+        "busy_blocks": busy_blocks,
         "listings": listings, "tenants": tenants,
         "all_landlords": all_landlords, "all_tenants": all_tenants, "sales": sales,
         "revival": revival, "duplicate_phones": duplicate_phones,
-        "enrichment_queue": enrichment_queue, "budget_contradictions": budget_contradictions,
-        "zero_stock_alert": zero_stock_alert, "supply_gap_chase": supply_gap_chase,
-        "landlord_responsiveness": landlord_responsiveness,
-        "price_check": price_check, "days_to_fill": days_to_fill,
-        "stale_landlord_chase": stale_landlord_chase, "learning": learning,
+        "enrichment_queue": enrichment_queue,
+        "supply_gap_chase": supply_gap_chase,
+        "stale_landlord_chase": stale_landlord_chase,
+        # Re-added 26 Aug 2026 for the landlord-reliability score, but slim: name
+        # dropped (the app has it by id via all_landlords/listings), so this is
+        # ~half the old footprint. id -> reply-latency + ghosted-ask counts.
+        "landlord_responsiveness": [
+            {k: v for k, v in r.items() if k != "name"} for r in landlord_responsiveness],
     }
+    # Dropped from the serialized payload (token-slim, 22 Aug 2026): week_delta,
+    # supply_overview (app now derives it from all_landlords via lifecycle),
+    # price_check, days_to_fill, budget_contradictions, zero_stock_alert, learning
+    # — none had an app or digest consumer. Their on-disk ledgers (closes, price
+    # bands, learning) are untouched and keep accumulating; only the unread copies
+    # in this file are removed.
     # Same directory as OUT (so os.replace stays an atomic same filesystem
     # rename) but named matchmaker-data.tmp.json, not matchmaker-data.json.tmp:
     # the gitignore rule is "matchmaker-data*.json" (must END in .json), so the

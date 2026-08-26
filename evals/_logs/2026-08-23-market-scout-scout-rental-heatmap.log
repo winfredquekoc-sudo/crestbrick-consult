@@ -1,0 +1,15 @@
+=== prompt ===
+Use the market-scout agent: Top 5 districts by 12-month rental growth and likely drivers (MRT, schools, employment).
+
+=== rc ===
+1
+
+=== duration_ms ===
+3866
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

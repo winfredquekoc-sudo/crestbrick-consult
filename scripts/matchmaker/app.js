@@ -211,7 +211,7 @@ const NOW_REAL = new Date();
 const NOW_REAL_SGT_PARTS = Scoring.sgtParts(NOW_REAL);          // {y,mo,d,hh,mm}
 const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);                  // device-local midnight of NOW_REAL's SGT day
 const AREA = DATA.districts || {};
-let view = "work", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
+let view = "mapview", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
 let ALL_TENANTS = [], MATCHES = [], byListing = {}, byTenant = {}, CURRENT_WORKLIST = [];
 let IDLE_TIMER = null;        // (20)/(49) idle lock
 const IDLE_MS = 10 * 60 * 1000;
@@ -411,45 +411,127 @@ function lastMessageContext(t) {
 function draftAddr(l) {
   // first outreach never carries the unit number (same rule as the intake engine:
   // "I will send the unit number nearer") and drops parenthetical DB noise
-  let a = String(l.address || "").replace(/#\d+-\d+[A-Za-z]?/g, "").replace(/\(.*?\)/g, "").replace(/\s{2,}/g, " ").replace(/\s*,(\s*,)+/g, ",").replace(/[ ,]+$/, "").trim();
+  let a = String(l.address || "").replace(/#\d+-\d+[A-Za-z]?/g, "").replace(/\(.*?\)/g, "").replace(/\s{2,}/g, " ").replace(/\s+,/g, ",").replace(/,(\s*,)+/g, ",").replace(/[ ,]+$/, "").trim();
   if (!a || a.length < 6) a = listingShort(l) + " in " + areaName(l);
   return a;
 }
+// ---- area-match honesty (Winfred 27 Aug 2026: the 25-task drafts were pitching
+// a district the tenant never asked for as if it fit — ~44% of top matches were
+// off-area, riding a shared-MRT-line location score of 15). The structured score
+// is parity-locked, so accuracy is enforced HERE at the selection + draft layer:
+// prefer an in-area listing when one exists, and when the only option is off-area
+// name the town and ASK rather than assert "fits your budget, view?". ----
+const AREA_TOKEN_STOP = new Set(["road","block","street","condo","near","area","room","rental","lorong","jalan","avenue","drive","lane","taman","ave","apartment","preferred","household","muslim","stated","walk","also","from","blk","unit","mrt"]);
+function tenantWantsDistrict(t, l) { const pd = (t && t.preferred_districts) || []; return pd.indexOf(l.district) !== -1 || (t.district && t.district === l.district); }
+// tenant asked for this place by name/street (e.g. "Cherryhill") even when the
+// listing's coded district differs from the tenant's — a real in-area hit.
+function tenantNamedMatch(t, l) {
+  const pl = String((t && t.preferred_location) || "").toLowerCase(); if (!pl) return false;
+  const toks = ((String(l.name || "") + " " + String(l.address || "")).toLowerCase().match(/[a-z]{4,}/g) || []).filter(w => !AREA_TOKEN_STOP.has(w));
+  return toks.some(w => pl.includes(w));
+}
+function tenantInArea(t, l) { return tenantWantsDistrict(t, l) || tenantNamedMatch(t, l); }
+function listingTown(l) { return String(AREA[l.district] || l.district || "").split(",")[0].trim() || (l.district || ""); }
+function wantedAreaLabel(t) {
+  const c = String((t && t.preferred_location) || "").replace(/\(.*?\)/g, "").replace(/\bd\d+\b/gi, "").replace(/near.*/i, "").replace(/[;,/].*$/, "").replace(/\b(area|preferred)\b/gi, "").trim();
+  if (c && c.length >= 3) return c;
+  const pd = (t && t.preferred_districts) || []; const d = pd[0] || (t && t.district);
+  return d ? String(AREA[d] || d).split(",")[0].trim() : "your area";
+}
+// Price anchor (Winfred 27 Aug 2026): a building-wide span like $600 to $1900 is
+// meaningless as "fits your budget at $600 to $1900" — anchor to the entry price
+// the way he actually types ("rooms from $1300 onwards"). A tight range/single
+// price shows as is.
+function priceAnchor(unit, l) {
+  const lo = Number((unit && unit.rent_min) || l.rent_min) || 0;
+  const hi = Number((unit && unit.rent_max) || l.rent_max) || 0;
+  if (lo && hi && (hi - lo > 400 || hi / lo >= 1.5)) return { lo, hi, wide: true, text: "from $" + lo };
+  return { lo, hi, wide: false, text: rentTxtForUnit(unit, l) };
+}
+function pluralUnit(unitLabel) { return unitLabel + "s"; }
+function paxSuffix(l, t) {
+  if (!(t.pax && t.pax > 1)) return "";
+  const r = l.requirements || {};
+  const ok = l.couple_ok || r.couple_ok || (Number(r.max_pax) || 0) >= t.pax;
+  return ok ? (" for the " + (t.pax === 2 ? "two" : t.pax) + " of you") : "";
+}
 function draftEN(l, t, slotOverride) {
-  // Winfred's template (20 Aug 2026): address + budget fit + view? — with the close
-  // depending on supply: a landlord-fixed viewing slot is offered as is (those listings
-  // cannot take arbitrary times), anything else asks the tenant for their dates.
-  const fn = fname(t.name), area = areaName(l);
+  // Winfred's template (20 Aug 2026, reworked 27 Aug): honest price anchor + area
+  // + single CTA. No wide-range "fits at $600 to $1900", no double question, and
+  // an above-budget room is flagged as a stretch in his voice, not sold as a fit.
+  const fn = fname(t.name);
   const hasBudget = t.budget != null || t.budget_max != null;
   if (!hasBudget) {
-    return "Hi " + fn + ", a room just opened in " + area + " (" + l.district + ") at about " + rentTxt(l) + " a month. What's your budget and when are you looking to move in, so I can send you the right details.";
+    return "Hi " + fn + ", a room just opened at " + draftAddr(l) + " (" + l.district + ") at about " + rentTxt(l) + " a month. What's your budget and when are you looking to move in, so I can send you the right options.";
   }
   const unit = Scoring.bestUnit(l, t).unit;
   const unitLabel = unitTypeLabel(unit && unit.unit_type);
-  const rt = rentTxtForUnit(unit, l);
-  let msg = "Hi " + fn + ", I have a " + unitLabel + " rental at " + draftAddr(l) + " that fits your budget at " + rt + ". Would you like to view it?";
+  const pa = priceAnchor(unit, l);
+  const bud = t.budget != null ? t.budget : t.budget_max;
+  const px = paxSuffix(l, t);
+  // Off-area fallback: name the town, be honest, ask before offering a slot.
+  if (!tenantInArea(t, l)) {
+    const town = listingTown(l), want = wantedAreaLabel(t);
+    const have = pa.wide ? (pluralUnit(unitLabel) + px + " " + pa.text) : ("a " + unitLabel + px + " at " + pa.text);
+    const fitV = pa.wide ? "fit" : "fits";
+    return "Hi " + fn + ", nothing has opened in " + want + " yet, but I have " + have + " in " + town + " (" + l.district + ") that " + fitV + " your budget. Would " + town + " work for you, or should I keep looking around " + want + "?";
+  }
+  const aboveBudget = bud != null && pa.lo && bud < pa.lo && !pa.wide;
+  let msg;
+  if (aboveBudget) {
+    const upside = (unit && ["master", "whole", "studio"].indexOf(unit.unit_type) !== -1) ? (" but it is a " + unitLabel) : "";
+    msg = "Hi " + fn + ", I have a " + unitLabel + px + " at " + draftAddr(l) + ", " + pa.text + ", slightly above your budget" + upside + ".";
+  } else if (pa.wide) {
+    msg = "Hi " + fn + ", I have " + pluralUnit(unitLabel) + px + " at " + draftAddr(l) + " " + pa.text + " that fit your budget.";
+  } else {
+    msg = "Hi " + fn + ", I have a " + unitLabel + px + " at " + draftAddr(l) + " that fits your budget at " + pa.text + ".";
+  }
+  // Single CTA: a concrete slot IS the ask (96.6% vs 30.7% booking rate in
+  // Winfred's own data); otherwise invite dates. Never double up the question.
+  // Capture move-in when we don't have it (107 of 219 tenants are missing it,
+  // which weakens matching) — folded into the existing ask, no extra message.
+  const askMoveIn = !t.move_in && !t.move_in_norm;
   const fixedSlot = slotOverride || ((l.fixed_viewing && l.fixed_viewing.weekday && l.fixed_viewing.time_label) ? draftSlot(l, t) : "");
-  if (fixedSlot) { msg += " The landlord does viewings " + fixedSlot + ", can you make it?"; return msg; }
-  // A concrete pair of slots from the landlord's stated windows beats the open
-  // ask (96.6% vs 30.7% booking rate in Winfred's own appointment data). No
-  // parseable window -> the open ask stands.
+  if (fixedSlot) return msg + " The landlord does viewings " + fixedSlot + ", can you make it?" + (askMoveIn ? " Also, when are you hoping to move in?" : "");
   const slots = proposeSlots(l);
-  if (slots.length === 2) msg += " Would " + slots[0] + " or " + slots[1] + " work for you?";
-  else msg += " Please give me a few available dates and times.";
-  return msg;
+  if (slots.length === 2) return msg + " Would " + slots[0] + " or " + slots[1] + " work for you?" + (askMoveIn ? " And when are you hoping to move in?" : "");
+  return msg + " Would you like to view it? Just share a few dates and times that suit you" + (askMoveIn ? ", and when you're hoping to move in" : "") + ".";
 }
 function draftZH(l, t, slotOverride) {
-  const fn = fname(t.name), area = areaName(l);
+  // Chinese mirror of draftEN, same accuracy rules (price anchor, off-area
+  // honesty, above-budget stretch, move-in capture).
+  const fn = t.name ? fname(t.name) : "";   // no English "there" fallback in a zh message
   const hasBudget = t.budget != null || t.budget_max != null;
   if (!hasBudget) {
-    return "你好" + fn + "，" + area + "（" + l.district + "）刚好有一间房，租金大约" + rentTxt(l) + "一个月。方便告诉我你的预算和大概什么时候搬入吗，这样我可以给你合适的选择";
+    return "你好" + fn + "，" + draftAddr(l) + "（" + l.district + "）刚好有一间房，租金大约" + rentTxt(l) + "一个月。方便告诉我你的预算和大概什么时候搬入吗，这样我可以给你合适的选择。";
   }
   const unit = Scoring.bestUnit(l, t).unit;
   const unitLabel = unit && unit.unit_type === "master" ? "主人房" : unit && unit.unit_type === "whole" ? "整套单位" : unit && unit.unit_type === "studio" ? "小型公寓" : "普通房间";
-  const rt = rentTxtForUnit(unit, l);
-  const slot = slotOverride || draftSlot(l, t);
-  const ctx = (t.last_wa && !t.last_wa.from_me && t.last_wa.snippet) ? ("之前你提到“" + t.last_wa.snippet + "”。") : "";
-  return "你好" + fn + "，看到你在" + area + "附近找房。我这边" + l.name + "有一间" + unitLabel + "，租金" + rt + "，符合你的预算。" + ctx + "这个" + slot + "方便来看房吗";
+  const pa = priceAnchor(unit, l);
+  const zhPrice = pa.wide ? ("$" + pa.lo + "起") : rentTxtForUnit(unit, l).replace(/ to /, "到");
+  const bud = t.budget != null ? t.budget : t.budget_max;
+  const askMoveIn = !t.move_in && !t.move_in_norm;
+  if (!tenantInArea(t, l)) {
+    const town = listingTown(l), wantRaw = wantedAreaLabel(t);
+    const want = /your area/i.test(wantRaw) ? "你想找的区域" : wantRaw;
+    const have = pa.wide ? ("几间" + unitLabel + "，租金" + zhPrice) : ("一间" + unitLabel + "，租金" + zhPrice);
+    return "你好" + fn + "，" + want + "那边暂时没有空房，不过我在" + town + "（" + l.district + "）有" + have + "，符合你的预算。" + town + "你可以考虑吗，还是我继续帮你留意" + want + "那边？";
+  }
+  const aboveBudget = bud != null && pa.lo && bud < pa.lo && !pa.wide;
+  let msg;
+  if (aboveBudget) {
+    const up = (unit && ["master", "whole", "studio"].indexOf(unit.unit_type) !== -1) ? ("，不过是" + unitLabel) : "";
+    msg = "你好" + fn + "，我在" + draftAddr(l) + "有一间" + unitLabel + "，租金" + zhPrice + "，比你的预算稍微高一点" + up + "。";
+  } else if (pa.wide) {
+    msg = "你好" + fn + "，我在" + draftAddr(l) + "有几间" + unitLabel + "，租金" + zhPrice + "，符合你的预算。";
+  } else {
+    msg = "你好" + fn + "，我在" + draftAddr(l) + "有一间" + unitLabel + "，租金" + zhPrice + "，符合你的预算。";
+  }
+  const fixedSlot = slotOverride || ((l.fixed_viewing && l.fixed_viewing.weekday && l.fixed_viewing.time_label) ? draftSlot(l, t) : "");
+  if (fixedSlot) return msg + "房东" + fixedSlot + "可以看房，你方便过来吗？" + (askMoveIn ? "另外，你大概什么时候搬入？" : "");
+  const slots = proposeSlots(l);
+  if (slots.length === 2) return msg + slots[0] + "或者" + slots[1] + "方便看房吗？" + (askMoveIn ? "还有你大概什么时候搬入？" : "");
+  return msg + "想看房的话，告诉我你方便的时间" + (askMoveIn ? "，还有大概什么时候搬入" : "") + "。";
 }
 function summarizeTenantAnon(t) {
   const budget = t.budget != null ? ("$" + t.budget) : (t.budget_min != null || t.budget_max != null) ? ("$" + (t.budget_min || "?") + " to $" + (t.budget_max || "?")) : "budget TBC";
@@ -473,7 +555,302 @@ function cobrokeDraft(l, t, slotOverride) {
   const slot = slotOverride || draftSlot(l, t);
   return "Hi, referring to your " + listingShort(l) + " listing. I have a qualified tenant, " + (t.pax || "?") + " pax, budget " + band + ", move in " + (t.move_in || "flexible") + ". Open to co-broke viewing " + slot + "?";
 }
-function draftFor(l, t, slotOverride) { return isCobroke(l) ? cobrokeDraft(l, t, slotOverride) : draftEN(l, t, slotOverride); }
+function draftFor(l, t, slotOverride) {
+  if (isCobroke(l)) return cobrokeDraft(l, t, slotOverride);
+  // Chinese-speaking tenants (lang tagged at intake) get the Chinese draft.
+  return t.lang === "zh" ? draftZH(l, t, slotOverride) : draftEN(l, t, slotOverride);
+}
+
+// ---- viewing-window capture (Winfred 25 Aug 2026: 13 of 30 live listings had
+// no viewing window, so drafts fall back to the open ask — ~30% booking vs ~97%
+// for a two-slot offer). A listing is "viewing ready" if it has either a free
+// text window (l.viewing) or a landlord-fixed slot. ----
+function needsViewingWindow(l) {
+  return !(l.viewing || (l.fixed_viewing && l.fixed_viewing.weekday));
+}
+function viewingAskDraft(l) {
+  return "Hi " + fname(l.name) + ", I have tenants keen to view the room at " +
+    (l.address || areaName(l)) + ". What days and times work for viewings this week so I can line them up?";
+}
+
+// ---- Wave 1 deal-intelligence helpers (Winfred 26 Aug 2026) ----
+function numOf(v) { const n = typeof v === "number" ? v : parseInt(String(v == null ? "" : v).replace(/[^\d.]/g, ""), 10); return isNaN(n) ? 0 : n; }
+// Close-probability: not a new score, a gate on top of the existing fit. A
+// tenant is "likely to close" when they clear a real fit AND carry at least two
+// independent transaction signals — pays the fee, gave a full profile, is moving
+// within ~30 days, or was heard from in the last week. Cold leads never qualify.
+function closeLikely(m) {
+  const t = m.t;
+  if (Scoring.isCold(t, TODAY)) return false;
+  if ((m.s.total || 0) < 60) return false;
+  let signals = 0;
+  if (t.pays_agent_fee || t.segment === "URGENT" || t.segment === "FEE WILLING") signals++;
+  if (t.intake_complete || t.segment === "INFO RICH") signals++;
+  const mi = Scoring.parseDate(t.move_in) || Scoring.parseDate(t.move_in_norm);
+  if (mi) { const days = Math.round((mi - TODAY) / 86400000); if (days >= -7 && days <= 30) signals++; }
+  if (m.s.dc != null && m.s.dc <= 7) signals++;
+  if (t.pinned) signals++;
+  return signals >= 2;
+}
+// Budget-stretch: build.py flags when a tenant's own words name a ceiling above
+// their stated budget (budget_contradiction = {stated_budget, mentioned, quote}).
+// Surfacing it lets you match them to rooms the hard budget gate would hide.
+function budgetStretchChip(t) {
+  const bc = t.budget_contradiction;
+  if (!bc || !bc.mentioned) return "";
+  return '<span class="chip a" title="' + esc(bc.quote || "") + '">can stretch $' + esc(bc.mentioned) + '</span>';
+}
+// Commission proxy: Winfred's rental commission is ~1 month of rent, so rent_min
+// is a conservative per-deal estimate. "In play" = a live room with at least one
+// qualified tenant.
+function listingCommission(l) { return numOf(l.rent_min) || numOf(l.rent_max) || 0; }
+// Price-position: median asking for the same district across live listings plus
+// closed/other landlords on file (all_landlords carries rent), so you can tell a
+// landlord where their ask sits before a room goes stale.
+let _rentCompCache = null;
+function rentCompsForDistrict(dist) {
+  if (!dist) return [];
+  if (!_rentCompCache) {
+    _rentCompCache = {};
+    const add = (d, r) => { if (d && r) (_rentCompCache[d] = _rentCompCache[d] || []).push(r); };
+    (DATA.listings || []).forEach(l => add(l.district, numOf(l.rent_min)));
+    (DATA.all_landlords || []).forEach(l => add(l.district || l.primary_district, numOf(l.rent_min)));
+  }
+  return (_rentCompCache[dist] || []).filter(Boolean).sort((a, b) => a - b);
+}
+function pricePositionHtml(l) {
+  const r = numOf(l.rent_min); if (!r) return "";
+  const comps = rentCompsForDistrict(l.district);
+  if (comps.length < 4) return "";  // too thin to be meaningful
+  const med = comps[Math.floor(comps.length / 2)];
+  const above = comps.filter(x => x < r).length;
+  const pct = Math.round(above / comps.length * 100);
+  const band = pct >= 75 ? "top quartile — priced high" : pct <= 25 ? "bottom quartile — priced keen" : "around the middle";
+  const cls = pct >= 75 ? "a" : pct <= 25 ? "g" : "";
+  return '<div class="chips"><span class="chip ' + cls + '">💲 $' + r + " vs $" + med + " median for " + esc(l.district) +
+    " (n=" + comps.length + ") · " + band + '</span></div>';
+}
+
+// ---- Wave 2 deal-intelligence helpers (Winfred 26 Aug 2026) ----
+// Landlord reliability from WA reply latency (DATA.landlord_responsiveness, keyed
+// by id). Only speaks up with >=2 asks of history; silent otherwise.
+let _respMap = null;
+function respFor(id) {
+  if (!_respMap) { _respMap = {}; (DATA.landlord_responsiveness || []).forEach(r => { _respMap[r.id] = r; }); }
+  return _respMap[id] || null;
+}
+function landlordReliabilityChip(l) {
+  const r = respFor(l.id);
+  if (!r || (r.n_asks || 0) < 2) return "";
+  if ((r.unanswered_count || 0) >= 2)
+    return '<span class="chip r" title="' + r.unanswered_count + ' asks never answered">🐢 ghosts asks</span>';
+  const med = r.median_reply_minutes, worst = r.worst_case_reply_minutes;
+  if (med != null && med <= 120 && (worst == null || worst <= 1440))
+    return '<span class="chip g" title="median reply ' + Math.round(med) + ' min">⚡ replies fast</span>';
+  if ((med != null && med > 720) || (worst != null && worst > 2880))
+    return '<span class="chip a" title="slowest reply ' + Math.round((worst || 0) / 60) + 'h">🐢 slow to reply</span>';
+  return "";
+}
+// New-room re-engagement: when the build delta reports new listings, surface the
+// still-warm tenants (within the dead-lead window) who asked for that district so
+// you can one-tap "a room just opened". Alert only — respects the dead rule.
+function newRoomReengage() {
+  const newIds = ((DATA.delta || {}).new_listing_ids) || [];
+  if (!newIds.length) return [];
+  const out = [];
+  (DATA.listings || []).filter(l => newIds.indexOf(l.id) !== -1).forEach(l => {
+    (DATA.tenants || []).forEach(t => {
+      const wants = (t.preferred_districts || []).indexOf(l.district) !== -1 || t.district === l.district;
+      if (wants && t.phone && !Scoring.isCold(t, TODAY)) out.push({ t: t, l: l });
+    });
+  });
+  return out;
+}
+function newRoomDraft(t, l) {
+  return "Hi " + fname(t.name) + ", a room just opened in " + (AREA[l.district] || l.district) +
+    " at " + rentTxt(l) + ". Still looking? Happy to send details and set a viewing.";
+}
+// Same-unit / cross-agent detection: two live listings sharing a normalised
+// address that are NOT already linked as a co-broke dup pair — flags a possible
+// double-listing or a competing agent on the same room.
+function normAddrKey(a) { return String(a || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]/g, ""); }
+function sameUnitFlag(l) {
+  const key = normAddrKey(l.address);
+  if (key.length < 10) return "";
+  const others = (DATA.listings || []).filter(x =>
+    x.id !== l.id && x.dup_of !== l.id && l.dup_of !== x.id && normAddrKey(x.address) === key);
+  if (!others.length) return "";
+  return '<span class="chip a" title="same address as ' + esc(others.map(o => o.name || o.id).join(", ")) +
+    '">⚠ same unit as ' + esc(others[0].name || others[0].id) + '</span>';
+}
+// Numeric close-probability (0..1) for the weighted commission forecast. Same
+// signals as closeLikely(), scored rather than gated.
+function closeScore(m) {
+  const t = m.t;
+  if (Scoring.isCold(t, TODAY)) return 0;
+  let s = Math.min(1, (m.s.total || 0) / 100) * 0.4;
+  if (t.pays_agent_fee || t.segment === "URGENT" || t.segment === "FEE WILLING") s += 0.2;
+  if (t.intake_complete || t.segment === "INFO RICH") s += 0.15;
+  const mi = Scoring.parseDate(t.move_in) || Scoring.parseDate(t.move_in_norm);
+  if (mi) { const days = Math.round((mi - TODAY) / 86400000); if (days >= -7 && days <= 30) s += 0.15; }
+  if (m.s.dc != null && m.s.dc <= 7) s += 0.1;
+  return Math.min(1, s);
+}
+
+// ---- Wave 3 helpers (Winfred 26 Aug 2026) ----
+// Availability-timing: the score already weights available_from vs move_in, but
+// the PA never SEES it. Flag when a room won't be free until well after the
+// tenant needs to move (a common late-stage deal-killer).
+function timingGapFlag(l, t) {
+  const need = Scoring.parseDate(t && (t.move_in_norm || t.move_in));
+  const free = Scoring.parseDate(l && l.available_from);
+  if (!need || !free) return "";
+  const gap = Math.round((free - need) / 86400000);
+  if (gap > 21) return '<span class="chip a">⏳ free ' + esc(shortDate(free)) + ", needs " + esc(shortDate(need)) + '</span>';
+  return "";
+}
+// Housemate-fit: pull the existing-occupant description out of the room notes so
+// you can pitch fit ("joins two working professionals") instead of finding out
+// at viewing. Best-effort text extraction, no invented data.
+function housemateText(l) {
+  // Only the dedicated field — a loose scan over req_raw wrongly grabs tenant
+  // preference text ("Indian and Bangladeshi accept") that is NOT a housemate.
+  const rr = l.req_raw || {};
+  const v = rr.existing_housemates || rr.housemates || "";
+  return typeof v === "string" ? v.replace(/\s+/g, " ").trim().slice(0, 120) : "";
+}
+function housemateHtml(l) {
+  const h = housemateText(l);
+  return h ? '<div class="chips"><span class="chip">👥 housemates: ' + esc(h) + '</span></div>' : "";
+}
+// Double-booking: a live room with more than one tenant already at an offer stage
+// or marked Viewing/Contacted — the risk of promising the same room twice.
+function doubleBookedRooms() {
+  const out = [];
+  (DATA.listings || []).forEach(l => {
+    const active = (byListing[l.id] || []).map(m => m.t).filter(t => {
+      const o = readOffer(l.id, t.id), mk = readMark(l.id, t.id);
+      return o || (mk && (mk.v === "Viewing" || mk.v === "Contacted"));
+    });
+    if (active.length > 1) out.push({ l: l, tenants: active });
+  });
+  return out;
+}
+// Roommate pairing: two solo (1-pax) tenants with overlapping preferred district
+// and close budgets who could share a 2-pax room priced out of reach solo. A
+// suggestion, never an action — you decide whether to introduce them.
+function roommatePairs(limit) {
+  const solos = (DATA.tenants || []).filter(t =>
+    (t.pax == null || t.pax <= 1) && (t.budget || t.budget_max) && (t.preferred_districts || []).length && !Scoring.isCold(t, TODAY));
+  const pairs = [];
+  for (let i = 0; i < solos.length; i++) {
+    for (let j = i + 1; j < solos.length; j++) {
+      const a = solos[i], b = solos[j];
+      const shared = (a.preferred_districts || []).filter(d => (b.preferred_districts || []).indexOf(d) !== -1);
+      if (!shared.length) continue;
+      const ba = a.budget || a.budget_max, bb = b.budget || b.budget_max;
+      if (Math.abs(ba - bb) > 300) continue;                 // budgets must be close
+      const combined = ba + bb;
+      const roomFits = (DATA.listings || []).some(l => l.district === shared[0] &&
+        (numOf(l.rent_min) > Math.max(ba, bb)) && numOf(l.rent_min) <= combined);   // a room neither affords alone but both together do
+      if (!roomFits) continue;
+      pairs.push({ a: a, b: b, district: shared[0], combined: combined });
+      if (pairs.length >= (limit || 8)) return pairs;
+    }
+  }
+  return pairs;
+}
+// Quick-reply snippets + handover checklist: your common outbound lines and the
+// move-in handover list, one tap to clipboard. Winfred's voice: no hyphens, no
+// sign off. These are copy-only — nothing is ever auto-sent.
+const QUICK_SNIPPETS = [
+  ["Confirm a viewing", "Great, viewing confirmed. See you then. I will share the exact unit and my contact closer to the time."],
+  ["Ask for their details", "To line up viewings can you send me your budget, move in date, number of pax, and preferred areas."],
+  ["Deposit terms", "To secure the room it is one month deposit to book plus first month rent on move in day. Deposit is refundable at end of lease less any damage."],
+  ["On the way", "On my way now, will be there in about 10 minutes."],
+  ["Room taken, offer alt", "That room just got taken, but I have a similar one nearby in the same budget. Want me to send it."],
+  ["Chase a pending form", "Just following up, did you manage to fill in the details form. Once I have it I can send you matching rooms straight away."],
+];
+const HANDOVER_CHECKLIST = [
+  "Inventory list photographed and agreed by both sides",
+  "Electricity and water meter readings recorded",
+  "Keys and access cards handed over and counted",
+  "Deposit received and receipt issued",
+  "First month rent received",
+  "Tenancy agreement signed by both parties",
+  "House rules and utilities arrangement confirmed in writing",
+];
+
+// ---- Wave 3b helpers (Winfred 26 Aug 2026) ----
+// Flexibility: tenants who left themselves room (a budget range, several
+// acceptable areas, a stated stretch, or open timing) are the easiest to place —
+// worth working first. Two or more flex signals earns the chip.
+function flexibilityChip(t) {
+  const flex = [];
+  if (t.budget_min && t.budget_max && t.budget_max > t.budget_min) flex.push("budget");
+  if ((t.preferred_districts || []).length >= 3) flex.push("area");
+  if (t.budget_contradiction) flex.push("stretch");
+  if (!t.move_in || /flex|anytime|asap|immediate|open/i.test(String(t.move_in))) flex.push("timing");
+  return flex.length >= 2 ? '<span class="chip g" title="flexible on ' + esc(flex.join(", ")) + '">🟢 flexible</span>' : "";
+}
+// House rules = the honest form of two-sided fit. The tenant side has no
+// structured cooking/pet/bath preference to score against, so instead of a fake
+// two-way score we surface the room's own restrictions on the match row, letting
+// you check them against what you know of the tenant before pitching.
+function houseRulesHtml(l) {
+  const g = l.gates || {}, rr = l.req_raw || {}, rules = [];
+  const cook = g.cooking || rr.cooking; if (cook && /\bno\b|not allow/i.test(cook)) rules.push("no cooking");
+  const vis = rr.visitors || rr.overnight_visitors; if (vis && /\bno\b/i.test(vis)) rules.push("no visitors");
+  const smk = g.smoking || rr.smoking; if (smk && /\bno\b/i.test(smk)) rules.push("no smoking");
+  if (rr.owner_on_site && /\byes\b/i.test(rr.owner_on_site)) rules.push("owner on site");
+  if (g.pets && /\bno\b/i.test(g.pets)) rules.push("no pets");
+  return rules.length ? '<span class="chip a" title="check against the tenant before pitching">⚠ rules: ' + esc(rules.join(", ")) + '</span>' : "";
+}
+// Multi-room landlord: count labelled rooms in the notes (Room 1.., PR1/CR3/MBR4,
+// or "N rooms"). A display badge only — matching still scores the record's own
+// rent, but the badge tells you this landlord is a portfolio worth priority.
+function multiRoomCount(l) {
+  // Count DISTINCT labelled rooms only (Room 1.., PR1/CR3/MBR4/SC5). Deliberately
+  // NOT "N room HDB" — that is the flat TYPE, not rentable rooms (LL138 is one
+  // room in a 4-room flat), and a plain label count double-counts repeats.
+  const labels = (String(l.rooms || "").match(/\b(?:room\s*\d+|pr\d+|cr\d+|mbr\d+|sc\d+)\b/gi) || [])
+    .map(s => s.toLowerCase().replace(/\s+/g, ""));
+  return new Set(labels).size;
+}
+function multiRoomBadge(l) {
+  const n = multiRoomCount(l);
+  return n >= 2 ? '<span class="chip">🏘 ' + n + '-room landlord</span>' : "";
+}
+// Add-to-calendar: a static PWA cannot call the calendar MCP, so this produces a
+// Google Calendar prefilled link (opens ready to save/edit). Uses the first
+// proposed slot's date when parseable, else tomorrow 6pm as a placeholder.
+function addToCalHref(l, t) {
+  const base = new Date(new Date(NOW_REAL_SGT).getTime() + 8 * 3600000 + 24 * 3600000);
+  const y = base.getUTCFullYear(), mo = String(base.getUTCMonth() + 1).padStart(2, "0"), d = String(base.getUTCDate()).padStart(2, "0");
+  const start = "" + y + mo + d + "T100000", end = "" + y + mo + d + "T104500"; // 6:00-6:45pm SGT (UTC+8 -> 10:00 UTC)
+  const text = "Viewing: " + (t ? fname(t.name) + " · " : "") + listingShort(l);
+  const details = "Room: " + rentTxt(l) + (t && t.phone ? "\\nTenant: " + t.name + " " + t.phone : "") + (l.phone ? "\\nLandlord: " + l.phone : "");
+  return "https://calendar.google.com/calendar/render?action=TEMPLATE&text=" + encodeURIComponent(text) +
+    "&dates=" + start + "/" + end + "&location=" + encodeURIComponent(l.address || areaName(l)) +
+    "&details=" + encodeURIComponent(details);
+}
+// Snapshot funnel: current-state pipeline counts (not a trend — that needs
+// historical logging we do not keep). Looking -> full profile -> in a deal ->
+// closed, read from the live data plus local offer stages.
+function snapshotFunnel() {
+  const looking = (DATA.tenants || []).length;
+  const complete = (DATA.tenants || []).filter(t => t.intake_complete).length;
+  let inDeal = 0;
+  try {
+    const seen = {};
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.indexOf(OFFER_PREFIX) === 0) { const tid = k.slice(OFFER_PREFIX.length).split("_")[1]; if (tid && !seen[tid]) { seen[tid] = 1; inDeal++; } }
+    }
+  } catch (e) { /* private mode */ }
+  const closed = (DATA.all_tenants || []).filter(t => /tenanted|found|closed \(tenanted|deposit/i.test(String(t.status_raw || ""))).length;
+  return { looking: looking, complete: complete, inDeal: inDeal, closed: closed };
+}
 
 // ---- pass 2 draft skeletons (exact voice: no hyphens, no sign off) ----
 function reconfirmDraft(l) {
@@ -1046,6 +1423,14 @@ function safeSet(key, value) {
   try { localStorage.setItem(key, value); return true; }
   catch (e) { toast("Device storage is full — that change was not saved. Export state, then clear old browser data."); return false; }
 }
+// Commission visibility. HIDDEN BY DEFAULT on every device (Winfred 26 Aug 2026:
+// "hide on all devices") — the shared login has no per-user view, so the default
+// is the only way to hide it everywhere at once. It only appears if someone taps
+// "show" on that specific device, which persists locally (so Winfred reveals it
+// on his own phone and it stays hidden on the assistant's).
+const SHOW_COMM_KEY = "cbk_show_commission";
+function commissionHidden() { try { return localStorage.getItem(SHOW_COMM_KEY) !== "1"; } catch (e) { return true; } }
+function setCommissionHidden(on) { try { if (on) localStorage.removeItem(SHOW_COMM_KEY); else safeSet(SHOW_COMM_KEY, "1"); } catch (e) { /* private mode */ } }
 // (71) read-through cache for readMark/readOverride, keyed by the exact
 // localStorage key string (cbk_.../cbko_... — distinct prefixes, one Map is
 // safe for both). Measured cause of a 23ms/render facet-count cost: every
@@ -1862,6 +2247,11 @@ function matchRow(m, showListing, opts) {
   if (declinedSimilar) badges.push('<span class="badge declined">declined similar</span>');
   if (t.dup_group != null) badges.push(dupGroupBadgeHtml(t));   // (12) one grouped chip, never N loose badges
   if (l.reconfirm_due) badges.push('<span class="badge overridden">reconfirm — 14d+</span>'); // (16)
+  // Close-probability: a "likely close" flag when the tenant carries enough
+  // transaction signals (fee-willing, complete profile, moving soon, recently
+  // heard from) on top of a real fit. Kept deliberately rare so it means
+  // "work this first", not decoration. (Winfred 26 Aug 2026.)
+  if (!blocked && closeLikely(m)) badges.push('<span class="badge urgent">🔥 likely close</span>');
 
   const availFromNote = (showListing && l.available_from) ? (' · vacant from ' + esc(shortDate(Scoring.parseDate(l.available_from)))) : ''; // (24)
   const head = showListing
@@ -1882,10 +2272,14 @@ function matchRow(m, showListing, opts) {
     (badges.length || nba ? ('<div class="rtop" style="margin-top:4px">' + badges.join(' ') + (nba ? (' ' + nba) : '') + '</div>') : '') +
     '<div class="rtop" style="margin-top:5px">' +
       '<span class="chip">budget ' + esc(t.budget || t.budget_max || '?') + '</span>' +
+      budgetStretchChip(t) +
+      flexibilityChip(t) +
+      (showListing ? houseRulesHtml(l) : "") +
       genderChip(t) +
       '<span class="chip">pax ' + esc(t.pax || '?') + '</span>' +
       '<span class="chip">lease ' + esc(t.lease_months || '?') + 'mo</span>' +
       '<span class="chip">move ' + esc(t.move_in || '?') + '</span>' +
+      timingGapFlag(l, t) +
       '<span class="chip">' + esc(t.district || '?') + (t.preferred_location ? (' · ' + esc(String(t.preferred_location).slice(0, 28))) : '') + '</span>' +
       coldChip(m.s.dc) + (st ? ('<span class="chip a">' + esc(st) + '</span>') : '') +
     '</div>' +
@@ -2456,7 +2850,10 @@ function listingCard(l, dups) {
     '<div class="t">' + esc(l.name) + ' ' + (l.availability === "Offer pending" ? '<span class="chip a">offer pending</span>' : '') + (isCobroke(l) ? '<span class="badge cobroke">co-broke</span>' : '') + (l.reconfirm_due ? '<span class="badge overridden">reconfirm 14d+</span>' : '') + '</div>' +
     '<div class="m">' + esc(l.district) + ' · ' + esc(rentTxt(l)) + ' · ' + esc(l.address || AREA[l.district] || '') + '</div>' +
     (l.available_from ? ('<div class="m">vacant from ' + esc(shortDate(Scoring.parseDate(l.available_from))) + '</div>') : '') +
-    '<div class="m"><span class="chip g">' + esc(nq) + ' qualified</span> <span class="chip">' + esc(q.length) + ' candidates</span></div>' +
+    '<div class="m"><span class="chip g">' + esc(nq) + ' qualified</span> <span class="chip">' + esc(q.length) + ' candidates</span>' +
+      (needsViewingWindow(l) ? ' <span class="chip a">🕐 no viewing time</span>' : '') +
+      ((l.days_listed || 0) > 21 ? ' <span class="chip a">🕗 ' + esc(l.days_listed) + 'd — reprice?</span>' : '') +
+      ' ' + multiRoomBadge(l) + ' ' + landlordReliabilityChip(l) + ' ' + sameUnitFlag(l) + '</div>' +
     (dups.length ? ('<div class="m dupline" data-dupfor="1">+' + esc(dups.length) + ' also listed via co-broke</div>') : '');
   const thumbImg = c.querySelector("[data-lightbox]");
   if (thumbImg) thumbImg.onclick = (e) => { e.stopPropagation(); openLightbox(l.photos, 0); };
@@ -2478,11 +2875,13 @@ function toggleDupListingList(card, dups) {
   card.appendChild(box);
 }
 // (65) closed/paused/tenanted supply is NOT in DATA.listings (scoring never
-// sees it) — it lives in the separate DATA.supply_overview array (every
-// landlord, any status). Absent/empty -> this whole section quietly omits,
-// same null guard discipline as everything else new in pass 2.
+// sees it). It is derived here from DATA.all_landlords (every landlord, any
+// status) — the old dedicated DATA.supply_overview array was dropped as a
+// duplicate (token-slim, 22 Aug 2026); all_landlords carries the same lifecycle
+// field. Absent/empty -> this whole section quietly omits, same null guard
+// discipline as everything else new in pass 2.
 function supplyOverviewSectionHtml() {
-  const overview = DATA.supply_overview;
+  const overview = DATA.all_landlords;
   if (!Array.isArray(overview) || !overview.length) return null;
   const activeIds = new Set((DATA.listings || []).map(l => l.id));
   const others = overview.filter(x => x && x.id != null && !activeIds.has(x.id));
@@ -2537,6 +2936,11 @@ function renderListingPanel(l) {
     '<div class="chips">' + req.map(r => '<span class="chip">' + esc(r) + '</span>').join('') + '</div>' +
     (l.rooms ? ('<div class="mut" style="margin-top:6px">' + esc(l.rooms) + '</div>') : '') +
     (l.viewing ? ('<div class="chips"><span class="chip g">🕐 viewing: ' + esc(l.viewing) + '</span></div>') : '') +
+    pricePositionHtml(l) +
+    housemateHtml(l) +
+    (multiRoomBadge(l) ? ('<div class="chips">' + multiRoomBadge(l) + '</div>') : '') +
+    '<div class="chips"><a class="chip" style="text-decoration:none" target="_blank" rel="noopener" href="' + escUrl(addToCalHref(l, null)) + '">📅 Add viewing to calendar</a></div>' +
+    ((landlordReliabilityChip(l) || sameUnitFlag(l)) ? ('<div class="chips">' + landlordReliabilityChip(l) + ' ' + sameUnitFlag(l) + '</div>') : '') +
     (l.availability === "Offer pending" ? '<div class="chips"><span class="chip a">⚠ offer pending, hold new offers</span></div>' : '') +
     listingIntelHtml(l) +
     (Array.isArray(l.photos) && l.photos.length ? ('<div class="photostrip" data-photostrip="1">' + l.photos.slice(0, 6).map((u, i) => '<img loading="lazy" src="' + escUrl(u) + '" alt="" data-pidx="' + i + '">').join('') + '</div>') : '') +
@@ -3920,6 +4324,7 @@ function smoothPath(pts) {
 }
 let mapSelected = null, mapTenantSel = null, mapShowAll = false;
 let mapSubTab = "map", mapLLExpand = null, mapTNExpand = null, mapTNAll = false;
+let mapRegion = null, mapDirSort = "district", mapDirLive = true, mapDirQ = "";
 function mapProject(lat, lng) {
   const W = 1000, H = 660, LN0 = 103.59, LN1 = 104.06, LA0 = 1.14, LA1 = 1.48;
   return [(lng - LN0) / (LN1 - LN0) * W, (LA1 - lat) / (LA1 - LA0) * H];
@@ -3936,10 +4341,10 @@ function mapFitLabel(m) {
 function renderMapView() {
   const box = $("#mapview"); box.innerHTML = "";
   box.appendChild(el("div", "help",
-    "🗺 <b>Map dashboard.</b> Bubbles = tenant demand per district. Pins = live listings (green has qualified " +
-    "matches, amber none yet, hollow = district-centre position only). Click a pin → landlord details + every " +
-    "tenant scored against that unit. Click a tenant row → full profile. A selected tenant's other strong fits " +
-    "glow dashed on the map — click one to jump. Fit % is the same score as every other tab, not a guarantee."));
+    "🗺 <b>Dashboard.</b> Each region shows 🏢 live landlords and 🙋 tenants looking there — click a region " +
+    "(on the map or in the directory below) to filter the landlord directory. Pins = live listings (green has " +
+    "qualified matches, amber none yet, hollow = district-centre position only). Click a pin → landlord details " +
+    "+ every tenant scored against that unit. Fit % is the same score as every other tab, not a guarantee."));
   const demand = {};
   ALL_TENANTS.forEach(t => (t.preferred_districts || []).forEach(k => { demand[k] = (demand[k] || 0) + 1; }));
   const stb = el("div", "msubtabs");
@@ -3949,6 +4354,29 @@ function renderMapView() {
     stb.appendChild(b);
   });
   box.appendChild(stb);
+  const ov = el("div", "movstrip");
+  [["🏢", (DATA.listings || []).length, "live landlords", () => {
+      mapSubTab = "map"; mapDirLive = true; mapRegion = null; renderMapView();
+      const d = document.querySelector("#mapview .dirctrl");
+      if (d) d.scrollIntoView({ behavior: "smooth", block: "start" });
+    }],
+   ["📒", (DATA.all_landlords || []).length, "landlords on file", () => { view = "landlords"; render(); }],
+   ["🙋", ALL_TENANTS.length, "tenants looking", () => { mapSubTab = "tn"; renderMapView(); }]]
+  .forEach(([ic, n, lab, go]) => {
+    const t = el("button", "movtile", '<span class="movic">' + ic + '</span><b>' + n + '</b><span>' + esc(lab) + '</span>');
+    t.onclick = go;
+    ov.appendChild(t);
+  });
+  const ptasks = topTasksForPrompt(25);
+  const pt = el("button", "movtile", '<span class="movic">🤖</span><b>' + ptasks.length + '</b><span>top tasks → copy Claude Code prompt</span>');
+  pt.onclick = () => {
+    navigator.clipboard.writeText(buildClaudePrompt(ptasks)).then(() => {
+      pt.querySelector("span:last-child").textContent = "copied — paste into Claude Code";
+      setTimeout(() => { const s = pt.querySelector("span:last-child"); if (s) s.textContent = "top tasks → copy Claude Code prompt"; }, 2500);
+    });
+  };
+  ov.appendChild(pt);
+  box.appendChild(ov);
   if (mapSubTab === "ll") { renderMapLLTable(box, demand); return; }
   if (mapSubTab === "tn") { renderMapTNTable(box, demand); return; }
   const tenSel = ALL_TENANTS.find(x => x.id === mapTenantSel) || null;
@@ -3968,29 +4396,38 @@ function renderMapView() {
     const h = hull(pts);
     const d = h.length >= 3 ? smoothPath(h)
       : "M" + pts.map(p => p.map(n => n.toFixed(1)).join(",")).join(" L");
+    const fo = mapRegion ? (mapRegion === rg.key ? .3 : .05) : .16;
+    const so = mapRegion ? (mapRegion === rg.key ? .65 : .12) : .42;
     parts.push('<path class="rgzone" filter="url(#rgblur)" ' +
-      'style="fill:rgba(' + rg.color + ',.16);stroke:rgba(' + rg.color + ',.42);stroke-width:60;stroke-linejoin:round;stroke-linecap:round" d="' + d + '"/>');
+      'style="fill:rgba(' + rg.color + ',' + fo + ');stroke:rgba(' + rg.color + ',' + so + ');stroke-width:60;stroke-linejoin:round;stroke-linecap:round" d="' + d + '"/>');
   }
   parts.push('</g>');
   parts.push('<path class="mapcoast" d="' + landD + '"/>');
+  // Per-region overview stats (Winfred 22 Aug 2026: "a static display of just
+  // number of landlord and tenant as a number") — replaces the per-district
+  // demand bubbles, which read as clutter. District detail lives on in the
+  // Demand vs supply table and the directory.
+  const rgLL = {}, rgTN = {};
+  (DATA.listings || []).forEach(l => { const r = REGION_OF[l.district]; if (r) rgLL[r.key] = (rgLL[r.key] || 0) + 1; });
+  ALL_TENANTS.forEach(t => {
+    const ks = new Set((t.preferred_districts || []).map(d => (REGION_OF[d] || {}).key).filter(Boolean));
+    ks.forEach(k => { rgTN[k] = (rgTN[k] || 0) + 1; });
+  });
   for (const rg of MAP_REGIONS) {
     const pts = rg.dists.map(d => MAP_CENTROIDS[d]).filter(Boolean).map(c => mapProject(c[0], c[1]));
     if (!pts.length) continue;
     const cx = pts.reduce((s, p) => s + p[0], 0) / pts.length;
     const cy = pts.reduce((s, p) => s + p[1], 0) / pts.length;
-    // label offsets keep CENTRAL/EAST caps clear of the dense downtown bubbles
+    // label offsets keep CENTRAL/EAST caps clear of the dense downtown pins
     const dy = rg.key === "central" ? 58 : rg.key === "east" ? 44 : -34;
-    parts.push('<text class="rglabel" x="' + cx.toFixed(1) + '" y="' + (cy + dy).toFixed(1) +
-      '" style="fill:rgba(' + rg.color + ',.8)">' + rg.label + '</text>');
-  }
-  const maxD = Math.max(1, ...Object.values(demand));
-  for (const [dk, n] of Object.entries(demand)) {
-    const c = MAP_CENTROIDS[dk]; if (!c) continue;
-    const [x, y] = mapProject(c[0], c[1]);
-    const r = 8 + Math.sqrt(n / maxD) * 26;
-    const rc = (REGION_OF[dk] || {}).color || "88,140,255";
-    parts.push('<g class="mapdemand"><circle style="fill:rgba(' + rc + ',.16);stroke:rgba(' + rc + ',.5)" cx="' + x.toFixed(1) + '" cy="' + y.toFixed(1) + '" r="' + r.toFixed(1) + '"/>' +
-      '<text x="' + x.toFixed(1) + '" y="' + (y + 3.5).toFixed(1) + '">' + esc(dk) + '·' + n + '</text></g>');
+    const dim = mapRegion && mapRegion !== rg.key;
+    parts.push('<g class="rgstat" data-rg="' + rg.key + '" role="button" tabindex="0" aria-label="' + rg.label +
+      ': ' + (rgLL[rg.key] || 0) + ' live landlords, ' + (rgTN[rg.key] || 0) + ' tenants looking"' +
+      (dim ? ' style="opacity:.35"' : '') + '>' +
+      '<text class="rglabel" x="' + cx.toFixed(1) + '" y="' + (cy + dy).toFixed(1) +
+        '" style="fill:rgba(' + rg.color + ',.85)">' + rg.label + '</text>' +
+      '<text class="rgnums" x="' + cx.toFixed(1) + '" y="' + (cy + dy + 22).toFixed(1) + '">🏢 ' +
+        (rgLL[rg.key] || 0) + '  ·  🙋 ' + (rgTN[rg.key] || 0) + '</text></g>');
   }
   const seen = {};
   (DATA.listings || []).forEach(l => {
@@ -4012,7 +4449,8 @@ function renderMapView() {
   left.appendChild(el("div", "mapwrap",
     '<svg viewBox="0 0 1000 660" preserveAspectRatio="xMidYMid meet" aria-label="Singapore listings map">' + parts.join("") + '</svg>' +
     '<div class="rglegend">' + MAP_REGIONS.map(rg =>
-      '<span><i style="background:rgba(' + rg.color + ',.55)"></i>' + rg.label.charAt(0) + rg.label.slice(1).toLowerCase() + '</span>').join("") +
+      '<span data-rg="' + rg.key + '"' + (mapRegion === rg.key ? ' class="on"' : '') +
+      '><i style="background:rgba(' + rg.color + ',.55)"></i>' + rg.label.charAt(0) + rg.label.slice(1).toLowerCase() + '</span>').join("") +
     '</div>'));
   const right = el("div", "mapright");
   grid.appendChild(left); grid.appendChild(right);
@@ -4024,6 +4462,10 @@ function renderMapView() {
     g.onclick = act;
     g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
   });
+  left.querySelectorAll("[data-rg]").forEach(n => {
+    n.style.cursor = "pointer";
+    n.onclick = () => { mapRegion = (mapRegion === n.dataset.rg ? null : n.dataset.rg); renderMapView(); };
+  });
   const l = (DATA.listings || []).find(x => x.id === mapSelected);
   if (l) {
     renderMapLL(l, right, demand);
@@ -4032,19 +4474,140 @@ function renderMapView() {
   } else {
     renderMapOverview(right, demand);
   }
+  renderMapDirectory(box);
 }
 function renderMapOverview(panel, demand) {
   const supply = {};
   (DATA.listings || []).forEach(l => { if (l.district) supply[l.district] = (supply[l.district] || 0) + 1; });
-  const rows = Object.keys(demand).sort((a, b) => demand[b] - demand[a]).slice(0, 10).map(d =>
-    '<tr><td>' + esc(d) + ' <span class="mut">' + esc(AREA[d] || "") + '</span></td>' +
-    '<td>' + demand[d] + '</td><td>' + (supply[d] || 0) + '</td>' +
-    '<td>' + ((supply[d] || 0) === 0 ? '<span class="chip vD">no stock</span>' : "") + '</td></tr>').join("");
+  // Commission in play: ~1 month rent per live room, and the subset that already
+  // has at least one qualified tenant (the money closest to closing).
+  const live = DATA.listings || [];
+  const totalComm = live.reduce((s, l) => s + listingCommission(l), 0);
+  const inPlayListings = live.filter(l => qualifiedCount(l) > 0);
+  const inPlayComm = inPlayListings.reduce((s, l) => s + listingCommission(l), 0);
+  // Weighted forecast: each live room's commission times the close-probability of
+  // its single best-scoring tenant — the risk-adjusted money, not the ceiling.
+  const forecast = Math.round(live.reduce((s, l) => {
+    const best = (byListing[l.id] || []).filter(m => effective(m).verdict === "QUALIFIED")
+      .reduce((mx, m) => Math.max(mx, closeScore(m)), 0);
+    return s + listingCommission(l) * best;
+  }, 0));
+  if (totalComm) {
+    // Commission is money detail — hideable PER DEVICE (Winfred 26 Aug 2026:
+    // "hide it, just for me to use"). The app has one shared login so there is no
+    // per-user view; instead the choice is remembered on this device, so the
+    // assistant's phone can hide it while Winfred's own shows it. A discreet
+    // "show" affordance always remains so it is never lost.
+    if (commissionHidden()) {
+      const stub = el("div", "maphead",
+        '<span class="mut" style="cursor:pointer">💰 Commission hidden · <u>show on this device</u></span>');
+      stub.querySelector("span").onclick = () => { setCommissionHidden(false); renderMapView(); };
+      panel.appendChild(stub);
+    } else {
+      const box = el("div", "maphead",
+        '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px">' +
+        '<b>💰 Commission in play</b>' +
+        '<span class="mut" data-hidecomm="1" style="cursor:pointer;font-size:12px"><u>hide again</u></span></div>' +
+        '<div class="mut" style="margin:4px 0 2px">Rough ~1 month rent per room.</div>' +
+        '<div style="display:flex;gap:24px;flex-wrap:wrap;margin-top:6px">' +
+        '<div><div style="font-size:22px;font-weight:800;color:#2ea06a">$' + forecast.toLocaleString() + '</div><div class="mut">forecast (close-weighted)</div></div>' +
+        '<div><div style="font-size:22px;font-weight:800">$' + inPlayComm.toLocaleString() + '</div><div class="mut">' + inPlayListings.length +
+          ' rooms with a qualified tenant</div></div>' +
+        '<div><div style="font-size:22px;font-weight:800;opacity:.6">$' + totalComm.toLocaleString() + '</div><div class="mut">' + live.length +
+          ' live rooms total</div></div></div>');
+      box.querySelector("[data-hidecomm]").onclick = () => { setCommissionHidden(true); renderMapView(); };
+      panel.appendChild(box);
+    }
+  }
+  const reengage = newRoomReengage();
+  if (reengage.length) {
+    const seen = {}, rows = [];
+    reengage.forEach(x => {
+      if (seen[x.t.id]) return; seen[x.t.id] = 1;
+      rows.push('<tr><td>' + esc(x.t.name || x.t.id) + ' <span class="mut">wants ' + esc(x.l.district) + '</span></td>' +
+        '<td>' + esc(rentTxt(x.l)) + ' <span class="mut">' + esc(listingShort(x.l)) + '</span></td>' +
+        '<td class="nowrap"><a href="tel:' + esc(x.t.phone) + '">📞</a> <a href="' +
+        esc(waPlain(x.t.phone, newRoomDraft(x.t, x.l))) + '" target="_blank" rel="noopener">💬 nudge</a></td></tr>');
+    });
+    panel.appendChild(el("div", "maphead",
+      '<b>🔔 New room, warm tenants (' + rows.length + ')</b><div class="mut" style="margin:4px 0 8px">' +
+      'A listing just opened where these still-active tenants were asking. One tap tells them.</div>' +
+      '<table class="maptable"><thead><tr><th>Tenant</th><th>New room</th><th>Nudge</th></tr></thead>' +
+      '<tbody>' + rows.join("") + '</tbody></table>'));
+  }
+  // Sourcing board: districts where tenants are waiting and you have zero or
+  // thin supply, ranked by the number you'd match the day you land a room there.
+  // Zero-stock districts first (pure lost demand), then starved ones (want >= 3x
+  // supply). (Winfred 25 Aug 2026: "turn the demand map into a sourcing to-do".)
+  const gaps = Object.keys(demand).map(d => ({ d, want: demand[d], have: supply[d] || 0 }))
+    .filter(x => x.have === 0 || x.want >= 3 * x.have)
+    .sort((a, b) => (b.have === 0) - (a.have === 0) || b.want - a.want);
+  const unmatched = gaps.filter(x => x.have === 0).reduce((s, x) => s + x.want, 0);
+  const rows = gaps.slice(0, 10).map(x =>
+    '<tr><td>' + esc(x.d) + ' <span class="mut">' + esc(AREA[x.d] || "") + '</span></td>' +
+    '<td><b>' + x.want + '</b></td><td>' + x.have + '</td>' +
+    '<td>' + (x.have === 0
+      ? '<span class="chip vD">0 stock · ' + x.want + ' unmatched</span>'
+      : '<span class="chip a">thin · match ' + x.want + '</span>') + '</td></tr>').join("");
   panel.appendChild(el("div", "maphead",
-    '<b>Demand vs your supply</b><div class="mut" style="margin:4px 0 8px">Click a pin for landlord details, ' +
-    'scored tenants and profiles. Districts below are where tenants are asking and you have little or nothing.</div>' +
-    '<table class="maptable"><thead><tr><th>District</th><th>Want it</th><th>Your listings</th><th></th></tr></thead>' +
-    '<tbody>' + rows + '</tbody></table>'));
+    '<b>🎯 Where to source next</b><div class="mut" style="margin:4px 0 8px">Districts where tenants are asking and ' +
+    'you have little or nothing. <b>' + unmatched + ' tenants</b> are waiting in areas where you hold zero rooms — ' +
+    'land one listing in a top row and you can match that many the same day.</div>' +
+    '<table class="maptable"><thead><tr><th>District</th><th>Want it</th><th>Your listings</th><th>If you source here</th></tr></thead>' +
+    '<tbody>' + (rows || '<tr><td colspan="4" class="mut">No supply gaps — every district with demand has stock.</td></tr>') + '</tbody></table>'));
+  // Viewing-not-ready: live listings with no viewing window lose ~2/3 of their
+  // booking rate to the open ask. One tap asks the landlord for their times.
+  const noView = (DATA.listings || []).filter(needsViewingWindow);
+  if (noView.length) {
+    const vrows = noView.map(l =>
+      '<tr><td>' + esc(l.name || l.id) + ' <span class="mut">' + esc(l.district || "") + "</span></td>" +
+      '<td>' + esc(rentTxt(l)) + '</td>' +
+      '<td class="nowrap">' + (l.phone ? ('<a href="tel:' + esc(l.phone) + '">📞</a> <a href="' +
+        esc(waPlain(l.phone, viewingAskDraft(l))) + '" target="_blank" rel="noopener">💬 ask times</a>') : "—") + '</td></tr>').join("");
+    panel.appendChild(el("div", "maphead",
+      '<b>🕐 Set viewing times (' + noView.length + ' of ' + (DATA.listings || []).length + ' live listings)</b>' +
+      '<div class="mut" style="margin:4px 0 8px">These rooms have no viewing window, so a draft falls back to asking the tenant for dates ' +
+      '(books ~30%) instead of offering two slots (~97%). One tap asks the landlord for their availability.</div>' +
+      '<table class="maptable"><thead><tr><th>Listing</th><th>Rent</th><th>Ask</th></tr></thead>' +
+      '<tbody>' + vrows + '</tbody></table>'));
+  }
+  // Double-booking guard
+  const dbl = doubleBookedRooms();
+  if (dbl.length) {
+    const drows = dbl.map(x => '<tr><td>' + esc(listingShort(x.l)) + ' <span class="mut">' + esc(x.l.district || "") + '</span></td>' +
+      '<td>' + x.tenants.map(t => esc(t.name || t.id)).join(", ") + '</td></tr>').join("");
+    panel.appendChild(el("div", "maphead",
+      '<b>⚠ Double-booking check (' + dbl.length + ')</b><div class="mut" style="margin:4px 0 8px">' +
+      'These rooms have more than one tenant at an offer or viewing stage. Confirm you are not promising the same room twice.</div>' +
+      '<table class="maptable"><thead><tr><th>Room</th><th>Tenants in play</th></tr></thead><tbody>' + drows + '</tbody></table>'));
+  }
+  // Roommate pairing suggestions
+  const pairs = roommatePairs(8);
+  if (pairs.length) {
+    const prows = pairs.map(p => '<tr><td>' + esc(p.a.name || p.a.id) + ' + ' + esc(p.b.name || p.b.id) + '</td>' +
+      '<td>' + esc(p.district) + ' <span class="mut">' + esc(AREA[p.district] || "") + '</span></td>' +
+      '<td>~$' + p.combined + ' combined</td></tr>').join("");
+    panel.appendChild(el("div", "maphead",
+      '<b>👥 Roommate pairing (' + pairs.length + ')</b><div class="mut" style="margin:4px 0 8px">' +
+      'Two solo tenants wanting the same area with close budgets — together they can afford a 2-pax room neither could take alone.</div>' +
+      '<table class="maptable"><thead><tr><th>Pair</th><th>Area</th><th>Budget</th></tr></thead><tbody>' + prows + '</tbody></table>'));
+  }
+  // Quick-reply snippets + handover checklist (copy-only, nothing auto-sent)
+  // Snapshot funnel (current-state counts, not a trend)
+  const fn = snapshotFunnel();
+  panel.appendChild(el("div", "maphead",
+    '<b>📊 Pipeline snapshot</b><div class="mut" style="margin:4px 0 8px">Where your tenants stand right now (a live count, not a trend).</div>' +
+    '<div style="display:flex;gap:20px;flex-wrap:wrap">' +
+    ['Still looking:' + fn.looking, 'Full profile:' + fn.complete, 'In a deal:' + fn.inDeal, 'Closed on file:' + fn.closed]
+      .map(s => { const p = s.split(":"); return '<div><div style="font-size:20px;font-weight:800">' + p[1] + '</div><div class="mut">' + p[0] + '</div></div>'; }).join("") +
+    '</div>'));
+  const snipBox = el("div", "maphead", '<b>💬 Quick replies &amp; handover checklist</b>' +
+    '<div class="mut" style="margin:4px 0 8px">One tap copies the text. Nothing is ever auto-sent.</div>');
+  const snipRow = el("div", "acts");
+  QUICK_SNIPPETS.forEach(function (s) { copyBtn(s[0], [s[1]], snipRow); });
+  copyBtn("📋 Move-in handover checklist", HANDOVER_CHECKLIST.map(function (s, i) { return (i + 1) + ". " + s; }), snipRow);
+  snipBox.appendChild(snipRow);
+  panel.appendChild(snipBox);
   const chase = DATA.supply_gap_chase || [];
   if (chase.length) {
     const crows = chase.slice(0, 12).map(c =>
@@ -4061,6 +4624,142 @@ function renderMapOverview(panel, demand) {
       '<table class="maptable"><thead><tr><th>Landlord</th><th>Gap</th><th>Reach</th></tr></thead>' +
       '<tbody>' + crows + '</tbody></table>'));
   }
+}
+// ---- Top tasks → Claude Code prompt (Winfred 23 Aug 2026: "generate the top 25
+// task ... a prompt for me to use on claude code to send out the messages") ----
+// dead leads (45d+ quiet) are excluded outright — this list exists to be sent,
+// and the standing rule says they are never messaged.
+function taskEligible(m) { return effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending" && !isSnoozedNow(m) && !Scoring.isDead(m.t, TODAY); }
+function topTasksForPrompt(n) {
+  const seen = new Set(), out = [];
+  const rows = MATCHES.filter(taskEligible).sort((a, b) => worklistRank(b) - worklistRank(a));
+  for (const m of rows) {
+    if (seen.has(m.t.id)) continue;
+    seen.add(m.t.id);
+    // Prefer this tenant's best in-area available listing over a higher-scoring
+    // but off-area one (byTenant is pre-sorted by total desc). The off-area
+    // fallback surfaces only when nothing in their stated area is open, and its
+    // draft asks honestly rather than pitching it as their area.
+    const cands = (byTenant[m.t.id] || []).filter(taskEligible);
+    const inArea = cands.find(x => tenantInArea(x.t, x.l));
+    out.push(inArea || m);
+    if (out.length >= (n || 25)) break;
+  }
+  return out;
+}
+function buildClaudePrompt(list) {
+  const L = [];
+  L.push("You are helping me, Winfred, work through my top " + list.length +
+    " Matchmaker outreach tasks (data build " + DATA.generated + ", copied from the dashboard). " +
+    "Each task has a tenant, their best available room, and a ready WhatsApp draft in my voice.");
+  L.push("");
+  L.push("HOW TO WORK, non negotiable:");
+  L.push("1. Walk me through the tasks one at a time from task 1. I will approve each draft or edit it with you first.");
+  L.push("2. Send ONLY after I explicitly say send for that specific task. One message at a time, never bulk, never ahead of my approval.");
+  L.push("3. Send via the WhatsApp bridge as me. Resolve the phone to its chat JID (whatsmeow lid map) first, never send to a bare phone number.");
+  L.push("4. Before each send, read that chat for anything received since this list was generated. If the tenant already replied or the situation changed, flag it to me instead of sending.");
+  L.push("5. Voice rules: messages are sent as me. No sign off, no agent title, no CEA number, no hyphens anywhere.");
+  L.push("6. After a send, mark that tenant contacted (matchmaker flow) and move on. Skipped tasks stay untouched. Never message the same person twice in one run.");
+  L.push("");
+  L.push("TASKS:");
+  list.forEach((m, i) => {
+    L.push((i + 1) + ". " + (m.t.name || m.t.id) + " (" + m.t.id + ") | " + (m.t.phone || "no phone") +
+      " | fit " + m.s.total + " | " + listingShort(m.l) + " (" + (m.l.district || "?") + ") " + rentTxt(m.l));
+    L.push("DRAFT: " + draftFor(m.l, m.t));
+  });
+  return L.join("\n");
+}
+// ---- Landlord directory (dashboard segment, Winfred 22 Aug 2026: "all my
+// landlord's address and key information, sort them by location") ----
+function dirRegion(l) { return REGION_OF[l.primary_district || l.district] || null; }
+function renderMapDirectory(box) {
+  const all = DATA.all_landlords || [];
+  if (!all.length) return;
+  const base = all.filter(l => !mapDirLive || l.availability === "Available" || l.availability === "Offer pending");
+  box.appendChild(el("div", "mapsec", mapDirLive
+    ? "📒 Landlord directory — " + base.length + " live landlords, grouped by location. Closed and dormant are hidden (toggle Live only to see everyone)."
+    : "📒 Landlord directory — all " + base.length + " landlords on file, grouped by location. Every status, not just live listings."));
+  const counts = {};
+  base.forEach(l => { const r = dirRegion(l); const k = r ? r.key : "other"; counts[k] = (counts[k] || 0) + 1; });
+  const ctrl = el("div", "dirctrl");
+  [{ key: null, label: "ALL", color: "148,163,184" }].concat(MAP_REGIONS)
+    .concat([{ key: "other", label: "NO DISTRICT", color: "120,130,150" }]).forEach(g => {
+    const n = g.key == null ? base.length : (counts[g.key] || 0);
+    if (!n) return;
+    const b = el("button", "dirchip" + (mapRegion === g.key ? " on" : ""),
+      '<i style="background:rgba(' + g.color + ',.85)"></i>' + esc(g.label.charAt(0) + g.label.slice(1).toLowerCase()) +
+      ' <span class="mut">' + n + '</span>');
+    b.onclick = () => { mapRegion = (g.key != null && mapRegion === g.key) ? null : g.key; renderMapView(); };
+    ctrl.appendChild(b);
+  });
+  const sel = document.createElement("select"); sel.className = "dirsort";
+  [["district", "Sort: district"], ["last", "Sort: last contact"], ["rent", "Sort: rent"], ["status", "Sort: status"]]
+    .forEach(([v, lab]) => { const o = document.createElement("option"); o.value = v; o.textContent = lab; if (mapDirSort === v) o.selected = true; sel.appendChild(o); });
+  sel.onchange = () => { mapDirSort = sel.value; renderMapView(); };
+  ctrl.appendChild(sel);
+  const lv = el("button", "hbtn" + (mapDirLive ? " on" : ""), "Live only");
+  lv.title = "Only Available / Offer pending";
+  lv.onclick = () => { mapDirLive = !mapDirLive; renderMapView(); };
+  ctrl.appendChild(lv);
+  const q = document.createElement("input");
+  q.className = "dirq"; q.type = "search"; q.placeholder = "Filter name, address, phone…"; q.value = mapDirQ;
+  ctrl.appendChild(q);
+  box.appendChild(ctrl);
+  const host = el("div");
+  box.appendChild(host);
+  const dnum = d => { const n = parseInt(String(d || "").replace(/\D/g, ""), 10); return isNaN(n) ? 99 : n; };
+  const cmp = {
+    district: (a, b) => dnum(a.primary_district || a.district) - dnum(b.primary_district || b.district) || String(a.name || "").localeCompare(String(b.name || "")),
+    last: (a, b) => String(b.last_contact || "").localeCompare(String(a.last_contact || "")),
+    rent: (a, b) => (a.rent_min || a.rent_max || 99999) - (b.rent_min || b.rent_max || 99999),
+    status: (a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99),
+  }[mapDirSort];
+  let pool = base;
+  if (mapRegion) pool = pool.filter(l => { const r = dirRegion(l); return (r ? r.key : "other") === mapRegion; });
+  MAP_REGIONS.concat([{ key: "other", label: "NO DISTRICT ON FILE", color: "120,130,150", dists: [] }]).forEach(rg => {
+    const rows = pool.filter(l => { const r = dirRegion(l); return (r ? r.key : "other") === rg.key; }).sort(cmp);
+    if (!rows.length) return;
+    host.appendChild(el("div", "dirhead",
+      '<i style="background:rgba(' + rg.color + ',.85)"></i><b>' + esc(rg.label) + '</b><span class="mut">' +
+      rows.length + ' landlord' + (rows.length === 1 ? "" : "s") + (rg.dists.length ? " · " + rg.dists.join(" ") : "") + '</span>'));
+    const body = rows.map(l => {
+      const dc = Scoring.daysAgo(l.last_contact, TODAY);
+      // Taken/Off market get no contact links — some are explicit "never
+      // re-engage" drops, same suppression as the roster tab.
+      const blocked = l.availability === "Taken" || l.availability === "Off market";
+      const hay = [l.id, l.name, l.address, l.phone, l.district, AREA[l.primary_district || l.district], l.rooms]
+        .map(v => String(v || "")).join(" ").toLowerCase();
+      return '<tr data-hay="' + esc(hay) + '">' +
+        '<td>' + esc(l.id || "") + '</td>' +
+        '<td><b>' + esc(l.name || "—") + '</b><br>' + statusChip(l.availability) + '</td>' +
+        '<td class="nowrap">' + (l.phone ? (blocked
+          ? esc(l.phone) + '<br><span class="mut">no contact action</span>'
+          : '<a href="tel:' + esc(l.phone) + '">' + esc(l.phone) + '</a><br><a href="' +
+            esc(waPlain(l.phone, "")) + '" target="_blank" rel="noopener">💬 WhatsApp</a>') : "—") + '</td>' +
+        '<td class="nowrap">' + esc(l.primary_district || l.district || "?") +
+          '<br><span class="mut">' + esc(AREA[l.primary_district || l.district] || "") + '</span></td>' +
+        '<td class="diraddr">' + (l.address
+          ? '<a href="' + escUrl(mapLink(l)) + '" target="_blank" rel="noopener noreferrer">📍 ' + esc(l.address) + '</a>'
+          : '<span class="mut">no address on file</span>') + '</td>' +
+        '<td>' + esc(rentTxt(l)) + (l.rooms ? '<br><span class="mut">' + esc(String(l.rooms).slice(0, 90)) + '</span>' : "") + '</td>' +
+        '<td class="nowrap">' + (l.last_contact ? esc(l.last_contact) + (dc != null ? '<br><span class="mut">' + dc + 'd ago</span>' : "") : "—") + '</td>' +
+        '<td>' + esc(String(l.viewing || "—").slice(0, 60)) + '</td>' +
+        '</tr>';
+    }).join("");
+    host.appendChild(el("div", "maptablewrap dirwrap",
+      '<table class="maptable"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
+      '<th>Address</th><th>Rent · rooms</th><th>Last contact</th><th>Viewing</th></tr></thead>' +
+      '<tbody>' + body + '</tbody></table>'));
+  });
+  if (!host.children.length) host.appendChild(el("div", "empty", "No landlords match this filter."));
+  // live text filter hides rows in place — a full re-render per keystroke
+  // would drop input focus
+  const applyQ = () => {
+    const qq = mapDirQ.trim().toLowerCase();
+    host.querySelectorAll("tr[data-hay]").forEach(tr => { tr.style.display = !qq || tr.dataset.hay.includes(qq) ? "" : "none"; });
+  };
+  q.oninput = () => { mapDirQ = q.value; applyQ(); };
+  applyQ();
 }
 function renderMapLLTable(box, demand) {
   const ls = [...(DATA.listings || [])].sort((a, b) => (a.district || "").localeCompare(b.district || "") || (a.id || "").localeCompare(b.id || ""));

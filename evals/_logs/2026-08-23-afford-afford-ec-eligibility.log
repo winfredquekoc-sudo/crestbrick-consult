@@ -1,0 +1,15 @@
+=== prompt ===
+/afford 16000 0 150000 1400000 — couple, first-timers, 2 kids, EC purchase. Comment on EC eligibility, MSR, CPF grant.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3886
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

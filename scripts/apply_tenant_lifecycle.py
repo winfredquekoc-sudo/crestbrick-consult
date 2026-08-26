@@ -5,7 +5,7 @@ holds tenants Winfred wants to serve and can match.
 
 match_status:
   found            -> already has a place (contact_state found_place or status tenanted). Archived.
-  stale_closed     -> auto closed after 30+ days of silence (close_stale_prospects.py). Off the pool.
+  stale_closed     -> auto closed after stale_days (config.json, 45) of silence (close_stale_prospects.py). Off the pool.
   do_not_contact   -> opted out or excluded non tenant.
   excluded_india   -> nationality is India. Excluded from service per Winfred's policy.
   excluded_family  -> has a child or baby. Excluded from service per Winfred's policy.
@@ -18,7 +18,9 @@ Only `active` and `below_target` are in the matchable pool. Everything else is o
 Nationality test is on NATIONALITY (from India), not ethnicity, so a Singaporean or PR
 of Indian ethnicity is NOT excluded.
 """
-import json, os, re, sqlite3
+import json, os, re, sqlite3, sys
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import tenant_state as TS
 ROOT = os.path.expanduser("~/crestbrick-consult")
 P = os.path.join(ROOT, "_templates/tenant-db.json")
 MSG = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
@@ -37,30 +39,8 @@ def has_children(con, jid):
     if any(p in txt for p in KIDPHRASE): return True
     return bool(KID.search(txt))
 
-def status_for(x, kids):
-    if x.get("excluded"): return "do_not_contact"
-    cs = x.get("contact_state"); st = x.get("status")
-    if cs == "found_place" or st == "tenanted": return "found"
-    if (st or "").startswith("closed"): return "stale_closed"  # auto closed by close_stale_prospects.py (>30d silent); off the pool
-    if cs in ("not_interested","do_not_contact"): return "do_not_contact"
-    nat = (x.get("nationality") or "").strip().lower()
-    if nat in ("indian","india","indian (india)"): return "excluded_india"
-    if kids: return "excluded_family"
-    if st == "deposit-pending": return "in_deal"
-    l = x.get("lease_term_months")
-    if isinstance(l,(int,float)):
-        if l < 6: return "short_lease"
-        if l < 12: return "below_target"
-    return "active"
-
-def priority_for(x, ms):
-    # serve 12 months or more first, then 6 to 11 months, then lease unknown.
-    if ms not in ("active","below_target","in_deal"): return ""
-    l = x.get("lease_term_months")
-    if isinstance(l,(int,float)):
-        if l >= 12: return 1
-        if l >= 6:  return 2
-    return 3
+status_for = TS.match_status_for
+priority_for = TS.serve_priority_for
 
 def main():
     t = json.load(open(P))

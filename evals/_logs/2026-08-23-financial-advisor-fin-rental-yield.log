@@ -1,0 +1,15 @@
+=== prompt ===
+Use the financial-advisor agent: D15 condo at $2.4M, expected rental $6,800/month. Compute gross and net yield assuming 1.5% maintenance.
+
+=== rc ===
+1
+
+=== duration_ms ===
+3883
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

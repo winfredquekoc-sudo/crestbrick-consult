@@ -1,0 +1,15 @@
+=== prompt ===
+Use the financial-advisor agent: Couple combined income $18,000/month, no existing loans. Max loan under TDSR 55% and MSR 30% for an EC?
+
+=== rc ===
+1
+
+=== duration_ms ===
+3646
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

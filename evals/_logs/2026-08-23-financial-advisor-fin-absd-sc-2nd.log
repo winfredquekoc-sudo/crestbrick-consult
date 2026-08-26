@@ -1,0 +1,15 @@
+=== prompt ===
+Use the financial-advisor agent: Singapore Citizen buying a $1.8M second residential property. Compute ABSD and BSD payable.
+
+=== rc ===
+1
+
+=== duration_ms ===
+4057
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

@@ -1,0 +1,15 @@
+=== prompt ===
+Use the chief-of-staff agent: It's Monday morning. Summarize this week's top 3 priorities across the C-suite pod given Q2 lead targets and the new SEO content push.
+
+=== rc ===
+1
+
+=== duration_ms ===
+4798
+
+=== stdout ===
+Failed to authenticate. API Error: 401 OAuth access token has expired. Re-authenticate to continue.
+
+
+=== stderr ===
+

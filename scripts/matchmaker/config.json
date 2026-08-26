@@ -1,0 +1,8 @@
+{
+  "cold_days": 5,
+  "dead_days": 45,
+  "stale_days": 45,
+  "info_rich_min": 10,
+  "days_listed_elasticity": 21,
+  "_comment": "Single home for matchmaker thresholds (Winfred, 21 Aug 2026). scoring.js keeps mirror literals for the browser; build.py FAILS the build if they drift from this file. Python (close_stale_prospects, apply_tenant_lifecycle via tenant_state, export_data) reads this file directly. dead_days and stale_days are the same rule seen from two sides (app block / db sweep) and must stay equal."
+}
