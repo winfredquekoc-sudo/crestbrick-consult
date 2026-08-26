@@ -1,12 +1,12 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-26T00:30:02+08:00",
+  "synced_at": "2026-08-27T00:30:02+08:00",
   "count": 30,
   "listings": [
     {
-      "id": "room-hillcrest-villa-ll124",
-      "title": "Room — Hillcrest Villa (Newton)",
+      "id": "whole-unit-hillcrest-villa-ll124",
+      "title": "Whole Unit — Hillcrest Villa (Newton)",
       "type": "Landed",
       "transaction": "rent",
       "price": 2500,
@@ -15,10 +15,11 @@
       "district": "D11",
       "sqft": 350,
       "highlights": [
+        "Aircon",
         "Available now"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Hillcrest%20Villa.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Hillcrest%20Villa."
     },
     {
       "id": "master-room-st-francis-court-ll015",
@@ -32,18 +33,6 @@
       "sqft": 200,
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court."
-    },
-    {
-      "id": "room-101a-lorong-2-toa-payoh-ll149",
-      "title": "Room — 101A Lorong 2 Toa Payoh",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1200,
-      "price_label": "S$1,200 / mo",
-      "address": "101A Lorong 2 Toa Payoh",
-      "district": "D12",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20101A%20Lorong%202%20Toa%20Payoh.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20101A%20Lorong%202%20Toa%20Payoh."
     },
     {
       "id": "common-room-93-paya-lebar-way-ll136",
@@ -153,6 +142,21 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20766%20Bedok%20Reservoir%20Road."
     },
     {
+      "id": "room-palm-isles-ll148",
+      "title": "Room — Palm Isles (Changi)",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1650,
+      "price_label": "From S$1,650 / mo",
+      "address": "Palm Isles",
+      "district": "D17",
+      "highlights": [
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Palm%20Isles.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Palm%20Isles."
+    },
+    {
       "id": "common-room-blk-160-pasir-ris-street-13-ll099",
       "title": "Common Room — Blk 160 Pasir Ris Street 13",
       "type": "HDB",
@@ -176,12 +180,9 @@
       "type": "Condo",
       "transaction": "rent",
       "price": 1250,
-      "price_label": "From S$1,250 / mo",
+      "price_label": "S$1,250 / mo",
       "address": "20 Simei Street 1",
       "district": "D18",
-      "highlights": [
-        "Available now"
-      ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201."
     },
