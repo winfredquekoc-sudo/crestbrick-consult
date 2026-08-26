@@ -110,7 +110,14 @@ def check(path):
     if EXPECT_DARK and re.search(r"body\s*\{[^}]*background:\s*#(?:f{3,6}|faf8f4|fbf6ec|faf6ee)", screen_css, re.I):
         d.append({"type": "LIGHT_THEME"})
 
-    # 10. duplicate <h1>. The article generator's hero template used to emit a
+    # 10. dual CTA block (Calendly + WhatsApp), insights only
+    if EXPECT_SOURCES:
+        tail = html[-4000:]
+        has_cta = "article-cta" in html or ("calendly.com" in tail and "wa.me" in tail)
+        if not has_cta:
+            d.append({"type": "NO_CTA"})
+
+    # 11. duplicate <h1>. The article generator's hero template used to emit a
     # decorative second h1 (usually aria-hidden); nightlies patched pages one by
     # one for weeks. Decorative duplicates must be <div>s with the same classes.
     n_h1 = len(re.findall(r"<h1[\s>]", html))
