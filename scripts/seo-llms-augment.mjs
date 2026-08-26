@@ -37,8 +37,8 @@ function replaceSection(headingStartsWith, body) {
 }
 
 const tools = listDir('tools', `${BASE}/tools`);
-// also include the 3 root calculators
-for (const n of ['absd-calculator', 'tdsr-calculator', 'stamp-duty-calculator']) {
+// also include the remaining root calculators (absd-calculator retired: redirects to /tools/absd)
+for (const n of ['tdsr-calculator', 'stamp-duty-calculator']) {
   if (existsSync(`public/${n}.html`)) { const h = readFileSync(`public/${n}.html`, 'utf8'); tools.push(`- [${titleOf(h)}](${BASE}/${n}): ${short(descOf(h))}`); }
 }
 replaceSection('## Tools', tools);
