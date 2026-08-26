@@ -1,12 +1,12 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-21T00:30:07+08:00",
-  "count": 19,
+  "synced_at": "2026-08-27T00:30:02+08:00",
+  "count": 30,
   "listings": [
     {
-      "id": "room-hillcrest-villa-ll124",
-      "title": "Room — Hillcrest Villa (Newton)",
+      "id": "whole-unit-hillcrest-villa-ll124",
+      "title": "Whole Unit — Hillcrest Villa (Newton)",
       "type": "Landed",
       "transaction": "rent",
       "price": 2500,
@@ -15,25 +15,59 @@
       "district": "D11",
       "sqft": 350,
       "highlights": [
+        "Aircon",
         "Available now"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Hillcrest%20Villa."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Hillcrest%20Villa.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Hillcrest%20Villa."
     },
     {
-      "id": "common-room-blk-47-marine-parade-ll110",
-      "title": "Common Room — Blk 47 Marine Parade",
+      "id": "master-room-st-francis-court-ll015",
+      "title": "Master Room — St Francis Court (Toa Payoh)",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1350,
-      "price_label": "From S$1,350 / mo",
-      "address": "Blk 47 Marine Parade",
-      "district": "D15",
+      "price": 1680,
+      "price_label": "From S$1,680 / mo",
+      "address": "St Francis Court",
+      "district": "D12",
+      "sqft": 200,
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20St%20Francis%20Court."
+    },
+    {
+      "id": "common-room-93-paya-lebar-way-ll136",
+      "title": "Common Room — 93 Paya Lebar Way",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "From S$900 / mo",
+      "address": "93 Paya Lebar Way",
+      "district": "D14",
+      "sqft": 170,
       "highlights": [
-        "Utilities included"
+        "Near MRT",
+        "Utilities included",
+        "Furnished",
+        "Aircon"
       ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2047%20Marine%20Parade.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2047%20Marine%20Parade."
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way."
+    },
+    {
+      "id": "common-room-16-bedok-north-drive-ll122",
+      "title": "Common Room — 16 Bedok North Drive",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1350,
+      "price_label": "S$1,350 / mo",
+      "address": "16 Bedok North Drive",
+      "district": "D16",
+      "highlights": [
+        "Near MRT",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive."
     },
     {
       "id": "common-room-bayshore-park-ll070",
@@ -64,8 +98,8 @@
       "title": "Room — Blk 62 Bayshore Park",
       "type": "Condo",
       "transaction": "rent",
-      "price": 600,
-      "price_label": "From S$600 / mo",
+      "price": 800,
+      "price_label": "From S$800 / mo",
       "address": "Blk 62 Bayshore Park",
       "district": "D16",
       "highlights": [
@@ -108,6 +142,21 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20766%20Bedok%20Reservoir%20Road."
     },
     {
+      "id": "room-palm-isles-ll148",
+      "title": "Room — Palm Isles (Changi)",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1650,
+      "price_label": "From S$1,650 / mo",
+      "address": "Palm Isles",
+      "district": "D17",
+      "highlights": [
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Palm%20Isles.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Palm%20Isles."
+    },
+    {
       "id": "common-room-blk-160-pasir-ris-street-13-ll099",
       "title": "Common Room — Blk 160 Pasir Ris Street 13",
       "type": "HDB",
@@ -126,16 +175,64 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013."
     },
     {
-      "id": "master-room-blk-143-lorong-ah-soo-ll100",
-      "title": "Master Room — Blk 143 Lorong Ah Soo (Hougang)",
+      "id": "master-room-20-simei-street-1-ll125",
+      "title": "Master Room — 20 Simei Street 1",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1250,
+      "price_label": "S$1,250 / mo",
+      "address": "20 Simei Street 1",
+      "district": "D18",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201."
+    },
+    {
+      "id": "room-tampines-ll135",
+      "title": "Room — Tampines",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1350,
-      "price_label": "S$1,350 / mo",
-      "address": "Blk 143 Lorong Ah Soo",
+      "price": 1250,
+      "price_label": "S$1,250 / mo",
+      "address": "Tampines",
+      "district": "D18",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Tampines.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Tampines."
+    },
+    {
+      "id": "common-room-992b-buangkok-link-ll138",
+      "title": "Common Room — 992B Buangkok Link (Hougang)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "From S$900 / mo",
+      "address": "992B Buangkok Link",
       "district": "D19",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20143%20Lorong%20Ah%20Soo.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20143%20Lorong%20Ah%20Soo."
+      "highlights": [
+        "Near MRT",
+        "Utilities included",
+        "Furnished",
+        "Aircon",
+        "Own bathroom"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20992B%20Buangkok%20Link.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20992B%20Buangkok%20Link."
+    },
+    {
+      "id": "common-room-156a-bishan-street-11-ll142",
+      "title": "Common Room — 156A Bishan Street 11",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "From S$1,100 / mo",
+      "address": "156A Bishan Street 11",
+      "district": "D20",
+      "highlights": [
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20156A%20Bishan%20Street%2011.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20156A%20Bishan%20Street%2011."
     },
     {
       "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
@@ -163,6 +260,18 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Cherryhill."
     },
     {
+      "id": "common-room-sin-ming-road-ll137",
+      "title": "Common Room — Sin Ming Road (Bishan)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1000,
+      "price_label": "S$1,000 / mo",
+      "address": "Sin Ming Road",
+      "district": "D20",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sin%20Ming%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sin%20Ming%20Road."
+    },
+    {
       "id": "master-room-blk-503-ang-mo-kio-ave-8-ll106",
       "title": "Master Room — Blk 503 Ang Mo Kio Ave 8",
       "type": "HDB",
@@ -181,6 +290,22 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20503%20Ang%20Mo%20Kio%20Ave%208."
     },
     {
+      "id": "whole-unit-block-31-bishan-loft-ll150",
+      "title": "Whole Unit — Block 31 Bishan Loft",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1400,
+      "price_label": "From S$1,400 / mo",
+      "address": "Block 31 Bishan Loft",
+      "district": "D20",
+      "highlights": [
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Block%2031%20Bishan%20Loft.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Block%2031%20Bishan%20Loft."
+    },
+    {
       "id": "common-room-138a-yuan-ching-road-ll111",
       "title": "Common Room — 138A Yuan Ching Road (Jurong)",
       "type": "HDB",
@@ -194,6 +319,18 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road."
+    },
+    {
+      "id": "common-room-blk-282-toh-guan-road-ll146",
+      "title": "Common Room — Blk 282 Toh Guan Road (Jurong)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 600,
+      "price_label": "From S$600 / mo",
+      "address": "Blk 282 Toh Guan Road",
+      "district": "D22",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road."
     },
     {
       "id": "common-room-blk-403-jurong-west-street-42-ll105",
@@ -242,6 +379,22 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20703%20Jurong%20West."
     },
     {
+      "id": "master-room-blk-528-jurong-west-street-52-ll118",
+      "title": "Master Room — Blk 528 Jurong West Street 52",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1300,
+      "price_label": "From S$1,300 / mo",
+      "address": "Blk 528 Jurong West Street 52",
+      "district": "D22",
+      "highlights": [
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20528%20Jurong%20West%20Street%2052.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20528%20Jurong%20West%20Street%2052."
+    },
+    {
       "id": "room-851-jurong-west-ll017",
       "title": "Room — 851 Jurong West",
       "type": "HDB",
@@ -252,6 +405,23 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
+    },
+    {
+      "id": "master-room-blk-233-pending-rd-ll115",
+      "title": "Master Room — Blk 233 Pending Rd (Bukit Batok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "Blk 233 Pending Rd",
+      "district": "D23",
+      "highlights": [
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd."
     },
     {
       "id": "common-room-54-sunrise-terrace-ll028",
