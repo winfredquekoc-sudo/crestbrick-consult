@@ -117,6 +117,13 @@ def check(path):
         if not has_cta:
             d.append({"type": "NO_CTA"})
 
+    # 11. duplicate <h1>. The article generator's hero template used to emit a
+    # decorative second h1 (usually aria-hidden); nightlies patched pages one by
+    # one for weeks. Decorative duplicates must be <div>s with the same classes.
+    n_h1 = len(re.findall(r"<h1[\s>]", html))
+    if n_h1 > 1:
+        d.append({"type": "DUP_H1", "n": n_h1})
+
     return d
 
 
