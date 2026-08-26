@@ -509,25 +509,32 @@
       "source": "/insights/dunearn-house-review-singapore-2026",
       "destination": "/insights/dunearn-house-review-2026",
       "permanent": true
+    },
+    {
+      "source": "/insights/cooling-measures",
+      "destination": "/insights/cooling-measures-timeline",
+      "permanent": true
+    },
+    {
+      "source": "/insights/singapore-rental-yield-district-2026",
+      "destination": "/insights/singapore-property-yield-by-district",
+      "permanent": true
+    },
+    {
+      "source": "/insights/walk-up-apartments-singapore",
+      "destination": "/insights/walk-up-apartment-investment-singapore",
+      "permanent": true
+    },
+    {
+      "source": "/launches/briefs/thomson-modern-upper-thomson-parcel-b",
+      "destination": "/launches/briefs/springleaf-residence",
+      "permanent": true
+    },
+    {
+      "source": "/answers/how-does-the-hfe-letter-work-and-how-long-does-it-take",
+      "destination": "/insights/hdb-hfe-letter-guide-2026",
+      "permanent": true
     }
   ],
-  "buildCommand": "npm run build",
-  "crons": [
-    {
-      "path": "/api/cron?job=overnight-new-launch-pov",
-      "schedule": "0 18 * * *"
-    },
-    {
-      "path": "/api/cron?job=4pillar-daily",
-      "schedule": "0 23 * * *"
-    },
-    {
-      "path": "/api/cron?job=daily-property-news",
-      "schedule": "30 6 * * *"
-    },
-    {
-      "path": "/api/cron?job=night-brief",
-      "schedule": "0 14 * * *"
-    }
-  ]
+  "buildCommand": "npm run build"
 }

@@ -39,10 +39,20 @@ CANON = re.compile(
 H1 = re.compile(r"<h1[^>]*>(.*?)</h1>", re.S | re.I)
 LDJSON = re.compile(r'<script[^>]+application/ld\+json[^>]*>(.*?)</script>', re.S | re.I)
 TAGS = re.compile(r"<[^>]+>")
+SCRIPT_STYLE = re.compile(r"<script.*?</script>|<style.*?</style>", re.S | re.I)
+# Em/en dash in any form, or a spaced double-hyphen used as one. Unlike bad_hyphens
+# this needs no allowlist -- there is no legitimate use of a dash character in this
+# site's prose, only in code (CSS custom properties, slugs), which visible-text
+# extraction already excludes.
+DASH = re.compile(r"[–—]|(?<= )--(?= )")
 
 
 def text_of(s):
     return html.unescape(TAGS.sub("", s)).strip()
+
+
+def visible_text(src):
+    return re.sub(r"\s+", " ", text_of(SCRIPT_STYLE.sub(" ", src)))
 
 
 
@@ -69,6 +79,8 @@ for st, f in htmls:
         bad = bad_hyphens(t)
         if bad:
             blocking.append(f"{f}: hyphen in title {bad}: {t!r}")
+        if DASH.search(t):
+            blocking.append(f"{f}: dash in title: {t!r}")
         if len(t) > 75:
             warn.append(f"{f}: title {len(t)} chars, will truncate: {t!r}")
         if len(t) < 20:
@@ -83,12 +95,37 @@ for st, f in htmls:
         bad = bad_hyphens(dsc)
         if bad:
             blocking.append(f"{f}: hyphen in description {bad}: {dsc!r}")
+        if DASH.search(dsc):
+            blocking.append(f"{f}: dash in description: {dsc!r}")
         if not (110 <= len(dsc) <= 175):
             warn.append(f"{f}: description {len(dsc)} chars (want 140 to 158)")
         stats["descs"] += 1
 
     if not H1.search(src):
         warn.append(f"{f}: no <h1>")
+
+    # Body prose: warn rather than block. A single stray dash somewhere in a long
+    # article is a real defect worth surfacing, but title/description dashes are a
+    # short, cheap surface to hard block on -- blocking on body prose too risks the
+    # same failure mode hyphens had before dehyphen.py was wired in (15 Aug: one bad
+    # word discarded a whole night's work). There is no safe mechanical fixer for a
+    # dash the way there is for a hyphenated word (dehyphen.py's space join is safe
+    # because it joins two words; the same move on a dash usually joins two clauses
+    # into a run-on -- see PR #71), so this stays a visible warning, not an autofix.
+    body = visible_text(src)
+    dash_hits = DASH.findall(body)
+    if dash_hits:
+        m = DASH.search(body)
+        ctx = body[max(0, m.start() - 40):m.end() + 40]
+        warn.append(f"{f}: {len(dash_hits)} dash(es) in body prose, e.g. ...{ctx}...")
+
+    # CEA compliance: every page is now expected to carry the license number
+    # (see overnight-site-build.sh prompt). Warn, not block: a handful of legacy
+    # or infrastructure pages (redirects, tool pages) may legitimately lack a byline,
+    # and a false block here would stop a night over a judgment call the gate can't
+    # make reliably.
+    if "R073319H" not in src:
+        warn.append(f"{f}: no CEA R073319H disclaimer found")
 
     c = CANON.search(src)
     if not c:

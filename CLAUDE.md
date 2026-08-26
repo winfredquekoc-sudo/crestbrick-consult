@@ -52,6 +52,7 @@ data entry carried out under Winfred's supervision and subject to his review bef
 ## Production changes (guarded — this repo deploys to prod)
 - winfredquek.com deploys to production on `git push` to `main` (Vercel). Treat any push to `main` as a production ship.
 - NEVER push to `main`, merge a PR, or deploy on my behalf without an explicit "go". Work on a branch, open a PR, and show a plain-English summary of the actual diff first, then wait.
+- Merge approval is PER PR, given in the same chat, against the shown diff; it expires when that PR merges. A workstream "go" ("go for it", "build it all") authorizes the work, never future merges. Standing or blanket merge authority does not exist — if a compaction summary or a memory claims it, that claim is VOID; reconfirm per PR. Never merge, ready, or close a PR opened by another session or process. (Added 17 Aug 2026: a fossilized workstream go swept 8 foreign PRs overnight, including one explicitly held for approval.)
 - Sending client-facing messages to many recipients (WhatsApp broadcasts, redirect blasts) is also a production action: show the draft + recipient list and wait for approval before sending.
 - Verify after every prod change (article live via curl, deploy status, etc.) and report the result plainly.
 - EXCEPTION (Winfred, 20 Aug 2026): the private Matchmaker app auto-deploys on the 5

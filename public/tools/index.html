@@ -11,6 +11,7 @@
   <meta property="og:type" content="website" />
   <meta property="og:image" content="https://winfredquek.com/img/og/tools.jpg" />
   <meta property="og:url" content="https://winfredquek.com/tools" />
+  <meta property="og:locale" content="en_SG" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Singapore Property Calculators, Winfred Quek" />
   <meta name="twitter:description" content="4 free tools: ABSD, BSD, Affordability, Restructuring break even." />
@@ -21,8 +22,10 @@
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
-  <link rel="stylesheet" href="/fonts/fonts.css">
-  <link rel="stylesheet" href="/tools/_shared.css" />
+  <link rel="preload" href="/fonts/fonts.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/fonts/fonts.css"></noscript>
+  <link rel="preload" href="/tools/_shared.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="/tools/_shared.css"></noscript>
 
   <script type="application/ld+json">
   {
@@ -33,7 +36,7 @@
       { "@type": "SoftwareApplication", "position": 1, "name": "ABSD Calculator Singapore 2026", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "url": "https://winfredquek.com/tools/absd", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SGD" } },
       { "@type": "SoftwareApplication", "position": 2, "name": "BSD Calculator Singapore 2026", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "url": "https://winfredquek.com/tools/bsd", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SGD" } },
       { "@type": "SoftwareApplication", "position": 3, "name": "Property Affordability Calculator Singapore", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "url": "https://winfredquek.com/tools/affordability", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SGD" } },
-      { "@type": "SoftwareApplication", "position": 4, "name": "Restructuring Break Even Calculator Singapore", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "url": "https://winfredquek.com/tools/restructuring", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SGD" } }
+      { "@type": "SoftwareApplication", "position": 4, "name": "Decoupling / Restructuring Break Even Calculator Singapore", "applicationCategory": "FinanceApplication", "operatingSystem": "Any", "url": "https://winfredquek.com/tools/restructuring", "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SGD" } }
     ]
   }
   </script>
@@ -100,6 +103,9 @@
 
 <main>
 <section class="hero hero-sequence max-w-4xl mx-auto px-6 pt-16 pb-10">
+  <nav aria-label="Breadcrumb" class="mb-4">
+    <p class="section-label"><a href="/" class="hover:text-[var(--ink)]">Home</a> / <a href="/tools" class="hover:text-[var(--ink)]">Tools</a> / <span>Singapore Property Calculators 2026</span></p>
+  </nav>
   <p class="section-label mb-6">Tools</p>
   <h1 class="serif text-4xl md:text-6xl font-semibold leading-tight balance mb-6 hero-text-reveal">Singapore Property <span class="italic text-[var(--accent)]">Calculators 2026</span></h1>
   <p class="text-lg text-[var(--ink-soft)] max-w-2xl leading-relaxed">Singapore property calculators you can trust. No signup, no email capture, no BS. Built by a licensed realtor (CEA R073319H) so the math matches how bankers, conveyancers, and IRAS actually compute it.</p>
@@ -343,10 +349,10 @@
 
     <a href="/tools/restructuring" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">01</p>
-      <h2 class="serif text-2xl font-semibold mb-3" id="restructuring-break-even">Restructuring Break Even</h2>
-      <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Does restructuring save money? Compare BSD + legal cost of the transfer vs ABSD saved on the next purchase. Honest math.</p>
-      <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: married SC couples weighing restructuring vs ABSD</p>
-      <p class="text-sm text-[var(--accent)]">Open tool </p>
+      <h2 class="serif text-2xl font-semibold mb-3" id="restructuring-break-even">Decoupling Calculator (Restructuring Break Even)</h2>
+      <p class="text-[var(--ink-soft)] leading-relaxed mb-4">The main decoupling calculator. Compare BSD + legal cost of the transfer vs ABSD saved on the next purchase. Honest math.</p>
+      <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: married SC couples weighing decoupling / restructuring vs ABSD</p>
+      <p class="text-sm text-[var(--accent)]">Open the decoupling calculator </p>
     </a>
 
     <a href="/tools/decoupling-breakeven" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
@@ -359,10 +365,10 @@
 
     <a href="/tools/decoupling-calculator" class="card-lift p-8 bg-[#1c1e26] border border-[var(--rule)] rounded-xl hover:border-[var(--ink)] transition block">
       <p class="serif text-4xl font-semibold text-[var(--accent)] mb-2">03</p>
-      <h2 class="serif text-2xl font-semibold mb-3" id="decoupling-calculator">Decoupling Calculator</h2>
-      <p class="text-[var(--ink-soft)] leading-relaxed mb-4">Check whether ABSD decoupling clears the bar: savings vs inter-spouse transfer cost, instant verdict for your situation.</p>
-      <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: married SC couples deciding if decoupling beats paying ABSD outright</p>
-      <p class="text-sm text-[var(--accent)]">Open tool </p>
+      <h2 class="serif text-2xl font-semibold mb-3" id="decoupling-calculator">Quick Decoupling Estimate</h2>
+      <p class="text-[var(--ink-soft)] leading-relaxed mb-4">A faster, manual entry version: ABSD savings vs an estimated inter spouse transfer cost, instant verdict. For the full computed break even, use the decoupling calculator above.</p>
+      <p class="text-xs text-[var(--ink-muted)] mb-3">Best for: a quick gut check before running the full numbers</p>
+      <p class="text-sm text-[var(--accent)]">Open the quick estimate </p>
     </a>
 
   </div>
@@ -449,14 +455,14 @@
       <a href="/tools/decoupling-breakeven" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Restructuring Strategy Break even Calculator · Winfred Quek</a>
       <a href="/tools/decoupling-calculator" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">ABSD Decoupling Calculator Singapore 2026</a>
       <a href="/tools/foreign-buyer-absd" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">60% ABSD Calculator for Foreign Buyers · Winfred Quek</a>
-      <a href="/tools/hdb-eip-checker" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB EIP / SPR Quota Checker · Winfred Quek</a>
+      <a href="/tools/hdb-eip-checker" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Check Your HDB Ethnic Quota (EIP) Free</a>
       <a href="/tools/hdb-grant-eligibility" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB Enhancement Grant Eligibility · Winfred Quek</a>
       <a href="/tools/hdb-mop-countdown" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB MOP Countdown · Winfred Quek</a>
       <a href="/tools/leasehold-tail-discount" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">99 Year Leasehold Tail Discount · Winfred Quek</a>
       <a href="/tools/loan-repayment" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Loan Repayment Calculator Singapore 2026</a>
       <a href="/tools/mortgage-qa-bot" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Mortgage Q&amp;A · Winfred Quek</a>
-      <a href="/tools/mortgage-rates" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Mortgage Rates Singapore 2026, Live Packages</a>
-      <a href="/tools/net-proceeds" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Net Proceeds Calculator Singapore, What You Will Walk Away With</a>
+      <a href="/tools/mortgage-rates" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Singapore Mortgage Rates 2026, Compare Banks</a>
+      <a href="/tools/net-proceeds" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Net Proceeds Calculator Singapore</a>
       <a href="/tools/otp-review-checklist" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">OTP Review Checklist · Winfred Quek</a>
       <a href="/tools/progression-score" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Property Progression Score, Free</a>
       <a href="/tools/property-vs-equities" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Property vs Equities · Winfred Quek</a>
@@ -464,13 +470,13 @@
       <a href="/tools/rental-yield-heatmap" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">SG Rental Yield Heatmap · Winfred Quek</a>
       <a href="/tools/rental-yield" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Rental Yield &amp; Breakeven Calculator Singapore</a>
       <a href="/tools/resale-levy-calculator" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB Resale Levy Calculator · Winfred Quek</a>
-      <a href="/tools/restructuring" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Restructuring Break Even Calculator SG</a>
+      <a href="/tools/restructuring" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Decoupling / Restructuring Break Even Calculator SG</a>
       <a href="/tools/sale-purchase-roadmap" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Sale &amp; Purchase Roadmap Singapore 2026</a>
       <a href="/tools/seller-motivation-scorer" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Seller Motivation Scorer · Winfred Quek</a>
       <a href="/tools/should-i-sell" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Should I Sell Now? · Winfred Quek</a>
       <a href="/tools/tdsr-scenarios" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">TDSR / MSR Scenario Compare · Winfred Quek</a>
       <a href="/tools/upgrade-roi" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB to Condo Upgrade ROI · Winfred Quek</a>
-      <a href="/tools/valuation" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB Valuation Tool Singapore, Free Instant Estimate</a>
+      <a href="/tools/valuation" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">HDB Valuation Tool Singapore, Free Estimate</a>
       <a href="/tools/walk-away-calculator" class="text-[var(--ink-soft)] hover:text-[var(--accent)]" style="text-decoration:none;">Walk Away Threshold Calculator · Winfred Quek</a>
     </div>
   </section>
@@ -488,7 +494,7 @@
  The information and insights provided on this page are for informational purposes only and are based on Winfred's independent research and views. While we strive to ensure accuracy and reliability, we do not guarantee the completeness, correctness, or timeliness of the data presented. Real estate investments are subject to various risks, including but not limited to market fluctuations, changes in economic conditions, interest rate volatility, regulatory shifts, liquidity constraints, and unforeseen property specific risks. Past performance is not indicative of future results, and investment outcomes may vary. This page does not constitute investment, financial, or professional advice and should not be relied upon as such. Investors should conduct their own due diligence and seek advice from qualified professionals before making any investment decisions.
  </p>
   </div>
-<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
 </footer>
 
 <script>

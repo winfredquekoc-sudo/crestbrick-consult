@@ -123,13 +123,21 @@ def main():
         f"By Winfred Quek, CEA R073319H.",
         src,
     )
-    src = re.sub(r"<title>.*?</title>",
-                 f"<title>Singapore Property Glossary: {len(entries)} Terms Explained | Winfred Quek</title>",
-                 src, flags=re.S)
+    title_text = f"Singapore Property Glossary: {len(entries)} Terms Explained | Winfred Quek"
+    src = re.sub(r"<title>.*?</title>", f"<title>{title_text}</title>", src, flags=re.S)
     for prop in ("description", "og:description", "twitter:description"):
         src = re.sub(
             rf'(<meta (?:name|property)="{prop}" content=")[^"]*(")',
             rf"\g<1>A plain English dictionary of {len(entries)} Singapore property terms for first time home buyers and new investors, from ABSD to Zoning. Searchable and A to Z.\g<2>",
+            src,
+        )
+    # og:title/twitter:title previously drifted from <title> since only the
+    # description trio was kept in sync here -- keep all three title-bearing
+    # tags identical so social shares and the browser tab never disagree.
+    for prop in ("og:title", "twitter:title"):
+        src = re.sub(
+            rf'(<meta (?:name|property)="{prop}" content=")[^"]*(")',
+            rf"\g<1>{title_text}\g<2>",
             src,
         )
 

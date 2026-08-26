@@ -9,8 +9,9 @@
   },
   "scripts": {
     "eval:agents": "python3 evals/run.py",
-    "build": "node scripts/stamp-nav.mjs",
-    "stamp-nav": "node scripts/stamp-nav.mjs"
+    "build": "node scripts/stamp-nav.mjs && node scripts/gen-sitemap.mjs",
+    "stamp-nav": "node scripts/stamp-nav.mjs",
+    "gen-sitemap": "node scripts/gen-sitemap.mjs"
   },
   "dependencies": {
     "@vercel/og": "^0.11.1",

@@ -164,7 +164,7 @@ The ABSD calculator is also released as **`sg-absd-calculator`** ,  an MIT-licen
 - **Email:** winfredquekoc@gmail.com
 - **Calendly:** <https://calendly.com/winfredquekoc>
 - **LinkedIn:** <https://www.linkedin.com/in/winfredquek>
-- **Instagram:** [@winfredquek](https://www.instagram.com/winfredquek)
+- **Instagram:** [@imwinfred](https://www.instagram.com/imwinfred)
 
 ### First conversation
 
