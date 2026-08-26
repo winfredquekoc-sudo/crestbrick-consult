@@ -19,7 +19,6 @@
 - [x] **2. Is It Better to Rent or Buy in Singapore 2026?** — `rent-vs-buy-singapore-2026`
   Query: "rent vs buy singapore". Breakeven math — at what holding period buying beats renting, factoring stamp duty, the ~1.5% mortgage, CPF accrued interest, and opportunity cost. Ends with a clear decision rule, not a fence-sit.
 
-- [~] **3. How Much Money Do I Need to Buy a House in Singapore?** — `total-upfront-cash-to-buy-property-singapore`
   Query: "how much to buy a house singapore", "cash needed to buy property". The full upfront cash stack — downpayment cash portion, BSD, legal, valuation, mortgage stamp duty — with a worked example at $1M / $1.5M / $2M.
 
 - [x] **4. What Salary Do You Need to Buy a Condo in Singapore?** — `salary-needed-condo-singapore`
@@ -319,7 +318,6 @@
 - [x] **96. Cluster Housing & Strata Landed: The In-Between Asset Class** — `cluster-housing-strata-landed-singapore`
   Query: "what is cluster housing singapore", "strata landed". Landed living with condo facilities and MCST — eligibility, pros/cons, and how it's valued.
 
-- [~] **97. Walk-Up Apartments Singapore: The Overlooked Value Play** — `walk-up-apartment-investment-singapore`
   Query: "walk up apartment singapore investment". Older low-rise no-lift blocks — entry price, en-bloc angle, rental demand, and the real downsides.
 
 - [x] **98. Freehold vs 999-Year Leasehold: Is There Really a Difference?** — `freehold-vs-999-year-leasehold-singapore`
