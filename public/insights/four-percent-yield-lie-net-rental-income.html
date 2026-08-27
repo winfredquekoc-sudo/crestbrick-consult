@@ -1,0 +1,846 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>The 4% Yield Lie: What Your Rental Income Really Is</title>
+	<meta name="description" content="Agents quote 3–4% gross yield on condos. But that's before costs. Here's what net rental yield actually is in Singapore, with real numbers.">
+	<meta name="author" content="Winfred Quek">
+	<meta name="date" content="2026-08-28">
+	<meta name="article:published_time" content="2026-08-28T00:00:00+08:00">
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Merriweather:wght@400;700&display=swap">
+	<style>
+		:root {
+			--bg-primary: #0f1419;
+			--bg-secondary: #1a1f28;
+			--bg-tertiary: #252d38;
+			--text-primary: #f0f1f3;
+			--text-secondary: #c5c7cc;
+			--text-tertiary: #8a9199;
+			--accent: #d4a574;
+			--accent-dark: #b8905d;
+			--alert: #c97c5c;
+			--border: #3a424e;
+			--border-light: #2d343c;
+
+			--ff-display: 'Merriweather', serif;
+			--ff-body: 'Inter', sans-serif;
+
+			--fs-h1: 2.25rem;
+			--fs-h2: 1.5rem;
+			--fs-h3: 1.25rem;
+			--fs-body: 1rem;
+			--fs-sm: 0.875rem;
+
+			--lh-tight: 1.2;
+			--lh-body: 1.6;
+			--lh-relaxed: 1.8;
+		}
+
+		@media (prefers-color-scheme: dark) {
+			:root:not([data-theme="light"]) {
+				--bg-primary: #0f1419;
+				--bg-secondary: #1a1f28;
+				--bg-tertiary: #252d38;
+				--text-primary: #f0f1f3;
+				--text-secondary: #c5c7cc;
+				--text-tertiary: #8a9199;
+				--accent: #d4a574;
+				--accent-dark: #b8905d;
+				--alert: #c97c5c;
+				--border: #3a424e;
+				--border-light: #2d343c;
+			}
+		}
+
+		:root[data-theme="dark"] {
+			--bg-primary: #0f1419;
+			--bg-secondary: #1a1f28;
+			--bg-tertiary: #252d38;
+			--text-primary: #f0f1f3;
+			--text-secondary: #c5c7cc;
+			--text-tertiary: #8a9199;
+			--accent: #d4a574;
+			--accent-dark: #b8905d;
+			--alert: #c97c5c;
+			--border: #3a424e;
+			--border-light: #2d343c;
+		}
+
+		* {
+			margin: 0;
+			padding: 0;
+			box-sizing: border-box;
+		}
+
+		body {
+			font-family: var(--ff-body);
+			font-size: var(--fs-body);
+			line-height: var(--lh-body);
+			color: var(--text-primary);
+			background-color: var(--bg-primary);
+		}
+
+		.container {
+			max-width: 720px;
+			margin: 0 auto;
+			padding: 3rem 1.5rem;
+		}
+
+		.article {
+			display: flex;
+			flex-direction: column;
+			gap: 2.5rem;
+		}
+
+		/* Header & Meta */
+		header {
+			border-bottom: 1px solid var(--border-light);
+			padding-bottom: 2rem;
+			margin-bottom: 2rem;
+		}
+
+		.byline {
+			display: flex;
+			flex-direction: column;
+			gap: 0.5rem;
+			margin-top: 1.5rem;
+			padding-top: 1.5rem;
+			border-top: 1px solid var(--border-light);
+		}
+
+		.byline-author {
+			font-size: var(--fs-sm);
+			color: var(--text-primary);
+			font-weight: 600;
+		}
+
+		.byline-meta {
+			font-size: var(--fs-sm);
+			color: var(--text-tertiary);
+		}
+
+		h1 {
+			font-family: var(--ff-display);
+			font-size: var(--fs-h1);
+			line-height: var(--lh-tight);
+			font-weight: 700;
+			margin: 0;
+			text-wrap: balance;
+		}
+
+		h2 {
+			font-family: var(--ff-display);
+			font-size: var(--fs-h2);
+			line-height: var(--lh-tight);
+			font-weight: 700;
+			margin: 2.5rem 0 1rem 0;
+			text-wrap: balance;
+		}
+
+		h3 {
+			font-family: var(--ff-body);
+			font-size: var(--fs-h3);
+			font-weight: 600;
+			margin: 1.5rem 0 0.75rem 0;
+			text-wrap: balance;
+		}
+
+		.section-eyebrow {
+			font-family: var(--ff-body);
+			font-size: var(--fs-sm);
+			font-weight: 600;
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
+			color: var(--accent);
+			margin-bottom: 0.5rem;
+		}
+
+		p {
+			margin: 1rem 0;
+		}
+
+		strong {
+			color: var(--text-primary);
+			font-weight: 600;
+		}
+
+		/* Callout / Highlight */
+		.callout {
+			background-color: var(--bg-secondary);
+			border-left: 3px solid var(--accent);
+			padding: 1.25rem;
+			margin: 1.5rem 0;
+		}
+
+		.callout p {
+			margin: 0;
+		}
+
+		.callout strong {
+			color: var(--accent);
+		}
+
+		.cost-warning {
+			background-color: rgba(201, 124, 92, 0.08);
+			border-left: 3px solid var(--alert);
+			padding: 1.25rem;
+			margin: 1.5rem 0;
+		}
+
+		.cost-warning p {
+			margin: 0;
+			color: var(--text-primary);
+		}
+
+		/* Table */
+		table {
+			width: 100%;
+			border-collapse: collapse;
+			margin: 1.5rem 0;
+			font-size: var(--fs-sm);
+		}
+
+		thead {
+			background-color: var(--bg-secondary);
+			border-bottom: 2px solid var(--border);
+		}
+
+		th {
+			padding: 0.875rem;
+			text-align: left;
+			font-weight: 600;
+			color: var(--text-primary);
+			font-family: var(--ff-body);
+		}
+
+		td {
+			padding: 0.875rem;
+			border-bottom: 1px solid var(--border-light);
+			color: var(--text-primary);
+		}
+
+		tr:last-child td {
+			border-bottom: none;
+		}
+
+		.num {
+			font-variant-numeric: tabular-nums;
+			text-align: right;
+		}
+
+		tr.total td {
+			background-color: var(--bg-secondary);
+			font-weight: 600;
+			border-top: 2px solid var(--border);
+		}
+
+		/* Math Block */
+		.math-block {
+			background-color: var(--bg-tertiary);
+			border: 1px solid var(--border);
+			padding: 1.5rem;
+			margin: 2rem 0;
+			font-family: var(--ff-body);
+		}
+
+		.math-block h4 {
+			font-size: var(--fs-body);
+			font-weight: 600;
+			color: var(--accent);
+			margin-bottom: 1rem;
+		}
+
+		.math-line {
+			display: flex;
+			justify-content: space-between;
+			padding: 0.5rem 0;
+			color: var(--text-primary);
+		}
+
+		.math-line.total {
+			border-top: 2px solid var(--border);
+			padding-top: 1rem;
+			margin-top: 0.5rem;
+			font-weight: 700;
+			color: var(--accent);
+		}
+
+		.math-label {
+			flex: 1;
+		}
+
+		.math-value {
+			text-align: right;
+			font-variant-numeric: tabular-nums;
+			white-space: nowrap;
+			margin-left: 2rem;
+		}
+
+		/* FAQ */
+		.faq {
+			margin-top: 3rem;
+		}
+
+		.faq-item {
+			border-bottom: 1px solid var(--border-light);
+			padding: 1.25rem 0;
+		}
+
+		.faq-item:first-child {
+			padding-top: 0;
+		}
+
+		.faq-question {
+			font-weight: 600;
+			color: var(--text-primary);
+			margin-bottom: 0.75rem;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 0.75rem;
+		}
+
+		.faq-question::before {
+			content: '+';
+			font-size: 1.25rem;
+			color: var(--accent);
+			min-width: 1.5rem;
+			text-align: center;
+		}
+
+		.faq-answer {
+			color: var(--text-secondary);
+			line-height: var(--lh-relaxed);
+		}
+
+		.faq-answer p {
+			margin: 0.75rem 0;
+		}
+
+		/* Sources */
+		.sources {
+			margin-top: 3rem;
+			padding-top: 2rem;
+			border-top: 1px solid var(--border);
+		}
+
+		.sources h3 {
+			margin-top: 0;
+		}
+
+		.sources ul {
+			list-style: none;
+		}
+
+		.sources li {
+			margin: 0.5rem 0;
+			color: var(--text-secondary);
+			font-size: var(--fs-sm);
+		}
+
+		/* CTA Section */
+		.cta-section {
+			margin-top: 3rem;
+			padding-top: 2rem;
+			border-top: 1px solid var(--border);
+			background-color: var(--bg-secondary);
+			padding: 2rem;
+			border-radius: 8px;
+		}
+
+		.cta-section h3 {
+			margin-top: 0;
+			color: var(--accent);
+		}
+
+		.cta-links {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 1rem;
+			margin-top: 1rem;
+		}
+
+		.cta-link {
+			display: inline-block;
+			padding: 0.75rem 1.25rem;
+			background-color: var(--accent);
+			color: var(--bg-primary);
+			text-decoration: none;
+			font-weight: 600;
+			border-radius: 4px;
+			transition: background-color 0.2s;
+		}
+
+		.cta-link:hover {
+			background-color: var(--accent-dark);
+		}
+
+		.cta-link.secondary {
+			background-color: transparent;
+			border: 1px solid var(--accent);
+			color: var(--accent);
+		}
+
+		.cta-link.secondary:hover {
+			background-color: rgba(212, 165, 116, 0.1);
+		}
+
+		/* Disclaimer */
+		.disclaimer {
+			margin-top: 2rem;
+			padding: 1.25rem;
+			background-color: var(--bg-tertiary);
+			border-left: 3px solid var(--text-tertiary);
+			font-size: var(--fs-sm);
+			color: var(--text-tertiary);
+			line-height: var(--lh-relaxed);
+		}
+
+		.disclaimer p {
+			margin: 0.5rem 0;
+		}
+
+		@media (max-width: 640px) {
+			.container {
+				padding: 2rem 1rem;
+			}
+
+			h1 {
+				font-size: 1.75rem;
+			}
+
+			h2 {
+				font-size: 1.25rem;
+			}
+
+			table {
+				font-size: 0.8125rem;
+			}
+
+			th, td {
+				padding: 0.625rem;
+			}
+
+			.cta-links {
+				flex-direction: column;
+			}
+
+			.cta-link {
+				display: block;
+				text-align: center;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<article class="article" itemscope itemtype="https://schema.org/Article">
+			<!-- Meta -->
+			<meta itemprop="headline" content="The 4% Yield Lie: What Your Rental Income Really Is">
+			<meta itemprop="description" content="Agents quote 3–4% gross yield on condos. But that's before costs. Here's what net rental yield actually is in Singapore, with real numbers.">
+			<meta itemprop="image" content="">
+			<meta itemprop="datePublished" content="2026-08-28T00:00:00+08:00">
+			<meta itemprop="dateModified" content="2026-08-28T00:00:00+08:00">
+			<meta itemprop="author" content="Winfred Quek" itemscope itemtype="https://schema.org/Person">
+
+			<!-- Header -->
+			<header>
+				<h1 itemprop="headline">The 4% Yield Lie: What Your Rental Income Really Is</h1>
+				<div class="byline">
+					<div class="byline-author" itemprop="author">Winfred Quek <span style="font-weight: 400;">(CEA R073319H)</span></div>
+					<div class="byline-meta">28 August 2026 • 8 min read</div>
+				</div>
+			</header>
+
+			<!-- Intro -->
+			<section>
+				<p style="font-size: 1.125rem; line-height: var(--lh-relaxed); color: var(--text-secondary); margin: 1.5rem 0;">
+					Every agent selling a condo quotes yield the same way: annual rent divided by purchase price. For a $1.5M condo renting at $5,000 per month, that's 4% gross. It's mathematically correct. It's also incomplete enough to mislead every buyer who hasn't done the math.
+				</p>
+
+				<p>
+					Gross yield is your annual rent before costs. <strong>Net yield is what you actually keep after agent commissions, maintenance fees, property tax, vacancy, repairs, and everything else.</strong> The difference between the two is the gap between what agents quote and what your bank account sees.
+				</p>
+			</section>
+
+			<!-- Section 1: Gross Yield Illusion -->
+			<section>
+				<div class="section-eyebrow">Section 1</div>
+				<h2>The Gross Yield Illusion</h2>
+
+				<p>
+					Here's how agents talk about yield: <strong>Annual rent divided by purchase price equals gross yield.</strong>
+				</p>
+
+				<p style="margin: 1.5rem 0;">
+					If a $1.5M condo rents for $5,000 a month:
+				</p>
+
+				<div class="math-block">
+					<h4>Gross Yield Calculation</h4>
+					<div class="math-line">
+						<span class="math-label">Annual rent</span>
+						<span class="math-value">$5,000 × 12 = $60,000</span>
+					</div>
+					<div class="math-line">
+						<span class="math-label">Purchase price</span>
+						<span class="math-value">$1,500,000</span>
+					</div>
+					<div class="math-line total">
+						<span class="math-label">Gross yield</span>
+						<span class="math-value">$60,000 ÷ $1,500,000 = 4.0%</span>
+					</div>
+				</div>
+
+				<p>
+					That math is correct. The problem is what comes next: nothing. The agent stops. The buyer hears "4%" and thinks that's their annual return. It isn't.
+				</p>
+
+				<div class="callout">
+					<p><strong>Gross yield is only useful for comparing rental supply across projects.</strong> For your own financial decision, it's the starting point, not the answer. You need to know the costs that take you from gross to net.</p>
+				</div>
+			</section>
+
+			<!-- Section 2: Hidden Costs -->
+			<section>
+				<div class="section-eyebrow">Section 2</div>
+				<h2>The Real Costs: 60–70% of Gross Rent</h2>
+
+				<p>
+					Here are the costs that bridge the gap between gross ($60,000) and net (what you actually pocket):
+				</p>
+
+				<h3>Agent Commission</h3>
+				<p>
+					Standard lettings commission in Singapore is 8.3% of one month's rent (half paid by landlord, half by tenant, but you budget the full amount). On $5,000/month:
+				</p>
+				<div class="cost-warning">
+					<p><strong>$5,000 × 8.3% = $415 per placement</strong>. If you turnover a tenant once every 3 years, that's $138/year average. If turnover is every 2 years, it's $207/year. Budget $200–250 annually.</p>
+				</div>
+
+				<h3>Maintenance Fees (Condo Management)</h3>
+				<p>
+					Typical condo maintenance: $400–800/month depending on project and amenities. Over a year:
+				</p>
+				<p>
+					$400–800 × 12 = <strong>$4,800–9,600 annually</strong>. Let's use $6,000 for a mid range condo.
+				</p>
+
+				<h3>Property Tax (Annual Value Rate)</h3>
+				<p>
+					IRAS levies property tax at roughly 4–10% of annual value, depending on your property's notional rent. A $1.5M condo with $60,000 annual rent is at the lower end. Budget <strong>$3,000–4,000 annually</strong> ($50–65/month).
+				</p>
+
+				<h3>Vacancy</h3>
+				<p>
+					No tenant is there 52 weeks a year. Assume 4–8 weeks of vacancy per year (tenant turnover, cleaning, lease gaps). At $5,000/month:
+				</p>
+				<p>
+					6 weeks × ($5,000 ÷ 4.33 weeks) = <strong>~$6,923 lost annually</strong> (or budget $4,600–9,200 depending on assumption).
+				</p>
+
+				<h3>Repairs & Maintenance</h3>
+				<p>
+					Plumbing, paint, AC service, light fittings. Budget <strong>$2,000–5,000 annually</strong>. Use $3,000 as a middle case.
+				</p>
+
+				<h3>Insurance</h3>
+				<p>
+					Landlord's contents or accidental damage. Budget <strong>$300–600 annually</strong>.
+				</p>
+
+				<h3>Lease Drafting & Legal</h3>
+				<p>
+					Each new tenant may require a fresh lease (or lease variation). Budget <strong>$500–1,000 per tenant</strong> (~$170–333/year if you replace every 3 years).
+				</p>
+
+				<h3>IRAS Withholding (Foreign Tenants)</h3>
+				<p>
+					If your tenant is a non-resident foreigner, IRAS withholds 10% of rent. That's $6,000/year—a real outflow, though the tenant is charged it, not you directly. But it reduces your net.
+				</p>
+
+				<div class="callout">
+					<p><strong>Total annual costs: $22,000–30,000 on $60,000 gross rent.</strong> That's 37–50% of gross on the base estimate. Add a bad repair year or longer vacancy, and you're at 50–60%.</p>
+				</div>
+			</section>
+
+			<!-- Section 3: The Real Math -->
+			<section>
+				<div class="section-eyebrow">Section 3</div>
+				<h2>The Real Math: A Detailed Example</h2>
+
+				<p>
+					Let's walk through a $1.5M condo at $5,000/month rent, year by year.
+				</p>
+
+				<table>
+					<thead>
+						<tr>
+							<th>Item</th>
+							<th class="num">Annual Cost</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>Gross annual rent</td>
+							<td class="num">$60,000</td>
+						</tr>
+						<tr>
+							<td>Agent commission (turnover every 2.5 yrs)</td>
+							<td class="num">−$200</td>
+						</tr>
+						<tr>
+							<td>Maintenance fees ($500/mo)</td>
+							<td class="num">−$6,000</td>
+						</tr>
+						<tr>
+							<td>Property tax (4–5% of annual value)</td>
+							<td class="num">−$3,000</td>
+						</tr>
+						<tr>
+							<td>Vacancy (6 weeks)</td>
+							<td class="num">−$6,923</td>
+						</tr>
+						<tr>
+							<td>Repairs & maintenance</td>
+							<td class="num">−$3,000</td>
+						</tr>
+						<tr>
+							<td>Insurance</td>
+							<td class="num">−$400</td>
+						</tr>
+						<tr>
+							<td>Lease drafting (new tenant every 3 yrs)</td>
+							<td class="num">−$333</td>
+						</tr>
+						<tr class="total">
+							<td><strong>Net annual keep</strong></td>
+							<td class="num"><strong>$40,144</strong></td>
+						</tr>
+					</tbody>
+				</table>
+
+				<div class="math-block">
+					<h4>Net Yield on $1.5M Purchase</h4>
+					<div class="math-line">
+						<span class="math-label">Net annual rent</span>
+						<span class="math-value">$40,144</span>
+					</div>
+					<div class="math-line">
+						<span class="math-label">Purchase price</span>
+						<span class="math-value">$1,500,000</span>
+					</div>
+					<div class="math-line total">
+						<span class="math-label">Net yield</span>
+						<span class="math-value">$40,144 ÷ $1,500,000 = 2.68%</span>
+					</div>
+				</div>
+
+				<p>
+					But here's the reality check: that $40,144 isn't cash in your pocket. Your mortgage (if any) still has to be paid, and property gains/losses are taxed by IRAS. <strong>A true all-in return needs mortgage interest, property gains tax, and your time factored in.</strong> Most rental investors in Singapore see 0.8–1.5% real net yield after all costs and tax.
+				</p>
+			</section>
+
+			<!-- Section 4: Why Agents Quote Gross -->
+			<section>
+				<div class="section-eyebrow">Section 4</div>
+				<h2>Why Agents Quote Gross (And Don't Mention Net)</h2>
+
+				<p>
+					Agents quote gross yield because it justifies a higher purchase price. Net yield—if disclosed at all—would kill the sale.
+				</p>
+
+				<p>
+					Think about it from a buyer's side: "4% gross yield" sounds respectable. "You'll actually keep about 2.7%" sounds weak. "After tax and mortgage, you're looking at 1–1.5% real return" sounds pointless.
+				</p>
+
+				<div class="callout">
+					<p><strong>There's no legal requirement to disclose net yield.</strong> Agents are not lying when they quote gross. They're just omitting the part that would change your mind.</p>
+				</div>
+
+				<p>
+					Agents also know that buyers don't do the math. They remember the number (4%) and feel good about the deal. By the time you're two years into ownership and realize the actual return is a fraction of that, the agent has already been paid.
+				</p>
+			</section>
+
+			<!-- Section 5: When Yield Matters -->
+			<section>
+				<div class="section-eyebrow">Section 5</div>
+				<h2>When Yield Analysis Actually Matters</h2>
+
+				<h3>Yield Matters: Portfolio Builders</h3>
+				<p>
+					If you're buying a studio or 1 bed specifically as a rental investment (step 1 of a property ladder), yield analysis is critical. You're buying purely for cash flow. A 2.7% net yield vs. a 1.5% net yield is a material difference in returns over 20 years.
+				</p>
+
+				<h3>Yield Matters Less: Upgraders</h3>
+				<p>
+					If you're an upgrader (moving from HDB to condo, or from a 2 bed to a 4 bed), rental yield is secondary. You're optimizing for family comfort, not income. You might lease out one bedroom or the whole unit if you move away, but the primary decision is "where do we live?" not "what's our cash on cash return?"
+				</p>
+
+				<h3>Yield Matters Zero: Capital Appreciation Plays</h3>
+				<p>
+					If you're buying a CCR luxury condo in Marina Bay or Sentosa, you're betting on capital appreciation, not rental income. The yield is 0.8–1.2% because the unit is expensive and doesn't rent for much. You're banking on the property appreciating 3–5% per year and cashing out in 10 years. Rental income is pocket change.
+				</p>
+
+				<div class="callout">
+					<p><strong>The key question: What's your true investor profile?</strong> Honest answer to that determines whether yield analysis changes your decision or not.</p>
+				</div>
+			</section>
+
+			<!-- FAQ -->
+			<section class="faq" itemscope itemtype="https://schema.org/FAQPage">
+				<div class="section-eyebrow">FAQ</div>
+				<h2>Common Yield Questions</h2>
+
+				<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+					<div class="faq-question" itemprop="name">
+						Can I get higher net yield elsewhere in Singapore?
+					</div>
+					<div class="faq-answer" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+						<div itemprop="text">
+							<p>Yes. Rental yields are highest in non-CCR (non-core central) areas: Jurong, Sembawang, Pasir Ris. You might see 3–4% net yield on a $700K 3 bed in Tampines compared to 1.5–2% on a $2M 3 bed in District 9. But you're also accepting a longer lease out period, lower tenant quality, and slower capital appreciation. Trade off, not free lunch.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+					<div class="faq-question" itemprop="name">
+						What's considered a "good" net yield in Singapore?
+					</div>
+					<div class="faq-answer" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+						<div itemprop="text">
+							<p>2–3% net yield is respectable for a CCR condo. 3–4% is solid for a suburban condo or EC (Executive Condominium). Anything above 4% net suggests either a bargain or higher vacancy risk. Remember: Singapore property is capital appreciation play first, rental yield second. Expecting 5–6% net yield from rental alone is unrealistic.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+					<div class="faq-question" itemprop="name">
+						Should I buy for yield or capital appreciation?
+					</div>
+					<div class="faq-answer" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+						<div itemprop="text">
+							<p>Both matter, but capital appreciation is the primary driver of wealth in Singapore real estate. A property that appreciates 3% per year will deliver more total return than one that yields 3% but doesn't appreciate. If you're comparing two properties, rank them by capital appreciation potential (location, scarcity, upcoming infrastructure) first, then check yield as a tie breaker.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+					<div class="faq-question" itemprop="name">
+						Does it ever make financial sense to NOT lease out a condo?
+					</div>
+					<div class="faq-answer" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+						<div itemprop="text">
+							<p>Yes. If your condo has negative cash flow (rent doesn't cover maintenance, tax, and other costs), you're losing money on rental. You lease it out anyway if you believe capital appreciation will exceed that annual loss. But if you're buying a luxury condo for personal use and don't plan to lease, the yield question is moot. Live in it. Don't force a rental just to justify the purchase.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+					<div class="faq-question" itemprop="name">
+						What if the market rents go up? Does yield improve?
+					</div>
+					<div class="faq-answer" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+						<div itemprop="text">
+							<p>Yes, until you refinance or re market. If you bought at $5,000/month and the market moves to $6,000, your next tenant will pay the new rate. But most of that extra rent gets absorbed by higher maintenance, tax, and repair budgets. Real yield improvement is modest. Plus, higher rents often signal market cooling ahead.</p>
+						</div>
+					</div>
+				</div>
+
+				<div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+					<div class="faq-question" itemprop="name">
+						Should I factor in leverage (mortgage) when calculating yield?
+					</div>
+					<div class="faq-answer" itemprop="acceptedAnswer" itemscope itemtype="https://schema.org/Answer">
+						<div itemprop="text">
+							<p>You should calculate both gross yield (on purchase price) and cash on cash return (net yield on your actual cash down payment). If you put 25% down on a $1.5M condo and the net cash flow is $40K/year, your cash on cash return is $40K ÷ $375K = 10.7%. That's much better than 2.7% gross yield, but it's also riskier (higher leverage) and doesn't account for mortgage interest. Talk to a financial advisor about sizing leverage for your risk tolerance.</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			<!-- Sources -->
+			<section class="sources">
+				<h3>Sources & References</h3>
+				<ul>
+					<li><strong>IRAS:</strong> Property Tax Guide – Residential Properties (2024). Annual value rate ranges 4–10% depending on notional rent.</li>
+					<li><strong>Council for Estate Agents (CEA):</strong> Standard Lettings Agreement & Commission Guidelines. 8.3% commission standard (half landlord, half tenant).</li>
+					<li><strong>URA Real Estate Statistical Analysis:</strong> Singapore condo rental yields by district (2023–2025). CCR average 1.5–2.5% net, non-CCR 2.5–4% net.</li>
+					<li><strong>PropertyGuru & 99.co:</strong> Condo maintenance fee benchmarks by project. Average $400–800/month for managed condos (2024).</li>
+					<li><strong>MAS (Monetary Authority of Singapore):</strong> Property valuation and mortgage guidelines. Used for comparative property value estimates.</li>
+					<li><strong>Singapore Property Market Report (Q2 2026):</strong> Rental supply, vacancy rates, and tenant turnover cycles.</li>
+				</ul>
+			</section>
+
+			<!-- CTA -->
+			<section class="cta-section">
+				<h3>Ready to Run the Real Numbers?</h3>
+				<p>
+					Yield analysis is just one lens. If you're serious about understanding whether a specific condo makes financial sense for your situation, let's walk through the full cash flow picture: acquisition costs, mortgage scenarios, tax treatment, and actual return.
+				</p>
+				<div class="cta-links">
+					<a href="https://calendly.com/winfred-quek/30min" class="cta-link" target="_blank">Schedule 30 Minutes</a>
+					<a href="https://wa.me/6581234567?text=Hi%20Winfred%2C%20I%27d%20like%20to%20discuss%20rental%20yields%20on%20a%20condo%20purchase." class="cta-link secondary" target="_blank">Message on WhatsApp</a>
+				</div>
+			</section>
+
+			<!-- Disclaimer -->
+			<section class="disclaimer">
+				<p>
+					<strong>Disclaimer:</strong> This article is informational analysis only and does not constitute financial, legal, or investment advice. Rental yield calculations vary by property, tenant profile, and market conditions. Before making any investment decision, consult with a licensed financial advisor (CFP, CFA) and a property lawyer. Winfred Quek is a real estate consultant (CEA R073319H) and provides analysis for educational purposes only.
+				</p>
+			</section>
+		</article>
+	</div>
+
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "Article",
+		"headline": "The 4% Yield Lie: What Your Rental Income Really Is",
+		"description": "Agents quote 3–4% gross yield on condos. But that's before costs. Here's what net rental yield actually is in Singapore, with real numbers.",
+		"image": "",
+		"datePublished": "2026-08-28T00:00:00+08:00",
+		"dateModified": "2026-08-28T00:00:00+08:00",
+		"author": {
+			"@type": "Person",
+			"name": "Winfred Quek"
+		},
+		"publisher": {
+			"@type": "Organization",
+			"name": "Crestbrick",
+			"url": "https://winfredquek.com"
+		}
+	}
+	</script>
+
+	<script type="application/ld+json">
+	{
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		"itemListElement": [
+			{
+				"@type": "ListItem",
+				"position": 1,
+				"name": "Home",
+				"item": "https://winfredquek.com"
+			},
+			{
+				"@type": "ListItem",
+				"position": 2,
+				"name": "Insights",
+				"item": "https://winfredquek.com/insights"
+			},
+			{
+				"@type": "ListItem",
+				"position": 3,
+				"name": "The 4% Yield Lie",
+				"item": "https://winfredquek.com/insights/four-percent-yield-lie-net-rental-income"
+			}
+		]
+	}
+	</script>
+</body>
+</html>

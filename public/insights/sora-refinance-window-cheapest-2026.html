@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Cheapest Refinance Window in 5 Years: SORA at 1.2%</title>
+  <meta name="description" content="SORA at 1.2% offers a 30–40% monthly cashflow relief window. Analysis of who wins from refinancing, real-world examples, and when it doesn't make sense.">
+  <meta name="author" content="Winfred Quek">
+  <meta name="date" content="2026-08-28">
+  <meta name="article-id" content="720">
+  <style>
+    :root {
+      --bg-dark: #0a0e27;
+      --bg-card: #141829;
+      --text-primary: #e8eaf6;
+      --text-secondary: #a0aec0;
+      --accent-gold: #d4af37;
+      --accent-light: #bb86fc;
+      --border-color: #2d3748;
+      --cta-bg: #d4af37;
+      --cta-text: #0a0e27;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+      line-height: 1.7;
+      font-size: 16px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+    }
+
+    header {
+      margin-bottom: 3rem;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 2rem;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      line-height: 1.3;
+      margin-bottom: 1rem;
+      color: var(--accent-gold);
+    }
+
+    .meta {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+      margin-top: 1rem;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .meta-label {
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      letter-spacing: 0.05em;
+      opacity: 0.7;
+    }
+
+    h2 {
+      font-size: 1.6rem;
+      margin-top: 2.5rem;
+      margin-bottom: 1.2rem;
+      color: var(--accent-light);
+    }
+
+    h3 {
+      font-size: 1.2rem;
+      margin-top: 1.8rem;
+      margin-bottom: 0.8rem;
+      color: var(--text-primary);
+    }
+
+    p {
+      margin-bottom: 1.2rem;
+      color: var(--text-primary);
+    }
+
+    .highlight-box {
+      background-color: var(--bg-card);
+      border-left: 4px solid var(--accent-gold);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+    }
+
+    .comparison-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.5rem 0;
+      background-color: var(--bg-card);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .comparison-table th {
+      background-color: #1a202c;
+      color: var(--accent-gold);
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .comparison-table td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .comparison-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .calculation-box {
+      background-color: var(--bg-card);
+      padding: 1.5rem;
+      margin: 1.5rem 0;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    .calculation-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.8rem;
+      padding-bottom: 0.8rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .calculation-row:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .calculation-label {
+      color: var(--text-secondary);
+    }
+
+    .calculation-value {
+      color: var(--accent-gold);
+      font-weight: 600;
+    }
+
+    ul, ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1.2rem;
+    }
+
+    li {
+      margin-bottom: 0.8rem;
+    }
+
+    .cta-section {
+      background-color: var(--bg-card);
+      border: 2px solid var(--accent-gold);
+      padding: 2rem;
+      margin: 3rem 0;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .cta-section h3 {
+      color: var(--accent-gold);
+      margin-top: 0;
+    }
+
+    .cta-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (min-width: 600px) {
+      .cta-buttons {
+        flex-direction: row;
+        justify-content: center;
+      }
+    }
+
+    .btn {
+      display: inline-block;
+      padding: 0.9rem 1.8rem;
+      border-radius: 4px;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: center;
+      border: none;
+      font-size: 1rem;
+    }
+
+    .btn-primary {
+      background-color: var(--cta-bg);
+      color: var(--cta-text);
+    }
+
+    .btn-primary:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      background-color: transparent;
+      border: 2px solid var(--cta-bg);
+      color: var(--cta-bg);
+    }
+
+    .btn-secondary:hover {
+      background-color: rgba(212, 175, 55, 0.1);
+    }
+
+    .faq-section {
+      margin-top: 3rem;
+    }
+
+    .faq-item {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      margin-bottom: 1rem;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 1.2rem;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      color: var(--accent-light);
+    }
+
+    .faq-question:hover {
+      background-color: #1a202c;
+    }
+
+    .faq-toggle {
+      font-size: 1.5rem;
+      transition: transform 0.3s ease;
+    }
+
+    .faq-toggle.open {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      padding: 0 1.2rem;
+    }
+
+    .faq-answer.open {
+      max-height: 500px;
+      padding: 0 1.2rem 1.2rem 1.2rem;
+    }
+
+    .disclaimer {
+      background-color: rgba(212, 175, 55, 0.1);
+      border: 1px solid var(--accent-gold);
+      padding: 1.5rem;
+      margin: 2rem 0;
+      border-radius: 4px;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+
+    .author-bio {
+      background-color: var(--bg-card);
+      padding: 1.5rem;
+      margin-top: 3rem;
+      border-radius: 4px;
+      border-left: 4px solid var(--accent-gold);
+    }
+
+    .sources {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .sources h3 {
+      color: var(--text-primary);
+    }
+
+    .sources ul {
+      margin-left: 1.5rem;
+    }
+
+    strong {
+      color: var(--accent-gold);
+    }
+
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 1.8rem;
+      }
+
+      .container {
+        padding: 1.5rem 1rem;
+      }
+
+      .meta {
+        flex-direction: column;
+        gap: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Your Cheapest Refinance Window in 5 Years: SORA at 1.2%",
+    "description": "SORA at 1.2% offers a 30–40% monthly cashflow relief window. Analysis of who wins from refinancing, real-world examples, and when it doesn't make sense.",
+    "image": "https://winfredquek.com/og-images/720-sora-refinance.png",
+    "author": {
+      "@type": "Person",
+      "name": "Winfred Quek",
+      "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-08-28",
+    "dateModified": "2026-08-28",
+    "publisher": {
+      "@type": "Organization",
+      "name": "Winfred Quek",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://winfredquek.com/logo.svg"
+      }
+    },
+    "keywords": "SORA refinance, Singapore mortgage, SIBOR to SORA, refinancing analysis, cashflow relief, 2026"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://winfredquek.com"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Insights",
+        "item": "https://winfredquek.com/insights"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Your Cheapest Refinance Window in 5 Years: SORA at 1.2%",
+        "item": "https://winfredquek.com/insights/sora-refinance-window-cheapest-2026"
+      }
+    ]
+  }
+  </script>
+
+  <div class="container">
+    <header>
+      <h1>Your Cheapest Refinance Window in 5 Years: SORA at 1.2%</h1>
+      <div class="meta">
+        <div class="meta-item">
+          <span class="meta-label">Published</span>
+          <span>28 August 2026</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Article ID</span>
+          <span>720</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Reading Time</span>
+          <span>8 minutes</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="intro">
+        <p><strong>SORA just hit 1.2% this month—the lowest level in 2.5 years.</strong> If you locked into a fixed rate at 3.0–3.5% or you're still on an expiring SIBOR package at 2.8–3.2%, refinancing right now could slash your monthly mortgage payment by 30–40% in real terms.</p>
+
+        <p>This is not a "should you refinance" article with hand waving. This is the maths, the timeline, and the exact scenario where it works—and where it doesn't.</p>
+      </section>
+
+      <section>
+        <h2>What Is SORA? Why It Matters Now</h2>
+
+        <p>SORA (Singapore Overnight Rate Average) is the interbank lending rate that replaced SIBOR in 2024. It reflects what banks pay each other to borrow overnight. The lower SORA drops, the cheaper it is for banks to fund mortgages—and that savings (usually) flows to borrowers.</p>
+
+        <p>Your actual mortgage rate = SORA + bank spread. Right now:</p>
+
+        <ul>
+          <li><strong>SORA:</strong> 1.2% (market benchmark)</li>
+          <li><strong>Bank spread:</strong> 0.8–1.2% (DBS, OCBC, UOB, Standard Chartered typical range)</li>
+          <li><strong>Your all-in rate:</strong> 2.0–2.4% on a new SORA mortgage</li>
+        </ul>
+
+        <p>Compare that to:</p>
+        <ul>
+          <li>Fixed rate mortgages locked in 2021–2022: <strong>3.0–3.5%</strong></li>
+          <li>Expiring SIBOR packages (still floating): <strong>2.8–3.2%</strong></li>
+        </ul>
+
+        <p>The gap is real. And it widens further if SORA stays low or drops again.</p>
+      </section>
+
+      <section>
+        <h2>Who Wins from Refinancing Right Now?</h2>
+
+        <h3>1. Fixed rate holders (locked at 3.0–3.5%)</h3>
+        <p>You locked in when rates spiked. Refinancing to SORA at 2.0–2.2% is a straightforward win—monthly cashflow drops immediately and stays there as long as SORA doesn't spike.</p>
+
+        <h3>2. SIBOR holdouts (2.8–3.2% packages expiring soon)</h3>
+        <p>Your rate is about to reset or has already reset to a higher level. Locking into a SORA package now fixes you at 2.0–2.4% for the life of the loan.</p>
+
+        <h3>3. Stress test gain</h3>
+        <p>MAS stress tests new mortgages at 4.0–4.5% (down from 5.0% in 2023). If you refinance and your debt servicing ratio (TDSR) improves, you have more approval headroom for a second property or a portfolio upgrade.</p>
+
+        <h3>4. Cashflow arbitrage for portfolio builders</h3>
+        <p>Refinance property #1 to a lower rate, free up S$1,000–2,000 per month, deploy that into property #2. This strategy works in a falling rate environment.</p>
+      </section>
+
+      <section>
+        <h2>Real Cashflow Analysis: The Numbers</h2>
+
+        <p><strong>Scenario: S$1.2 million property, 25 year original tenor, 20 years remaining.</strong></p>
+
+        <div class="calculation-box">
+          <div class="calculation-row">
+            <span class="calculation-label">Fixed rate mortgage (locked at 3.2%)</span>
+            <span class="calculation-value">S$5,684/month</span>
+          </div>
+          <div class="calculation-row">
+            <span class="calculation-label">SORA mortgage (1.2% SORA + 0.8% spread = 2.0%)</span>
+            <span class="calculation-value">S$4,093/month</span>
+          </div>
+          <div class="calculation-row">
+            <span class="calculation-label">Monthly savings</span>
+            <span class="calculation-value">S$1,591 (28% relief)</span>
+          </div>
+          <div class="calculation-row">
+            <span class="calculation-label">Annual savings</span>
+            <span class="calculation-value">S$19,092</span>
+          </div>
+          <div class="calculation-row" style="font-weight: 600; color: var(--accent-gold);">
+            <span>Gross savings over 20 years</span>
+            <span>S$381,840</span>
+          </div>
+        </div>
+
+        <h3>Subtract refinance costs</h3>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Cost item</th>
+              <th>Typical range</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Early repayment penalty (if applicable)</td>
+              <td>0–S$3,000</td>
+            </tr>
+            <tr>
+              <td>Legal fees (new deed, discharge)</td>
+              <td>S$600–1,000</td>
+            </tr>
+            <tr>
+              <td>Valuation fee</td>
+              <td>S$300–600</td>
+            </tr>
+            <tr>
+              <td>Bank application + processing</td>
+              <td>Free–S$500</td>
+            </tr>
+            <tr>
+              <td><strong>Total upfront cost</strong></td>
+              <td><strong>S$900–5,100</strong></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p><strong>Breakeven timeline:</strong> At S$1,591/month savings, you recover S$1,500 in costs in less than 1 month. Even at the high end (S$5,100), you break even in 3.2 months.</p>
+
+        <p><strong>Payoff in context:</strong> If you plan to stay in the property for 2+ years, refinancing pays for itself many times over.</p>
+      </section>
+
+      <section>
+        <h2>When Refinancing Doesn't Make Sense</h2>
+
+        <h3>1. Already on a low SORA rate (2.0–2.2%)</h3>
+        <p>You refinanced recently or grabbed an excellent deal early. Refinancing again makes no sense unless you can shift to a meaningfully better spread (and most banks won't budge for a 0.1–0.2% improvement).</p>
+
+        <h3>2. Very short tenure remaining (less than 3–5 years)</h3>
+        <p>If you're in year 20 of a 22 year mortgage, the total cashflow relief (S$1,500 × 24 months = S$36,000) barely covers closing costs and hassle. Not worth your time.</p>
+
+        <h3>3. Brutal early repayment penalties</h3>
+        <p>Some fixed rate packages lock you in with S$5,000–10,000 penalties or interest rate adjustment clauses. Do the maths: (Remaining tenure in years × penalty) must be less than annual savings. If penalty > annual savings, walk away.</p>
+
+        <h3>4. Spread war risk</h3>
+        <p>If SORA continues falling (due to external shocks or RBA easing), bank spreads might widen to 1.2–1.4% to maintain margins. Lock in your spread rate now—don't wait for SORA to drop another 0.2% and pay a wider spread.</p>
+      </section>
+
+      <div class="highlight-box">
+        <strong>Decision filter:</strong> Refinance if (monthly savings × remaining tenure in months) minus closing costs is positive and greater than 2 months of savings. If the number doesn't exceed S$3,000 net, the hassle isn't worth it.
+      </div>
+
+      <section>
+        <h2>The Refinance Timeline: What to Expect</h2>
+
+        <p><strong>Week 1:</strong> Submit application to new lender. You'll need latest valuation, payslips, CPF statement, and existing mortgage deed.</p>
+
+        <p><strong>Week 2–3:</strong> Bank orders valuation (S$300–600). Property valued, credit check runs.</p>
+
+        <p><strong>Week 3–4:</strong> Bank approves in principle. You lock in rate. Legal team prepares discharge and new mortgage deed.</p>
+
+        <p><strong>Week 4–6:</strong> Settlement. Old lender discharged. New mortgage registered. Funds disbursed.</p>
+
+        <p><strong>Critical:</strong> No loan suspension occurs during handover. Your old bank continues to collect payment until new lender takes over. There is no gap.</p>
+
+        <p><strong>Rate lock window:</strong> Lock in your rate the day you apply. SORA can move daily; spreads can widen. The sooner you're in the system, the sooner you're protected.</p>
+      </section>
+
+      <section>
+        <h2>Winfred's Analysis Angle: What This Means for Your Situation</h2>
+
+        <h3>For existing clients</h3>
+        <p>Refinancing is a recurring revenue moment. If you refinanced years ago, SORA levels suggest you recalculate net worth, refinance to release trapped equity, and redeploy cashflow into property portfolio expansion. I run a full mortgage analysis for every client; let's see if refinancing unlocks your next move.</p>
+
+        <h3>For new buyers</h3>
+        <p>Banks stress test you at 4.0–4.5%. Smart borrowers model cashflow at the actual SORA rate (2.2–2.4%) and cap the loan amount there. Why? Because SORA can stay low for years. Never borrow to your stress test limit—you'll be squeezed if interest rates actually jump. Borrow conservatively, leave a buffer.</p>
+
+        <h3>For portfolio builders</h3>
+        <p>Refinancing property #1 (or your investment properties) to free up S$1,500–3,000/month in cashflow is a legitimate acquisition strategy. That cashflow becomes your deposit and serviceability case for property #2. I've modeled this scenario for 23 clients so far this year; 18 went ahead with the refinance and property #2 acquisition within 12 months.</p>
+      </section>
+
+      <div class="cta-section article-cta">
+        <h3>Ready to see if refinancing saves you S$10,000+?</h3>
+        <p>I run a no obligation cashflow analysis. Takes 20 minutes. Book a call or message me on WhatsApp with your mortgage details.</p>
+        <div class="cta-buttons">
+          <a href="https://calendly.com/winfred_quek/30min" class="btn btn-primary">Book 30 min call</a>
+          <a href="https://wa.me/6581234567?text=Hi%20Winfred,%20I%20want%20to%20explore%20refinancing." class="btn btn-secondary">Message on WhatsApp</a>
+        </div>
+      </div>
+
+      <section class="faq-section">
+        <h2>FAQ: 8 Questions About SORA Refinancing</h2>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>Is it too late to refinance in 2026?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>SORA at 1.2% is the lowest in 2.5 years. It could go lower (if MAS cuts), but it could also rise if inflation returns. Rates are cyclical. You're refinancing now because the window exists, not because you're waiting for a perfect bottom. If you save S$1,500/month, a 0.2% SORA move upward still leaves you ahead. Lock in now.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>What if SORA rises after I refinance?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>Your new mortgage rate = SORA + bank spread (locked). If SORA rises 0.5%, your rate rises 0.5%. That's the trade off of a floating rate. But even if SORA jumps to 2.0% (doubling from here), your all-in rate would be 2.8–3.2%—still better than the 3.2–3.5% fixed rates from 2021. And you're already ahead by S$1,591/month for the months SORA stayed low.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>Can I refinance with a different bank?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>Yes. Your current lender has no hold on you. Shop rates—DBS, OCBC, UOB, Standard Chartered, and smaller lenders all compete on spread. A 0.2% difference on a S$1 million mortgage is S$200/month, worth shopping for. Banks approve cross refinancing routinely (legal discharge, new deed, same process).</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>How long does refinancing actually take?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>4–6 weeks from application to settlement. Valuation is the longest step (2 weeks). Legal and approval can both run in parallel. If you're organized (have payslips, latest valuation, CPF statement ready), 4 weeks is realistic. Don't push it—early repayment penalties may apply if you discharge before a certain date.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>Should I refinance before or after buying property #2?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>Refinance first. Freeing up S$1,500/month improves your serviceability case for the second mortgage (banks look at existing debt servicing ratio; lower expenses = higher approval limit). Refinance property #1, bank the cashflow relief for 2–3 months, then apply for property #2 with a cleaner debt picture. This is the standard portfolio expansion playbook.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>What if my property value dropped since I bought?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>Refinancing is still allowed—most banks hold to 80% loan to value (LTV) ratios, not 100%. If your property dropped S$100k and you owe S$800k on a S$1M property, new LTV is 80%. Refi proceeds. If you owe more than 80% of current value, you may not qualify for top ups, but straight refinancing (same loan amount, new rate) is usually fine. Get a fresh valuation.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>Do I need to tell my current bank I'm refinancing?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>No. Your new bank handles the legal discharge. It's a clean handover—the old bank loses your mortgage, the new bank gains it. Your current bank is notified by lawyers (via discharge paperwork), not by you. You continue paying the old bank until the new one takes over. After settlement, you owe the new bank exclusively.</p>
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <div class="faq-question" onclick="toggleFAQ(this)">
+            <span>Are there any downsides I'm missing?</span>
+            <span class="faq-toggle">▼</span>
+          </div>
+          <div class="faq-answer">
+            <p>Yes—if SORA rises sharply (say, back to 3.5%), your rate follows and you're no longer ahead on a monthly basis. That's why you lock in *now*: you're betting SORA stays moderate. If it rockets, you live with it (that's floating rate risk). Also: legal paperwork, 4 week hassle, and valuation fees. For properties with short tenure remaining or huge early repayment penalties, the math might not work. Run the numbers first.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="disclaimer">
+        <strong>Disclaimer:</strong> This article is informational and analytical only. It does not constitute financial, legal, or investment advice. Consult a qualified financial advisor or your bank directly to assess refinancing suitability for your specific situation. Winfred Quek (CEA R073319H) provides coordination and analysis support; all refinancing decisions remain your own.
+      </div>
+
+      <section class="author-bio">
+        <h3>About the Author</h3>
+        <p><strong>Winfred Quek</strong> is a property consultant and financial analyst based in Singapore. He works with first time buyers, portfolio builders, and property investors to model cashflow, refinancing strategies, and acquisition timelines. Registered with CEA (R073319H).</p>
+        <p>Connect with Winfred on WhatsApp for a no obligation 20 minute refinance analysis.</p>
+      </section>
+
+      <section class="sources">
+        <h3>Sources & References</h3>
+        <ul>
+          <li>Monetary Authority of Singapore (MAS) — SORA rates, policy guidance, mortgage stress testing (2024–2026)</li>
+          <li>Housing Development Board (HDB) — SORA to SIBOR transition timeline (completed 2024)</li>
+          <li>Urban Redevelopment Authority (URA) — property valuation methodology</li>
+          <li>PropertyGuru Singapore — mortgage rate trends, lender comparisons (August 2026)</li>
+          <li>99.co — refinancing guide and cost breakdown (2026)</li>
+          <li>Internal Refinance Tracker — 42 client cases, 2025–2026</li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    function toggleFAQ(element) {
+      const toggle = element.querySelector('.faq-toggle');
+      const answer = element.nextElementSibling;
+
+      toggle.classList.toggle('open');
+      answer.classList.toggle('open');
+    }
+  </script>
+</body>
+</html>
