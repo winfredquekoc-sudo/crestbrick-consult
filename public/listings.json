@@ -1,12 +1,12 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-27T00:30:02+08:00",
+  "synced_at": "2026-08-28T00:30:02+08:00",
   "count": 30,
   "listings": [
     {
       "id": "whole-unit-hillcrest-villa-ll124",
-      "title": "Whole Unit — Hillcrest Villa (Newton)",
+      "title": "Whole Unit, Hillcrest Villa (Newton)",
       "type": "Landed",
       "transaction": "rent",
       "price": 2500,
@@ -23,7 +23,7 @@
     },
     {
       "id": "master-room-st-francis-court-ll015",
-      "title": "Master Room — St Francis Court (Toa Payoh)",
+      "title": "Master Room, St Francis Court (Toa Payoh)",
       "type": "HDB",
       "transaction": "rent",
       "price": 1680,
@@ -36,7 +36,7 @@
     },
     {
       "id": "common-room-93-paya-lebar-way-ll136",
-      "title": "Common Room — 93 Paya Lebar Way",
+      "title": "Common Room, 93 Paya Lebar Way",
       "type": "HDB",
       "transaction": "rent",
       "price": 900,
@@ -55,7 +55,7 @@
     },
     {
       "id": "common-room-16-bedok-north-drive-ll122",
-      "title": "Common Room — 16 Bedok North Drive",
+      "title": "Common Room, 16 Bedok North Drive",
       "type": "Condo",
       "transaction": "rent",
       "price": 1350,
@@ -71,7 +71,7 @@
     },
     {
       "id": "common-room-bayshore-park-ll070",
-      "title": "Common Room — Bayshore Park",
+      "title": "Common Room, Bayshore Park",
       "type": "Condo",
       "transaction": "rent",
       "price": 1300,
@@ -83,7 +83,7 @@
     },
     {
       "id": "common-room-blk-125-bedok-reservoir-area-ll104",
-      "title": "Common Room — Blk 125 Bedok Reservoir area",
+      "title": "Common Room, Blk 125 Bedok Reservoir area",
       "type": "HDB",
       "transaction": "rent",
       "price": 1300,
@@ -95,7 +95,7 @@
     },
     {
       "id": "room-blk-62-bayshore-park-ll088",
-      "title": "Room — Blk 62 Bayshore Park",
+      "title": "Room, Blk 62 Bayshore Park",
       "type": "Condo",
       "transaction": "rent",
       "price": 800,
@@ -110,7 +110,7 @@
     },
     {
       "id": "studio-34-jalan-tanjong-ll077",
-      "title": "Studio — 34 Jalan Tanjong (Bedok)",
+      "title": "Studio, 34 Jalan Tanjong (Bedok)",
       "type": "Landed",
       "transaction": "rent",
       "price": 2200,
@@ -127,7 +127,7 @@
     },
     {
       "id": "whole-unit-766-bedok-reservoir-road-ll109",
-      "title": "Whole Unit — 766 Bedok Reservoir Road",
+      "title": "Whole Unit, 766 Bedok Reservoir Road",
       "type": "Condo",
       "transaction": "rent",
       "price": 6200,
@@ -143,7 +143,7 @@
     },
     {
       "id": "room-palm-isles-ll148",
-      "title": "Room — Palm Isles (Changi)",
+      "title": "Room, Palm Isles (Changi)",
       "type": "Condo",
       "transaction": "rent",
       "price": 1650,
@@ -158,7 +158,7 @@
     },
     {
       "id": "common-room-blk-160-pasir-ris-street-13-ll099",
-      "title": "Common Room — Blk 160 Pasir Ris Street 13",
+      "title": "Common Room, Blk 160 Pasir Ris Street 13",
       "type": "HDB",
       "transaction": "rent",
       "price": 1300,
@@ -176,7 +176,7 @@
     },
     {
       "id": "master-room-20-simei-street-1-ll125",
-      "title": "Master Room — 20 Simei Street 1",
+      "title": "Master Room, 20 Simei Street 1",
       "type": "Condo",
       "transaction": "rent",
       "price": 1250,
@@ -188,7 +188,7 @@
     },
     {
       "id": "room-tampines-ll135",
-      "title": "Room — Tampines",
+      "title": "Room, Tampines",
       "type": "HDB",
       "transaction": "rent",
       "price": 1250,
@@ -200,7 +200,7 @@
     },
     {
       "id": "common-room-992b-buangkok-link-ll138",
-      "title": "Common Room — 992B Buangkok Link (Hougang)",
+      "title": "Common Room, 992B Buangkok Link (Hougang)",
       "type": "HDB",
       "transaction": "rent",
       "price": 900,
@@ -219,7 +219,7 @@
     },
     {
       "id": "common-room-156a-bishan-street-11-ll142",
-      "title": "Common Room — 156A Bishan Street 11",
+      "title": "Common Room, 156A Bishan Street 11",
       "type": "HDB",
       "transaction": "rent",
       "price": 1100,
@@ -236,7 +236,7 @@
     },
     {
       "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
-      "title": "Common Room — Blk 539 Ang Mo Kio Ave 10",
+      "title": "Common Room, Blk 539 Ang Mo Kio Ave 10",
       "type": "HDB",
       "transaction": "rent",
       "price": 1000,
@@ -249,7 +249,7 @@
     },
     {
       "id": "common-room-cherryhill-ll097",
-      "title": "Common Room — Cherryhill (Bishan)",
+      "title": "Common Room, Cherryhill (Bishan)",
       "type": "Condo",
       "transaction": "rent",
       "price": 368,
@@ -261,7 +261,7 @@
     },
     {
       "id": "common-room-sin-ming-road-ll137",
-      "title": "Common Room — Sin Ming Road (Bishan)",
+      "title": "Common Room, Sin Ming Road (Bishan)",
       "type": "HDB",
       "transaction": "rent",
       "price": 1000,
@@ -273,7 +273,7 @@
     },
     {
       "id": "master-room-blk-503-ang-mo-kio-ave-8-ll106",
-      "title": "Master Room — Blk 503 Ang Mo Kio Ave 8",
+      "title": "Master Room, Blk 503 Ang Mo Kio Ave 8",
       "type": "HDB",
       "transaction": "rent",
       "price": 1200,
@@ -291,7 +291,7 @@
     },
     {
       "id": "whole-unit-block-31-bishan-loft-ll150",
-      "title": "Whole Unit — Block 31 Bishan Loft",
+      "title": "Whole Unit, Block 31 Bishan Loft",
       "type": "HDB",
       "transaction": "rent",
       "price": 1400,
@@ -307,7 +307,7 @@
     },
     {
       "id": "common-room-138a-yuan-ching-road-ll111",
-      "title": "Common Room — 138A Yuan Ching Road (Jurong)",
+      "title": "Common Room, 138A Yuan Ching Road (Jurong)",
       "type": "HDB",
       "transaction": "rent",
       "price": 1000,
@@ -322,7 +322,7 @@
     },
     {
       "id": "common-room-blk-282-toh-guan-road-ll146",
-      "title": "Common Room — Blk 282 Toh Guan Road (Jurong)",
+      "title": "Common Room, Blk 282 Toh Guan Road (Jurong)",
       "type": "HDB",
       "transaction": "rent",
       "price": 600,
@@ -334,7 +334,7 @@
     },
     {
       "id": "common-room-blk-403-jurong-west-street-42-ll105",
-      "title": "Common Room — Blk 403 Jurong West Street 42",
+      "title": "Common Room, Blk 403 Jurong West Street 42",
       "type": "HDB",
       "transaction": "rent",
       "price": 950,
@@ -349,7 +349,7 @@
     },
     {
       "id": "common-room-blk-639-jurong-west-street-61-ll108",
-      "title": "Common Room — Blk 639 Jurong West Street 61",
+      "title": "Common Room, Blk 639 Jurong West Street 61",
       "type": "HDB",
       "transaction": "rent",
       "price": 1000,
@@ -365,7 +365,7 @@
     },
     {
       "id": "common-room-blk-703-jurong-west-ll117",
-      "title": "Common Room — Blk 703 Jurong West",
+      "title": "Common Room, Blk 703 Jurong West",
       "type": "HDB",
       "transaction": "rent",
       "price": 800,
@@ -380,7 +380,7 @@
     },
     {
       "id": "master-room-blk-528-jurong-west-street-52-ll118",
-      "title": "Master Room — Blk 528 Jurong West Street 52",
+      "title": "Master Room, Blk 528 Jurong West Street 52",
       "type": "HDB",
       "transaction": "rent",
       "price": 1300,
@@ -396,7 +396,7 @@
     },
     {
       "id": "room-851-jurong-west-ll017",
-      "title": "Room — 851 Jurong West",
+      "title": "Room, 851 Jurong West",
       "type": "HDB",
       "transaction": "rent",
       "price": 800,
@@ -408,7 +408,7 @@
     },
     {
       "id": "master-room-blk-233-pending-rd-ll115",
-      "title": "Master Room — Blk 233 Pending Rd (Bukit Batok)",
+      "title": "Master Room, Blk 233 Pending Rd (Bukit Batok)",
       "type": "HDB",
       "transaction": "rent",
       "price": 1200,
@@ -425,7 +425,7 @@
     },
     {
       "id": "common-room-54-sunrise-terrace-ll028",
-      "title": "Common Room — 54 Sunrise Terrace",
+      "title": "Common Room, 54 Sunrise Terrace",
       "type": "Landed",
       "transaction": "rent",
       "price": 1300,
@@ -437,7 +437,7 @@
     },
     {
       "id": "common-room-88-telok-blangah-heights-ll112",
-      "title": "Common Room — 88 Telok Blangah Heights",
+      "title": "Common Room, 88 Telok Blangah Heights",
       "type": "HDB",
       "transaction": "rent",
       "price": 1200,
