@@ -534,5 +534,37 @@
     "date": "2026-09-28",
     "title": "How to Negotiate Rent in Singapore: A Tenant's Step-by-Step Guide",
     "description": "Negotiation timing, leverage building, effective scripts, and what not to do when negotiating with landlords."
+  },
+  {
+    "id": 723,
+    "slug": "afford-upgrade-real-cashflow-check",
+    "cluster": "upgrade-strategy",
+    "date": "2026-10-01",
+    "title": "Can You Afford That Upgrade? The Real Cashflow Check",
+    "description": "TDSR stress-test, hidden costs, CPF implications, and the financial reality of upgrading from HDB to condo."
+  },
+  {
+    "id": 724,
+    "slug": "upgrade-district-playbook-where-to-move",
+    "cluster": "upgrade-strategy",
+    "date": "2026-10-01",
+    "title": "Upgrade District Playbook: Where to Move & Why",
+    "description": "Clementi, Tampines North, East Coast, Holland/Bukit Timah analysed: PSF, mortgages, maintenance, schools, 2-property sequencing."
+  },
+  {
+    "id": 725,
+    "slug": "cpf-lease-decay-retirement-trap",
+    "cluster": "upgrade-strategy",
+    "date": "2026-10-02",
+    "title": "The CPF Lease Decay Trap: Why Your Upgrade Might Fail at Retirement",
+    "description": "CPF withdrawal rules, lease decay at retirement, 3 portfolio paths modeled: financial projections and decision framework."
+  },
+  {
+    "id": 726,
+    "slug": "treasure-tampines-undervalued-vs-eden-pinnery",
+    "cluster": "upgrade-strategy",
+    "date": "2026-10-02",
+    "title": "Treasure at Tampines vs Eden & The Pinnery: Why One Agent's Analysis Changes Everything",
+    "description": "Deep financial comparison: Treasure S$1.6M vs Eden S$1.8M vs Pinnery S$2.5M. Better yield, lower strata, stronger ROI, Cross Island Line upside."
   }
 ]
