@@ -9,6 +9,9 @@ can exercise them directly with fixtures. Only main() touches real paths.
 """
 import json, os, re, sys, hashlib, datetime, importlib.util, sqlite3, statistics, time
 import enrich
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # scripts/
+import mrt_stations
+_MRT_CACHE = mrt_stations._load()   # station coords (already geocoded); no network at import
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -319,6 +322,78 @@ def handed_off(l):
     return any(m in txt for m in HANDED_OFF_MARKERS)
 
 
+_REQ_NOISE = {"tbc", "-", "n/a", "na", "none", "nil", "not stated", "unknown", "no info", "?"}
+def _short(v, n=26):
+    s = str(v or "").strip()
+    return s[:n] if s else ""
+def _clean(v, n=40):
+    """Drop placeholder noise (TBC, N/A, blanks) so the list stays readable."""
+    s = str(v or "").strip()
+    if not s or s.lower() in _REQ_NOISE or s.lower().startswith("tbc"):
+        return ""
+    return s[:n]
+
+def race_label(eth):
+    """One-line race/ethnicity preference from a parsed ethnicity dict."""
+    rule = (eth or {}).get("rule"); races = (eth or {}).get("races") or []
+    if rule == "any": return "Any race"
+    if rule == "exclude" and races: return "No " + "/".join(r.title() for r in races)
+    if rule == "only" and races: return "/".join(r.title() for r in races) + " only"
+    if rule == "prefer" and races: return "Prefers " + "/".join(r.title() for r in races)
+    if rule == "note":
+        raw = ((eth or {}).get("raw") or "").lower()
+        if any(w in raw for w in ("no restriction", "no pref", "open to all", "any race", "all races")):
+            return "Any race"
+        return _short((eth or {}).get("raw"), 40)
+    return ""
+
+def gender_label(g):
+    s = (g or "").strip().lower()
+    if not s or s in ("any", "no", "none", "both", "-") or s in _REQ_NOISE: return ""
+    if "female" in s or s == "f": return "Female only"
+    if "male" in s or s == "m": return "Male only"
+    return _short(g, 20)
+
+def req_details(req):
+    """Full, uniform landlord requirement block for the landlord list + detail —
+    same keys on listings and all_landlords so one renderer handles both. As much
+    as the record holds (Winfred 27 Aug 2026: 'as detailed as possible')."""
+    req = req or {}
+    return {
+        "race": race_label(parse_ethnicity(req.get("ethnicity"))),
+        "gender": gender_label(req.get("gender")),
+        "nationality": _clean(req.get("nationality"), 30),
+        "max_pax": num(req.get("max_pax")),
+        "lease_min": num(req.get("lease_min")) or num(req.get("lease_term")),
+        "lease_max": num(req.get("lease_max")),
+        "occupation": _clean(req.get("occupation"), 30),
+        "pets": _clean(req.get("pets"), 24),
+        "smoking": _clean(req.get("smoking"), 24),
+        "owner_on_site": _clean(req.get("owner_on_site"), 20),
+        "visitors": _clean(req.get("overnight_visitors") or req.get("visitors"), 24),
+        "subletting": _clean(req.get("subletting"), 16),
+        "utilities": _clean(req.get("utilities"), 40),
+        "other": _short(req.get("other"), 240),
+    }
+
+def cooking_norm(raw):
+    """Landlords type cooking rules very inconsistently ('light only', 'induction
+    (no gas)', 'no cooking', 'tbc'). Collapse to one clear label; the raw text
+    stays in req_raw for the detail. Light is checked first so 'light cooking
+    allowed' reads as Light, not Allowed."""
+    s = (raw or "").strip().lower()
+    if not s or s.startswith("tbc") or "not stated" in s or s == "negotiable":
+        return "Ask landlord"
+    if any(w in s for w in ("light", "induction", "maggi", "boil", "airfryer",
+                            "air fryer", "microwave", "simple", "no full", "no gas")):
+        return "Light only"
+    if "no cooking" in s or "not allowed" in s or "cooking not" in s or s == "no":
+        return "Not allowed"
+    if any(w in s for w in ("allowed", "yes", "ok", "permitted", "full cooking", "can cook")):
+        return "Allowed"
+    return "Ask landlord"
+
+
 # ---- CEA register check for co-broke counterparties only ----------------------------
 # Winfred, 13 Aug 2026: verify the agent by CONTACT NUMBER (CEA's own anti scam advice),
 # and only for co-broke sources — an ordinary landlord is not a salesperson. Every lookup
@@ -459,7 +534,8 @@ def load_busy_blocks(path):
 
 
 # ------------------------------------------------------------- listings ---
-def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, seen_registry, today):
+def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, seen_registry, today, harvested_photos=None):
+    harvested_photos = harvested_photos or {}
     today_str = today.isoformat()
     out = []
     for l in landlords:
@@ -501,6 +577,7 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
             "district": l.get("district") or "", "address": l.get("full_address") or "",
             "map_query": maps_query(l.get("full_address"), l.get("district"), dist_area),
             "lat": _glat, "lng": _glng, "geo_src": _gsrc,
+            "mrt": mrt_stations.nearest_mrt(_glat, _glng, _MRT_CACHE) if _gsrc == "exact" else None,
             "rent_min": rent_min, "rent_max": rent_max,
             "viewing": l.get("viewing_availability") or "",
             "rooms": l.get("rooms_and_rent") or "", "property_type": l.get("property_type") or "",
@@ -514,6 +591,8 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
                 "occupation": r.get("occupation") or "", "cooking": r.get("cooking") or "",
                 "pets": r.get("pets") or "", "smoking": r.get("smoking") or "",
             },
+            "cooking": cooking_norm(r.get("cooking")),
+            "reqs": req_details(r),
             "req_raw": {k: (v[:300] if isinstance(v, str) else v) for k, v in r.items() if v},
             "units": enrich.parse_units(l.get("rooms_and_rent"), l.get("property_type"), rent_min, rent_max),
             "available_from": enrich.find_available_from([l.get("follow_up"), l.get("rooms_and_rent")], today),
@@ -528,7 +607,9 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
             # its own dedicated correctness test) and is_agent_suspect (kept —
             # looks like a dormant agent-exclusion signal, not dead code).
             "fixed_viewing": fixed_viewing_index.get(listing_key),
-            "photos": photo_info.get("photos"),
+            # Landlord's own WhatsApp room photos (locally vetted, NRIC/docs
+            # filtered out) come FIRST, then any website listing photos.
+            "photos": ((harvested_photos.get((lid or "").upper()) or []) + (photo_info.get("photos") or [])) or None,
             "listing_url": photo_info.get("listing_url"),
             "first_seen": fseen, "days_listed": days_listed,
             "is_cobroke": source == "co-broke",
@@ -590,7 +671,8 @@ def build_supply_overview(landlords):
     return out
 
 
-def build_all_landlords(landlords, dist_area, area_keywords):
+def build_all_landlords(landlords, dist_area, area_keywords, harvested_photos=None):
+    harvested_photos = harvested_photos or {}
     """Full landlord portfolio view (every status, unlike build_listings()/
     build_supply_overview() which have their own narrower purposes) for the app's
     roster screen. Ported from the monolith lineage."""
@@ -621,6 +703,9 @@ def build_all_landlords(landlords, dist_area, area_keywords):
             "source": source, "cea": cea_check(l, source),
             "commission_est": commission_est(num(l.get("rent_min")), num(l.get("rent_max"))),
             "handed_off": handed_off(l),
+            "cooking": cooking_norm((l.get("requirements") or {}).get("cooking")),
+            "reqs": req_details(l.get("requirements")),
+            "photos": harvested_photos.get((l.get("id") or "").upper()) or None,
         }
         # map_query only when it adds something over the plain address the app
         # already falls back to (mapLink uses map_query || address). Token-slim.
@@ -780,6 +865,33 @@ def tenant_segment(t, filled, fee_willing):
         return "INFO RICH"
     return ""
 
+# Persona tag (Winfred 27 Aug 2026): a plain who-is-this-tenant label, separate
+# from `segment` (which is sales readiness). Lets the roster be sorted and the
+# message worded by type. Best effort from pass type / occupation / group size.
+_PROFESSIONAL_WORDS = ("engineer", "manager", "analyst", "consultant", "doctor",
+                       "nurse", "teacher", "executive", "developer", "accountant",
+                       "lawyer", "architect", "designer", "banker", "professional")
+def tenant_persona(t):
+    pt = (t.get("pass_type") or "").lower()
+    occ = (t.get("occupation") or "").lower()
+    try:
+        paxn = int(str(t.get("pax")).strip())
+    except (TypeError, ValueError):
+        paxn = None
+    if "student" in pt or "student" in occ:
+        return "student"
+    if paxn is not None and paxn >= 3:
+        return "family"
+    if "ep" in pt or "employment pass" in pt or "s pass" in pt or "spass" in pt:
+        return "professional"
+    if any(w in occ for w in _PROFESSIONAL_WORDS):
+        return "professional"
+    if "work permit" in pt or pt == "wp":
+        return "work permit"
+    if paxn == 2:
+        return "couple or pair"
+    return ""
+
 def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
     out = []
     fee_phones, fee_ids = load_fee_willing(FEE_WILLING_PATH)
@@ -903,6 +1015,7 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
             "pays_agent_fee": bool(_fee),
             "pinned": bool(_prio),
             "segment": tenant_segment(t, _filled, _fee),
+            "persona": tenant_persona(t),
             "preferred_location": preferred_location,
             "preferred_districts": preferred_districts,
             "district": district, "district_inferred": district_inferred,
@@ -1712,6 +1825,11 @@ def main():
     seen_registry = load_seen_registry(SEEN_PATH)
     fixed_viewing_index = enrich.load_fixed_viewing_index(LISTING_INDEX_PATH)
     photo_url_index = enrich.load_photo_url_index(LISTINGS_JSON_PATH)
+    harvested_photos = {}
+    try:
+        harvested_photos = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "photos-harvested.json")))
+    except Exception:
+        pass
 
     wa_conn = enrich.open_wa_bridge(WA_DB_PATH)
     source_availability = build_source_availability(wa_conn)  # [item 6] before any close() below
@@ -1722,7 +1840,7 @@ def main():
     area_keywords = build_area_keywords(dist_area)  # built before build_tenants -- it needs
                                                      # this for district inference (item 1)
 
-    listings = build_listings(land["landlords"], dist_area, fixed_viewing_index, photo_url_index, seen_registry, today)
+    listings = build_listings(land["landlords"], dist_area, fixed_viewing_index, photo_url_index, seen_registry, today, harvested_photos)
     dedup_listing_pairs = apply_listing_dup_of(listings)
     save_seen_registry(SEEN_PATH, seen_registry)
     supply_overview = build_supply_overview(land["landlords"])  # [65] all statuses, digest only
@@ -1745,7 +1863,7 @@ def main():
     landlord_responsiveness = build_landlord_responsiveness(wa_conn, land["landlords"])  # [idea 24]
     if wa_conn: wa_conn.close()
 
-    all_landlords = build_all_landlords(land["landlords"], dist_area, area_keywords)
+    all_landlords = build_all_landlords(land["landlords"], dist_area, area_keywords, harvested_photos)
     all_tenants = build_all_tenants(ten["tenants"], area_keywords)
     sales = build_sales(land["landlords"], dist_area, area_keywords)
     duplicate_phones = compute_duplicate_phones(all_landlords, ten["tenants"])

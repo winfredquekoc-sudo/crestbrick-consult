@@ -464,7 +464,8 @@ function draftEN(l, t, slotOverride) {
   if (!hasBudget) {
     return "Hi " + fn + ", a room just opened at " + draftAddr(l) + " (" + l.district + ") at about " + rentTxt(l) + " a month. What's your budget and when are you looking to move in, so I can send you the right options.";
   }
-  const unit = Scoring.bestUnit(l, t).unit;
+  const bu = Scoring.bestUnit(l, t);
+  const unit = bu.unit;
   const unitLabel = unitTypeLabel(unit && unit.unit_type);
   const pa = priceAnchor(unit, l);
   const bud = t.budget != null ? t.budget : t.budget_max;
@@ -484,7 +485,19 @@ function draftEN(l, t, slotOverride) {
   } else if (pa.wide) {
     msg = "Hi " + fn + ", I have " + pluralUnit(unitLabel) + px + " at " + draftAddr(l) + " " + pa.text + " that fit your budget.";
   } else {
-    msg = "Hi " + fn + ", I have a " + unitLabel + px + " at " + draftAddr(l) + " that fits your budget at " + pa.text + ".";
+    // Two rooms in budget: offer both so the tenant picks (more choice, better
+    // reply rate). Only when the second room is priced, affordable, and a
+    // genuinely different price from the first.
+    const u2 = bu.secondUnit;
+    const p1 = Number(unit && (unit.rent_min || unit.rent_max)) || 0;
+    const p2 = Number(u2 && (u2.rent_min || u2.rent_max)) || 0;
+    if (u2 && p2 && bud != null && p2 <= bud && p1 && Math.abs(p2 - p1) >= 50) {
+      const lo = p1 <= p2 ? unit : u2, hi = p1 <= p2 ? u2 : unit;
+      msg = "Hi " + fn + ", I have two rooms" + px + " at " + draftAddr(l) + " that fit your budget, a " +
+        unitTypeLabel(lo.unit_type) + " at " + rentTxt(lo) + " and a " + unitTypeLabel(hi.unit_type) + " at " + rentTxt(hi) + ".";
+    } else {
+      msg = "Hi " + fn + ", I have a " + unitLabel + px + " at " + draftAddr(l) + " that fits your budget at " + pa.text + ".";
+    }
   }
   // Single CTA: a concrete slot IS the ask (96.6% vs 30.7% booking rate in
   // Winfred's own data); otherwise invite dates. Never double up the question.
@@ -2242,6 +2255,7 @@ function matchRow(m, showListing, opts) {
   if (t.segment === 'URGENT') badges.push('<span class="badge urgent">URGENT · pays fee</span>');
   else if (t.segment === 'FEE WILLING') badges.push('<span class="badge urgent">pays fee</span>');
   else if (t.segment === 'INFO RICH') badges.push('<span class="badge inforich">full profile</span>');
+  if (t.persona) badges.push('<span class="badge persona">' + esc(t.persona) + '</span>');   // (#2) who-is-this tag
   if (t._scratch) badges.push('<span class="badge scratch">scratch</span>');
   if (eff.overridden) badges.push('<span class="badge overridden">overridden</span>');
   if (declinedSimilar) badges.push('<span class="badge declined">declined similar</span>');
@@ -2924,17 +2938,21 @@ function renderListingPanel(l) {
   if (g.lease_min) req.push(g.lease_min + "mo min");
   if (g.gender && g.gender !== "any") req.push("landlord preference: " + g.gender.replace("_", " "));
   if (g.ethnicity && g.ethnicity.rule !== "any" && g.ethnicity.rule !== "note") req.push("landlord preference: " + g.ethnicity.rule + " " + (g.ethnicity.races || []).join("/"));
+  else if (g.ethnicity && g.ethnicity.rule === "any") req.push("🌍 no race preference");
   if (g.pets) req.push("pets " + g.pets);
   if (g.smoking) req.push("smoke " + g.smoking);
-  if (g.cooking) req.push("cooking " + g.cooking.slice(0, 22));
   const cobroke = isCobroke(l);
   const contactLabel = cobroke ? "co-broke agent" : "landlord";
   let h = stickyCtxHtml(l) +
     '<div class="phead"><div><div class="big">' + esc(l.name) + ' · ' + esc(rentTxt(l)) + (cobroke ? ' <span class="badge cobroke">co-broke</span>' : '') + (l.reconfirm_due ? ' <span class="badge overridden">reconfirm 14d+</span>' : '') + '</div>' +
     '<div class="mut">' + esc(l.district) + ' · ' + esc(l.address || '') + ' · ' + esc(l.property_type || '') + (l.available_from ? (' · vacant from ' + esc(shortDate(Scoring.parseDate(l.available_from)))) : '') + '</div>' +
     // req[] carries verbatim landlord phrasing (cooking/pets/smoking notes).
-    '<div class="chips">' + req.map(r => '<span class="chip">' + esc(r) + '</span>').join('') + '</div>' +
-    (l.rooms ? ('<div class="mut" style="margin-top:6px">' + esc(l.rooms) + '</div>') : '') +
+    '<div class="chips">' + cookingChip(l.cooking) + (l.cooking && (l.gates || {}).cooking ? '<span class="chip" title="' + esc(l.gates.cooking) + '">🍳 details</span>' : '') + reqChipsHtml(l.reqs) + '</div>' +
+    ((l.mrt || (l.days_listed != null && l.days_listed <= 7)) ? ('<div class="chips">' +
+      ((l.days_listed != null && l.days_listed <= 7) ? '<span class="chip g">🆕 new this week</span>' : '') +
+      (l.mrt ? '<span class="chip">🚇 ' + esc(l.mrt.station) + ' MRT · ' + l.mrt.walk_min + ' min walk</span>' : '') + '</div>') : '') +
+    (l.rooms ? ('<div class="mut" style="margin-top:6px">🛏 ' + esc(l.rooms) + '</div>') : '') +
+    ((l.reqs && l.reqs.other) ? ('<div class="mut" style="margin-top:6px">📝 ' + esc(l.reqs.other) + '</div>') : '') +
     (l.viewing ? ('<div class="chips"><span class="chip g">🕐 viewing: ' + esc(l.viewing) + '</span></div>') : '') +
     pricePositionHtml(l) +
     housemateHtml(l) +
@@ -3252,6 +3270,38 @@ function tenantWhere(t) {
   return d ? short + " · " + d : short;
 }
 
+// Cooking rule chip (Winfred 27 Aug 2026: "show if a landlord allows cooking").
+function cookingChip(v) {
+  if (!v) return '<span class="mut">—</span>';
+  const cls = v === "Allowed" ? "g" : v === "Light only" ? "a" : v === "Not allowed" ? "r" : "";
+  const icon = v === "Allowed" ? "🍳" : v === "Light only" ? "🍜" : v === "Not allowed" ? "🚫" : "❓";
+  return '<span class="chip ' + cls + '">' + icon + ' ' + esc(v) + '</span>';
+}
+// Full landlord requirements as chips (Winfred 27 Aug 2026: "as much detail as
+// possible" on the landlord list) — race, gender, pax, lease, pets, smoking, job.
+function reqChipsHtml(r) {
+  if (!r) return '<span class="mut">—</span>';
+  const c = [];
+  const chip = (txt, cls) => '<span class="chip' + (cls ? " " + cls : "") + '">' + txt + '</span>';
+  if (r.race) c.push(chip('🌍 ' + esc(r.race), r.race === "Any race" ? "g" : "a"));
+  if (r.gender) c.push(chip(esc(r.gender), "a"));
+  if (r.nationality) c.push(chip('🌐 ' + esc(r.nationality)));
+  if (r.max_pax) c.push(chip('👥 max ' + esc(r.max_pax)));
+  if (r.lease_min || r.lease_max) {
+    const lease = (r.lease_min && r.lease_max) ? (r.lease_min + " to " + r.lease_max + "mo")
+      : ((r.lease_min || r.lease_max) + "mo min");
+    c.push(chip('📅 ' + esc(lease)));
+  }
+  if (r.occupation) c.push(chip('💼 ' + esc(r.occupation)));
+  if (r.pets) c.push(chip('🐾 ' + esc(r.pets)));
+  if (r.smoking) c.push(chip('🚬 ' + esc(r.smoking)));
+  if (r.owner_on_site) c.push(chip('🏠 owner: ' + esc(r.owner_on_site)));
+  if (r.visitors) c.push(chip('🌙 visitors: ' + esc(r.visitors)));
+  if (r.subletting) c.push(chip('sublet: ' + esc(r.subletting)));
+  if (r.utilities) c.push(chip('💡 ' + esc(r.utilities)));
+  if (r.other) c.push('<span class="chip" title="' + esc(r.other) + '">📝 notes</span>');
+  return c.length ? c.join(' ') : '<span class="mut">no rules stated</span>';
+}
 function statusChip(av) {
   if (av === "Available") return '<span class="chip g">🟢 Available</span>';
   if (av === "Offer pending") return '<span class="chip a">🟡 Offer pending</span>';
@@ -4341,10 +4391,10 @@ function mapFitLabel(m) {
 function renderMapView() {
   const box = $("#mapview"); box.innerHTML = "";
   box.appendChild(el("div", "help",
-    "🗺 <b>Dashboard.</b> Each region shows 🏢 live landlords and 🙋 tenants looking there — click a region " +
-    "(on the map or in the directory below) to filter the landlord directory. Pins = live listings (green has " +
-    "qualified matches, amber none yet, hollow = district-centre position only). Click a pin → landlord details " +
-    "+ every tenant scored against that unit. Fit % is the same score as every other tab, not a guarantee."));
+    "🗺 <b>Dashboard.</b> The map drops a pin on each listing's real block (green = has a qualified tenant, " +
+    "amber = live but none yet, grey = position approximate). Click a pin, then <b>open listing</b> in its popup " +
+    "for the landlord details and every tenant scored against that unit. Use the region buttons below the map or " +
+    "the directory to filter. Fit % is the same score as every other tab, not a guarantee."));
   const demand = {};
   ALL_TENANTS.forEach(t => (t.preferred_districts || []).forEach(k => { demand[k] = (demand[k] || 0) + 1; }));
   const stb = el("div", "msubtabs");
@@ -4447,7 +4497,7 @@ function renderMapView() {
   const grid = el("div", "mapgrid");
   const left = el("div", "mapleft");
   left.appendChild(el("div", "mapwrap",
-    '<svg viewBox="0 0 1000 660" preserveAspectRatio="xMidYMid meet" aria-label="Singapore listings map">' + parts.join("") + '</svg>' +
+    '<div id="mmmap" class="mmmap"></div>' +
     '<div class="rglegend">' + MAP_REGIONS.map(rg =>
       '<span data-rg="' + rg.key + '"' + (mapRegion === rg.key ? ' class="on"' : '') +
       '><i style="background:rgba(' + rg.color + ',.55)"></i>' + rg.label.charAt(0) + rg.label.slice(1).toLowerCase() + '</span>').join("") +
@@ -4457,11 +4507,7 @@ function renderMapView() {
   box.appendChild(grid);
   const tableBox = el("div"); box.appendChild(tableBox);
   const profBox = el("div"); box.appendChild(profBox);
-  left.querySelectorAll(".mappin").forEach(g => {
-    const act = () => { mapSelected = (mapSelected === g.dataset.l ? null : g.dataset.l); mapShowAll = false; renderMapView(); };
-    g.onclick = act;
-    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); act(); } });
-  });
+  initMatchmakerMap("mmmap", tenTop);
   left.querySelectorAll("[data-rg]").forEach(n => {
     n.style.cursor = "pointer";
     n.onclick = () => { mapRegion = (mapRegion === n.dataset.rg ? null : n.dataset.rg); renderMapView(); };
@@ -4476,7 +4522,119 @@ function renderMapView() {
   }
   renderMapDirectory(box);
 }
+// Real interactive map (Leaflet + OpenStreetMap, same as the public room-rental
+// site — Winfred 31 Aug 2026). One pin per geocoded listing: green = has a
+// qualified tenant, amber = live but none yet, grey = position approximate. Click
+// a pin to open that listing (same as the old SVG pins). Falls back gracefully if
+// Leaflet fails to load (the div just stays empty with a note).
+let _mmMap = null;
+function initMatchmakerMap(mapId, tenTop) {
+  const host = document.getElementById(mapId);
+  if (!host) return;
+  if (typeof L === "undefined") { host.innerHTML = '<div class="mut" style="padding:20px;text-align:center">Map library unavailable offline.</div>'; return; }
+  const listings = (DATA.listings || []).filter(l => l.lat != null);
+  // defer so the container is laid out (Leaflet needs a sized, in-DOM element)
+  setTimeout(() => {
+    if (!document.body.contains(host)) return;
+    try { if (_mmMap) { _mmMap.remove(); _mmMap = null; } } catch (e) { /* previous map already gone */ }
+    let map;
+    try { map = L.map(mapId, { scrollWheelZoom: false, attributionControl: false }); } catch (e) { return; }
+    _mmMap = map;
+    map.setView([1.3521, 103.8198], 11);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+    const pts = [];
+    listings.forEach(l => {
+      const q = qualifiedCount(l);
+      const color = q > 0 ? "#2ecc71" : (l.geo_src === "approx" ? "#7a8aa8" : "#f5a623");
+      const sel = mapSelected === l.id;
+      const mk = L.circleMarker([l.lat, l.lng], {
+        radius: sel ? 11 : (tenTop && tenTop.has(l.id) ? 9 : 7),
+        color: sel ? "#5b8cff" : "#0b1730", weight: sel ? 3 : 1,
+        fillColor: color, fillOpacity: .95,
+      }).addTo(map);
+      mk.bindPopup('<b>' + esc(l.name || l.id) + '</b><br>' + esc(l.district || "") + ' &middot; ' + esc(rentTxt(l)) +
+        (q > 0 ? '<br>' + q + ' qualified tenant' + (q === 1 ? "" : "s") : "") +
+        (l.mrt ? '<br>&#128647; ' + esc(l.mrt.station) + ' MRT &middot; ' + l.mrt.walk_min + ' min' : "") +
+        '<br><a href="#" data-openll="' + esc(l.id) + '">open listing &rsaquo;</a>');
+      pts.push([l.lat, l.lng]);
+    });
+    if (pts.length) { try { map.fitBounds(pts, { padding: [28, 28], maxZoom: 15 }); } catch (e) { /* single/no point */ } }
+    // popup "open listing" link selects it (same as clicking the old pin)
+    host.addEventListener("click", e => {
+      const a = e.target.closest("[data-openll]");
+      if (!a) return;
+      e.preventDefault();
+      mapSelected = (mapSelected === a.dataset.openll ? null : a.dataset.openll);
+      mapShowAll = false; renderMapView();
+    });
+    setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 120);
+  }, 0);
+}
+// ---- Waiting by area (Winfred 27 Aug 2026): 40% of tenants have no stock in the
+// area they asked for. Group them by that area so the moment a room opens there,
+// you know exactly who to call. ----
+function waitingByArea() {
+  const out = {};
+  ALL_TENANTS.forEach(t => {
+    if (Scoring.isDead(t, TODAY)) return;
+    const ms = (byTenant[t.id] || []).filter(taskEligible);
+    if (!ms.length) return;                       // no usable stock at all — different problem
+    if (ms.some(m => tenantInArea(m.t, m.l))) return;  // has an in-area option, not waiting
+    const area = wantedAreaLabel(t);
+    (out[area] = out[area] || []).push(t);
+  });
+  return out;
+}
+function renderWaitingByArea(panel) {
+  const groups = waitingByArea();
+  const areas = Object.entries(groups).sort((a, b) => b[1].length - a[1].length);
+  if (!areas.length) return;
+  const total = areas.reduce((s, [, ts]) => s + ts.length, 0);
+  const rows = areas.slice(0, 12).map(([area, ts]) => {
+    ts.sort((a, b) => (Number(b.budget || b.budget_max || 0)) - (Number(a.budget || a.budget_max || 0)));
+    const who = ts.slice(0, 6).map(t => esc((t.name || t.id) + (t.budget || t.budget_max ? (" $" + (t.budget || t.budget_max)) : ""))).join(", ") +
+      (ts.length > 6 ? ' <span class="mut">+' + (ts.length - 6) + " more</span>" : "");
+    return '<tr><td><b>' + esc(area) + '</b></td><td><b>' + ts.length + '</b></td><td>' + who + '</td></tr>';
+  }).join("");
+  panel.appendChild(el("div", "maphead",
+    '<b>🧍 Waiting by area (' + total + ')</b><div class="mut" style="margin:4px 0 8px">' +
+    'Tenants whose area has no room right now. When one opens in an area below, these are the people to call first.</div>' +
+    '<table class="maptable"><thead><tr><th>Area they want</th><th>Waiting</th><th>Who (biggest budget first)</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>'));
+}
+// ---- Waiting on reply (#5): contacted a few days ago, no reply, one nudge due. ----
+function nudgeDraft(l, t) {
+  const u = Scoring.bestUnit(l, t).unit;
+  return "Hi " + fname(t.name) + ", just following up on the " + unitTypeLabel(u && u.unit_type) + " at " + draftAddr(l) + ". Still keen to take a look?";
+}
+function waitingOnReply() {
+  const seen = {}, out = [];
+  MATCHES.forEach(m => {
+    if (seen[m.t.id]) return;
+    const nba = nbaFor(m);
+    if (nba && nba.code === "nudge") { seen[m.t.id] = 1; out.push(m); }
+  });
+  return out;
+}
+function renderWaitingReply(panel) {
+  const list = waitingOnReply();
+  if (!list.length) return;
+  const rows = list.slice(0, 15).map(m => {
+    const t = m.t, l = m.l, mk = readMark(l.id, t.id) || {};
+    const days = mk.ts ? Math.floor((Date.now() - mk.ts) / 864e5) : null;
+    return '<tr><td>' + esc(t.name || t.id) + '</td><td class="mut">' + esc(listingShort(l)) + '</td>' +
+      '<td>' + (days != null ? days + "d ago" : "—") + '</td>' +
+      '<td class="nowrap">' + (t.phone ? ('<a href="tel:' + esc(t.phone) + '">📞</a> <a href="' +
+        esc(waPlain(t.phone, nudgeDraft(l, t))) + '" target="_blank" rel="noopener">💬 nudge</a>') : "—") + '</td></tr>';
+  }).join("");
+  panel.appendChild(el("div", "maphead",
+    '<b>⏳ Waiting on reply (' + list.length + ')</b><div class="mut" style="margin:4px 0 8px">' +
+    'Contacted a few days ago, no reply yet. One nudge each, no more.</div>' +
+    '<table class="maptable"><thead><tr><th>Tenant</th><th>Room</th><th>Contacted</th><th>Nudge</th></tr></thead>' +
+    '<tbody>' + rows + '</tbody></table>'));
+}
 function renderMapOverview(panel, demand) {
+  renderVerdictCards(panel);  // (#4) viewed, date passed — collect the outcome, right on the dashboard
   const supply = {};
   (DATA.listings || []).forEach(l => { if (l.district) supply[l.district] = (supply[l.district] || 0) + 1; });
   // Commission in play: ~1 month rent per live room, and the subset that already
@@ -4555,6 +4713,8 @@ function renderMapOverview(panel, demand) {
     'land one listing in a top row and you can match that many the same day.</div>' +
     '<table class="maptable"><thead><tr><th>District</th><th>Want it</th><th>Your listings</th><th>If you source here</th></tr></thead>' +
     '<tbody>' + (rows || '<tr><td colspan="4" class="mut">No supply gaps — every district with demand has stock.</td></tr>') + '</tbody></table>'));
+  renderWaitingByArea(panel);   // (#1) who is waiting in each stock-less area
+  renderWaitingReply(panel);    // (#5) contacted, no reply, one nudge due
   // Viewing-not-ready: live listings with no viewing window lose ~2/3 of their
   // booking rate to the open ask. One tap asks the landlord for their times.
   const noView = (DATA.listings || []).filter(needsViewingWindow);
@@ -4744,10 +4904,18 @@ function renderMapDirectory(box) {
         '<td>' + esc(rentTxt(l)) + (l.rooms ? '<br><span class="mut">' + esc(String(l.rooms).slice(0, 90)) + '</span>' : "") + '</td>' +
         '<td class="nowrap">' + (l.last_contact ? esc(l.last_contact) + (dc != null ? '<br><span class="mut">' + dc + 'd ago</span>' : "") : "—") + '</td>' +
         '<td>' + esc(String(l.viewing || "—").slice(0, 60)) + '</td>' +
-        '</tr>';
+        '</tr>' +
+        // Full-width requirements strip under each landlord — every rule (cooking,
+        // race, gender, pax, lease, pets, smoking, occupation, owner, visitors,
+        // utilities, notes) flows here instead of cramping the table (28 Aug 2026).
+        '<tr class="dirreqrow" data-hay="' + esc(hay) + '"><td colspan="8" class="dirreqcell">' +
+          '<span class="dirreqlab">requirements</span>' +
+          (l.cooking ? cookingChip(l.cooking) : "") + reqChipsHtml(l.reqs) +
+          ((l.photos && l.photos.length) ? ' <span class="chip g" title="click the landlord for photos">📷 ' + l.photos.length + ' photo' + (l.photos.length === 1 ? "" : "s") + '</span>' : "") +
+          '</td></tr>';
     }).join("");
     host.appendChild(el("div", "maptablewrap dirwrap",
-      '<table class="maptable"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
+      '<table class="maptable dirtable"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
       '<th>Address</th><th>Rent · rooms</th><th>Last contact</th><th>Viewing</th></tr></thead>' +
       '<tbody>' + body + '</tbody></table>'));
   });
@@ -4773,16 +4941,18 @@ function renderMapLLTable(box, demand) {
     '<td>' + esc(l.district || "?") + ' <span class="mut">' + esc(AREA[l.district] || "") + '</span></td>' +
     '<td>' + esc(String(l.address || "").slice(0, 44)) + '</td>' +
     '<td>' + esc(rentTxt(l)) + '</td>' +
+    '<td class="nowrap">' + cookingChip(l.cooking) + '</td>' +
+    '<td>' + reqChipsHtml(l.reqs) + '</td>' +
     '<td>' + esc(l.availability || "") + '</td>' +
     '<td>' + esc(l.viewing || "—") + '</td>' +
     '<td>' + (l.days_listed != null ? esc(l.days_listed) + "d" : "—") + '</td>' +
     '<td>' + qualifiedCount(l) + ' ✓ / ' + (demand[l.district] || 0) + ' want ' + esc(l.district || "") + '</td>' +
     '</tr>' +
-    (mapLLExpand === l.id ? '<tr class="xrow"><td colspan="10"><div class="xslot" data-x="' + esc(l.id) + '"></div></td></tr>' : "")
+    (mapLLExpand === l.id ? '<tr class="xrow"><td colspan="12"><div class="xslot" data-x="' + esc(l.id) + '"></div></td></tr>' : "")
   ).join("");
   box.appendChild(el("div", "maptablewrap",
     '<table class="maptable mapmatches"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
-    '<th>Address</th><th>Rent</th><th>Status</th><th>Viewing</th><th>Listed</th><th>Matches / demand</th></tr></thead>' +
+    '<th>Address</th><th>Rent</th><th>Cooking</th><th>Requirements</th><th>Status</th><th>Viewing</th><th>Listed</th><th>Matches / demand</th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>'));
   box.querySelectorAll(".mrow").forEach(r => {
     r.onclick = () => { mapLLExpand = (mapLLExpand === r.dataset.l ? null : r.dataset.l); renderMapView(); };

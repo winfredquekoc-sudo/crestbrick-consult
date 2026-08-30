@@ -5,6 +5,12 @@
 # behind if the folder is ever copied or moved.
 index.html
 
+# Landlord room photos harvested from WhatsApp (locally NRIC/doc-filtered). They
+# deploy to Vercel behind the same login, but must never enter git — same PII
+# reasoning as index.html above. Vercel uploads from the filesystem, so ignoring
+# them here keeps them out of commits without affecting the deploy.
+photos/
+
 # Vercel installs from package.json; a local `npm i` here must not reach a commit.
 node_modules/
 .vercel

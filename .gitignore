@@ -77,3 +77,12 @@ docs/landlord-extraction-report.md
 
 # Dated tenant working reports: real names and phone numbers.
 docs/tenant-recommendations-*.md
+
+# Matchmaker harvested-photo index (points at gitignored landlord photos)
+scripts/matchmaker/photos-harvested.json
+
+# Owner-sent photos Winfred hand-adds (PII, behind login only)
+scripts/matchmaker/manual-photos/
+
+# Public site build output (room photos, regenerated)
+scripts/publicsite/dist/
