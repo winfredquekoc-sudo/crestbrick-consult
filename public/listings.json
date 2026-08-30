@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-08-30T00:30:06+08:00",
-  "count": 30,
+  "synced_at": "2026-08-31T00:30:06+08:00",
+  "count": 29,
   "listings": [
     {
       "id": "whole-unit-hillcrest-villa-ll124",
@@ -235,19 +235,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20156A%20Bishan%20Street%2011."
     },
     {
-      "id": "common-room-blk-539-ang-mo-kio-ave-10-ll098",
-      "title": "Common Room, Blk 539 Ang Mo Kio Ave 10",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1000,
-      "price_label": "From S$1,000 / mo",
-      "address": "Blk 539 Ang Mo Kio Ave 10",
-      "district": "D20",
-      "sqft": 130,
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20539%20Ang%20Mo%20Kio%20Ave%2010."
-    },
-    {
       "id": "common-room-cherryhill-ll097",
       "title": "Common Room, Cherryhill (Bishan)",
       "type": "Condo",
@@ -265,7 +252,7 @@
       "type": "HDB",
       "transaction": "rent",
       "price": 1000,
-      "price_label": "S$1,000 / mo",
+      "price_label": "From S$1,000 / mo",
       "address": "Sin Ming Road",
       "district": "D20",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sin%20Ming%20Road.",
