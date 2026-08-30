@@ -4642,8 +4642,39 @@ function renderWaitingReply(panel) {
     '<table class="maptable"><thead><tr><th>Tenant</th><th>Room</th><th>Contacted</th><th>Nudge</th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>'));
 }
+// New rooms → ready-to-message shortlist (Winfred 31 Aug 2026: new listings fill
+// fastest in the first 48h — surface each fresh room with its qualified tenants
+// and a one-tap WhatsApp draft, so nothing new sits unactioned).
+function newRoomsToMessage() {
+  const out = [];
+  (DATA.listings || []).forEach(l => {
+    if (l.days_listed == null || l.days_listed > 3 || l.availability !== "Available") return;
+    const matches = (byListing[l.id] || [])
+      .filter(m => taskEligible(m) && effective(m).verdict === "QUALIFIED")
+      .slice(0, 5);
+    if (matches.length) out.push({ l, matches });
+  });
+  return out;
+}
+function renderNewRooms(panel) {
+  const groups = newRoomsToMessage();
+  if (!groups.length) return;
+  const rows = groups.map(g => {
+    const chips = g.matches.map(m =>
+      '<a class="chip g" href="' + esc(waPlain(m.t.phone, draftFor(g.l, m.t))) + '" target="_blank" rel="noopener">💬 ' +
+      esc(m.t.name || m.t.id) + ' · fit ' + m.s.total + '</a>').join(" ");
+    return '<tr><td><b>' + esc(g.l.name || g.l.id) + '</b> <span class="mut">' + (g.l.days_listed === 0 ? "today" : g.l.days_listed + "d") + '</span>' +
+      '<br><span class="mut">' + esc(listingShort(g.l)) + ' · ' + esc(g.l.district || "") + ' · ' + esc(rentTxt(g.l)) + '</span></td>' +
+      '<td>' + chips + '</td></tr>';
+  }).join("");
+  panel.appendChild(el("div", "maphead",
+    '<b>🆕 New rooms → ready to message (' + groups.length + ')</b><div class="mut" style="margin:4px 0 8px">' +
+    'Rooms added in the last 3 days that already have qualified tenants. Tap a name to send the draft while it is fresh — new rooms fill fastest in the first 48 hours.</div>' +
+    '<table class="maptable"><thead><tr><th>New room</th><th>Top matches — tap to message</th></tr></thead><tbody>' + rows + '</tbody></table>'));
+}
 function renderMapOverview(panel, demand) {
   renderVerdictCards(panel);  // (#4) viewed, date passed — collect the outcome, right on the dashboard
+  renderNewRooms(panel);      // new listings + their qualified tenants, one-tap draft
   const supply = {};
   (DATA.listings || []).forEach(l => { if (l.district) supply[l.district] = (supply[l.district] || 0) + 1; });
   // Commission in play: ~1 month rent per live room, and the subset that already

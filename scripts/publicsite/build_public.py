@@ -35,6 +35,8 @@ AGENT_CEA = "R073319H"
 AGENT_FIRM = "Crestbrick Pte Ltd (L31010886H)"
 WA = "6581618149"   # Winfred's WhatsApp — the ONLY contact on the site
 WA_LINK = "https://wa.me/%s" % WA
+MAIN_SITE = "https://winfredquek.com"   # cross-site: renters → future buyers
+INDEXNOW_KEY = "8f3c1e6a2b9d4f70a5c8e1b3d6f2a9c4"   # PUBLIC IndexNow ownership token, hosted at /<key>.txt — not a secret — gitleaks:allow
 
 # Rough district-centre coordinates for the map (good enough for area pins).
 DISTRICT_LATLNG = {
@@ -401,6 +403,13 @@ def room_page(l):
         map_js(lat, lng, l["area_short"]),
         json.dumps(breadcrumb),
     )
+    # Cross-site funnel: today's renter is tomorrow's buyer — soft bridge to the
+    # main agent site's buyer content.
+    body += ('<div class="wrap"><section class="sec"><h2>Renting now, buying later?</h2>'
+             '<p class="intro" style="max-width:680px">When you are ready to buy your own place in Singapore, '
+             'Winfred can run the numbers with you &mdash; affordability, stamp duty, loan options, and what your '
+             'budget actually gets you. <a href="%s/buyers-guide.html" rel="noopener">See the buyer\'s guide &rsaquo;</a>'
+             '</p></section></div>') % MAIN_SITE
     return page(title, desc, body, canonical, jsonld,
                 og_image=("%s/%s" % (BASE_URL, l["photos"][0]) if l["photos"] else None))
 
@@ -727,6 +736,8 @@ def main():
     sm = "".join("<url><loc>%s</loc></url>" % u for u in urls)
     write("sitemap.xml", "<?xml version='1.0' encoding='UTF-8'?><urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>%s</urlset>" % sm)
     write("robots.txt", "User-agent: *\nAllow: /\nSitemap: %s/sitemap.xml\n" % BASE_URL)
+    write("%s.txt" % INDEXNOW_KEY, INDEXNOW_KEY)   # IndexNow ownership proof
+    globals()["_LAST_URLS"] = urls                 # for the post-deploy IndexNow ping
     llms = ["# %s" % SITE_NAME,
             "Room rental listings across Singapore, marketed by %s (CEA %s, %s)." % (AGENT, AGENT_CEA, AGENT_FIRM),
             "Contact: WhatsApp %s." % WA, "",
@@ -740,5 +751,28 @@ def main():
     print("pages:", 1 + len(listings) + len(by_area), "| sitemap urls:", len(urls))
 
 
+def indexnow_ping():
+    """Tell Bing/Yandex/etc. (via the IndexNow aggregator) the live URLs changed.
+    Run AFTER deploy so every URL and the key file are already reachable."""
+    import re
+    import urllib.request
+    sm = open(os.path.join(DIST, "sitemap.xml")).read()
+    urls = re.findall(r"<loc>([^<]+)</loc>", sm)
+    host = BASE_URL.split("//", 1)[1]
+    payload = json.dumps({"host": host, "key": INDEXNOW_KEY,
+                          "keyLocation": "%s/%s.txt" % (BASE_URL, INDEXNOW_KEY),
+                          "urlList": urls}).encode()
+    req = urllib.request.Request("https://api.indexnow.org/indexnow", payload,
+                                 {"Content-Type": "application/json; charset=utf-8"})
+    try:
+        r = urllib.request.urlopen(req, timeout=25)
+        print("IndexNow: HTTP %s submitted %d URLs" % (getattr(r, "status", r.getcode()), len(urls)))
+    except Exception as ex:
+        print("IndexNow ping failed:", ex)
+
+
 if __name__ == "__main__":
-    main()
+    if "--ping" in sys.argv:
+        indexnow_ping()
+    else:
+        main()
