@@ -123,7 +123,7 @@ def test_phone_validator():
         normalized = None
 
         if clean.startswith('+65'):
-            is_valid = len(clean) == 12
+            is_valid = len(clean) == 11
             normalized = clean if is_valid else None
         elif clean and clean[0] in '89':
             is_valid = len(clean) == 8

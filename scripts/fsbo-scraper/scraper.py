@@ -84,7 +84,7 @@ class PhoneValidator:
 
         # Check: +65XXXXXXXX or 8/9XXXXXXXX
         if clean.startswith('+65'):
-            return len(clean) == 12  # +65 + 8 digits
+            return len(clean) == 11  # +65 + 8 digits
         elif clean[0] in '89':
             return len(clean) == 8  # Local format: 8 digits starting with 8 or 9
 
@@ -99,7 +99,7 @@ class PhoneValidator:
         clean = re.sub(r'[\s\-\(\)\.]+', '', phone)
 
         if clean.startswith('+65'):
-            return clean if len(clean) == 12 else None
+            return clean if len(clean) == 11 else None
         elif clean[0] in '89' and len(clean) == 8:
             return f"+65{clean}"
 
