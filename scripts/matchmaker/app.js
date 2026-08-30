@@ -2433,6 +2433,7 @@ function helpStrip() {
   if (dtoggle) dtoggle.onclick = () => { const d = wrap.querySelector('[data-deltadetail]'); if (d) d.style.display = d.style.display === "none" ? "block" : "none"; };
   renderVerdictCards(wrap);   // (38) viewed, past date, still marked "Viewing booked" -> collect verdict
   renderOfferSection(wrap);   // (41) offer checklists in progress
+  renderReviewRequests(wrap); // closed (keys handed over) — queue a review-request draft
   return wrap;
 }
 
@@ -2492,6 +2493,48 @@ function renderOfferSection(container) {
   });
 }
 
+// Review request at close (Winfred 31 Aug 2026): once a deal reaches "Keys" it
+// drops off the offers list — surface it here with a drafted WhatsApp review ask
+// (queued for Winfred to send, per the human-send rule), dismissible per device.
+const REVIEW_DONE_PREFIX = "cbkrv_";                 // NOT the mark prefix cbk_ — stays out of mark sync
+const REVIEW_URL = "";                                // Winfred: paste your Google review link to include it
+function closedWonOffers() {
+  const out = [];
+  for (let i = 0; i < localStorage.length; i++) {
+    const k = localStorage.key(i);
+    if (!k || k.indexOf(OFFER_PREFIX) !== 0) continue;
+    const rest = k.slice(OFFER_PREFIX.length), us = rest.indexOf("_");
+    if (us === -1) continue;
+    const lid = rest.slice(0, us), tid = rest.slice(us + 1), o = readOffer(lid, tid);
+    if (o && o.stage >= OFFER_STAGES.length - 1 && !localStorage.getItem(REVIEW_DONE_PREFIX + lid + "_" + tid)) out.push({ lid, tid });
+  }
+  return out;
+}
+function reviewDraft(l, t) {
+  const fn = fname(t && t.name);
+  const where = l ? (listingTown(l) || AREA[l.district] || l.district || "") : "";
+  return "Hi " + fn + ", really glad your move" + (where ? " to " + where : "") +
+    " worked out! If you have a moment, a quick Google review of how it went would mean a lot and helps other tenants find me." +
+    (REVIEW_URL ? " Here's the link: " + REVIEW_URL : "") + " Thank you!";
+}
+function renderReviewRequests(container) {
+  const dealz = closedWonOffers();
+  if (!dealz.length) return;
+  container.appendChild(el("div", "section-hd", "Closed — ask for a review"));
+  dealz.forEach(o => {
+    const l = (DATA.listings || []).find(x => x.id === o.lid), t = ALL_TENANTS.find(x => x.id === o.tid);
+    if (!t) return;
+    const row = el("div", "row");
+    row.innerHTML = '<div class="rtop"><span class="nm">' + esc(t.name) + '</span><span class="mut"> · keys handed over' + (l ? " · " + esc(l.name) : "") + '</span></div>' +
+      '<div class="acts">' + (t.phone
+        ? '<a class="btn w" target="_blank" rel="noopener" href="' + esc(waPlain(t.phone, reviewDraft(l, t))) + '">📣 Request a review</a>'
+        : '<span class="mut">no phone on file</span>') +
+      '<button class="btn" data-done="1">✓ Done</button></div>';
+    const done = row.querySelector('[data-done]');
+    if (done) done.onclick = () => { try { localStorage.setItem(REVIEW_DONE_PREFIX + o.lid + "_" + o.tid, "1"); } catch (e) {} render(); };
+    container.appendChild(row);
+  });
+}
 // (55) faceted counts — every filter control shows how many rows it would
 // leave, given the OTHER filters currently applied. facetCount(base,
 // overrides) below is the reference, one-facet-at-a-time definition — kept
