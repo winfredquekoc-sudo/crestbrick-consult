@@ -4973,20 +4973,20 @@ function renderMapDirectory(box) {
       const hay = [l.id, l.name, l.address, l.phone, l.district, AREA[l.primary_district || l.district], l.rooms]
         .map(v => String(v || "")).join(" ").toLowerCase();
       return '<tr data-hay="' + esc(hay) + '">' +
-        '<td>' + esc(l.id || "") + '</td>' +
-        '<td><b>' + esc(l.name || "—") + '</b><br>' + statusChip(l.availability) + '</td>' +
-        '<td class="nowrap">' + (l.phone ? (blocked
+        '<td data-label="ID">' + esc(l.id || "") + '</td>' +
+        '<td data-label="Landlord"><b>' + esc(l.name || "—") + '</b><br>' + statusChip(l.availability) + '</td>' +
+        '<td class="nowrap" data-label="Phone">' + (l.phone ? (blocked
           ? esc(l.phone) + '<br><span class="mut">no contact action</span>'
           : '<a href="tel:' + esc(l.phone) + '">' + esc(l.phone) + '</a><br><a href="' +
             esc(waPlain(l.phone, "")) + '" target="_blank" rel="noopener">💬 WhatsApp</a>') : "—") + '</td>' +
-        '<td class="nowrap">' + esc(l.primary_district || l.district || "?") +
+        '<td class="nowrap" data-label="District">' + esc(l.primary_district || l.district || "?") +
           '<br><span class="mut">' + esc(AREA[l.primary_district || l.district] || "") + '</span></td>' +
-        '<td class="diraddr">' + (l.address
+        '<td class="diraddr" data-label="Address">' + (l.address
           ? '<a href="' + escUrl(mapLink(l)) + '" target="_blank" rel="noopener noreferrer">📍 ' + esc(l.address) + '</a>'
           : '<span class="mut">no address on file</span>') + '</td>' +
-        '<td>' + esc(rentTxt(l)) + (l.rooms ? '<br><span class="mut">' + esc(String(l.rooms).slice(0, 90)) + '</span>' : "") + '</td>' +
-        '<td class="nowrap">' + (l.last_contact ? esc(l.last_contact) + (dc != null ? '<br><span class="mut">' + dc + 'd ago</span>' : "") : "—") + '</td>' +
-        '<td>' + esc(String(l.viewing || "—").slice(0, 60)) + '</td>' +
+        '<td data-label="Rent · rooms">' + esc(rentTxt(l)) + (l.rooms ? '<br><span class="mut">' + esc(String(l.rooms).slice(0, 90)) + '</span>' : "") + '</td>' +
+        '<td class="nowrap" data-label="Last contact">' + (l.last_contact ? esc(l.last_contact) + (dc != null ? '<br><span class="mut">' + dc + 'd ago</span>' : "") : "—") + '</td>' +
+        '<td data-label="Viewing">' + esc(String(l.viewing || "—").slice(0, 60)) + '</td>' +
         '</tr>' +
         // Full-width requirements strip under each landlord — every rule (cooking,
         // race, gender, pax, lease, pets, smoking, occupation, owner, visitors,
@@ -4998,7 +4998,7 @@ function renderMapDirectory(box) {
           '</td></tr>';
     }).join("");
     host.appendChild(el("div", "maptablewrap dirwrap",
-      '<table class="maptable dirtable"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
+      '<table class="maptable dirtable stack"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
       '<th>Address</th><th>Rent · rooms</th><th>Last contact</th><th>Viewing</th></tr></thead>' +
       '<tbody>' + body + '</tbody></table>'));
   });
@@ -5017,24 +5017,24 @@ function renderMapLLTable(box, demand) {
   box.appendChild(el("div", "mapsec", "🏢 Live landlord supply (" + ls.length + ") — click a row for details and the same actions as Today's Worklist"));
   const rows = ls.map(l =>
     '<tr class="mrow' + (mapLLExpand === l.id ? " selrow" : "") + '" data-l="' + esc(l.id) + '">' +
-    '<td>' + esc(l.id) + '</td>' +
-    '<td><b>' + esc(l.name || "—") + '</b></td>' +
-    '<td>' + (l.phone ? ('<a href="tel:' + esc(l.phone) + '" onclick="event.stopPropagation()">' + esc(l.phone) + '</a>' +
+    '<td data-label="ID">' + esc(l.id) + '</td>' +
+    '<td data-label="Landlord"><b>' + esc(l.name || "—") + '</b></td>' +
+    '<td data-label="Phone">' + (l.phone ? ('<a href="tel:' + esc(l.phone) + '" onclick="event.stopPropagation()">' + esc(l.phone) + '</a>' +
       ' · <a href="' + esc(waPlain(l.phone, "")) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">WA</a>') : "—") + '</td>' +
-    '<td>' + esc(l.district || "?") + ' <span class="mut">' + esc(AREA[l.district] || "") + '</span></td>' +
-    '<td>' + esc(String(l.address || "").slice(0, 44)) + '</td>' +
-    '<td>' + esc(rentTxt(l)) + '</td>' +
-    '<td class="nowrap">' + cookingChip(l.cooking) + '</td>' +
-    '<td>' + reqChipsHtml(l.reqs) + '</td>' +
-    '<td>' + esc(l.availability || "") + '</td>' +
-    '<td>' + esc(l.viewing || "—") + '</td>' +
-    '<td>' + (l.days_listed != null ? esc(l.days_listed) + "d" : "—") + '</td>' +
-    '<td>' + qualifiedCount(l) + ' ✓ / ' + (demand[l.district] || 0) + ' want ' + esc(l.district || "") + '</td>' +
+    '<td data-label="District">' + esc(l.district || "?") + ' <span class="mut">' + esc(AREA[l.district] || "") + '</span></td>' +
+    '<td class="diraddr" data-label="Address">' + esc(String(l.address || "").slice(0, 44)) + '</td>' +
+    '<td data-label="Rent">' + esc(rentTxt(l)) + '</td>' +
+    '<td class="nowrap" data-label="Cooking">' + cookingChip(l.cooking) + '</td>' +
+    '<td class="dirreqcell" data-label="Requirements">' + reqChipsHtml(l.reqs) + '</td>' +
+    '<td data-label="Status">' + esc(l.availability || "") + '</td>' +
+    '<td data-label="Viewing">' + esc(l.viewing || "—") + '</td>' +
+    '<td data-label="Listed">' + (l.days_listed != null ? esc(l.days_listed) + "d" : "—") + '</td>' +
+    '<td data-label="Matches">' + qualifiedCount(l) + ' ✓ / ' + (demand[l.district] || 0) + ' want ' + esc(l.district || "") + '</td>' +
     '</tr>' +
     (mapLLExpand === l.id ? '<tr class="xrow"><td colspan="12"><div class="xslot" data-x="' + esc(l.id) + '"></div></td></tr>' : "")
   ).join("");
   box.appendChild(el("div", "maptablewrap",
-    '<table class="maptable mapmatches"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
+    '<table class="maptable mapmatches stack"><thead><tr><th>ID</th><th>Landlord</th><th>Phone</th><th>District</th>' +
     '<th>Address</th><th>Rent</th><th>Cooking</th><th>Requirements</th><th>Status</th><th>Viewing</th><th>Listed</th><th>Matches / demand</th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>'));
   box.querySelectorAll(".mrow").forEach(r => {
@@ -5062,23 +5062,23 @@ function renderMapTNTable(box, demand) {
     const cold = Scoring.isCold(t, TODAY);
     const waT = (!cold && t.phone) ? waPlain(t.phone, "") : "";
     return '<tr class="mrow' + (mapTNExpand === t.id ? " selrow" : "") + '" data-t="' + esc(t.id) + '">' +
-    '<td><b>' + esc(t.name || t.id) + '</b>' + (t.pinned ? ' <span class="badge urgent">priority</span>' : '') + (t.segment ? ' <span class="badge ' + (t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
-    '<td>' + (t.phone ? ('<a href="tel:' + esc(t.phone) + '" onclick="event.stopPropagation()">' + esc(t.phone) + '</a>' +
+    '<td data-label="Tenant"><b>' + esc(t.name || t.id) + '</b>' + (t.pinned ? ' <span class="badge urgent">priority</span>' : '') + (t.segment ? ' <span class="badge ' + (t.segment === "INFO RICH" ? "inforich" : "urgent") + '">' + esc(t.segment.toLowerCase()) + '</span>' : "") + '</td>' +
+    '<td data-label="Phone">' + (t.phone ? ('<a href="tel:' + esc(t.phone) + '" onclick="event.stopPropagation()">' + esc(t.phone) + '</a>' +
       (waT ? ' · <a href="' + esc(waT) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">WA</a>'
            : (cold ? ' <span class="chip mut">cold</span>' : ""))) : "—") + '</td>' +
-    '<td>' + esc(t.budget || t.budget_max || "?") + '</td>' +
-    '<td>' + esc(t.pax || "?") + '</td>' +
-    '<td>' + esc([t.pass_type, t.nationality].filter(Boolean).join(" ")) + '</td>' +
-    '<td>' + esc(t.move_in || "?") + '</td>' +
-    '<td>' + esc(t.lease_months ? t.lease_months + "mo" : "?") + '</td>' +
-    '<td>' + esc((t.preferred_districts || []).join(" ") || t.district || "?") + '</td>' +
-    '<td>' + esc(t.last_contact || "—") + '</td>' +
-    '<td>' + (best ? (esc(listingShort(best.l)).slice(0, 26) + " · <b>" + best.s.total + "</b>") : "—") + '</td>' +
+    '<td data-label="Budget">' + esc(t.budget || t.budget_max || "?") + '</td>' +
+    '<td data-label="Pax">' + esc(t.pax || "?") + '</td>' +
+    '<td data-label="Pass">' + esc([t.pass_type, t.nationality].filter(Boolean).join(" ")) + '</td>' +
+    '<td data-label="Move in">' + esc(t.move_in || "?") + '</td>' +
+    '<td data-label="Lease">' + esc(t.lease_months ? t.lease_months + "mo" : "?") + '</td>' +
+    '<td data-label="Wants">' + esc((t.preferred_districts || []).join(" ") || t.district || "?") + '</td>' +
+    '<td data-label="Last contact">' + esc(t.last_contact || "—") + '</td>' +
+    '<td data-label="Best fit">' + (best ? (esc(listingShort(best.l)).slice(0, 26) + " · <b>" + best.s.total + "</b>") : "—") + '</td>' +
     '</tr>' +
     (mapTNExpand === t.id ? '<tr class="xrow"><td colspan="10"><div class="xslot" data-x="' + esc(t.id) + '"></div></td></tr>' : "");
   }).join("");
   box.appendChild(el("div", "maptablewrap",
-    '<table class="maptable mapmatches"><thead><tr><th>Tenant</th><th>Phone</th><th>Budget</th><th>Pax</th>' +
+    '<table class="maptable mapmatches stack"><thead><tr><th>Tenant</th><th>Phone</th><th>Budget</th><th>Pax</th>' +
     '<th>Pass</th><th>Move in</th><th>Lease</th><th>Wants</th><th>Last contact</th><th>Best fit</th></tr></thead>' +
     '<tbody>' + rows + '</tbody></table>'));
   if (!mapTNAll && ts.length > 100) {

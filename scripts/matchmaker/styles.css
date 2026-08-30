@@ -418,6 +418,21 @@ body.density-compact .lc{padding:7px 9px}
 .maptable th,.maptable td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 .maptable th{color:var(--mut);font-weight:600;white-space:nowrap}
 .maptable td:first-child{color:var(--mut);white-space:nowrap}
+/* Bird's-eye: on narrow screens wide tables STACK into label:value cards
+   (no sideways scroll, everything reads top-down) — Winfred 31 Aug 2026. */
+@media(max-width:860px){
+  .maptablewrap{overflow-x:visible}
+  .maptable.stack thead{display:none}
+  .maptable.stack,.maptable.stack tbody{display:block}
+  .maptable.stack tr:not(.xrow):not(.dirreqrow){display:block;border:1px solid var(--line);border-radius:11px;margin:0 0 8px;background:var(--panel2);padding:6px 11px}
+  .maptable.stack td{display:flex;justify-content:space-between;gap:12px;border:none;padding:5px 0;text-align:right;white-space:normal;min-width:0}
+  .maptable.stack td:before{content:attr(data-label);color:var(--mut);font-weight:600;text-align:left;flex:0 0 38%;white-space:nowrap}
+  .maptable.stack td:first-child{white-space:normal}
+  .maptable.stack td.dirreqcell,.maptable.stack td.diraddr{display:block;text-align:left}
+  .maptable.stack td.dirreqcell:before,.maptable.stack td.diraddr:before{display:block;margin-bottom:4px;flex:none}
+  .maptable.stack tr.dirreqrow{display:block;padding:0 11px 10px;background:var(--panel2);border:1px solid var(--line);border-top:none;border-radius:0 0 11px 11px;margin-top:-8px}
+  .maptable.stack tr.xrow{display:block}.maptable.stack tr.xrow td{display:block;padding:0}
+}
 /* Seamless requirements strip under each landlord in the directory */
 .dirtable tbody tr:not(.dirreqrow) td{border-bottom:none}
 .dirreqrow td{border-top:none;padding:0 9px 9px;white-space:normal}
