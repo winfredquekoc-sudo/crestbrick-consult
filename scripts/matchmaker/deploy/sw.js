@@ -19,7 +19,12 @@
 // in either file, and the compensating controls are the auth wall in front of
 // it plus the app's own masking and idle lock. Anyone reading vercel.json and
 // concluding "this response is never written to disk" would be wrong.
-const CACHE_NAME = "matchmaker-cache-v3";
+// v4 (31 Aug 2026): the dashboard map moved from a hand-drawn SVG to a real
+// Leaflet/OSM map with Leaflet INLINED into the shell. Stale PWA clients were
+// still serving the pre-map build (no pins). Bumping forces install() to re-run,
+// evict the v3 cache, and fetch the new shell — the clean way to push a shell
+// change to installed clients rather than waiting on stale-while-revalidate.
+const CACHE_NAME = "matchmaker-cache-v4";
 const APP_URL = "/";
 
 self.addEventListener("install", (event) => {

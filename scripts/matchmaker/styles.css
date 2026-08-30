@@ -355,6 +355,8 @@ body.density-compact .lc{padding:7px 9px}
 /* Leaflet interactive map (matchmaker dashboard) */
 .mmmap{height:440px;border-radius:10px;overflow:hidden}
 .mmmap .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) brightness(.92) contrast(.9)}
+.mmpin{background:none;border:none}
+.mmpin svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
 @media(prefers-color-scheme:light){.mmmap .leaflet-tile-pane{filter:none}}
 .leaflet-container{background:#0b1730 !important;font:inherit}
 .leaflet-popup-content{font-size:13px;line-height:1.5}

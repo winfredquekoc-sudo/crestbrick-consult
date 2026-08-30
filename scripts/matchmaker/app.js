@@ -4547,10 +4547,15 @@ function initMatchmakerMap(mapId, tenTop) {
       const q = qualifiedCount(l);
       const color = q > 0 ? "#2ecc71" : (l.geo_src === "approx" ? "#7a8aa8" : "#f5a623");
       const sel = mapSelected === l.id;
-      const mk = L.circleMarker([l.lat, l.lng], {
-        radius: sel ? 11 : (tenTop && tenTop.has(l.id) ? 9 : 7),
-        color: sel ? "#5b8cff" : "#0b1730", weight: sel ? 3 : 1,
-        fillColor: color, fillOpacity: .95,
+      // SVG teardrop drop-pin (divIcon, no image files — works with inlined
+      // Leaflet). Colour = qualified/live/approx; blue ring = selected.
+      const w = sel ? 30 : 24, h = sel ? 42 : 34;
+      const svg = '<svg width="' + w + '" height="' + h + '" viewBox="0 0 24 34" xmlns="http://www.w3.org/2000/svg">' +
+        '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 22 12 22s12-13 12-22C24 5.4 18.6 0 12 0z" fill="' + color +
+        '" stroke="' + (sel ? "#5b8cff" : "#0b1730") + '" stroke-width="' + (sel ? 2.5 : 1.5) + '"/>' +
+        '<circle cx="12" cy="12" r="4.4" fill="#0b1730" fill-opacity="' + (sel ? ".9" : ".55") + '"/></svg>';
+      const mk = L.marker([l.lat, l.lng], {
+        icon: L.divIcon({ html: svg, className: "mmpin", iconSize: [w, h], iconAnchor: [w / 2, h], popupAnchor: [0, -h + 6] }),
       }).addTo(map);
       mk.bindPopup('<b>' + esc(l.name || l.id) + '</b><br>' + esc(l.district || "") + ' &middot; ' + esc(rentTxt(l)) +
         (q > 0 ? '<br>' + q + ' qualified tenant' + (q === 1 ? "" : "s") : "") +
@@ -4558,7 +4563,8 @@ function initMatchmakerMap(mapId, tenTop) {
         '<br><a href="#" data-openll="' + esc(l.id) + '">open listing &rsaquo;</a>');
       pts.push([l.lat, l.lng]);
     });
-    if (pts.length) { try { map.fitBounds(pts, { padding: [28, 28], maxZoom: 15 }); } catch (e) { /* single/no point */ } }
+    const frame = () => { try { map.invalidateSize(); if (pts.length) map.fitBounds(pts, { padding: [28, 28], maxZoom: 15 }); } catch (e) { /* single/no point */ } };
+    frame();
     // popup "open listing" link selects it (same as clicking the old pin)
     host.addEventListener("click", e => {
       const a = e.target.closest("[data-openll]");
@@ -4567,7 +4573,10 @@ function initMatchmakerMap(mapId, tenTop) {
       mapSelected = (mapSelected === a.dataset.openll ? null : a.dataset.openll);
       mapShowAll = false; renderMapView();
     });
-    setTimeout(() => { try { map.invalidateSize(); } catch (e) {} }, 120);
+    // re-fit after layout settles — the dashboard container can size late,
+    // which otherwise leaves the map grey or the pins off-frame.
+    [60, 250, 600].forEach(d => setTimeout(frame, d));
+    if (window.requestAnimationFrame) requestAnimationFrame(frame);
   }, 0);
 }
 // ---- Waiting by area (Winfred 27 Aug 2026): 40% of tenants have no stock in the

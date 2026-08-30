@@ -1846,7 +1846,7 @@ def test_deploy_auth_and_cache_posture():
     check("going offline still serves the cached copy",
           ".catch(" in sw and "return cached;" in sw)
     check("the cache name was bumped alongside the logic change",
-          "matchmaker-cache-v3" in sw, "stale clients would keep running the old logic")
+          "matchmaker-cache-v4" in sw, "stale clients would keep running the old logic")
     # v3: the stale first paint must announce itself. Notify ONLY on a build_id
     # difference — notifying on every revalidate would nag on every open, and
     # never notifying is how a fresh deploy read as "failed to update".
