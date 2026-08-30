@@ -1,0 +1,15 @@
+2026-08-31 04:01:46,831 - INFO - === FSBO Scraper Run Started ===
+2026-08-31 04:01:46,831 - INFO - Scraping Carousell FSBO listings...
+2026-08-31 04:01:46,832 - WARNING - Carousell scraper requires Selenium for JS rendering (not yet implemented)
+2026-08-31 04:01:46,832 - WARNING - No Carousell listings found
+2026-08-31 04:07:17,089 - INFO - === FSBO Scraper Run Started ===
+2026-08-31 04:07:17,089 - WARNING - BeautifulSoup not available. Install: pip3 install beautifulsoup4
+2026-08-31 04:07:17,089 - WARNING - No Carousell listings found
+2026-08-31 04:07:30,019 - INFO - === FSBO Scraper Run Started ===
+2026-08-31 04:07:30,019 - INFO - Scraping Carousell FSBO listings...
+2026-08-31 04:07:30,447 - ERROR - Carousell scrape error: 404 Client Error: Not Found for url: https://www.carousell.sg/search/property/search/property?property_type=hdb
+2026-08-31 04:07:30,447 - WARNING - No Carousell listings found
+2026-08-31 04:07:39,766 - INFO - === FSBO Scraper Run Started ===
+2026-08-31 04:07:39,766 - INFO - Scraping Carousell FSBO listings...
+2026-08-31 04:07:42,155 - INFO - Found 0 FSBO listings 60+ days old
+2026-08-31 04:07:42,155 - WARNING - No Carousell listings found

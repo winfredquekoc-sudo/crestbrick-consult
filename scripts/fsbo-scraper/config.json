@@ -1,0 +1,9 @@
+{
+  "carousell_url": "https://www.carousell.sg/search/property",
+  "min_days_old": 60,
+  "max_daily_sends": 20,
+  "send_time_hhmm": "08:30",
+  "propertyguru_search_url": "https://www.propertyguru.com.sg/property-for-sale",
+  "send_mode": "queue",
+  "notes": "send_mode can be 'queue' (manual) or 'auto' (requires explicit go from Winfred)"
+}
