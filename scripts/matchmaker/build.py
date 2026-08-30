@@ -318,6 +318,11 @@ def inline_and_write(data, now):
     css = open(CSS).read()
     scoring = open(SCORING).read()
     appjs = open(APPJS).read()
+    # Leaflet is INLINED (not a CDN link): the app is a single offline artifact
+    # behind a service worker, so an external <script> to unpkg fails to run on
+    # the deployed PWA and the map draws no pins. Vendored copy under vendor/.
+    leaflet_css = open(os.path.join(HERE, "vendor", "leaflet.css")).read()
+    leaflet_js = open(os.path.join(HERE, "vendor", "leaflet.js")).read()
     data = dict(data)                            # local copy — never mutate the caller's dict
     # Dynamic freshness stamp on the shipped copy, derived from the SAME `now`
     # already used for generated_ts (see main()) — NOT a fresh
@@ -336,11 +341,11 @@ def inline_and_write(data, now):
     # Same hazard from the other direction: an inlined source file carrying a
     # literal </script> would close the tag it is being inlined into. (A
     # <script> mention in a comment is harmless and stays allowed.)
-    for src_name, src_text in (("styles.css", css), ("scoring.js", scoring), ("app.js", appjs)):
+    for src_name, src_text in (("styles.css", css), ("scoring.js", scoring), ("app.js", appjs), ("leaflet.css", leaflet_css), ("leaflet.js", leaflet_js)):
         if "</script>" in src_text:
             fail(f"{src_name} contains a literal </script>, which would close the tag it is inlined into")
 
-    required_markers = ["/*__CSS__*/", "__SCORING__", "const DATA = __DATA__;", "__APP_JS__"]
+    required_markers = ["/*__CSS__*/", "__SCORING__", "const DATA = __DATA__;", "__APP_JS__", "/*__LEAFLET_CSS__*/", "/*__LEAFLET_JS__*/"]
     absent = [m for m in required_markers if m not in tpl]
     if absent:
         fail("template.html is missing placeholder(s), cannot inline: " + ", ".join(absent))
@@ -349,6 +354,8 @@ def inline_and_write(data, now):
     out = out.replace("__SCORING__", scoring, 1)
     out = out.replace("const DATA = __DATA__;", "const DATA = " + payload + ";", 1)
     out = out.replace("__APP_JS__", appjs, 1)
+    out = out.replace("/*__LEAFLET_CSS__*/", leaflet_css, 1)
+    out = out.replace("/*__LEAFLET_JS__*/", leaflet_js, 1)
 
     survivors = [m for m in required_markers if m in out]
     if survivors:
