@@ -94,6 +94,17 @@ def onemap(q, cache):
     return None
 
 
+def _load_content(name, default):
+    try:
+        return json.load(open(os.path.join(HERE, "content", name)))
+    except Exception:
+        return default
+AREA_GUIDES = _load_content("area-guides.json", {})   # slug -> {name, district, text}
+FAQS = _load_content("faqs.json", [])                 # [{q, a}]
+GUIDE_FOOTER = "".join(' &middot; <a href="/rooms-in-%s/">%s</a>' % (s, html.escape(g["name"]))
+                       for s, g in list(AREA_GUIDES.items())[:8])
+
+
 def e(s):
     return html.escape(str(s if s is not None else ""))
 
@@ -284,12 +295,13 @@ def page(title, desc, body, canonical, jsonld=None, og_image=None):
 </div></header>
 %s
 <footer class="site"><div class="wrap">
+<div style="margin:0 0 10px"><a href="/">Home</a> &middot; <a href="/faq/">FAQ</a>%s</div>
 Listings marketed by %s, CEA %s, %s. Enquiries go directly to Winfred.
 Room availability and terms are subject to change and confirmation.
 </div></footer>
 <a class="stickycta" href="%s" rel="noopener">&#128172; WhatsApp Winfred about a room</a>
 </body></html>""" % (e(title), e(desc), e(canonical), FAVICON, ld, CSS, og, WA_LINK, WA,
-                     body, e(AGENT), e(AGENT_CEA), e(AGENT_FIRM), WA_LINK)
+                     body, GUIDE_FOOTER, e(AGENT), e(AGENT_CEA), e(AGENT_FIRM), WA_LINK)
 
 
 FAVICON = ("<link rel=\"icon\" href=\"data:image/svg+xml,"
@@ -522,6 +534,10 @@ def area_page(area_short, area_slug, district, listings, areas):
 </div>%s""" % (
         e(area_short), e(area_short), e(district), len(listings), "" if len(listings) == 1 else "s",
         e(area_short), "{:,}".format(lo), e(AGENT), cards, map_js(lat, lng, area_short, pts))
+    g = AREA_GUIDES.get(area_slug)
+    if g:
+        body += ('<div class="wrap"><section class="sec"><h2>Renting a room in %s &mdash; what to know</h2>'
+                 '<p class="intro" style="max-width:720px">%s</p></section></div>') % (e(g["name"]), e(g["text"]))
     jsonld = {"@context": "https://schema.org", "@type": "ItemList",
               "itemListElement": [{"@type": "ListItem", "position": i + 1,
                                    "url": "%s/room/%s/" % (BASE_URL, l["slug"])} for i, l in enumerate(listings)]}
@@ -558,6 +574,42 @@ def type_page(url, label, noun, matches, nav_pills):
     intro = ("%s for rent in Singapore. %d available islandwide, each marketed by %s (CEA %s). "
              "Message on WhatsApp to arrange a viewing." % (label, len(matches), AGENT, AGENT_CEA))
     return _grid_page(title, desc, canonical, "%s for Rent in Singapore" % label, intro, matches, nav_pills)
+
+
+def faq_page(nav_pills):
+    canonical = BASE_URL + "/faq/"
+    title = "Room Rental in Singapore — FAQ (HDB rules, prices, process) | %s" % SITE_NAME
+    desc = ("Answers to common Singapore room-rental questions: prices, HDB rules for renting a bedroom, "
+            "deposits, eligibility for foreigners and students, and how to avoid scams. By %s (CEA %s)." % (AGENT, AGENT_CEA))
+    items = "".join("<details><summary>%s</summary><p>%s</p></details>" % (e(f["q"]), e(f["a"])) for f in FAQS)
+    body = ('<div class="wrap"><div class="crumbs"><a href="/">Home</a> &#8250; FAQ</div>'
+            '<h1>Singapore Room Rental FAQ</h1>'
+            '<p class="intro" style="max-width:720px">Straight answers to the questions renters ask most &mdash; '
+            'prices, HDB rules, deposits, eligibility, and staying safe. Marketed by %s, CEA %s.</p>'
+            '<div class="pills">%s</div><section class="sec faq">%s</section></div>') % (e(AGENT), e(AGENT_CEA), nav_pills, items)
+    jsonld = {"@context": "https://schema.org", "@type": "FAQPage",
+              "mainEntity": [{"@type": "Question", "name": f["q"],
+                              "acceptedAnswer": {"@type": "Answer", "text": f["a"]}} for f in FAQS]}
+    return page(title, desc, body, canonical, jsonld)
+
+
+def guide_page(slug, g, nav_pills):
+    canonical = "%s/rooms-in-%s/" % (BASE_URL, slug)
+    title = "Rooms for Rent in %s (%s) Singapore — Prices & Guide | %s" % (g["name"], g.get("district", ""), SITE_NAME)
+    desc = ("Renting a room in %s, Singapore: typical prices, MRT and commute, who it suits. Rooms marketed by %s "
+            "(CEA %s) — enquire on WhatsApp." % (g["name"], AGENT, AGENT_CEA))
+    lat, lng = DISTRICT_LATLNG.get(g.get("district", ""), (1.3521, 103.8198))
+    body = ('<div class="wrap"><div class="crumbs"><a href="/">Home</a> &#8250; Rooms in %s</div>'
+            '<h1>Rooms for Rent in %s (%s)</h1>'
+            '<p class="intro" style="max-width:720px">%s</p>'
+            '<div id="map"></div>'
+            '<p style="margin-top:14px">No %s rooms are listed here at this moment &mdash; new rooms come in weekly. '
+            '<a href="%s" rel="noopener">Message Winfred on WhatsApp</a> and he\'ll tell you the moment one opens, '
+            'or <a href="/">browse rooms in other areas</a>.</p>'
+            '<div class="pills">%s</div></div>%s') % (
+        e(g["name"]), e(g["name"]), e(g.get("district", "")), e(g["text"]), e(g["name"]),
+        WA_LINK, nav_pills, map_js(lat, lng, g["name"]))
+    return page(title, desc, body, canonical)
 
 
 def write(path, content):
@@ -632,6 +684,7 @@ def main():
     nav_pills = "<a href='/'>All rooms</a>"
     nav_pills += "".join("<a href='/rooms-%s/'>%s</a>" % (s, e(lb)) for s, lb, _ in price_sets)
     nav_pills += "".join("<a href='/%s/'>%s</a>" % (u, e(lb)) for u, lb, _, _ in type_sets)
+    nav_pills += "<a href='/faq/'>FAQ</a>"
     for s, lb, m in price_sets:
         write("rooms-%s/index.html" % s, price_page(s, lb, m, nav_pills))
         urls.append("%s/rooms-%s/" % (BASE_URL, s))
@@ -654,6 +707,18 @@ def main():
               _grid_page(t, d, "%s/rooms-near-%s-mrt/" % (BASE_URL, ss),
                          "Rooms for Rent near %s MRT" % station, intro, ls, nav_pills))
         urls.append("%s/rooms-near-%s-mrt/" % (BASE_URL, ss))
+    # FAQ hub (GEO/SEO with FAQPage schema)
+    write("faq/index.html", faq_page(nav_pills))
+    urls.append("%s/faq/" % BASE_URL)
+    # Standalone area-guide pages for towns with no live stock right now, so
+    # "room for rent [town]" still lands somewhere (live area pages already carry
+    # their guide inline). Reuses the /rooms-in-<slug>/ URL pattern.
+    live_area_slugs = set(by_area.keys())
+    for slug, g in AREA_GUIDES.items():
+        if slug in live_area_slugs:
+            continue
+        write("rooms-in-%s/index.html" % slug, guide_page(slug, g, nav_pills))
+        urls.append("%s/rooms-in-%s/" % (BASE_URL, slug))
     for l in listings:
         urls.append("%s/room/%s/" % (BASE_URL, l["slug"]))
     copy_photos(listings)
