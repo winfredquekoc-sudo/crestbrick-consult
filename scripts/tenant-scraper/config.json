@@ -1,0 +1,28 @@
+{
+  "scrape_enabled": true,
+  "scrapers": {
+    "carousell": {
+      "enabled": true,
+      "schedule_time_sgt": "09:00",
+      "max_daily_sends": 60,
+      "queries": ["looking for room", "need 1BR", "want to rent", "need accommodation", "room wanted", "找房", "需要房间"],
+      "rate_limit_sec": 3
+    },
+    "propertyguru": {
+      "enabled": true,
+      "schedule_time_sgt": "10:00",
+      "max_daily_sends": 40,
+      "rate_limit_sec": 3
+    },
+    "99co": {
+      "enabled": true,
+      "schedule_time_sgt": "11:00",
+      "max_daily_sends": 30,
+      "rate_limit_sec": 3
+    }
+  },
+  "send_mode": "queue",
+  "quick_form_enabled": true,
+  "dedup_against_pool": true,
+  "notes": "queue = messages queued for manual sending via WhatsApp Web. auto = would require explicit go + integration with intake_engine. CEA compliance: all sends must go through intake_engine for now."
+}
