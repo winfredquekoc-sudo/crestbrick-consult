@@ -364,6 +364,10 @@ body.density-compact .lc{padding:7px 9px}
 .mmmap .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) brightness(.92) contrast(.9)}
 .mmpin{background:none;border:none}
 .mmpin svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+/* township cluster labels — dark navy pill, gold count, non-interactive */
+.mmtown{background:none;border:none}
+.mmtownlbl{position:absolute;transform:translate(-50%,-165%);white-space:nowrap;background:rgba(11,23,48,.85);color:#e8edf7;border:1px solid #c8a24a;border-radius:11px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.2px;box-shadow:0 1px 4px rgba(0,0,0,.55);pointer-events:none}
+.mmtownlbl b{color:#c8a24a;margin-left:1px}
 @media(prefers-color-scheme:light){.mmmap .leaflet-tile-pane{filter:none}}
 .leaflet-container{background:#0b1730 !important;font:inherit}
 .leaflet-popup-content{font-size:13px;line-height:1.5}

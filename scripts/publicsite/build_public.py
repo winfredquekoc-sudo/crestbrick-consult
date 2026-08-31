@@ -256,6 +256,9 @@ header.site{border-bottom:1px solid var(--line);background:var(--navy2)}
 .leaflet-popup-content{font-size:13px;line-height:1.5}
 .leaflet-popup-content a{color:#1a1300;font-weight:700}
 .srrpin{background:none;border:none}.srrpin svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
+.srrtown{background:none;border:none}
+.srrtownlbl{position:absolute;transform:translate(-50%,-165%);white-space:nowrap;background:rgba(11,23,48,.85);color:var(--ink);border:1px solid var(--gold);border-radius:11px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.2px;box-shadow:0 1px 4px rgba(0,0,0,.55);pointer-events:none}
+.srrtownlbl b{color:var(--gold);margin-left:1px}
 .detail{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;padding:24px 0}
 @media(max-width:760px){.detail{grid-template-columns:1fr}.hero h1{font-size:27px}}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -278,6 +281,19 @@ footer.site{border-top:1px solid var(--line);color:var(--mut);font-size:13px;pad
 .noresult{color:var(--mut);padding:24px 0;text-align:center}
 .intro{color:var(--mut);max-width:680px;margin:0 0 14px}
 .new{background:#2ea06a;color:#04120b;font-size:9px;font-weight:800;padding:1px 6px;border-radius:5px;vertical-align:middle;letter-spacing:.4px}
+.age{color:var(--mut);font-size:10px}
+.card{transition:transform .15s ease,box-shadow .15s ease}
+.card:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.resultcount{color:var(--mut);font-size:13px;margin:2px 0 10px}
+.townlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin:18px 0}
+.towncard{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;color:inherit}
+.towncard:hover{text-decoration:none;border-color:var(--gold)}
+.towncard h3{margin:0 0 4px;font-size:16px}
+.towncard .n{color:var(--mut);font-size:13px}
+.towncard .stock{display:inline-block;margin-top:6px;font-size:11px;padding:2px 8px;border-radius:10px;background:#0d1c3a;color:var(--mut)}
+.towncard .stock.live{color:#2ea06a;border:1px solid #2ea06a}
+@media(max-width:760px){header.site .cta{display:none}}
+@media(max-width:480px){.brand{font-size:17px}.navlinks{font-size:13px;gap:10px}}
 """
 
 
@@ -304,7 +320,7 @@ def page(title, desc, body, canonical, jsonld=None, og_image=None):
 </head><body>
 <header class="site"><div class="wrap nav">
 <a class="brand" href="/">Singapore <b>Room Rental</b></a>
-<nav class="navlinks"><a href="/#areas">Areas</a><a href="/faq/">FAQ</a></nav>
+<nav class="navlinks"><a href="/areas/">Areas</a><a href="/faq/">FAQ</a></nav>
 <a class="cta" href="%s" rel="noopener">WhatsApp %s</a>
 </div></header>
 %s
@@ -335,6 +351,8 @@ def card_html(l):
         meta += "<span class='chip'>&#128647; %s &middot; %d min</span>" % (e(mrt["station"]), mrt["walk_min"])
     newb = "<span class='new'>NEW</span> " if l.get("is_new") else ""
     days_listed = l.get("days_listed")
+    age = ("<span class='age'>Listed %d day%s ago</span>" % (days_listed, "" if days_listed == 1 else "s")) \
+        if (days_listed is not None and not l.get("is_new")) else ""
     wa_msg = e("Hi Winfred, I saw the %s in %s (%s) on your site, is it still available" %
                (l["rtype"], l["area_short"], l["district"]))
     return ('<div class="card" data-price="%d" data-area="%s" data-type="%s" data-listed="%d">'
@@ -342,12 +360,12 @@ def card_html(l):
             '<span class="bd"><h3>%s%s in %s</h3>'
             '<span class="price">%s<span style="color:var(--mut);font-weight:400;font-size:12px">/mo</span></span>'
             '<span style="color:var(--mut);font-size:12px">%s (%s)</span>'
-            '<span class="meta">%s</span></span></a>'
+            '<span class="meta">%s</span>%s</span></a>'
             '<a class="wabtn" href="%s?text=%s" rel="noopener" aria-label="WhatsApp Winfred about this room">&#128172; WhatsApp</a>'
             '</div>') % (
         price, e(l["area_slug"]), e(l["type_key"]), (days_listed if days_listed is not None else 9999),
         e(l["slug"]), ph,
-        newb, e(l["rtype"]), e(l["area_short"]), e(l["rent_txt"]), e(l["block"]), e(l["district"]), meta,
+        newb, e(l["rtype"]), e(l["area_short"]), e(l["rent_txt"]), e(l["block"]), e(l["district"]), meta, age,
         WA_LINK, wa_msg)
 
 
@@ -478,7 +496,20 @@ function boot(){
       (p.url?'<br><a href="'+p.url+'">View room &rsaquo;</a>':'');
     mk.bindPopup(body);
   });
-  if(pts.length>1){try{m.fitBounds(pts.map(function(p){return [p.lat,p.lng];}),{padding:[30,30]});}catch(e){}}
+  // Township labels: group pins by town and drop one name+count label at each
+  // town's centre, so it is easy to see which town each cluster of rooms is in.
+  if(pts.length>1){
+    var towns={};
+    pts.forEach(function(p){ if(!p.area) return; (towns[p.area]=towns[p.area]||[]).push(p); });
+    Object.keys(towns).forEach(function(name){
+      var g=towns[name], la=0, lo=0;
+      g.forEach(function(p){ la+=p.lat; lo+=p.lng; });
+      var lbl=L.divIcon({className:'srrtown', iconSize:[0,0], iconAnchor:[0,0],
+        html:'<div class="srrtownlbl">'+name+' <b>'+g.length+'</b></div>'});
+      L.marker([la/g.length, lo/g.length],{icon:lbl, interactive:false, keyboard:false, zIndexOffset:1000}).addTo(m);
+    });
+  }
+  if(pts.length>1){try{m.fitBounds(pts.map(function(p){return [p.lat,p.lng];}),{padding:[38,38]});}catch(e){}}
   setTimeout(function(){try{m.invalidateSize();}catch(e){}},60);
 }
 function loadLeaflet(cb){
@@ -505,9 +536,18 @@ def homepage(listings, areas):
     by_area = {}
     for l in listings:
         by_area.setdefault(l["district"], []).append(l)
+    # town-level grouping (by area_slug, not district) — a district can hold
+    # several distinct towns (e.g. D18 = Tampines + Pasir Ris), and grouping by
+    # district alone would silently drop or mislabel the others.
+    by_town = {}
+    for l in listings:
+        by_town.setdefault(l["area_slug"], []).append(l)
     pts = [_map_point(l) for l in listings if l.get("lat") is not None]
-    area_links = "".join("<a href='/rooms-in-%s/'>%s (%d)</a>" % (e(ls[0]["area_slug"]), e(ls[0]["area_short"]), len(ls))
-                         for ls in by_area.values())
+    area_links = "".join("<a href='/rooms-in-%s/'>%s (%d)</a>" % (e(slug), e(ls[0]["area_short"]), len(ls))
+                         for slug, ls in sorted(by_town.items(), key=lambda kv: kv[1][0]["area_short"]))
+    other_towns = sorted(((s, g["name"]) for s, g in AREA_GUIDES.items() if s not in by_town), key=lambda x: x[1])
+    area_links += "".join("<a href='/rooms-in-%s/'>%s</a>" % (e(s), e(name)) for s, name in other_towns)
+    area_links += "<a href='/areas/' style='font-weight:700;color:var(--gold)'>See all towns &rsaquo;</a>"
     cards = "".join(card_html(l) for l in listings[:24])
     faq = [
         ("How much is a room rental in Singapore?",
@@ -532,8 +572,8 @@ def homepage(listings, areas):
               "mainEntity": [{"@type": "Question", "name": q,
                               "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in faq]}
     # filter dropdown options
-    area_opts = "".join("<option value='%s'>%s</option>" % (e(ls[0]["area_slug"]), e(ls[0]["area_short"]))
-                        for ls in sorted(by_area.values(), key=lambda x: x[0]["area_short"]))
+    area_opts = "".join("<option value='%s'>%s</option>" % (e(slug), e(ls[0]["area_short"]))
+                        for slug, ls in sorted(by_town.items(), key=lambda kv: kv[1][0]["area_short"]))
     tlabel = {"master": "Master room", "common": "Common room", "whole": "Whole unit", "studio": "Studio", "room": "Room"}
     types_present = [k for k in ["master", "common", "whole", "studio", "room"] if any(x["type_key"] == k for x in listings)]
     type_opts = "".join("<option value='%s'>%s</option>" % (k, e(tlabel[k])) for k in types_present)
@@ -557,11 +597,12 @@ def homepage(listings, areas):
 </section>
 <section class="sec"><h2>Find a room</h2>
 <div class="filters">
-<select id="fArea"><option value="">All areas</option>%s</select>
-<select id="fType"><option value="">All room types</option>%s</select>
-<select id="fPrice"><option value="">Any price</option><option value="900">Under $900</option><option value="1200">Under $1,200</option><option value="1500">Under $1,500</option><option value="2000">Under $2,000</option></select>
-<select id="fSort"><option value="">Sort: Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="newest">Newest first</option></select>
+<select id="fArea" aria-label="Filter by area"><option value="">All areas</option>%s</select>
+<select id="fType" aria-label="Filter by room type"><option value="">All room types</option>%s</select>
+<select id="fPrice" aria-label="Filter by max price"><option value="">Any price</option><option value="900">Under $900</option><option value="1200">Under $1,200</option><option value="1500">Under $1,500</option><option value="2000">Under $2,000</option></select>
+<select id="fSort" aria-label="Sort"><option value="">Sort: Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="newest">Newest first</option></select>
 </div>
+<div class="resultcount" id="resultcount">Showing all %d rooms</div>
 <div class="grid" id="roomgrid">%s</div>
 <div class="noresult" id="noresult" style="display:none">No rooms match those filters. Try widening them, or <a href="%s" rel="noopener">message Winfred</a> — new rooms come in weekly.</div>
 </section>
@@ -578,13 +619,15 @@ else if(s==='price-desc')arr.sort(function(x,y){return (+y.dataset.price)-(+x.da
 else if(s==='newest')arr.sort(function(x,y){return (+x.dataset.listed)-(+y.dataset.listed);});
 arr.forEach(function(c){var ok=(!a||c.dataset.area===a)&&(!t||c.dataset.type===t)&&(!p||(+c.dataset.price)<=p);
 c.style.display=ok?'':'none';if(ok)n++;g.appendChild(c);});
-document.getElementById('noresult').style.display=n?'none':'block';}
+document.getElementById('noresult').style.display=n?'none':'block';
+var rc=document.getElementById('resultcount');
+if(rc)rc.textContent=(a||t||p)?('Showing '+n+' of '+cards.length+' rooms'):('Showing all '+cards.length+' rooms');}
 ['fArea','fType','fPrice','fSort'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('change',apply);});})();
 </script>
 <script type="application/ld+json">%s</script>
 <script type="application/ld+json">%s</script>""" % (
         WA_LINK, len(listings), e(AGENT), e(AGENT_CEA), pills, area_links,
-        area_opts, type_opts, cards, WA_LINK, faq_html,
+        area_opts, type_opts, len(listings), cards, WA_LINK, faq_html,
         map_js(1.3521, 103.8198, "Singapore", pts),
         json.dumps({"@context": "https://schema.org", "@type": "WebSite", "name": SITE_NAME,
                     "url": BASE_URL,
@@ -593,6 +636,78 @@ document.getElementById('noresult').style.display=n?'none':'block';}
                                         "query-input": "required name=search_term_string"}}),
         json.dumps(faq_ld))
     return page(title, desc, body, canonical, jsonld)
+
+
+def _centroid(district):
+    return DISTRICT_LATLNG.get(district or "")
+
+
+def nearby_guide_towns(slug, n=4):
+    """Nearest other area-guide towns by district-centre distance — real
+    coordinates, no invented data. Used for internal 'nearby towns' links."""
+    g = AREA_GUIDES.get(slug)
+    here = _centroid(g.get("district")) if g else None
+    if not here:
+        return []
+    scored = []
+    for s2, g2 in AREA_GUIDES.items():
+        if s2 == slug:
+            continue
+        there = _centroid(g2.get("district"))
+        if not there:
+            continue
+        d = (here[0] - there[0]) ** 2 + (here[1] - there[1]) ** 2
+        scored.append((d, s2, g2["name"]))
+    scored.sort(key=lambda x: x[0])
+    return [(s2, name) for _, s2, name in scored[:n]]
+
+
+def nearby_towns_html(slug):
+    ng = nearby_guide_towns(slug)
+    if not ng:
+        return ""
+    links = "".join("<a href='/rooms-in-%s/'>%s</a>" % (e(s2), e(name)) for s2, name in ng)
+    return "<section class='sec'><h2>Nearby towns</h2><div class='pills'>%s</div></section>" % links
+
+
+def area_quick_faq(name):
+    """Small, generic, non-invented FAQ set reused per town — mirrors the
+    homepage FAQ copy so answers stay factual and consistent site-wide."""
+    return [
+        ("How much does a room cost in %s?" % name,
+         "Typical prices for %s are covered in the guide above &mdash; message %s on WhatsApp for the latest rooms and current pricing." % (name, AGENT)),
+        ("Do I rent through an agent in %s?" % name,
+         "Yes. Every room here is marketed by %s, a CEA-registered salesperson (%s). You enquire on WhatsApp and he arranges the viewing directly." % (AGENT, AGENT_CEA)),
+        ("How do I view a room in %s?" % name,
+         "Message %s on WhatsApp and he will arrange a viewing that fits your schedule." % AGENT),
+    ]
+
+
+def area_faq_html(name):
+    items = area_quick_faq(name)
+    body = "".join("<details><summary>%s</summary><p>%s</p></details>" % (e(q), e(a)) for q, a in items)
+    return "<section class='sec faq'><h2>%s &mdash; quick answers</h2>%s</section>" % (e(name), body)
+
+
+def area_faq_ld(name):
+    items = area_quick_faq(name)
+    return {"@context": "https://schema.org", "@type": "FAQPage",
+            "mainEntity": [{"@type": "Question", "name": q,
+                            "acceptedAnswer": {"@type": "Answer", "text": a}} for q, a in items]}
+
+
+def breadcrumb_ld(items):
+    """items = [(name, url), ...] in order from Home to the current page."""
+    return {"@context": "https://schema.org", "@type": "BreadcrumbList",
+            "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": n, "item": u}
+                                for i, (n, u) in enumerate(items)]}
+
+
+def place_ld(name, canonical, description, lat, lng):
+    return {"@context": "https://schema.org", "@type": "Place",
+            "name": name, "description": description, "url": canonical,
+            "geo": {"@type": "GeoCoordinates", "latitude": lat, "longitude": lng},
+            "containedInPlace": {"@type": "AdministrativeArea", "name": "Singapore"}}
 
 
 def area_page(area_short, area_slug, district, listings, areas):
@@ -607,21 +722,33 @@ def area_page(area_short, area_slug, district, listings, areas):
     pts = [_map_point(l) for l in listings if l.get("lat") is not None]
     lat, lng = (pts[0]["lat"], pts[0]["lng"]) if pts else DISTRICT_LATLNG.get(district, (1.3521, 103.8198))
     body = """<div class="wrap">
-<div class="crumbs"><a href="/">Home</a> › Rooms in %s</div>
+<div class="crumbs"><a href="/">Home</a> › <a href="/areas/">Areas</a> › Rooms in %s</div>
 <h1>Rooms for Rent in %s (%s)</h1>
 <p style="color:var(--mut);max-width:660px">%d room%s available in %s, from $%s a month. Every listing is marketed by %s and you enquire directly on WhatsApp.</p>
-<div id="map"></div>
+<a class="cta" href="%s" rel="noopener">Message %s on WhatsApp</a>
+<div id="map" style="margin-top:16px"></div>
 <div class="grid">%s</div>
 </div>%s""" % (
         e(area_short), e(area_short), e(district), len(listings), "" if len(listings) == 1 else "s",
-        e(area_short), "{:,}".format(lo), e(AGENT), cards, map_js(lat, lng, area_short, pts))
+        e(area_short), "{:,}".format(lo), e(AGENT), WA_LINK, e(AGENT), cards, map_js(lat, lng, area_short, pts))
     g = AREA_GUIDES.get(area_slug)
     if g:
         body += ('<div class="wrap"><section class="sec"><h2>Renting a room in %s &mdash; what to know</h2>'
                  '<p class="intro" style="max-width:720px">%s</p></section></div>') % (e(g["name"]), e(g["text"]))
+    guide_name = g["name"] if g else area_short
+    body += '<div class="wrap">%s%s</div>' % (nearby_towns_html(area_slug), area_faq_html(guide_name))
     jsonld = {"@context": "https://schema.org", "@type": "ItemList",
               "itemListElement": [{"@type": "ListItem", "position": i + 1,
                                    "url": "%s/room/%s/" % (BASE_URL, l["slug"])} for i, l in enumerate(listings)]}
+    extra_ld = "".join(
+        "<script type='application/ld+json'>%s</script>" % json.dumps(x)
+        for x in [
+            breadcrumb_ld([("Home", BASE_URL + "/"), ("Areas", BASE_URL + "/areas/"),
+                           ("Rooms in %s" % area_short, canonical)]),
+            place_ld(guide_name, canonical, (g["text"] if g else desc), lat, lng),
+            area_faq_ld(guide_name),
+        ])
+    body += extra_ld
     return page(title, desc, body, canonical, jsonld)
 
 
@@ -680,19 +807,72 @@ def guide_page(slug, g, nav_pills):
     desc = ("Renting a room in %s, Singapore: typical prices, MRT and commute, who it suits. Rooms marketed by %s "
             "(CEA %s) — enquire on WhatsApp." % (g["name"], AGENT, AGENT_CEA))
     lat, lng = DISTRICT_LATLNG.get(g.get("district", ""), (1.3521, 103.8198))
-    body = ('<div class="wrap"><div class="crumbs"><a href="/">Home</a> &#8250; Rooms in %s</div>'
+    body = ('<div class="wrap"><div class="crumbs"><a href="/">Home</a> &#8250; <a href="/areas/">Areas</a> &#8250; Rooms in %s</div>'
             '<h1>Rooms for Rent in %s (%s)</h1>'
             '<p class="intro" style="max-width:720px">%s</p>'
-            '<div id="map"></div>'
-            '<p style="margin-top:14px">No %s rooms are listed here at this moment &mdash; new rooms come in weekly. '
+            '<a class="cta" href="%s" rel="noopener">Message %s on WhatsApp</a>'
+            '<div id="map" style="margin-top:16px"></div>'
+            '<p style="margin-top:14px;color:var(--mut)">No %s rooms are listed here at this moment &mdash; new rooms come in weekly. '
             '<a href="%s" rel="noopener">Message Winfred on WhatsApp</a> and he\'ll tell you the moment one opens, '
-            'or <a href="/">browse rooms in other areas</a>.</p>'
-            '<div class="pills">%s</div></div>%s') % (
-        e(g["name"]), e(g["name"]), e(g.get("district", "")), e(g["text"]), e(g["name"]),
-        WA_LINK, nav_pills,
-        map_js(lat, lng, g["name"], points=[{"lat": lat, "lng": lng, "area": e(g["name"]),
-                                              "rtype": "", "rent": "", "url": "", "approx": True}]))
+            'or check the nearby towns below.</p>'
+            '<div class="pills">%s</div></div>') % (
+        e(g["name"]), e(g["name"]), e(g.get("district", "")), e(g["text"]),
+        WA_LINK, e(AGENT), e(g["name"]),
+        WA_LINK, nav_pills)
+    body += map_js(lat, lng, g["name"], points=[{"lat": lat, "lng": lng, "area": e(g["name"]),
+                                                 "rtype": "", "rent": "", "url": "", "approx": True}])
+    body += '<div class="wrap">%s%s</div>' % (nearby_towns_html(slug), area_faq_html(g["name"]))
+    extra_ld = "".join(
+        "<script type='application/ld+json'>%s</script>" % json.dumps(x)
+        for x in [
+            breadcrumb_ld([("Home", BASE_URL + "/"), ("Areas", BASE_URL + "/areas/"),
+                           ("Rooms in %s" % g["name"], canonical)]),
+            place_ld(g["name"], canonical, g["text"], lat, lng),
+            area_faq_ld(g["name"]),
+        ])
+    body += extra_ld
     return page(title, desc, body, canonical)
+
+
+def areas_index_page(by_area):
+    """Town-based browsing hub: every area-guide town, live-stock count where
+    there is one, guide-only where there isn't. One canonical entry per town,
+    same /rooms-in-<slug>/ URLs used everywhere else on the site."""
+    canonical = BASE_URL + "/areas/"
+    title = "Browse Rooms by Town — All Singapore Areas | %s" % SITE_NAME
+    desc = ("Every town %s covers for room rentals in Singapore, from Tampines to Bukit Timah — "
+            "typical prices, MRT and commute, and live listings where available." % AGENT)
+    rows = []
+    seen = set()
+    for slug, ls in by_area.items():
+        name = ls[0]["area_short"]
+        district = ls[0]["district"]
+        rows.append((name, district, slug, len(ls)))
+        seen.add(slug)
+    for slug, g in AREA_GUIDES.items():
+        if slug in seen:
+            continue
+        rows.append((g["name"], g.get("district", ""), slug, 0))
+        seen.add(slug)
+    rows.sort(key=lambda r: r[0])
+    cards = "".join(
+        "<a class='towncard' href='/rooms-in-%s/'><h3>%s</h3><div class='n'>%s</div>"
+        "<span class='stock%s'>%s</span></a>" % (
+            e(slug), e(name), e(district),
+            " live" if count else "",
+            ("%d room%s available" % (count, "" if count == 1 else "s")) if count else "Guide &middot; message for openings")
+        for name, district, slug, count in rows)
+    body = ('<div class="wrap"><div class="crumbs"><a href="/">Home</a> &#8250; Areas</div>'
+            '<h1>Browse Rooms by Town</h1>'
+            '<p class="intro" style="max-width:720px">%d towns across Singapore, each with typical prices, MRT '
+            'and commute notes, and live listings where there is current stock. Every room is marketed by %s '
+            '(CEA %s) &mdash; message on WhatsApp for anything not shown here.</p>'
+            '<div class="townlist">%s</div></div>') % (len(rows), e(AGENT), e(AGENT_CEA), cards)
+    jsonld = {"@context": "https://schema.org", "@type": "ItemList",
+              "itemListElement": [{"@type": "ListItem", "position": i + 1, "name": name,
+                                   "url": "%s/rooms-in-%s/" % (BASE_URL, slug)}
+                                  for i, (name, district, slug, count) in enumerate(rows)]}
+    return page(title, desc, body, canonical, jsonld)
 
 
 def write(path, content):
@@ -778,6 +958,9 @@ def main():
     for slug, ls in by_area.items():
         write("rooms-in-%s/index.html" % slug, area_page(ls[0]["area_short"], slug, ls[0]["district"], ls, areas))
         urls.append("%s/rooms-in-%s/" % (BASE_URL, slug))
+    # town-based browsing hub — every area-guide town, live or guide-only
+    write("areas/index.html", areas_index_page(by_area))
+    urls.append("%s/areas/" % BASE_URL)
     # by-price + by-room-type landing pages (programmatic SEO), cross-linked
     price_sets = [(s, lb, [l for l in listings if (l["rent_min"] or l["rent_max"] or 0) <= cap])
                   for s, lb, cap in PRICE_BUCKETS]
@@ -843,8 +1026,9 @@ def main():
             l["rtype"], l["area_short"], l["district"], l["rent_txt"], l["block"], BASE_URL, l["slug"]))
     write("llms.txt", "\n".join(llms))
 
-    print("public site built: %d rooms, %d areas -> %s" % (len(listings), len(by_area), DIST))
-    print("pages:", 1 + len(listings) + len(by_area), "| sitemap urls:", len(urls))
+    print("public site built: %d rooms, %d areas with stock, %d area guides -> %s" % (
+        len(listings), len(by_area), len(AREA_GUIDES), DIST))
+    print("pages:", len(urls), "| sitemap urls:", len(urls))
 
 
 def indexnow_ping():

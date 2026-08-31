@@ -4612,14 +4612,56 @@ function initMatchmakerMap(mapId, tenTop) {
         '<circle cx="12" cy="12" r="4.4" fill="#0b1730" fill-opacity="' + (sel ? ".9" : ".55") + '"/></svg>';
       const mk = L.marker([l.lat, l.lng], {
         icon: L.divIcon({ html: svg, className: "mmpin", iconSize: [w, h], iconAnchor: [w / 2, h], popupAnchor: [0, -h + 6] }),
+        zIndexOffset: sel ? 1000 : 0,   // selected pin always renders above neighbours it overlaps
       }).addTo(map);
       mk.bindPopup('<b>' + esc(l.name || l.id) + '</b><br>' + esc(l.district || "") + ' &middot; ' + esc(rentTxt(l)) +
         (q > 0 ? '<br>' + q + ' qualified tenant' + (q === 1 ? "" : "s") : "") +
         (l.mrt ? '<br>&#128647; ' + esc(l.mrt.station) + ' MRT &middot; ' + l.mrt.walk_min + ' min' : "") +
+        (l.geo_src === "approx" ? '<br><span style="color:#7a8aa8;font-size:11px">approximate location</span>' : "") +
         '<br><a href="#" data-openll="' + esc(l.id) + '">open listing &rsaquo;</a>');
       pts.push([l.lat, l.lng]);
     });
-    const frame = () => { try { map.invalidateSize(); if (pts.length) map.fitBounds(pts, { padding: [28, 28], maxZoom: 15 }); } catch (e) { /* single/no point */ } };
+    // Township labels (parity with the public room-rental site): group listings
+    // by town and drop one "Town N" label at each town cluster's centroid, so
+    // it's obvious which town each group of pins belongs to at a glance.
+    // Non-interactive + high zIndexOffset so a label never blocks a pin click.
+    const townMarkers = [];
+    if (listings.length > 1) {
+      const towns = {};
+      listings.forEach(l => {
+        const name = listingTown(l);
+        if (!name) return;
+        (towns[name] = towns[name] || []).push(l);
+      });
+      Object.keys(towns).forEach(name => {
+        const g = towns[name];
+        let la = 0, lo = 0;
+        g.forEach(l => { la += l.lat; lo += l.lng; });
+        const lbl = L.divIcon({
+          className: "mmtown", iconSize: [0, 0], iconAnchor: [0, 0],
+          html: '<div class="mmtownlbl">' + esc(name) + ' <b>' + g.length + '</b></div>',
+        });
+        townMarkers.push(L.marker([la / g.length, lo / g.length], {
+          icon: lbl, interactive: false, keyboard: false, zIndexOffset: 2000,
+        }).addTo(map));
+      });
+    }
+    // Fade town labels out once zoomed past cluster level — individual pins
+    // are already legible by then and the labels would just clutter them.
+    const syncTownZoom = () => {
+      const show = map.getZoom() <= 14;
+      townMarkers.forEach(tm => { const e = tm.getElement(); if (e) e.style.display = show ? "" : "none"; });
+    };
+    if (townMarkers.length) map.on("zoomend", syncTownZoom);
+    const frame = () => {
+      try {
+        map.invalidateSize();
+        // extra top padding: town labels sit above their centroid pin and would
+        // otherwise get clipped against the map's top edge on a tight fit
+        if (pts.length) map.fitBounds(pts, { paddingTopLeft: [28, 48], paddingBottomRight: [28, 28], maxZoom: 15 });
+      } catch (e) { /* single/no point */ }
+      syncTownZoom();
+    };
     frame();
     // popup "open listing" link selects it (same as clicking the old pin)
     host.addEventListener("click", e => {

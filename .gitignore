@@ -92,3 +92,6 @@ scripts/publicsite/dist/
 /landlord-db.csv
 /tenant-db.json
 /tenant-db.csv
+
+# Stray prototype DB dir holds real WhatsApp snippets + colliding fake IDs — never commit (PII backstop)
+scripts/databases/
