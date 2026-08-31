@@ -9,8 +9,9 @@
   },
   "scripts": {
     "eval:agents": "python3 evals/run.py",
-    "build": "node scripts/stamp-nav.mjs && node scripts/seo-static-index.mjs && node scripts/gen-sitemap.mjs",
+    "build": "node scripts/stamp-nav.mjs && node scripts/gen-districts-static.mjs && node scripts/seo-static-index.mjs && node scripts/gen-sitemap.mjs",
     "stamp-nav": "node scripts/stamp-nav.mjs",
+    "gen-districts-static": "node scripts/gen-districts-static.mjs",
     "seo-static-index": "node scripts/seo-static-index.mjs",
     "gen-sitemap": "node scripts/gen-sitemap.mjs"
   },
