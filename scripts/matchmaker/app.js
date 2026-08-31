@@ -4441,7 +4441,7 @@ function renderMapView() {
   const demand = {};
   ALL_TENANTS.forEach(t => (t.preferred_districts || []).forEach(k => { demand[k] = (demand[k] || 0) + 1; }));
   const stb = el("div", "msubtabs");
-  [["map", "🗺 Map"], ["ll", "🏢 Landlords"], ["tn", "🙋 Tenants"]].forEach(([k, lab]) => {
+  [["map", "🗺 Map"], ["board", "⇄ Board"], ["ll", "🏢 Landlords"], ["tn", "🙋 Tenants"]].forEach(([k, lab]) => {
     const b = el("button", "hbtn" + (mapSubTab === k ? " on" : ""), lab);
     b.onclick = () => { mapSubTab = k; renderMapView(); };
     stb.appendChild(b);
@@ -4470,6 +4470,7 @@ function renderMapView() {
   };
   ov.appendChild(pt);
   box.appendChild(ov);
+  if (mapSubTab === "board") { renderMatchBoard(box, demand); return; }
   if (mapSubTab === "ll") { renderMapLLTable(box, demand); return; }
   if (mapSubTab === "tn") { renderMapTNTable(box, demand); return; }
   const tenSel = ALL_TENANTS.find(x => x.id === mapTenantSel) || null;
@@ -5011,6 +5012,57 @@ function renderMapDirectory(box) {
   };
   q.oninput = () => { mapDirQ = q.value; applyQ(); };
   applyQ();
+}
+function renderMatchBoard(box, demand) {
+  const supply = {}, want = {}, qual = {};
+  (DATA.listings || []).forEach(l => { const d = l.district || "?"; (supply[d] = supply[d] || []).push(l); });
+  ALL_TENANTS.forEach(t => {
+    const ds = new Set((t.preferred_districts || []).concat(t.district ? [t.district] : []));
+    ds.forEach(d => { (want[d] = want[d] || []).push(t); });
+  });
+  for (const lid in byListing) byListing[lid].forEach(m => {
+    if (effective(m).verdict !== "QUALIFIED") return;
+    const d = m.l.district || "?";
+    const wants = (m.t.preferred_districts || []).indexOf(d) !== -1 || m.t.district === d;
+    if (wants) qual[d] = (qual[d] || 0) + 1;
+  });
+  const districts = [...new Set(Object.keys(supply).concat(Object.keys(want)))]
+    .sort((a, b) => ((want[b] || []).length - (want[a] || []).length) ||
+                    ((supply[b] || []).length - (supply[a] || []).length) || a.localeCompare(b));
+  box.appendChild(el("div", "mapsec",
+    "⇄ Supply meets demand by area — rooms you can offer on the left, tenants asking for that area on the right, " +
+    "with how many qualify in the middle. Click either side to jump straight to it."));
+  const wrap = el("div", "mboard");
+  districts.forEach(d => {
+    const sup = (supply[d] || []).slice().sort((a, b) => (numOf(a.rent_min) || 0) - (numOf(b.rent_min) || 0));
+    const dem = (want[d] || []).slice().sort((a, b) =>
+      ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || ((byTenant[b.id] || [{ s: { total: 0 } }])[0].s.total) - ((byTenant[a.id] || [{ s: { total: 0 } }])[0].s.total));
+    const q = qual[d] || 0;
+    const supItems = sup.slice(0, 6).map(l =>
+      '<div class="mbitem" data-l="' + esc(l.id) + '"><span class="mbmain">' + esc(String(areaName(l)).slice(0, 30) || l.id) + '</span>' +
+      '<span class="mbsub">' + esc(rentTxt(l)) + '</span></div>').join("") +
+      (sup.length > 6 ? '<div class="mbmore">+' + (sup.length - 6) + ' more</div>' : "") ||
+      '<div class="mbempty">no rooms yet</div>';
+    const demItems = dem.slice(0, 6).map(t =>
+      '<div class="mbitem" data-t="' + esc(t.id) + '"><span class="mbmain">' + esc(fname(t.name) || t.id) +
+      (t.pinned ? ' <span class="badge urgent">priority</span>' : '') + '</span>' +
+      '<span class="mbsub">' + esc(t.budget || t.budget_max || "?") + ' · ' + esc(t.pax || "?") + ' pax</span></div>').join("") +
+      (dem.length > 6 ? '<div class="mbmore">+' + (dem.length - 6) + ' more</div>' : "") ||
+      '<div class="mbempty">nobody asking yet</div>';
+    const card = el("div", "mbcard",
+      '<div class="mbhead"><b>' + esc(d) + '</b> <span class="mut">' + esc(AREA[d] || "") + '</span></div>' +
+      '<div class="mbcols"><div class="mbcol"><div class="mbcolh">🏢 ' + sup.length + ' room' + (sup.length === 1 ? "" : "s") + '</div>' + supItems + '</div>' +
+      '<div class="mblink"><span class="mbq">' + q + '</span><span class="mbql">qualified</span><span class="mbarrow">⟷</span></div>' +
+      '<div class="mbcol"><div class="mbcolh">🙋 ' + dem.length + ' want' + (dem.length === 1 ? "s" : "") + ' ' + esc(d) + '</div>' + demItems + '</div></div>');
+    wrap.appendChild(card);
+  });
+  box.appendChild(wrap);
+  wrap.querySelectorAll(".mbitem[data-l]").forEach(it => {
+    it.onclick = () => { mapSelected = it.dataset.l; mapTenantSel = null; mapSubTab = "map"; renderMapView(); };
+  });
+  wrap.querySelectorAll(".mbitem[data-t]").forEach(it => {
+    it.onclick = () => { mapTNExpand = it.dataset.t; mapSubTab = "tn"; renderMapView(); };
+  });
 }
 function renderMapLLTable(box, demand) {
   const ls = [...(DATA.listings || [])].sort((a, b) => (a.district || "").localeCompare(b.district || "") || (a.id || "").localeCompare(b.id || ""));

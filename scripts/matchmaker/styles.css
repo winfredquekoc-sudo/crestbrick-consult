@@ -373,6 +373,24 @@ body.density-compact .lc{padding:7px 9px}
 .movtile b{font-size:26px;font-weight:800;line-height:1}
 .movtile span{font-size:12px;color:var(--mut);font-weight:600}
 .movtile .movic{font-size:20px;color:inherit}
+.mboard{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:12px;margin-top:8px}
+.mbcard{border:1px solid var(--line);border-radius:12px;background:var(--panel);overflow:hidden}
+.mbhead{padding:8px 12px;background:var(--panel2);border-bottom:1px solid var(--line);font-size:14px}
+.mbhead .mut{font-weight:600}
+.mbcols{display:flex;align-items:stretch}
+.mbcol{flex:1;min-width:0;padding:8px 10px}
+.mbcolh{font-size:11px;font-weight:700;color:var(--mut);margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mbitem{display:flex;flex-direction:column;gap:1px;padding:5px 7px;border-radius:8px;cursor:pointer;border:1px solid transparent}
+.mbitem:hover{border-color:#588cff;background:var(--panel2)}
+.mbmain{font-size:13px;font-weight:600;color:var(--ink)}
+.mbsub{font-size:11px;color:var(--mut)}
+.mbmore{font-size:11px;color:var(--mut);padding:4px 7px;font-weight:600}
+.mbempty{font-size:12px;color:var(--mut);font-style:italic;padding:5px 7px}
+.mblink{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 6px;border-left:1px solid var(--line);border-right:1px solid var(--line);min-width:64px}
+.mbq{font-size:22px;font-weight:800;line-height:1;color:#1b7a4b}
+.mbql{font-size:10px;color:var(--mut);font-weight:600}
+.mbarrow{font-size:16px;color:var(--mut);margin-top:3px}
+@media(max-width:520px){.mbcols{flex-direction:column}.mblink{flex-direction:row;gap:6px;border:none;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:5px 0}.mbarrow{display:none}}
 .rglegend{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;padding:6px 0 2px;font-size:12px;color:var(--mut)}
 .rglegend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px;vertical-align:-1px}
 .rglegend span{cursor:pointer;padding:2px 6px;border-radius:8px}
