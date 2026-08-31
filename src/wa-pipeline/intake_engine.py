@@ -2210,3 +2210,145 @@ def _viewing_text(slot):
                "The next viewing is " + slot["label"] + ". Reply YES to take this slot."
     return "Thanks, you fit what the landlord is looking for. I will send your profile over now. " \
            "When are you able to view?"
+
+# ========== LANDLORD FOLLOW-UP SEQUENCES ==========
+# Extension: automatic follow-ups for landlords who have received the supply form.
+# Day 0: Form sent (handled by normal flow)
+# Day 3: Nudge if form incomplete
+# Day 5: Request photos if form complete but no media
+# Day 7: Final check-in if still silent
+
+LANDLORD_SUPPLY_FORM = (
+    "Hi, could you help me answer these questions so I can screen tenants before bringing them to you. I don't want to waste your time with the wrong profile 🙏\n\n"
+    "Property\n"
+    "• Owner name:\n"
+    "• Address, unit type and size:\n"
+    "• Nearest MRT and walking distance:\n"
+    "• Available from (and is it vacant now?):\n"
+    "• Which rooms are available now:\n"
+    "• Sole owner, or jointly owned?:\n"
+    "• Is the unit mortgaged (bank notification needed?):\n"
+    "• HDB: is MOP met? Whole flat or room rental?:\n\n"
+    "Rental Terms\n"
+    "• Asking rent and flexibility:\n"
+    "• Preferred lease duration (long term or short term?):\n"
+    "• Deposit or upfront rent before moving in?:\n"
+    "• Rent payment method and date:\n\n"
+    "Unit and Bills\n"
+    "• Furnishing (unfurnished, semi, or fully, and what is included?):\n"
+    "• Utilities included or excluded? (electricity, water, gas, WiFi):\n"
+    "• Aircon servicing, landlord or tenant?:\n"
+    "• Minor repairs, who handles, and up to how much?:\n"
+    "• Is the owner staying in the unit?:\n"
+    "• How many existing housemates, and their gender?:\n"
+    "• How many share the bathroom?:\n\n"
+    "Tenant Preferences\n"
+    "• Preferred gender:\n"
+    "• Preferred nationality (any you prefer or exclude?):\n"
+    "• Preferred tenant type (working professional, student, couple, family):\n"
+    "• Max number of occupants:\n"
+    "• Previous landlord references or income proof needed? (payslip, employment letter):\n\n"
+    "House Rules\n"
+    "• Cooking (allowed, not allowed, or negotiable?):\n"
+    "• Pets allowed?:\n"
+    "• Smoking allowed?:\n"
+    "• Subletting allowed?:\n"
+    "• Visitors and overnight guests policy:\n"
+    "• Any other rules or concerns upfront? (noise, parties etc):\n\n"
+    "Viewings\n"
+    "• How to handle viewings (keys, lockbox, or accompanied?):\n"
+    "• Share 3 to 5 available dates and times (I will coordinate at least 2 groups before bringing anyone):\n\n"
+    "Lastly, could you send a few photos and a short video of the room and common areas? 📸 This helps me market it to the right tenants and cuts unnecessary viewings.\n\n"
+    "Thank you! I will get started once I have these details 🙏"
+)
+
+LANDLORD_FOLLOW_UP_DAY_3 = (
+    "Haven't heard back on the landlord form yet. Any questions or blockers? Happy to help walk you through it."
+)
+
+LANDLORD_FOLLOW_UP_DAY_5_PHOTOS = (
+    "Thanks for the details. Could you share 3-5 photos and a short video of the room and common areas? This helps tenants get a better sense of the space."
+)
+
+LANDLORD_FOLLOW_UP_DAY_7 = (
+    "Just checking in. If you've decided not to rent out right now, no worries. Feel free to reach out anytime."
+)
+
+LANDLORD_CAROUSELL_OBJECTION = (
+    "I've tried downloading from Carousell before, but the photo quality is always poor. Professional photos and video will get you better qualified tenants much faster. Can you share high-quality shots directly instead? Even phone photos are fine as long as they're clear and well-lit."
+)
+
+def is_carousell_objection(text):
+    """Detect if landlord is saying they'll send Carousell photos instead."""
+    if not text:
+        return False
+    low = text.lower()
+    return any(phrase in low for phrase in (
+        "download from carousell",
+        "send carousell photo",
+        "photos are on carousell",
+        "carousell photo",
+        "from carousell",
+        "carousell picture",
+        "carousell image",
+    ))
+
+def is_supply_form_filled(text):
+    """Best-effort: did the landlord fill out most of the supply form?
+    Look for presence of key field labels with values (e.g. 'Owner name: John')."""
+    if not text:
+        return False
+    # Rough heuristic: if at least 5-6 of the main sections have label:value patterns
+    labels = (
+        r"owner\s+name\s*:",
+        r"address",
+        r"asking\s+rent",
+        r"available\s+from",
+        r"rooms?\s+available",
+        r"furnish",
+    )
+    matches = sum(1 for label in labels if re.search(label, text, re.I))
+    return matches >= 5
+
+def get_landlord_followup_action(rec, now_timestamp):
+    """Check if a landlord record is due for a follow-up send.
+    Returns the day number (3, 5, 7) if due, None otherwise.
+    Assumes supply_form_sent=True and rec has follow_up_schedule initialized."""
+    if not rec.get("supply_form_sent"):
+        return None
+    
+    sched = rec.get("follow_up_schedule") or {}
+    for day in (3, 5, 7):
+        key = f"day_{day}"
+        if key not in sched:
+            continue
+        info = sched[key]
+        if info.get("sent"):
+            continue  # already sent
+        scheduled = info.get("scheduled")
+        if scheduled and now_timestamp >= scheduled:
+            return day
+    return None
+
+def init_landlord_followup_schedule(timestamp):
+    """Initialize a fresh follow-up schedule based on supply_form_sent timestamp (day 0).
+    Returns dict with day_0/3/5/7 entries."""
+    import datetime
+    base = datetime.datetime.fromtimestamp(timestamp, tz=datetime.timezone.utc)
+    
+    schedule = {
+        "day_0": {
+            "sent": True,
+            "timestamp": timestamp
+        }
+    }
+    
+    for day in (3, 5, 7):
+        future = base + datetime.timedelta(days=day)
+        schedule[f"day_{day}"] = {
+            "sent": False,
+            "scheduled": int(future.timestamp())
+        }
+    
+    return schedule
+

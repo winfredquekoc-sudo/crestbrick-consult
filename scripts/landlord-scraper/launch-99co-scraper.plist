@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.crestbrick.scraper.99co-landlord</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/winfredquek/crestbrick-consult/scripts/landlord-scraper/scraper-99co.py</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>2</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+  <key>StandardOutPath</key>
+  <string>/Users/winfredquek/crestbrick-consult/scripts/landlord-scraper/logs/99co-launchd.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/winfredquek/crestbrick-consult/scripts/landlord-scraper/logs/99co-launchd-error.log</string>
+  <key>TimeOut</key>
+  <integer>600</integer>
+</dict>
+</plist>

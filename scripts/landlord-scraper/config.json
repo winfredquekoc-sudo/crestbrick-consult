@@ -1,0 +1,24 @@
+{
+  "scrapers": {
+    "carousell": {
+      "enabled": true,
+      "schedule_time_sgt": "08:00",
+      "max_daily_sends": 50,
+      "rate_limit_sec": 2
+    },
+    "propertyguru": {
+      "enabled": true,
+      "schedule_time_sgt": "09:00",
+      "max_daily_sends": 40,
+      "rate_limit_sec": 2
+    },
+    "99co": {
+      "enabled": true,
+      "schedule_time_sgt": "10:00",
+      "max_daily_sends": 20,
+      "rate_limit_sec": 2
+    }
+  },
+  "send_mode": "queue",
+  "notes": "queue = messages queued for manual sending via WhatsApp Web. auto = would require explicit go + integration with intake_engine. CEA compliance: all sends must go through intake_engine for now."
+}
