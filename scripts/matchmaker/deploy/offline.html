@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow, noarchive">
+<title>Matchmaker — offline</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body {
+    margin: 0; height: 100%;
+    background: #0b1220; color: #e6e9ef;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  }
+  body {
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; box-sizing: border-box;
+  }
+  .card { max-width: 360px; text-align: center; }
+  .mark {
+    width: 56px; height: 56px; margin: 0 auto 20px;
+    border-radius: 12px; background: #0b1220; border: 1px solid #223049;
+    display: flex; align-items: center; justify-content: center;
+  }
+  h1 { font-size: 18px; font-weight: 600; margin: 0 0 8px; color: #f4f6f9; }
+  p { font-size: 14px; line-height: 1.5; color: #9aa5b8; margin: 0 0 20px; }
+  button {
+    font: inherit; font-size: 14px; font-weight: 600;
+    background: #c9a961; color: #0b1220; border: none;
+    border-radius: 8px; padding: 10px 20px; cursor: pointer;
+  }
+  button:active { opacity: 0.85; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="mark">
+      <svg width="28" height="28" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <polyline points="26,74 26,26 50,54 74,26 74,74" fill="none" stroke="#c9a961" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <h1>No connection yet</h1>
+    <p>Matchmaker hasn't loaded on this device before, so there's no offline copy to show. Reconnect and reload to get started — after that, it'll work between viewings even with a weak signal.</p>
+    <button onclick="location.reload()">Try again</button>
+  </div>
+</body>
+</html>

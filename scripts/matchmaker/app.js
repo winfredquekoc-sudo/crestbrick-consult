@@ -2663,7 +2663,8 @@ function renderWork() {
   const list = prim.slice(0, 25);
   CURRENT_WORKLIST = list;
   if (triageIndex >= list.length) triageIndex = Math.max(0, list.length - 1);
-  box.appendChild(el("div", "wm", "⭐ Top " + list.length + " to action today — highest fit and most urgent first, one line per tenant (their best available room)."));
+  box.appendChild(el("div", "wm", "⭐ Top " + list.length + (prim.length > list.length ? " of " + prim.length + " matching" : "") +
+    " to action today — highest fit and most urgent first, one line per tenant (their best available room)."));
   box.appendChild(triageLegend());
   if (!list.length) { box.appendChild(el("div", "empty", "No matches with these filters. Tap ↺ Clear filters.")); renderTriageBar(null); return; }
   list.forEach((m, i) => box.appendChild(matchRow(m, true, { focused: i === triageIndex })));
@@ -3485,6 +3486,8 @@ function renderLandlordsRoster() {
     ls = ls.filter(l => hay(l).includes(f.q));
   }
   ls.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+  const allCount = (DATA.all_landlords || []).length;
+  box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ls.length + " of " + allCount : ls.length) + " landlords"));
 
   const actionsRow = el("div", "acts");
   const stale = ls.filter(l => l.availability === "Available" && l.phone && (Scoring.daysAgo(l.last_contact, TODAY) == null || Scoring.daysAgo(l.last_contact, TODAY) > 14));
@@ -3583,6 +3586,8 @@ function renderAllTenantsRoster() {
     const hay = t => (String(t.name || "") + " " + (t.district || "") + " " + (t.preferred_location || "") + " " + (t.phone || "")).toLowerCase();
     ts = ts.filter(t => hay(t).includes(f.q));
   }
+  const allTCount = (DATA.all_tenants || []).length;
+  box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ts.length + " of " + allTCount : ts.length) + " tenants"));
   if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
 
   ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
@@ -4540,8 +4545,15 @@ function renderMapView() {
   });
   const grid = el("div", "mapgrid");
   const left = el("div", "mapleft");
+  // Pin colour legend — the .help paragraph explains green/amber/grey pins in
+  // prose once at the top, but that scrolls away; a quick glance strip right
+  // under the map itself (matching the Leaflet pin colours in
+  // initMatchmakerMap) means you never have to re-read it mid session.
   left.appendChild(el("div", "mapwrap",
     '<div id="mmmap" class="mmmap"></div>' +
+    '<div class="rglegend pinlegend"><span style="cursor:default"><i style="background:#2ecc71"></i>Has qualified tenant</span>' +
+    '<span style="cursor:default"><i style="background:#f5a623"></i>Live, none yet</span>' +
+    '<span style="cursor:default"><i style="background:#7a8aa8"></i>Position approximate</span></div>' +
     '<div class="rglegend">' + MAP_REGIONS.map(rg =>
       '<span data-rg="' + rg.key + '"' + (mapRegion === rg.key ? ' class="on"' : '') +
       '><i style="background:rgba(' + rg.color + ',.55)"></i>' + rg.label.charAt(0) + rg.label.slice(1).toLowerCase() + '</span>').join("") +
@@ -5032,6 +5044,7 @@ function renderMatchBoard(box, demand) {
   box.appendChild(el("div", "mapsec",
     "⇄ Supply meets demand by area — rooms you can offer on the left, tenants asking for that area on the right, " +
     "with how many qualify in the middle. Click either side to jump straight to it."));
+  if (!districts.length) { box.appendChild(el("div", "empty", "No rooms or tenants on file yet — this fills in once listings or requirements come in.")); return; }
   const wrap = el("div", "mboard");
   districts.forEach(d => {
     const sup = (supply[d] || []).slice().sort((a, b) => (numOf(a.rent_min) || 0) - (numOf(b.rent_min) || 0));
@@ -5246,13 +5259,20 @@ function renderMapMatches(l, box) {
   const sec = el("div");
   const count = el("div", "mapsec");
   sec.appendChild(count);
+  // (81) column filter inputs had a placeholder but no aria-label — a
+  // placeholder is not a reliable accessible name (it vanishes once typed
+  // into, and some screen readers never announce it at all). Each input now
+  // names its own column explicitly.
+  const mfLabel = { tenant: "Tenant", budget: "Budget", pax: "Pax", gender: "Gender",
+    movein: "Move in", lease: "Lease", pass: "Pass", wants: "Wants (location)", blocker: "Blocker or notes" };
   const filterRow =
     '<tr class="mfil">' +
-    '<th><input data-mf="fitMin" type="number" placeholder="min" value="' + esc(mapMatchFil.fitMin) + '"></th>' +
-    '<th><select data-mf="verdict">' + ["", "Strong fit", "Good fit", "Possible", "Needs info", "Blocked"].map(v =>
+    '<th><input data-mf="fitMin" type="number" placeholder="min" aria-label="Filter by minimum fit score" value="' + esc(mapMatchFil.fitMin) + '"></th>' +
+    '<th><select data-mf="verdict" aria-label="Filter by verdict">' + ["", "Strong fit", "Good fit", "Possible", "Needs info", "Blocked"].map(v =>
       '<option value="' + v + '"' + (mapMatchFil.verdict === v ? " selected" : "") + '>' + (v || "All") + '</option>').join("") + '</select></th>' +
     ["tenant", "budget", "pax", "gender", "movein", "lease", "pass", "wants", "blocker"].map(k =>
-      '<th><input data-mf="' + k + '" type="text" placeholder="' + (k === "budget" ? "min $" : "filter") + '" value="' + esc(mapMatchFil[k]) + '"></th>').join("") +
+      '<th><input data-mf="' + k + '" type="text" placeholder="' + (k === "budget" ? "min $" : "filter") +
+      '" aria-label="Filter by ' + mfLabel[k] + '" value="' + esc(mapMatchFil[k]) + '"></th>').join("") +
     '</tr>';
   const wrap = el("div", "maptablewrap",
     '<table class="maptable mapmatches"><thead><tr><th>Fit</th><th>Verdict</th><th>Tenant</th><th>Budget</th>' +

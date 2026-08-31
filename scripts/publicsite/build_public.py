@@ -210,6 +210,9 @@ def load_public_listings():
             "rent_txt": rent_text(l.get("rent_min"), l.get("rent_max")),
             "rules": neutral_rules(l.get("reqs"), l.get("cooking")),
             "photos": photos,
+            "lat": l.get("lat"),
+            "lng": l.get("lng"),
+            "geo_src": l.get("geo_src"),
             "available_from": l.get("available_from"),
             "slug": "%s-%s-%s" % (slugify(area.split(",")[0]) or slugify(dist),
                                   slugify(rtype), slugify(lid)),
@@ -233,18 +236,26 @@ header.site{border-bottom:1px solid var(--line);background:var(--navy2)}
 .hero p{color:var(--mut);font-size:17px;max-width:640px;margin:0 auto 18px}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:16px;margin:22px 0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
-.card .ph{aspect-ratio:4/3;background:#0b1730 center/cover no-repeat;display:block}
+.card .cardlink{display:flex;flex-direction:column;flex:1;color:inherit}
+.card .ph{aspect-ratio:4/3;object-fit:cover;width:100%;background:#0b1730;display:block}
 .card .noph{aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;color:var(--mut);background:#0b1730;font-size:13px}
 .card .bd{padding:12px 13px;flex:1;display:flex;flex-direction:column;gap:6px}
 .card h3{margin:0;font-size:15px}.card .price{color:var(--gold);font-weight:800;font-size:17px}
+.card .wabtn{display:flex;align-items:center;justify-content:center;gap:6px;background:#1e9d5a;color:#fff;font-weight:700;font-size:13px;padding:10px;border-top:1px solid var(--line)}
+.card .wabtn:hover{filter:brightness(1.08);text-decoration:none}
+.navlinks{display:flex;gap:16px;font-size:14px;flex:1 1 auto;justify-content:center}
+.navlinks a{color:var(--ink)}
 .chip{display:inline-block;background:#0d1c3a;border:1px solid var(--line);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--mut);margin:2px 3px 0 0}
 .sec{padding:26px 0;border-top:1px solid var(--line)}
 .sec h2{font-size:23px;margin:0 0 12px}
 .areas{display:flex;flex-wrap:wrap;gap:8px}
 .areas a{background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px;color:var(--ink);font-size:14px}
-#map{height:360px;border-radius:12px;border:1px solid var(--line);margin:8px 0}
+#map{height:360px;border-radius:12px;border:1px solid var(--line);margin:8px 0;background:#0b1730}
 .leaflet-tile-pane{filter:invert(1) hue-rotate(185deg) brightness(.92) contrast(.9)}
-.leaflet-container{background:#0b1730}.leaflet-popup-content a{color:#1a1300}
+.leaflet-container{background:#0b1730}
+.leaflet-popup-content{font-size:13px;line-height:1.5}
+.leaflet-popup-content a{color:#1a1300;font-weight:700}
+.srrpin{background:none;border:none}.srrpin svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
 .detail{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;padding:24px 0}
 @media(max-width:760px){.detail{grid-template-columns:1fr}.hero h1{font-size:27px}}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -293,6 +304,7 @@ def page(title, desc, body, canonical, jsonld=None, og_image=None):
 </head><body>
 <header class="site"><div class="wrap nav">
 <a class="brand" href="/">Singapore <b>Room Rental</b></a>
+<nav class="navlinks"><a href="/#areas">Areas</a><a href="/faq/">FAQ</a></nav>
 <a class="cta" href="%s" rel="noopener">WhatsApp %s</a>
 </div></header>
 %s
@@ -312,7 +324,8 @@ FAVICON = ("<link rel=\"icon\" href=\"data:image/svg+xml,"
 
 
 def card_html(l):
-    ph = ("<span class='ph' style=\"background-image:url('/%s')\"></span>" % e(l["photos"][0])) \
+    ph = ("<img class='ph' loading='lazy' decoding='async' src='/%s' alt='%s in %s, %s'>" %
+          (e(l["photos"][0]), e(l["rtype"]), e(l["area_short"]), e(l["district"]))) \
         if l["photos"] else "<span class='noph'>Photos on request</span>"
     price = l["rent_min"] or l["rent_max"] or 0
     cook = dict(l["rules"]).get("Cooking")
@@ -321,13 +334,21 @@ def card_html(l):
     if mrt:
         meta += "<span class='chip'>&#128647; %s &middot; %d min</span>" % (e(mrt["station"]), mrt["walk_min"])
     newb = "<span class='new'>NEW</span> " if l.get("is_new") else ""
-    return ('<a class="card" data-price="%d" data-area="%s" data-type="%s" href="/room/%s/">%s'
+    days_listed = l.get("days_listed")
+    wa_msg = e("Hi Winfred, I saw the %s in %s (%s) on your site, is it still available" %
+               (l["rtype"], l["area_short"], l["district"]))
+    return ('<div class="card" data-price="%d" data-area="%s" data-type="%s" data-listed="%d">'
+            '<a class="cardlink" href="/room/%s/">%s'
             '<span class="bd"><h3>%s%s in %s</h3>'
             '<span class="price">%s<span style="color:var(--mut);font-weight:400;font-size:12px">/mo</span></span>'
             '<span style="color:var(--mut);font-size:12px">%s (%s)</span>'
-            '<span class="meta">%s</span></span></a>') % (
-        price, e(l["area_slug"]), e(l["type_key"]), e(l["slug"]), ph,
-        newb, e(l["rtype"]), e(l["area_short"]), e(l["rent_txt"]), e(l["block"]), e(l["district"]), meta)
+            '<span class="meta">%s</span></span></a>'
+            '<a class="wabtn" href="%s?text=%s" rel="noopener" aria-label="WhatsApp Winfred about this room">&#128172; WhatsApp</a>'
+            '</div>') % (
+        price, e(l["area_slug"]), e(l["type_key"]), (days_listed if days_listed is not None else 9999),
+        e(l["slug"]), ph,
+        newb, e(l["rtype"]), e(l["area_short"]), e(l["rent_txt"]), e(l["block"]), e(l["district"]), meta,
+        WA_LINK, wa_msg)
 
 
 def room_page(l):
@@ -400,7 +421,7 @@ def room_page(l):
         e(l["rent_txt"]), e(AGENT),
         WA_LINK, e("Hi Winfred, I saw the %s in %s (%s) on your site, is it still available" % (l["rtype"], l["area_short"], l["district"])),
         e(AGENT), e(AGENT_CEA),
-        map_js(lat, lng, l["area_short"]),
+        map_js(lat, lng, l["area_short"], points=[_map_point(l, link=False)]),
         json.dumps(breadcrumb),
     )
     # Cross-site funnel: today's renter is tomorrow's buyer — soft bridge to the
@@ -414,18 +435,65 @@ def room_page(l):
                 og_image=("%s/%s" % (BASE_URL, l["photos"][0]) if l["photos"] else None))
 
 
+def _map_point(l, link=True):
+    """One pin's worth of public data: area, rent, room type, and (optionally) a
+    link to that room's own page. approx=True means this pin is a district-centre
+    fallback, not the block's real position — never an exact unit."""
+    return {
+        "lat": l["lat"], "lng": l["lng"],
+        "area": e(l["area_short"]), "rtype": e(l["rtype"]), "rent": e(l["rent_txt"]),
+        "url": ("/room/%s/" % l["slug"]) if link else "",
+        "approx": bool(l.get("approx")),
+    }
+
+
 def map_js(lat, lng, label, points=None):
-    pts = points or [{"lat": lat, "lng": lng, "label": label, "url": ""}]
+    """Self-contained Leaflet map: vendored (no CDN) leaflet.css/js under /vendor/,
+    one SVG teardrop drop-pin per listing (gold = geocoded, grey = approximate
+    district-centre fallback), popup = area + rent + room type + a link to the
+    room page. The JS bundle is only fetched once #map scrolls near the
+    viewport, so it never blocks first paint of the listing cards above it."""
+    pts = points or [{"lat": lat, "lng": lng, "area": e(label), "rtype": "", "rent": "", "url": "", "approx": False}]
+    zoom = 11 if len(pts) > 1 else 14
     return """
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="/vendor/leaflet.css">
 <script>
-(function(){var m=L.map('map',{scrollWheelZoom:false}).setView([%s,%s],%s);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(m);
-var pts=%s;pts.forEach(function(p){var mk=L.marker([p.lat,p.lng]).addTo(m);
-mk.bindPopup(p.url?('<a href=\"'+p.url+'\">'+p.label+'</a>'):p.label);});
-if(pts.length>1){m.fitBounds(pts.map(function(p){return [p.lat,p.lng];}),{padding:[30,30]});}})();
-</script>""" % (lat, lng, 14 if not points else 11, json.dumps(pts))
+(function(){
+var el=document.getElementById('map'); if(!el) return;
+var pts=%s, lat=%s, lng=%s, zoom=%s;
+function pinIcon(approx){
+  var color=approx?'#7a8aa8':'#c8a24a';
+  var svg='<svg width="24" height="34" viewBox="0 0 24 34" xmlns="http://www.w3.org/2000/svg">'+
+    '<path d="M12 0C5.4 0 0 5.4 0 12c0 9 12 22 12 22s12-13 12-22C24 5.4 18.6 0 12 0z" fill="'+color+
+    '" stroke="#0b1730" stroke-width="1.5"/><circle cx="12" cy="12" r="4.4" fill="#0b1730" fill-opacity=".55"/></svg>';
+  return L.divIcon({html:svg,className:'srrpin',iconSize:[24,34],iconAnchor:[12,34],popupAnchor:[0,-30]});
+}
+function boot(){
+  var m=L.map('map',{scrollWheelZoom:false}).setView([lat,lng],zoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(m);
+  pts.forEach(function(p){
+    var mk=L.marker([p.lat,p.lng],{icon:pinIcon(p.approx)}).addTo(m);
+    var body='<b>'+(p.rtype?p.rtype+' in ':'')+p.area+'</b>'+(p.rent?'<br>'+p.rent+'/mo':'')+
+      (p.approx?'<br><span style="color:#7a8aa8;font-size:11px">approximate location</span>':'')+
+      (p.url?'<br><a href="'+p.url+'">View room &rsaquo;</a>':'');
+    mk.bindPopup(body);
+  });
+  if(pts.length>1){try{m.fitBounds(pts.map(function(p){return [p.lat,p.lng];}),{padding:[30,30]});}catch(e){}}
+  setTimeout(function(){try{m.invalidateSize();}catch(e){}},60);
+}
+function loadLeaflet(cb){
+  if(window.L){cb();return;}
+  var s=document.createElement('script');
+  s.src='/vendor/leaflet.js'; s.onload=cb; document.head.appendChild(s);
+}
+if('IntersectionObserver' in window){
+  var io=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ io.disconnect(); loadLeaflet(boot); } });
+  },{rootMargin:'250px'});
+  io.observe(el);
+} else { loadLeaflet(boot); }
+})();
+</script>""" % (json.dumps(pts), lat, lng, zoom)
 
 
 def homepage(listings, areas):
@@ -437,9 +505,7 @@ def homepage(listings, areas):
     by_area = {}
     for l in listings:
         by_area.setdefault(l["district"], []).append(l)
-    pts = [{"lat": l["lat"], "lng": l["lng"],
-            "label": "%s in %s &mdash; %s" % (l["rtype"], l["area_short"], l["rent_txt"]),
-            "url": "/room/%s/" % l["slug"]} for l in listings if l.get("lat")]
+    pts = [_map_point(l) for l in listings if l.get("lat") is not None]
     area_links = "".join("<a href='/rooms-in-%s/'>%s (%d)</a>" % (e(ls[0]["area_slug"]), e(ls[0]["area_short"]), len(ls))
                          for ls in by_area.values())
     cards = "".join(card_html(l) for l in listings[:24])
@@ -485,7 +551,7 @@ def homepage(listings, areas):
 <div class="trust"><span><b>%d</b> rooms available</span><span><b>Islandwide</b> — HDB &amp; condo</span><span>Marketed by <b>%s</b> · CEA %s</span></div>
 </section>
 <div class="pills">%s</div>
-<section class="sec"><h2>Where the rooms are</h2>
+<section class="sec" id="areas"><h2>Where the rooms are</h2>
 <div id="map"></div>
 <div class="areas" style="margin-top:10px">%s</div>
 </section>
@@ -494,6 +560,7 @@ def homepage(listings, areas):
 <select id="fArea"><option value="">All areas</option>%s</select>
 <select id="fType"><option value="">All room types</option>%s</select>
 <select id="fPrice"><option value="">Any price</option><option value="900">Under $900</option><option value="1200">Under $1,200</option><option value="1500">Under $1,500</option><option value="2000">Under $2,000</option></select>
+<select id="fSort"><option value="">Sort: Relevance</option><option value="price-asc">Price: Low to High</option><option value="price-desc">Price: High to Low</option><option value="newest">Newest first</option></select>
 </div>
 <div class="grid" id="roomgrid">%s</div>
 <div class="noresult" id="noresult" style="display:none">No rooms match those filters. Try widening them, or <a href="%s" rel="noopener">message Winfred</a> — new rooms come in weekly.</div>
@@ -503,10 +570,16 @@ def homepage(listings, areas):
 %s
 <script>
 (function(){var g=document.getElementById('roomgrid');if(!g)return;var cards=[].slice.call(g.children);
-function apply(){var a=fArea.value,t=fType.value,p=parseInt(fPrice.value||0,10),n=0;
-cards.forEach(function(c){var ok=(!a||c.dataset.area===a)&&(!t||c.dataset.type===t)&&(!p||(+c.dataset.price)<=p);c.style.display=ok?'':'none';if(ok)n++;});
+function apply(){
+var a=fArea.value,t=fType.value,p=parseInt(fPrice.value||0,10),s=fSort.value,n=0;
+var arr=cards.slice();
+if(s==='price-asc')arr.sort(function(x,y){return (+x.dataset.price)-(+y.dataset.price);});
+else if(s==='price-desc')arr.sort(function(x,y){return (+y.dataset.price)-(+x.dataset.price);});
+else if(s==='newest')arr.sort(function(x,y){return (+x.dataset.listed)-(+y.dataset.listed);});
+arr.forEach(function(c){var ok=(!a||c.dataset.area===a)&&(!t||c.dataset.type===t)&&(!p||(+c.dataset.price)<=p);
+c.style.display=ok?'':'none';if(ok)n++;g.appendChild(c);});
 document.getElementById('noresult').style.display=n?'none':'block';}
-['fArea','fType','fPrice'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('change',apply);});})();
+['fArea','fType','fPrice','fSort'].forEach(function(id){var el=document.getElementById(id);if(el)el.addEventListener('change',apply);});})();
 </script>
 <script type="application/ld+json">%s</script>
 <script type="application/ld+json">%s</script>""" % (
@@ -531,8 +604,7 @@ def area_page(area_short, area_slug, district, listings, areas):
     desc = ("Rooms for rent in %s (%s), Singapore — %d available from $%s a month. HDB and condo rooms marketed by %s (CEA %s)." %
             (area_short, district, len(listings), "{:,}".format(lo), AGENT, AGENT_CEA))
     cards = "".join(card_html(l) for l in listings)
-    pts = [{"lat": l["lat"], "lng": l["lng"], "label": "%s &mdash; %s" % (l["rtype"], l["rent_txt"]),
-            "url": "/room/%s/" % l["slug"]} for l in listings if l.get("lat")]
+    pts = [_map_point(l) for l in listings if l.get("lat") is not None]
     lat, lng = (pts[0]["lat"], pts[0]["lng"]) if pts else DISTRICT_LATLNG.get(district, (1.3521, 103.8198))
     body = """<div class="wrap">
 <div class="crumbs"><a href="/">Home</a> › Rooms in %s</div>
@@ -617,7 +689,9 @@ def guide_page(slug, g, nav_pills):
             'or <a href="/">browse rooms in other areas</a>.</p>'
             '<div class="pills">%s</div></div>%s') % (
         e(g["name"]), e(g["name"]), e(g.get("district", "")), e(g["text"]), e(g["name"]),
-        WA_LINK, nav_pills, map_js(lat, lng, g["name"]))
+        WA_LINK, nav_pills,
+        map_js(lat, lng, g["name"], points=[{"lat": lat, "lng": lng, "area": e(g["name"]),
+                                              "rtype": "", "rent": "", "url": "", "approx": True}]))
     return page(title, desc, body, canonical)
 
 
@@ -625,6 +699,18 @@ def write(path, content):
     full = os.path.join(DIST, path)
     os.makedirs(os.path.dirname(full), exist_ok=True)
     open(full, "w").write(content)
+
+
+def copy_vendor_assets():
+    """Self-hosted Leaflet (no CDN) — same vendored copy the private Matchmaker
+    app inlines, just served as static files here since this build produces
+    many separate pages rather than one single-file app."""
+    import shutil
+    src = os.path.join(REPO, "scripts", "matchmaker", "vendor")
+    dst = os.path.join(DIST, "vendor")
+    os.makedirs(dst, exist_ok=True)
+    for fn in ("leaflet.css", "leaflet.js"):
+        shutil.copy(os.path.join(src, fn), os.path.join(dst, fn))
 
 
 def copy_photos(listings):
@@ -642,20 +728,29 @@ def copy_photos(listings):
 def main():
     import time
     listings, areas = load_public_listings()
-    # accurate pins: geocode each block via OneMap (cached + throttled); fall back
-    # to the district centre only if a block can't be resolved.
+    # Per-listing pins: prefer the lat/lng Matchmaker already geocoded (carried
+    # in matchmaker-data.json as lat/lng/geo_src — "exact" or "approx"), since
+    # that pipeline is already vetted and needs no extra network calls here.
+    # Only fall back to OneMap (cached + throttled), then the district centre,
+    # for a listing Matchmaker hasn't geocoded yet.
     try:
         cache = json.load(open(GEOCACHE))
     except Exception:
         cache = {}
     for l in listings:
-        ll = onemap(l.get("_geoq"), cache)
-        if not ll:
-            ll = list(DISTRICT_LATLNG.get(l["district"], (1.3521, 103.8198)))
-            l["approx"] = True
-        l["lat"], l["lng"] = ll[0], ll[1]
-        if l.get("_geoq") not in cache or cache.get(l.get("_geoq")) is None:
-            time.sleep(0.3)   # be polite to OneMap on fresh lookups
+        if l.get("lat") is not None and l.get("lng") is not None:
+            l["approx"] = (l.get("geo_src") == "approx")
+        else:
+            ll = onemap(l.get("_geoq"), cache)
+            if not ll:
+                ll = list(DISTRICT_LATLNG.get(l["district"], (1.3521, 103.8198)))
+                l["approx"] = True
+            else:
+                l["approx"] = False
+            l["lat"], l["lng"] = ll[0], ll[1]
+            if l.get("_geoq") not in cache or cache.get(l.get("_geoq")) is None:
+                time.sleep(0.3)   # be polite to OneMap on fresh lookups
+        l.pop("geo_src", None)
     json.dump(cache, open(GEOCACHE, "w"))
     # nearest MRT per listing (shared module, its own cached station coords)
     mrt_cache = mrt_stations.ensure_cache()
@@ -731,6 +826,7 @@ def main():
     for l in listings:
         urls.append("%s/room/%s/" % (BASE_URL, l["slug"]))
     copy_photos(listings)
+    copy_vendor_assets()
 
     # sitemap / robots / llms.txt (GEO)
     sm = "".join("<url><loc>%s</loc></url>" % u for u in urls)

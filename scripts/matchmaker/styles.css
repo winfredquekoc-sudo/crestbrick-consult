@@ -83,9 +83,16 @@ select.mk{padding:3px 6px}
 .badge.scratch{background:rgba(155,140,255,.18);color:var(--purple-ink)}
 .badge.cobroke{background:rgba(91,140,255,.18);color:var(--acc)}
 .badge.overridden{background:rgba(245,166,35,.18);color:var(--amb-ink)}
-.badge.urgent{background:rgba(224,49,49,.18);color:#c92a2a;font-weight:700}
-.badge.inforich{background:rgba(34,139,230,.15);color:#1864ab}
-.badge.persona{background:rgba(45,160,106,.14);color:#1b7a4b;text-transform:none;letter-spacing:0}
+/* (80) urgent/inforich/persona used to hardcode a light-mode-tuned ink
+   (e.g. #c92a2a) instead of the themed --red-ink/--acc/--grn-ink vars every
+   other status chip uses — on the app's default dark theme that measured
+   ~2.4:1 contrast against the tinted chip background, well under WCAG AA's
+   4.5:1 floor, on the badge that flags priority/pinned tenants throughout
+   the worklist and tables. Themed vars restore ~4.8:1 in dark and match the
+   existing light-mode look almost exactly (values were already close). */
+.badge.urgent{background:rgba(224,49,49,.18);color:var(--red-ink);font-weight:700}
+.badge.inforich{background:rgba(34,139,230,.15);color:var(--acc)}
+.badge.persona{background:rgba(45,160,106,.14);color:var(--grn-ink);text-transform:none;letter-spacing:0}
 .badge.declined{background:rgba(255,92,108,.14);color:var(--red-ink)}
 
 /* triage mode: focused card, key legend, sticky bottom action bar */
