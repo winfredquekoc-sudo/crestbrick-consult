@@ -2352,3 +2352,97 @@ def init_landlord_followup_schedule(timestamp):
     
     return schedule
 
+# ========== LANDLORD TENANT MATCHING & 99.CO AUTO-LISTING INTEGRATION ==========
+# Called from wa_intake_runner.py when landlord form completion is detected.
+
+def _try_import_matcher():
+    """Safely import the matcher module; return None if import fails."""
+    try:
+        import landlord_tenant_matcher as matcher
+        return matcher
+    except ImportError:
+        return None
+
+def _try_import_99co_lister():
+    """Safely import the 99.co lister module; return None if import fails."""
+    try:
+        import ninety_nine_co_lister as lister_99co
+        return lister_99co
+    except ImportError:
+        return None
+
+def on_landlord_form_completed(state, pn, form_text, landlord_name=""):
+    """
+    Trigger when a landlord's form is detected as complete.
+    Matches against active tenants, sends notifications, and queues 99.co listing.
+
+    Args:
+        state: intake-state.json dict (mutable; will be updated with match tracking)
+        pn: landlord's phone number
+        form_text: the completed form text
+        landlord_name: landlord's name (optional)
+
+    Returns:
+        List of action dicts: [
+            {"type": "SEND_MATCH", "tenant_pn": "...", "text": "..."},
+            {"type": "CONFIRM_LISTING", "text": "..."},
+            ...
+        ]
+    """
+    actions = []
+
+    # Load matcher module
+    matcher = _try_import_matcher()
+    if not matcher:
+        return [{"type": "FLAG_HUMAN", "notify": True, "reason": "Matcher module not available"}]
+
+    # Run matching
+    try:
+        match_actions = matcher.on_landlord_form_completed(state, pn, form_text)
+        actions.extend(match_actions)
+    except Exception as e:
+        actions.append({
+            "type": "FLAG_HUMAN",
+            "notify": True,
+            "reason": f"Matching failed: {str(e)}"
+        })
+
+    # Try to create 99.co listing
+    lister = _try_import_99co_lister()
+    if lister:
+        try:
+            listing_result = lister.on_landlord_form_completed_for_99co(
+                pn, form_text, landlord_name
+            )
+            if listing_result.get("success"):
+                url = listing_result.get("url")
+                listing_key = listing_result.get("listing_key")
+                msg = (
+                    f"Your room is now live on 99.co!\n"
+                    f"View it here: {url or f'(listing key: {listing_key})'}\n\n"
+                    f"I will also send matched tenants from my network. "
+                    f"You will hear from them within 24-48 hours."
+                )
+                actions.append({
+                    "type": "SEND_CONFIRMATION",
+                    "landlord_pn": pn,
+                    "text": msg,
+                })
+            elif listing_result.get("pending"):
+                actions.append({
+                    "type": "FLAG_HUMAN",
+                    "notify": True,
+                    "reason": (
+                        f"99.co listing queued (not yet auto-created). "
+                        f"Listing key: {listing_result.get('listing_key')}"
+                    ),
+                })
+        except Exception as e:
+            actions.append({
+                "type": "FLAG_HUMAN",
+                "notify": True,
+                "reason": f"99.co listing creation failed: {str(e)}"
+            })
+
+    return actions
+
