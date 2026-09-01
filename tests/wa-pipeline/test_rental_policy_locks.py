@@ -172,5 +172,64 @@ a_yes = E.handle_event(st_yes, {"jid": "6590100098@s.whatsapp.net", "msg_id": "y
 ok("explicit yes against an ACTUALLY offered slot -> CONFIRM_VIEWING (contrast case)",
    a_yes and a_yes["type"] == "CONFIRM_VIEWING")
 
+print("== 6. LANDLORD REDACTION: tenant flow never emits a landlord-bound send with name/email/budget ==")
+# Winfred's rule (2 Sep 2026): any landlord-facing tenant summary must omit the tenant's
+# name, email and budget. Today the engine has NO auto-send-to-landlord path at all -- a
+# qualified tenant yields OFFER_VIEWING (tenant-facing slot offer + a Winfred ping), and the
+# actual forward to the owner is Winfred's manual step. This guard LOCKS that: it trips the
+# day any change adds a landlord-directed send carrying those fields.
+_LANDLORD_SEND_TYPES = ("SEND_TO_LANDLORD", "NOTIFY_LANDLORD", "LANDLORD_PROFILE",
+                        "FORWARD_TO_LANDLORD", "SEND_PROFILE", "LANDLORD_NOTIFY")
+st_rd = {"version": 1, "conversations": {
+    "6590999030": {"pn": "6590999030", "listing_key": "bayshore", "stage": "NEW",
+                    "profile": {}, "processed_ids": [], "form_sent": False,
+                    "asked_fields": [], "viewing_asked": False, "viewing_confirmed": False,
+                    "manual_takeover": False, "status": "new", "last_inbound": None}}}
+jid_rd = "6590999030@s.whatsapp.net"; pn_rd = "6590999030"
+a_rd1 = E.handle_event(st_rd, {"jid": jid_rd, "msg_id": "rd1",
+                                "text": "hi is the bayshore room available to rent?",
+                                "is_from_me": 0})
+st_rd["conversations"][pn_rd]["form_sent_ts"] -= 300
+# distinctive, greppable PII markers so any echo of them anywhere is unmistakable.
+_rd_form = ("Name: Zorptenant Uniquename\nEmail: zorptenant@example.com\n"
+            "Nationality: Malaysian\nNo. of Pax: 1\nBudget: 2500\nLease: 12 months")
+a_rd2 = E.handle_event(st_rd, {"jid": jid_rd, "msg_id": "rd2", "text": _rd_form, "is_from_me": 0})
+_actions = [a for a in (a_rd1, a_rd2) if a]
+ok("qualified tenant -> OFFER_VIEWING (tenant-facing + Winfred ping), not a landlord send",
+   a_rd2 and a_rd2["type"] == "OFFER_VIEWING")
+ok("tenant flow emits NO landlord-directed send action type",
+   all(a.get("type") not in _LANDLORD_SEND_TYPES for a in _actions))
+_out = ((a_rd2 or {}).get("text") or "").lower()
+ok("qualified reply text does not echo the tenant's budget figure", "2500" not in _out)
+ok("qualified reply text carries no email address", "@" not in _out)
+
+print("== 7. UNIT REJECTION: 'dont like' always routes onward (nearby alt OR channel); 'found a place' closes ==")
+# Winfred's rule (2 Sep 2026): when a tenant does not like the unit, auto-route them onward --
+# a nearby same-district/preferred-location alternative if one fits, else the rental channel.
+# Already built: withdrawal_signal is checked FIRST (someone who found a place elsewhere is
+# closed, never cross-sold), then _unit_rejection cross-sells via suggest_alternative (SUGGEST_ALT)
+# or, if nothing fits, REDIRECT with the CHANNEL link. This locks both branches.
+def _active_rec(pn, listing="caspian"):
+    return {"version": 1, "conversations": {pn: {
+        "pn": pn, "listing_key": listing, "stage": "FORM_SENT", "profile": {},
+        "processed_ids": [], "form_sent": True, "asked_fields": [], "viewing_asked": False,
+        "viewing_confirmed": False, "manual_takeover": False, "status": "awaiting_form",
+        "alt_suggested": False, "buyer_form_sent": False, "last_inbound": None}}}
+st_ur = _active_rec("6590100077")
+a_ur = E.handle_event(st_ur, {"jid": "6590100077@s.whatsapp.net", "msg_id": "ur1",
+                               "text": "i don't like this one, too small", "is_from_me": 0})
+ok("unit rejection -> SUGGEST_ALT or REDIRECT (tenant never just dropped)",
+   a_ur and a_ur.get("type") in ("SUGGEST_ALT", "REDIRECT"))
+_urt = (a_ur or {}).get("text") or ""
+ok("onward route is concrete: a nearby alternative to view, OR the rental channel link",
+   (a_ur and a_ur.get("type") == "SUGGEST_ALT" and "arrange a viewing" in _urt.lower())
+   or (E.CHANNEL in _urt))
+# contrast: 'found a place already' is a withdrawal -> AUTO_CLOSED, never a cross-sell / channel push.
+st_w = _active_rec("6590100076")
+a_w = E.handle_event(st_w, {"jid": "6590100076@s.whatsapp.net", "msg_id": "w1",
+                             "text": "thanks, i found a place already", "is_from_me": 0})
+ok("withdrawal ('found a place already') -> AUTO_CLOSED, not a cross-sell",
+   a_w and a_w.get("type") == "AUTO_CLOSED")
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
