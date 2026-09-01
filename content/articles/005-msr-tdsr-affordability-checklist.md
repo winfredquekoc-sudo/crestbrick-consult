@@ -91,12 +91,43 @@ Using the MSR limit, translate to maximum affordable price:
 - At 2.6% interest, 25-year tenure: $1,200/month payment ≈ $300k max loan ≈ $375k max flat price (20% down)
 - At 2.6% interest, 30-year tenure: $1,200/month payment ≈ $330k max loan ≈ $410k max flat price
 
+## Reverse Calculator: "What Property Price Can I Afford?"
+
+**If you want to limit monthly HDB payments to $X, here's your max property price:**
+
+| Target Payment | At 25-Year Tenure (2.6%) | At 30-Year Tenure (2.6%) |
+|---|---|---|
+| $1,000 | $250k loan (~$312k property) | $275k loan (~$344k property) |
+| $1,500 | $375k loan (~$469k property) | $412k loan (~$515k property) |
+| $2,000 | $500k loan (~$625k property) | $550k loan (~$688k property) |
+| $2,500 | $625k loan (~$781k property) | $687k loan (~$859k property) |
+
+**How to use:** Pick a comfortable monthly payment, find your max property price, then check if TDSR allows it (add all other debts to the $X payment; must stay under 60% of income).
+
+## Income Recognition in MSR/TDSR
+
+**What counts as monthly gross income:**
+- Base salary (full amount)
+- Spouse's salary (if married/co-borrower)
+- Guaranteed bonuses (annual ÷ 12, but lender may discount by 50%)
+- Rental income (gross rent × 0.8, accounting for vacancy)
+- Self-employed income (based on 1–2 years of tax returns, usually conservative)
+
+**What does NOT count:**
+- CPF deductions (already excluded from gross)
+- Investment returns (stocks, crypto—too volatile)
+- Expected raises (until they're in your tax return)
+- Bonus if you just started a job (need 1-year history)
+
+**Rental income gotcha:** If you own a rental property, that income counts toward affordability BUT eating into your TDSR ceiling. E.g., if you earn $5k salary + $1k rental (= $6k total), and rental income uses $600 toward TDSR, your HDB payment ceiling is lower than if you had $6k pure salary.
+
 ## Common Mistakes
 
 1. **Forgetting existing debts in TDSR:** Car loan reduces your HDB affordability. Pay it off first.
-2. **Assuming bonus is guaranteed income:** Most lenders count only base salary.
+2. **Assuming bonus is guaranteed income:** Most lenders count only base salary (or 50% of bonus if proven over 2+ years).
 3. **Not accounting for interest rate rises:** Today's 2.6% might be 3.5% in 2-3 years; plan conservatively.
 4. **Overestimating down payment available:** CPF limits apply; don't assume you can use all your OA.
+5. **Counting spousal income without co-borrower status:** If spouse co-borrows, their debt counts in TDSR too. If spouse is only providing down payment, their income doesn't count.
 
 **Ready to calculate your affordability?** [Book a 30-minute qualification check](https://calendly.com/winfred-quek), or [message me on WhatsApp](https://wa.me/6588260175) with your income and debts for a custom calculation.
 

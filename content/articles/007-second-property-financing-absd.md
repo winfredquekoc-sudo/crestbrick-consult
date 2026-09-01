@@ -87,16 +87,44 @@ If you frame the 2nd property as an **investment/rental property** (not owner-oc
 
 **Trade-off:** Rental property financing is easier to approve but rates are higher. Monthly payment on a $450k rental loan might be $2,400+ vs. $2,160 for owner-occupied.
 
-## The Multi-Property Ladder Strategy
+## Debt Paydown Roadmap: Preparing for 2nd Property Purchase
 
-Sophisticated investors use this approach:
+Most buyers who can't afford a 2nd property immediately CAN afford one within 3–5 years if they aggressively pay down their first property. Here's the strategy:
 
-**Year 1:** Buy first HDB flat, owner-occupied, $300k total cost
-**Year 6:** Upgrade to private property (1st residential), owner-occupied, $500k total cost, sell HDB
-**Year 12:** Buy 2nd private property as rental/investment, $600k, structured as rental for better LTV
-**Year 18:** Refinance or sell one of the properties to fund 3rd acquisition
+**Timeline: Year 1–5, Plan for Year 6 2nd Property Purchase**
 
-Each step strategically manages ABSD, LTV caps, and available capital. Jumpers who try to buy 2nd private property immediately after 1st often run into cash-flow and LTV walls.
+| Year | Action | 1st Property Mortgage | Annual Extra Payment | Impact |
+|---|---|---|---|---|
+| 1 | Buy HDB, $500k, $100k down | $400k | $0 | Base case |
+| 2–3 | Normal payments | $350k | $10k/year (bonus) | Pace of decrease |
+| 4–5 | Aggressive paydown | $280k | $40k/year (bonus + salary increase) | Accelerated |
+| 6 | **Ready for 2nd property** | $250k remaining | — | Equity freed up |
+
+**By Year 6:**
+- 1st property equity: ~$300k ($550k value - $250k mortgage)
+- This equity can be refinanced or used as collateral for 2nd property down payment
+- OR: Rent out the 1st property, use monthly cash flow to support 2nd property mortgage
+
+**Aggressive Paydown Mechanics:**
+1. **Annual bonus:** Route 100% to mortgage principal (don't spend it)
+2. **Salary raises:** Increase mortgage payment by 50% of raise amount
+3. **Rental income:** If you rent out the 1st property, apply 80% of net rental income to 2nd property mortgage (once acquired)
+4. **Tax refunds and windfalls:** All to mortgage principal
+
+**Example Math:**
+- Year 1 mortgage: $400k @ 2.6% over 25 years = $1,910/month
+- Year 2: Receive $15k bonus, pay $15k extra to principal → mortgage drops to $385k
+- Year 3–4: Salary raises, pay extra $500–600/month → mortgage to $350k
+- Year 5: Large bonus of $40k + regular raises → mortgage to $280k
+- Year 6: Refinance 1st property (now worth $550k) for $300k (down from $400k) → frees up $100k for 2nd property down payment
+
+**Result:** 2nd property becomes affordable because:
+1. Your income has risen 20–30% (normal career progression)
+2. 1st property equity is now substantial ($300k)
+3. Monthly debt servicing on 1st property is lower ($1,700/month vs. $1,910)
+4. Your TDSR ceiling is higher with same debt obligations
+
+This is the realistic path for most 2nd property buyers: not buying immediately, but buying strategically after 5–6 years of preparation.
 
 ## Checklist: 2nd Property Financing
 

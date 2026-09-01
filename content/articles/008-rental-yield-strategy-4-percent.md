@@ -42,14 +42,25 @@ Annual costs: Property tax ($300-500), maintenance reserve ($2-3k), agent fees (
 
 **Key insight:** HDB typically yields 6-8% gross; Private condo yields 3-5% gross. If yield is your goal, HDB outperforms significantly.
 
-## Location Timing for Yield Maximization
+## Emerging Markets: Where 4%+ Yields Hide
 
-**High-yield locations (emerging):**
-- Areas pre-MRT opening: Temporary undervaluation + eventual appreciation
-- Redevelopment zones: Prices low before infrastructure completion
-- Mature estates with new HDB supply: Downward price pressure, high rental demand
+**High-yield locations (emerging, 2026 watch list):**
+- **Punggol** (pre-Coney Island MTR, 2027–2028 opening): 3-room HDB yielding 6-7%, poised for 8-12% appreciation
+- **Tampines North** (new BTO estate, 2028–2030 completion): Early rental demand from adjacent Punggol overflow, current yields 6.5%
+- **Woodlands** (North-South Corridor extension 2027–2030): Legacy pricing, high rental demand from Malaysian commuters, 6-7% yields
+- **Tuas** (Jurong Region Line 2028–2031): Industrial renewal zone, yields currently 6-8% on new HDB supply
+- **Ang Mo Kio** (mature estate, new PMD infrastructure): Overlooked area, 6% yields, stable professional tenant base
 
-Example: A 3-room HDB in an area 2-3 years pre-MRT opening might yield 7% while priced at a discount. Once MRT opens, appreciation is 8-12% annually, and yield compresses to 4-5% (price rises, rent stabilizes). Early investors capture both yield and appreciation; latecomers get appreciation only.
+**Low-yield locations (mature, premium):**
+- Clementi, Bedok, Tampines (central + proven demand = prices bid up): 3-4% yields
+- New launches in established areas: Developer premium pricing leaves 2.5-3% yield room
+- Freehold condos: Scarcity > yield; appreciation outweighs cash flow
+
+**Timing Strategy:**
+A 3-room HDB in pre-MRT area (Year 1): 7% yield @ $380k = $26.6k annual rent
+Same property 3 years later (MRT now open): 4.5% yield @ $550k = $24.75k annual rent
+
+Paradox: Your annual rent drops slightly, but your property appreciated $170k. Early adopters in emerging areas capture BOTH yield ($80k cumulative rent) AND appreciation ($170k). Latecomers get appreciation only.
 
 **Low-yield locations (mature, premium):**
 - Central areas (Clementi, Bedok, Tampines): Strong demand but prices bid up to justify 3% yield
@@ -70,18 +81,32 @@ Example: A 3-room HDB in an area 2-3 years pre-MRT opening might yield 7% while 
 - Expected rent paid: 85-90% (more frequent defaults, longer recovery time)
 - Turnover cost: 2-3 months every 3 years (legal action, eviction delays)
 
-**Yield impact example:**
-- Quoted rent: $2,500/month ($30,000/year)
-- Professional tenant (95% paid, 0 vacancy): $28,500 collected
-- Student tenant (90% paid, 1 month vacancy): $27,000 collected
-- Affordable rental (85% paid, 2 months vacancy): $25,500 collected
+## Tenant Quality Scoring Framework
 
-Over 10 years:
-- Professional: $285,000 collected
-- Student: $270,000 collected
-- Affordable: $255,000 collected
+Score each prospective tenant (1=low, 5=high risk):
 
-**$30,000 difference over 10 years** on a single $300k property. Tenant quality matters.
+| Factor | Score 5 (Safe) | Score 3 (Moderate) | Score 1 (High Risk) |
+|---|---|---|---|
+| **Employment** | Established company (10+ yrs tenure) | Mid-size firm or 3+ years | Startup, contract, or unknown |
+| **Income** | 3x rent + savings proof | 2x rent, moderate savings | 1.5x rent, minimal savings |
+| **Payment History** | References show on-time history | Occasional delays (1-2x) | Late payments frequent or legal action |
+| **Lease Duration** | 24+ months signed | 12 months | Month-to-month or short-term |
+| **Guarantor** | Parent or employer co-sign | Corporate housing (stable) | No guarantor |
+
+**Scoring:** 
+- 20-25 = Professional tenant (hire immediately, 95%+ payment likelihood)
+- 15-19 = Mixed tenant (acceptable, plan for 10-15% vacancy/default risk)
+- <15 = High-risk tenant (price rent 15-20% premium as buffer, or decline)
+
+**Yield Adjustment:**
+- Safe tenant (score 20-25): Use 95% collection rate, 5% vacancy
+- Moderate (score 15-19): Use 90% collection rate, 10% vacancy  
+- High-risk (score <15): Use 85% collection rate, 15% vacancy OR reject
+
+**Example:** Quoted rent $2,500/month
+- Safe tenant: Expect $28,500/year ($2,500 × 11.4 months actual)
+- Moderate: Expect $27,000/year ($2,500 × 10.8 months actual)
+- High-risk: Expect $25,500/year ($2,500 × 10.2 months actual)
 
 ## 4%+ Yield Strategy (Practical Steps)
 

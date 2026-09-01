@@ -123,6 +123,49 @@ Not every inspection finding warrants renegotiation. Be strategic. If the inspec
 
 Sellers respond better to focused requests ("adjust price $20,000 based on these three major issues") than to laundry lists ("we found 20 problems, here's a spreadsheet"). Less is more in negotiation.
 
+## Defect Inspection Checklist: What to Look For
+
+Use this checklist during your property inspection. Flag any items that apply; use this list to guide your professional inspector and your renegotiation.
+
+### Structural (Highest Priority)
+- [ ] Visible cracks in concrete walls or pillars (anything > 2mm width)
+- [ ] Cracks in ceiling or corners (sign of settlement/subsidence)
+- [ ] Sloping or uneven floors (use a level to check)
+- [ ] Doors or windows misaligned (won't close properly = structural movement)
+- [ ] Efflorescence (white salt deposits on walls = water penetration)
+
+### Water Damage & Moisture
+- [ ] Water stains on ceiling or walls (even old stains indicate past leaks)
+- [ ] Peeling paint or bubbling wallpaper (moisture trapped behind finish)
+- [ ] Musty smell (mold, typically in bathrooms, kitchens, or closed spaces)
+- [ ] Discoloration on exterior walls near joints (water ingress path)
+- [ ] Rust stains on surfaces (water seepage with iron oxide)
+
+### Electrical & Safety
+- [ ] Exposed wiring or loose outlets (code violation, fire hazard)
+- [ ] Burn marks around outlets or switches (electrical fault)
+- [ ] Non-standard circuit breakers or fuses (dangerous)
+- [ ] Missing or broken grounding pins on outlets (safety issue)
+
+### Plumbing
+- [ ] Slow drains or water backups (blockage or slope issue)
+- [ ] Low water pressure (aging pipes, mineral buildup)
+- [ ] Rust or discoloration in water (corroded pipes)
+- [ ] Visible leaks under sink or around toilets
+
+### Roof & External
+- [ ] Missing or damaged roof tiles/shingles
+- [ ] Rust or corrosion on metal (roof edges, air con frames)
+- [ ] Cracks in external concrete or render
+- [ ] Downpipes blocked or misaligned (water pooling)
+
+### HVAC & Appliances
+- [ ] Air conditioning units not cooling properly (compressor issues)
+- [ ] Noise from AC units (bearing wear, refrigerant leak)
+- [ ] Heater producing odor (rust or mold inside ducts)
+
+**Scoring:** 1-3 items flagged = cosmetic issues; 4-6 = moderate defects; 7+ = serious defects warranting professional inspection + renegotiation.
+
 ## Inspection Costs: The Investment Thesis
 
 A full structural inspection costs $1500-$2500 in Singapore. This seems expensive until you realize it can save $30,000-$100,000 in unexpected repairs or justify a $20,000-$50,000 price reduction. The ROI on inspection is 10:1 to 50:1.

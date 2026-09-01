@@ -90,19 +90,32 @@ Macro timing play: monitor government signals on foreigner purchase policy. 60�
 
 Singapore publishes regular economic sentiment surveys (Singapore's Economic Sentiment Index, various bank consumer confidence surveys). These sentiment measures often lead actual economic activity; when sentiment deteriorates, property demand softens 2–4 months later, even if employment and growth statistics haven't yet shown weakness.
 
-## The Integrated Macro Timing Model
+## The 9 Indicators Macro Scorecard (Monthly Tracker)
 
-Professional investors combine all these signals:
+Use this scorecard to rate the current macro environment. Score each indicator 1 (bearish) to 5 (bullish):
 
-1. Track HDB launch calendar (Q2-Q3 soft on private demand post-launch)
-2. Monitor MRT opening roadmap (12–18 months pre-opening = appreciation window)
-3. Watch CPF contribution growth (leading wage indicator)
-4. Monitor unemployment (early warning of demand weakness)
-5. Track interest rate curve (forward rate expectations)
-6. Monitor developer supply levels (high supply = buyer advantage, low supply = seller advantage)
-7. Anticipate school holiday demand windows (January, April-May, August-September peak)
-8. Watch for foreigner policy signals (panic selling opportunities)
-9. Monitor economic sentiment indices (leading consumer confidence)
+| Indicator | Bullish Signal (5) | Neutral (3) | Bearish Signal (1) | Current Score |
+|---|---|---|---|---|
+| **1. HDB Launch Activity** | Quiet (low supply diversion) | Moderate launches | Major launch (diverts demand) | — |
+| **2. MRT Expansion Timeline** | Opening in 6–18 months (appreciation phase) | No imminent openings | MRT built-in already | — |
+| **3. CPF Contribution Growth** | >4% YoY (strong wages) | 2–3% YoY | <2% YoY (stalling income) | — |
+| **4. Unemployment Rate** | <2.2% (strong employment) | 2.2–2.5% | >2.5% (demand risk) | — |
+| **5. Interest Rate Curve** | Stable to declining rates expected | Neutral outlook | Rising rates expected | — |
+| **6. Developer Supply Pipeline** | <5,000 units (low supply, seller advantage) | 5k–10k units | >15k units (high supply, buyer advantage) | — |
+| **7. School Holiday Demand Window** | We are IN peak month (Jan, Apr–May, Aug–Sep) | Off-season building | Post-holiday lull | — |
+| **8. Foreigner Policy Climate** | Stable/loosening rules | Neutral outlook | Policy tightening signals | — |
+| **9. Economic Sentiment Index** | >50 (strong confidence) | 45–55 (neutral) | <45 (weakening confidence) | — |
+
+**TOTAL SCORE: ___/45**
+
+**Interpretation:**
+- **36–45 (Bullish):** Strong buying case. Properties appreciate; limited negotiating leverage. Best for long-term holders.
+- **25–35 (Neutral):** Balanced market. Prices stable. Good for steady investing. Negotiate moderately.
+- **<25 (Bearish):** Strong buyer's market. Discounts available, high negotiating leverage. But appreciation odds are lower.
+
+**Application:** A score of 38+ = execute buy in core location; hold for 5+ years. A score of 18 = negotiate aggressively, buy only if 10+ year horizon. A score of 28 = decent entry, decent appreciation odds.
+
+**Monthly Update:** Revisit this scorecard monthly using data from the Monetary Authority of Singapore (MAS), Department of Statistics, CPF Board, and Property Council.
 
 A macro timing scenario: CPF contributions are growing 5% year-on-year, unemployment stable at 2%, and an MRT opening is 14 months away in the area you're targeting. Interest rate curve shows stable outlook. Developer supply is moderate. This scenario is bullish: HDB impact is neutral (no major launch pending), employment is strong, MRT is approaching, rates are steady. Time to buy in the MRT corridor and hold through the appreciation window.
 
