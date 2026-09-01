@@ -136,7 +136,7 @@ def room_type_label(units):
         return "Studio"
     if "common" in types:
         return "Common room"
-    return "Room"
+    return "Common room"  # a room with no specific type (e.g. unit_type 'room') is a common room, not a separate category
 
 
 def rent_text(lo, hi):
@@ -183,7 +183,7 @@ def load_public_listings():
         rtype = room_type_label(l.get("units"))
         utypes = [u.get("unit_type") for u in (l.get("units") or [])]
         type_key = ("whole" if "whole" in utypes else "studio" if "studio" in utypes
-                    else "master" if "master" in utypes else "common" if "common" in utypes else "room")
+                    else "master" if "master" in utypes else "common")
         lid = l.get("id")
         photos = l.get("photos") or []
         # only local (login-free) room photos are safe to republish; website
