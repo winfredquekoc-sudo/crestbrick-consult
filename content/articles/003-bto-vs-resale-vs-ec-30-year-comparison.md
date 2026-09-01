@@ -160,4 +160,6 @@ If your budget is tight, BTO wins. If you can comfortably afford the higher paym
 
 **Unsure which is best for your timeline and budget?** [Book a 30-minute affordability comparison](https://calendly.com/winfred-quek) to run your specific numbers, or [message me on WhatsApp](https://wa.me/6588260175) with your budget and timeline.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 1 on HDB eligibility · Article 6 on EC resale rules*

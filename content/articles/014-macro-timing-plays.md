@@ -133,4 +133,6 @@ Macro cycles don't always repeat identically. Black swan events (COVID, geopolit
 
 **Ready to align your buying or selling timing with market cycles?** [Book a 30-minute consultation](https://calendly.com/winfred-quek) to map out your target area's macro conditions and identify the optimal entry window, or [message me on WhatsApp](https://wa.me/6588260175) with your timeline and location criteria. I'll help you read the cycles specific to your situation.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 2 on buyer psychology · Article 7 on MRT impact · Article 10 on developer supply*

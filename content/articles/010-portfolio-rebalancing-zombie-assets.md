@@ -111,4 +111,6 @@ Audit your portfolio annually and rebalance if:
 
 **Ready to audit your portfolio?** [Book a 30-minute rebalancing analysis](https://calendly.com/winfred-quek) with details of your holdings, or [message me on WhatsApp](https://wa.me/6588260175) with your portfolio for a free zombie audit.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 8 on rental yield strategy · Article 7 on 2nd property financing*

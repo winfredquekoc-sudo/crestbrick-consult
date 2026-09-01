@@ -104,4 +104,6 @@ Investors often emotionally prefer freeholds, sensing "permanence" and "avoiding
 
 **Ready to analyze the lease decay impact on a specific property?** [Book a 30-minute consultation](https://calendly.com/winfred-quek) to evaluate your holding timeline and understand the decay cost in your scenario, or [message me on WhatsApp](https://wa.me/6588260175) to discuss a property you're considering—leasehold or freehold. I'll run the numbers specific to your situation.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 4 on mortgage qualification · Article 9 on exit timing*

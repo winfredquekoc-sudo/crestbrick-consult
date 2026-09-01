@@ -100,4 +100,6 @@ For mixed-citizen/foreign co-ownership, **tenancy in common is significantly che
 
 **Ready to structure your co-investment?** [Book a 30-minute property structure consultation](https://calendly.com/winfred-quek), or [message me on WhatsApp](https://wa.me/6588260175) with your co-owner details and ABSD situation.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 4 on ABSD for foreigners · Article 7 on 2nd property financing*

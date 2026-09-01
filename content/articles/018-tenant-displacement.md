@@ -134,4 +134,6 @@ If the seller still resists, walk. Overpriced tenanted properties are common bec
 
 **Inheriting a tenant you don't understand?** [Book a 30-minute tenant valuation session](https://calendly.com/winfred-quek) to calculate your true displacement cost and optimize your offer strategy, or [message me on WhatsApp](https://wa.me/6588260175). Make sure you're not overpaying for tenant constraints.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 13 on lease terms · Article 16 on listing signals*

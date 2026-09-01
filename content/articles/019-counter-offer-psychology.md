@@ -110,4 +110,6 @@ Had my buyer stayed in the original negotiation (days 1-12), we'd have likely cl
 
 **Stuck in a negotiation that's not moving?** [Book a 30-minute session](https://calendly.com/winfred-quek) to talk through your counter-offer strategy and decide if it's time to hold, counter again, or walk, or [message me on WhatsApp](https://wa.me/6588260175). Sometimes the best deal is the one you don't make.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 16 on listing signals · Article 20 on legal protection*

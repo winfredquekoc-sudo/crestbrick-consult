@@ -84,4 +84,6 @@ Below-market property investing in Singapore works when you do your homework: ob
 
 **Ready to identify below-market opportunities in your target area?** [Book a 30-minute consultation](https://calendly.com/winfred-quek) to discuss your investment timeline and location priorities, or [message me on WhatsApp](https://wa.me/6588260175) to share details of a property you're considering. I'll help you validate the valuation and flag risks before you commit.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 2 on comparable sales · Article 5 on inspection findings*

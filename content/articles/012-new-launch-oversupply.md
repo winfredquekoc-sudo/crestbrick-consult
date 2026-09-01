@@ -86,4 +86,6 @@ New launch oversupply plays reward patient investors who can identify soft sales
 
 **Tracking soft launches in your target area?** [Book a 30-minute consultation](https://calendly.com/winfred-quek) to analyze current new launch inventory and identify which projects are discounting, or [message me on WhatsApp](https://wa.me/6588260175) to discuss a specific launch you're monitoring. I'll help you assess absorption rates and identify the optimal entry point.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 8 on condo appreciation · Article 5 on developer marketing*

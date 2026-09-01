@@ -131,4 +131,6 @@ Using the MSR limit, translate to maximum affordable price:
 
 **Ready to calculate your affordability?** [Book a 30-minute qualification check](https://calendly.com/winfred-quek), or [message me on WhatsApp](https://wa.me/6588260175) with your income and debts for a custom calculation.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 1 on HDB eligibility · Article 2 on CPF refunds*

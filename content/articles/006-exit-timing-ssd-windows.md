@@ -101,4 +101,6 @@ The lesson: long holding periods save SSD but trigger ABSD. Plan for both.
 
 **Planning an exit or upgrade?** [Book a 30-minute timing strategy session](https://calendly.com/winfred-quek) to optimize your SSD and ABSD, or [message me on WhatsApp](https://wa.me/6588260175) with your current holding and target upgrade.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 2 on CPF refunds · Article 7 on ABSD on second property*

@@ -124,4 +124,6 @@ For foreign investors seeking 3-4% SGD returns with hedging costs of 1.5-2%, net
 
 **Evaluating a foreign investment opportunity?** [Book a 30-minute return analysis](https://calendly.com/winfred-quek) to model your ABSD impact and SGD hedging costs, or [message me on WhatsApp](https://wa.me/6588260175) with your capital and target price.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 15 on currency hedging · Article 12 on new launch strategy*

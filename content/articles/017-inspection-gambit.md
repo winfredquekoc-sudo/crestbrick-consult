@@ -174,4 +174,6 @@ Treat inspection as essential, not optional. Even if the property looks perfect,
 
 **Found defects? Not sure if they warrant renegotiation?** [Book a 30-minute strategy call](https://calendly.com/winfred-quek) to review inspection findings and plan your negotiation approach, or [message me on WhatsApp](https://wa.me/6588260175). Let's make sure you're not overpaying for hidden problems.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 16 on listing signals · Article 19 on legal protection at closing*

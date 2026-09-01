@@ -154,4 +154,6 @@ This buyer's preparation and final walkthrough saved them $14,000.
 
 **Getting close to closing? Make sure you're not missing critical protections.** [Book a 30-minute closing checklist review](https://calendly.com/winfred-quek) to verify all contingencies, escrow amounts, and legal safeguards are in place, or [message me on WhatsApp](https://wa.me/6588260175). The last 48 hours are when most surprises emerge—let's catch them before you wire funds.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 17 on inspection defects · Article 19 on counter-offer tactics*

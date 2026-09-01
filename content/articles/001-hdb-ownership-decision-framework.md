@@ -163,4 +163,6 @@ If all gates pass, you're ready to apply or start flat hunting. If any gate fail
 
 **Ready to run your numbers?** [Book a 30-minute affordability check](https://calendly.com/winfred-quek) to verify your MSR/TDSR and maximum HDB price, or [message me on WhatsApp](https://wa.me/6588260175) with your income and debts. I'll confirm your HDB readiness.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 5 on MSR/TDSR calculations · Article 6 on BTO timing*

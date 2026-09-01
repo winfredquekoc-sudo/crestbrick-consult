@@ -121,4 +121,6 @@ A property's age on market is often the most underestimated signal available to 
 
 **Ready to negotiate like a data-driven investor?** [Book a free 30-minute property strategy call](https://calendly.com/winfred-quek) to discuss your next purchase and uncover hidden negotiating advantages specific to your target market, or [message me on WhatsApp](https://wa.me/6588260175).
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 5 on inspection findings · Article 9 on counter-offer psychology*

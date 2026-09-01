@@ -161,4 +161,6 @@ This illustrates why many investors hold investment properties: the tax savings 
 
 **Uncertain about your CPF refund numbers?** [Book a 30-minute CPF refund calculation](https://calendly.com/winfred-quek) with your CPF statement and sale details, or [message me on WhatsApp](https://wa.me/6588260175) to get exact cash-to-hand numbers before you commit to selling.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 1 on HDB eligibility · Article 8 on CPF withdrawal limits*

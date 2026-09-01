@@ -190,4 +190,6 @@ The most attractive foreign investor play is high-appreciation areas (Jurong Reg
 
 **Considering Singapore property from abroad?** [Book a 30-minute consultation](https://calendly.com/winfred-quek) to evaluate currency impact on your specific scenario and identify high-appreciation areas suited to foreign capital, or [message me on WhatsApp](https://wa.me/6588260175) with your home currency and holding timeline. I'll run the forex math and help you determine if Singapore property is a fit for your portfolio.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 8 on appreciation rates · Article 7 on MRT-driven appreciation · Article 14 on macro timing*

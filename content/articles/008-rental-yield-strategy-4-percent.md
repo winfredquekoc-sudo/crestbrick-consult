@@ -127,4 +127,6 @@ Score each prospective tenant (1=low, 5=high risk):
 
 **Ready to model rental yield on a target property?** [Book a 30-minute yield analysis](https://calendly.com/winfred-quek), or [message me on WhatsApp](https://wa.me/6588260175) with your target property and location.
 
+*This article is for educational purposes only and does not constitute financial, legal, property, or investment advice. Winfred Quek (CEA License R073319H) provides these insights for informational purposes. Always consult with a licensed professional before making property decisions.*
+
 *Internal links: Article 7 on 2nd property financing · Article 10 on portfolio rebalancing*
