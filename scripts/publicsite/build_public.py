@@ -577,11 +577,9 @@ def homepage(listings, areas):
     for l in listings:
         by_town.setdefault(l["area_slug"], []).append(l)
     pts = [_map_point(l) for l in listings if l.get("lat") is not None]
-    area_links = "".join("<a href='/rooms-in-%s/'>%s (%d)</a>" % (e(slug), e(ls[0]["area_short"]), len(ls))
-                         for slug, ls in sorted(by_town.items(), key=lambda kv: kv[1][0]["area_short"]))
-    other_towns = sorted(((s, g["name"]) for s, g in AREA_GUIDES.items() if s not in by_town), key=lambda x: x[1])
-    area_links += "".join("<a href='/rooms-in-%s/'>%s</a>" % (e(s), e(name)) for s, name in other_towns)
-    area_links += "<a href='/areas/' style='font-weight:700;color:var(--gold)'>See all towns &rsaquo;</a>"
+    # full per-town link list dropped from the homepage — the map + fArea dropdown
+    # below already narrow by town; this is just the entry point into /areas/.
+    area_links = "<a href='/areas/' style='font-weight:700;color:var(--gold)'>See all towns &rsaquo;</a>"
     cards = "".join(card_html(l) for l in listings[:24])
     faq = [
         ("How much is a room rental in Singapore?",
@@ -614,8 +612,9 @@ def homepage(listings, areas):
     # quick-link pills to the landing pages (SEO internal links)
     pills = "".join("<a href='/rooms-%s/'>%s</a>" % (slug, e(label)) for slug, label, cap in PRICE_BUCKETS
                     if any((x["rent_min"] or x["rent_max"] or 0) <= cap for x in listings))
-    pills += "".join("<a href='/%s/'>%s</a>" % (url, e(label)) for k, label, url, _ in ROOM_TYPE_PAGES
-                     if any(x["type_key"] == k for x in listings))
+    # room-type pills dropped from the homepage — the "Find a room" fType dropdown
+    # below already narrows by type; the dedicated landing pages stay linked from
+    # the price/type grid pages' nav_pills, just not duplicated here.
     cards = "".join(card_html(l) for l in listings)   # all rooms, filtered client-side
     body = """<div class="wrap">
 <section class="hero">
