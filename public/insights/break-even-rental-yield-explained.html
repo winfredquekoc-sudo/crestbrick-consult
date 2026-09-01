@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Break Even Rental Yield: The Minimum Number That Covers Your Mortgage | Winfred Quek</title>
+  <meta name="description" content="How to calculate the rental yield threshold where income covers financing and holding costs on a Singapore property, and why it matters more than headline yield." />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Break Even Rental Yield: The Minimum Number That Covers Your Mortgage" />
+  <meta property="og:description" content="Headline rental yield tells you little. Break even yield tells you whether the property pays for itself. Here is how to calculate it properly." />
+  <meta property="og:image" content="/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/insights/break-even-rental-yield-explained" />
+  <meta property="article:published_time" content="2026-07-13" />
+  <meta property="article:modified_time" content="2026-07-13" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://winfredquek.com/insights/break-even-rental-yield-explained" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Article","headline":"Break Even Rental Yield: The Minimum Number That Covers Your Mortgage","description":"How to calculate the rental yield threshold where income covers financing and holding costs on a Singapore property, distinct from headline gross rental yield.","image":"https://winfredquek.com/img/og-image.jpg","author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Associate Marketing Consultant","identifier":"CEA R073319H","worksFor":{"@type":"RealEstateAgent","name":"Crestbrick Pte Ltd","identifier":"L31010886H","url":"https://winfredquek.com"}},"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":{"@type":"PropertyValue","propertyID":"CEA-Agency","value":"L31010886H"},"url":"https://winfredquek.com","logo":{"@type":"ImageObject","url":"https://winfredquek.com/img/og-image.jpg"}},"datePublished":"2026-07-13","dateModified":"2026-07-13","wordCount":1900,"mainEntityOfPage":"https://winfredquek.com/insights/break-even-rental-yield-explained","speakable":{"@type":"SpeakableSpecification","cssSelector":[".quick-answer","h1","h2"]}}
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},
+      {"@type":"ListItem","position":2,"name":"Insights","item":"https://winfredquek.com/insights"},
+      {"@type":"ListItem","position":3,"name":"Break Even Rental Yield Explained","item":"https://winfredquek.com/insights/break-even-rental-yield-explained"}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What is break even rental yield?","acceptedAnswer":{"@type":"Answer","text":"It is the minimum annual rental income, as a percentage of property value, needed to cover your mortgage instalments and recurring holding costs such as property tax, maintenance and insurance. It differs from gross rental yield, which measures rent against price without checking whether that income covers what you owe each month."}},
+    {"@type":"Question","name":"How do I calculate my break even rental yield?","acceptedAnswer":{"@type":"Answer","text":"Add your annual mortgage instalments at your actual interest rate, plus annual property tax, maintenance fees, fire insurance and other recurring holding costs. Divide that total by the property's current value, then multiply by 100. The result is the yield percentage your rent needs to hit to break even, before any profit."}},
+    {"@type":"Question","name":"Why is break even yield more useful than gross rental yield?","acceptedAnswer":{"@type":"Answer","text":"Gross rental yield tells you how rent compares to price, useful for comparing properties. It says nothing about whether that rent covers your specific financing cost. Two buyers of the same unit with different loan quantums, interest rates and tenures will have very different break even yields even though the property's gross yield is identical."}},
+    {"@type":"Question","name":"What happens if my actual rental yield is below break even?","acceptedAnswer":{"@type":"Answer","text":"You are running a negative cash flow property, where rent does not cover the mortgage and holding costs, and you top up the shortfall from your own income or CPF each month. This is not automatically a bad investment if you are betting on capital appreciation, but it needs to be a deliberate decision, sized against your own affordability."}},
+    {"@type":"Question","name":"Does break even yield change if interest rates rise?","acceptedAnswer":{"@type":"Answer","text":"Yes, directly. Mortgage instalments are the largest input into the calculation, so a rate increase raises your break even yield immediately. Stress testing break even yield against a higher interest rate, not just today's rate, is a core part of underwriting any rental property purchase."}}
+  ]}
+  </script>
+
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f1117;--highlight:#1a1c24;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .topnav a.nav-link.active::after{content:"";display:block;height:1px;background:var(--accent);margin-top:4px;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    article p{font-size:1.05rem;line-height:1.75;color:var(--ink-soft);margin-bottom:1.1em;}
+    article h2{font-family:'Fraunces',Georgia,serif;font-size:1.75rem;font-weight:600;margin:2em 0 .6em;color:var(--ink);}
+    article h3{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;margin:1.4em 0 .4em;color:var(--ink);}
+    article ul,article ol{padding-left:1.4em;color:var(--ink-soft);margin-bottom:1.1em;}
+    article ul{list-style:disc;} article ol{list-style:decimal;}
+    article ul li,article ol li{margin-bottom:.35em;}
+    .quick-answer{background:#1a1c24;border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:1.1rem 1.35rem;color:var(--ink);margin:0 0 1rem;font-size:1.02rem;line-height:1.7;}
+    .quick-answer strong{color:var(--accent);}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:1em 0;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    .cta-block{background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
+    .warn{background:#fdf6ec;border:1px solid #e6d3a1;border-radius:10px;padding:1rem 1.25rem;color:#3a3a3a;margin:1.4em 0;font-size:.95rem;}
+    .warn strong{color:#1a1a1a;}
+    .badge-green{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .badge-red{display:inline-block;background:#fdecea;color:#b71c1c;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .badge-amber{display:inline-block;background:#fff8e1;color:#e65100;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .deep-dive{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.5rem 1.75rem;margin:1.5rem 0;}
+    .deep-dive h3{margin-top:0;}
+    .faq-q{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;color:var(--ink);margin:1.5rem 0 .4rem;}
+    .article-cta{background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  </style>
+  <link rel="stylesheet" href="/_a11y-fixes.css"><script defer src="/_enhance.js"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
+</head>
+<body>
+
+      <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline" href="/">Home</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline active" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link" href="/">Home</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/insights">Insights</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+<main>
+
+<!-- HERO -->
+<section style="position:relative;overflow:hidden;background:#1e2d4a;padding:5rem 1.5rem 4rem;">
+  <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.14;" preserveAspectRatio="xMidYMid slice" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+    <path d="M0 330 Q225 300 450 330 T900 330" stroke="#c6a36a" stroke-width="2" fill="none" opacity=".5"/>
+    <rect x="150" y="150" width="40" height="150" fill="#c6a36a" opacity=".55"/>
+    <rect x="200" y="110" width="40" height="190" fill="#faf8f4" opacity=".35"/>
+    <rect x="420" y="90" width="46" height="210" fill="#c6a36a" opacity=".6"/>
+    <rect x="476" y="140" width="40" height="160" fill="#faf8f4" opacity=".35"/>
+    <rect x="670" y="160" width="40" height="140" fill="#c6a36a" opacity=".55"/>
+    <rect x="720" y="200" width="40" height="100" fill="#faf8f4" opacity=".3"/>
+    <path d="M60 300 l14 -26 14 26 z" fill="#c6a36a" opacity=".5"/>
+    <path d="M820 300 l14 -30 14 30 z" fill="#c6a36a" opacity=".5"/>
+  </svg>
+  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#1e2d4a 0%,#c6a36a 50%,#1e2d4a 100%);pointer-events:none;"></div>
+  <div style="position:relative;max-width:72rem;margin:0 auto;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#c6a36a;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#c6a36a;text-decoration:none;">All insights</a></p>
+    <span style="display:inline-block;border:1px solid #c6a36a;color:#c6a36a;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">Investing framework &middot; Yield metrics &middot; 2026</span>
+    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:26ch;text-wrap:balance;margin-bottom:1.25rem;">Break even rental yield: the minimum number that covers your mortgage</h1>
+    <p style="color:#a8bcd4;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 9 minute read &middot; Published 13 July 2026</p>
+  </div>
+</section>
+
+<article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+  <p class="section-label mb-4"><a href="/insights" class="hover:underline">All insights</a></p>
+  <p class="text-xs uppercase tracking-widest text-[var(--accent)] mb-3">Investing framework &middot; Yield metrics</p>
+  <div class="serif text-4xl md:text-5xl font-semibold leading-tight balance mb-6" aria-hidden="true">Break even rental yield: the minimum number that covers your mortgage</div>
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek, Associate Marketing Consultant &middot; CEA R073319H &middot; Crestbrick Pte Ltd (L31010886H) &middot; Published 13 July 2026</p>
+
+  <div class="quick-answer"><strong>Quick answer:</strong> Break even rental yield is the annual rent, as a percentage of property value, that exactly covers your mortgage instalments plus recurring holding costs like property tax, maintenance and insurance. Calculate it by adding those annual costs together and dividing by the property's value. It is a different number from headline gross rental yield, and it is the more useful one, because two buyers of an identical unit can have very different break even yields depending on their loan quantum, interest rate and tenure. If your actual rental income sits below this number, you are funding a shortfall every month, which is not necessarily wrong, but it should be a deliberate choice rather than a surprise.</div>
+
+  <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.4rem;margin-bottom:1.5rem;">Facts verified: 13 July 2026 &middot; Reference mortgage rate used in worked examples is approximately 1.5 percent, current as of 2026 &middot; Sources attributed below</p>
+
+  <p>Most rental yield conversations stop at the headline number, rent divided by price, and treat a higher figure as automatically better. That framing misses the question that actually matters to an investor holding a mortgage: does the rent I am collecting cover what I owe the bank each month, or am I topping up the difference from my own pocket. Break even yield answers that question directly, and it is specific to your financing, not the property alone.</p>
+
+  <h2>What break even rental yield actually measures</h2>
+
+  <p>Break even rental yield is the minimum annual rental income, expressed as a percentage of the property's value, required to cover your total annual carrying cost, primarily mortgage instalments, but also property tax, maintenance or MCST fees, fire insurance and any other recurring holding cost. If your actual gross rental yield sits above this number, the property is cash flow positive after those costs. If it sits below, you are subsidising the shortfall from your own income or CPF savings every month.</p>
+
+  <p>This is a fundamentally different question from the one gross rental yield answers. Gross yield, covered in my <a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent);">rental yield versus appreciation guide</a>, is useful for comparing properties against each other on a like for like basis. Break even yield is useful for judging whether a specific purchase, with your specific loan quantum and interest rate, actually pays for itself. The same unit can have a comfortable break even yield for a buyer with a small loan and an uncomfortable one for a buyer who is highly leveraged, even though the property's gross yield is identical for both.</p>
+
+  <h2>The calculation, step by step</h2>
+
+  <ol>
+    <li><strong>Total your annual mortgage instalments.</strong> Use your actual monthly instalment at your loan's interest rate, multiplied by twelve. If you are still shopping for financing, stress test this at a materially higher rate than today's, not just the promotional rate.</li>
+    <li><strong>Add annual property tax.</strong> This differs for owner occupied versus non owner occupied status, and a rental unit is assessed as non owner occupied, which carries a higher rate band under IRAS rules.</li>
+    <li><strong>Add maintenance or MCST fees.</strong> For condos this is typically billed quarterly; annualise it.</li>
+    <li><strong>Add fire insurance and any other fixed recurring cost.</strong> Small individually, but they add up across a full year.</li>
+    <li><strong>Sum the total, then divide by the property's current value, and multiply by 100.</strong> The result is your break even yield as a percentage.</li>
+  </ol>
+
+  <p>Compare that percentage against the actual or realistically achievable rental yield for the unit. The gap, or the surplus, between the two numbers tells you whether the property is likely to be cash flow positive, break even, or negative once it is tenanted.</p>
+
+  <h2>Why the same property can break even differently for different buyers</h2>
+
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Buyer profile</th><th>Loan quantum</th><th>Break even yield impact</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Higher downpayment, smaller loan</strong></td><td>Lower</td><td><span class="badge-green">Lower break even yield</span> &middot; easier for rent to clear it</td></tr>
+      <tr><td><strong>Maximum leverage, larger loan</strong></td><td>Higher</td><td><span class="badge-red">Higher break even yield</span> &middot; rent has further to stretch</td></tr>
+      <tr><td><strong>Longer tenure, lower instalment</strong></td><td>Same principal, smaller monthly cost</td><td><span class="badge-amber">Lower break even yield short term</span> &middot; but more interest paid over the loan's life</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p style="font-size:.8rem;color:var(--ink-muted);">Illustrative framework only. Run your own numbers using your actual loan terms and the property's real holding costs.</p>
+
+  <p>This is exactly why break even yield needs to be calculated on your own numbers rather than borrowed from a general market figure someone else quotes you. A friend's comfortable rental yield on their unit tells you almost nothing about whether the same property would break even for you, if your financing structure differs.</p>
+
+  <h2>Where break even yield fits into the wider investment decision</h2>
+
+  <p>A property trading below break even yield is not automatically a bad purchase. Plenty of sound long term holds run cash flow negative in the early years, particularly on newer or well located units, with the investor betting that capital appreciation over the holding period more than compensates for the monthly shortfall. What matters is that this is a conscious decision, sized against your own affordability, rather than something discovered after the first few months of tenancy. My <a href="/insights/negative-cash-flow-property-singapore" style="color:var(--accent);">negative cash flow property guide</a> covers how to think through that trade off properly.</p>
+
+  <h2>The honest risks in relying on today's numbers</h2>
+
+  <div class="warn">
+    <strong>Break even yield moves with interest rates.</strong> Since mortgage instalments are the largest input, a rate increase raises your break even yield immediately, even if rent stays flat. A property that comfortably clears break even today at current rates can slip below it if rates rise materially over your holding period. Stress testing this scenario before you buy, not after a rate shock, is the whole point of the exercise.
+ </div>
+
+  <p>The other risk is treating the current tenant's rent as fixed. Vacancy between tenancies and rent negotiation at renewal both affect the actual yield you realise over a year, which can differ from the yield you modelled at the point of purchase. Building a buffer into your break even calculation, rather than assuming full occupancy at the exact asking rent, gives you a more honest picture.</p>
+
+  <h2>How to use break even yield when evaluating a purchase</h2>
+
+  <ol>
+    <li><strong>Calculate it before you make an offer, not after you own the unit.</strong> Break even yield should be part of your underwriting, alongside price and location.</li>
+    <li><strong>Stress test at a higher interest rate.</strong> Recalculate break even yield at a meaningfully higher rate than today's to see how much buffer you actually have.</li>
+    <li><strong>Compare against realistically achievable rent, not the highest asking rent in the area.</strong> Use recent comparable transactions, not aspirational pricing.</li>
+    <li><strong>Decide deliberately if you are buying below break even.</strong> If the plan relies on appreciation to offset a monthly shortfall, size that shortfall against your own affordability using a proper stress test, covered in my <a href="/insights/tdsr-stress-test-explained" style="color:var(--accent);">TDSR stress test guide</a>.</li>
+  </ol>
+
+  <h2>Frequently asked questions</h2>
+
+  <p class="faq-q">What is break even rental yield?</p>
+  <p>It is the minimum annual rental income, as a percentage of property value, needed to cover your mortgage instalments and recurring holding costs such as property tax, maintenance and insurance. It differs from gross rental yield, which measures rent against price without checking whether that income covers what you owe each month.</p>
+
+  <p class="faq-q">How do I calculate my break even rental yield?</p>
+  <p>Add your annual mortgage instalments at your actual interest rate, plus annual property tax, maintenance fees, fire insurance and other recurring holding costs. Divide that total by the property's current value, then multiply by 100. The result is the yield percentage your rent needs to hit to break even, before any profit.</p>
+
+  <p class="faq-q">Why is break even yield more useful than gross rental yield?</p>
+  <p>Gross rental yield tells you how rent compares to price, useful for comparing properties. It says nothing about whether that rent covers your specific financing cost. Two buyers of the same unit with different loan quantums, interest rates and tenures will have very different break even yields even though the property's gross yield is identical.</p>
+
+  <p class="faq-q">What happens if my actual rental yield is below break even?</p>
+  <p>You are running a negative cash flow property, where rent does not cover the mortgage and holding costs, and you top up the shortfall from your own income or CPF each month. This is not automatically a bad investment if you are betting on capital appreciation, but it needs to be a deliberate decision, sized against your own affordability.</p>
+
+  <p class="faq-q">Does break even yield change if interest rates rise?</p>
+  <p>Yes, directly. Mortgage instalments are the largest input into the calculation, so a rate increase raises your break even yield immediately. Stress testing break even yield against a higher interest rate, not just today's rate, is a core part of underwriting any rental property purchase.</p>
+
+  <div class="article-cta">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;">Want your break even yield calculated properly?</p>
+    <p style="color:#4a4a4a;margin-bottom:1.25rem;">Break even yield depends on your real loan terms, holding costs and the actual rent achievable for a unit, not generic averages. A <a href="/services/property-portfolio-analysis" style="color:#c6a36a;font-weight:600;">Property Portfolio Analysis</a> runs the full calculation against your numbers before you commit.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Book a free analysis call</a>
+  </div>
+
+  <h2>Sources &amp; References</h2>
+  <ul>
+    <li><a href="https://www.iras.gov.sg/" style="color:var(--accent);" target="_blank" rel="noopener">Inland Revenue Authority of Singapore (IRAS)</a> &middot; property tax rates for non owner occupied property</li>
+    <li><a href="https://www.mas.gov.sg/" style="color:var(--accent);" target="_blank" rel="noopener">Monetary Authority of Singapore (MAS)</a> &middot; TDSR and mortgage stress test framework</li>
+    <li><a href="https://www.ura.gov.sg/" style="color:var(--accent);" target="_blank" rel="noopener">Urban Redevelopment Authority (URA)</a> &middot; rental transaction data</li>
+  </ul>
+
+  <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is Associate Marketing Consultant at Crestbrick Pte Ltd, advising Singapore upgraders, investors and families. CEA R073319H. The information on this page is general and does not constitute financial, investment or mortgage advice. Interest rates, tax rates and holding costs referenced are general and can change; verify current figures with IRAS, MAS and your bank before making any purchasing decision. Conduct your own due diligence and seek qualified advice before any purchase.</p>
+
+</article>
+
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/rental-yield-vs-appreciation" style="color:var(--accent);">Rental yield versus appreciation</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/cash-on-cash-return-singapore-condo" style="color:var(--accent);">Cash on cash return, explained</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/how-to-calculate-property-roi-singapore" style="color:var(--accent);">How to calculate property ROI in Singapore</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/negative-cash-flow-property-singapore" style="color:var(--accent);">Negative cash flow property: when it still makes sense</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/tdsr-stress-test-explained" style="color:var(--accent);">The TDSR stress test, explained</a></li>
+  </ul>
+</section>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
+    <p>&#169; 2026 Winfred Quek &middot; Crestbrick &middot; CEA R073319H</p>
+    <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>&middot;</span><span>Not legal or financial advice.</span></div>
+  </div>
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08);margin-top:2rem;padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem;line-height:1.65;color:#706c64;max-width:900px;margin:0 auto;text-align:center;">
+ The information and insights on this page are for informational purposes only. Interest rates, tax rates and holding costs referenced are general estimates and can change; verify current figures with IRAS, MAS and your bank before relying on them. Any figures referenced are general and not a valuation. Real estate decisions carry risk, including market fluctuations, interest rate changes, regulatory shifts and policy changes. This page is not investment, financial, or professional advice. Conduct your own due diligence and seek qualified advice before any purchase.
+ </p>
+  </div>
+</footer>
+
+<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20want%20to%20work%20out%20my%20break%20even%20rental%20yield." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="hidden sm:inline">Chat</span>
+</a>
+<script>(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+</body>
+</html>

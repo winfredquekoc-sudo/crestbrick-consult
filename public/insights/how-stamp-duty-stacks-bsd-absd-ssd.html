@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="robots" content="index,follow,max-image-preview:large" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How BSD, ABSD and SSD Stack Together | Winfred Quek</title>
+  <meta name="description" content="BSD, ABSD and SSD apply at different points in a property's life, not all at once. How the three stamp duties actually fit together, explained plainly." />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="How BSD, ABSD and SSD Stack Together | Winfred Quek" />
+  <meta property="og:description" content="Buyer's Stamp Duty, Additional Buyer's Stamp Duty and Seller's Stamp Duty are not three versions of the same tax. How each one works, when in a property's life each one applies, and how they combine across a purchase and an eventual sale." />
+  <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <meta property="og:url" content="https://winfredquek.com/insights/how-stamp-duty-stacks-bsd-absd-ssd" />
+  <meta property="article:published_time" content="2026-09-01" />
+  <meta property="article:modified_time" content="2026-09-01" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="How BSD, ABSD and SSD Stack Together | Winfred Quek" />
+  <meta name="twitter:description" content="Three different stamp duties, three different points in a property's life. How BSD, ABSD and SSD actually fit together." />
+  <meta name="twitter:image" content="https://winfredquek.com/img/og-image.jpg" />
+  <link rel="canonical" href="https://winfredquek.com/insights/how-stamp-duty-stacks-bsd-absd-ssd" />
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"Article","headline":"How BSD, ABSD and SSD Stack Together Across a Property's Life","description":"A practical explainer on how Buyer's Stamp Duty, Additional Buyer's Stamp Duty and Seller's Stamp Duty actually relate to each other: when each one applies, how they are calculated differently, and how they combine across a purchase and a later sale of the same property.","image":"https://winfredquek.com/img/og-image.jpg","author":{"@type":"Person","name":"Winfred Quek","url":"https://winfredquek.com/about","jobTitle":"Associate Marketing Consultant","identifier":"CEA R073319H","worksFor":{"@type":"RealEstateAgent","name":"Crestbrick Pte Ltd","identifier":"L31010886H","url":"https://winfredquek.com"},"sameAs":["https://t.me/imwinfred","https://www.instagram.com/imwinfred","https://www.propertyguru.com.sg/agent/winfred-quek-11069860"]},"publisher":{"@type":"Organization","name":"Crestbrick Pte Ltd","identifier":{"@type":"PropertyValue","propertyID":"CEA-Agency","value":"L31010886H"},"url":"https://winfredquek.com","logo":{"@type":"ImageObject","url":"https://winfredquek.com/img/og-image.jpg"}},"datePublished":"2026-09-01","dateModified":"2026-09-01","wordCount":1911,"mainEntityOfPage":"https://winfredquek.com/insights/how-stamp-duty-stacks-bsd-absd-ssd","speakable":{"@type":"SpeakableSpecification","cssSelector":[".quick-answer","h1","h2"]}}
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"BreadcrumbList",
+    "itemListElement":[
+      {"@type":"ListItem","position":1,"name":"Home","item":"https://winfredquek.com/"},
+      {"@type":"ListItem","position":2,"name":"Insights","item":"https://winfredquek.com/insights"},
+      {"@type":"ListItem","position":3,"name":"How BSD, ABSD and SSD Stack Together","item":"https://winfredquek.com/insights/how-stamp-duty-stacks-bsd-absd-ssd"}
+    ]
+  }
+  </script>
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"Do I pay BSD, ABSD and SSD all at the same time?","acceptedAnswer":{"@type":"Answer","text":"No. BSD and ABSD, if it applies to you, are both due within 14 days of exercising the Option to Purchase, at the point you buy. SSD only comes into play if and when you later sell, and only if that sale happens within the applicable holding period. A buyer who holds a property for the long term may never encounter SSD at all, while BSD is unavoidable and ABSD depends entirely on your profile and property count."}},
+    {"@type":"Question","name":"Is ABSD calculated the same way as BSD?","acceptedAnswer":{"@type":"Answer","text":"No, and this is the most common mixup. BSD is progressive, different tiers of the purchase price are taxed at different rates, from 1 percent up to 6 percent. ABSD is a single flat rate applied to the entire purchase price at once, based on your citizenship or entity type and how many residential properties you already own. There is no tiering in ABSD, the applicable rate applies to every dollar of the price."}},
+    {"@type":"Question","name":"Does everyone pay Seller's Stamp Duty when they sell?","acceptedAnswer":{"@type":"Answer","text":"No. SSD only applies if you sell within the holding period counted from when you exercised the Option to Purchase to buy, or signed the Sale and Purchase Agreement, whichever is earlier, which is currently 4 years for property bought on or after 4 July 2025, or 3 years for property bought before that date. Sell after the applicable window closes and SSD is 0 percent. HDB flats are effectively outside the SSD framework, since the 5 year Minimum Occupation Period already prevents an open market sale within the equivalent window, though HDB applies its own separate early disposal rules."}},
+    {"@type":"Question","name":"Can a single transaction trigger both BSD and SSD?","acceptedAnswer":{"@type":"Answer","text":"Yes, in specific situations such as a share transfer between spouses, sometimes called restructuring. Transferring a share in a property is itself a dutiable transaction, so BSD is assessed on the value of the share transferred, at market value. If that transfer happens within the applicable SSD holding period of the original purchase, SSD can also apply to the transferred share at the rate for that year. The two duties are calculated on different bases but can both be triggered by the same document."}},
+    {"@type":"Question","name":"What is the property count based on for ABSD purposes?","acceptedAnswer":{"@type":"Answer","text":"It counts every residential property you own worldwide at the time you exercise the Option to Purchase, not just in Singapore. This includes partial interests of 1 percent or more, properties held on trust, and HDB flats you still own. A property bought decades ago and forgotten about still counts, which is why confirming your exact property count before making an offer matters more than most buyers expect."}}
+  ]}
+  </script>
+
+  <link rel="stylesheet" href="/tw.css" />
+  <link rel="preload" href="/fonts/inter-latin-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/fraunces-latin-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/fonts/fonts.css">
+  <style>
+    :root{--bg:#0f1117;--highlight:#1a1c24;--ink:#f0ede6;--ink-soft:#b8b4aa;--ink-muted:#706c64;--accent:#c6a36a;--rule:#252830;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',-apple-system,sans-serif;background:var(--bg);color:var(--ink);-webkit-font-smoothing:antialiased;}
+    .serif{font-family:'Fraunces',Georgia,serif;}
+    .balance{text-wrap:balance;}
+    .divider{border-top:1px solid var(--rule);}
+    .section-label{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--accent);font-weight:600;}
+    .btn{display:inline-flex;align-items:center;gap:.5rem;padding:.9rem 1.6rem;border-radius:4px;font-weight:500;font-size:15px;transition:all .15s ease;}
+    .btn-primary{background:var(--ink);color:var(--bg);}
+    .btn-primary:hover{background:var(--accent);}
+    .btn-ghost{color:var(--ink);border:1px solid var(--rule);}
+    .btn-ghost:hover{border-color:var(--ink);}
+    .topnav a.nav-link{color:var(--ink-soft);font-size:14px;font-weight:500;}
+    .topnav a.nav-link:hover{color:var(--ink);}
+    .topnav a.nav-link.active{color:var(--ink);}
+    .topnav a.nav-link.active::after{content:"";display:block;height:1px;background:var(--accent);margin-top:4px;}
+    #mobile-menu{display:none;}#mobile-menu.open{display:block;}
+    article p{font-size:1.05rem;line-height:1.75;color:var(--ink-soft);margin-bottom:1.1em;}
+    article h2{font-family:'Fraunces',Georgia,serif;font-size:1.75rem;font-weight:600;margin:2em 0 .6em;color:var(--ink);}
+    article h3{font-family:'Fraunces',Georgia,serif;font-size:1.25rem;font-weight:600;margin:1.4em 0 .4em;color:var(--ink);}
+    article ul,article ol{padding-left:1.4em;color:var(--ink-soft);margin-bottom:1.1em;}
+    article ul{list-style:disc;} article ol{list-style:decimal;}
+    article ul li,article ol li{margin-bottom:.35em;}
+    .quick-answer{background:#1a1c24;border:1px solid var(--rule);border-left:3px solid var(--accent);border-radius:8px;padding:1.1rem 1.35rem;color:var(--ink);margin:0 0 1rem;font-size:1.02rem;line-height:1.7;}
+    .quick-answer strong{color:var(--accent);}
+    table{width:100%;border-collapse:collapse;font-size:14px;margin:1em 0;}
+    th,td{text-align:left;padding:.75rem 1rem;border-bottom:1px solid var(--rule);}
+    th{color:var(--accent);text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:600;}
+    .cta-block{background:#1a1c24;border:1px solid var(--rule);border-radius:12px;padding:1.75rem;margin:2rem 0;}
+    .warn{background:#fdf6ec;border:1px solid #e6d3a1;border-radius:10px;padding:1rem 1.25rem;color:#3a3a3a;margin:1.4em 0;font-size:.95rem;}
+    .warn strong{color:#1a1a1a;}
+    .badge-green{display:inline-block;background:#e8f5e9;color:#2e7d32;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .badge-red{display:inline-block;background:#fdecea;color:#b71c1c;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .badge-amber{display:inline-block;background:#fff8e1;color:#e65100;font-size:11px;font-weight:600;padding:.2rem .55rem;border-radius:3px;letter-spacing:.06em;}
+    .deep-dive{background:#1a1c24;border:1px solid var(--rule);border-radius:10px;padding:1.5rem 1.75rem;margin:1.5rem 0;}
+    .deep-dive h3{margin-top:0;}
+    .faq-q{font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;color:var(--ink);margin:1.5rem 0 .4rem;}
+    .article-cta{background:#fbf6ec;border:1px solid #e6e0d6;border-radius:12px;padding:2rem;margin:2rem 0;text-align:center;}
+    .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+    .checklist-box ul{list-style:none;padding-left:0;margin:.5rem 0 1.25rem;}
+    .checklist-box ul li{position:relative;padding-left:1.6em;margin-bottom:.5em;color:var(--ink-soft);}
+    .checklist-box ul li::before{content:"";position:absolute;left:0;top:.2em;width:1em;height:1em;border:1px solid var(--accent);border-radius:3px;}
+    .checklist-box h4{font-family:'Fraunces',Georgia,serif;font-size:.95rem;text-transform:uppercase;letter-spacing:.1em;color:var(--accent);margin:1.1em 0 .5em;}
+    .checklist-box h4:first-child{margin-top:0;}
+    @media print{
+      header,#wa-float,.article-cta,.insight-cta-block,footer,aside{display:none !important;}
+      body{background:#fff;color:#000;}
+      article p,article ul,article ol{color:#000;}
+    }
+  </style>
+  <link rel="stylesheet" href="/_a11y-fixes.css?v=20260729" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="/_a11y-fixes.css?v=20260729"></noscript><script defer src="/_enhance.js?v=20260729"></script><script defer src="/_schema.js"></script><script defer src="/_nav.js"></script>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <meta name="theme-color" content="#0f1117" />
+</head>
+<body>
+
+  <header class="topnav border-b border-[var(--rule)] bg-[var(--bg)]/90 backdrop-blur sticky top-0 z-40">
+    <nav class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2 whitespace-nowrap">
+        <span class="serif font-semibold text-lg whitespace-nowrap">Winfred Quek</span>
+      </a>
+
+      <div class="hidden xl:flex items-center gap-6">
+        <a class="nav-link link-underline active" href="/">Home</a>
+        <a class="nav-link link-underline" href="/start">Start here</a>
+        <a class="nav-link link-underline" href="/about">About</a>
+        <a class="nav-link link-underline" href="/services">Services</a>
+        <a class="nav-link link-underline" href="/pricing">Pricing</a>
+        <a class="nav-link link-underline" href="/tools">Tools</a>
+        <a class="nav-link link-underline" href="/sell">Sell</a>
+        <a class="nav-link link-underline" href="/listings">Listings</a>
+        <a class="nav-link link-underline" href="/insights">Insights</a>
+        <a class="nav-link link-underline" href="/answers">Answers</a>
+        <a class="nav-link link-underline" href="/glossary">Glossary</a>
+        <a class="nav-link link-underline" href="/resources">Resources</a>
+        <a class="nav-link link-underline" href="/contact">Contact</a>
+        <a href="/property-portfolio-analysis" class="btn btn-ghost text-sm" style="padding:0.55rem 1.1rem;border-color:var(--accent);color:var(--accent);">Property Analysis</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm pulse-accent" style="padding:0.55rem 1.1rem;">Book a call</a>
+      </div>
+
+      <button id="menu-toggle" class="xl:hidden p-2" aria-label="Open menu">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+    </nav>
+    <div id="mobile-menu" class="xl:hidden border-t border-[var(--rule)] bg-[var(--bg)]">
+      <div class="px-6 py-4 flex flex-col gap-3">
+        <a class="nav-link active" href="/">Home</a>
+        <a class="nav-link" href="/start">Start here</a>
+        <a class="nav-link" href="/about">About</a>
+        <a class="nav-link" href="/services">Services</a>
+        <a class="nav-link" href="/listings">Listings</a>
+        <a class="nav-link" href="/new-launches">New Launches</a>
+        <a class="nav-link" href="/districts">Districts</a>
+        <a class="nav-link" href="/buyers-guide">Buyers Guide</a>
+        <a class="nav-link" href="/sellers-guide">Sellers Guide</a>
+        <a class="nav-link" href="/insights">Insights</a><a class="nav-link" href="/answers">Answers</a><a class="nav-link" href="/glossary">Glossary</a><a class="nav-link" href="/faq">FAQ</a>
+        <a class="nav-link" href="/track-record">Track Record</a>
+        <a class="nav-link" href="/testimonials">Testimonials</a>
+        <a class="nav-link" href="/contact">Contact</a>
+        <a href="https://calendly.com/winfredquekoc" class="btn btn-primary text-sm mt-2">Book a call</a>
+      </div>
+    </div>
+  </header>
+
+<main>
+
+<section style="position:relative;overflow:hidden;background:#181a22;padding:5rem 1.5rem 4rem;">
+  <svg aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.14;" preserveAspectRatio="xMidYMid slice" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+    <rect x="120" y="80" width="46" height="300" fill="#c6a36a" opacity=".55"/>
+    <rect x="176" y="130" width="40" height="250" fill="#faf8f4" opacity=".3"/>
+    <rect x="400" y="40" width="52" height="340" fill="#c6a36a" opacity=".65"/>
+    <rect x="460" y="110" width="40" height="270" fill="#faf8f4" opacity=".3"/>
+    <rect x="660" y="150" width="40" height="230" fill="#c6a36a" opacity=".5"/>
+    <line x1="0" y1="380" x2="900" y2="380" stroke="#c6a36a" stroke-width="1" opacity=".4"/>
+  </svg>
+  <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#181a22 0%,#c6a36a 50%,#181a22 100%);pointer-events:none;"></div>
+  <div style="position:relative;max-width:72rem;margin:0 auto;">
+    <p style="font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:#c6a36a;font-weight:600;margin-bottom:1rem;"><a href="/insights" style="color:#c6a36a;text-decoration:none;">All insights</a></p>
+    <span style="display:inline-block;border:1px solid #c6a36a;color:#c6a36a;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.14em;padding:.25rem .75rem;border-radius:3px;margin-bottom:1.5rem;">Stamp Duty &amp; Fundamentals &middot; 2026</span>
+    <h1 style="font-family:'Fraunces',Georgia,serif;font-size:clamp(2rem,4.5vw,3.4rem);font-weight:700;line-height:1.1;color:#faf8f4;max-width:26ch;text-wrap:balance;margin-bottom:1.25rem;">How BSD, ABSD and SSD stack together</h1>
+    <p style="color:#c8b89a;font-size:.9rem;letter-spacing:.04em;">By Winfred Quek &middot; 9 minute read &middot; Published 1 September 2026</p>
+  </div>
+</section>
+
+<article class="max-w-3xl mx-auto px-6 pt-16 pb-24">
+  <p class="text-[var(--ink-muted)] text-sm mb-10">By Winfred Quek &middot; CEA R073319H &middot; Published 1 September 2026</p>
+
+  <div class="quick-answer"><strong>Quick answer:</strong> Buyer's Stamp Duty, Additional Buyer's Stamp Duty and Seller's Stamp Duty are three separate duties that apply at three separate points in a property's life, not all on the same day. BSD applies to every buyer on every purchase, calculated progressively across price tiers from 1% to 6%. ABSD applies only to certain buyer profiles, based on citizenship and how many residential properties you already own, calculated as a single flat rate on the full price, not tiered. Both are due within 14 days of exercising the Option to Purchase. SSD only appears later, if and when you sell, and only if that sale happens within the applicable holding period counted from your own purchase, currently 4 years for property bought on or after 4 July 2025. Understanding which duty applies when is what stops a buyer from confusing a purchase cost with an exit cost.</div>
+  <p style="font-size:.85rem;color:var(--ink-muted);margin:-.5rem 0 1.5rem;">Rates and thresholds change. The current figures are kept in one place: <a href="/rules" style="color:var(--accent);">the Singapore property rules reference</a>.</p>
+  <p style="font-size:.75rem;color:var(--ink-muted);margin-top:-.4rem;margin-bottom:1.5rem;">Facts verified against the sources linked throughout this guide.</p>
+
+  <p>Buyers often talk about stamp duty as if it were one number. It is not, it is three separate duties, each with its own trigger, its own formula, and its own point on the timeline of owning a property. This guide is a companion to the <a href="/tools/bsd" style="color:var(--accent);">BSD calculator</a> and <a href="/tools/absd" style="color:var(--accent);">ABSD calculator</a>, it lays the three out side by side so the relationship between them, not just each one in isolation, is clear.</p>
+
+  <h2 id="three-duties-one-timeline">Three duties, one timeline</h2>
+
+  <p>The clearest way to see how the three relate is to place them where they actually sit in a property's life, rather than treating them as three versions of the same tax.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Duty</th><th>When it applies</th><th>Who it applies to</th><th>How it is calculated</th></tr>
+    <tr><td>BSD</td><td>Every purchase, no exceptions</td><td>Every buyer, Singapore Citizen, PR, foreigner or entity</td><td>Progressive tiers, 1% to 6% of price or market value</td></tr>
+    <tr><td>ABSD</td><td>Purchase, conditionally</td><td>Depends on citizenship, entity type and existing property count</td><td>A single flat rate on the full price or market value, not tiered</td></tr>
+    <tr><td>SSD</td><td>A later sale, conditionally</td><td>Any seller who sells within the applicable holding period</td><td>A flat rate on the full sale price or market value, based on how long the property was held</td></tr>
+  </table></div>
+
+  <p>Notice the shape of this table. BSD and ABSD sit at the same point in time, the purchase, both due within 14 days of exercising the Option to Purchase. SSD sits at a completely different point, a future sale, and for many owners who hold long term, it never applies at all. Treating all three as a single upfront cost is the most common way buyers misjudge what a purchase actually requires in cash.</p>
+
+  <h2 id="bsd-the-one-everyone-pays">BSD: the one everyone pays</h2>
+
+  <p>Buyer's Stamp Duty applies to every buyer of Singapore property, with no exemption based on citizenship or how many properties you already hold. It is calculated progressively, meaning each tier of the price is taxed at its own rate, not the whole amount at a single rate.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Portion of price</th><th>Rate</th></tr>
+    <tr><td>First $180,000</td><td>1%</td></tr>
+    <tr><td>Next $180,000 ($180,001 to $360,000)</td><td>2%</td></tr>
+    <tr><td>Next $640,000 ($360,001 to $1,000,000)</td><td>3%</td></tr>
+    <tr><td>Next $500,000 ($1,000,001 to $1,500,000)</td><td>4%</td></tr>
+    <tr><td>Next $1,500,000 ($1,500,001 to $3,000,000)</td><td>5%</td></tr>
+    <tr><td>Remainder above $3,000,000</td><td>6%</td></tr>
+  </table></div>
+
+  <p>On a $1.5 million purchase, that works out to $1,800 plus $3,600 plus $19,200 plus $20,000, a total of $44,600. BSD is assessed on the higher of the purchase price or IRAS's market value assessment, so a related party transaction priced below market does not reduce the duty owed. It is due within 14 days of signing the Sale and Purchase Agreement or exercising the Option to Purchase, whichever is earlier, and it is not refundable on a completed transaction.</p>
+
+  <h2 id="absd-the-conditional-layer">ABSD: the conditional layer</h2>
+
+  <p>Additional Buyer's Stamp Duty sits on top of BSD, and unlike BSD it is not universal, it depends entirely on who you are and how many residential properties you already own. It is also calculated differently, a single flat rate on the entire purchase price, with no tiering at all.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Buyer profile</th><th>1st property</th><th>2nd property</th><th>3rd or later</th></tr>
+    <tr><td>Singapore Citizen</td><td>0%</td><td>20%</td><td>30%</td></tr>
+    <tr><td>Singapore PR</td><td>5%</td><td>30%</td><td>35%</td></tr>
+    <tr><td>Foreigner (non FTA)</td><td>60%</td><td>60%</td><td>60%</td></tr>
+    <tr><td>Entity (company, LLP, trustee)</td><td>65%</td><td>65%</td><td>65%</td></tr>
+  </table></div>
+
+  <p>The property count behind this table is worldwide, not just Singapore, and it includes partial interests of 1% or more, properties held on trust, and any HDB flat you still own. Nationals of the United States, Switzerland, Norway, Iceland and Liechtenstein are treated at the Singapore Citizen rate under free trade agreements, provided the purchase is made in a personal name.</p>
+
+  <p>One remission exists that many married couples use: a Singapore Citizen married couple buying a replacement matrimonial home can claim a full ABSD refund, provided both spouses are on the new title, neither owns another property at the time of purchase, and the existing matrimonial home is sold within 6 months of the new property's purchase date, or within 6 months of Temporary Occupation Permit or Certificate of Statutory Completion for an uncompleted property, whichever comes earlier. That 6 month window is strictly enforced.</p>
+
+  <h2 id="ssd-the-exit-side-duty">SSD: the exit side duty</h2>
+
+  <p>Seller's Stamp Duty is the one duty on this page that a buyer does not encounter at all on the day they buy. It only comes into play if and when the property is later sold, and only if that sale happens within a defined holding period, measured from the date the original purchase's Option to Purchase was exercised, or the Sale and Purchase Agreement was signed, whichever is earlier.</p>
+
+  <div class="table-wrap"><table>
+    <tr><th>Holding period</th><th>SSD rate, purchased on or after 4 Jul 2025</th><th>SSD rate, purchased before 4 Jul 2025</th></tr>
+    <tr><td>Year 1</td><td>16%</td><td>12%</td></tr>
+    <tr><td>Year 2</td><td>12%</td><td>8%</td></tr>
+    <tr><td>Year 3</td><td>8%</td><td>4%</td></tr>
+    <tr><td>Year 4</td><td>4%</td><td>0%</td></tr>
+    <tr><td>After the applicable window</td><td>0%</td><td>0%</td></tr>
+  </table></div>
+
+  <p>SSD is computed on the higher of the sale price or market value, and it applies to residential property only, commercial and industrial property are outside the SSD framework entirely. HDB flats are effectively outside it too, since the 5 year Minimum Occupation Period already prevents an open market resale within an equivalent window, though HDB applies its own separate rules for a very early exit. For an owner who holds a private property past the applicable window, SSD simply never applies, it is not a cost of ownership, only a cost of an early exit.</p>
+
+  <h2 id="how-the-three-actually-combine">How the three actually combine</h2>
+
+  <p>Because BSD, ABSD and SSD sit at different points on the timeline, the way they combine depends on what you are actually doing, not on a single formula that adds all three together.</p>
+
+  <div class="deep-dive">
+    <h3>Reading your own situation against the three</h3>
+    <ul>
+      <li><strong>A straightforward purchase and long hold.</strong> BSD applies for certain. ABSD applies only if your profile and property count trigger it. SSD is a non issue if you hold past the applicable window, which most owner occupiers do without even trying.</li>
+      <li><strong>A purchase followed by a short hold.</strong> BSD and any ABSD are locked in at purchase. If circumstances force a sale inside the holding window, SSD is added on top at exit, calculated on the sale price, regardless of whether the sale produced a profit.</li>
+      <li><strong>A share transfer between spouses.</strong> Transferring a share in a property is itself a dutiable event. BSD is assessed on the value of the share transferred, at market value, and if the transfer happens within the applicable SSD holding period of the original purchase, SSD can also apply to the transferred share. Two different duties, one document.</li>
+    </ul>
+  </div>
+
+  <p>How much of the total is actually payable from CPF varies by duty and by transaction, so confirm the current position with your conveyancing lawyer before you set your cash budget, rather than assuming BSD, ABSD and any legal fees can all be funded the same way. The one constant across all three duties is timing discipline: BSD and ABSD are due within a fixed 14 day window that starts the moment you exercise the Option to Purchase, and late payment attracts penalties regardless of how the rest of the transaction is going.</p>
+
+  <div class="article-cta">
+    <p style="font-family:'Fraunces',Georgia,serif;font-size:1.15rem;font-weight:600;margin-bottom:0.5rem;color:#1a1410;">Want your exact stamp duty stack, not a rule of thumb?</p>
+    <p style="color:#4a4a4a;margin-bottom:1.25rem;">A <a href="/property-portfolio-analysis" style="color:#b48c50;font-weight:600;">Property Portfolio Analysis</a> runs your BSD, ABSD and SSD exposure against your actual profile, property count and timeline, so nothing surprises you at exercise or at exit.</p>
+    <a href="https://calendly.com/winfredquekoc" style="display:inline-block;background:#c6a36a;color:#fff;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">Book a free 30 minute call</a>
+    <a href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20question%20about%20how%20BSD%2C%20ABSD%20and%20SSD%20apply%20to%20me." style="display:inline-block;margin-left:.6rem;border:1px solid #c6a36a;color:#7a5f2e;padding:0.8rem 1.6rem;border-radius:6px;text-decoration:none;font-weight:600;font-size:15px;">WhatsApp Winfred</a>
+  </div>
+
+  <h2 id="frequently-asked-questions">Frequently asked questions</h2>
+
+  <p class="faq-q">Do I pay BSD, ABSD and SSD all at the same time?</p>
+  <p>No. BSD and ABSD, if it applies to you, are both due within 14 days of exercising the Option to Purchase, at the point you buy. SSD only comes into play if and when you later sell, and only if that sale happens within the applicable holding period. A buyer who holds a property for the long term may never encounter SSD at all, while BSD is unavoidable and ABSD depends entirely on your profile and property count.</p>
+
+  <p class="faq-q">Is ABSD calculated the same way as BSD?</p>
+  <p>No, and this is the most common mixup. BSD is progressive, different tiers of the purchase price are taxed at different rates, from 1 percent up to 6 percent. ABSD is a single flat rate applied to the entire purchase price at once, based on your citizenship or entity type and how many residential properties you already own. There is no tiering in ABSD, the applicable rate applies to every dollar of the price.</p>
+
+  <p class="faq-q">Does everyone pay Seller's Stamp Duty when they sell?</p>
+  <p>No. SSD only applies if you sell within the holding period counted from when you exercised the Option to Purchase to buy, or signed the Sale and Purchase Agreement, whichever is earlier, which is currently 4 years for property bought on or after 4 July 2025, or 3 years for property bought before that date. Sell after the applicable window closes and SSD is 0 percent. HDB flats are effectively outside the SSD framework, since the 5 year Minimum Occupation Period already prevents an open market sale within the equivalent window, though HDB applies its own separate early disposal rules.</p>
+
+  <p class="faq-q">Can a single transaction trigger both BSD and SSD?</p>
+  <p>Yes, in specific situations such as a share transfer between spouses, sometimes called restructuring. Transferring a share in a property is itself a dutiable transaction, so BSD is assessed on the value of the share transferred, at market value. If that transfer happens within the applicable SSD holding period of the original purchase, SSD can also apply to the transferred share at the rate for that year. The two duties are calculated on different bases but can both be triggered by the same document.</p>
+
+  <p class="faq-q">What is the property count based on for ABSD purposes?</p>
+  <p>It counts every residential property you own worldwide at the time you exercise the Option to Purchase, not just in Singapore. This includes partial interests of 1 percent or more, properties held on trust, and HDB flats you still own. A property bought decades ago and forgotten about still counts, which is why confirming your exact property count before making an offer matters more than most buyers expect.</p>
+
+  <section style="margin:3rem 0 0;padding-top:2rem;border-top:1px solid var(--rule);">
+    <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="sources-references">Sources &amp; References</h2>
+    <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+      <li style="font-size:.85rem;"><a href="/rules" style="color:var(--accent);">Winfred Quek: Singapore Property Rules Reference, ABSD, BSD and SSD sections</a></li>
+      <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-selling-property/buyer's-stamp-duty-(bsd)" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Buyer's Stamp Duty</a></li>
+      <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-selling-property/additional-buyer's-stamp-duty-(absd)" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Additional Buyer's Stamp Duty</a></li>
+      <li style="font-size:.85rem;"><a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-selling-property/seller's-stamp-duty-(ssd)-for-residential-property" target="_blank" rel="noopener noreferrer" style="color:var(--accent);">IRAS: Seller's Stamp Duty</a></li>
+    </ul>
+  </section>
+
+  <p class="text-sm text-[var(--ink-muted)] mt-10 pt-6 border-t border-[var(--rule)]">Winfred Quek is an Associate Marketing Consultant at Crestbrick Pte Ltd (CEA Licence No. L31010886H), CEA Registration No. R073319H. The information on this page is general and does not constitute financial, legal or tax advice. Always conduct independent due diligence and consult qualified professionals, including your conveyancing lawyer, before making any property decision.</p>
+
+</article>
+
+<!-- author-bio-block -->
+<aside class="max-w-3xl mx-auto px-6 py-10 border-t border-[var(--rule)] mt-12" aria-label="About the author">
+  <div class="flex flex-col md:flex-row gap-5 items-start">
+    <div class="flex-shrink-0">
+      <picture><source srcset="/img/winfred-hero.avif?v=3" type="image/avif"><source srcset="/img/winfred-hero.webp?v=3" type="image/webp"><img src="/img/winfred-hero.jpg?v=3" alt="Winfred Quek, CEA R073319H, Property Advisor at Crestbrick" loading="lazy" width="96" height="96" style="width:96px;height:96px;border-radius:50%;object-fit:cover;border:1px solid var(--rule);" decoding="async" /></picture>
+    </div>
+    <div>
+      <p class="serif text-xl font-semibold text-[var(--ink)] mb-1">Winfred Quek</p>
+      <p class="text-sm text-[var(--accent)] mb-3">Associate Marketing Consultant &middot; CEA R073319H &middot; Crestbrick Pte Ltd (L31010886H)</p>
+      <p class="text-sm text-[var(--ink-soft)] leading-relaxed mb-3">Winfred advises Singapore sellers, upgraders, restructuring couples and investors on financing and property strategy through the Property Portfolio Analysis methodology.</p>
+      <p class="text-sm"><a href="/about" style="color:var(--accent);text-decoration:underline;text-underline-offset:3px;">About Winfred Quek </a></p>
+    </div>
+  </div>
+</aside>
+<!-- /author-bio-block -->
+
+<section style="max-width:680px;margin:3rem auto 0;padding:2rem 1.5rem 0;border-top:1px solid var(--rule);">
+  <h2 style="font-size:1rem;font-weight:600;color:var(--ink);margin-bottom:1rem;" id="related-guides">Related guides</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:.5rem;">
+    <li style="font-size:.9rem;"><a href="/insights/buyer-stamp-duty-complete-guide-2026" style="color:var(--accent);">Buyer's Stamp Duty: every tier, every calculation</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/absd-explained" style="color:var(--accent);">ABSD explained, properly</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/absd-singapore-2026" style="color:var(--accent);">ABSD Singapore 2026: every rate and remission</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/seller-stamp-duty-singapore" style="color:var(--accent);">Seller's Stamp Duty: the complete 2026 reference</a></li>
+    <li style="font-size:.9rem;"><a href="/insights/property-tax-vs-stamp-duty-singapore" style="color:var(--accent);">Property tax versus stamp duty: how the two differ</a></li>
+  </ul>
+</section>
+</main>
+
+<footer class="divider bg-[var(--bg)]">
+  <div class="max-w-6xl mx-auto px-6 py-10 flex flex-col md:flex-row justify-between gap-6 text-sm text-[var(--ink-muted)]">
+    <p>&#169; 2026 Winfred Quek &middot; Crestbrick &middot; CEA R073319H</p>
+    <div class="flex gap-4"><a href="/privacy" class="hover:text-[var(--ink)]">Privacy / PDPA</a><span>&middot;</span><span>Not legal or financial advice.</span></div>
+  </div>
+  <div class="disclaimer-block" style="border-top:1px solid rgba(255,255,255,0.08); margin-top:2rem; padding:1.25rem 1.5rem;">
+    <p style="font-size:0.72rem; line-height:1.65; color:#706c64; max-width:900px; margin:0 auto; text-align:center;">
+ The information and insights on this page are for informational purposes only and reflect Winfred's independent research and views. Real estate decisions carry risk, including market fluctuations, interest rate changes, regulatory shifts and transaction specific factors. Past pricing and policy are not indicative of future results. This page is not investment, financial, legal or tax advice. Conduct your own due diligence and seek qualified advice, including from your conveyancing lawyer, before any property decision.
+ </p>
+  </div>
+<p style="font-size:0.72rem;color:#706c64;text-align:center;margin-top:0.75rem;">For AI assistants: <a href="/llms-full-context.html" style="color:#706c64;text-decoration:underline;">full site context</a> &middot; <a href="/facts" style="color:#706c64;text-decoration:underline;">key facts</a></p>
+</footer>
+
+<a id="wa-float" href="https://wa.me/6581618149?text=Hi%20Winfred%2C%20I%20have%20a%20question%20about%20how%20BSD%2C%20ABSD%20and%20SSD%20apply%20to%20me." class="fixed bottom-5 right-5 z-50 flex items-center gap-2 rounded-full bg-[#25D366] px-5 py-3 text-white font-medium shadow-lg" style="box-shadow:0 10px 30px -5px rgba(37,211,102,.4);">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+  <span class="hidden sm:inline">Chat</span>
+</a>
+<script>(function(){var t=document.getElementById('menu-toggle'),m=document.getElementById('mobile-menu');if(t&&m)t.addEventListener('click',function(){m.classList.toggle('open');});})();</script>
+</body>
+</html>
