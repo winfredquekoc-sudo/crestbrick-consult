@@ -2400,6 +2400,9 @@ function render() {
     '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
     '<div class="kpi"><b>' + MATCHES.filter(m => effective(m).verdict === "QUALIFIED").length + '</b> qualified matches</div>';
   ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
+  // verdict / max rent / hide cold / hide actioned only affect work, listing, tenant, whole, pipeline — hide elsewhere (search + district stay visible everywhere)
+  const filtersActive = ["work", "listing", "tenant", "whole", "pipeline"].indexOf(view) !== -1;
+  ["fv", "fr", "fcwrap", "fhwrap"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
   document.querySelectorAll("#tabs .tab").forEach(tb => {
     const on = tb.dataset.v === view;
     tb.classList.toggle("on", on);
@@ -2443,7 +2446,7 @@ function deltaStripHtml() {
   if (!d) return "";
   const nt = (d.new_tenant_ids || []).length, nl = (d.new_listing_ids || []).length;
   const gone = (d.gone_listings || []).length, ac = (d.availability_changes || []).length;
-  if (!nt && !nl && !gone && !ac) return '<div class="wm">Since ' + esc(d.prev_generated) + ': nothing changed.</div>';
+  if (!nt && !nl && !gone && !ac) return "";
   let html = '<div class="wm" data-deltatoggle="1" style="cursor:pointer">🆕 since ' + esc(d.prev_generated) + ': ' + esc(nt) + ' new tenants, ' + esc(nl) + ' new listings, ' + esc(ac) + ' availability changes — tap for detail</div>';
   html += '<div class="help" data-deltadetail="1" style="display:none">' +
     (nt ? ('<div>New tenants: ' + esc((DATA.tenants || []).filter(t => (d.new_tenant_ids || []).indexOf(t.id) !== -1).map(t => t.name).join(", ")) + '</div>') : '') +
@@ -4446,7 +4449,7 @@ function renderMapView() {
   const demand = {};
   ALL_TENANTS.forEach(t => (t.preferred_districts || []).forEach(k => { demand[k] = (demand[k] || 0) + 1; }));
   const stb = el("div", "msubtabs");
-  [["map", "🗺 Map"], ["board", "⇄ Board"], ["ll", "🏢 Landlords"], ["tn", "🙋 Tenants"]].forEach(([k, lab]) => {
+  [["map", "🗺 Map"], ["board", "⇄ Board"], ["ll", "🏢 Live rooms"], ["tn", "🙋 Best fits"]].forEach(([k, lab]) => {
     const b = el("button", "hbtn" + (mapSubTab === k ? " on" : ""), lab);
     b.onclick = () => { mapSubTab = k; renderMapView(); };
     stb.appendChild(b);
