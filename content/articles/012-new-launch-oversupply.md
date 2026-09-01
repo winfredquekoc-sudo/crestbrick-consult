@@ -3,7 +3,7 @@ title: "New Launch Oversupply: Year-2 Condo Discounts and When to Buy"
 slug: new-launch-oversupply
 description: "Understand new launch absorption rates, incentive creep, and the optimal 18-24 month window to capture developer discounts."
 date: 2026-09-02
-tags: [new-launches, oversupply, timing, developer-incentives]
+tags: [new-launches, oversupply, timing, developer-incentives, timing-framework]
 ---
 
 # New Launch Oversupply: Why Year-2 Condo Discounts Happen and How to Spot Weak Projects

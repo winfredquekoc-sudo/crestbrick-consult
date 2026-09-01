@@ -3,7 +3,7 @@ title: "CPF Refund Real Numbers: Case Study of an HDB Sale & Cash Withdrawal"
 slug: cpf-refund-case-study
 description: "Real HDB sale scenario: $500k flat, $400k remaining mortgage, CPF withdrawals, and how much cash actually lands in your bank."
 date: 2026-09-01
-tags: [cpf, hdb-sale, cash-withdrawal, retirement, downpayment-recovery]
+tags: [cpf, hdb-sale, cash-withdrawal, retirement, downpayment-recovery, money-framework]
 ---
 
 # CPF Refund Real Numbers: Case Study of an HDB Sale & Cash Withdrawal

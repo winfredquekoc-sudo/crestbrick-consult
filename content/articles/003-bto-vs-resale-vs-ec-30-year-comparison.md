@@ -3,7 +3,7 @@ title: "BTO vs Resale vs EC: 30-Year Ownership Cost Comparison"
 slug: bto-vs-resale-vs-ec-comparison
 description: "Compare total cost of ownership across BTO, resale, and EC over 30 years: purchase price, subsidies, maintenance, and eventual sale proceeds."
 date: 2026-09-01
-tags: [hdb, bto, ec, affordability, long-term-ownership]
+tags: [hdb, bto, ec, affordability, long-term-ownership, money-framework]
 ---
 
 # BTO vs Resale vs EC: 30-Year Ownership Cost Comparison

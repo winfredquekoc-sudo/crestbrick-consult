@@ -3,7 +3,7 @@ title: "Freehold vs 99 Year Lease Property Singapore: Long Term Investment Compa
 slug: lease-decay-strategy
 description: "Understand lease decay, financing constraints, and when freehold premiums are justified vs when leasehold on a 15-year hold outperforms."
 date: 2026-09-03
-tags: [leasehold, freehold, lease-decay, valuation, investment-horizon]
+tags: [leasehold, freehold, lease-decay, valuation, investment-horizon, timing-framework]
 ---
 
 # Freehold vs 99 Year Lease Property Singapore: Long Term Investment Comparison and Timing

@@ -3,7 +3,7 @@ title: "The 90-Day Listing Signal: Days on Market as Negotiation Leverage"
 slug: 90day-listing-signal
 description: "Use listing age to identify soft properties and calculate leverage. Properties 120+ days on market justify 10-15% discounts based on seller motivation."
 date: 2026-09-06
-tags: [negotiation, seller-motivation, days-on-market, buyer-leverage]
+tags: [negotiation, seller-motivation, days-on-market, buyer-leverage, timing-framework]
 ---
 
 # Days on Market Property: How to Use Listing Age to Negotiate Better Prices in Singapore

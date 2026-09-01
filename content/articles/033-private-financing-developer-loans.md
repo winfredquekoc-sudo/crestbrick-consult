@@ -3,7 +3,7 @@ title: "Private Financing & Developer Loans: When to Use Them"
 slug: private-financing-developer-loans
 description: "Developer loans (2–3 years) and private mortgages (5–8% rates) bridge gaps CPF/bank won't. Higher cost; use only strategically."
 date: 2026-09-05
-tags: [private-financing, developer-loans, alternative-financing, new-launch]
+tags: [private-financing, developer-loans, alternative-financing, new-launch, money-framework]
 ---
 
 # Private Financing & Developer Loans: When to Use Them

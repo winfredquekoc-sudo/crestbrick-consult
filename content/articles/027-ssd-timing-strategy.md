@@ -3,7 +3,7 @@ title: "SSD Timing Strategy: Minimizing Costs on Your Property Exit"
 slug: ssd-timing-strategy
 description: "Hold to 5 years for zero SSD, or sell within 5 years if appreciation exceeds SSD cost. Model both scenarios before deciding."
 date: 2026-09-04
-tags: [ssd, exit-strategy, property-sale, tax-planning]
+tags: [ssd, exit-strategy, property-sale, tax-planning, timing-framework]
 ---
 
 # SSD Timing Strategy: Minimizing Costs on Your Property Exit

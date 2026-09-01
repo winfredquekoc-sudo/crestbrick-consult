@@ -3,7 +3,7 @@ title: "Negotiating Tenant Buyout Costs: Adjusting Price for Existing Lease Comp
 slug: tenant-displacement
 description: "Assess tenant lease constraints: buyout cost (1-3 months rent), below-market rent drag, and financing impact. Discounts 5-15% justified."
 date: 2026-09-08
-tags: [tenant-buyout, leasehold-terms, occupancy, rental-income, valuation]
+tags: [tenant-buyout, leasehold-terms, occupancy, rental-income, valuation, money-framework]
 ---
 
 # Negotiating Tenant Buyout Costs: How to Adjust Price for Existing Lease Complexity

@@ -3,7 +3,7 @@ title: "HDB vs Condo: Affordability Comparison and Financing Constraints"
 slug: hdb-vs-condo-affordability
 description: "HDB at $300–400k vs Condo at $500k+: down payment, LTV caps, MSR/TDSR constraints, and total ownership costs compared."
 date: 2026-09-04
-tags: [hdb, condo, affordability, financing, first-time-buyer]
+tags: [hdb, condo, affordability, financing, first-time-buyer, money-framework]
 ---
 
 # HDB vs Condo: Affordability Comparison and Financing Constraints

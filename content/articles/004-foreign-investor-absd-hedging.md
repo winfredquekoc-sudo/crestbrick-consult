@@ -3,22 +3,32 @@ title: "Foreign Investor ABSD Strategy: How the 60% Duty Shapes Returns and Hedg
 slug: foreign-investor-absd-hedging
 description: "ABSD rates for foreigners (60%) and strategies to structure purchases: SPA timing, holding periods, wealth preservation through hedging."
 date: 2026-09-01
-tags: [absd, foreign-buyer, stamp-duty, investment-strategy, hedging]
+tags: [absd, foreign-buyer, stamp-duty, investment-strategy, hedging, money-framework]
 ---
 
 # Foreign Investor ABSD Strategy: How the 60% Duty Shapes Returns and Hedging
 
 Foreign investors face Singapore's **60% Additional Buyer's Stamp Duty (ABSD)** on every residential purchase. On a $3 million property, that's $1.8 million upfront. This transforms the entire investment thesis.
 
+## Understanding Residency Status & ABSD Classification
+
+ABSD rates depend entirely on residency status at the time of purchase:
+
+| Status | ABSD Rate | Can Claim Refunds | Notes |
+|---|---|---|---|
+| **Singapore Citizen** | 0% (1st home), 15% (2nd+) | N/A | Lowest cost; eligible for all mortgage products |
+| **PR (Permanent Resident)** | 5% (1st home), 15% (2nd+) | Yes (after 5 yrs) | Built-in refund mechanism if status changes |
+| **FTA Country National** (US, Swiss, etc.) | 0% (1st only), 60% (2nd+) | Unclear (case-by-case) | First-home advantage; 2nd property same as non-FTA |
+| **Non-FTA Foreign Investor** | 60% (all properties) | Rare (requires status change) | No refund unless you become PR/citizen |
+| **Foreigner on Employment Pass** | 60% (all properties) | Yes (if become PR/citizen) | Status-dependent; check visa expiry |
+
 ## ABSD Mechanics
 
-**Rate:** 60% of purchase price (or market value, whichever is higher).
+**Rate:** 60% of purchase price (or market value, whichever is higher) for non-FTA foreign investors.
 
-**Timing:** Payable within 14 days of exercising the Option to Purchase.
+**Timing:** Payable within 14 days of exercising the Option to Purchase. Can be paid from proceeds of HDB/existing property sale if timing aligns.
 
-**When triggered:** Any residential property purchase where the buyer has no Singapore citizenship or PR status.
-
-**Exemptions (FTA countries):** US, Switzerland, Norway, Iceland, Liechtenstein citizens pay 0% ABSD on their first residential property purchase.
+**When triggered:** At time of SPA execution. Status at execution date determines rate (not status at offer stage). Strategic timing: if seeking PR or FTA confirmation, time SPA after status change is official.
 
 ## The Cost Impact
 
@@ -32,11 +42,28 @@ Financing (80%): $1,600,000
 
 For most overseas investors, this means only substantial capital or institutional buyers can participate. Typical investor with $500k capital cannot afford a $2M purchase (needs $1.6M just for down payment and ABSD).
 
+## Free Trade Agreement (FTA) Countries: 0% ABSD
+
+Investors from specific countries enjoy **0% ABSD** on their first residential property purchase—a massive advantage. This is a bilateral Free Trade Agreement commitment Singapore honors.
+
+| Country | ABSD on 1st Property | ABSD on 2nd+ | Residency Status Needed |
+|---|---|---|---|
+| United States | 0% | 60% | None (citizenship only) |
+| Switzerland | 0% | 60% | None |
+| Norway | 0% | 60% | None |
+| Iceland | 0% | 60% | None |
+| Liechtenstein | 0% | 60% | None |
+| All other countries | 60% | 60% | None |
+
+**FTA Impact Example:** A US citizen buying a $2M property pays ZERO ABSD on the 1st purchase (~$1.2M saved). On a 2nd property, they pay the full 60%.
+
+**Non-FTA citizens:** Pay 60% ABSD on every residential purchase, starting with the first.
+
 ## Holding Periods & ABSD Relief
 
-After holding a property for 5+ years, an overseas investor can apply to HDB/Singapore authorities for **partial ABSD refund** (limited circumstances). In practice, this is rare and requires proof of circumstances change (permanent resident status, marriage to Singapore citizen, etc.).
+After holding a property for 5+ years, an overseas investor can apply to Singapore authorities for **partial ABSD refund** (limited circumstances). In practice, this is rare and requires proof of status change (permanent resident status acquired, marriage to Singapore citizen, etc.).
 
-**Practical:** Plan on the 60% ABSD being non-recoverable. Model your returns assuming full 60% cost.
+**Practical:** Plan on the 60% ABSD being non-recoverable unless you're from an FTA country (0% on 1st) or expect to become a PR (refund eligibility). Model returns assuming full 60% cost for non-FTA investors.
 
 ## Return Modeling Example
 

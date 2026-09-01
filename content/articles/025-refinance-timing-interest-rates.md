@@ -3,7 +3,7 @@ title: "Refinance Timing: Interest Rate Cycles and When to Lock In"
 slug: refinance-timing-interest-rates
 description: "SIBOR and bank prime rates follow macroeconomic cycles. Track triggers: Fed rate shifts, MAS signals, yield curve. Refinance when rates bottom."
 date: 2026-09-03
-tags: [refinance, interest-rates, macroeconomics, timing-strategy]
+tags: [refinance, interest-rates, macroeconomics, timing-strategy, timing-framework]
 ---
 
 # Refinance Timing: Interest Rate Cycles and When to Lock In

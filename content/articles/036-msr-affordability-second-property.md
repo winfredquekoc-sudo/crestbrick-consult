@@ -3,7 +3,7 @@ title: "MSR/TDSR for Second Property: Why 2nd Mortgages Are Harder to Afford"
 slug: msr-second-property-affordability
 description: "2nd property has tighter TDSR (60% cap), existing debt counts, income thresholds rise $2k+. Model your 2nd property affordability."
 date: 2026-09-05
-tags: [msr, tdsr, second-property, affordability, financing]
+tags: [msr, tdsr, second-property, affordability, financing, money-framework]
 ---
 
 # MSR/TDSR for Second Property: Why 2nd Mortgages Are Harder to Afford

@@ -3,7 +3,7 @@ title: "Property Closing Protection: Escrow, Contingencies, and Legal Holds for 
 slug: legal-holdback-tactics
 description: "Protect yourself at closing with escrow holds, contingencies, title checks, final walkthroughs, and repair verification before funds release."
 date: 2026-09-10
-tags: [closing, escrow, contingencies, title-insurance, legal-protection]
+tags: [closing, escrow, contingencies, title-insurance, legal-protection, safety-framework]
 ---
 
 # Property Closing Protection: Escrow, Contingencies, and Legal Holds for Safe Transactions

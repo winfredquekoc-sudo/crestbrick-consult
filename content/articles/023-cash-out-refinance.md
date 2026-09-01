@@ -3,7 +3,7 @@ title: "Cash-Out Refinance: Unlocking Home Equity for Investments"
 slug: cash-out-refinance
 description: "Refinance with a higher loan amount to extract equity at mortgage rates (2–3%) vs personal loans (5–8%). Tax implications in Singapore."
 date: 2026-09-03
-tags: [refinance, home-equity, cash-out, investment-financing]
+tags: [refinance, home-equity, cash-out, investment-financing, money-framework]
 ---
 
 # Cash-Out Refinance: Unlocking Home Equity for Investments

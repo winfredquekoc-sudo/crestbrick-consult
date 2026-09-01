@@ -3,7 +3,7 @@ title: "Refinancing Your HDB Mortgage: When It Makes Sense"
 slug: refinancing-hdb-mortgage
 description: "HDB refinance saves 0.3–0.8% interest via rate drops or switching banks. Break-even in 2–3 years. Weigh early repayment penalties."
 date: 2026-09-03
-tags: [refinance, hdb-loan, interest-rates, mortgage-optimization]
+tags: [refinance, hdb-loan, interest-rates, mortgage-optimization, money-framework]
 ---
 
 # Refinancing Your HDB Mortgage: When It Makes Sense

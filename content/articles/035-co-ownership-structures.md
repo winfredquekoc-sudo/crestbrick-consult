@@ -3,7 +3,7 @@ title: "Co-Ownership Structures: Joint Tenancy vs Tenancy in Common"
 slug: co-ownership-structures
 description: "Joint tenancy = automatic inheritance; tenancy in common = independent stakes. Tax, financing, and estate implications differ."
 date: 2026-09-05
-tags: [co-ownership, joint-tenancy, tenancy-in-common, property-law]
+tags: [co-ownership, joint-tenancy, tenancy-in-common, property-law, money-framework]
 ---
 
 # Co-Ownership Structures: Joint Tenancy vs Tenancy in Common

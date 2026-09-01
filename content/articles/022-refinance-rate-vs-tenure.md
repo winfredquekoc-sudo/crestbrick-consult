@@ -3,7 +3,7 @@ title: "Rate vs Tenure Trade-off: Refinancing Decisions Explained"
 slug: refinance-rate-vs-tenure
 description: "Lower payments vs faster payoff: refinancing to 25 years saves monthly cash but costs more interest. Calculate your trade-off."
 date: 2026-09-03
-tags: [refinance, mortgage-tenure, interest-rates, cash-flow]
+tags: [refinance, mortgage-tenure, interest-rates, cash-flow, money-framework]
 ---
 
 # Rate vs Tenure Trade-off: Refinancing Decisions Explained

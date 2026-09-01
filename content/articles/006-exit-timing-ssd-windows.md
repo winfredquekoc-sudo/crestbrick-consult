@@ -3,7 +3,7 @@ title: "Exit Timing Strategy: Stamp Duty Windows and When to Sell"
 slug: exit-timing-ssd-windows
 description: "Minimize selling costs using Seller's Stamp Duty (SSD) windows, especially HDB first sale exemptions. Plan exits 3-5 years out."
 date: 2026-09-02
-tags: [exit-strategy, stamp-duty, hdb-sale, timing, holding-periods]
+tags: [exit-strategy, stamp-duty, hdb-sale, timing, holding-periods, timing-framework]
 ---
 
 # Exit Timing Strategy: Stamp Duty Windows and When to Sell

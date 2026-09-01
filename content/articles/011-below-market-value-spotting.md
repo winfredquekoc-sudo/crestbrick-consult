@@ -3,7 +3,7 @@ title: "Below Market Value Properties in Singapore: How to Find and Price the Re
 slug: below-market-value-spotting
 description: "Find undervalued Singapore properties by understanding bank valuations, lease decay, tenant costs, and defects. Distinguish genuine bargains from traps."
 date: 2026-09-01
-tags: [valuation, negotiation, investment-strategy, below-market]
+tags: [valuation, negotiation, investment-strategy, below-market, timing-framework]
 ---
 
 # Below Market Value Properties in Singapore: How to Find and Price the Real Deals

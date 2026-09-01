@@ -3,7 +3,7 @@ title: "Co-Borrower Financing: Joint Mortgages and When They Help"
 slug: co-borrower-financing
 description: "Add a co-borrower to double income for MSR/TDSR. Spouse, parent, or partner. Tax implications and exit strategies explained."
 date: 2026-09-05
-tags: [co-borrower, joint-mortgage, financing, affordability]
+tags: [co-borrower, joint-mortgage, financing, affordability, money-framework]
 ---
 
 # Co-Borrower Financing: Joint Mortgages and When They Help

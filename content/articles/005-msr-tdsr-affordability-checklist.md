@@ -3,7 +3,7 @@ title: "MSR/TDSR Affordability Checklist: Calculate Your Maximum HDB Price"
 slug: msr-tdsr-affordability
 description: "Use MSR (30% of income) and TDSR (60% of income) rules to find your maximum affordable HDB price. Includes worked examples."
 date: 2026-09-01
-tags: [affordability, msr, tdsr, mortgage-qualification, hdb-loan]
+tags: [affordability, msr, tdsr, mortgage-qualification, hdb-loan, money-framework]
 ---
 
 # MSR/TDSR Affordability Checklist: Calculate Your Maximum HDB Price

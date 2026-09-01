@@ -3,7 +3,7 @@ title: "Second Property Financing: ABSD, LTV Caps, and Cash Stack Requirements"
 slug: second-property-financing-absd
 description: "Citizen's 2nd property faces 20% ABSD + 45% LTV cap. Calculate actual cash needed: ABSD + lower down payment + higher rates."
 date: 2026-09-02
-tags: [second-property, absd, ltv, financing, cash-requirements]
+tags: [second-property, absd, ltv, financing, cash-requirements, money-framework]
 ---
 
 # Second Property Financing: ABSD, LTV Caps, and Cash Stack Requirements

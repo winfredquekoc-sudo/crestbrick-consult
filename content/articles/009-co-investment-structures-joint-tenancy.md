@@ -3,7 +3,7 @@ title: "Co-Investment Structures: Joint Tenancy vs Tenancy in Common for Singapo
 slug: co-investment-structures
 description: "Compare joint tenancy (equal, automatic succession) vs tenancy in common (unequal ownership, separate wills). Each has ABSD and estate implications."
 date: 2026-09-02
-tags: [co-investment, joint-tenancy, tenancy-in-common, estate-planning, property-structure]
+tags: [co-investment, joint-tenancy, tenancy-in-common, estate-planning, property-structure, money-framework]
 ---
 
 # Co-Investment Structures: Joint Tenancy vs Tenancy in Common for Singapore Property

@@ -3,7 +3,7 @@ title: "Property Market Timing Singapore: Reading HDB Launches, MRT Cycles, and 
 slug: macro-timing-plays
 description: "Time property purchases using HDB launches, MRT openings, CPF growth, interest rate forecasts, and economic sentiment indices for market edge."
 date: 2026-09-04
-tags: [market-timing, macro-cycles, hdb-launches, mrt-opening, interest-rates]
+tags: [market-timing, macro-cycles, hdb-launches, mrt-opening, interest-rates, timing-framework]
 ---
 
 # Property Market Timing Singapore: Reading HDB Launches, MRT Cycles, and Buyer Sentiment for Edge

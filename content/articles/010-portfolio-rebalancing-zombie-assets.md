@@ -3,7 +3,7 @@ title: "Portfolio Rebalancing: Audit Framework and Zombie Asset Identification"
 slug: portfolio-rebalancing
 description: "Audit your property portfolio: track underperforming units (zombie assets), model rebalancing via sale/hold/upgrade, optimize for yield or appreciation."
 date: 2026-09-02
-tags: [portfolio-strategy, rebalancing, underperforming-assets, asset-audit, optimization]
+tags: [portfolio-strategy, rebalancing, underperforming-assets, asset-audit, optimization, money-framework]
 ---
 
 # Portfolio Rebalancing: Audit Framework and Zombie Asset Identification

@@ -3,7 +3,7 @@ title: "Switching Banks: Early Repayment Penalties and Break-Even Analysis"
 slug: switching-banks-refinance
 description: "HDB bank switch costs $2–4k but saves $200–400/month. Penalties, processing, legal fees explained. Break-even in 6–20 months."
 date: 2026-09-03
-tags: [refinance, bank-switch, early-repayment, mortgage-optimization]
+tags: [refinance, bank-switch, early-repayment, mortgage-optimization, money-framework]
 ---
 
 # Switching Banks: Early Repayment Penalties and Break-Even Analysis

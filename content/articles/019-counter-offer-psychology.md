@@ -3,7 +3,7 @@ title: "Property Counter-Offer Psychology: When to Negotiate Hard and When to Wa
 slug: counter-offer-psychology
 description: "Read counter-offer signals: aggressive counters signal confidence, soft counters signal motivation. Negotiate hard or walk based on price gap and time decay."
 date: 2026-09-09
-tags: [negotiation, counter-offers, seller-psychology, deal-viability, market-signals]
+tags: [negotiation, counter-offers, seller-psychology, deal-viability, market-signals, safety-framework]
 ---
 
 # Property Counter-Offer Psychology: When to Negotiate Hard and When to Walk Away in Singapore

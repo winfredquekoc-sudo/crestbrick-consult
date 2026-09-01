@@ -3,7 +3,7 @@ title: "Hybrid Financing: Combining CPF and Bank Mortgages Optimally"
 slug: hybrid-cpf-bank-financing
 description: "Blend CPF + bank loans to minimize interest while preserving retirement savings. Optimal split for different income and age profiles."
 date: 2026-09-04
-tags: [cpf, bank-mortgage, hybrid-financing, optimization]
+tags: [cpf, bank-mortgage, hybrid-financing, optimization, money-framework]
 ---
 
 # Hybrid Financing: Combining CPF and Bank Mortgages Optimally

@@ -3,7 +3,7 @@ title: "Seller's Stamp Duty (SSD) Explained: Rates, Holding Periods, and Exempti
 slug: sellers-stamp-duty-explained
 description: "SSD ranges 0–12% based on holding period. HDB first sale exemption can save $20k+. Plan exits 3–5 years out to hit zero SSD."
 date: 2026-09-04
-tags: [ssd, stamp-duty, exit-strategy, property-sales]
+tags: [ssd, stamp-duty, exit-strategy, property-sales, timing-framework]
 ---
 
 # Seller's Stamp Duty (SSD) Explained: Rates, Holding Periods, and Exemptions

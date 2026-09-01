@@ -3,7 +3,7 @@ title: "Property Inspection Renegotiation: Using Defects to Negotiate Lower Pric
 slug: inspection-gambit
 description: "Leverage inspection findings to renegotiate price after offer. Structural defects justify 10-20% reductions. Legal window ends at contract signature."
 date: 2026-09-07
-tags: [inspection, defects, renegotiation, contingencies, due-diligence]
+tags: [inspection, defects, renegotiation, contingencies, due-diligence, safety-framework]
 ---
 
 # Property Inspection Renegotiation: How to Use Defects Found to Negotiate Lower Prices After Offer

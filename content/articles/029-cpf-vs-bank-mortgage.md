@@ -3,7 +3,7 @@ title: "CPF vs Bank Mortgage: Which Financing Is Cheaper?"
 slug: cpf-vs-bank-mortgage
 description: "CPF rates are fixed at 2.6% vs banks at 2.3–3.2%. CPF ties up OA savings; banks preserve capital. Calculate your true cost."
 date: 2026-09-04
-tags: [cpf, mortgage, financing, first-time-buyer, affordability]
+tags: [cpf, mortgage, financing, first-time-buyer, affordability, money-framework]
 ---
 
 # CPF vs Bank Mortgage: Which Financing Is Cheaper?

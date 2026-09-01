@@ -3,7 +3,7 @@ title: "HDB Ownership Decision Framework: Singapore First-Time Buyer Checklist"
 slug: hdb-ownership-decision-framework
 description: "Evaluate HDB readiness with eligibility rules, CPF limits, downpayment options, and MSR/TDSR thresholds. Complete first-time buyer framework."
 date: 2026-09-01
-tags: [hdb, first-time-buyer, cpf, affordability, eligibility]
+tags: [hdb, first-time-buyer, cpf, affordability, eligibility, money-framework]
 ---
 
 # HDB Ownership Decision Framework: Singapore First-Time Buyer Checklist

@@ -3,7 +3,7 @@ title: "Rental Yield Strategy: Targeting 4%+ Returns with Unit Type and Location
 slug: rental-yield-strategy
 description: "Achieve 4%+ rental yield by unit type selection, location timing, and tenant quality. 2BR vs 3BR vs 4BR yield trade-offs."
 date: 2026-09-02
-tags: [rental-yield, investment-property, tenant-quality, location-strategy, cash-flow]
+tags: [rental-yield, investment-property, tenant-quality, location-strategy, cash-flow, money-framework]
 ---
 
 # Rental Yield Strategy: Targeting 4%+ Returns with Unit Type and Location

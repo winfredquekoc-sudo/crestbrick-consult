@@ -3,7 +3,7 @@ title: "CPF Withdrawal Limits: When You Can Draw Down for Housing"
 slug: cpf-withdrawal-limits
 description: "CPF housing withdrawal limits by age and property type. Mandatory set-aside, MSR constraints, withdrawal timeline explained."
 date: 2026-09-04
-tags: [cpf, housing-withdrawal, first-time-buyer, policy]
+tags: [cpf, housing-withdrawal, first-time-buyer, policy, money-framework]
 ---
 
 # CPF Withdrawal Limits: When You Can Draw Down for Housing
