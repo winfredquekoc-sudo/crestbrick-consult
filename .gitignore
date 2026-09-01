@@ -86,3 +86,7 @@ scripts/matchmaker/manual-photos/
 
 # Public site build output (room photos, regenerated)
 scripts/publicsite/dist/
+
+# FSBO scraper runtime data (lead PII) — never commit
+scripts/fsbo-scraper/message-queue.json
+scripts/fsbo-scraper/message-queue-quarantine.json

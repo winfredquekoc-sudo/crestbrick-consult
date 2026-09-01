@@ -2,13 +2,13 @@
 set -e
 
 # FSBO Scraper daily run wrapper
-# Called by launchd at 00:00 UTC (08:00 SGT)
+# Called by launchd daily at 00:00 SGT (StartCalendarInterval uses local time)
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# Python 3 from Homebrew (not system)
-PYTHON=/opt/homebrew/bin/python3
+# System python3: launchd convention here (Homebrew python trips TCC prompts; curl_cffi installed for this interpreter)
+PYTHON=/usr/bin/python3
 
 # Run scraper in 'scrape' mode (find listings + queue messages)
 $PYTHON scraper.py scrape
@@ -19,7 +19,7 @@ if grep -q '"send_mode": "auto"' config.json 2>/dev/null; then
     $PYTHON scraper.py send
 fi
 
-# Log report
-$PYTHON scraper.py report >> logs/daily-report.log 2>&1
+# Log queue status
+$PYTHON scraper.py queue >> logs/daily-report.log 2>&1
 
 echo "FSBO scraper run complete at $(date)"
