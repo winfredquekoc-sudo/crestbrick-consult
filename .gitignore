@@ -86,3 +86,12 @@ scripts/matchmaker/manual-photos/
 
 # Public site build output (room photos, regenerated)
 scripts/publicsite/dist/
+
+# Root-level DB exports carry real names/phones — never commit (git add -A guard)
+/landlord-db.json
+/landlord-db.csv
+/tenant-db.json
+/tenant-db.csv
+
+# Stray prototype DB dir holds real WhatsApp snippets + colliding fake IDs — never commit (PII backstop)
+scripts/databases/

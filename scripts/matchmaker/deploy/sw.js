@@ -24,13 +24,24 @@
 // still serving the pre-map build (no pins). Bumping forces install() to re-run,
 // evict the v3 cache, and fetch the new shell — the clean way to push a shell
 // change to installed clients rather than waiting on stale-while-revalidate.
-const CACHE_NAME = "matchmaker-cache-v4";
+// v5 (1 Sep 2026): added an offline fallback (offline.html, a static page with
+// no PII) for the case where this device has never loaded "/" successfully —
+// previously a cold install with no signal just surfaced the browser's own
+// offline error. Bumped so installed clients pick up the new install() logic
+// that caches the fallback page.
+const CACHE_NAME = "matchmaker-cache-v5";
 const APP_URL = "/";
+const OFFLINE_URL = "/offline.html";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.add(APP_URL).catch(() => {}))
+    caches.open(CACHE_NAME).then((cache) =>
+      Promise.all([
+        cache.add(APP_URL).catch(() => {}),
+        cache.add(OFFLINE_URL).catch(() => {}),
+      ])
+    )
   );
 });
 
@@ -88,7 +99,10 @@ self.addEventListener("fetch", (event) => {
           return res;
         }).catch((e) => {
           if (cached) return cached;   // offline with a cached copy is a success
-          throw e;
+          // First-ever load on this device with no signal: nothing cached yet
+          // to fall back to. Show the static offline page instead of letting
+          // the browser's own connection-error page take over the tab.
+          return caches.match(OFFLINE_URL).then((offline) => offline || Promise.reject(e));
         });
         return cached || fresh;
       })

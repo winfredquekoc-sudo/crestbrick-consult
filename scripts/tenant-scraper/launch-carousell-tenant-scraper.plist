@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.crestbrick.tenant-scraper-carousell</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/env</string>
+    <string>python3</string>
+    <string>/Users/winfredquek/crestbrick-consult/scripts/tenant-scraper/scraper-carousell.py</string>
+  </array>
+  <key>StartCalendarInterval</key>
+  <array>
+    <dict>
+      <key>Hour</key>
+      <integer>1</integer>
+      <key>Minute</key>
+      <integer>0</integer>
+    </dict>
+  </array>
+  <key>StandardOutPath</key>
+  <string>/Users/winfredquek/.claude/logs/tenant-scraper-carousell.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/winfredquek/.claude/logs/tenant-scraper-carousell-error.log</string>
+  <key>WorkingDirectory</key>
+  <string>/Users/winfredquek/crestbrick-consult</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    <key>HOME</key>
+    <string>/Users/winfredquek</string>
+  </dict>
+</dict>
+</plist>

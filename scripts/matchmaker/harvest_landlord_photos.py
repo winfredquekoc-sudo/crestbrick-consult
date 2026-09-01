@@ -16,9 +16,14 @@ Usage:
   harvest_landlord_photos.py                     # dry run: classify on-disk images, report only
   harvest_landlord_photos.py --download [--per N] # first pull the most recent N images per landlord via the bridge
   harvest_landlord_photos.py --apply             # copy kept room photos + write the index
+  harvest_landlord_photos.py --auto              # SCHEDULED: incremental, budgeted pull of only
+                                                 #   NEW images since the last run (per-chat
+                                                 #   watermark), classify, append. Run by the
+                                                 #   5x/day rental-DB refresh; safe to run by hand.
 """
 import argparse
 import base64
+import datetime
 import glob
 import json
 import os
@@ -37,6 +42,10 @@ PHOTOS_DIR = os.path.join(HERE, "deploy", "photos")
 # TRUSTED (you chose them) so they skip the classifier and always show, first.
 MANUAL_DIR = os.path.join(HERE, "manual-photos")
 INDEX_OUT = os.path.join(HERE, "photos-harvested.json")
+# Per-chat watermark for the scheduled --auto path: the newest image-message timestamp
+# already looked at per landlord chat, so a 5x/day job only ever classifies genuinely
+# NEW photos (token/compute-burn doctrine: gate on new data). Same state dir as the rest.
+WATERMARK_PATH = os.path.expanduser("~/.claude/state/photo-harvest-watermark.json")
 OLLAMA = "http://localhost:11434/api/generate"
 MODEL = "moondream"
 MAX_PER_LANDLORD = 6
@@ -134,11 +143,143 @@ def downscale(src, dst):
             return False
 
 
+def _load_json(path, default):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return default
+
+
+def _save_json(path, data):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(data, f, indent=1)
+    os.replace(tmp, path)
+
+
+def _next_index(dstdir):
+    """Next free N.jpg in a landlord's photo dir, so new photos APPEND (never clobber
+    an already-published 1.jpg)."""
+    mx = 0
+    for p in glob.glob(os.path.join(dstdir, "*.jpg")):
+        b = os.path.splitext(os.path.basename(p))[0]
+        if b.isdigit():
+            mx = max(mx, int(b))
+    return mx + 1
+
+
+def new_image_messages(jid, since_ts, cap):
+    """(id, ts) image messages for this chat NEWER than since_ts, oldest first, capped.
+    Timestamps are SGT strings that sort lexically, so a plain > comparison works."""
+    con = sqlite3.connect("file:%s?mode=ro" % DB, uri=True)
+    try:
+        return con.execute(
+            "SELECT id, timestamp FROM messages WHERE chat_jid=? AND media_type='image' "
+            "AND timestamp > ? ORDER BY timestamp ASC LIMIT ?",
+            (jid, since_ts or "", cap)).fetchall()
+    finally:
+        con.close()
+
+
+def auto_incremental(landlords, img_budget, ll_budget, since_days=21, per_ll_cap=20):
+    """Scheduled path: pull ONLY new WhatsApp images since the last run (per-chat
+    watermark), classify each locally, and APPEND kept room photos to the published set.
+    Bounded per slot so a 5x/day job stays cheap: skips landlords already at
+    MAX_PER_LANDLORD, skips landlords with no new image messages, and stops once the
+    per-slot budgets are spent (the rest wait for the next slot). Returns
+    (index, watermark, stats) or None if the WhatsApp downloader is unavailable.
+
+    WhatsApp expires media on its servers after ~2 weeks, so anything older than the
+    `since_days` floor is unfetchable (403) — we never even try it. The effective
+    per-chat start is max(watermark, now - since_days), which also stops a first run
+    from burning the whole budget re-failing on years of expired history."""
+    try:
+        sys.path.insert(0, os.path.expanduser("~/whatsapp-mcp/whatsapp-mcp-server"))
+        import whatsapp as wa
+    except Exception as e:
+        print("auto: WhatsApp downloader unavailable (%s) — nothing harvested" % e)
+        return None
+
+    index = _load_json(INDEX_OUT, {})
+    wm = _load_json(WATERMARK_PATH, {})
+    stats = {"landlords_touched": 0, "classified": 0, "kept": 0, "dropped": 0,
+             "full_skipped": 0, "no_new": 0}
+    classified = 0
+    touched = 0
+    _sgt = datetime.timezone(datetime.timedelta(hours=8))
+    now_dt = datetime.datetime.now(_sgt)
+    now = now_dt.isoformat(timespec="seconds")
+    floor = (now_dt - datetime.timedelta(days=since_days)).strftime("%Y-%m-%d %H:%M:%S+08:00")
+
+    for l in landlords:
+        lid, jid = (l.get("id") or "").upper(), l.get("chat_jid")
+        if not lid or not jid:
+            continue
+        existing = list(index.get(lid) or [])
+        if len(existing) >= MAX_PER_LANDLORD:
+            stats["full_skipped"] += 1
+            continue
+        if classified >= img_budget or touched >= ll_budget:
+            break  # budget spent — remaining landlords wait for the next slot
+        wmts = (wm.get(jid) or {}).get("last_ts") or ""
+        since = wmts if wmts > floor else floor  # never look past the fetchable window
+        rows = new_image_messages(jid, since, per_ll_cap)
+        if not rows:
+            stats["no_new"] += 1
+            continue
+        touched += 1
+        dstdir = os.path.join(PHOTOS_DIR, lid)
+        os.makedirs(dstdir, exist_ok=True)
+        idx = _next_index(dstdir)
+        newest = since
+        for (mid, ts) in rows:
+            if classified >= img_budget or len(existing) >= MAX_PER_LANDLORD:
+                break
+            newest = ts
+            try:
+                path = wa.download_media(mid, jid)
+            except Exception:
+                path = None
+            classified += 1
+            stats["classified"] += 1
+            if not path or not os.path.exists(path):
+                continue
+            dec, _reason = decide(describe(path))
+            if dec != "KEEP":
+                stats["dropped"] += 1
+                continue
+            dst = os.path.join(dstdir, "%d.jpg" % idx)
+            if downscale(path, dst):
+                existing.append("photos/%s/%d.jpg" % (lid, idx))
+                idx += 1
+                stats["kept"] += 1
+        if existing:
+            index[lid] = existing
+        # Advance the watermark to the last image we actually looked at — if a budget cut
+        # us off mid-chat, the newer unseen images stay > watermark for the next slot.
+        wm[jid] = {"last_ts": newest, "kept": len(existing), "checked": now}
+        stats["landlords_touched"] += 1
+
+    return index, wm, stats
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--apply", action="store_true", help="copy kept photos + write index")
     ap.add_argument("--download", action="store_true", help="first pull recent images per landlord")
     ap.add_argument("--per", type=int, default=12, help="images to pull per landlord with --download")
+    ap.add_argument("--auto", action="store_true",
+                    help="scheduled incremental harvest: pull only NEW WhatsApp images since "
+                         "the last run (per-chat watermark), classify, and append (budgeted)")
+    ap.add_argument("--img-budget", type=int, default=40,
+                    help="max images to classify this run (--auto); ~5s each")
+    ap.add_argument("--ll-budget", type=int, default=12,
+                    help="max landlords with new photos to process this run (--auto)")
+    ap.add_argument("--since-days", type=int, default=21,
+                    help="ignore WhatsApp images older than this many days (--auto); older "
+                         "media is expired on WhatsApp's servers and unfetchable anyway")
     ap.add_argument("--only", help="comma-separated LL ids to limit to (testing)")
     args = ap.parse_args()
 
@@ -146,6 +287,22 @@ def main():
     if args.only:
         want = set(x.strip().upper() for x in args.only.split(","))
         landlords = [l for l in landlords if (l.get("id") or "").upper() in want]
+
+    if args.auto:
+        res = auto_incremental(landlords, args.img_budget, args.ll_budget,
+                               since_days=args.since_days)
+        if res is None:
+            return
+        index, wm, stats = res
+        _save_json(INDEX_OUT, index)
+        _save_json(WATERMARK_PATH, wm)
+        print("=== auto harvest ===")
+        print("landlords touched: %d  classified: %d  kept: %d  dropped: %d  "
+              "(full-skipped %d, no-new %d)" % (
+                  stats["landlords_touched"], stats["classified"], stats["kept"],
+                  stats["dropped"], stats["full_skipped"], stats["no_new"]))
+        print("index now covers %d landlord(s) -> %s" % (len(index), INDEX_OUT))
+        return
 
     index, totals = {}, {"kept": 0, "dropped": 0, "landlords_with_photos": 0}
     drop_reasons = {}

@@ -24,6 +24,12 @@
       "runtimeExecutable": "python3",
       "runtimeArgs": ["-m", "http.server", "8769", "--directory", "public"],
       "port": 8769
+    },
+    {
+      "name": "publicsite-dist",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8770", "--directory", "scripts/publicsite/dist"],
+      "port": 8770
     }
   ]
 }
