@@ -259,6 +259,10 @@ header.site{border-bottom:1px solid var(--line);background:var(--navy2)}
 .srrtown{background:none;border:none}
 .srrtownlbl{position:absolute;transform:translate(-50%,-165%);white-space:nowrap;background:rgba(11,23,48,.85);color:var(--ink);border:1px solid var(--gold);border-radius:11px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.2px;box-shadow:0 1px 4px rgba(0,0,0,.55);pointer-events:none}
 .srrtownlbl b{color:var(--gold);margin-left:1px}
+.srrmapfilter{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 2px}
+.srrchip{background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:999px;padding:6px 13px;font-size:13px;font-weight:600;cursor:pointer;transition:background .12s,border-color .12s}
+.srrchip:hover{border-color:var(--gold)}
+.srrchip.on{background:var(--gold);color:#1a1300;border-color:var(--gold)}
 .detail{display:grid;grid-template-columns:1.4fr 1fr;gap:24px;padding:24px 0}
 @media(max-width:760px){.detail{grid-template-columns:1fr}.hero h1{font-size:27px}}
 .gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -462,6 +466,7 @@ def _map_point(l, link=True):
         "area": e(l["area_short"]), "rtype": e(l["rtype"]), "rent": e(l["rent_txt"]),
         "url": ("/room/%s/" % l["slug"]) if link else "",
         "approx": bool(l.get("approx")),
+        "tkey": l.get("type_key", ""),
     }
 
 
@@ -489,26 +494,55 @@ function pinIcon(approx){
 function boot(){
   var m=L.map('map',{scrollWheelZoom:false}).setView([lat,lng],zoom);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'&copy; OpenStreetMap'}).addTo(m);
+  var markers=[], townLayer=L.layerGroup().addTo(m), curKey='';
   pts.forEach(function(p){
-    var mk=L.marker([p.lat,p.lng],{icon:pinIcon(p.approx)}).addTo(m);
+    var mk=L.marker([p.lat,p.lng],{icon:pinIcon(p.approx)});
     var body='<b>'+(p.rtype?p.rtype+' in ':'')+p.area+'</b>'+(p.rent?'<br>'+p.rent+'/mo':'')+
       (p.approx?'<br><span style="color:#7a8aa8;font-size:11px">approximate location</span>':'')+
       (p.url?'<br><a href="'+p.url+'">View room &rsaquo;</a>':'');
     mk.bindPopup(body);
+    markers.push({mk:mk, key:(p.tkey||''), p:p});
   });
-  // Township labels: group pins by town and drop one name+count label at each
-  // town's centre, so it is easy to see which town each cluster of rooms is in.
-  if(pts.length>1){
+  // Township labels rebuilt from whatever pins are currently visible, so counts
+  // stay honest when the room-type filter narrows the map.
+  function drawTowns(vp){
+    townLayer.clearLayers();
+    if(vp.length<2) return;
     var towns={};
-    pts.forEach(function(p){ if(!p.area) return; (towns[p.area]=towns[p.area]||[]).push(p); });
+    vp.forEach(function(p){ if(!p.area) return; (towns[p.area]=towns[p.area]||[]).push(p); });
     Object.keys(towns).forEach(function(name){
       var g=towns[name], la=0, lo=0;
       g.forEach(function(p){ la+=p.lat; lo+=p.lng; });
       var lbl=L.divIcon({className:'srrtown', iconSize:[0,0], iconAnchor:[0,0],
         html:'<div class="srrtownlbl">'+name+' <b>'+g.length+'</b></div>'});
-      L.marker([la/g.length, lo/g.length],{icon:lbl, interactive:false, keyboard:false, zIndexOffset:1000}).addTo(m);
+      L.marker([la/g.length, lo/g.length],{icon:lbl, interactive:false, keyboard:false, zIndexOffset:1000}).addTo(townLayer);
     });
   }
+  function apply(key){
+    curKey=key; var vp=[];
+    markers.forEach(function(x){
+      if(!key||x.key===key){ x.mk.addTo(m); vp.push(x.p); } else { m.removeLayer(x.mk); }
+    });
+    drawTowns(vp);
+    if(vp.length){try{m.fitBounds(vp.map(function(p){return [p.lat,p.lng];}),{padding:[38,38]});}catch(e){}}
+    var bar=document.getElementById('mapfilter');
+    if(bar){ Array.prototype.forEach.call(bar.children,function(b){ b.className='srrchip'+(b.getAttribute('data-k')===key?' on':''); }); }
+  }
+  // Room-type filter chips at the map (Master / Common / Whole unit / ...), only
+  // when there is more than one type to choose between.
+  var cats={}; markers.forEach(function(x){ if(x.key) cats[x.key]=(cats[x.key]||0)+1; });
+  var order=['master','common','whole','studio','room'];
+  var labels={master:'Master',common:'Common',whole:'Whole unit',studio:'Studio',room:'Room'};
+  var present=order.filter(function(k){ return cats[k]; });
+  if(pts.length>1 && present.length>1){
+    var bar=document.createElement('div'); bar.id='mapfilter'; bar.className='srrmapfilter';
+    var mk0=function(k,txt,on){ var b=document.createElement('button'); b.type='button'; b.className='srrchip'+(on?' on':''); b.setAttribute('data-k',k); b.textContent=txt; b.onclick=function(){ apply(k); }; return b; };
+    bar.appendChild(mk0('','All ('+markers.length+')',true));
+    present.forEach(function(k){ bar.appendChild(mk0(k,labels[k]+' ('+cats[k]+')',false)); });
+    el.parentNode.insertBefore(bar, el);
+  }
+  markers.forEach(function(x){ x.mk.addTo(m); });
+  drawTowns(pts);
   if(pts.length>1){try{m.fitBounds(pts.map(function(p){return [p.lat,p.lng];}),{padding:[38,38]});}catch(e){}}
   setTimeout(function(){try{m.invalidateSize();}catch(e){}},60);
 }
