@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-02T00:30:02+08:00",
-  "count": 35,
+  "synced_at": "2026-09-03T00:30:04+08:00",
+  "count": 34,
   "listings": [
     {
       "id": "whole-unit-hillcrest-villa-ll124",
@@ -154,21 +154,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20766%20Bedok%20Reservoir%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20766%20Bedok%20Reservoir%20Road."
-    },
-    {
-      "id": "room-palm-isles-ll148",
-      "title": "Room, Palm Isles (Changi)",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1650,
-      "price_label": "From S$1,650 / mo",
-      "address": "Palm Isles",
-      "district": "D17",
-      "highlights": [
-        "Furnished"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Palm%20Isles.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Palm%20Isles."
     },
     {
       "id": "common-room-blk-160-pasir-ris-street-13-ll099",
