@@ -5,22 +5,15 @@
   "path": "~/crestbrick-consult/_templates/landlord-db.json",
   "max_age_hours": 50,
   "night_muted": true,
-  "note": "the rental refresh rewrites this; >50h stale = the DB stopped updating (froze for 5 days once). 50h so a genuinely quiet day never false-alarms, a multi-day freeze still trips."
+  "note": "rewritten in full every refresh run (whole dict re-saved), so mtime is a true run signal. >50h = the DB stopped updating (froze for 5 days once)."
  },
  {
   "name": "tenant-db-fresh",
   "type": "file_fresh",
   "path": "~/crestbrick-consult/_templates/tenant-db.json",
   "max_age_hours": 50,
-  "night_muted": true
- },
- {
-  "name": "public-listings-fresh",
-  "type": "file_fresh",
-  "path": "~/crestbrick-consult/public/listings.json",
-  "max_age_hours": 50,
   "night_muted": true,
-  "note": "listings nightly sync (00:30) writes this from the landlord DB; not covered by rental-db-watchdog"
+  "note": "full re-save every run, same as landlord-db"
  },
  {
   "name": "discovery-candidates-fresh",
@@ -28,7 +21,7 @@
   "path": "~/.claude/state/discovery-candidates.json",
   "max_age_hours": 50,
   "night_muted": true,
-  "note": "written by discovery_candidates.py each refresh slot; the sustained zero-scan case is owned by discovery_watchdog"
+  "note": "written unconditionally by discovery_candidates.py each refresh slot; the sustained zero-scan case is owned by discovery_watchdog"
  },
  {
   "name": "matchmaker-data-fresh",
@@ -37,5 +30,37 @@
   "max_age_hours": 50,
   "night_muted": true,
   "note": "rebuilt by the matchmaker refresh slots; rental-db-watchdog checks the DEPLOYED app, this checks the local data file"
+ },
+ {
+  "name": "fsbo-state-fresh",
+  "type": "file_fresh",
+  "path": "~/crestbrick-consult/scripts/fsbo-scraper/fsbo-state.json",
+  "max_age_hours": 36,
+  "night_muted": true,
+  "note": "FSBO scraper writes its state each nightly 00:00 run; feeds the do-not-engage guardrail. Stale = scraper stopped and the guardrail is going stale unwatched."
+ },
+ {
+  "name": "landlord-sheet-synced-fresh",
+  "type": "file_fresh",
+  "path": "~/.claude/state/landlord-sheet-synced.json",
+  "max_age_hours": 48,
+  "night_muted": true,
+  "note": "Google Sheet push marker, stamped each successful sync (a true run marker). This push was silently stale for weeks in July; a freshness check makes a future stall visible same-day."
+ },
+ {
+  "name": "wa-touchpoint-sync-fresh",
+  "type": "file_fresh",
+  "path": "~/.claude/state/wa-touchpoint-sync-touched.state",
+  "max_age_hours": 48,
+  "night_muted": true,
+  "note": "touched-state marker updated each touchpoint-sync run; known-fragile area, so worth output-freshness visibility."
+ },
+ {
+  "name": "public-listings-fresh",
+  "type": "file_fresh",
+  "path": "~/crestbrick-consult/public/listings.json",
+  "max_age_hours": 72,
+  "night_muted": true,
+  "note": "listings-nightly (00:30) syncs this from the landlord DB. UNCERTAIN whether it rewrites unconditionally or only on change, so window is generous (72h) to avoid a quiet-period false alarm; it still catches a multi-day stall. Currently ~50h old (synced_at 2 Sep) — worth confirming listings-nightly is running. A run-marker for listings-nightly would let this window tighten (see output-contract note)."
  }
 ]
