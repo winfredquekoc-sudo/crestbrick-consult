@@ -354,6 +354,20 @@ def gender_label(g):
     if "male" in s or s == "m": return "Male only"
     return _short(g, 20)
 
+def owner_stays_flag(raw):
+    """Tri state Yes/No/unknown from the free text owner_on_site field. Landlords
+    are typed in inconsistent prose ("Yes (owner + 2 children)", "No (co-living
+    operator)", "TBC"), so this only reads the leading Yes/No token and throws
+    away everything else — nobody downstream should ever see who else lives
+    there, only whether the landlord does. Returns True, False, or None."""
+    s = (raw or "").strip().lower()
+    if s.startswith("yes"):
+        return True
+    if s.startswith("no"):
+        return False
+    return None
+
+
 def req_details(req):
     """Full, uniform landlord requirement block for the landlord list + detail —
     same keys on listings and all_landlords so one renderer handles both. As much
@@ -370,6 +384,7 @@ def req_details(req):
         "pets": _clean(req.get("pets"), 24),
         "smoking": _clean(req.get("smoking"), 24),
         "owner_on_site": _clean(req.get("owner_on_site"), 20),
+        "owner_stays": owner_stays_flag(req.get("owner_on_site")),
         "visitors": _clean(req.get("overnight_visitors") or req.get("visitors"), 24),
         "subletting": _clean(req.get("subletting"), 16),
         "utilities": _clean(req.get("utilities"), 40),

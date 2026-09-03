@@ -171,6 +171,12 @@ def neutral_rules(reqs, cooking):
         out.append(("Smoking", r["smoking"]))
     if r.get("utilities"):
         out.append(("Utilities", r["utilities"]))
+    # Yes/No only — never who else lives there. Omitted entirely when unknown
+    # (TBC or unparsed free text), same as every other optional row here.
+    if r.get("owner_stays") is True:
+        out.append(("Landlord lives in the unit", "Yes"))
+    elif r.get("owner_stays") is False:
+        out.append(("Landlord lives in the unit", "No"))
     return out
 
 
@@ -221,6 +227,7 @@ def load_public_listings():
             "rent_max": l.get("rent_max"),
             "rent_txt": rent_text(l.get("rent_min"), l.get("rent_max")),
             "rules": neutral_rules(l.get("reqs"), l.get("cooking")),
+            "owner_stays": (l.get("reqs") or {}).get("owner_stays"),
             "photos": photos,
             "lat": l.get("lat"),
             "lng": l.get("lng"),
@@ -415,6 +422,11 @@ def room_page(l):
                    "priceCurrency": "SGD", "availability": "https://schema.org/InStock",
                    "url": canonical, "seller": {"@type": "RealEstateAgent", "name": AGENT}},
     }
+    if l.get("owner_stays") is not None:
+        jsonld["additionalProperty"] = [{
+            "@type": "PropertyValue", "name": "Landlord lives in the unit",
+            "value": "Yes" if l["owner_stays"] else "No",
+        }]
     breadcrumb = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": BASE_URL + "/"},
         {"@type": "ListItem", "position": 2, "name": "Rooms in " + l["area_short"], "item": "%s/rooms-in-%s/" % (BASE_URL, l["area_slug"])},
