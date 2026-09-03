@@ -179,7 +179,13 @@ def load_public_listings():
     areas = d.get("districts", {})
     out = []
     for l in d.get("listings", []):
-        if l.get("availability") != "Available":
+        # Matchmaker's own counts.available_listings (export_data.py's
+        # build_listings) counts "Available" AND "Offer pending" as available —
+        # this site's homepage banner and result count previously counted
+        # "Available" only, so the two numbers could drift (35 shown here vs
+        # 34 in the source data). Match the exporter's own definition so both
+        # numbers are the same count by construction, not by coincidence.
+        if l.get("availability") not in ("Available", "Offer pending"):
             continue
         dist = l.get("district") or ""
         area = areas.get(dist, dist)
