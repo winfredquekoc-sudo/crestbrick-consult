@@ -618,12 +618,16 @@ def homepage(listings, areas):
     tlabel = {"master": "Master room", "common": "Common room", "whole": "Whole unit", "studio": "Studio", "room": "Room"}
     types_present = [k for k in ["master", "common", "whole", "studio", "room"] if any(x["type_key"] == k for x in listings)]
     type_opts = "".join("<option value='%s'>%s</option>" % (k, e(tlabel[k])) for k in types_present)
-    # quick-link pills to the landing pages (SEO internal links)
-    pills = "".join("<a href='/rooms-%s/'>%s</a>" % (slug, e(label)) for slug, label, cap in PRICE_BUCKETS
+    # quick-link pills to the landing pages (SEO internal links). Room type
+    # chips (incl. Whole Units) come first so they sit above the fold on
+    # mobile — the "Find a room" fType dropdown further down narrows the same
+    # grid, but a dropdown alone left the whole-units landing page one scroll
+    # too far down to be reachable without scrolling on a phone.
+    type_pills = "".join("<a href='/%s/'>%s</a>" % (url, e(label)) for key, label, url, noun in ROOM_TYPE_PAGES
+                         if key in types_present)
+    price_pills = "".join("<a href='/rooms-%s/'>%s</a>" % (slug, e(label)) for slug, label, cap in PRICE_BUCKETS
                     if any((x["rent_min"] or x["rent_max"] or 0) <= cap for x in listings))
-    # room-type pills dropped from the homepage — the "Find a room" fType dropdown
-    # below already narrows by type; the dedicated landing pages stay linked from
-    # the price/type grid pages' nav_pills, just not duplicated here.
+    pills = type_pills + price_pills
     cards = "".join(card_html(l) for l in listings)   # all rooms, filtered client-side
     body = """<div class="wrap">
 <section class="hero">
