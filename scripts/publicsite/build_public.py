@@ -35,6 +35,12 @@ AGENT_CEA = "R073319H"
 AGENT_FIRM = "Crestbrick Pte Ltd (L31010886H)"
 WA = "6581618149"   # Winfred's WhatsApp — the ONLY contact on the site
 WA_LINK = "https://wa.me/%s" % WA
+# Site-wide og:image fallback for pages with no listing photo of their own
+# (homepage, area/price/type/faq/guide pages). Set once in main() from the
+# first listing photo actually written into dist/photos — never invented,
+# never a listing's second choice image, and left None (no og:image tag) if
+# PUBLIC_PHOTOS=0 means no photo exists in dist at all.
+DEFAULT_OG_IMAGE = None
 MAIN_SITE = "https://winfredquek.com"   # cross-site: renters → future buyers
 INDEXNOW_KEY = "8f3c1e6a2b9d4f70a5c8e1b3d6f2a9c4"   # PUBLIC IndexNow ownership token, hosted at /<key>.txt — not a secret — gitleaks:allow
 
@@ -303,13 +309,16 @@ footer.site{border-top:1px solid var(--line);color:var(--mut);font-size:13px;pad
 
 def page(title, desc, body, canonical, jsonld=None, og_image=None):
     ld = ("<script type='application/ld+json'>%s</script>" % json.dumps(jsonld)) if jsonld else ""
+    chosen_image = og_image or DEFAULT_OG_IMAGE
     og = "\n".join([
         "<meta property='og:title' content='%s'>" % e(title),
         "<meta property='og:description' content='%s'>" % e(desc),
         "<meta property='og:type' content='website'>",
         "<meta property='og:url' content='%s'>" % e(canonical),
-        ("<meta property='og:image' content='%s'>" % e(og_image)) if og_image else "",
+        ("<meta property='og:image' content='%s'>" % e(chosen_image)) if chosen_image else "",
         "<meta name='twitter:card' content='summary_large_image'>",
+        "<meta name='twitter:title' content='%s'>" % e(title),
+        "<meta name='twitter:description' content='%s'>" % e(desc),
     ])
     return """<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -940,7 +949,12 @@ def copy_photos(listings):
 
 def main():
     import time
+    global DEFAULT_OG_IMAGE
     listings, areas = load_public_listings()
+    for l in listings:
+        if l.get("photos"):
+            DEFAULT_OG_IMAGE = "%s/%s" % (BASE_URL, l["photos"][0])
+            break
     # Per-listing pins: prefer the lat/lng Matchmaker already geocoded (carried
     # in matchmaker-data.json as lat/lng/geo_src — "exact" or "approx"), since
     # that pipeline is already vetted and needs no extra network calls here.
