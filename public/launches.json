@@ -337,11 +337,11 @@
       "tenure": "99-yr leasehold",
       "units": 460,
       "unit_mix": "Condo",
-      "psf": "~S$2,500-2,800 psf",
-      "launch": "H2 2026",
-      "status": "upcoming",
+      "psf": "S$2,800 psf avg (97% sold at launch)",
+      "launch": "H2 2026 (launched Oct 2025)",
+      "status": "active",
       "image_placeholder": true,
-      "note": "Margaret Drive GLS, Hong Leong-GuocoLand won at $1,154 psf ppr; next to Queenstown Primary, near Queenstown MRT"
+      "note": "Margaret Drive GLS, Hong Leong-GuocoLand won at $1,154 psf ppr; next to Queenstown Primary, near Queenstown MRT; balance units remaining"
     },
     {
       "slug": "thomson-modern-upper-thomson-parcel-b",
@@ -353,11 +353,11 @@
       "tenure": "99-yr leasehold",
       "units": 940,
       "unit_mix": "Condo (5 towers, 25 storeys)",
-      "psf": "~S$2,100-2,400 psf",
-      "launch": "H2 2026 / H1 2027",
-      "status": "upcoming",
+      "psf": "S$2,175 psf avg (92% sold at launch)",
+      "launch": "H2 2026 / H1 2027 (launched Aug 2025 as Springleaf Residence)",
+      "status": "active",
       "image_placeholder": true,
-      "note": "Upper Thomson Parcel B GLS awarded Apr 2024 at $905 psf ppr to GuocoLand-Hong Leong JV"
+      "note": "Upper Thomson Parcel B GLS awarded Apr 2024 at $905 psf ppr to GuocoLand-Hong Leong JV; officially marketed as Springleaf Residence"
     },
     {
       "slug": "hougang-central-residences",
