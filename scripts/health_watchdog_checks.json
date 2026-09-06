@@ -1,0 +1,58 @@
+[
+ {
+  "name": "refresh-rental-dbs-ran",
+  "type": "file_fresh",
+  "path": "~/.claude/state/refresh-rental-dbs-lastts.txt",
+  "max_age_hours": 30,
+  "night_muted": true,
+  "note": "the 5x/day rental refresh updates this stamp on every completed slot; 30h = a full missed day"
+ },
+ {
+  "name": "landlord-db-fresh",
+  "type": "file_fresh",
+  "path": "~/crestbrick-consult/_templates/landlord-db.json",
+  "max_age_hours": 30,
+  "night_muted": true,
+  "note": "the refresh rewrites this nightly; stale = the DB stopped updating (froze for 5 days once)"
+ },
+ {
+  "name": "tenant-db-fresh",
+  "type": "file_fresh",
+  "path": "~/crestbrick-consult/_templates/tenant-db.json",
+  "max_age_hours": 30,
+  "night_muted": true
+ },
+ {
+  "name": "public-listings-fresh",
+  "type": "file_fresh",
+  "path": "~/crestbrick-consult/public/listings.json",
+  "max_age_hours": 30,
+  "night_muted": true,
+  "note": "listings nightly sync (00:30) writes this from the landlord DB"
+ },
+ {
+  "name": "discovery-candidates-fresh",
+  "type": "file_fresh",
+  "path": "~/.claude/state/discovery-candidates.json",
+  "max_age_hours": 30,
+  "night_muted": true,
+  "note": "written by discovery_candidates.py each slot; complements discovery_watchdog's flat-zero alarm"
+ },
+ {
+  "name": "discovery-candidates-positive",
+  "type": "json_positive",
+  "path": "~/.claude/state/discovery-candidates.json",
+  "field": "candidates_found",
+  "min": 1,
+  "night_muted": true,
+  "note": "the deterministic step-5b scan should find at least one candidate on a live inbox"
+ },
+ {
+  "name": "matchmaker-data-fresh",
+  "type": "file_fresh",
+  "path": "~/crestbrick-consult/scripts/matchmaker/matchmaker-data.json",
+  "max_age_hours": 30,
+  "night_muted": true,
+  "note": "rebuilt by the matchmaker refresh slots; stale = the private app stopped refreshing"
+ }
+]
