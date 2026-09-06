@@ -850,6 +850,420 @@ def _supply_form(kind):
     except OSError:
         return None
 
+# ========== LANDLORD ONBOARDING (extension of the supply side branch) ==========
+# Reactive continuation AFTER the onboarding form (_supply_form) has already gone out and
+# manual_takeover has latched. That latch means only "never re run the tenant/buyer flow on
+# this record" here -- it is NOT "Winfred replied by hand" (human_takeover is the real signal
+# for that, set only on a genuine hand reply). Extraction based throughout: never depends on
+# the landlord echoing the onboarding form's own field labels back. Anti spam is a hard
+# requirement -- every send below is capped at most once ever per landlord; a human reply
+# silences the whole sequence immediately (checked by the caller before this runs).
+
+LANDLORD_NUDGE_CAP = 1          # ONE missing fields nudge, ever. Then FLAG_HUMAN, no more sends.
+LANDLORD_MEDIA_CHASE_CAP = 1    # ONE media chase, ever. Then FLAG_HUMAN, no more sends.
+LANDLORD_MEDIA_CHASE_DELAY_SEC = 48 * 3600   # ~2 days after the media ask before chasing once
+
+# Winfred, 6 Sep 2026: the six fields that gate "info complete". Block ONLY on these -- any
+# other field the landlord volunteers is captured into supply_profile but never blocks.
+LANDLORD_REQUIRED_FIELDS = ("address", "rent", "pax", "tenant_type", "gender_pref", "lease_months")
+_LANDLORD_FIELD_ASK = {
+    "address":      "the unit address",
+    "rent":         "the asking rent",
+    "pax":          "the max number of pax you'll allow",
+    "tenant_type":  "what type of tenant you prefer (working professional, student, couple or family)",
+    "gender_pref":  "your gender preference for the tenant",
+    "lease_months": "the minimum lease you're willing to offer",
+}
+
+LANDLORD_MEDIA_ASK = (
+    "Thanks, that is everything I need for now! Last thing, could you send a few photos of "
+    "each room and the common areas, plus a short video walking through the unit? This helps "
+    "me match the right tenants and cuts down on unnecessary viewings."
+)
+LANDLORD_MEDIA_CHASE = (
+    "Just checking in, still keen to send a few photos and a short video of the unit when you "
+    "have a moment? This really helps tenants picture the space before viewing."
+)
+
+_TENANT_TYPE_KEYWORDS = (
+    ("working professional", "working professional"), ("professional", "working professional"),
+    ("student", "student"), ("couple", "couple"), ("family", "family"),
+    ("no preference", "any"), ("no pref", "any"), (" any ", "any"),
+)
+
+_MONEY_NUM = r"\d+(?:,\d{3})*(?:\.\d+)?[km]?\b"
+
+def _parse_landlord_rent(text):
+    """Confident asking rent extraction only: a dollar amount, or a bare number tied to a
+    rent/asking/monthly context word. An ambiguous number (a pax count, a postal code, a
+    phone number) must never be silently read as the rent. The trailing \\b on _MONEY_NUM is
+    load bearing -- without it "asking 1200, max 2 pax" greedily read the "m" off "max" as a
+    million multiplier and silently produced a billion dollar rent (caught in testing)."""
+    t = text or ""
+    for pat in (
+        r"asking\s*(?:rent|price)?\s*(?:is|:|=)?\s*\$?\s*(" + _MONEY_NUM + r")",
+        r"rent(?:al)?\s*(?:is|:|=)?\s*\$\s*(" + _MONEY_NUM + r")",
+        r"\$\s*(" + _MONEY_NUM + r")\s*(?:/|a|per)?\s*(?:month|mth|mo)?\b",
+        r"(" + _MONEY_NUM + r")\s*(?:/|a|per)\s*(?:month|mth|mo)\b",
+    ):
+        m = re.search(pat, t, re.I)
+        if m:
+            v = _to_int(m.group(1))
+            if v and 300 <= v <= 15000:
+                return v
+    return None
+
+_STREET_WORDS = (r"\b(?:street|st|road|rd|avenue|ave|drive|dr|close|crescent|cres|lane|walk|way|"
+                 r"park|place|pl|boulevard|blvd|terrace|view|hill|rise|grove|gardens?)\b")
+
+def _parse_landlord_address(text):
+    """Confident address extraction only: a block/street number next to a recognised street
+    type word, OR a 6 digit SG postal code sitting alongside a street word or an explicit S
+    prefix (bounded to a short window around the code, not the whole line/message). A bare
+    number elsewhere (rent, pax, phone) must never be read as an address."""
+    t = text or ""
+    m2 = re.search(r"\b(?:blk|block)\s*\d+[a-z]?\b[^\n,]{0,60}?" + _STREET_WORDS + r"\b(?:\s*\d+)?", t, re.I)
+    if m2:
+        return m2.group(0).strip()[:120]
+    m3 = re.search(r"\b\d{1,4}[a-z]?\s+[a-z][a-z\s]{2,30}?" + _STREET_WORDS + r"\b(?:\s*\d+)?", t, re.I)
+    if m3:
+        return m3.group(0).strip()[:120]
+    for line in (t.splitlines() or [t]):
+        m6 = re.search(r"\bS?(\d{6})\b", line)
+        if m6 and (line[:m6.start()].strip().upper().endswith("S") or "s" + m6.group(1) in line.lower()
+                   or re.search(_STREET_WORDS, line, re.I) or re.search(r"\bblk\b|\bblock\b", line, re.I)):
+            start = max(0, m6.start() - 60)
+            return line[start:m6.end()].strip()[:120]
+    return None
+
+def _parse_landlord_pax(text):
+    t = (text or "").lower()
+    m = re.search(r"\b(?:max|up\s*to|maximum)\s*(\d{1,2})\s*(?:pax|persons?|people|occupants?)\b", t)
+    if not m:
+        m = re.search(r"\b(\d{1,2})\s*(?:pax|persons?|people|occupants?)\s*(?:max|maximum)?\b", t)
+    if m:
+        n = int(m.group(1))
+        if 1 <= n <= 10:
+            return n
+    return None
+
+def _parse_landlord_tenant_type(text):
+    t = " " + (text or "").lower() + " "
+    for kw, norm in _TENANT_TYPE_KEYWORDS:
+        if kw in t:
+            return norm
+    return None
+
+def _parse_landlord_gender_pref(text):
+    """Landlord's TENANT gender preference. Adapted from
+    scripts/sync_listing_index_from_landlords.py::parse_gender (kept local, not imported
+    cross directory, to avoid coupling a live production module to a scripts/ helper --
+    update BOTH if the label vocabulary changes)."""
+    t = (text or "").strip()
+    if not t:
+        return None
+    tl = t.lower()
+    if "no male" in tl or "no males" in tl or "female only" in tl or "females only" in tl:
+        return "female_only"
+    if "no female" in tl or "no females" in tl or "male only" in tl or "males only" in tl:
+        return "male_only"
+    if "female pref" in tl or "prefer female" in tl or "females preferred" in tl:
+        return "female_pref"
+    if "male pref" in tl or "prefer male" in tl or "males preferred" in tl:
+        return "male_pref"
+    if re.search(r"\bany\b", tl) or "no pref" in tl or "either" in tl or "no restriction" in tl:
+        return "any"
+    return None
+
+def _parse_landlord_lease_months(text):
+    """Confident lease duration extraction only: a number tied to a lease/minimum/term
+    context word plus a year/month unit. A bare number elsewhere (rent, pax, address) must
+    never be read as the lease term."""
+    t = (text or "").lower()
+    m = (re.search(r"(?:min(?:imum)?|at\s*least)\s*(\d{1,2})\s*(year|yr|month|mth)s?\b", t)
+         or re.search(r"\b(\d{1,2})\s*(year|yr|month|mth)s?\s*(?:lease|min(?:imum)?|term)\b", t)
+         or re.search(r"\blease\s*(?:term|duration|of)?\s*(?:is|:|=)?\s*(\d{1,2})\s*(year|yr|month|mth)s?\b", t))
+    if not m:
+        return None
+    n = int(m.group(1)); unit = m.group(2)
+    months = n * 12 if unit.startswith("y") else n
+    return months if 1 <= months <= 36 else None
+
+def extract_landlord_supply_info(text):
+    """Best effort, HIGH PRECISION extraction of the six onboarding readiness fields from the
+    landlord's free text -- never depends on the landlord using the onboarding form's own
+    field labels (a landlord who just types naturally must still be read correctly). A field
+    that cannot be extracted with confidence is left out entirely -- never a guessed rent or
+    address (a wrong value silently taken as the asking rent or address would poison
+    matching and Winfred's downstream records)."""
+    t = text or ""
+    out = {}
+    rent = _parse_landlord_rent(t)
+    if rent is not None: out["rent"] = rent
+    addr = _parse_landlord_address(t)
+    if addr: out["address"] = addr
+    pax = _parse_landlord_pax(t)
+    if pax is not None: out["pax"] = pax
+    tt = _parse_landlord_tenant_type(t)
+    if tt: out["tenant_type"] = tt
+    gp = _parse_landlord_gender_pref(t)
+    if gp: out["gender_pref"] = gp
+    lm = _parse_landlord_lease_months(t)
+    if lm is not None: out["lease_months"] = lm
+    return out
+
+def _landlord_missing_fields(profile):
+    return [f for f in LANDLORD_REQUIRED_FIELDS if (profile or {}).get(f) in (None, "")]
+
+_LANDLORD_NEGOTIATION_HINTS = ("commission", "brokerage", "your fee", "the fee", "% fee", "lower your", "lower the")
+
+def _landlord_looks_like_question(text):
+    """A landlord question OR a negotiation attempt must always FLAG_HUMAN and never get an
+    auto reply (CEA boundary: Claude never negotiates or advises on Winfred's behalf)."""
+    t = (text or "").lower()
+    if "?" in t:
+        return True
+    return any(k in t for k in _LANDLORD_NEGOTIATION_HINTS)
+
+def _landlord_nudge_text(missing):
+    labels = [_LANDLORD_FIELD_ASK[f] for f in missing if f in _LANDLORD_FIELD_ASK]
+    if not labels:
+        return None
+    joined = labels[0] if len(labels) == 1 else ", ".join(labels[:-1]) + " and " + labels[-1]
+    return "Almost there, I just need " + joined + " so I can start matching tenants for you."
+
+@functools.lru_cache(maxsize=1)
+def _phone_to_llid():
+    """phone (digits only) -> LLxxx id, from the live landlord DB. Used only to check for
+    curated media on disk once a landlord has been assigned an id by the nightly refresh or
+    scripts/new_landlord.py -- the onboarding flow itself never allocates an id."""
+    try:
+        d = json.load(open(LANDLORD_DB))
+    except Exception:
+        return {}
+    out = {}
+    for l in d.get("landlords", []):
+        ph = re.sub(r"\D", "", str(l.get("phone") or ""))
+        lid = l.get("id")
+        if ph and lid:
+            out[ph] = str(lid)
+    return out
+
+MATCHMAKER_PHOTOS_DIR = os.path.expanduser("~/crestbrick-consult/scripts/matchmaker/deploy/photos")
+MATCHMAKER_VIDEO_STILLS_DIR = os.path.expanduser("~/crestbrick-consult/scripts/matchmaker/deploy/video-stills")
+
+def _landlord_media_status(pn, chat_jid):
+    """(photos_received, video_received), best effort. PRIMARY signal: an image/video the
+    landlord has actually sent in THIS WA chat -- works from message one, before any
+    landlord-db id exists. SECONDARY: once the phone is linked to an LLID (assigned later,
+    outside this flow), also check the curated filesystem folders
+    (scripts/matchmaker/deploy/photos/<LLID>/, deploy/video-stills/<LLID>/) so a record whose
+    photos get curated there is never chased again. Fails safe (False, False) on any error --
+    never invents a completed media state."""
+    photos = video = False
+    try:
+        con = sqlite3.connect(MSG_DB, timeout=10)
+        con.execute("PRAGMA busy_timeout=10000")
+        rows = con.execute(
+            "SELECT media_type FROM messages WHERE chat_jid=? AND is_from_me=0 "
+            "ORDER BY timestamp DESC LIMIT 200", (chat_jid,)).fetchall()
+        con.close()
+        photos = any((mt or "") == "image" for (mt,) in rows)
+        video = any((mt or "") == "video" for (mt,) in rows)
+    except Exception:
+        pass
+    llid = _phone_to_llid().get(re.sub(r"\D", "", str(pn or "")))
+    if llid:
+        try:
+            pdir = os.path.join(MATCHMAKER_PHOTOS_DIR, llid)
+            if os.path.isdir(pdir) and any(True for _ in os.scandir(pdir)):
+                photos = True
+        except Exception:
+            pass
+        try:
+            vdir = os.path.join(MATCHMAKER_VIDEO_STILLS_DIR, llid)
+            if os.path.isdir(vdir) and any(True for _ in os.scandir(vdir)):
+                video = True
+        except Exception:
+            pass
+    return photos, video
+
+_LANDLORD_DB_SCHEMA_FIELDS = ("onboarding_stage", "info_complete", "photos_received",
+                              "video_received", "media_requested_at", "followup_nudges_sent")
+_landlord_db_backup_done = False   # process lifetime guard: one backup per run, not per write
+
+def _backup_landlord_db_once():
+    global _landlord_db_backup_done
+    if _landlord_db_backup_done:
+        return
+    try:
+        import shutil, time as _t
+        if os.path.exists(LANDLORD_DB):
+            stamp = _t.strftime("%Y%m%d-%H%M%S")
+            shutil.copy2(LANDLORD_DB, LANDLORD_DB + ".bak-onboarding-" + stamp)
+    except Exception:
+        pass
+    _landlord_db_backup_done = True
+
+def _sync_landlord_db_fields(pn, rec):
+    """Best effort mirror of onboarding progress onto an EXISTING landlord-db.json record
+    (matched by phone). Never CREATES a record -- landlord ids are allocated solely by the
+    nightly refresh / scripts/new_landlord.py, and inventing one here risks a collision with
+    that pipeline. If no record exists yet, this is a no-op and the intake-state.json record
+    stays the source of truth; a later sync call (next stage transition, or the sweep) tries
+    again. Always preserves every sibling key -- the file is a dict, never dumped as a bare
+    list. Backs up the file once per process before the first write."""
+    try:
+        d = json.load(open(LANDLORD_DB))
+    except Exception:
+        return False
+    target_ph = re.sub(r"\D", "", str(pn or ""))
+    if not target_ph:
+        return False
+    hit = False
+    for l in d.get("landlords", []):
+        if re.sub(r"\D", "", str(l.get("phone") or "")) == target_ph:
+            _backup_landlord_db_once()
+            import time as _t
+            l["onboarding_stage"] = rec.get("stage")
+            l["info_complete"] = bool(rec.get("info_complete"))
+            l["photos_received"] = bool(rec.get("photos_received"))
+            l["video_received"] = bool(rec.get("video_received"))
+            if rec.get("media_requested_at"):
+                l["media_requested_at"] = _t.strftime("%Y-%m-%dT%H:%M:%S",
+                                                      _t.localtime(rec["media_requested_at"]))
+            l["followup_nudges_sent"] = int(rec.get("followup_nudges_sent") or 0)
+            hit = True
+    if not hit:
+        return False
+    tmp = LANDLORD_DB + ".tmp"
+    json.dump(d, open(tmp, "w"), indent=1, ensure_ascii=False)
+    os.replace(tmp, LANDLORD_DB)
+    return True
+
+def _rec_supply_kind(rec):
+    """'landlord' / 'seller' / None. supply_kind is the field new records carry; older
+    records written before this field existed only have it encoded in status
+    ('supply_side:landlord') -- derive it from there so nothing needs a migration."""
+    if rec.get("supply_kind"):
+        return rec["supply_kind"]
+    st = str(rec.get("status") or "")
+    if st.startswith("supply_side:"):
+        return st.split(":", 1)[1]
+    return None
+
+def _landlord_onboarding_reaction(rec, ev, pn):
+    """Reactive continuation of the landlord supply side flow, run for every inbound message
+    on a record already past SEND_SUPPLY_FORM (manual_takeover latched for the supply side
+    reason, never a Winfred hand reply -- the caller checks human_takeover first and never
+    calls this once it is set). A question or negotiation always flags to Winfred and never
+    auto answers (CEA boundary). Every send below fires at most once ever per landlord."""
+    import time as _t
+    text = ev.get("text") or ""
+    sp = rec.setdefault("supply_profile", {})
+    for k, v in extract_landlord_supply_info(text).items():
+        if sp.get(k) in (None, ""):
+            sp[k] = v                     # never overwrite a value already captured
+
+    if rec.get("stage") == "SUPPLY_READY":
+        # nothing left to automate; only a genuine question still deserves a fresh flag --
+        # anything else would just re ping Winfred on every later message with no new state.
+        if _landlord_looks_like_question(text):
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "landlord (already ready to list) asked a question; needs a human reply"}
+        return None
+
+    if _landlord_looks_like_question(text):
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "landlord asked a question or raised terms mid onboarding; needs "
+                          "a human reply (CEA boundary, never auto answered)"}
+
+    photos, video = _landlord_media_status(pn, ev.get("jid"))
+    if photos: rec["photos_received"] = True
+    if video: rec["video_received"] = True
+
+    missing = _landlord_missing_fields(sp)
+    if missing:
+        if rec.get("stage") != "SUPPLY_INFO_INCOMPLETE":
+            rec["stage"] = "SUPPLY_INFO_INCOMPLETE"; rec["status"] = "supply_info_incomplete"
+        if rec.get("followup_nudges_sent", 0) >= LANDLORD_NUDGE_CAP:
+            _sync_landlord_db_fields(pn, rec)
+            if rec.get("info_cap_flagged"):
+                return None    # already flagged once -- never re ping Winfred every later message
+            rec["info_cap_flagged"] = True
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "landlord onboarding info still incomplete after the nudge cap ("
+                              + ", ".join(missing) + "); needs a human follow up"}
+        rec["followup_nudges_sent"] = rec.get("followup_nudges_sent", 0) + 1
+        _sync_landlord_db_fields(pn, rec)
+        return {"type": "SUPPLY_INFO_NUDGE", "pn": pn, "notify": True,
+                "text": _landlord_nudge_text(missing),
+                "reason": "landlord onboarding info incomplete; nudged for " + ", ".join(missing)}
+
+    # all six required fields present
+    rec["info_complete"] = True
+    if not rec.get("media_requested_at"):
+        rec["stage"] = "SUPPLY_MEDIA_REQUESTED"; rec["status"] = "supply_media_requested"
+        rec["media_requested_at"] = _t.time()
+        _sync_landlord_db_fields(pn, rec)
+        return {"type": "SUPPLY_MEDIA_ASK", "pn": pn, "notify": True, "text": LANDLORD_MEDIA_ASK,
+                "reason": "landlord onboarding info complete; asked for photos and video"}
+
+    if rec.get("photos_received"):
+        rec["stage"] = "SUPPLY_READY"; rec["status"] = "supply_ready"
+        _sync_landlord_db_fields(pn, rec)
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "landlord ready to list: info complete and photos received"}
+
+    age = _t.time() - rec["media_requested_at"]
+    if age >= LANDLORD_MEDIA_CHASE_DELAY_SEC:
+        if rec.get("media_chase_sent"):
+            _sync_landlord_db_fields(pn, rec)
+            if rec.get("media_cap_flagged"):
+                return None    # already flagged once -- never re ping Winfred every later message
+            rec["media_cap_flagged"] = True
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "landlord still has not sent photos/video after the chase; "
+                              "needs a human follow up"}
+        rec["media_chase_sent"] = True
+        rec["stage"] = "SUPPLY_MEDIA_CHASE"; rec["status"] = "supply_media_chase"
+        _sync_landlord_db_fields(pn, rec)
+        return {"type": "SUPPLY_MEDIA_CHASE", "pn": pn, "notify": True, "text": LANDLORD_MEDIA_CHASE,
+                "reason": "landlord onboarding media still missing after 2 days; sent one chase"}
+    _sync_landlord_db_fields(pn, rec)
+    return None   # too soon to chase yet, media still pending -- stay silent this turn
+
+def get_landlord_media_chase_actions(state, now_ts=None):
+    """PURE scan, never sends: landlords sitting in SUPPLY_MEDIA_REQUESTED past the ~2 day
+    chase delay with no media and no chase sent yet. Returns a list of action dicts a caller
+    (the runner's own tick, or a FUTURE launchd slot -- not wired by this change) can push
+    through the SAME send gates as everything else (manual_takeover carve out, quiet hours,
+    daily cap, DRY_RUN). Marks the state as soon as an action is decided (same "advance on
+    decision, not on send" convention DRY_RUN relies on elsewhere in this engine). Skips any
+    human_takeover or terminal record -- a hand reply silences this too."""
+    import time as _t
+    now_ts = now_ts if now_ts is not None else _t.time()
+    out = []
+    for pn, rec in (state.get("conversations") or {}).items():
+        if not rec.get("supply_flagged") or _rec_supply_kind(rec) != "landlord":
+            continue
+        if rec.get("human_takeover") or rec.get("terminal"):
+            continue
+        if rec.get("stage") != "SUPPLY_MEDIA_REQUESTED":
+            continue
+        if rec.get("media_chase_sent") or rec.get("photos_received"):
+            continue
+        mra = rec.get("media_requested_at")
+        if not mra or (now_ts - mra) < LANDLORD_MEDIA_CHASE_DELAY_SEC:
+            continue
+        rec["media_chase_sent"] = True
+        rec["stage"] = "SUPPLY_MEDIA_CHASE"; rec["status"] = "supply_media_chase"
+        _sync_landlord_db_fields(pn, rec)
+        out.append({"type": "SUPPLY_MEDIA_CHASE", "pn": pn, "notify": True,
+                    "text": LANDLORD_MEDIA_CHASE,
+                    "reason": "landlord onboarding media still missing after 2 days (sweep)"})
+    return out
+
 def recent_inbound_text(chat_jid, limit=25):
     """Concatenate a contact's recent INBOUND messages (excludes our own echoed bot sends)
     so intent can be read from the whole thread, not just the latest line. Best-effort:
@@ -920,7 +1334,11 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   "almost there :) to send your profile","almost there :) i still need",
                   "could you confirm this so i can send your profile",
                   "by sharing these details you agree",
-                  "more rooms available on my rental channel")
+                  "more rooms available on my rental channel",
+                  # landlord onboarding extension (never mistake our own send for a landlord reply)
+                  "almost there, i just need",
+                  "thanks, that is everything i need for now",
+                  "just checking in, still keen to send a few photos")
 def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
@@ -952,6 +1370,10 @@ _ENGINE_PREFIXES = (
     "no worries 🙂 you can see my other available rooms",
     "thanks, you fit what the landlord is looking for",
     "more rooms available on my rental channel",
+    # landlord onboarding extension
+    "almost there, i just need",
+    "thanks, that is everything i need for now",
+    "just checking in, still keen to send a few photos",
 )
 def _template_heads():
     """Cached lowercase first-80-chars of every listing unit message (message 1 sends)."""
@@ -1276,7 +1698,12 @@ def _rec(state, pn):
         "processed_ids":[], "form_sent":False, "asked_fields":[],
         "viewing_asked":False, "viewing_confirmed":False,
         "manual_takeover":False, "status":"new", "last_inbound":None,
-        "source":None}.items():
+        "source":None,
+        # landlord onboarding extension (never touched by the tenant/buyer flows)
+        "supply_kind":None, "supply_profile":{}, "human_takeover":False,
+        "info_complete":False, "photos_received":False, "video_received":False,
+        "media_requested_at":None, "media_chase_sent":False,
+        "followup_nudges_sent":0, "info_cap_flagged":False, "media_cap_flagged":False}.items():
         rec.setdefault(k, v)   # repair partial/legacy records, not just create new ones
     return rec
 
@@ -1593,6 +2020,7 @@ def _handle_event_inner(state, ev):
         if not ev.get("engine"):
             rec["manual_takeover"] = True
             rec["copilot_muted"] = True
+            rec["human_takeover"] = True   # genuine hand reply -- silences landlord onboarding too
             rec["status"] = "manual"
         return None
 
@@ -1662,6 +2090,15 @@ def _handle_event_inner(state, ev):
         rec["listing_key"] = ev["listing_key"]; new_data = True
     if rec["manual_takeover"]:
         rec["status"] = "manual"
+        # Landlord onboarding runs INSIDE this latch: supply side detection sets
+        # manual_takeover purely to keep the record out of the tenant/buyer flows, not
+        # because Winfred replied by hand. human_takeover is the real signal for that (set
+        # only on a genuine hand reply) -- once it is set, this goes fully silent like every
+        # other manual chat.
+        if rec.get("supply_flagged") and _rec_supply_kind(rec) == "landlord":
+            if rec.get("human_takeover"):
+                return None
+            return _landlord_onboarding_reaction(rec, ev, pn)
         # Once the co-pilot has auto-offered a viewing, it OWNS the rest of that flow: it reacts to the
         # prospect's reply (confirm the slot / acknowledge a proposed time / flag a question) exactly
         # like the autonomous path, while still pinging Winfred. Before any auto-offer it stays silent
@@ -1704,7 +2141,7 @@ def _handle_event_inner(state, ev):
         if _supply:
             if rec.get("supply_flagged"):
                 return None
-            rec["supply_flagged"] = True; rec["status"] = "supply_side:" + _supply
+            rec["supply_flagged"] = True; rec["status"] = "supply_side:" + _supply; rec["supply_kind"] = _supply
             _label = "landlord (renting out)" if _supply == "landlord" else "seller (selling)"
             # send THEIR intake form once (landlord onboarding / seller intake, verbatim from
             # _templates), then go silent: manual takeover latches so the engine never messages
@@ -1833,7 +2270,7 @@ def _handle_event_inner(state, ev):
         _sup2, _sup2_conf = supply_side_kind(ev.get("jid"), ev.get("text", ""),
                                              with_confidence=True)
         if _sup2 and _sup2_conf:
-            rec["supply_flagged"] = True; rec["status"] = "supply_side:" + _sup2
+            rec["supply_flagged"] = True; rec["status"] = "supply_side:" + _sup2; rec["supply_kind"] = _sup2
             rec["manual_takeover"] = True; rec["copilot_muted"] = True
             rec["stage"] = "SUPPLY_FORM_SENT"
             form2 = _supply_form(_sup2)
@@ -2353,6 +2790,10 @@ def init_landlord_followup_schedule(timestamp):
     return schedule
 
 # ========== LANDLORD TENANT MATCHING & 99.CO AUTO-LISTING INTEGRATION ==========
+# STILL DORMANT -- called from nowhere (6 Sep 2026 landlord onboarding build deliberately did
+# NOT wire this in). Winfred keeps tenant matching and 99.co listing manual; the onboarding
+# flow above only gets a landlord to SUPPLY_READY (info complete + photos) and flags Winfred,
+# it never auto matches or auto lists. Do not wire this without his explicit go.
 # Called from wa_intake_runner.py when landlord form completion is detected.
 
 def _try_import_matcher():
