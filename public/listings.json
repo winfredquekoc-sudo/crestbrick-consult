@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-05T00:30:04+08:00",
-  "count": 34,
+  "synced_at": "2026-09-07T00:30:04+08:00",
+  "count": 32,
   "listings": [
     {
       "id": "whole-unit-hillcrest-villa-ll124",
@@ -57,18 +57,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive."
     },
     {
-      "id": "common-room-bayshore-park-ll070",
-      "title": "Common Room, Bayshore Park",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1300,
-      "price_label": "S$1,300 / mo",
-      "address": "Bayshore Park",
-      "district": "D16",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bayshore%20Park."
-    },
-    {
       "id": "common-room-blk-125-bedok-reservoir-area-ll104",
       "title": "Common Room, Blk 125 Bedok Reservoir area",
       "type": "HDB",
@@ -106,21 +94,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%2062%20Bayshore%20Park.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%2062%20Bayshore%20Park."
-    },
-    {
-      "id": "room-blk-68-costa-del-sol-ll164",
-      "title": "Room, Blk 68 Costa Del Sol (Bedok)",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 900,
-      "price_label": "From S$900 / mo",
-      "address": "Blk 68 Costa Del Sol",
-      "district": "D16",
-      "highlights": [
-        "Near MRT"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%2068%20Costa%20Del%20Sol.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%2068%20Costa%20Del%20Sol."
     },
     {
       "id": "studio-34-jalan-tanjong-ll077",
@@ -310,6 +283,23 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20208%20Ang%20Mo%20Kio%20Ave%201."
     },
     {
+      "id": "master-room-high-oak-condo-ll218",
+      "title": "Master Room, High Oak Condo (Clementi Park)",
+      "type": "Condo",
+      "transaction": "rent",
+      "price": 1900,
+      "price_label": "S$1,900 / mo",
+      "address": "High Oak Condo",
+      "district": "D21",
+      "highlights": [
+        "Near MRT",
+        "Furnished",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20High%20Oak%20Condo.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20High%20Oak%20Condo."
+    },
+    {
       "id": "common-room-138a-yuan-ching-road-ll111",
       "title": "Common Room, 138A Yuan Ching Road (Jurong)",
       "type": "HDB",
@@ -362,22 +352,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20403%20Jurong%20West%20Street%2042.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20403%20Jurong%20West%20Street%2042."
-    },
-    {
-      "id": "common-room-blk-639-jurong-west-street-61-ll108",
-      "title": "Common Room, Blk 639 Jurong West Street 61",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1000,
-      "price_label": "From S$1,000 / mo",
-      "address": "Blk 639 Jurong West Street 61",
-      "district": "D22",
-      "highlights": [
-        "Utilities included",
-        "Aircon"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20639%20Jurong%20West%20Street%2061.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20639%20Jurong%20West%20Street%2061."
     },
     {
       "id": "common-room-blk-703-jurong-west-ll117",
@@ -464,6 +438,23 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd."
     },
     {
+      "id": "master-room-hdb-4-room-ll217",
+      "title": "Master Room, HDB 4-room (Bukit Batok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "From S$900 / mo",
+      "address": "HDB 4-room",
+      "district": "D23",
+      "highlights": [
+        "Furnished",
+        "Aircon",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20HDB%204-room.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20HDB%204-room."
+    },
+    {
       "id": "common-room-54-sunrise-terrace-ll028",
       "title": "Common Room, 54 Sunrise Terrace",
       "type": "Landed",
@@ -489,21 +480,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights."
-    },
-    {
-      "id": "common-room-oxley-edge-ll188",
-      "title": "Common Room, Oxley Edge (Orchard)",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1300,
-      "price_label": "From S$1,300 / mo",
-      "address": "Oxley Edge",
-      "district": "D9",
-      "highlights": [
-        "Utilities included"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Oxley%20Edge.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Oxley%20Edge."
     }
   ]
 }
