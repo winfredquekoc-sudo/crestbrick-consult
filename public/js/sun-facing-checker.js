@@ -331,11 +331,19 @@
       if(i===excludeIdx) continue;
       var ring=feats[i].geometry.coordinates[0]; if(!ring||ring.length<4) continue;
       var p0=ring[0];
-      if(Math.abs(p0[0]-pt[0])<=padLng && Math.abs(p0[1]-pt[1])<=padLat) out.push(feats[i]);
+      if(Math.abs(p0[0]-pt[0])>padLng || Math.abs(p0[1]-pt[1])>padLat) continue;
+      // centroid + radius in metres relative to the pin, so each sample can reject
+      // buildings whose shadow cannot reach the pin without building a hull
+      var sx=0, sy=0, n=ring.length-1, k;
+      for(k=0;k<n;k++){ sx+=(ring[k][0]-pt[0])*mLng; sy+=(ring[k][1]-pt[1])*mLat; }
+      var cx=sx/n, cy=sy/n, r=0;
+      for(k=0;k<n;k++){ var ddx=(ring[k][0]-pt[0])*mLng-cx, ddy=(ring[k][1]-pt[1])*mLat-cy; r=Math.max(r, Math.sqrt(ddx*ddx+ddy*ddy)); }
+      out.push({f:feats[i], cx:cx, cy:cy, r:r});
     }
     return out;
   }
-  // fast hull mode only (never the exact union) — this runs ~300 times per summary
+  // fast hull mode only (never the exact union) — this runs ~300 times per summary,
+  // and the reach/direction pre-check below skips >99% of buildings before any hull
   function pinShaded(tsMs, pt, candidates){
     var pos=SunCalc.getPosition(new Date(tsMs), pt[1], pt[0]);
     if(pos.altitude<=0.03) return {shaded:false, altitude:pos.altitude, azimuth:pos.azimuth};
@@ -344,7 +352,10 @@
     var low=pos.altitude<0.21, maxLen=low?900:1400;
     var mLng=111320*Math.cos(pt[1]*Math.PI/180), mLat=110540;
     for(var i=0;i<candidates.length;i++){
-      var f=candidates[i], h=f.properties.h||15, len=Math.min(h*perM, maxLen);
+      var c=candidates[i], f=c.f, h=f.properties.h||15, len=Math.min(h*perM, maxLen);
+      // pin relative to the building centroid, projected along the shadow direction
+      var px=-c.cx, py=-c.cy, t=px*ex+py*ny, u=Math.abs(px*ny-py*ex);
+      if(t<-c.r || t>len+c.r || u>c.r) continue;
       var ring=f.geometry.coordinates[0]; if(!ring||ring.length<4) continue;
       var dlng=ex*len/mLng, dlat=ny*len/mLat;
       var swept=sweep(ring, dlng, dlat, false);
