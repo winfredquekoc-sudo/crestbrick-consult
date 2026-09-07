@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Singapore Sun &amp; Shadow Map | Winfred Quek</title>
+<meta name="description" content="See how sunlight and shadows fall across any Singapore address through the day and year, before you buy. Check for afternoon west sun or a taller building blocking your light.">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
+<style>
+  :root{
+    --navy:#132033; --navy2:#1c2e49; --gold:#c9a24b; --ink:#0f1826;
+    --paper:#f5f6f8; --line:#dfe4ec; --muted:#5b6678;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--navy)}
+  #map{position:absolute;inset:0}
+  .maplibregl-ctrl-attrib{font-size:10px}
+  /* control panel */
+  #panel{position:absolute;z-index:5;top:14px;left:14px;width:320px;max-width:calc(100vw - 28px);
+    background:rgba(19,32,51,.94);color:#eef2f8;border:1px solid rgba(201,162,75,.35);border-radius:14px;
+    box-shadow:0 10px 34px rgba(0,0,0,.4);backdrop-filter:blur(6px);overflow:hidden}
+  #panel .hd{padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+  #panel .hd h1{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em}
+  #panel .hd h1 span{color:var(--gold)}
+  #panel .hd p{margin:4px 0 0;font-size:11.5px;color:#9fb0c6;line-height:1.4}
+  #panel .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:14px}
+  .search{display:flex;gap:6px}
+  .search input{flex:1;min-width:0;background:#0f1a2b;border:1px solid rgba(255,255,255,.14);color:#eef2f8;
+    border-radius:8px;padding:8px 10px;font-size:13px}
+  .search button,.btn{background:var(--gold);color:#1a1408;border:0;border-radius:8px;padding:8px 12px;
+    font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .search button:hover,.btn:hover{filter:brightness(1.06)}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .lab{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9fb0c6}
+  .val{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--gold)}
+  input[type=date]{background:#0f1a2b;border:1px solid rgba(255,255,255,.14);color:#eef2f8;border-radius:8px;padding:6px 8px;font-size:12.5px}
+  .timeread{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .timeread small{font-size:13px;color:#9fb0c6;font-weight:500}
+  .playrow{display:flex;gap:8px;align-items:center}
+  .ghost{background:transparent;color:#eef2f8;border:1px solid rgba(255,255,255,.2);border-radius:8px;
+    padding:7px 11px;font-size:12.5px;cursor:pointer}
+  .ghost:hover{border-color:var(--gold)}
+  .suninfo{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:12px}
+  .suninfo div span{display:block;color:#9fb0c6;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
+  .suninfo b{font-variant-numeric:tabular-nums}
+  .note{font-size:10.5px;color:#8797ad;line-height:1.4}
+  .badge{position:absolute;z-index:5;top:14px;right:14px;background:rgba(19,32,51,.9);border:1px solid rgba(201,162,75,.3);
+    color:#eef2f8;border-radius:10px;padding:8px 12px;font-size:11.5px;max-width:230px;line-height:1.4}
+  .badge a{color:var(--gold)}
+  #loading{position:absolute;z-index:6;bottom:20px;left:50%;transform:translateX(-50%);
+    background:rgba(19,32,51,.95);color:#eef2f8;border:1px solid rgba(201,162,75,.3);border-radius:20px;
+    padding:8px 16px;font-size:12.5px;display:none}
+  #loading.on{display:block}
+  @media (max-width:520px){#panel{width:calc(100vw - 20px);top:10px;left:10px}.badge{display:none}}
+</style>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="panel">
+  <div class="hd">
+    <h1>Singapore <span>Sun &amp; Shadow</span></h1>
+    <p>See how sunlight and shadows fall on a home through the day and year, before you buy. Watch for afternoon west sun or a taller building blocking your light.</p>
+  </div>
+  <div class="bd">
+    <div class="search">
+      <input id="q" placeholder="Search an address or condo…" autocomplete="off">
+      <button id="go">Find</button>
+    </div>
+
+    <div>
+      <div class="timeread"><span id="tclock">15:00</span> <small id="tampm">3:00 pm</small></div>
+      <input id="time" type="range" min="0" max="1439" step="5" value="900">
+      <div class="playrow" style="margin-top:8px">
+        <button class="btn" id="play">▶ Play day</button>
+        <button class="ghost" id="now">Now</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="row"><span class="lab">Month</span><span class="val" id="mlab">—</span></div>
+      <input id="month" type="range" min="1" max="12" step="1" value="1">
+    </div>
+
+    <div class="suninfo">
+      <div><span>Sunrise</span><b id="sr">—</b></div>
+      <div><span>Sunset</span><b id="ss">—</b></div>
+      <div><span>Sun altitude</span><b id="alt">—</b></div>
+      <div><span>Direction</span><b id="az">—</b></div>
+    </div>
+
+    <div class="note" id="hint">Drag the map to a home, or search an address. Buildings load from OpenStreetMap; where a height isn't recorded a typical storey height is estimated, so treat the shadows as a strong guide, not a survey.</div>
+  </div>
+</div>
+
+<div class="badge">Prototype &middot; shadows use OpenStreetMap building heights. Data: &copy; OpenStreetMap, OpenFreeMap.</div>
+<div id="loading">Loading buildings…</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/deck.gl@9.0.33/dist.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.7/dist/polygon-clipping.umd.js"></script>
+<script>
+(function(){
+  "use strict";
+  var SG = {lng:103.85007, lat:1.28967, zoom:15.5};
+  var TZ_OFFSET = 8*60; // SGT minutes east of UTC (no DST in SG)
+
+  // ---- map ----
+  var map = new maplibregl.Map({
+    container:'map',
+    style:'https://tiles.openfreemap.org/styles/positron',
+    center:[SG.lng, SG.lat], zoom:SG.zoom, pitch:50, bearing:0, maxPitch:70, antialias:true
+  });
+  map.addControl(new maplibregl.NavigationControl({visualizePitch:true}), 'bottom-right');
+  map.addControl(new maplibregl.AttributionControl({compact:true}), 'bottom-left');
+
+  // ---- deck.gl overlay with sun shadows ----
+  var ambient = new deck.AmbientLight({color:[255,255,255], intensity:1.0});
+  // one light instance, mutate its timestamp (rebuilding the effect per tick tears down shadow buffers)
+  var sun = new deck._SunLight({timestamp:Date.now(), color:[255,250,235], intensity:1.35, _shadow:true});
+  var lighting = new deck.LightingEffect({ambientLight:ambient, sun:sun});
+  lighting.shadowColor = [0.06, 0.09, 0.15, 0.55];   // 0..1 range; larger values clamp to white
+  var overlay = new deck.MapboxOverlay({interleaved:true, effects:[lighting], layers:[]});
+  map.addControl(overlay);
+
+  var buildings = {type:'FeatureCollection', features:[]};
+  var pin = null;
+
+  function buildingLayer(){
+    return new deck.GeoJsonLayer({
+      id:'buildings', data:buildings, extruded:true, filled:true, stroked:false,
+      getElevation:function(f){ return f.properties.h || 15; },
+      getFillColor:function(f){ return f.properties.src==='est' ? [206,208,214] : [228,230,235]; },
+      material:{ambient:0.55, diffuse:0.7, shininess:24, specularColor:[70,74,82]}
+    });
+  }
+  function pinLayer(){
+    if(!pin) return null;
+    return new deck.ScatterplotLayer({id:'pin', data:[pin], getPosition:function(d){return d;},
+      getFillColor:[201,162,75], getRadius:6, radiusUnits:'pixels', getLineColor:[26,20,8], lineWidthUnits:'pixels', getLineWidth:2, stroked:true});
+  }
+  // ---- ground shadows as swept footprint polygons (ShadeMap-style) ----
+  // deck.gl's GL shadow only lands on other deck layers, never on the MapLibre base, so
+  // we compute each building's shadow footprint from sun altitude/azimuth and draw it.
+  function hull(pts){
+    pts=pts.slice().sort(function(a,b){return a[0]-b[0]||a[1]-b[1];});
+    if(pts.length<3) return pts;
+    function cross(o,a,b){return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0]);}
+    var lower=[],upper=[],i;
+    for(i=0;i<pts.length;i++){ while(lower.length>=2&&cross(lower[lower.length-2],lower[lower.length-1],pts[i])<=0) lower.pop(); lower.push(pts[i]); }
+    for(i=pts.length-1;i>=0;i--){ while(upper.length>=2&&cross(upper[upper.length-2],upper[upper.length-1],pts[i])<=0) upper.pop(); upper.push(pts[i]); }
+    upper.pop(); lower.pop(); return lower.concat(upper);
+  }
+  // exact swept shadow: union of the footprint, the far cap, and one quad per edge.
+  // (A convex hull over-covers L/U-shaped blocks into blobs; the union is the true shape.)
+  // The union is ~100x slower than the hull, so the hull draws instantly while the
+  // slider moves and the exact union replaces it once the slider settles.
+  function sweep(ring, dlng, dlat, exact){
+    if(exact && window.polygonClipping){
+      var cap=ring.map(function(p){return [p[0]+dlng,p[1]+dlat];});
+      var polys=[[ring],[cap]];
+      for(var i=0;i<ring.length-1;i++){
+        var a=ring[i], b=ring[i+1];
+        polys.push([[a,b,[b[0]+dlng,b[1]+dlat],[a[0]+dlng,a[1]+dlat],a]]);
+      }
+      try{ return polygonClipping.union.apply(null, polys); }catch(e){}
+    }
+    var pts=[]; ring.forEach(function(p){pts.push([p[0],p[1]]); pts.push([p[0]+dlng,p[1]+dlat]);});
+    return [[hull(pts)]];
+  }
+  var EXACT_MAX=5000;                               // ~0.25ms/building: above this the settle-time union is too slow
+  function shadowPolys(exact){
+    var ts=selectedTsMs(), c=map.getCenter();
+    var pos=SunCalc.getPosition(new Date(ts), c.lat, c.lng);
+    if(pos.altitude<=0.03){                         // sun down: no cast shadows
+      window.__sunDbg={n:0, alt:pos.altitude*180/Math.PI, az:((pos.azimuth*180/Math.PI)+180+360)%360, b:buildings.features.length, exact:!!exact};
+      return [];
+    }
+    var perM=1/Math.tan(pos.altitude);              // shadow length per metre of height
+    // SunCalc azimuth is from SOUTH toward WEST; the shadow points AWAY from the sun.
+    var ex=Math.sin(pos.azimuth), ny=Math.cos(pos.azimuth);
+    var low=pos.altitude<0.21;                      // below ~12°: long, faint shadows
+    var alpha=low?85:130, maxLen=low?900:1400, out=[];
+    // only buildings whose shadow can reach the viewport (tiles cover far more than the screen)
+    var bb=map.getBounds(), pad=maxLen/111000;
+    var w=bb.getWest()-pad, e=bb.getEast()+pad, s=bb.getSouth()-pad, n=bb.getNorth()+pad;
+    var vis=buildings.features.filter(function(f){
+      var p=f.geometry.coordinates[0]&&f.geometry.coordinates[0][0];
+      return p && p[0]>=w && p[0]<=e && p[1]>=s && p[1]<=n;
+    });
+    var useExact=!!exact && vis.length<=EXACT_MAX;
+    vis.forEach(function(f){
+      var h=f.properties.h||15, len=Math.min(h*perM, maxLen);
+      var ring=f.geometry.coordinates[0]; if(!ring||ring.length<4) return;
+      var mLng=111320*Math.cos(ring[0][1]*Math.PI/180), mLat=110540;
+      var mp=sweep(ring, ex*len/mLng, ny*len/mLat, useExact);
+      mp.forEach(function(poly){ if(poly&&poly[0]&&poly[0].length>=3) out.push({polygon:poly, a:alpha}); });
+    });
+    window.__sunDbg={n:out.length, alt:pos.altitude*180/Math.PI, az:((pos.azimuth*180/Math.PI)+180+360)%360, b:buildings.features.length, vis:vis.length, exact:useExact};
+    return out;
+  }
+  function shadowLayer(exact){
+    return new deck.PolygonLayer({id:'shadows', data:shadowPolys(exact), getPolygon:function(d){return d.polygon;},
+      filled:true, stroked:false, extruded:false, getFillColor:function(d){return [16,24,40,d.a];},
+      parameters:{depthTest:false}});
+  }
+  var refineTimer=null;
+  function render(exact){
+    overlay.setProps({layers:[shadowLayer(exact), buildingLayer(), pinLayer()].filter(Boolean)});
+    clearTimeout(refineTimer);
+    if(!exact) refineTimer=setTimeout(function(){ render(true); }, 250);
+  }
+
+  // ---- OSM buildings via Overpass for the current view ----
+  var fetchTimer=null, lastKey='';
+  function metersToH(t){
+    if(t.height){ var m=parseFloat(t.height); if(!isNaN(m)){ if(/ft/i.test(t.height)) m*=0.3048; return {h:m,src:'height'}; } }
+    if(t['building:levels']){ var l=parseFloat(t['building:levels']); if(!isNaN(l)) return {h:l*3.0,src:'levels'}; }
+    var b=t.building||'yes';   // Singapore defaults: HDB and condo blocks are tall, landed is low
+    if(/^(apartments|residential|dormitory)$/.test(b)) return {h:36,src:'est'};
+    if(/^(house|detached|semidetached_house|terrace|bungalow)$/.test(b)) return {h:8,src:'est'};
+    if(/^(commercial|office|hotel)$/.test(b)) return {h:30,src:'est'};
+    if(/^(industrial|warehouse|retail|school|hospital)$/.test(b)) return {h:12,src:'est'};
+    return {h:15,src:'est'};
+  }
+  // Buildings come straight from the map's own vector tiles (OpenMapTiles 'building'
+  // layer): no external API at runtime, so it works whenever the map does. Heights use
+  // OSM render_height where recorded; otherwise a Singapore-typical 30 m block is assumed.
+  function loadBuildings(){
+    if(map.getZoom() < 14.5){ buildings={type:'FeatureCollection',features:[]}; render();
+      document.getElementById('hint').textContent='Zoom in to load buildings and shadows.'; return; }
+    var c=map.getCenter(), key=c.lat.toFixed(3)+','+c.lng.toFixed(3)+','+map.getZoom().toFixed(1);
+    if(key===lastKey) return;
+    var sources=map.getStyle().sources, srcId=null;
+    for(var s in sources){ if(sources[s].type==='vector'){ srcId=s; break; } }
+    if(!srcId) return;
+    var feats=map.querySourceFeatures(srcId,{sourceLayer:'building'});
+    if(!feats.length) return;                        // tiles not in yet; the next idle retries
+    lastKey=key;
+    var seen={}, out=[], known=0;
+    feats.forEach(function(f){
+      var g=f.geometry; if(!g) return;
+      var polys=g.type==='Polygon'?[g.coordinates]:(g.type==='MultiPolygon'?g.coordinates:[]);
+      var p=f.properties||{}, rh=parseFloat(p.render_height), h, src;
+      if(!isNaN(rh)&&rh>0){ h=rh; src='tile'; known++; } else { h=30; src='est'; }
+      polys.forEach(function(coords){
+        if(!coords||!coords[0]||coords[0].length<4) return;
+        var id=(f.id!=null?f.id:'')+':'+coords[0][0][0].toFixed(6)+','+coords[0][0][1].toFixed(6);
+        if(seen[id]) return; seen[id]=1;
+        out.push({type:'Feature',properties:{h:h,src:src},geometry:{type:'Polygon',coordinates:coords}});
+      });
+    });
+    buildings={type:'FeatureCollection',features:out}; render();
+    document.getElementById('hint').textContent=out.length+' buildings loaded, heights known for '+known+'. Drag the map or search an address. Where a height is not recorded a typical block is assumed, so treat shadows as a strong guide, not a survey.';
+  }
+  map.on('idle', loadBuildings);                     // fires once the view's tiles are all in
+  map.on('moveend',function(){ clearTimeout(fetchTimer); fetchTimer=setTimeout(loadBuildings, 300); });
+
+  // ---- time model: selected date + minutes-of-day (SGT) -> epoch ms ----
+  var curDate = new Date();
+  function selectedTsMs(){
+    var mins = parseInt(document.getElementById('time').value,10);
+    // build a UTC instant for the chosen SGT wall-clock time on curDate
+    var y=curDate.getFullYear(), mo=curDate.getMonth(), da=curDate.getDate();
+    var utcMins = mins - TZ_OFFSET;
+    return Date.UTC(y,mo,da,0,0,0) + utcMins*60000;
+  }
+  function fmtHM(mins){ var h=Math.floor(mins/60), m=mins%60; return (h<10?'0':'')+h+':'+(m<10?'0':'')+m; }
+  function fmtAMPM(mins){ var h=Math.floor(mins/60), m=mins%60; var ap=h<12?'am':'pm'; var h12=((h+11)%12)+1; return h12+':'+(m<10?'0':'')+m+' '+ap; }
+  function compass(azRad){ var d=(azRad*180/Math.PI+180)%360; var dirs=['N','NE','E','SE','S','SW','W','NW']; return dirs[Math.round(d/45)%8]; }
+
+  function updateSun(){
+    var mins=parseInt(document.getElementById('time').value,10);
+    document.getElementById('tclock').textContent=fmtHM(mins);
+    document.getElementById('tampm').textContent=fmtAMPM(mins);
+    var ts=selectedTsMs();
+    sun.timestamp=ts; map.triggerRepaint();
+    // sun readout for the pin if placed, else the map centre
+    var c=pin?{lat:pin[1],lng:pin[0]}:map.getCenter();
+    var pos=SunCalc.getPosition(new Date(ts), c.lat, c.lng);
+    var times=SunCalc.getTimes(new Date(selectedTsMsForNoon()), c.lat, c.lng);
+    var altDeg=pos.altitude*180/Math.PI;
+    document.getElementById('alt').textContent= altDeg<0 ? 'Below horizon' : altDeg.toFixed(0)+'°';
+    document.getElementById('az').textContent= altDeg<0 ? 'Night' : compass(pos.azimuth)+' '+Math.round(((pos.azimuth*180/Math.PI)+180+360)%360)+'°';
+    document.getElementById('sr').textContent=sgtClock(times.sunrise);
+    document.getElementById('ss').textContent=sgtClock(times.sunset);
+    render();   // recompute shadow footprints for the new sun position
+  }
+  function selectedTsMsForNoon(){ var y=curDate.getFullYear(),mo=curDate.getMonth(),da=curDate.getDate(); return Date.UTC(y,mo,da,0,0,0)+(12*60-TZ_OFFSET)*60000; }
+  function sgtClock(d){ if(!d||isNaN(d)) return '—'; var m=Math.round((d.getTime()-Date.UTC(d.getUTCFullYear(),d.getUTCMonth(),d.getUTCDate())) /60000)+TZ_OFFSET; m=((m%1440)+1440)%1440; return fmtHM(m); }
+
+  // ---- controls ----
+  var timeEl=document.getElementById('time');
+  timeEl.addEventListener('input',updateSun);
+  var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var monthEl=document.getElementById('month');
+  function setMonth(m){ monthEl.value=m; document.getElementById('mlab').textContent=MONTHS[m-1]; curDate=new Date(new Date().getFullYear(), m-1, 15); }
+  setMonth(new Date().getMonth()+1);
+  monthEl.addEventListener('input',function(){ setMonth(parseInt(monthEl.value,10)); updateSun(); });
+  document.getElementById('now').addEventListener('click',function(){
+    var n=new Date(); setMonth(n.getMonth()+1);
+    // now in SGT minutes
+    var sgtNowMin=(Math.floor(n.getTime()/60000)+TZ_OFFSET)%1440;
+    timeEl.value=((sgtNowMin%1440)+1440)%1440; updateSun();
+  });
+
+  // play through the day
+  var playing=null;
+  document.getElementById('play').addEventListener('click',function(){
+    var btn=this;
+    if(playing){ clearInterval(playing); playing=null; btn.textContent='▶ Play day'; return; }
+    btn.textContent='❚❚ Pause';
+    playing=setInterval(function(){
+      var v=(parseInt(timeEl.value,10)+10); if(v>1439){ v=300; } // loop 5am
+      timeEl.value=v; updateSun();
+    },160);
+  });
+
+  // ---- geocode (OneMap, free, SG-specific) ----
+  function geocode(){
+    var q=document.getElementById('q').value.trim(); if(!q) return;
+    fetch('https://www.onemap.gov.sg/api/common/elastic/search?searchVal='+encodeURIComponent(q)+'&returnGeom=Y&getAddrDetails=Y&pageNum=1')
+      .then(function(r){return r.json();})
+      .then(function(d){
+        if(d.results&&d.results.length){
+          var r0=d.results[0], lat=parseFloat(r0.LATITUDE), lng=parseFloat(r0.LONGITUDE);
+          pin=[lng,lat]; map.flyTo({center:[lng,lat],zoom:16.5,pitch:55}); render();
+          document.getElementById('hint').textContent=(r0.ADDRESS||q);
+        } else { document.getElementById('hint').textContent='No match found for "'+q+'". Try a postal code or block + street.'; }
+      })
+      .catch(function(){ document.getElementById('hint').textContent='Address search is unavailable right now; drag the map instead.'; });
+  }
+  document.getElementById('go').addEventListener('click',geocode);
+  document.getElementById('q').addEventListener('keydown',function(e){ if(e.key==='Enter') geocode(); });
+
+  // click to drop a pin
+  map.on('click',function(e){ pin=[e.lngLat.lng,e.lngLat.lat]; render(); });
+
+  map.on('load',function(){ loadBuildings(); updateSun(); });
+})();
+</script>
+</body>
+</html>
