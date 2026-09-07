@@ -80,6 +80,16 @@
   ],
   "redirects": [
     {
+      "source": "/sun-facing-faq",
+      "destination": "https://sunfacing.com/#faq",
+      "permanent": true
+    },
+    {
+      "source": "/sun-facing-checker",
+      "destination": "https://sunfacing.com/",
+      "permanent": true
+    },
+    {
       "source": "/ebooks/4-pillar-framework",
       "destination": "/ebooks/money-timing-safety-framework",
       "permanent": true
