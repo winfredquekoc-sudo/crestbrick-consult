@@ -33,7 +33,7 @@ STATE   = os.path.expanduser("~/.claude/state/listing-templates/intake-state.jso
 TEMPLATES = os.path.expanduser("~/.claude/state/listing-templates/property-templates.json")
 LANDLORD_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.json")
 
-REQUIRED_FIELDS = ["name","nationality","ethnicity","gender","age",
+REQUIRED_FIELDS = ["name","nationality","ethnicity","gender",
                    "pass_type","no_of_pax","move_in_date","lease_term_months","budget"]
 
 # Rides in FRONT of the intake form when message 1 offered a concrete slot: the form is
@@ -1646,9 +1646,7 @@ def qualify(req, profile):
     if isinstance(lmax,int) and isinstance(lt,int) and lt > lmax:
         unknown.append("lease over landlord max")
 
-    ma = r.get("min_age"); age = profile.get("age")
-    if isinstance(ma,int) and isinstance(age,int) and age < ma:
-        fails.append("minimum age " + str(ma))
+    # age gate removed (Winfred, 8 Sep 2026): age never disqualifies a tenant
 
     oc = r.get("occupation_rule",{}) or {}
     if oc.get("mode") == "exclude" and oc.get("list"):
