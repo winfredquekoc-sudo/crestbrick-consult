@@ -274,6 +274,7 @@
           month: parseInt(monthEl.value,10), time: parseInt(timeEl.value,10)
         }));
       }catch(e){}
+      if(window.gtag) gtag('event','valuation_click',{address: state.address});
     });
   }
   function setResult(addressOrNull, lat, lng, pulseOnce){
@@ -293,6 +294,7 @@
           pin=[lng,lat]; map.flyTo({center:[lng,lat],zoom:16.5,pitch:55}); render();
           setHint(r0.ADDRESS||q);
           setResult(r0.ADDRESS||q, lat, lng, true);
+          if(window.gtag) gtag('event','search',{address: r0.ADDRESS||q});
         } else { setHint('No match found for "'+q+'". Try a postal code or block + street.'); }
       })
       .catch(function(){ setHint('Address search is unavailable right now; drag the map instead.'); });
@@ -498,6 +500,7 @@
         if(!res.ok) throw new Error('bad status');
         statusEl.textContent='Sent, check your inbox.';
         formBtn.textContent='Email me this summary'; formBtn.disabled=false;
+        if(window.gtag) gtag('event','summary_email',{address: state.address});
       }).catch(function(){
         statusEl.textContent='Could not send right now, please try again.';
         formBtn.textContent='Email me this summary'; formBtn.disabled=false;
@@ -532,6 +535,7 @@
       function finish(){
         btn.textContent='Sun summary'; btn.disabled=false;
         renderSummaryCard(rows, buildingsLoaded, pt);
+        if(window.gtag) gtag('event','summary_run',{address: state.address});
       }
       step();
     }

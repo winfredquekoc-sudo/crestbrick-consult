@@ -8,7 +8,15 @@
 <meta property="og:title" content="Sun Facing Checker Singapore: Sun Direction &amp; Shadow Map">
 <meta property="og:description" content="Free Sun Facing Checker for any Singapore address. See which way a home faces the sun, when the west sun hits, and which buildings cast shadows, for any month and time of day.">
 <meta property="og:type" content="website">
-<link rel="canonical" href="https://winfredquek.com/sun-facing-checker">
+<link rel="canonical" href="https://sunfacing.com/">
+<!-- GA4, same property as winfredquek.com (see public/index.html) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-T6C46CFKCM"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-T6C46CFKCM');
+</script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
 <style>
   :root{
@@ -37,6 +45,9 @@
   #panel .hd h1 span{color:var(--gold)}
   .homelink{font-size:10px;color:#7c8aa0;text-decoration:none;white-space:nowrap;flex:none}
   .homelink:hover{color:var(--gold)}
+  .now-at{margin:4px 0 0;font-size:10.5px;color:#7c8aa0}
+  .now-at a{color:var(--gold);text-decoration:none}
+  .now-at a:hover{text-decoration:underline}
   .tabrow{display:flex;gap:14px;margin-top:8px}
   .tabrow .tab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#7c8aa0;text-decoration:none;
     padding-bottom:2px;border-bottom:2px solid transparent}
@@ -154,6 +165,7 @@
       </a>
       <a class="homelink" href="https://winfredquek.com" target="_blank" rel="noopener">winfredquek.com</a>
     </div>
+    <p class="now-at"><a href="https://sunfacing.com/" target="_blank" rel="noopener">Now at sunfacing.com</a></p>
     <div class="tabrow">
       <span class="tab active">Map</span>
       <a class="tab" href="/sun-facing-faq" target="_blank" rel="noopener">FAQ</a>

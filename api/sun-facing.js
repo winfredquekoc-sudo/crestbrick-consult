@@ -15,6 +15,8 @@ import nodemailer from 'nodemailer';
 
 const N8N_SUN_FACING_WEBHOOK =
   process.env.N8N_SUN_FACING_WEBHOOK || 'https://winfredquekoc.app.n8n.cloud/webhook/sun-facing';
+const N8N_SUN_FACING_FOLLOWUP_WEBHOOK =
+  process.env.N8N_SUN_FACING_FOLLOWUP_WEBHOOK || 'https://winfredquekoc.app.n8n.cloud/webhook/sun-facing-followup';
 
 const MAX_BODY_BYTES = 20 * 1024; // 20 KB cap on summary_email payloads
 
@@ -230,6 +232,9 @@ export default async function handler(req, res) {
     const sentences = sanitizeSentences(summary.sentences);
     const ts = new Date().toISOString();
     const ua = clean(req.headers['user-agent'], 300);
+
+    // Kick off the follow up drip, best effort, fire and forget -- must never block the response.
+    postJson(N8N_SUN_FACING_FOLLOWUP_WEBHOOK, { email, address, ts }).catch(() => {});
 
     const [, , emailed] = await Promise.all([
       notifyTelegram(`Sun Facing Checker: summary request from ${email} for ${address}${sentences[0] ? ` — ${sentences[0]}` : ''}`),
