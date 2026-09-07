@@ -231,5 +231,18 @@ a_w = E.handle_event(st_w, {"jid": "6590100076@s.whatsapp.net", "msg_id": "w1",
 ok("withdrawal ('found a place already') -> AUTO_CLOSED, not a cross-sell",
    a_w and a_w.get("type") == "AUTO_CLOSED")
 
+print("== 8. AGE GATE REMOVED: age never disqualifies a tenant, and is no longer a must-know field ==")
+# Winfred's rule (8 Sep 2026): age no longer disqualifies a tenant (min_age gate deleted from
+# qualify()) and age is no longer in REQUIRED_FIELDS. This locks both halves of that change.
+reqs = E.listing_reqs()
+ok("age is not in REQUIRED_FIELDS", "age" not in E.REQUIRED_FIELDS)
+ok("young tenant (21) on the formerly age-gated tampines-855 listing -> QUALIFIED",
+   E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":21,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="QUALIFIED")
+ok("age omitted entirely (no 'age' key at all) -> still QUALIFIED, not blocked for missing age",
+   E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="QUALIFIED")
+# contrast: the unrelated gender gate on the same listing (female_only) is untouched by this change.
+ok("male on tampines-855 (female_only) -> still DISQUALIFIED (unrelated gate unchanged)",
+   E.qualify(reqs["tampines-855"], {"gender":"Male","no_of_pax":1,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="DISQUALIFIED")
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
