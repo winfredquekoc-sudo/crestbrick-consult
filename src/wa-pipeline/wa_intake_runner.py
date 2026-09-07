@@ -97,7 +97,18 @@ _OUTBOUND_ONLY = (
     "on your question, let me check with the owner", "viewing slot:",
     "no worries, which day and time would work better",
     "more rooms available on my rental channel",
+    # landlord onboarding extension (never mistake our own send for a landlord reply)
+    "almost there, i just need",
+    "thanks, that is everything i need for now",
+    "just checking in, still keen to send a few photos",
 )
+
+# Landlord onboarding action types: manual_takeover is latched the moment supply side is
+# detected (to keep the record out of the tenant/buyer flows), so every send this sequence
+# makes needs the SAME carve out SEND_SUPPLY_FORM already had (runner-integration catch c74,
+# 11 Aug 2026). Module level (not inline in run()) so it is inspectable without a live tick.
+_LANDLORD_ONBOARDING_TYPES = ("SEND_SUPPLY_FORM", "SUPPLY_INFO_NUDGE",
+                              "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE")
 
 def _is_our_echo(content):
     """True when a is_from_me=0 row is actually our OWN bot message echoed back by the
@@ -244,6 +255,7 @@ def run():
                     if not _rec.get("manual_takeover") or not _rec.get("copilot_muted"):
                         _rec["manual_takeover"] = True
                         _rec["copilot_muted"] = True   # mute BEFORE any inbound row in this batch acts
+                        _rec["human_takeover"] = True  # genuine hand reply -- silences landlord onboarding too
                         _log("PRELATCH", _pn, "manual reply found later in batch")
             except Exception as _e:
                 _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
@@ -332,6 +344,8 @@ def run():
                 elif a["type"] == "BUYER_COMPLETE":
                     notify_winfred(f"Buyer profile complete — take over now (nothing was sent to them).\n"
                                    f"{nm} ({a['pn']}): {a.get('summary','')}")
+                elif a["type"] in ("SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
+                    notify_winfred(f"Landlord onboarding — {a['type']}. {nm} ({a['pn']}): {a.get('reason','')}")
                 elif a.get("notify"):
                     notify_winfred(f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}")
             # at first enquiry for a listing with no captured viewing slot, ask Winfred for the
@@ -363,10 +377,11 @@ def run():
                      a.get("type") + f" :: triggering inbound is {_real_age_hours(ts)/24:.1f}d old (>5d rule)")
                 E.save_state(state); acted += 1; continue
             if (_grec.get("manual_takeover") and not a.get("copilot")
-                    and a.get("type") != "SEND_SUPPLY_FORM"):
-                # SEND_SUPPLY_FORM is exempt: the supply branch latches takeover BEFORE the
-                # send, so without this the landlord onboarding form is silently suppressed
-                # (runner-integration catch c74, 11 Aug 2026)
+                    and a.get("type") not in _LANDLORD_ONBOARDING_TYPES):
+                # the whole landlord onboarding sequence is exempt: the supply branch latches
+                # takeover BEFORE any of its sends (SEND_SUPPLY_FORM: runner-integration catch
+                # c74, 11 Aug 2026; the nudge/media ask/chase for the same reason) -- without
+                # this carve-out every one of them is silently suppressed here.
                 _log("TAKEOVER_SKIP", a.get("pn"), a.get("type") + " :: manual takeover latched")
                 E.save_state(state); acted += 1; continue
             # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day

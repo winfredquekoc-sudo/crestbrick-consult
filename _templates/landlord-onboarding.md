@@ -44,6 +44,4 @@ Viewings
 • How to handle viewings (keys, lockbox, or accompanied?):
 • Share 3 to 5 available dates and times (I will coordinate at least 2 groups before bringing anyone):
 
-Lastly, could you send a few photos and a short video of the room and common areas? 📸 This helps me market it to the right tenants and cuts unnecessary viewings.
-
 Thank you! I will get started once I have these details 🙏
