@@ -712,6 +712,19 @@ def buyer_form_for(ptype):
     if ptype == "private": return BUYER_FORM_PRIVATE
     return BUYER_FORM_UNKNOWN
 
+def _buyer_template(listing_key):
+    """Per-listing buyer-flow override from property-templates.json (same file and 'id'
+    lookup key listing_unit_message uses for the tenant flow). Today's only override is the
+    open house pair: skip_buyer_form + open_house_message. Returns {} for no match or no
+    listing_key, so a missing/misconfigured entry always falls back to the normal buyer form."""
+    if not listing_key:
+        return {}
+    d = _load(TEMPLATES, {"listings": []})
+    for l in d.get("listings", []):
+        if l.get("id") == listing_key:
+            return l
+    return {}
+
 # ---------- buyer stage 2: parse the returned form, nudge once, hand off to Winfred ----------
 # Must-knows for a buyer: name, budget, financing readiness (HFE/IPA). The bot NEVER
 # advises a buyer (CEA role boundary: admin/coordination only) — a complete profile is
@@ -835,6 +848,14 @@ def _buyer_followup(rec, ev, pn):
     return {"type": "BUYER_NUDGE", "pn": pn, "notify": False,
             "text": "Almost there :) I still need " + ", ".join(labels[k] for k in miss)
                     + " so Winfred can prepare properly before speaking with you."}
+
+def _open_house_followup(rec, ev, pn):
+    """After the open house invite went out: the invite already carries the day and time, so
+    every further reply (RSVP, question, or repeat ping) goes straight to Winfred by hand --
+    never a re-send of the invite, never an auto-answer (CEA role boundary: no negotiation or
+    advice from the engine)."""
+    return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+            "reason": "buyer replied after the open house invite; reply by hand"}
 
 # ---------- supply side (landlord renting out / seller selling): send THEIR intake form ----------
 @functools.lru_cache(maxsize=2)
@@ -1321,6 +1342,13 @@ def classify_intent(chat_jid, text, listing_key, rec):
             return htx, "chat history (" + hwhy + ")"
     return "unknown", why
 
+# Open house invites (skip_buyer_form listings) replace the buyer form; the listing name
+# varies at the front of the message so this cannot be a fixed STARTSWITH prefix like the
+# other engine sends -- match on the phrase itself, wherever it falls in the message. Single
+# source of truth: reused by BOT_SIGNATURES, is_engine_outbound, and the runner's
+# _OUTBOUND_ONLY (registered per the convention two lines above CHANNEL_PITCH).
+_OPEN_HOUSE_MARKERS = ("there's an open house", "there\u2019s an open house")
+
 BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits","📲 more listings","available viewing",
     "keen to view? i can put you in","are you free to view on","i can arrange for viewing",
     "to confirm your viewing slot with the landlord",
@@ -1338,7 +1366,7 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   # landlord onboarding extension (never mistake our own send for a landlord reply)
                   "almost there, i just need",
                   "thanks, that is everything i need for now",
-                  "just checking in, still keen to send a few photos")
+                  "just checking in, still keen to send a few photos") + _OPEN_HOUSE_MARKERS
 def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
@@ -1410,6 +1438,9 @@ def is_engine_outbound(text):
     if low.startswith(_ENGINE_PREFIXES): return True
     if low.startswith(_AUTOMATION_PREFIXES): return True
     if low.startswith("almost there. ") and "could you confirm this so i can send your profile" in low: return True
+    # open house invite: listing name varies at the front (data driven per listing), so this
+    # is the one engine send matched by substring rather than a fixed startswith prefix.
+    if any(m in low for m in _OPEN_HOUSE_MARKERS): return True
     return any(low.startswith(h) for h in _template_heads())
 
 EXCLUDE_NAMES = ("wanni","shaw","madeleine","darren","amanda","don chuang")
@@ -2122,6 +2153,8 @@ def _handle_event_inner(state, ev):
         if rec.get("buyer_form_sent"):
             tx_now, _ = classify_transaction(ev.get("text",""), ev.get("listing_key"))
             if tx_now != "rent":
+                if rec.get("open_house_sent"):
+                    return _open_house_followup(rec, ev, pn)
                 return _buyer_followup(rec, ev, pn)
         why = excluded_reason(pn, ev.get("text",""))
         if why == "db_error":                    # contact DB locked -> fail closed for THIS run,
@@ -2180,6 +2213,23 @@ def _handle_event_inner(state, ev):
             # later genuine RENTAL enquiry from the same person still flows; a repeat stays silent.
             if rec.get("buyer_form_sent"):
                 return None
+            # OPEN HOUSE OVERRIDE (data driven, per listing): a listing running an open house
+            # skips the buyer intake form entirely and gets the landlord's open house invite
+            # instead -- keyed off property-templates.json's own skip_buyer_form flag, never
+            # hardcoded to one listing. Reuses buyer_form_sent as the one-time latch (so a
+            # repeat ping never re-sends it, and _unit_rejection/_buyer_followup's existing
+            # buyer_form_sent gates apply unchanged) plus its own open_house_sent flag so any
+            # later reply hands straight to Winfred instead of the buyer-form nudge machinery.
+            _oh_tpl = _buyer_template(rec.get("listing_key"))
+            if _oh_tpl.get("skip_buyer_form") and _oh_tpl.get("open_house_message"):
+                rec["buyer_form_sent"] = True
+                rec["open_house_sent"] = True
+                rec["buyer_form_sent_ts"] = __import__("time").time()
+                rec["stage"] = "OPEN_HOUSE_SENT"; rec["status"] = "open_house_sent"
+                return {"type": "SEND_OPEN_HOUSE", "pn": pn, "text": _oh_tpl["open_house_message"],
+                        "listing_key": rec.get("listing_key"), "notify": True,
+                        "reason": "buyer enquiry on an open house listing; sent the open "
+                                  "house invite instead of the buyer form"}
             ptype = classify_property_type_ctx(ev.get("jid"), ev.get("text",""), rec.get("listing_key"))
             rec["buyer_form_sent"] = True
             rec["buyer_form_sent_ts"] = __import__("time").time()
