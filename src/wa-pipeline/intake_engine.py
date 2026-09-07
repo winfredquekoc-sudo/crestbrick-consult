@@ -33,7 +33,7 @@ STATE   = os.path.expanduser("~/.claude/state/listing-templates/intake-state.jso
 TEMPLATES = os.path.expanduser("~/.claude/state/listing-templates/property-templates.json")
 LANDLORD_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.json")
 
-REQUIRED_FIELDS = ["name","nationality","ethnicity","gender","age",
+REQUIRED_FIELDS = ["name","nationality","ethnicity","gender",
                    "pass_type","no_of_pax","move_in_date","lease_term_months","budget"]
 
 # Rides in FRONT of the intake form when message 1 offered a concrete slot: the form is
@@ -1646,9 +1646,7 @@ def qualify(req, profile):
     if isinstance(lmax,int) and isinstance(lt,int) and lt > lmax:
         unknown.append("lease over landlord max")
 
-    ma = r.get("min_age"); age = profile.get("age")
-    if isinstance(ma,int) and isinstance(age,int) and age < ma:
-        fails.append("minimum age " + str(ma))
+    # age gate removed (Winfred, 8 Sep 2026): age never disqualifies a tenant
 
     oc = r.get("occupation_rule",{}) or {}
     if oc.get("mode") == "exclude" and oc.get("list"):
@@ -1698,7 +1696,7 @@ def _rec(state, pn):
         "processed_ids":[], "form_sent":False, "asked_fields":[],
         "viewing_asked":False, "viewing_confirmed":False,
         "manual_takeover":False, "status":"new", "last_inbound":None,
-        "source":None,
+        "source":None, "fact_answered":False,
         # landlord onboarding extension (never touched by the tenant/buyer flows)
         "supply_kind":None, "supply_profile":{}, "human_takeover":False,
         "info_complete":False, "photos_received":False, "video_received":False,
@@ -1876,6 +1874,120 @@ def _is_affirmative(t):
     return bool(core) and len(core) <= 20 and re.fullmatch(
         r"(ok(?:ay|ie|ok)?|sure|deal|can)(\s+(please|pls|can|sure|deal))?", core) is not None
 
+# ---------- Category 1: factual auto-answers (never opinion/negotiation/legal) ----------
+# Winfred's rule: some tenant questions have one true, boring answer sitting in the listing's
+# own requirements (lease length, cooking, smoking, pets, rent) or in a facts sheet he fills in
+# by hand (wifi, deposit, furnishing, aircon, mrt, availability, utilities). Those can be
+# answered straight away instead of flagged. Anything with an opinion/negotiation/legal edge —
+# "is it a good deal", "can you do less", "can I sublet" — must ALWAYS stay flagged to Winfred,
+# even if a fact keyword also appears in the same message. One factual answer per prospect
+# (rec["fact_answered"]); a second question always falls through to the human flag.
+_FACT_VETO_RE = re.compile(
+    r"good deal|worth\s+it|\bworth\b|\blower\b|\bcheaper\b|\bdiscount\b|\bnego(?:tiable)?\b|"
+    r"can you do|\bsafe\b|\bdangerous\b|break\s+(?:\w+\s+){0,2}lease|"
+    r"end\s+(?:\w+\s+){0,2}lease\s+early|\bterminate\b|"
+    r"\bsublet(?:ting)?\b|stamp\s+duty|\bdiplomatic\b|deposit\s+refund\s+dispute",
+    re.I)
+_FACT_LEASE_RE = re.compile(r"\blease\b|how\s+long|\bminimum\b|contract\s+length", re.I)
+_FACT_COOK_RE = re.compile(r"\bcook(?:ing)?\b|\bkitchen\b", re.I)
+_FACT_SMOKE_RE = re.compile(r"\bsmoke\b|\bsmoking\b", re.I)
+_FACT_PET_RE = re.compile(r"\bpets?\b|\bdogs?\b|\bcats?\b", re.I)
+_FACT_RENT_RE = re.compile(r"\brent\b|\bprice\b|how\s+much|\bcost\b|per\s+month", re.I)
+# facts-sheet lookups: (fact key, question-keyword pattern) — Winfred fills listing["facts"][key]
+_FACT_SHEET_PATTERNS = (
+    ("wifi", re.compile(r"\bwifi\b|\binternet\b", re.I)),
+    ("deposit", re.compile(r"\bdeposit\b", re.I)),
+    ("furnishing", re.compile(r"\bfurnish(?:ed)?\b", re.I)),
+    ("aircon", re.compile(r"\baircon\b|\bair\s*con\b|\bair-con\b|\bservic", re.I)),
+    ("mrt", re.compile(r"\bmrt\b|\btrain\b|\bstation\b|how\s+far", re.I)),
+    ("available", re.compile(r"\bavailable\b|move\s*in|move-in|when\s+can", re.I)),
+    ("utilities", re.compile(r"\butilities\b|\butility\b|\bbills\b", re.I)),
+)
+_FACT_UNKNOWN_VALS = ("unknown", "tbc", "n/a", "na", "")
+
+def _fact_known(v):
+    """A requirements value counts as a real, citable fact — not None and not a placeholder
+    like 'unknown'/'TBC' (never fabricate an answer from an unfilled field)."""
+    if v is None:
+        return False
+    if isinstance(v, str) and v.strip().lower() in _FACT_UNKNOWN_VALS:
+        return False
+    return True
+
+def _fact_cooking_phrase(v):
+    v = str(v).strip().lower()
+    if v == "none":
+        return "Sorry, no cooking is allowed in the unit \U0001F642"
+    if v == "light":
+        return "Light cooking only (no heavy cooking) is allowed in the unit \U0001F642"
+    if v == "all":
+        return "Cooking is allowed in the unit \U0001F642"
+    return None
+
+def _fact_smoking_phrase(v):
+    v = str(v).strip().lower()
+    if v == "no":
+        return "Sorry, no smoking is allowed at the unit \U0001F642"
+    if v == "any":
+        return "Smoking is fine at the unit \U0001F642"
+    return None
+
+def _fact_pets_phrase(v):
+    return ("Yes, you can bring your pet \U0001F642" if v
+            else "Sorry, no pets allowed for this unit \U0001F642")
+
+def _tenant_fact_answer(question_text, listing):
+    """Return a truthful, Winfred-voice answer for a tenant's factual question, drawn ONLY from
+    the listing's own data — never a fabricated or guessed answer. Returns None whenever the
+    question carries any opinion/negotiation/legal edge (always flagged to Winfred instead), or
+    when the fact it maps to simply is not on file for this listing."""
+    t = question_text or ""
+    if _FACT_VETO_RE.search(t):
+        return None
+    listing = listing or {}
+    req = listing.get("requirements") or {}
+    facts = listing.get("facts") or {}
+
+    if _FACT_LEASE_RE.search(t):
+        raw = req.get("lease_min_months")
+        try:
+            n = int(raw) if raw is not None else None
+        except (TypeError, ValueError):
+            n = None
+        N = max(12, n or 12)
+        dur = "1 year" if N == 12 else f"{N} months"
+        return f"The owner is looking for a minimum lease of {dur} \U0001F642"
+
+    if _FACT_COOK_RE.search(t):
+        v = req.get("cooking")
+        return _fact_cooking_phrase(v) if _fact_known(v) else None
+
+    if _FACT_SMOKE_RE.search(t):
+        v = req.get("smoking")
+        return _fact_smoking_phrase(v) if _fact_known(v) else None
+
+    if _FACT_PET_RE.search(t):
+        if "pets_tenant_may_bring" in req and req["pets_tenant_may_bring"] is not None:
+            return _fact_pets_phrase(req["pets_tenant_may_bring"])
+        return None
+
+    if _FACT_RENT_RE.search(t):
+        v = req.get("budget_floor")
+        if v is None:
+            v = listing.get("budget_floor")
+        if v is not None:
+            return f"The room is going at ${v} a month \U0001F642"
+        return None
+
+    for key, rx in _FACT_SHEET_PATTERNS:
+        if rx.search(t):
+            v = facts.get(key)
+            if isinstance(v, str) and v.strip():
+                return v.strip()
+            return None
+
+    return None
+
 # ---------- stage 3 reaction (shared: autonomous flow + manual co-pilot after an auto-offer) ----------
 def _viewing_reaction(rec, ev, pn):
     """After a viewing has been offered, react to ONE prospect reply — confirm the slot, acknowledge a
@@ -1959,6 +2071,11 @@ def _viewing_reaction(rec, ev, pn):
             return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
                     "notify": True, "question": ev.get("text"), "texts": _texts,
                     "text": _texts[0]}
+        ans = (_tenant_fact_answer(ev.get("text"), listing_reqs().get(rec.get("listing_key")) or {})
+               if not rec.get("fact_answered") else None)
+        if ans:
+            rec["fact_answered"] = True
+            return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": ans}
         return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": None}
     if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
         rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
