@@ -1,7 +1,7 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-07T00:30:04+08:00",
+  "synced_at": "2026-09-08T00:30:05+08:00",
   "count": 32,
   "listings": [
     {
@@ -20,6 +20,22 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Hillcrest%20Villa.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%20Hillcrest%20Villa."
+    },
+    {
+      "id": "common-room-blk-113-potong-pasir-avenue-1-ll221",
+      "title": "Common Room, Blk 113 Potong Pasir Avenue 1",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "From S$1,100 / mo",
+      "address": "Blk 113 Potong Pasir Avenue 1",
+      "district": "D13",
+      "highlights": [
+        "Near MRT",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Potong%20Pasir%20Avenue%201.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Potong%20Pasir%20Avenue%201."
     },
     {
       "id": "common-room-93-paya-lebar-way-ll136",
@@ -337,21 +353,6 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road."
-    },
-    {
-      "id": "common-room-blk-403-jurong-west-street-42-ll105",
-      "title": "Common Room, Blk 403 Jurong West Street 42",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 950,
-      "price_label": "S$950 / mo",
-      "address": "Blk 403 Jurong West Street 42",
-      "district": "D22",
-      "highlights": [
-        "Furnished"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20403%20Jurong%20West%20Street%2042.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20403%20Jurong%20West%20Street%2042."
     },
     {
       "id": "common-room-blk-703-jurong-west-ll117",
