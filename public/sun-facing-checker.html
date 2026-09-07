@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sun Facing Checker Singapore: Sun Direction &amp; Shadow Map</title>
+<meta name="description" content="Free Sun Facing Checker for any Singapore address. See which way a home faces the sun, when the west sun hits, and which buildings cast shadows, for any month and time of day.">
+<meta property="og:title" content="Sun Facing Checker Singapore: Sun Direction &amp; Shadow Map">
+<meta property="og:description" content="Free Sun Facing Checker for any Singapore address. See which way a home faces the sun, when the west sun hits, and which buildings cast shadows, for any month and time of day.">
+<meta property="og:type" content="website">
+<link rel="canonical" href="https://winfredquek.com/sun-facing-checker">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.css">
+<style>
+  :root{
+    --navy:#132033; --navy2:#1c2e49; --gold:#c9a24b; --ink:#0f1826;
+    --paper:#f5f6f8; --line:#dfe4ec; --muted:#5b6678;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{margin:0;height:100vh;height:100dvh;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--ink);background:var(--navy)}
+  #map{position:absolute;inset:0}
+  .maplibregl-ctrl-attrib{font-size:10px}
+  /* control panel */
+  #panel{position:absolute;z-index:5;top:14px;left:14px;width:320px;max-width:calc(100vw - 28px);
+    background:rgba(19,32,51,.94);color:#eef2f8;border:1px solid rgba(201,162,75,.35);border-radius:14px;
+    box-shadow:0 10px 34px rgba(0,0,0,.4);backdrop-filter:blur(6px);overflow-x:hidden}
+  .sheet-handle{display:none}
+  @media (min-width:641px){
+    #panel{max-height:calc(100vh - 20px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(201,162,75,.4) transparent}
+    #panel::-webkit-scrollbar{width:6px}
+    #panel::-webkit-scrollbar-track{background:transparent}
+    #panel::-webkit-scrollbar-thumb{background:rgba(255,255,255,.18);border-radius:3px}
+  }
+  #panel .hd{padding:14px 16px 10px;border-bottom:1px solid rgba(255,255,255,.08)}
+  #panel .hdtop{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+  #panel .hd h1{margin:0;font-size:16px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
+  #panel .hd h1 span{color:var(--gold)}
+  .homelink{font-size:10px;color:#7c8aa0;text-decoration:none;white-space:nowrap;flex:none}
+  .homelink:hover{color:var(--gold)}
+  .tabrow{display:flex;gap:14px;margin-top:8px}
+  .tabrow .tab{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:#7c8aa0;text-decoration:none;
+    padding-bottom:2px;border-bottom:2px solid transparent}
+  .tabrow .tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+  .tabrow a.tab:hover{color:#eef2f8}
+  .wa-mini{display:none}
+  #panel .hd p{margin:6px 0 0;font-size:11.5px;color:#9fb0c6;line-height:1.4}
+  #panel .bd{padding:14px 16px 16px;display:flex;flex-direction:column;gap:14px}
+  .search{display:flex;gap:6px}
+  .search input{flex:1;min-width:0;background:#0f1a2b;border:1px solid rgba(255,255,255,.14);color:#eef2f8;
+    border-radius:8px;padding:8px 10px;font-size:13px}
+  .search button,.btn{background:var(--gold);color:#1a1408;border:0;border-radius:8px;padding:8px 12px;
+    font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
+  .search button:hover,.btn:hover{filter:brightness(1.06)}
+  a.btn{text-decoration:none;display:inline-block;text-align:center}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  .lab{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#9fb0c6}
+  .val{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+  input[type=range]{width:100%;accent-color:var(--gold)}
+  input[type=date]{background:#0f1a2b;border:1px solid rgba(255,255,255,.14);color:#eef2f8;border-radius:8px;padding:6px 8px;font-size:12.5px}
+  .timeread{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+  .timeread small{font-size:13px;color:#9fb0c6;font-weight:500}
+  .playrow{display:flex;gap:8px;align-items:center}
+  .ghost{background:transparent;color:#eef2f8;border:1px solid rgba(255,255,255,.2);border-radius:8px;
+    padding:7px 11px;font-size:12.5px;cursor:pointer}
+  .ghost:hover{border-color:var(--gold)}
+  .suninfo{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px;font-size:12px}
+  .suninfo div span{display:block;color:#9fb0c6;font-size:10.5px;text-transform:uppercase;letter-spacing:.06em}
+  .suninfo b{font-variant-numeric:tabular-nums}
+  .note{font-size:10.5px;color:#8797ad;line-height:1.4;margin:0}
+  .badge{position:absolute;z-index:5;top:14px;right:14px;background:rgba(19,32,51,.9);border:1px solid rgba(201,162,75,.3);
+    color:#eef2f8;border-radius:10px;padding:8px 12px;font-size:11.5px;max-width:230px;line-height:1.4}
+  .badge a{color:var(--gold)}
+  #loading{position:absolute;z-index:6;bottom:20px;left:50%;transform:translateX(-50%);
+    background:rgba(19,32,51,.95);color:#eef2f8;border:1px solid rgba(201,162,75,.3);border-radius:20px;
+    padding:8px 16px;font-size:12.5px;display:none}
+  #loading.on{display:block}
+
+  /* CTA strip */
+  .cta{border:1px solid rgba(201,162,75,.5);background:rgba(201,162,75,.08);border-radius:10px;padding:12px;
+    display:flex;flex-direction:column;gap:8px}
+  .cta p{margin:0;font-size:12px;line-height:1.45;color:#eef2f8}
+  .cta .calllink{font-size:11px;color:#9fb0c6;text-decoration:underline;text-align:center}
+  .cta .calllink:hover{color:var(--gold)}
+
+  /* Sun summary */
+  .summarywrap{display:flex;flex-direction:column;gap:10px;width:100%}
+  #summaryBtn[disabled]{opacity:.7;cursor:wait}
+  .summarycard{width:100%;border:1px solid rgba(255,255,255,.12);border-radius:10px;
+    padding:10px 12px;font-size:11.5px;line-height:1.6;display:flex;flex-direction:column;gap:10px}
+  .summarycard p{margin:0}
+  .summarycard table{width:100%;border-collapse:collapse;font-size:12px}
+  .summarycard th,.summarycard td{padding:4px 6px;border-bottom:1px solid rgba(255,255,255,.08);text-align:left;white-space:nowrap}
+  .summarycard th{color:#9fb0c6;font-weight:600}
+  .summaryemail{display:flex;gap:6px;flex-wrap:wrap}
+  .summaryemail input[type=email]{flex:1;min-width:120px;background:#0f1a2b;border:1px solid rgba(255,255,255,.14);
+    color:#eef2f8;border-radius:8px;padding:8px 10px;font-size:13px}
+  .summarymsg{font-size:11px;color:#9fb0c6;margin:0}
+  .hp{position:absolute;left:-9999px;opacity:0;pointer-events:none}
+
+  /* WhatsApp float */
+  #wa-float{position:fixed;bottom:20px;right:20px;z-index:50;display:flex;align-items:center;gap:8px;
+    border-radius:999px;background:#25D366;color:#fff;padding:12px 20px;font-weight:600;font-size:14px;
+    text-decoration:none;box-shadow:0 10px 30px -5px rgba(37,211,102,.4)}
+  #wa-float svg{width:18px;height:18px;flex:none}
+  @keyframes wa-pulse{
+    0%,100%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4), 0 0 0 0 rgba(37,211,102,.55)}
+    50%{box-shadow:0 10px 30px -5px rgba(37,211,102,.4), 0 0 0 14px rgba(37,211,102,0)}
+  }
+  #wa-float.wa-pulsing,.wa-mini.wa-pulsing{animation:wa-pulse 1s ease-out 2}
+
+  @media (max-width:640px){
+    #panel{top:auto;left:0;right:0;bottom:0;width:100%;max-width:100%;border-radius:18px 18px 0 0;
+      height:46vh;transition:height .22s ease;display:flex;flex-direction:column;
+      padding-bottom:env(safe-area-inset-bottom)}
+    #panel.collapsed{height:172px}
+    #panel.collapsed .hd p{display:none}
+    #panel.expanded{height:80vh}
+    .sheet-handle{display:block;width:40px;height:5px;border-radius:3px;background:rgba(255,255,255,.35);
+      margin:8px auto 0;flex:none}
+    #panel .bd{overflow-y:auto;flex:1}
+    .search input,.search button,.btn,.ghost,#summaryBtn{font-size:16px;min-height:44px}
+    input[type=range]{height:30px}
+    .wa-mini{display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:999px;
+      background:#25D366;color:#fff;flex:none}
+    .wa-mini svg{width:17px;height:17px}
+    #wa-float{display:none}
+    .badge{display:none}
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Sun Facing Checker",
+  "applicationCategory": "UtilityApplication",
+  "operatingSystem": "Any",
+  "url": "https://winfredquek.com/sun-facing-checker",
+  "description": "Free tool to check which way a Singapore home faces the sun, when afternoon west sun hits, and which nearby buildings cast a shadow over it, for any month and time of day.",
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "SGD" },
+  "author": { "@type": "Person", "name": "Winfred Quek", "url": "https://winfredquek.com" }
+}
+</script>
+</head>
+<body>
+<div id="map"></div>
+
+<div id="panel">
+  <div class="sheet-handle" id="sheetHandle"></div>
+  <div class="hd">
+    <div class="hdtop">
+      <h1>Sun <span>Facing</span> Checker</h1>
+      <a id="wa-mini" class="wa-mini" href="https://wa.me/6581618149" target="_blank" rel="noopener" aria-label="Message Winfred on WhatsApp">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      </a>
+      <a class="homelink" href="https://winfredquek.com" target="_blank" rel="noopener">winfredquek.com</a>
+    </div>
+    <div class="tabrow">
+      <span class="tab active">Map</span>
+      <a class="tab" href="/sun-facing-faq" target="_blank" rel="noopener">FAQ</a>
+    </div>
+    <p>Check which way any Singapore home faces the sun, when the afternoon west sun hits, and which taller buildings block your light, for any month and time of day.</p>
+  </div>
+  <div class="bd">
+    <div class="search">
+      <input id="q" placeholder="Search an address or condo…" autocomplete="off">
+      <button id="go">Find</button>
+    </div>
+
+    <div>
+      <div class="timeread"><span id="tclock">15:00</span> <small id="tampm">3:00 pm</small></div>
+      <input id="time" type="range" min="0" max="1439" step="5" value="900">
+      <div class="playrow" style="margin-top:8px">
+        <button class="btn" id="play">▶ Play day</button>
+        <button class="ghost" id="now">Now</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="row"><span class="lab">Month</span><span class="val" id="mlab">—</span></div>
+      <input id="month" type="range" min="1" max="12" step="1" value="1">
+    </div>
+
+    <div class="suninfo">
+      <div><span>Sunrise</span><b id="sr">—</b></div>
+      <div><span>Sunset</span><b id="ss">—</b></div>
+      <div><span>Sun altitude</span><b id="alt">—</b></div>
+      <div><span>Direction</span><b id="az">—</b></div>
+    </div>
+
+    <div class="cta" id="cta"></div>
+
+    <div class="summarywrap">
+      <button class="btn" id="summaryBtn">Sun summary</button>
+      <div class="summarycard" id="summaryCard" hidden></div>
+    </div>
+
+    <div class="note" id="hint" hidden></div>
+  </div>
+</div>
+
+<div class="badge">Prototype &middot; shadows use OpenStreetMap building heights. Data: &copy; OpenStreetMap, OpenFreeMap.</div>
+<div id="loading">Loading buildings…</div>
+
+<a id="wa-float"
+  href="https://wa.me/6581618149"
+  aria-label="Message Winfred on WhatsApp">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+  </svg>
+  <span>WhatsApp</span>
+</a>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/deck.gl@9.0.33/dist.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/suncalc/1.9.0/suncalc.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/polygon-clipping@0.15.7/dist/polygon-clipping.umd.js"></script>
+<script src="/js/sun-facing-checker.js"></script>
+</body>
+</html>
