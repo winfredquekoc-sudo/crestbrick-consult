@@ -62,8 +62,8 @@ ok("female on bedok-north-522 -> not disqualified",
 # tampines-855 = female_only + min_age 30
 ok("male on tampines-855 -> DISQUALIFIED",
    E.qualify(reqs["tampines-855"], {"gender":"Male","no_of_pax":1,"age":35,"lease_term_months":12,"budget":1000})[0]=="DISQUALIFIED")
-ok("female age 23 on tampines-855 -> DISQUALIFIED (age)",
-   E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":23,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="DISQUALIFIED")
+ok("female age 23 on tampines-855 -> QUALIFIED (age gate removed 8 Sep 2026)",
+   E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":23,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="QUALIFIED")
 ok("female age 32 on tampines-855 -> QUALIFIED",
    E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":32,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="QUALIFIED")
 # sunshine-terrace = budget unknown -> never auto-pass
