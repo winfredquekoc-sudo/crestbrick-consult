@@ -107,5 +107,27 @@ a_mt = E.handle_event(st_mt, {"jid": "6590200008@s.whatsapp.net", "msg_id": "mt1
                                "text": "is cooking allowed?", "is_from_me": 0})
 ok("manual takeover -> engine silent (no auto-answer, no action at all)", a_mt is None)
 
+print("== 6. RENT: general price/negotiability gets the vague viewing-pivot reply; a figure flags ==")
+st_rent = _viewing_offered_state("6590200010")
+a_rent = E.handle_event(st_rent, {"jid": "6590200010@s.whatsapp.net", "msg_id": "r1",
+                                   "text": "how much is the rent?", "is_from_me": 0})
+ok("'how much is the rent?' -> vague reply, no figure quoted",
+   a_rent and a_rent.get("type") == "ANSWER_QUESTION" and a_rent.get("text")
+   and "usually fixed" in a_rent["text"].lower() and "viewing" in a_rent["text"].lower()
+   and "$" not in a_rent["text"])
+
+st_neg = _viewing_offered_state("6590200011")
+a_neg = E.handle_event(st_neg, {"jid": "6590200011@s.whatsapp.net", "msg_id": "r2",
+                                 "text": "is the rent negotiable?", "is_from_me": 0})
+ok("'is the rent negotiable?' -> same vague reply, not flagged",
+   a_neg and a_neg.get("type") == "ANSWER_QUESTION" and a_neg.get("text")
+   and "usually fixed" in a_neg["text"].lower())
+
+st_haggle = _viewing_offered_state("6590200012")
+a_haggle = E.handle_event(st_haggle, {"jid": "6590200012@s.whatsapp.net", "msg_id": "r3",
+                                       "text": "can you lower the rent to 1400?", "is_from_me": 0})
+ok("'lower the rent to 1400' -> text None (specific figure flags to Winfred)",
+   a_haggle and a_haggle.get("type") == "ANSWER_QUESTION" and a_haggle.get("text") is None)
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)
