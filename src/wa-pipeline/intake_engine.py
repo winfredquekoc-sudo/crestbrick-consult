@@ -1906,8 +1906,7 @@ def _is_affirmative(t):
 # even if a fact keyword also appears in the same message. One factual answer per prospect
 # (rec["fact_answered"]); a second question always falls through to the human flag.
 _FACT_VETO_RE = re.compile(
-    r"good deal|worth\s+it|\bworth\b|\blower\b|\bcheaper\b|\bdiscount\b|\bnego(?:tiable)?\b|"
-    r"can you do|\bsafe\b|\bdangerous\b|break\s+(?:\w+\s+){0,2}lease|"
+    r"good deal|worth\s+it|\bworth\b|\bsafe\b|\bdangerous\b|break\s+(?:\w+\s+){0,2}lease|"
     r"end\s+(?:\w+\s+){0,2}lease\s+early|\bterminate\b|"
     r"\bsublet(?:ting)?\b|stamp\s+duty|\bdiplomatic\b|deposit\s+refund\s+dispute",
     re.I)
@@ -1915,7 +1914,8 @@ _FACT_LEASE_RE = re.compile(r"\blease\b|how\s+long|\bminimum\b|contract\s+length
 _FACT_COOK_RE = re.compile(r"\bcook(?:ing)?\b|\bkitchen\b", re.I)
 _FACT_SMOKE_RE = re.compile(r"\bsmoke\b|\bsmoking\b", re.I)
 _FACT_PET_RE = re.compile(r"\bpets?\b|\bdogs?\b|\bcats?\b", re.I)
-_FACT_RENT_RE = re.compile(r"\brent\b|\bprice\b|how\s+much|\bcost\b|per\s+month", re.I)
+_FACT_RENT_RE = re.compile(r"\brent\b|\bprice\b|how\s+much|\bcost\b|per\s+month|\bnego(?:tiable|tiate)?\b|\bcheaper\b|\blower\b|\bdiscount\b|flexib", re.I)
+_FACT_RENT_NUMBER_RE = re.compile(r"\d{3,5}")
 # facts-sheet lookups: (fact key, question-keyword pattern) — Winfred fills listing["facts"][key]
 _FACT_SHEET_PATTERNS = (
     ("wifi", re.compile(r"\bwifi\b|\binternet\b", re.I)),
@@ -1995,12 +1995,13 @@ def _tenant_fact_answer(question_text, listing):
         return None
 
     if _FACT_RENT_RE.search(t):
-        v = req.get("budget_floor")
-        if v is None:
-            v = listing.get("budget_floor")
-        if v is not None:
-            return f"The room is going at ${v} a month \U0001F642"
-        return None
+        # a specific figure ("can you do 1400", "200 less") is a real negotiation -> Winfred handles it
+        if _FACT_RENT_NUMBER_RE.search(t):
+            return None
+        # general price / negotiability: stay vague, never quote a figure, and pivot to a viewing
+        return ("Rent is usually fixed \U0001F642 But do come down to view first, and if the landlord "
+                "is comfortable with you as a tenant there may be some room on price. Shall I arrange "
+                "a viewing for you?")
 
     for key, rx in _FACT_SHEET_PATTERNS:
         if rx.search(t):
