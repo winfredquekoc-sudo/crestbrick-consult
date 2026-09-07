@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tan Boon Liat and the Boutique En Bloc Wave</title>
+    <meta name="description" content="Tan Boon Liat, Loyang Valley and Serenity Park show en bloc appetite has shifted to small freehold sites. What that means if you own an older freehold walk up.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Tan Boon Liat and the Boutique En Bloc Wave">
+    <meta property="og:description" content="Tan Boon Liat, Loyang Valley and Serenity Park show en bloc appetite has shifted to small freehold sites. What that means if you own an older freehold walk up.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Tan Boon Liat and the Boutique En Bloc Wave</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            The biggest en bloc deal of 2026 so far is not a sprawling suburban estate with a thousand units. Tan Boon Liat Building sold for $950 million, and it sits on a comparatively compact site. Loyang Valley followed at $880 million, and Serenity Park launched its collective sale at a $505 million asking price. All three point in the same direction: developer appetite this year has moved toward small freehold sites, not the large estates that dominated past en bloc cycles.
+        </p>
+
+        <p>
+            If you own a unit in an older freehold or 999 year leasehold walk up, this shift matters to you directly. Here is what is driving it, and how to read the odds for your own building without getting carried away by one headline deal.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Why this matters to you:</strong> the deals attracting the biggest prices this year are not the biggest sites. Size is not the deciding factor, consent and land economics are.
+        </div>
+
+        <h2>Money: what makes a small freehold site attractive</h2>
+
+        <p>
+            A few features consistently show up in the sites developers are chasing right now.
+        </p>
+
+        <ul>
+            <li><strong>Freehold or 999 year tenure.</strong> A site without lease decay removes one whole layer of valuation complexity for the developer and for financing the purchase, since there is no need to account for a shrinking remaining lease when modelling the redevelopment.</li>
+            <li><strong>Fewer owners to reach consensus with.</strong> A boutique building with a few dozen units needs far fewer signatures to hit the majority consent threshold than a development with several hundred units, which shortens the whole collective sale timeline and lowers the risk of a holdout blocking the deal.</li>
+            <li><strong>An underbuilt plot relative to the current master plan.</strong> If the site is zoned for a plot ratio well above what the existing building uses, a developer can build materially more saleable floor area on the same land, which is what actually funds the premium paid to existing owners.</li>
+            <li><strong>Location that supports a smaller, higher margin new development.</strong> A well located boutique site lets a developer build a smaller number of higher priced units rather than a large volume development, which suits current market conditions where absorption of a huge new supply in one location is harder to guarantee.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <strong>The pattern in the three 2026 deals:</strong> Tan Boon Liat Building, Loyang Valley and Serenity Park are all being discussed in the market as smaller, well positioned sites rather than mega estates, consistent with developers favouring achievable consent and clean redevelopment economics over sheer scale this cycle.
+        </div>
+
+        <h2>Timing: why appetite has shifted this cycle</h2>
+
+        <p>
+            Large estate en bloc deals depend on assembling consent across hundreds of owners, which takes years and can collapse over a single disagreement on the reserve price or the apportionment method. In a market where financing costs and construction costs are both being watched closely by developers, a multi year consent process adds risk that many are no longer willing to carry for a large site. A boutique site with a tighter, more aligned group of owners can move from committee formation to a signed sale in a fraction of the time, which is valuable to a developer trying to control both land cost and build timeline.
+        </p>
+
+        <p>
+            This does not mean large estate en bloc activity has stopped for good. It means that in the current cycle, boutique freehold sites are where developer capital is finding the cleanest path to a deal, and that is worth knowing if you are trying to judge your own building's odds realistically rather than by comparing it to a very different kind of estate.
+        </p>
+
+        <h2>Safety: how to read the odds for your own building</h2>
+
+        <p>
+            Owners in an older freehold or 999 year walk up often ask whether their building could be next. There is no way to guarantee an outcome, but a few honest questions will tell you more than any rumour circulating in the estate chat group.
+        </p>
+
+        <h3>Questions worth answering honestly</h3>
+
+        <ul>
+            <li><strong>What is your building's tenure?</strong> Freehold and 999 year sites remain the most attractive to developers this cycle, for the reasons above. A 99 year leasehold building with meaningful lease decay faces a harder path, since the valuation math and financing for the developer become more complex.</li>
+            <li><strong>How many owners would need to agree?</strong> Singapore's en bloc rules require either 80 percent consent (by share value and by unit count) for developments over 10 years old, or 90 percent for those under 10 years old. A smaller unit count building reaches that threshold faster and with fewer people to convince.</li>
+            <li><strong>Is your plot underbuilt relative to what is currently zoned?</strong> Check your building's current gross floor area against what the URA Master Plan allows on your site. A wide gap is the single biggest driver of developer interest, because it is the source of the profit that funds your payout.</li>
+            <li><strong>Has your management corporation or estate committee had any preliminary approaches?</strong> Genuine developer interest often starts quietly, through informal soundings with a few owners or the management council, well before any formal collective sale process begins.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+            <strong>Stay grounded:</strong> a single record breaking deal elsewhere in Singapore does not change your building's own consent math or plot ratio gap. Judge your own site on its own numbers, not on headlines about Tan Boon Liat Building or Loyang Valley.
+        </div>
+
+        <h2>What this means while you wait</h2>
+
+        <p>
+            Even for owners in a genuinely attractive site, a collective sale can take years from first informal discussion to actual completion, and many attempts never reach the finish line at all. Treat any en bloc prospect as a possible upside on top of your property's normal value, not as a plan to bank on. Continue to maintain your unit and stay informed about your building's management, since the condition and cohesion of the estate can influence how quickly, if ever, a genuine collective sale process gathers momentum. Our guide on <a href="/insights/how-to-spot-en-bloc-potential-early.html">how to spot en bloc potential early</a> goes deeper into reading these signals for your specific building, and the <a href="/insights/en-bloc-sale-committee-process-singapore.html">en bloc sale committee process guide</a> explains what actually happens once a group of owners decides to pursue a sale.
+        </p>
+
+        <p>
+            If you are instead thinking about buying into an older freehold building hoping to catch a future collective sale, our <a href="/insights/en-bloc-singapore-guide.html">complete guide to en bloc in Singapore</a> covers the full process, timelines and risks from a buyer's perspective as well as a seller's.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <p class="faq-q">Why are small freehold sites attracting en bloc interest in 2026?</p>
+        <p>Small freehold or 999 year sites need fewer owners to reach the consent threshold, avoid the valuation complexity of lease decay, and often sit on land that is underbuilt relative to what current zoning allows. Together these make the collective sale process faster and the redevelopment economics cleaner for a developer, compared to assembling consent across a very large estate.</p>
+
+        <p class="faq-q">What sold in the recent boutique en bloc wave?</p>
+        <p>Tan Boon Liat Building sold for $950 million, the largest Singapore en bloc deal of 2026 so far. Loyang Valley followed at $880 million, and Serenity Park launched its collective sale at a $505 million asking price. All three are being discussed as smaller, well positioned freehold sites rather than large sprawling estates.</p>
+
+        <p class="faq-q">How can I tell if my building has en bloc potential?</p>
+        <p>Check four things honestly: your building's tenure (freehold and 999 year sites are more attractive this cycle), how many owners would need to consent (80 percent for developments over 10 years old, 90 percent for younger ones), whether your plot is underbuilt against the current URA Master Plan zoning, and whether there has been any informal developer interest through your management corporation. None of these guarantee a sale, but they tell you whether the odds are realistic.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Get a read on your own building's odds</h3>
+            <p>If you want an honest read on whether your building has real en bloc potential, or a plan for what to do while you wait, let us walk through it together.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed lawyer or financial advisor. En bloc outcomes depend on consent thresholds, market conditions and legal process specific to each development. Consult a lawyer experienced in collective sales and your management corporation for guidance specific to your building. Figures cited are based on 2026 reported deals and are for illustration only.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>Tracy Goh:</strong> Tan Boon Liat Building sold, 2026's biggest en bloc deal, <a href="https://www.tracygoh.sg/2026/tan-boon-liat-building-sold-2026s-biggest-en-bloc-deal/" target="_blank" rel="noopener noreferrer">tracygoh.sg</a></li>
+                <li><strong>URA:</strong> Master Plan zoning and plot ratio data, <a href="https://www.ura.gov.sg" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+                <li><strong>URA:</strong> collective sale (en bloc) legislation and consent thresholds, <a href="https://www.ura.gov.sg/Corporate/Property/Property-Data" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Tan Boon Liat and the Boutique En Bloc Wave",
+    "description": "Tan Boon Liat, Loyang Valley and Serenity Park show en bloc appetite has shifted to small freehold sites. What that means if you own an older freehold walk up.",
+    "image": "https://winfredquek.com/og-tan-boon-liat-boutique-en-bloc-wave.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "The largest 2026 en bloc deals, Tan Boon Liat Building, Loyang Valley and Serenity Park, show developer appetite shifting toward small freehold sites rather than large estates, and how an owner in an older freehold or 999 year building can read the real odds for their own site."
+}
+</script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Why are small freehold sites attracting en bloc interest in 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Small freehold or 999 year sites need fewer owners to reach the consent threshold, avoid the valuation complexity of lease decay, and often sit on land that is underbuilt relative to what current zoning allows. Together these make the collective sale process faster and the redevelopment economics cleaner for a developer, compared to assembling consent across a very large estate."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What sold in the recent boutique en bloc wave?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Tan Boon Liat Building sold for $950 million, the largest Singapore en bloc deal of 2026 so far. Loyang Valley followed at $880 million, and Serenity Park launched its collective sale at a $505 million asking price. All three are being discussed as smaller, well positioned freehold sites rather than large sprawling estates."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How can I tell if my building has en bloc potential?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Check four things honestly: your building's tenure (freehold and 999 year sites are more attractive this cycle), how many owners would need to consent (80 percent for developments over 10 years old, 90 percent for younger ones), whether your plot is underbuilt against the current URA Master Plan zoning, and whether there has been any informal developer interest through your management corporation. None of these guarantee a sale, but they tell you whether the odds are realistic."
+            }
+        }
+    ]
+}
+</script>
+    </article>
+</body>
+</html>

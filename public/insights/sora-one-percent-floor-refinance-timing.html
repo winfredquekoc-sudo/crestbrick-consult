@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SORA Near 1 Percent: Is This the Floor to Refinance</title>
+    <meta name="description" content="SORA sits near 1 percent with a lock in ending soon. A break even calculation for switching to fixed or floating, and what a clawback clause really costs you.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="SORA Near 1 Percent: Is This the Floor to Refinance">
+    <meta property="og:description" content="SORA sits near 1 percent with a lock in ending soon. A break even calculation for switching to fixed or floating, and what a clawback clause really costs you.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>SORA Near 1 Percent: Is This the Floor to Refinance</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Three month compounded SORA has held roughly between 1.0 and 1.5 percent through 2026. If your lock in period is ending in the next few months, you are probably asking the same question every homeowner in this position asks: is this rate the floor, and does it make sense to switch packages now, or wait for it to drift lower still.
+        </p>
+
+        <p>
+            This is not an explainer of what SORA is, our <a href="/insights/sora-explained-singapore.html">SORA explained guide</a> covers that ground. This is about the decision in front of you: whether to refinance now, what a break even calculation actually looks like, and what a clawback clause quietly costs you if you get the timing wrong.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>The core tension:</strong> waiting for a lower rate costs you every month you stay on your current package, while switching too early into a fresh lock in can trap you again just as rates move.
+        </div>
+
+        <h2>Money: the break even calculation that actually matters</h2>
+
+        <p>
+            Every refinance has an upfront cost and a monthly saving. The break even calculation is simple in structure, even if the inputs vary by bank and package: divide the total switching cost by the monthly saving, and you get the number of months before the switch pays for itself.
+        </p>
+
+        <div class="formula">
+Break even (months) = Total switching cost / Monthly interest saving
+
+Switching cost typically includes:
+Legal fee (if not subsidised by the new bank)
+Valuation fee
+Any early redemption penalty on your current loan
+Any legal fee subsidy clawback owed to your current bank
+
+Monthly saving = (Old rate minus new rate) x Outstanding loan / 12
+        </div>
+
+        <p>
+            If your break even period is comfortably shorter than the time you expect to hold the property or the loan, refinancing clears the bar. If it stretches close to or beyond your expected holding period, the switch may not be worth the paperwork, even if the new rate looks attractive on paper.
+        </p>
+
+        <div class="example-scenario">
+            <strong>Illustration only, not a quote</strong>
+
+            <p>Take a loan with an outstanding balance and a rate gap of half a percentage point between your current package and a new one on offer. The monthly saving scales with your loan size, while the switching cost is largely fixed regardless of loan size. This means larger outstanding loans break even faster in percentage terms, and smaller loans nearing the end of their tenure may never break even at all, because there is not enough loan balance left for the saving to matter.</p>
+
+            <p>Always ask your bank or mortgage broker to run this calculation on your actual outstanding balance and the actual package on offer, not a generic online estimate.</p>
+        </div>
+
+        <h2>Money: what lock in and clawback clauses cost you</h2>
+
+        <p>
+            Most fixed and floating packages carry a lock in period, commonly 2 to 3 years, during which an early exit triggers a penalty. Two separate costs can apply if you leave before that period ends.
+        </p>
+
+        <ul>
+            <li><strong>Early redemption penalty:</strong> a percentage of the outstanding loan, charged by your current bank for repaying the loan ahead of the lock in period ending.</li>
+            <li><strong>Legal fee subsidy clawback:</strong> if your current bank covered your legal costs when you first took the loan, most packages claw that subsidy back in full if you refinance away before the lock in ends.</li>
+        </ul>
+
+        <p>
+            Both costs go straight into the break even calculation above as part of the switching cost. If your lock in is ending within the next few months, the clean move is usually to wait those months out rather than pay a penalty to exit early, unless the rate gap is wide enough to absorb the penalty and still break even quickly. Ask your current bank for the exact clawback and penalty figures in writing before you sign anything with a new lender, since these vary by bank and by the specific package you took.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Common trap:</strong> a homeowner refinances a few months before their lock in ends to catch a rate dip, pays the clawback and penalty, and the saving takes years to recover the cost. Check your lock in end date before you compare rates.
+        </div>
+
+        <h2>Timing: signs to watch for a turn</h2>
+
+        <p>
+            Nobody can call the exact bottom of a rate cycle, and anyone who promises to is guessing. What you can do is watch the signals that tend to move ahead of a shift in SORA.
+        </p>
+
+        <ul>
+            <li><strong>US Federal Reserve policy signals.</strong> SGD interest rates track global funding conditions closely, so a change in expected Fed policy direction typically shows up in SORA within weeks.</li>
+            <li><strong>MAS monetary policy statements.</strong> The Monetary Authority of Singapore publishes its policy stance and outlook, which frames the broader direction for local rates even though SORA itself is market determined.</li>
+            <li><strong>Bank package repricing.</strong> When several banks quietly reprice their fixed rate packages lower or higher within a short window, that is often a earlier read on where floating rates are headed than SORA itself.</li>
+        </ul>
+
+        <p>
+            If you see these signals pointing toward further declines and your lock in still has a long stretch to run, there is little cost to waiting and watching. If your lock in is ending soon regardless of these signals, the decision is really about your own break even math, not about timing a market bottom you cannot control.
+        </p>
+
+        <h2>Timing: fixed or floating at these levels</h2>
+
+        <p>
+            With SORA sitting near what looks like a low point in the cycle, floating packages tied to SORA are currently competitive against fixed rate packages, which are typically priced with a premium for rate certainty. The decision comes down to your appetite for a rate increase during your loan tenure versus the comfort of a known payment. Our comparison of <a href="/insights/sora-vs-fixed-mortgage-2026.html">SORA against fixed rate mortgages</a> walks through this trade off in more depth, and the <a href="/insights/sora-refinance-window-cheapest-2026.html">refinance window guide</a> looks at how to time the switch itself once you have decided which type of package suits you.
+        </p>
+
+        <div class="highlight-box">
+            <strong>A simple rule of thumb:</strong> if you believe rates are near a floor and expect to hold the property for many years, locking in a fixed rate now removes the risk of missing the bottom. If you believe there is still room to fall, or you expect to sell or refinance again within a few years anyway, floating keeps you flexible without the clawback risk of exiting a fixed package early.
+        </div>
+
+        <h2>Safety: check before you sign</h2>
+
+        <p>
+            Before committing to any refinance, get the exact numbers in writing: your current lock in end date, the exact clawback and penalty amounts if you exit early, the new package's own lock in period, and the legal and valuation costs on the new loan. Run the break even calculation on those actual figures, not a rough estimate, and compare that period against how long you realistically expect to keep the loan. Our <a href="/tools/mortgage-rates.html">mortgage rates tool</a> is a useful starting point to compare current packages side by side before you approach a bank or broker directly.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <p class="faq-q">Is SORA at its floor near 1 percent?</p>
+        <p>Nobody can confirm a floor in real time. Three month compounded SORA has held roughly between 1.0 and 1.5 percent through 2026, and the direction from here depends on global funding conditions and MAS policy signals rather than any fixed level. Treat any claim of a confirmed floor as a guess, not a fact.</p>
+
+        <p class="faq-q">How do I calculate the break even period for refinancing?</p>
+        <p>Divide your total switching cost, including legal fees, valuation, any early redemption penalty and any legal fee subsidy clawback, by your expected monthly interest saving from the rate gap between your old and new package. The result is the number of months before the switch pays for itself. Compare that period against how long you expect to hold the loan.</p>
+
+        <p class="faq-q">What does a clawback clause cost me if I refinance early?</p>
+        <p>A legal fee subsidy clawback requires you to repay the legal costs your bank covered when you first took the loan, in full, if you refinance away before your lock in period ends. This is separate from any early redemption penalty on the outstanding loan itself. Ask your current bank for the exact figures in writing before comparing new packages.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Get your own break even numbers run</h3>
+            <p>If your lock in is ending soon and you want a clear read on whether to switch now, wait, or go fixed instead of floating, let us run the actual numbers for your loan.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed financial advisor. Before refinancing, consult your bank, a licensed mortgage broker and your lawyer for figures specific to your loan. Interest rates and package terms are subject to change and the examples here are for illustration only.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>Monetary Authority of Singapore:</strong> SORA rate information, <a href="https://www.mas.gov.sg/monetary-policy/sora" target="_blank" rel="noopener noreferrer">mas.gov.sg</a></li>
+                <li><strong>HomeJourney:</strong> Singapore SORA rate outlook 2026, <a href="https://www.homejourney.sg/blog/singapore-sora-rate-outlook-2026-what-homeowners-should-know-homejourney-202601110702" target="_blank" rel="noopener noreferrer">homejourney.sg</a></li>
+                <li><strong>MAS:</strong> monetary policy statements and rules, <a href="https://www.mas.gov.sg" target="_blank" rel="noopener noreferrer">mas.gov.sg</a></li>
+                <li><strong>CPF Board:</strong> CPF housing and loan rules, <a href="https://www.cpf.gov.sg" target="_blank" rel="noopener noreferrer">cpf.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "SORA Near 1 Percent: Is This the Floor to Refinance",
+    "description": "SORA sits near 1 percent with a lock in ending soon. A break even calculation for switching to fixed or floating, and what a clawback clause really costs you.",
+    "image": "https://winfredquek.com/og-sora-one-percent-floor-refinance-timing.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "SORA has held near 1 to 1.5 percent through 2026. For a homeowner whose lock in is ending, a break even calculation weighing switching costs, clawback clauses and expected holding period against the monthly saving determines whether refinancing now makes sense, alongside signals to watch for a turn in rates."
+}
+</script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Is SORA at its floor near 1 percent?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Nobody can confirm a floor in real time. Three month compounded SORA has held roughly between 1.0 and 1.5 percent through 2026, and the direction from here depends on global funding conditions and MAS policy signals rather than any fixed level. Treat any claim of a confirmed floor as a guess, not a fact."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How do I calculate the break even period for refinancing?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Divide your total switching cost, including legal fees, valuation, any early redemption penalty and any legal fee subsidy clawback, by your expected monthly interest saving from the rate gap between your old and new package. The result is the number of months before the switch pays for itself. Compare that period against how long you expect to hold the loan."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What does a clawback clause cost me if I refinance early?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A legal fee subsidy clawback requires you to repay the legal costs your bank covered when you first took the loan, in full, if you refinance away before your lock in period ends. This is separate from any early redemption penalty on the outstanding loan itself. Ask your current bank for the exact figures in writing before comparing new packages."
+            }
+        }
+    ]
+}
+</script>
+    </article>
+</body>
+</html>
