@@ -28,6 +28,17 @@ DATA = os.path.join(REPO, "scripts", "matchmaker", "matchmaker-data.json")
 DIST = os.path.join(HERE, "dist")
 PHOTOS_SRC = os.path.join(REPO, "scripts", "matchmaker", "deploy", "photos")
 
+
+def _staging_disclosure_line():
+    try:
+        p = json.load(open(os.path.join(REPO, "scripts", "matchmaker", "photo_staging_prompts.json")))
+        return p.get("disclosure_line") or ""
+    except Exception:
+        return ""
+
+
+STAGING_DISCLOSURE = _staging_disclosure_line()
+
 SITE_NAME = "Singapore Room Rental"
 BASE_URL = os.environ.get("PUBLIC_BASE_URL", "https://singapore-room-rental.vercel.app").rstrip("/")
 AGENT = "Winfred Quek"
@@ -229,6 +240,7 @@ def load_public_listings():
             "rules": neutral_rules(l.get("reqs"), l.get("cooking")),
             "owner_stays": (l.get("reqs") or {}).get("owner_stays"),
             "photos": photos,
+            "photos_staged": bool(l.get("photos_staged")) and bool(photos),
             "lat": l.get("lat"),
             "lng": l.get("lng"),
             "geo_src": l.get("geo_src"),
@@ -401,6 +413,8 @@ def room_page(l):
         l["rtype"], l["block"], l["area"], l["rent_txt"], AGENT)
     canonical = "%s/room/%s/" % (BASE_URL, l["slug"])
     gallery = "".join("<img loading='lazy' src='/%s' alt='%s in %s'>" % (e(p), e(l["rtype"]), e(l["area_short"])) for p in l["photos"])
+    staging_note = ("<p class='stagenote' style='font-size:12px;color:var(--mut);margin-top:6px'>%s</p>"
+                     % e(STAGING_DISCLOSURE)) if (l.get("photos_staged") and STAGING_DISCLOSURE) else ""
     mrt = l.get("mrt")
     mrt_li = ("<li><span class='k'>Nearest MRT</span><span>%s MRT &middot; %d min walk (%dm)</span></li>"
               % (e(mrt["station"]), mrt["walk_min"], mrt["distance_m"])) if mrt else ""
@@ -463,7 +477,7 @@ def room_page(l):
         e(l["area_slug"]), e(l["area_short"]), e(l["rtype"]),
         e(l["rtype"]), e(l["area_short"]), e(l["district"]),
         e("%s at %s, %s." % (l["rtype"], l["block"], l["area"])),
-        ("<div class='gallery'>%s</div>" % gallery) if gallery else "",
+        (("<div class='gallery'>%s</div>" % gallery) + staging_note) if gallery else "",
         e(l["rent_txt"]), e(l["rtype"]), e(l["block"]), e(l["district"]),
         rules,
         ("<li><span class='k'>Available</span><span>%s</span></li>" % e(l["available_from"])) if l.get("available_from") else "",

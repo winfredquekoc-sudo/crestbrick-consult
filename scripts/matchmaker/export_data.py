@@ -33,6 +33,27 @@ DISTRICT_CENTROIDS = {
  "D21":(1.335,103.776),"D22":(1.339,103.707),"D23":(1.377,103.763),"D24":(1.398,103.700),
  "D25":(1.437,103.786),"D26":(1.398,103.823),"D27":(1.428,103.835),"D28":(1.397,103.873)}
 
+
+def stage_photos(photos):
+    """For each harvested photo, if photo_stage.py has written a "<n>_staged.jpg"
+    sibling next to it (deploy/photos/LLxxx/n_staged.jpg), list the staged version
+    FIRST so cards/galleries show it before the original, and return whether any
+    staging was found so the caller can set photos_staged. Original stays in the
+    list -- nothing here removes it, staging is additive."""
+    if not photos:
+        return photos, False
+    out, staged = [], False
+    for p in photos:
+        if str(p).startswith("photos/"):
+            base, ext = os.path.splitext(p)
+            sib = "%s_staged%s" % (base, ext)
+            if os.path.exists(os.path.join(HERE, "deploy", sib)):
+                out.append(sib)
+                staged = True
+        out.append(p)
+    return out, staged
+
+
 def _load_geocache():
     try:
         with open(GEOCACHE_PATH) as f: return json.load(f)
@@ -584,6 +605,8 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
         reconfirm_due = days_since_confirmed >= 14
 
         photo_info = photo_url_index.get((lid or "").upper(), {})
+        _photos, _photos_staged = stage_photos(
+            (harvested_photos.get((lid or "").upper()) or []) + (photo_info.get("photos") or []))
 
         _glat, _glng, _gsrc = geocode(l.get("full_address") or l.get("rooms_and_rent") or "",
                                       l.get("district") or "")
@@ -623,8 +646,10 @@ def build_listings(landlords, dist_area, fixed_viewing_index, photo_url_index, s
             # looks like a dormant agent-exclusion signal, not dead code).
             "fixed_viewing": fixed_viewing_index.get(listing_key),
             # Landlord's own WhatsApp room photos (locally vetted, NRIC/docs
-            # filtered out) come FIRST, then any website listing photos.
-            "photos": ((harvested_photos.get((lid or "").upper()) or []) + (photo_info.get("photos") or [])) or None,
+            # filtered out) come FIRST, then any website listing photos. Staged
+            # versions (photo_stage.py) are listed ahead of their originals.
+            "photos": _photos or None,
+            "photos_staged": _photos_staged,
             "listing_url": photo_info.get("listing_url"),
             "first_seen": fseen, "days_listed": days_listed,
             "is_cobroke": source == "co-broke",
@@ -720,8 +745,9 @@ def build_all_landlords(landlords, dist_area, area_keywords, harvested_photos=No
             "handed_off": handed_off(l),
             "cooking": cooking_norm((l.get("requirements") or {}).get("cooking")),
             "reqs": req_details(l.get("requirements")),
-            "photos": harvested_photos.get((l.get("id") or "").upper()) or None,
         }
+        row["photos"], row["photos_staged"] = stage_photos(harvested_photos.get((l.get("id") or "").upper()) or [])
+        row["photos"] = row["photos"] or None
         # map_query only when it adds something over the plain address the app
         # already falls back to (mapLink uses map_query || address). Token-slim.
         if mq and mq != address:
