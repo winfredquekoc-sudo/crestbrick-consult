@@ -1008,5 +1008,41 @@ finally:
     except OSError:
         pass
 
+print("== 20. LISTING-SIDE NEEDS_INFO gap never reaches prospect copy (Opus review blocker #3) ==")
+# sunshine-terrace has budget_floor None + budget_unknown True -- a complete profile with no
+# hard gender/ethnicity gate tripped (both are *_pref, soft) NEEDS_INFOs on "listing rent not
+# confirmed" ALONE. That is an internal gap, not something the prospect can answer -- it must
+# never surface as "Almost there. listing rent not confirmed." (judge catch, 11 Aug 2026).
+sst = {"version": 1, "conversations": {}}; jst = "6590333100@s.whatsapp.net"
+E.handle_event(sst, {"jid": jst, "msg_id": "st1", "text": "Hi is the Sunshine Terrace room still available?",
+                     "is_from_me": 0, "listing_key": "sunshine-terrace"})
+sst["conversations"]["6590333100"]["form_sent_ts"] -= 300
+_stf = ("Name: Priya\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 28\n"
+        "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12 months\n"
+        "Budget: 1500")
+aSt = E.handle_event(sst, {"jid": jst, "msg_id": "st2", "text": _stf, "is_from_me": 0})
+ok("qualify() itself still reports the listing-side gap (verdict unchanged)",
+   E.qualify(reqs["sunshine-terrace"], sst["conversations"]["6590333100"]["profile"])[0] == "NEEDS_INFO")
+ok("listing-only NEEDS_INFO gap -> booked anyway (OFFER_VIEWING), never a dead-end ASK_ONE",
+   aSt and aSt["type"] == "OFFER_VIEWING")
+ok("no prospect-facing text ever contains the internal 'listing rent' gap wording",
+   aSt and "listing rent" not in (aSt.get("text") or "").lower())
+ok("Winfred IS notified with the gap, so he can confirm rent with the landlord",
+   aSt and aSt.get("notify") is True and "listing rent not confirmed" in (aSt.get("reason") or ""))
+# contrast: a gap the prospect CAN answer (gender) still asks, and never leaks a listing-side
+# reason into that same ASK_ONE text. bedok-north-522 is female_only -- "gender" satisfies
+# missing_required() (a non-empty string) but qualify()'s own male/female regex can't read
+# it, so this trips qualify()'s NEEDS_INFO gender-unknown branch, not the earlier form gate.
+sgd = {"version": 1, "conversations": {}}; jgd = "6590333200@s.whatsapp.net"
+E.handle_event(sgd, {"jid": jgd, "msg_id": "gd1", "text": "Hi is Bedok North still available?",
+                     "is_from_me": 0, "listing_key": "bedok-north-522"})
+sgd["conversations"]["6590333200"]["form_sent_ts"] -= 300
+_gdf = ("Name: Wei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Prefer not to say\nAge: 32\n"
+        "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12 months\n"
+        "Budget: 1300")
+aGd = E.handle_event(sgd, {"jid": jgd, "msg_id": "gd2", "text": _gdf, "is_from_me": 0})
+ok("askable gender gap -> ASK_ONE naming gender, not a listing-side reason",
+   aGd and aGd["type"] == "ASK_ONE" and "gender" in (aGd.get("text") or "").lower())
+
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

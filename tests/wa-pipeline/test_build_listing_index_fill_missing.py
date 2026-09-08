@@ -44,24 +44,24 @@ class TestFillMissingEntryCreation(unittest.TestCase):
         ]}
 
     def test_only_active_and_active_verify_landlords_get_entries(self):
-        new_entries, report = BLI.fill_missing(self.idx, self.db)
+        new_entries, report, _bf = BLI.fill_missing(self.idx, self.db)
         keys = {e["landlord_id"] for e in new_entries}
         self.assertEqual(keys, {"LL501", "LL502", "LL505"})
 
     def test_prefix_matched_active_status_variant_included(self):
         # "available (reopened, ...)" must be treated as active -- exact match alone
         # silently dropped the real LL089 (2 Jalan Batu) reopen.
-        new_entries, _ = BLI.fill_missing(self.idx, self.db)
+        new_entries, _, _bf = BLI.fill_missing(self.idx, self.db)
         self.assertTrue(any(e["landlord_id"] == "LL505" for e in new_entries))
 
     def test_landlord_already_in_index_is_skipped(self):
         self.idx["listings"].append({"listing_key": "existing", "landlord_id": "LL501",
                                      "status": "open", "pg_url_keywords": []})
-        new_entries, _ = BLI.fill_missing(self.idx, self.db)
+        new_entries, _, _bf = BLI.fill_missing(self.idx, self.db)
         self.assertNotIn("LL501", {e["landlord_id"] for e in new_entries})
 
     def test_entry_has_required_engine_fields(self):
-        new_entries, _ = BLI.fill_missing(self.idx, self.db)
+        new_entries, _, _bf = BLI.fill_missing(self.idx, self.db)
         e = next(e for e in new_entries if e["landlord_id"] == "LL501")
         for f in ("listing_key", "landlord_id", "status", "pg_url_keywords", "requirements"):
             self.assertIn(f, e)
@@ -131,7 +131,7 @@ class TestKeywordSpecificity(unittest.TestCase):
             _landlord("LL802", "active", "703 Jurong West Street 71 #02-110"),
             _landlord("LL803", "active", "47 Marine Crescent #05-12"),
         ]}
-        new_entries, _ = BLI.fill_missing(idx, db)
+        new_entries, _, _bf = BLI.fill_missing(idx, db)
         conflicts = BLI.check_keyword_specificity(idx["listings"] + new_entries)
         # any conflict reported must involve the PRE-EXISTING fixture entry only (never
         # between two entries this run generated) -- new entries are guaranteed clean by
@@ -147,14 +147,24 @@ class TestKeywordSpecificity(unittest.TestCase):
             _landlord("LL901", "active", "705 Jurong West Street 71"),
             _landlord("LL902", "active", "703 Jurong West Street 71"),
         ]}
-        new_entries, _ = BLI.fill_missing(idx, db)
+        new_entries, _, _bf = BLI.fill_missing(idx, db)
         for e in new_entries:
             self.assertNotIn("jurong west", [k.lower() for k in e["pg_url_keywords"]])
+
+    def test_parenthetical_note_never_rides_along_in_a_keyword(self):
+        idx = {"listings": []}
+        db = {"landlords": [_landlord(
+            "LL905", "active",
+            "Bukit Batok Street 25, 5 room HDB (unit TBC; Bukit Batok MRT)")]}
+        new_entries, _, _bf = BLI.fill_missing(idx, db)
+        for kw in new_entries[0]["pg_url_keywords"]:
+            self.assertNotIn("unit tbc", kw.lower())
+            self.assertNotIn("mrt", kw.lower())
 
     def test_distinctive_property_name_alone_is_kept(self):
         idx = {"listings": []}
         db = {"landlords": [_landlord("LL903", "active", "Melville Park")]}
-        new_entries, _ = BLI.fill_missing(idx, db)
+        new_entries, _, _bf = BLI.fill_missing(idx, db)
         e = new_entries[0]
         self.assertIn("melville park", [k.lower() for k in e["pg_url_keywords"]])
 
@@ -166,6 +176,197 @@ class TestKeywordSpecificity(unittest.TestCase):
 
     def test_portal_ids_file_absence_is_tolerated(self):
         self.assertEqual(BLI._load_portal_ids_file("/no/such/file/exists.json"), {})
+
+
+class TestPortalIdsForOnlyReadsPortalIdsField(unittest.TestCase):
+    """Opus-review blocker #1: portal_ids_for() must never iterate the OTHER fields of a
+    landlord-portal-ids.json record (landlord_name, full_address, rent_by_room) -- that bug
+    turned landlord first names, a raw WhatsApp @lid, and free-text rent notes into
+    pg_url_keywords."""
+
+    def test_landlord_name_never_becomes_a_keyword(self):
+        portal_map = {"LL125": {"landlord_name": "Grace", "full_address": "20 Simei Street 1",
+                                 "portal_ids": [], "rent_by_room": "Room 1: $1,250/month"}}
+        ids = BLI.portal_ids_for("LL125", "master-room-ll125", portal_map)
+        self.assertEqual(ids, set())
+
+    def test_raw_lid_never_becomes_a_keyword(self):
+        portal_map = {"LL227": {"landlord_name": "228397905117356", "full_address": "",
+                                 "portal_ids": [], "rent_by_room": ""}}
+        ids = BLI.portal_ids_for("LL227", "ll227-ll227", portal_map)
+        self.assertEqual(ids, set())
+
+    def test_rent_note_paragraph_never_becomes_a_keyword(self):
+        portal_map = {"LL017": {"landlord_name": "Asmah", "full_address": "851 Jurong West",
+                                 "portal_ids": [],
+                                 "rent_by_room": "$800 single F / $1,200 two F (confirmed 7 Aug)"}}
+        ids = BLI.portal_ids_for("LL017", "room-851-jurong-west-ll017", portal_map)
+        self.assertEqual(ids, set())
+
+    def test_clean_id_inside_portal_ids_list_is_extracted(self):
+        portal_map = {"LL188": {"landlord_name": "X", "full_address": "Oxley Edge",
+                                 "portal_ids": ["500248513"]}}
+        ids = BLI.portal_ids_for("LL188", "oxley-edge-ll188", portal_map)
+        self.assertEqual(ids, {"500248513"})
+
+    def test_id_embedded_in_prose_is_extracted_prose_is_not(self):
+        portal_map = {"LL188": {"portal_ids": [
+            "PropertyGuru listing 500248513 (asking $1,400/month, expired, to be re-listed)"]}}
+        ids = BLI.portal_ids_for("LL188", "oxley-edge-ll188", portal_map)
+        self.assertIn("500248513", ids)
+        self.assertNotIn(
+            "PropertyGuru listing 500248513 (asking $1,400/month, expired, to be re-listed)", ids)
+
+    def test_full_regenerate_never_leaks_named_examples_from_review(self):
+        """Regression for the exact review finding: regenerate fill-missing entries against a
+        portal-ids map shaped like the real landlord-portal-ids.json (bare landlord names, a
+        raw @lid, note paragraphs) and assert none of it survives into any keyword."""
+        BAD = {"Dan", "Liu", "Grace", "Nicole", "Jeremy", "Relycia", "Behhhh", "Olivia",
+               "228397905117356"}
+        portal_map = {
+            "LL125": {"landlord_name": "Grace", "portal_ids": []},
+            "LL146": {"landlord_name": "Nicole", "portal_ids": []},
+            "LL169": {"landlord_name": "Relycia", "portal_ids": []},
+            "LL216": {"landlord_name": "Jeremy", "portal_ids": []},
+            "LL218": {"landlord_name": "Dan", "portal_ids": []},
+            "LL219": {"landlord_name": "Liu", "portal_ids": []},
+            "LL226": {"landlord_name": "Behhhh", "portal_ids": []},
+            "LL227": {"landlord_name": "228397905117356", "portal_ids": []},
+        }
+        db = {"landlords": [
+            _landlord(lid, "active", f"{i+1} Some Road") for i, lid in enumerate(portal_map)
+        ]}
+        for l in db["landlords"]:
+            entry, _, _ = BLI.fill_missing_entry(l, {}, {}, portal_map)
+            for kw in entry["pg_url_keywords"]:
+                self.assertNotIn(kw, BAD)
+                self.assertFalse(any(b.lower() == kw.lower() for b in BAD))
+
+
+class TestBudgetFloorNeverAutoAppliedFromARange(unittest.TestCase):
+    """Opus-review blocker #2: budget_floor stays None unless rent_min == rent_max (both
+    parsed ints) -- a stale rent_min/rent_max range must never walk a good lead into a false
+    DISQUALIFIED (LL110: rent_min 1300, rent_max 1400, current asking 1000-1100)."""
+
+    def test_mismatched_range_yields_no_floor(self):
+        l = _landlord("LL110", "active", "Blk 47 Marine Parade", rent_min=1300)
+        l["rent_max"] = 1400
+        entry, _, _ = BLI.fill_missing_entry(l, {}, {}, {})
+        self.assertIsNone(entry["requirements"]["budget_floor"])
+
+    def test_equal_range_collapses_to_a_floor(self):
+        l = _landlord("LL999", "active", "1 Confirmed Rent Rd", rent_min=1200)
+        l["rent_max"] = 1200
+        entry, _, _ = BLI.fill_missing_entry(l, {}, {}, {})
+        self.assertEqual(entry["requirements"]["budget_floor"], 1200)
+
+    def test_missing_rent_max_yields_no_floor(self):
+        l = _landlord("LL998", "active", "1 No Max Rd", rent_min=1200)
+        entry, _, _ = BLI.fill_missing_entry(l, {}, {}, {})
+        self.assertIsNone(entry["requirements"]["budget_floor"])
+
+
+class TestValidKeyword(unittest.TestCase):
+    def test_short_bare_name_rejected(self):
+        for bad in ("Dan", "Liu", "Grace", "Nicole", "Jeremy", "Relycia", "Behhhh"):
+            self.assertFalse(BLI._is_valid_keyword(bad, ""), bad)
+
+    def test_pure_digit_portal_id_accepted(self):
+        self.assertTrue(BLI._is_valid_keyword("500248513", ""))
+
+    def test_street_type_word_accepted(self):
+        self.assertTrue(BLI._is_valid_keyword("oxley edge", "Oxley Edge, 308 River Valley Road"))
+
+    def test_multiword_address_equal_keyword_accepted(self):
+        self.assertTrue(BLI._is_valid_keyword("melville park", "Melville Park"))
+
+    def test_short_generic_word_without_digit_or_street_word_rejected(self):
+        self.assertFalse(BLI._is_valid_keyword("olivia", "1 Some Road"))
+
+
+class TestBayshoreDuplicateDedupe(unittest.TestCase):
+    """Opus-review blocker #4: LL088 (Blk 62 Bayshore Park, +6593368817) is the SAME room as
+    the pre-existing manual entry "bayshore" (landlord_id LL_JOHNNY_BP62, same phone) --
+    dedupe by phone as well as landlord_id, backfill LL088 onto the existing entry, and prune
+    the legacy entry's bare "bayshore"/"the bayshore" keywords once a real "66 Bayshore Rd"
+    listing (different landlord, different phone) exists so they stop cross-matching it."""
+
+    def _bayshore_idx(self):
+        return {"listings": [{
+            "listing_key": "bayshore", "landlord_id": "LL_JOHNNY_BP62",
+            "landlord_phone": "+6593368817", "status": "open",
+            "block_address": "Blk 62 Bayshore Park #15-07",
+            "pg_url_keywords": ["bayshore park", "bayshore", "the bayshore",
+                                 "blk 62 bayshore", "500170240"],
+        }]}
+
+    def test_same_phone_different_id_is_backfilled_not_duplicated(self):
+        idx = self._bayshore_idx()
+        db = {"landlords": [_landlord("LL088", "active", "Blk 62 Bayshore Park #15-07")]}
+        db["landlords"][0]["phone"] = "+6593368817"
+        new_entries, _, backfilled = BLI.fill_missing(idx, db)
+        self.assertEqual(new_entries, [])
+        self.assertEqual(len(backfilled), 1)
+        self.assertEqual(idx["listings"][0]["landlord_id"], "LL088")
+
+    def test_legacy_bare_keywords_pruned_once_a_real_bayshore_rd_listing_exists(self):
+        idx = self._bayshore_idx()
+        db = {"landlords": [_landlord("LL173", "active", "66 Bayshore Rd #22-03")]}
+        db["landlords"][0]["phone"] = "+6589772111"   # different landlord, different phone
+        new_entries, _, backfilled = BLI.fill_missing(idx, db)
+        self.assertEqual(backfilled, [])
+        self.assertEqual(len(new_entries), 1)
+        legacy_kws = [k.lower() for k in idx["listings"][0]["pg_url_keywords"]]
+        self.assertNotIn("bayshore", legacy_kws)
+        self.assertNotIn("the bayshore", legacy_kws)
+        self.assertIn("bayshore park", legacy_kws)
+        self.assertIn("blk 62 bayshore", legacy_kws)
+        self.assertIn("500170240", legacy_kws)
+        new_kws = [k.lower() for k in new_entries[0]["pg_url_keywords"]]
+        self.assertNotIn("bayshore", new_kws)
+
+
+class TestCheckKeywordSpecificityFatal(unittest.TestCase):
+    def test_direct_conflict_is_detected(self):
+        listings = [
+            {"listing_key": "a", "status": "open", "block_address": "705 Jurong West Street 71",
+             "pg_url_keywords": ["705 jurong west"]},
+            {"listing_key": "b", "status": "open",
+             "block_address": "705 Jurong West Street 71 Some Other Unit",
+             "pg_url_keywords": []},
+        ]
+        conflicts = BLI.check_keyword_specificity(listings)
+        self.assertTrue(len(conflicts) >= 1)
+
+    def test_fill_missing_main_aborts_and_writes_nothing_on_conflict(self):
+        """_dedupe_conflicting is the normal safety net that resolves a conflict before this
+        check ever runs -- stub it out (simulating a conflict it missed) to prove
+        fill_missing_main treats a surviving conflict as fatal: non-zero exit, no output
+        file, instead of the old print-a-warning-and-write-anyway behaviour."""
+        idx = {"listings": [{"listing_key": "existing", "status": "open",
+                              "block_address": "705 Jurong West Street 71",
+                              "pg_url_keywords": ["705 jurong west"]}]}
+        db = {"landlords": [_landlord("LL999", "active", "705 Jurong West Street 71 #02-03")]}
+        db_path = tempfile.mktemp(suffix=".json")
+        idx_path = tempfile.mktemp(suffix=".json")
+        out_path = tempfile.mktemp(suffix=".json")
+        with open(db_path, "w") as f: json.dump(db, f)
+        with open(idx_path, "w") as f: json.dump(idx, f)
+        orig_db, orig_idx, orig_out, orig_argv = BLI.DB, BLI.IDX, BLI.IDX_OUT, sys.argv
+        BLI.DB, BLI.IDX, BLI.IDX_OUT = db_path, idx_path, out_path
+        sys.argv = ["build-listing-index.py", "--fill-missing"]
+        try:
+            from unittest import mock
+            with mock.patch.object(BLI, "_dedupe_conflicting", lambda *a, **k: None):
+                with self.assertRaises(SystemExit):
+                    BLI.fill_missing_main()
+            self.assertFalse(os.path.exists(out_path))
+        finally:
+            BLI.DB, BLI.IDX, BLI.IDX_OUT = orig_db, orig_idx, orig_out
+            sys.argv = orig_argv
+            for p in (db_path, idx_path, out_path):
+                if os.path.exists(p):
+                    os.remove(p)
 
 
 if __name__ == "__main__":

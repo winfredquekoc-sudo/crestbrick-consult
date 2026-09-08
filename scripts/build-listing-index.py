@@ -31,8 +31,7 @@ LOCK = HOME + "/.claude/state/listing-templates/.wa-intake.lock"
 MSG_DB = os.environ.get("BLI_MSG_DB", HOME + "/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 PUB_LISTINGS = os.environ.get("BLI_PUBLIC_LISTINGS", HOME + "/crestbrick-consult/public/listings.json")
 PORTAL_IDS_FILE = os.environ.get("BLI_PORTAL_IDS",
-    "/private/tmp/claude-501/-Users-winfredquek-crestbrick-consult/92b405a9-4a65-471d-bd8e-97356c5a5b42"
-    "/scratchpad/landlord-portal-ids.json")
+    HOME + "/crestbrick-consult/_templates/landlord-portal-ids.json")
 IDX_OUT = os.environ.get("BLI_IDX_OUT")   # when set, --fill-missing writes the FULL proposed
                                           # index (existing + new) here instead of the live IDX
 DRY = "--dry-run" in sys.argv
@@ -140,9 +139,16 @@ def _addr_variants(address):
     street wherever the street itself carries no distinguishing trailing number, so a bare
     generic segment ('jurong west') is never emitted on its own — cross listing collisions
     are then caught and stripped by _dedupe_conflicting()."""
-    addr = re.sub(r"#.*", "", address or "").strip()
+    # landlord-db full_address values routinely carry a human note in parens ("(unit TBC;
+    # Bukit Batok MRT)", "(standalone studio at landed house, 430sqft)") -- strip it before
+    # deriving keywords, or the whole note rides along as part of every variant (the same
+    # "note paragraph becomes a keyword" symptom the portal_ids_for fix addresses elsewhere,
+    # just via the address field itself rather than landlord-portal-ids.json).
+    addr = re.sub(r"\([^)]*\)", " ", address or "")
+    addr = re.sub(r"#.*", "", addr).strip()
     addr = re.sub(r"^\s*(blk|block)\.?\s+", "", addr, flags=re.I)
     addr = re.sub(r"\s+", " ", addr).strip()
+    addr = addr.rstrip(",").strip()
     if not addr:
         return []
     low = addr.lower()
@@ -233,23 +239,80 @@ def _load_portal_ids_file(path=None):
     except Exception:
         return {}
 
+_RE_DIGITS6 = re.compile(r"\d{6,}")
+
+def _extract_portal_tokens(s):
+    """Pull clean PropertyGuru listing ids (bare runs of 6+ digits) and 99.co codes out of a
+    raw portal_ids string, which may carry surrounding prose (landlord-portal-ids.json is
+    hand/LLM curated and a value like 'PropertyGuru listing 500248513 (asking $1,400/month,
+    expired, to be re-listed)' is real data) -- the raw string itself is NEVER trusted as a
+    keyword, only digit runs / 99.co codes found inside it."""
+    out = set()
+    if not isinstance(s, str):
+        return out
+    out.update(_RE_DIGITS6.findall(s))
+    out.update(_RE_99_CODE.findall(s))
+    return out
+
 def portal_ids_for(lid, listing_key, portal_map):
+    """landlord id / listing key -> set of clean portal ids, reading ONLY the record's
+    'portal_ids' field. A landlord-portal-ids.json record also carries landlord_name,
+    full_address, rent_by_room etc -- those must NEVER be iterated as keyword candidates
+    (that bug turned landlord first names, a raw WhatsApp @lid, and free-text rent notes
+    into pg_url_keywords)."""
     ids = set()
     for key in (lid, listing_key):
         v = portal_map.get(key) if key else None
-        if not v:
+        if not isinstance(v, dict):
             continue
-        if isinstance(v, str):
-            ids.add(v)
-        elif isinstance(v, (list, tuple, set)):
-            ids.update(str(x) for x in v if x)
-        elif isinstance(v, dict):
-            for vv in v.values():
+        rec = v.get("portal_ids")
+        if not rec:
+            continue
+        if isinstance(rec, str):
+            ids |= _extract_portal_tokens(rec)
+        elif isinstance(rec, (list, tuple, set)):
+            for item in rec:
+                if isinstance(item, str):
+                    ids |= _extract_portal_tokens(item)
+        elif isinstance(rec, dict):
+            for vv in rec.values():
                 if isinstance(vv, str):
-                    ids.add(vv)
+                    ids |= _extract_portal_tokens(vv)
                 elif isinstance(vv, (list, tuple, set)):
-                    ids.update(str(x) for x in vv if x)
+                    for item in vv:
+                        if isinstance(item, str):
+                            ids |= _extract_portal_tokens(item)
     return ids
+
+_KEYWORD_STREET_WORDS = {"road", "rd", "street", "st", "ave", "avenue", "crescent", "cres",
+    "drive", "dr", "lane", "link", "way", "close", "park", "heights", "terrace", "villas",
+    "loft", "edge", "court", "gardens", "hill", "walk", "place", "view"}
+
+def _is_valid_keyword(kw, address=""):
+    """A generated pg_url_keyword must be specific enough not to cross-match another
+    listing: a portal id / 99.co code always qualifies; any other candidate needs length
+    >= 6 AND (a digit, OR a street-type word, OR it equals the address's own multi-word
+    estate/condo name) -- rejects short bare tokens like a landlord's first name."""
+    k = (kw or "").strip()
+    if not k:
+        return False
+    if k.isdigit() and len(k) >= 6:
+        return True                                   # PropertyGuru listing id
+    if (re.fullmatch(r"[A-Za-z0-9]{6,15}", k) and any(c.isdigit() for c in k)
+            and any(c.isalpha() for c in k)):
+        return True                                   # 99.co code
+    low = k.lower()
+    if len(low) < 6:
+        return False
+    if any(c.isdigit() for c in low):
+        return True
+    words = set(re.findall(r"[a-z]+", low))
+    if words & _KEYWORD_STREET_WORDS:
+        return True
+    addr_norm = _norm(address)
+    if addr_norm and " " in low and low == addr_norm:
+        return True                                   # the address's own estate/condo name
+    return False
 
 def _slugify(text):
     s = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
@@ -305,6 +368,7 @@ def fill_missing_entry(l, pub_map, harvested, portal_map):
     kws = set(_addr_variants(addr))
     kws |= portal_ids_for(l["id"], lk, portal_map)
     kws |= match_harvested(addr, harvested)
+    kws = {k for k in kws if _is_valid_keyword(k, addr)}
 
     g = _SYNC.parse_gender(r.get("gender"))
     gender = g[0] if g else "any"
@@ -315,7 +379,12 @@ def fill_missing_entry(l, pub_map, harvested, portal_map):
     min_age = _SYNC.parse_min_age(r)
     max_pax = parse_pax(r.get("max_pax"))
     lease_min = parse_lease(r.get("lease_min")) or 12
-    budget_floor = l.get("rent_min") if isinstance(l.get("rent_min"), int) else None
+    # budget_floor is DIFF REPORT ONLY territory for a reason: room-level pricing lives in
+    # free text, and rent_min/rent_max on the landlord record are often a stale range across
+    # several rooms (LL110: rent_min 1300 vs a current asking of 1000-1100). Only apply it
+    # when the range has collapsed to a single confirmed figure -- never a guess off a range.
+    rmin, rmax = l.get("rent_min"), l.get("rent_max")
+    budget_floor = rmin if (isinstance(rmin, int) and isinstance(rmax, int) and rmin == rmax) else None
 
     found, unknown = [], []
     for name, val in (("gender", g), ("ethnicity", _SYNC.parse_ethnicity(r.get("ethnicity"))),
@@ -348,6 +417,12 @@ def _is_open(e):
     st = str(e.get("status", "")).lower()
     return not (st.startswith("closed") or st == "hold")
 
+def _bare_kw(kwl):
+    """Normalise a leading determiner off a keyword for cross-listing comparison ("the
+    bayshore" -> "bayshore") -- a legacy hand-entered keyword carrying "the" must still be
+    caught as a substring of another open listing's address the same way its bare form is."""
+    return re.sub(r"^\s*the\s+", "", kwl)
+
 def check_keyword_specificity(all_listings):
     """Every keyword of every OPEN listing checked against every OTHER open listing's own
     address text. Returns a list of (listing_key, keyword, other_listing_key) conflicts. A
@@ -360,19 +435,25 @@ def check_keyword_specificity(all_listings):
             kwl = _norm(kw)
             if not kwl or (kwl.isdigit() and len(kwl) >= 6):
                 continue                      # portal ids are always specific
+            kwl_bare = _bare_kw(kwl)
             for o in open_l:
                 if o is e:
                     continue
                 addr_o = _norm(o.get("block_address") or o.get("address") or o.get("property_name") or "")
-                if addr_o and kwl in addr_o and kwl != addr_self:
+                if (addr_o and kwl != addr_self
+                        and (kwl in addr_o or kwl_bare in addr_o)):
                     conflicts.append((e["listing_key"], kw, o["listing_key"]))
     return conflicts
 
 def _dedupe_conflicting(new_entries, existing_open):
-    """Strip any keyword of a NEW entry that is a substring of another OPEN listing's own
-    address (existing or newly generated) -- existing entries are never mutated."""
+    """Strip any keyword -- of a NEW entry OR an EXISTING open one -- that is a substring of
+    another OPEN listing's own address. Existing entries ARE mutated here (in place, via the
+    same dict references idx["listings"] holds): a legacy bare keyword like "bayshore" or
+    "the bayshore" on a long-standing manual entry starts stealing a brand new listing at the
+    same estate ("66 Bayshore Rd") the moment that listing is created, so pruning only ever
+    NEW entries would leave the older entry's blast radius live."""
     pool = existing_open + new_entries
-    for e in new_entries:
+    for e in pool:
         others = [o for o in pool if o["listing_key"] != e["listing_key"] and _is_open(o)]
         keep = []
         for kw in e.get("pg_url_keywords", []):
@@ -381,26 +462,50 @@ def _dedupe_conflicting(new_entries, existing_open):
                 continue
             if kwl.isdigit() and len(kwl) >= 6:
                 keep.append(kw); continue     # portal id -- always specific, always kept
+            kwl_bare = _bare_kw(kwl)
             addrs = [_norm(o.get("block_address") or o.get("address") or o.get("property_name") or "")
                      for o in others]
-            if any(kwl and kwl in a for a in addrs if a):
+            if any(a and (kwl in a or kwl_bare in a) for a in addrs):
                 continue                      # would cross match another open listing -> drop
             keep.append(kw)
         e["pg_url_keywords"] = sorted(set(keep))
 
+def _norm_phone(p):
+    return re.sub(r"\D", "", str(p or ""))
+
 def fill_missing(idx, db, msg_db=None, pub_listings_path=None, portal_ids_path=None):
-    """Returns (new_entries, report) — report rows are
-    (listing_key, address, keyword_count, status, gates_found, gates_unknown)."""
+    """Returns (new_entries, report, backfilled) — report rows are
+    (listing_key, address, keyword_count, status, gates_found, gates_unknown); backfilled
+    rows are (existing_listing_key, old_landlord_id, new_landlord_id) for a landlord that
+    already has an index entry under a DIFFERENT id, matched by phone (the same physical
+    room re-entered under a new DB id -- e.g. LL088/Bayshore Park vs the long-standing
+    manual "bayshore" entry filed under LL_JOHNNY_BP62, both +6593368817)."""
     existing_lids = {e.get("landlord_id") for e in idx["listings"] if e.get("landlord_id")}
+    existing_by_phone = {}
+    for e in idx["listings"]:
+        ph = _norm_phone(e.get("landlord_phone"))
+        if ph:
+            existing_by_phone.setdefault(ph, []).append(e)
     pub_map = public_listing_key_map(pub_listings_path)
     harvested = harvest_portal_ids(msg_db=msg_db)
     portal_map = _load_portal_ids_file(portal_ids_path)
 
-    new_entries, report = [], []
+    new_entries, report, backfilled = [], [], []
     for l in db["landlords"]:
         if not _is_active_landlord(l):
             continue
         if l["id"] in existing_lids:
+            continue
+        ph = _norm_phone(l.get("phone"))
+        dup_entries = existing_by_phone.get(ph) if ph else None
+        if dup_entries:
+            # same phone already carries an index entry under a different landlord_id --
+            # this is the SAME room, not a second listing. Backfill the DB id onto the
+            # existing entry (never create a duplicate) so future runs recognise it by id too.
+            for e in dup_entries:
+                if e.get("landlord_id") != l["id"]:
+                    backfilled.append((e["listing_key"], e.get("landlord_id"), l["id"]))
+                    e["landlord_id"] = l["id"]
             continue
         entry, found, unknown = fill_missing_entry(l, pub_map, harvested, portal_map)
         new_entries.append(entry)
@@ -409,28 +514,34 @@ def fill_missing(idx, db, msg_db=None, pub_listings_path=None, portal_ids_path=N
 
     existing_open = [e for e in idx["listings"] if _is_open(e)]
     _dedupe_conflicting(new_entries, existing_open)
-    for lk, addr, _n, status, found, unknown in report:
-        pass  # report kept as originally computed keyword count (pre dedupe), for visibility
-    return new_entries, report
+    return new_entries, report, backfilled
 
 def fill_missing_main():
     APPLY = "--apply" in sys.argv
     idx = json.load(open(IDX))
     db = json.load(open(DB))
     n_active = sum(1 for l in db["landlords"] if _is_active_landlord(l))
-    new_entries, report = fill_missing(idx, db)
+    new_entries, report, backfilled = fill_missing(idx, db)
     print(f"== fill-missing: {len(new_entries)} new entries for {n_active} active/active-verify landlords "
           f"({n_active - len(new_entries)} already had an index entry) ==")
     for lk, addr, nkw, status, found, unknown in report:
         print(f"  {lk:50} | {addr[:38]:38} | kw={nkw:2} | {status:8} | found={found} unknown={unknown}")
 
+    print("== backfilled landlord_id (same phone, pre-existing entry -- no duplicate created) ==")
+    if backfilled:
+        for lk, old_lid, new_lid in backfilled:
+            print(f"  {lk}: landlord_id {old_lid} -> {new_lid}")
+    else:
+        print("  (none)")
+
     conflicts = check_keyword_specificity(idx["listings"] + new_entries)
     if conflicts:
-        print("\n== CROSS MATCH WARNINGS (should be empty) ==")
+        print("\n== CROSS MATCH CONFLICTS (fatal -- nothing written) ==")
         for c in conflicts:
             print("  ", c)
-    else:
-        print("\n== keyword specificity: clean, no open listing keyword crosses another ==")
+        sys.exit("fill-missing: keyword specificity check failed, " + str(len(conflicts))
+                 + " conflict(s) -- fix before writing the index")
+    print("\n== keyword specificity: clean, no open listing keyword crosses another ==")
 
     if IDX_OUT:
         merged = dict(idx); merged["listings"] = idx["listings"] + new_entries

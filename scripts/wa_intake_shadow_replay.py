@@ -130,6 +130,11 @@ def _bucket(action):
 
 
 def replay_chat(jid, rows, engine_mod, idx_path, bind_outbound):
+    """Returns per-chat results carrying BOTH views: the last action taken (as before -- one
+    row per chat, matching a real conversation's terminal state) AND every action taken along
+    the way (all_actions/all_buckets) -- the last-action-only count silently undercounts
+    sends whenever a chat produces more than one action across its replayed history (e.g. an
+    ASK_ONE followed later by the OFFER_VIEWING that actually confirms the slot)."""
     engine_mod.DRY_RUN = True
     engine_mod.IDX = idx_path
     if hasattr(engine_mod, "_TPL_HEADS"):
@@ -139,16 +144,20 @@ def replay_chat(jid, rows, engine_mod, idx_path, bind_outbound):
     pn = engine_mod.resolve_pn(jid)
     state = {"version": 1, "conversations": {}}
     last_action = None
+    all_actions = []
     for ev in events:
         ev["jid"] = jid
         a = engine_mod.handle_event(state, ev)
         if a is not None:
             last_action = a
+            all_actions.append(a)
     rec = state["conversations"].get(pn, {})
     return {"jid": jid, "pn": pn, "bound": bool(rec.get("listing_key")),
             "listing_key": rec.get("listing_key"), "bucket": _bucket(last_action),
             "action_type": (last_action or {}).get("type"),
-            "reason": (last_action or {}).get("reason")}
+            "reason": (last_action or {}).get("reason"),
+            "all_buckets": [_bucket(a) for a in all_actions if _bucket(a)],
+            "all_action_types": [a.get("type") for a in all_actions]}
 
 
 def run_sweep(chats, chat_rows, old_mod, new_mod, live_idx, proposed_idx):
@@ -166,7 +175,11 @@ def run_sweep(chats, chat_rows, old_mod, new_mod, live_idx, proposed_idx):
     return results
 
 
-def summarize(results):
+def summarize(results, all_actions=False):
+    """all_actions=False (default): one row per chat, counting only its LAST action -- the
+    original view, kept for continuity. all_actions=True: counts EVERY action emitted across
+    a chat's replayed history, so a chat that produced e.g. an ASK_ONE then later an
+    OFFER_VIEWING contributes to both buckets instead of only its terminal one."""
     lines = []
     header = f"{'config':16} {'chats':>6} {'bound':>6} " + " ".join(f"{b:>15}" for b in ACTION_BUCKETS)
     lines.append(header)
@@ -175,7 +188,10 @@ def summarize(results):
         bound = sum(1 for r in per_chat.values() if r["bound"])
         counts = {b: 0 for b in ACTION_BUCKETS}
         for r in per_chat.values():
-            if r["bucket"]:
+            if all_actions:
+                for b in r.get("all_buckets") or []:
+                    counts[b] += 1
+            elif r["bucket"]:
                 counts[r["bucket"]] += 1
         lines.append(f"{key:16} {n:>6} {bound:>6} " + " ".join(f"{counts[b]:>15}" for b in ACTION_BUCKETS))
     return "\n".join(lines)
@@ -232,8 +248,11 @@ def main():
     report.append("")
 
     results_1 = run_sweep(chats, chat_rows, old_mod, new_mod, args.live_idx, args.proposed_idx)
-    report.append("== 4 way summary (run 1) ==")
+    report.append("== 4 way summary (run 1, LAST action per chat) ==")
     report.append(summarize(results_1))
+    report.append("")
+    report.append("== 4 way summary (run 1, EVERY action per chat -- undercounted above) ==")
+    report.append(summarize(results_1, all_actions=True))
     report.append("")
 
     for idxname in ("live", "proposed"):

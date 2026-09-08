@@ -1691,6 +1691,27 @@ def qualify(req, profile):
     if unknown: return "NEEDS_INFO", unknown
     return "QUALIFIED", []
 
+def _split_needs_info(why):
+    """Split a NEEDS_INFO reason list into (askable, sensitive, listing_only):
+      askable   - phrases the PROSPECT can answer ("your gender", "your budget", ...)
+      sensitive - True if a gap is ethnicity/nationality (never isolated in a one-line ask;
+                  the form already collects it alongside everything else)
+      listing_only - True when every reason is a listing-side unknown ("listing rent not
+                  confirmed", "lease over landlord max", ...) that the prospect has no way
+                  to answer -- that copy must never reach prospect-facing text (judge catch,
+                  an internal gap sent verbatim to a tenant kills the conversation)."""
+    askable, sensitive = [], False
+    for w in why:
+        wl = str(w).lower()
+        if wl.startswith("gender"): askable.append("your gender")
+        elif wl.startswith("budget"): askable.append("your budget")
+        elif "married" in wl: askable.append("whether you are a legally married couple")
+        elif wl.startswith(("ethnicity", "nationality")): sensitive = True
+        # anything else (listing rent not confirmed, lease over landlord max, ...) is a
+        # listing-side unknown -- dropped here, never surfaced to the prospect
+    listing_only = not askable and not sensitive
+    return askable, sensitive, listing_only
+
 # ---------- state ----------
 class StateCorrupt(RuntimeError):
     """intake-state.json exists but cannot be parsed. NEVER degrade this to an empty
@@ -2598,15 +2619,8 @@ def _handle_event_inner(state, ev):
                     # ("listing rent not confirmed") they cannot — 4 of 6 live listings have no
                     # budget_floor, and asking a tenant to reply with "listing rent not
                     # confirmed" kills every YES (judge catch, 11 Aug 2026)
-                    _askable, _sensitive = [], False
-                    for w in why_b:
-                        wl = str(w).lower()
-                        if wl.startswith("gender"): _askable.append("your gender")
-                        elif wl.startswith("budget"): _askable.append("your budget")
-                        elif "married" in wl: _askable.append("whether you are a legally married couple")
-                        elif wl.startswith(("ethnicity", "nationality")): _sensitive = True
-                        # listing-side unknowns are NOT the prospect's to answer: drop
-                    if not _askable and not _sensitive:
+                    _askable, _sensitive, _listing_only = _split_needs_info(why_b)
+                    if _listing_only:
                         # only listing-side gaps -> book anyway, tell Winfred to settle the rent
                         rec["viewing_asked"] = True
                         rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
@@ -2716,13 +2730,32 @@ def _handle_event_inner(state, ev):
             return {"type": "LEASE_NOTE", "pn": pn, "notify": False, "reason": (why or [""])[0],
                     "text": "Just to share, the landlord is looking for a minimum lease of "
                             + _dur + " 🙏 Would that work for you?"}
+        _listing_gap = None
         if verdict == "NEEDS_INFO":
             if rec.get("needs_info_unknowns") == why:
                 return None              # same gap already asked -> silent
-            rec["needs_info_unknowns"] = why; rec["stage"] = "NEEDS_INFO"; rec["status"] = "needs_info"
-            return {"type":"ASK_ONE", "pn":pn, "reason":why, "text":_needs_info_text(why)}
-        # QUALIFIED -> offer the viewing once. Re-check the listing is STILL open first:
-        # it can have closed since the Stage-1 gate (tenanted mid-conversation).
+            askable, sensitive, listing_only = _split_needs_info(why)
+            rec["needs_info_unknowns"] = why
+            if listing_only:
+                # every reason is a listing-side unknown ("listing rent not confirmed") that
+                # the prospect cannot answer — never surface that internal gap as ASK_ONE
+                # copy (judge catch: a tenant getting "Almost there. listing rent not
+                # confirmed." reads as a broken bot). Fall through to the QUALIFIED flow
+                # below (book the viewing) and flag Winfred with the gap instead.
+                _listing_gap = why
+            else:
+                rec["stage"] = "NEEDS_INFO"; rec["status"] = "needs_info"
+                if askable:
+                    txt = ("Can I just check " + " and ".join(askable)
+                           + "? Then I can confirm your slot \U0001F642")
+                else:
+                    # sensitive-only (ethnicity/nationality) gap — never isolated in a
+                    # one-line ask, the form already collects it alongside everything else
+                    txt = "Just need your profile above and I can confirm your slot \U0001F64F\U0001F3FB"
+                return {"type":"ASK_ONE", "pn":pn, "reason":why, "text":txt}
+        # QUALIFIED (or a listing-only NEEDS_INFO gap, booked anyway) -> offer the viewing
+        # once. Re-check the listing is STILL open first: it can have closed since the
+        # Stage-1 gate (tenanted mid-conversation).
         st_now = _listing_unavailable(lk, reqs)
         if st_now:
             return _room_gone_action(rec, pn, st_now)
@@ -2737,9 +2770,14 @@ def _handle_event_inner(state, ev):
         slot = next_slot(lk)
         rec["offered_slot_id"] = slot.get("slot_id") if slot else None
         rec["offered_slot_label"] = slot.get("label") if slot else None
-        return {"type":"OFFER_VIEWING", "pn":pn, "slot":slot,
-                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot),
-                "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
+        act = {"type":"OFFER_VIEWING", "pn":pn, "slot":slot,
+               "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot),
+               "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
+        if _listing_gap:
+            act["notify"] = True
+            act["reason"] = ("[listing gap: " + "; ".join(map(str, _listing_gap))
+                              + " — confirm with the landlord]")
+        return act
 
     # STAGE 3: viewing offered -> react to one reply per inbound (shared with the manual co-pilot path)
     return _viewing_reaction(rec, ev, pn)
