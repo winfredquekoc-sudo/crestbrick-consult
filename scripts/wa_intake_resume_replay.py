@@ -103,15 +103,28 @@ def replay_chat(con, jid, rows, days):
               "ts": ts}
         ev["listing_key"] = RNR.match_listing(content)
         ev["engine"] = engine_mod.is_engine_outbound(content) if ifm else False
+        pre_snapshot, disputed = None, False
         if not ifm:
             rec_before = state["conversations"].get(pn)
-            blocked = RES.resume_reason_blocked(con, "rowid", jid, rec_before, rowid, ts)
-            ev["resume"] = blocked is None
+            pre_snapshot = {"form_sent": bool(rec_before and rec_before.get("form_sent")),
+                            "listing_key": rec_before.get("listing_key") if rec_before else None}
+            under_takeover = bool(rec_before and (rec_before.get("manual_takeover")
+                                                  or rec_before.get("human_takeover")))
+            # B2: dispute/legal escalation language in the last 10 messages -> never
+            # resume-eligible (mirrors wa_intake_runner.run()'s own gate exactly).
+            disputed = under_takeover and RES.dispute_language_recent(con, jid)
+            if not disputed:
+                blocked = RES.resume_reason_blocked(con, "rowid", jid, rec_before, rowid, ts)
+                ev["resume"] = blocked is None
         a = engine_mod.handle_event(state, ev)
         if ifm or not _in_window(ts, days):
             continue          # only inbound rows inside the reporting window are reportable
-        if ev.get("resume"):
-            if RES.needs_draft(a):
+        if disputed:
+            out.append({"jid": jid, "pn": pn, "kind": "DISPUTE_BLOCKED", "rowid": rowid,
+                       "inbound": content})
+        elif ev.get("resume"):
+            if RES.needs_draft(a, pre_snapshot):
+                RES.revert_unsent_form(a, state["conversations"].get(pn, {}), pre_snapshot)
                 out.append({"jid": jid, "pn": pn, "kind": "DRAFT", "rowid": rowid,
                            "inbound": content, "would_be_type": (a or {}).get("type")})
             else:
@@ -137,7 +150,7 @@ def replay_chat(con, jid, rows, days):
 
 def results_fingerprint(all_rows):
     return json.dumps(sorted((r["jid"], r["rowid"], r["kind"], r.get("type"),
-                             tuple(r.get("texts") or []), r.get("sentence"))
+                             tuple(r.get("texts") or []), r.get("sentence"), r.get("inbound"))
                             for r in all_rows), sort_keys=True)
 
 
@@ -171,6 +184,7 @@ def format_report(chats, all_rows, days):
     drafts = [r for r in all_rows if r["kind"] == "DRAFT"]
     notify_only = [r for r in all_rows if r["kind"] == "NOTIFY_ONLY"]
     fires = [r for r in all_rows if r["kind"] == "LEASE_FIRE"]
+    disputed = [r for r in all_rows if r["kind"] == "DISPUTE_BLOCKED"]
 
     lines.append(f"== RESUME auto sends by type ({len(sent)} total, real prospect facing text) ==")
     by_type = {}
@@ -203,6 +217,11 @@ def format_report(chats, all_rows, days):
     lines.append(f"== SHORT LEASE auto reply fires ({len(fires)} total) ==")
     for r in fires:
         lines.append(f"  [{r['pn']}] {r['sentence']!r}")
+
+    lines.append("")
+    lines.append(f"== B2 DISPUTE language blocked (no auto send, no draft) ({len(disputed)} total) ==")
+    for r in disputed:
+        lines.append(f"  [{r['pn']}] {r['inbound']!r}")
 
     return "\n".join(lines)
 
@@ -249,12 +268,21 @@ def _collect_draft_candidates(days):
                       "is_from_me": bool(ifm), "ts": ts}
                 ev["listing_key"] = RNR.match_listing(content)
                 ev["engine"] = E.is_engine_outbound(content) if ifm else False
+                pre_snapshot = None
                 if not ifm:
                     rec_before = state["conversations"].get(pn)
-                    blocked = RES.resume_reason_blocked(con, "rowid", jid, rec_before, rowid, ts)
-                    ev["resume"] = blocked is None
+                    pre_snapshot = {"form_sent": bool(rec_before and rec_before.get("form_sent")),
+                                    "listing_key": rec_before.get("listing_key") if rec_before else None}
+                    under_takeover = bool(rec_before and (rec_before.get("manual_takeover")
+                                                          or rec_before.get("human_takeover")))
+                    if not (under_takeover and RES.dispute_language_recent(con, jid)):
+                        blocked = RES.resume_reason_blocked(con, "rowid", jid, rec_before, rowid, ts)
+                        ev["resume"] = blocked is None
                 a = E.handle_event(state, ev)
-                if ev.get("resume") and _in_window(ts, days) and RES.needs_draft(a):
+                _drafting = ev.get("resume") and RES.needs_draft(a, pre_snapshot)
+                if _drafting:
+                    RES.revert_unsent_form(a, state["conversations"].get(pn, {}), pre_snapshot)
+                if _drafting and _in_window(ts, days):
                     candidates.append({"jid": jid, "rowid": rowid, "content": content,
                                        "category": _classify_category(content)})
     finally:

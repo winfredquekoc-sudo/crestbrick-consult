@@ -117,6 +117,27 @@ def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
     return None
 
 
+# B2 (Sep 2026): a chat carrying dispute/legal escalation language is never a resume/draft
+# candidate -- Winfred handles it entirely by hand. Word boundary matched, case insensitive.
+DISPUTE_KEYWORDS = ("dispute", "reimburse", "refund", "lawyer", "tribunal", "terminate",
+                   "termination", "police", "complain", "scam", "deposit back")
+_DISPUTE_RE = re.compile(r"\b(?:" + "|".join(DISPUTE_KEYWORDS) + r")\b", re.I)
+
+
+def dispute_language_recent(con, jid, limit=10):
+    """True if any of the last LIMIT messages in this chat (either direction) contain
+    dispute/legal escalation language. Read only; never raises (a query failure is treated
+    as 'no dispute language seen', never as a reason to block -- the resume gates upstream
+    already fail closed on anything genuinely unsafe)."""
+    try:
+        rows = con.execute(
+            "SELECT content FROM messages WHERE chat_jid=? AND content IS NOT NULL "
+            "ORDER BY rowid DESC LIMIT ?", (jid, limit)).fetchall()
+    except Exception:
+        return False
+    return any(_DISPUTE_RE.search(c or "") for (c,) in rows)
+
+
 def mark_resume(a):
     """Tag an action ELIGIBLE to bypass the runner's manual_takeover send choke. This is the
     ONLY place a["resume"] is ever set True -- called by the runner exactly once, right after
@@ -161,9 +182,19 @@ def resume_send_gate(a, grec, landlords_unreadable):
     return True, resume_gate_blocked(a.get("pn"), landlords_unreadable)
 
 
-def needs_draft(a):
+def needs_draft(a, rec_before=None):
     """True when the engine's action for a resumed inbound must NOT reach a real send and
-    instead needs a drafted suggestion for Winfred to review."""
+    instead needs a drafted suggestion for Winfred to review.
+
+    rec_before (optional): a snapshot of the conversation record's form_sent/listing_key
+    taken BEFORE this inbound was run through handle_event (a plain dict or the record
+    itself, read only -- never the live object AFTER the event, which handle_event may have
+    just mutated as a side effect of producing the very action being checked). B1 (Sep
+    2026): an allow listed action type is only trusted when the record was ALREADY an
+    established tenant prospect -- form_sent True AND listing_key bound -- before this
+    inbound. Without this, a friend's casual chat that only just got bound off Winfred's own
+    outbound text got a live SEND_FORM (pn 6581894357, "Where ah bro", 8-9 Sep 2026); when
+    rec_before is omitted, callers get the old type only behaviour (existing tests)."""
     if not a:
         return True
     t = a.get("type")
@@ -171,7 +202,24 @@ def needs_draft(a):
         return not a.get("text")     # category 1 fact answer has text; anything else drafts
     if t in NOTIFY_ONLY_RESUME_TYPES:
         return bool(a.get("text") or a.get("texts"))
-    return t not in ALLOWED_RESUME_TYPES
+    if t not in ALLOWED_RESUME_TYPES:
+        return True
+    if rec_before is not None and not (rec_before.get("form_sent") and rec_before.get("listing_key")):
+        return True
+    return False
+
+
+def revert_unsent_form(a, rec, rec_before):
+    """B1 (Sep 2026): handle_event stamps rec['form_sent']=True as soon as it DECIDES to send
+    the form, regardless of whether the real send happens -- a drafted (never delivered)
+    SEND_FORM otherwise leaves the record masquerading as an already form sent prospect on
+    the NEXT inbound, letting something like LEASE_NOTE through on a chat where the tenant
+    never actually saw the form (real incident, pn 6590590183: an earlier SEND_FORM in this
+    same wandering chat drafted, not sent, but form_sent stuck True anyway). Call this AFTER
+    needs_draft() confirms the action is becoming a draft, BEFORE process_draft_needed."""
+    if (a or {}).get("type") == "SEND_FORM" and not (rec_before or {}).get("form_sent"):
+        rec["form_sent"] = False
+        rec.pop("form_sent_ts", None)
 
 
 def fetch_transcript(con, idc, jid, limit=80):

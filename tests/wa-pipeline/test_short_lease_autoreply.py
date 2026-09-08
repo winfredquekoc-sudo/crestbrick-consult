@@ -57,22 +57,51 @@ class TestUnifiedWording(unittest.TestCase):
     """The note goes out with the SAME wording everywhere, whether triggered by the free
     text scan (bound or not, any stage) or the older qualify()-driven complete-profile path."""
 
-    def test_free_text_trigger_fires_before_form_even_sent(self):
+    def test_free_text_trigger_fires_once_bound_and_form_sent(self):
+        # B1 (Sep 2026): the note names "the landlord", so it only fires once the record is
+        # an established prospect -- form already sent AND a listing bound.
         st = _state()
         jid = "6598880001@s.whatsapp.net"
+        pn = E.resolve_pn(jid)
+        rec = E._rec(st, pn)
+        rec["form_sent"] = True
+        rec["listing_key"] = "test-listing"
         ev = {"jid": jid, "msg_id": "1", "text": "hi is a 3 month lease possible",
               "is_from_me": False}
         a = E.handle_event(st, ev)
         self.assertEqual(a["type"], "LEASE_NOTE")
         self.assertEqual(a["text"], LEASE_TEXT)
+        self.assertTrue(rec.get("lease_note_sent"))
+
+    def test_free_text_trigger_never_fires_before_form_sent_or_unbound(self):
+        # real incident, 8-9 Sep 2026: pn 6590590183, wandering across 3 properties with no
+        # confirmed listing_key, auto-sent a LEASE_NOTE naming a landlord that was never
+        # actually confirmed. Must flag Winfred instead, once, and never auto-send.
+        st = _state()
+        jid = "6598880001b@s.whatsapp.net"
+        ev = {"jid": jid, "msg_id": "1", "text": "hi is a 3 month lease possible",
+              "is_from_me": False}
+        a = E.handle_event(st, ev)
+        self.assertEqual(a["type"], "FLAG_HUMAN")
+        self.assertIsNone(a.get("text"))
+        self.assertTrue(a.get("notify"))
         pn = E.resolve_pn(jid)
         rec = st["conversations"][pn]
-        self.assertTrue(rec.get("lease_note_sent"))
+        self.assertFalse(rec.get("lease_note_sent"))
         self.assertFalse(rec.get("form_sent"))   # Stage 1 never ran for this message
+        # a second short lease mention in the same still unbound chat flags only once
+        ev2 = {"jid": jid, "msg_id": "2", "text": "can it be 4 months instead",
+              "is_from_me": False}
+        a2 = E.handle_event(st, ev2)
+        self.assertIsNone(a2)
 
     def test_fires_once_per_chat(self):
         st = _state()
         jid = "6598880002@s.whatsapp.net"
+        pn = E.resolve_pn(jid)
+        rec = E._rec(st, pn)
+        rec["form_sent"] = True
+        rec["listing_key"] = "test-listing"
         ev1 = {"jid": jid, "msg_id": "1", "text": "looking for a 4 month lease",
                "is_from_me": False}
         a1 = E.handle_event(st, ev1)
@@ -83,8 +112,6 @@ class TestUnifiedWording(unittest.TestCase):
         # second reply while the first note is still unresolved, insisting on staying short,
         # is read as a decline -> FLAG_HUMAN, never a second note and never an auto reject
         self.assertEqual(a2["type"], "FLAG_HUMAN")
-        pn = E.resolve_pn(jid)
-        rec = st["conversations"][pn]
         self.assertTrue(rec.get("lease_decline_flagged"))
 
 

@@ -681,16 +681,26 @@ def _resolve_pn_stub(jid):
 def _isolated_runner(tmp_dir, inbound_content="any updates?", conversations=None,
                       handle_event_return=None, quiet_hours=False, guard_ok=True,
                       dry_run=False, landlord_db_unreadable=False, watermark=0,
-                      inbound_minutes_ago=6):
+                      inbound_minutes_ago=6, extra_history=None):
     """Runs wa_intake_runner.run() ONCE inside a fully sandboxed harness and yields a dict of
     everything the choke point did: sent / guard_calls / notified / logged. Every path the
     real runner touches on disk (messages.db, the watermark, intake-state.json, the listing
     index, the run lock) is redirected under TMP_DIR; every path it touches on the network or
-    via subprocess (the bridge send, the cross sender guard, Telegram) is a recording stub."""
+    via subprocess (the bridge send, the cross sender guard, Telegram) is a recording stub.
+
+    extra_history (optional): earlier messages in the SAME chat (list of (is_from_me,
+    content, minutes_ago) tuples), inserted at rowid <= 0 so they are already-seen context
+    (never reprocessed as a new inbound) but still visible to anything that scans chat
+    history directly (e.g. B2's dispute_language_recent, the resume draft transcript)."""
     msg_db = os.path.join(tmp_dir, "messages.db")
     con = sqlite3.connect(msg_db)
     con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, id TEXT, chat_jid TEXT, "
                 "is_from_me INTEGER, content TEXT, timestamp TEXT, media_type TEXT)")
+    for i, (ifm, content, minutes_ago) in enumerate(extra_history or []):
+        rid = -(i + 1)
+        con.execute("INSERT INTO messages (rowid, id, chat_jid, is_from_me, content, "
+                    "timestamp, media_type) VALUES (?, ?, ?, ?, ?, ?, '')",
+                    (rid, "HIST%d" % rid, FAKE_JID, int(ifm), content, _sgt_ts(minutes_ago)))
     con.execute("INSERT INTO messages (rowid, id, chat_jid, is_from_me, content, timestamp, "
                 "media_type) VALUES (1, 'AAAA1', ?, 0, ?, ?, '')",
                 (FAKE_JID, inbound_content, _sgt_ts(inbound_minutes_ago)))
@@ -760,8 +770,13 @@ class TestResumeSendSite(unittest.TestCase):
         self._tmpdir.cleanup()
 
     def _rec(self, **kw):
+        # B1 (Sep 2026): needs_draft() now also requires form_sent True AND listing_key
+        # bound (an established tenant prospect) before an allow listed type reaches the
+        # send choke at all -- these fixtures represent that legitimate, already qualified
+        # case; the "not yet established" case is covered separately below.
         r = {"pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
-             "last_hand_reply_ts": _sgt_ts(20), "profile": {}, "processed_ids": []}
+             "last_hand_reply_ts": _sgt_ts(20), "profile": {}, "processed_ids": [],
+             "form_sent": True, "listing_key": "test-listing"}
         r.update(kw)
         return r
 
@@ -988,6 +1003,176 @@ class TestSendCommandHardening(unittest.TestCase):
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "pending")
         self.assertTrue(any("reserved" in m for m in self.notified))
+
+
+class TestB1EstablishedProspectGate(unittest.TestCase):
+    """B1 (Sep 2026): a resume auto-send (or the short lease auto reply) only ever bypasses
+    the draft gate for an ESTABLISHED tenant prospect -- form_sent True AND listing_key
+    bound. Real incidents this fixes: a SEND_FORM auto-sent into a personal friend chat
+    (pn 6581894357, "Where ah bro", bound off Winfred's own casual outbound mention of
+    Eastpoint Green) and a LEASE_NOTE auto-sent into a chat with no confirmed listing_key
+    (pn 6590590183, wandering across 3 different properties)."""
+
+    def test_needs_draft_blocks_send_form_with_no_prior_form_sent_or_listing(self):
+        # mirrors the real "Where ah bro" record: manual_takeover latched from ordinary
+        # friend chatter, listing_key only just bound off Winfred's own outbound mention,
+        # form_sent still False (never legitimately qualified as a tenant).
+        rec_before = {"form_sent": False, "listing_key": "eastpoint-green"}
+        a = {"type": "SEND_FORM", "texts": ["unit info + form"]}
+        self.assertTrue(RES.needs_draft(a, rec_before))
+
+    def test_needs_draft_blocks_lease_note_when_unbound(self):
+        # mirrors the real pn 6590590183 record: form WAS sent at some point (to a DIFFERENT
+        # property earlier in a wandering chat) but listing_key is not currently bound.
+        rec_before = {"form_sent": True, "listing_key": None}
+        a = {"type": "LEASE_NOTE", "text": "Just to share, the landlord prefers..."}
+        self.assertTrue(RES.needs_draft(a, rec_before))
+
+    def test_needs_draft_allows_send_form_when_no_rec_snapshot_given(self):
+        # backward compatible default: a caller that does not pass rec_before (existing
+        # tests, other call sites not yet updated) keeps the old type only behaviour.
+        a = {"type": "SEND_FORM", "texts": ["unit info + form"]}
+        self.assertFalse(RES.needs_draft(a))
+
+    def test_needs_draft_allows_offer_viewing_for_an_established_prospect(self):
+        rec_before = {"form_sent": True, "listing_key": "eastpoint-green"}
+        a = {"type": "OFFER_VIEWING", "text": "Keen to view?"}
+        self.assertFalse(RES.needs_draft(a, rec_before))
+
+    def test_revert_unsent_form_undoes_the_optimistic_mutation_when_drafted(self):
+        # real incident, pn 6590590183: handle_event stamps form_sent=True the instant it
+        # DECIDES to send the form, even when that send never actually reaches the runner's
+        # own choke (drafted instead) -- the next inbound must not see a false form_sent.
+        rec_before = {"form_sent": False, "listing_key": None}
+        rec = {"form_sent": True, "form_sent_ts": 12345.0, "listing_key": "eastpoint-green"}
+        a = {"type": "SEND_FORM", "texts": ["unit info", "form"]}
+        RES.revert_unsent_form(a, rec, rec_before)
+        self.assertFalse(rec["form_sent"])
+        self.assertNotIn("form_sent_ts", rec)
+        self.assertEqual(rec["listing_key"], "eastpoint-green")   # binding itself is untouched
+
+    def test_revert_unsent_form_leaves_a_genuinely_already_sent_record_alone(self):
+        rec_before = {"form_sent": True, "listing_key": "eastpoint-green"}
+        rec = {"form_sent": True, "form_sent_ts": 12345.0, "listing_key": "eastpoint-green"}
+        a = {"type": "OFFER_VIEWING", "text": "hi"}
+        RES.revert_unsent_form(a, rec, rec_before)
+        self.assertTrue(rec["form_sent"])
+        self.assertEqual(rec["form_sent_ts"], 12345.0)
+
+    def test_runner_drafts_instead_of_sending_send_form_into_an_unbound_friend_chat(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(RES, "process_draft_needed") as mock_draft:
+                with _isolated_runner(
+                        tmp,
+                        inbound_content="chio mimi ah! hahaha",
+                        conversations={FAKE_PN: {
+                            "pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
+                            "last_hand_reply_ts": _sgt_ts(20), "profile": {},
+                            "processed_ids": [], "form_sent": False,
+                            "listing_key": "eastpoint-green"}},
+                        handle_event_return={"type": "SEND_FORM", "pn": FAKE_PN,
+                                             "texts": ["unit info", "the intake form"]}) as calls:
+                    pass
+            self.assertEqual(calls["sent"], [])
+            self.assertTrue(mock_draft.called)
+
+    def test_runner_sends_offer_viewing_for_a_genuinely_established_prospect(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with _isolated_runner(
+                    tmp,
+                    conversations={FAKE_PN: {
+                        "pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
+                        "last_hand_reply_ts": _sgt_ts(20), "profile": {}, "processed_ids": [],
+                        "form_sent": True, "listing_key": "eastpoint-green"}},
+                    handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN,
+                                         "text": "Keen to view Fri 3pm?"}) as calls:
+                pass
+            self.assertEqual(calls["sent"], [(FAKE_JID, "Keen to view Fri 3pm?")])
+
+
+class TestB2DisputeBlock(unittest.TestCase):
+    """B2 (Sep 2026): dispute/legal escalation language anywhere in the last 10 messages of
+    a chat (either direction) blocks resume entirely -- no auto send, no draft -- and flags
+    Winfred once with 'dispute language', never again while it stays in that window."""
+
+    def test_dispute_language_recent_detects_each_keyword(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db = os.path.join(tmp, "m.db")
+            con = sqlite3.connect(db)
+            con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, chat_jid TEXT, content TEXT)")
+            for kw in RES.DISPUTE_KEYWORDS:
+                con.execute("DELETE FROM messages")
+                con.execute("INSERT INTO messages (chat_jid, content) VALUES (?, ?)",
+                           (FAKE_JID, f"I want to {kw} this, it is not okay"))
+                con.commit()
+                with self.subTest(keyword=kw):
+                    self.assertTrue(RES.dispute_language_recent(con, FAKE_JID))
+            con.close()
+
+    def test_dispute_language_recent_false_for_ordinary_chat(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db = os.path.join(tmp, "m.db")
+            con = sqlite3.connect(db)
+            con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, chat_jid TEXT, content TEXT)")
+            con.execute("INSERT INTO messages (chat_jid, content) VALUES (?, ?)",
+                       (FAKE_JID, "is this room still available? keen to view"))
+            con.commit()
+            self.assertFalse(RES.dispute_language_recent(con, FAKE_JID))
+            con.close()
+
+    def test_dispute_language_recent_only_looks_at_the_last_n_messages(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            db = os.path.join(tmp, "m.db")
+            con = sqlite3.connect(db)
+            con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, chat_jid TEXT, content TEXT)")
+            con.execute("INSERT INTO messages (chat_jid, content) VALUES (?, ?)",
+                       (FAKE_JID, "thinking of calling a lawyer about this"))
+            for i in range(10):
+                con.execute("INSERT INTO messages (chat_jid, content) VALUES (?, ?)",
+                           (FAKE_JID, "ordinary message " + str(i)))
+            con.commit()
+            self.assertFalse(RES.dispute_language_recent(con, FAKE_JID, limit=10))
+            con.close()
+
+    def test_runner_blocks_resume_send_and_flags_once_on_dispute_language(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(RES, "process_draft_needed") as mock_draft:
+                with _isolated_runner(
+                        tmp,
+                        inbound_content="ok will wait",
+                        extra_history=[(False, "I want a refund, this is unacceptable", 30)],
+                        conversations={FAKE_PN: {
+                            "pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
+                            "last_hand_reply_ts": _sgt_ts(20), "profile": {},
+                            "processed_ids": [], "form_sent": True,
+                            "listing_key": "eastpoint-green"}},
+                        handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN,
+                                             "text": "Keen to view?"}) as calls:
+                    pass
+            self.assertEqual(calls["sent"], [])
+            mock_draft.assert_not_called()
+            self.assertTrue(any("dispute" in m.lower() for m in calls["notified"]))
+            self.assertTrue(any(k == "RESUME_DISPUTE" for k, p, m in calls["logged"]))
+
+    def test_already_flagged_dispute_never_re_notifies_but_still_blocks_send(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            with mock.patch.object(RES, "process_draft_needed") as mock_draft:
+                with _isolated_runner(
+                        tmp,
+                        inbound_content="still there?",
+                        extra_history=[(False, "considering a police report over this", 30)],
+                        conversations={FAKE_PN: {
+                            "pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
+                            "last_hand_reply_ts": _sgt_ts(20), "profile": {},
+                            "processed_ids": [], "form_sent": True,
+                            "listing_key": "test-listing", "dispute_flagged": True}},
+                        handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN,
+                                             "text": "hi"}) as calls:
+                    pass
+            self.assertEqual(calls["sent"], [])
+            mock_draft.assert_not_called()
+            self.assertFalse(any(k == "RESUME_DISPUTE" for k, p, m in calls["logged"]))
+            self.assertEqual(calls["notified"], [])
 
 
 if __name__ == "__main__":

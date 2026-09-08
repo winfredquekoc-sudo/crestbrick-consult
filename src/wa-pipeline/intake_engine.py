@@ -2612,6 +2612,18 @@ def _handle_event_inner(state, ev):
             and not (isinstance(rec["profile"].get("lease_term_months"), int)
                      and rec["profile"]["lease_term_months"] >= 12)
             and _short_lease_requested(ev.get("text"))):
+        # B1 (Sep 2026): the auto note names "the landlord" and their minimum lease, so it
+        # must never fire until we actually KNOW which landlord that is -- a genuine tenant
+        # prospect with the form already sent AND a listing bound. A casual "short term ok"
+        # in a chat that only just got bound off Winfred's own outbound text (or never got
+        # bound at all) flags him once instead (real incident, 8-9 Sep 2026: pn 6590590183,
+        # wandering across 3 different properties with no confirmed listing_key).
+        if not (rec.get("form_sent") and rec.get("listing_key")):
+            if rec.get("lease_note_unbound_flagged"):
+                return None
+            rec["lease_note_unbound_flagged"] = True
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "asked about a short lease, not yet a bound form sent prospect"}
         rec["lease_note_min"] = 12
         rec["lease_note_sent"] = True
         rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"

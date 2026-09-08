@@ -326,17 +326,37 @@ def run():
             # engine to run this one inbound through its normal (non manual-takeover) flow;
             # the allow list right below decides whether the result may actually reach a
             # real send or must become a drafted suggestion instead.
+            _pre_snapshot = None   # B1: form_sent/listing_key BEFORE this inbound is processed
             if not ifm and _pn0:
                 _rec0 = state["conversations"].get(_pn0)
-                _blocked = RES.resume_reason_blocked(con, idc, jid, _rec0, rowid, ts)
-                if _blocked is None:
-                    ev["resume"] = True
-                elif _rec0 and (_rec0.get("manual_takeover") or _rec0.get("human_takeover")):
-                    _log("RESUME_SKIP", _pn0, _blocked)
+                _pre_snapshot = {"form_sent": bool(_rec0 and _rec0.get("form_sent")),
+                                 "listing_key": _rec0.get("listing_key") if _rec0 else None}
+                _under_takeover = bool(_rec0 and (_rec0.get("manual_takeover") or _rec0.get("human_takeover")))
+                # B2: dispute/legal escalation language anywhere in the last 10 messages ->
+                # no auto-send, no draft, ever, for as long as it stays in that window. Flag
+                # Winfred once per chat, never again while the record stays disputed.
+                if _under_takeover and RES.dispute_language_recent(con, jid):
+                    if not _rec0.get("dispute_flagged"):
+                        _rec0["dispute_flagged"] = True
+                        _log("RESUME_DISPUTE", _pn0, "dispute language in last 10 messages")
+                        notify_winfred(f"{_pn0}: dispute language in the last 10 messages of "
+                                       f"this chat. The engine will not auto reply or draft "
+                                       f"here -- reply by hand.")
+                    # ev["resume"] stays unset: handle_event still runs below (its own silent
+                    # manual_takeover path), just never resume-eligible while disputed.
+                else:
+                    if _rec0 is not None:
+                        _rec0.pop("dispute_flagged", None)   # aged out of the window
+                    _blocked = RES.resume_reason_blocked(con, idc, jid, _rec0, rowid, ts)
+                    if _blocked is None:
+                        ev["resume"] = True
+                    elif _under_takeover:
+                        _log("RESUME_SKIP", _pn0, _blocked)
             a = E.handle_event(state, ev)
             if ev.get("resume"):
-                if RES.needs_draft(a):
+                if RES.needs_draft(a, _pre_snapshot):
                     _rec_r = state["conversations"].get(_pn0, {})
+                    RES.revert_unsent_form(a, _rec_r, _pre_snapshot)
                     _listing_r = reqs_tick.get(_rec_r.get("listing_key"))
                     RES.process_draft_needed(con, idc, jid, _pn0, _rec_r, _listing_r,
                                              notify_winfred, _log)
