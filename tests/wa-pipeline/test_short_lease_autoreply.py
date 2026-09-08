@@ -199,5 +199,28 @@ class TestQualifyDrivenFallbackUnified(unittest.TestCase):
         self.assertEqual(a["text"], LEASE_TEXT)
 
 
+class TestShortLeaseRegexTable(unittest.TestCase):
+    """Opus review table, 9 Sep 2026. The four past/deposit phrasings below all fired the
+    note wrongly before this pass, and the Chinese ask was silently missed."""
+
+    MUST_NOT_FIRE = ["1 year", "12 months", "6 to 12 months", "at least 6 months",
+                     "minimum 6 months", "6 months ago", "moved here 3 months ago",
+                     "stayed 6 months at my last place", "6 month deposit",
+                     "1 month notice", "2 months advance"]
+    MUST_FIRE = ["6 months", "6 mth", "half a year", "3 month lease", "short term",
+                 "just 2 months", "1 month only", "\u79df6\u4e2a\u6708", "\u77ed\u79df"]
+
+    def test_must_not_fire(self):
+        for phrase in self.MUST_NOT_FIRE:
+            with self.subTest(phrase=phrase):
+                self.assertFalse(E._short_lease_requested(phrase))
+
+    def test_must_fire(self):
+        for phrase in self.MUST_FIRE:
+            with self.subTest(phrase=phrase):
+                self.assertTrue(E._short_lease_requested(phrase))
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

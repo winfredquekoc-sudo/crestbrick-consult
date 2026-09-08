@@ -2112,10 +2112,22 @@ _LEASE_ATLEAST_RE = re.compile(
 # an explicit 1 year (or 12 months) mention always wins, even if a shorter number rode along
 # earlier in the same message ("can't do 6 months, but 1 year works")
 _LEASE_YEAR_TOKEN_RE = re.compile(
-    r"\b(?:1\s*(?:year|yr)|one\s*year|12\s*(?:months?|mths?|mos?))\b", re.I)
-_LEASE_EXPLICIT_MONTHS_RE = re.compile(r"\b([1-6])\s*[- ]?\s*(?:months?|mths?|mos?)\b", re.I)
+    r"\b(?:1\s*(?:year|yr)|one\s*year|12\s*(?:months?|mths?|mos?))\b|1\s*\u5e74|\u4e00\u5e74|12\s*\u4e2a\u6708", re.I)
+# a month count that is NOT a lease ask: "6 months ago" (a past date), "6 month deposit" /
+# "1 month notice" / "2 months advance" (money terms, every tenancy has them). Opus review,
+# 9 Sep 2026 -- all four fired the note wrongly in the regex table.
+_LEASE_EXPLICIT_MONTHS_RE = re.compile(
+    r"\b([1-6])\s*[- ]?\s*(?:months?|mths?|mos?)\b"
+    r"(?!\s*(?:ago|back|deposit|dep\b|notice|advance|advanced|in\s+advance))", re.I)
+# past tense narration ("stayed 6 months at my last place", "I rented 3 months before") is a
+# history statement, never a request for a short lease.
+_LEASE_PAST_RE = re.compile(
+    r"\b(?:stayed|staying\s+at\s+my\s+last|lived|rented|was|were|been|previously|"
+    r"last\s+place|previous\s+place)\b[^.!?\n]{0,40}?\b[1-6]\s*(?:months?|mths?|mos?)\b", re.I)
 _LEASE_HALFYEAR_RE = re.compile(r"\bhalf\s*(?:an?\s*)?year\b", re.I)
-_LEASE_KEYWORD_RE = re.compile(r"\bshort\s*(?:term|lease)\b|\bfew\s*months?\b|\btemporary\b", re.I)
+_LEASE_KEYWORD_RE = re.compile(r"\bshort\s*(?:term|lease)\b|\bfew\s*months?\b|\btemporary\b|\u77ed\u79df", re.I)
+# Chinese: "\u79df6\u4e2a\u6708" / "6\u4e2a\u6708" -- the same ask, typed the way half the pool types it.
+_LEASE_CJK_MONTHS_RE = re.compile(r"[1-6]\s*\u4e2a\u6708")
 
 def _short_lease_requested(text):
     """True when TEXT is a plain ask for a lease of 6 months or less (explicit month count 1
@@ -2136,7 +2148,11 @@ def _short_lease_requested(text):
             return False
     if _LEASE_ATLEAST_RE.search(t):
         return False
+    if _LEASE_PAST_RE.search(t):
+        return False
     if _LEASE_HALFYEAR_RE.search(t) or _LEASE_KEYWORD_RE.search(t):
+        return True
+    if _LEASE_CJK_MONTHS_RE.search(text or ""):
         return True
     return bool(_LEASE_EXPLICIT_MONTHS_RE.search(t))
 

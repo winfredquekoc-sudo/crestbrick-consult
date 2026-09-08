@@ -35,8 +35,14 @@ HAIKU_TIMEOUT_SEC = 25
 # ANSWER_QUESTION, or no action at all) needs a drafted suggestion instead.
 ALLOWED_RESUME_TYPES = frozenset({
     "SEND_FORM", "NUDGE_INCOMPLETE", "ASK_ONE", "OFFER_VIEWING", "CONFIRM_VIEWING",
-    "ASK_TENANT_TIME", "LEASE_NOTE", "VIEWING_TIME_PROPOSED", "COPILOT_VERDICT", "FLAG_HUMAN",
+    "ASK_TENANT_TIME", "LEASE_NOTE",
 })
+# Notify-only outcomes: safe to let through ONLY while they carry no prospect facing text.
+# FLAG_HUMAN and VIEWING_TIME_PROPOSED each have one branch that DOES carry a canned line
+# (the declined-CTA channel closer, the "which day works better" reschedule question) --
+# neither is on Winfred's approved resume list, so a textful one drafts instead of sending
+# (Opus review, 9 Sep 2026: 37 of 41 replay "auto sends" were exactly this).
+NOTIFY_ONLY_RESUME_TYPES = frozenset({"FLAG_HUMAN", "COPILOT_VERDICT", "VIEWING_TIME_PROPOSED"})
 
 
 def _parse_ts(ts):
@@ -59,6 +65,12 @@ def seconds_since(ts_earlier, ts_later):
     return (b - a).total_seconds()
 
 
+def pn_for(rec, jid):
+    """The phone number this record belongs to (records are keyed by it; jid is the fallback
+    for a record shape that predates the key being stored)."""
+    return rec.get("pn") or E.resolve_pn(jid)
+
+
 def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
     """None if this inbound should run in resume mode; otherwise a short reason string for
     the RESUME_SKIP log line. Split from a boolean so the runner can log WHY without
@@ -67,8 +79,22 @@ def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
         return "no record"
     if not (rec.get("manual_takeover") or rec.get("human_takeover")):
         return "not under a hand takeover"
-    if rec.get("supply_kind") or rec.get("supply_flagged"):
+    if rec.get("supply_kind") or rec.get("supply_flagged") or rec.get("supply_form_sent"):
         return "landlord/seller onboarding, not a tenant resume"
+    if rec.get("buyer_form_sent") or rec.get("buyer_flagged"):
+        return "buyer record, not a tenant resume"
+    if str(rec.get("status") or "").startswith("excluded:"):
+        return "excluded contact (" + str(rec.get("status")) + ")"
+    # authoritative re-check on EVERY resume, not just at stage 1: a chat Winfred hand
+    # replied to before the engine ever classified it has no supply/excluded latch at all,
+    # so without this a landlord, a co-broke agent or a colleague could be resumed as if
+    # they were a tenant prospect. Fails CLOSED on an unreadable DB (Opus review, 9 Sep 2026).
+    try:
+        why = E.excluded_reason(pn_for(rec, jid), "")
+    except Exception:
+        why = "db_error"
+    if why:
+        return "excluded contact: " + str(why)
     last_hand = rec.get("last_hand_reply_ts")
     if not last_hand:
         return "no hand reply timestamp recorded yet"
@@ -93,6 +119,8 @@ def needs_draft(a):
     t = a.get("type")
     if t == "ANSWER_QUESTION":
         return not a.get("text")     # category 1 fact answer has text; anything else drafts
+    if t in NOTIFY_ONLY_RESUME_TYPES:
+        return bool(a.get("text") or a.get("texts"))
     return t not in ALLOWED_RESUME_TYPES
 
 
@@ -168,6 +196,55 @@ def call_haiku(prompt):
     if not text:
         return None, "empty result"
     return text, None
+
+
+# ---------- hard validator on every drafted line (Opus review, 9 Sep 2026) ----------
+# A draft is a one tap /send away from a real client, so the model's output is never trusted
+# on its own. Anything that trips a rule below is DISCARDED and Winfred is flagged instead --
+# the sample pass produced "Tell me about it lol waste of time only" for a live tenant chat.
+_BAD_WORD_RE = re.compile(
+    r"\b(lol|lmao|lmfao|rofl|omg|wtf|ikr|nvm|haha+|hehe+|hahaha|yolo|bruh|sia|siao|"
+    r"dulan|walao|wah\s*lau|knn|cb|damn|damm|crap|shit|sh\*t|fuck|f\*ck|fucking|bloody|"
+    r"stupid|idiot|dumb|useless|waste\s+of\s+time|cannot\s+be\s+bothered)\b", re.I)
+# advice is CEA regulated and never ours to give in an automated line
+_ADVICE_RE = re.compile(
+    r"\b(absd|bsd|ssd|stamp\s*duty|cpf|tdsr|msr|ltv|hfe|ipa|mortgage|refinanc\w*|"
+    r"loan|interest\s*rate|sora|yield|capital\s*gain|appreciat\w*|invest\w*|"
+    r"lawyer|legal|conveyanc\w*|sue|court|tribunal|i\s*(?:would\s*)?(?:advise|recommend|suggest)|"
+    r"you\s+should\s+(?:buy|sell|invest|offer|negotiate))\b", re.I)
+_CEA_RE = re.compile(r"\b(?:cea|r0?\d{5}[a-z]|l\d{7,9}[a-z])\b", re.I)
+# any money figure at all: a rent number is Winfred's to quote, never a drafted line's
+_MONEY_RE = re.compile(r"[$\uFF04]\s*\d|\bsgd\b|\bs\$|\b\d{3,5}\s*(?:/|per\s*)?"
+                       r"(?:mo|mth|month|pm|monthly)\b|\b\d{4}\b", re.I)
+_DASH_RE = re.compile(r"[-\u2010\u2011\u2012\u2013\u2014\u2015\uFF0D]")
+DRAFT_MAX_CHARS = 400
+DRAFT_MAX_SENTENCES = 3
+
+
+def validate_draft(text):
+    """None if TEXT is safe to offer Winfred as a one tap /send; otherwise a short reason.
+    Deliberately strict: the cost of a false reject is one extra hand written reply, the cost
+    of a false accept is a real client reading it."""
+    t = (text or "").strip()
+    if not t:
+        return "empty draft"
+    if len(t) > DRAFT_MAX_CHARS:
+        return f"too long ({len(t)} chars)"
+    if len([p for p in re.split(r"[.!?\n]+", t) if p.strip()]) > DRAFT_MAX_SENTENCES:
+        return "more than 3 sentences"
+    if _DASH_RE.search(t):
+        return "contains a hyphen or dash"
+    if _BAD_WORD_RE.search(t):
+        return "slang or unprofessional wording"
+    if _CEA_RE.search(t):
+        return "mentions a CEA/licence number"
+    if _MONEY_RE.search(t):
+        return "quotes a figure"
+    if _ADVICE_RE.search(t):
+        return "strays into advice"
+    if re.search(r"\b(?:https?://|www\.)", t, re.I):
+        return "contains a link"
+    return None
 
 
 # ---------- draft persistence: id, pn, jid, listing, text, created, status ----------
@@ -246,6 +323,15 @@ def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
         log_fn("RESUME_DRAFT_NEEDS_WINFRED", pn, why)
         notify_fn(f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply: {why}")
         return
+    bad = validate_draft(text)
+    if bad:
+        log_fn("RESUME_DRAFT_REJECTED", pn, f"{bad} :: {text.replace(chr(10), ' / ')[:160]}")
+        notify_winfred_reason = (
+            f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply "
+            f"(drafted line rejected: {bad}). Last messages:\n"
+            + (" | ".join(f"{m['who']}: {m['text']}" for m in transcript[-3:]) or "(no recent text)"))
+        notify_fn(notify_winfred_reason)
+        return
     did = new_draft(pn, jid, listing_key, text)
     log_fn("RESUME_DRAFT", pn, f"{did} :: {text.replace(chr(10), ' / ')}")
     notify_fn(f"Draft reply for {name} ({pn}), {listing_key or 'no listing'}:\n{text}\n\n"
@@ -284,6 +370,11 @@ def handle_self_chat_command(jid, text, send_fn, guard_reserve_fn, log_fn):
     if time.time() - d.get("created", 0) > DRAFT_EXPIRY_SEC:
         mark_draft(did, "expired")
         log_fn("SEND_CMD_EXPIRED", jid, did)
+        return True
+    bad = validate_draft(d.get("text"))
+    if bad:
+        mark_draft(did, "rejected")
+        log_fn("SEND_CMD_REJECTED", jid, f"{did} :: {bad}")
         return True
     if not guard_reserve_fn(d["jid"]):
         log_fn("SEND_CMD_GUARD_SKIP", jid, did)

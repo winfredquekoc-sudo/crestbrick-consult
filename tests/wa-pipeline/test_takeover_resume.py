@@ -397,5 +397,163 @@ class TestHaikuFailurePath(unittest.TestCase):
             RES.DRAFTS_FILE = orig
 
 
+class TestDraftValidator(unittest.TestCase):
+    """Opus review, 9 Sep 2026: a draft is one /send away from a real client, so the model's
+    line is never trusted. The sample pass produced 'Tell me about it lol waste of time only'
+    for a live tenant chat -- exactly what this must catch."""
+
+    def test_clean_draft_passes(self):
+        self.assertIsNone(RES.validate_draft(
+            "Sure, I can arrange a viewing for you. When are you free this week?"))
+
+    def test_slang_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("Tell me about it lol waste of time only"))
+
+    def test_laughter_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("Haha ok noted"))
+
+    def test_profanity_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("That landlord is damn stupid"))
+
+    def test_more_than_three_sentences_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("One. Two. Three. Four."))
+
+    def test_hyphen_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("It is a well-kept unit"))
+
+    def test_em_dash_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("Sure \u2014 I will check"))
+
+    def test_rent_figure_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("The room is $1400 per month"))
+
+    def test_bare_four_digit_figure_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("I can do 1350 for you"))
+
+    def test_cea_number_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("Winfred Quek CEA R073319H"))
+
+    def test_advice_keyword_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("You should check your TDSR first"))
+        self.assertIsNotNone(RES.validate_draft("I would advise you to sign now"))
+
+    def test_link_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("See https://example.com for the unit"))
+
+    def test_empty_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("   "))
+
+    def test_overlong_rejected(self):
+        self.assertIsNotNone(RES.validate_draft("ok " * 200))
+
+    def test_rejected_draft_flags_winfred_and_saves_nothing(self):
+        tmp = f"/tmp/test-drafts-reject-{os.getpid()}-{time.time_ns()}.jsonl"
+        orig = RES.DRAFTS_FILE
+        RES.DRAFTS_FILE = tmp
+        try:
+            con = _mem_db([(1, "6598888888@lid", 0)])
+            rec = {"profile": {"name": "Tester"}, "listing_key": "bayshore",
+                   "last_inbound": "Roti prata couple"}
+            notified, logged = [], []
+            with mock.patch.object(RES, "call_haiku",
+                                   return_value=("Tell me about it lol waste of time only", None)):
+                RES.process_draft_needed(con, "id", "6598888888@lid", "6598888888", rec, None,
+                                         notified.append, lambda k, p, m: logged.append(k))
+            self.assertEqual(len(notified), 1)
+            self.assertIn("needs your own reply", notified[0])
+            self.assertIn("RESUME_DRAFT_REJECTED", logged)
+            self.assertFalse(os.path.exists(tmp))
+        finally:
+            RES.DRAFTS_FILE = orig
+
+    def test_send_command_revalidates_before_sending(self):
+        """Defence in depth: even a draft already on disk is re-validated at /send time."""
+        tmp = f"/tmp/test-drafts-resend-{os.getpid()}-{time.time_ns()}.jsonl"
+        orig = RES.DRAFTS_FILE
+        RES.DRAFTS_FILE = tmp
+        try:
+            did = RES.new_draft("6598888888", "6598888888@lid", "bayshore",
+                                "haha waste of time only")
+            sent = []
+            RES.handle_self_chat_command(RES.OWN_JID, "/send " + did,
+                                         send_fn=lambda j, t: sent.append((j, t)) or True,
+                                         guard_reserve_fn=lambda j: True,
+                                         log_fn=lambda *a: None)
+            self.assertEqual(sent, [])
+            self.assertEqual(RES.find_draft(did)["status"], "rejected")
+        finally:
+            RES.DRAFTS_FILE = orig
+            if os.path.exists(tmp):
+                os.remove(tmp)
+
+
+class TestRecordTypeGate(unittest.TestCase):
+    JID = "6598887777@lid"
+
+    def _rec(self, **kw):
+        r = {"manual_takeover": True, "human_takeover": True,
+             "last_hand_reply_ts": "2026-09-08 10:00:00+08:00"}
+        r.update(kw)
+        return r
+
+    def _blocked(self, rec):
+        con = _mem_db([(1, self.JID, 0)])
+        return RES.resume_reason_blocked(con, "id", self.JID, rec, 1,
+                                         "2026-09-08 10:30:00+08:00")
+
+    def test_supply_form_sent_blocks(self):
+        self.assertIsNotNone(self._blocked(self._rec(supply_form_sent=True)))
+
+    def test_buyer_record_blocks(self):
+        self.assertIsNotNone(self._blocked(self._rec(buyer_form_sent=True)))
+
+    def test_excluded_status_blocks(self):
+        self.assertIsNotNone(self._blocked(self._rec(status="excluded:agent")))
+
+    def test_excluded_reason_consulted_every_resume(self):
+        with mock.patch.object(RES.E, "excluded_reason", return_value="agent"):
+            self.assertIn("agent", self._blocked(self._rec()) or "")
+
+    def test_unreadable_contact_db_fails_closed(self):
+        with mock.patch.object(RES.E, "excluded_reason", side_effect=RuntimeError("locked")):
+            self.assertIsNotNone(self._blocked(self._rec()))
+
+    def test_clean_tenant_record_still_eligible(self):
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            self.assertIsNone(self._blocked(self._rec()))
+
+
+
+class TestNotifyOnlyAllowList(unittest.TestCase):
+    """Opus review, 9 Sep 2026: FLAG_HUMAN and VIEWING_TIME_PROPOSED are notify-only in most
+    branches but each has one that carries a canned prospect line. Neither line is on
+    Winfred's approved resume list, so a textful one must DRAFT, not send."""
+
+    def test_flag_human_without_text_is_allowed(self):
+        self.assertFalse(RES.needs_draft({"type": "FLAG_HUMAN", "text": None}))
+
+    def test_flag_human_with_the_declined_cta_closer_drafts(self):
+        self.assertTrue(RES.needs_draft(
+            {"type": "FLAG_HUMAN", "text": "No worries \U0001F642 You can see my other "
+                                           "available rooms here:\nhttps://example"}))
+
+    def test_viewing_time_proposed_with_reschedule_line_drafts(self):
+        self.assertTrue(RES.needs_draft(
+            {"type": "VIEWING_TIME_PROPOSED", "text":
+             "No worries, which day and time would work better for you?"}))
+
+    def test_viewing_time_proposed_notify_only_is_allowed(self):
+        self.assertFalse(RES.needs_draft({"type": "VIEWING_TIME_PROPOSED", "when": "sat 3pm"}))
+
+    def test_copilot_verdict_with_texts_drafts(self):
+        self.assertTrue(RES.needs_draft({"type": "COPILOT_VERDICT", "texts": ["hi"]}))
+
+    def test_allow_list_is_exactly_winfreds_approved_set(self):
+        self.assertEqual(set(RES.ALLOWED_RESUME_TYPES), {
+            "SEND_FORM", "NUDGE_INCOMPLETE", "ASK_ONE", "OFFER_VIEWING", "CONFIRM_VIEWING",
+            "ASK_TENANT_TIME", "LEASE_NOTE"})
+
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
