@@ -557,13 +557,26 @@ def fill_missing_main():
         return
     lf = open(LOCK, "a+"); fcntl.flock(lf, fcntl.LOCK_EX)
     try:
+        # Re-read under the lock (the outer idx/db may be stale by now) and recompute
+        # fill_missing() against THIS read -- fill_missing mutates its idx argument in
+        # place (phone backfill + _dedupe_conflicting keyword pruning), so recomputing
+        # against idx_live is what makes those mutations land on the copy we are about
+        # to write, instead of being silently discarded when idx_live replaced the
+        # earlier (correctly mutated) idx wholesale.
         idx_live = json.load(open(IDX))
+        db_live = json.load(open(DB))
+        new_entries_live, _report_live, _backfilled_live = fill_missing(idx_live, db_live)
+        conflicts_live = check_keyword_specificity(idx_live["listings"] + new_entries_live)
+        if conflicts_live:
+            sys.exit("fill-missing --apply: keyword specificity check failed against the "
+                      "current on-disk index/db, " + str(len(conflicts_live))
+                      + " conflict(s) -- nothing written; re-run without --apply to inspect")
         shutil.copy(IDX, IDX + ".bak-fillmissing-" + STAMP)
-        idx_live["listings"] = idx_live["listings"] + new_entries
+        idx_live["listings"] = idx_live["listings"] + new_entries_live
         tmp = IDX + ".tmp"
         json.dump(idx_live, open(tmp, "w"), indent=1, ensure_ascii=False)
         os.replace(tmp, IDX)
-        print(f"\nWROTE: {IDX} (+{len(new_entries)} new entries)")
+        print(f"\nWROTE: {IDX} (+{len(new_entries_live)} new entries)")
     finally:
         fcntl.flock(lf, fcntl.LOCK_UN)
 

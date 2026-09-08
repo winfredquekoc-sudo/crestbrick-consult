@@ -284,6 +284,28 @@ class TestValidKeyword(unittest.TestCase):
         self.assertFalse(BLI._is_valid_keyword("olivia", "1 Some Road"))
 
 
+class TestValidKeywordFilterAppliedInFillMissingEntry(unittest.TestCase):
+    """Opus review: _is_valid_keyword existing and being correct is not the same as it being
+    APPLIED -- `kws = {k for k in kws if _is_valid_keyword(k, addr)}` in fill_missing_entry
+    is the only line that actually calls it on the address-derived candidates, and every
+    other test in this file exercises _is_valid_keyword directly or exercises
+    portal_ids_for's own field restriction (which never reads landlord_name/portal_ids
+    prose to begin with) -- neither would notice that line being deleted. Use a landlord
+    whose full_address is itself a bare person name (a real data-entry placeholder before
+    the real address is known) so the bad candidate can ONLY be kept out by that filter."""
+
+    def test_bare_person_name_address_and_portal_map_raw_lid_absent_from_keywords(self):
+        l = _landlord("LL801", "active", "Amy")   # placeholder address, no real street yet
+        portal_map = {"LL801": {"landlord_name": "228397905117356", "portal_ids": []}}
+        entry, _, _ = BLI.fill_missing_entry(l, {}, {}, portal_map)
+        self.assertEqual(entry["pg_url_keywords"], [])
+
+    def test_same_candidate_would_survive_without_the_filter(self):
+        # proves the assertion above is not vacuous: _addr_variants on its own (with no
+        # _is_valid_keyword filter applied) does produce the bad candidate.
+        self.assertIn("amy", BLI._addr_variants("Amy"))
+
+
 class TestBayshoreDuplicateDedupe(unittest.TestCase):
     """Opus-review blocker #4: LL088 (Blk 62 Bayshore Park, +6593368817) is the SAME room as
     the pre-existing manual entry "bayshore" (landlord_id LL_JOHNNY_BP62, same phone) --
@@ -324,6 +346,68 @@ class TestBayshoreDuplicateDedupe(unittest.TestCase):
         self.assertIn("500170240", legacy_kws)
         new_kws = [k.lower() for k in new_entries[0]["pg_url_keywords"]]
         self.assertNotIn("bayshore", new_kws)
+
+
+class TestApplyPathWritesTheMutatedIndex(unittest.TestCase):
+    """Opus review blocker: --apply used to re-read the index fresh under the lock
+    (idx_live) and write idx_live["listings"] + new_entries, discarding the in-place
+    _dedupe_conflicting prune and phone-based landlord_id backfill made to the OUTER idx
+    earlier in fill_missing_main -- and it ran check_keyword_specificity against that outer
+    (correctly mutated) idx rather than against what actually got written. Exercise the
+    exact combined LL088/bayshore scenario from TestBayshoreDuplicateDedupe end to end
+    through --apply against temp BLI_DB/BLI_IDX files, and assert the WRITTEN file (not the
+    in-memory idx) carries both the backfilled landlord_id and the pruned keywords."""
+
+    def setUp(self):
+        self.idx = {"listings": [{
+            "listing_key": "bayshore", "landlord_id": "LL_JOHNNY_BP62",
+            "landlord_phone": "+6593368817", "status": "open",
+            "block_address": "Blk 62 Bayshore Park #15-07",
+            "pg_url_keywords": ["bayshore park", "bayshore", "the bayshore",
+                                 "blk 62 bayshore", "500170240"],
+        }]}
+        self.db = {"landlords": [
+            # same phone as the legacy "bayshore" entry -> backfill, no new entry
+            dict(_landlord("LL088", "active", "Blk 62 Bayshore Park #15-07"),
+                 phone="+6593368817"),
+            # different landlord/phone, real "66 Bayshore Rd" listing -> new entry, and
+            # forces the legacy entry's bare "bayshore"/"the bayshore" keywords to be pruned
+            dict(_landlord("LL173", "active", "66 Bayshore Rd #22-03"),
+                 phone="+6589772111"),
+        ]}
+        self.db_path = tempfile.mktemp(suffix=".json")
+        self.idx_path = tempfile.mktemp(suffix=".json")
+        self.lock_path = tempfile.mktemp(suffix=".lock")
+        with open(self.db_path, "w") as f: json.dump(self.db, f)
+        with open(self.idx_path, "w") as f: json.dump(self.idx, f)
+        self._orig = (BLI.DB, BLI.IDX, BLI.IDX_OUT, BLI.LOCK, sys.argv)
+        BLI.DB, BLI.IDX, BLI.IDX_OUT, BLI.LOCK = self.db_path, self.idx_path, None, self.lock_path
+        sys.argv = ["build-listing-index.py", "--fill-missing", "--apply"]
+
+    def tearDown(self):
+        BLI.DB, BLI.IDX, BLI.IDX_OUT, BLI.LOCK, sys.argv = self._orig
+        for p in (self.db_path, self.idx_path, self.lock_path):
+            if os.path.exists(p):
+                os.remove(p)
+        for p in (self.idx_path + ".tmp",):
+            if os.path.exists(p):
+                os.remove(p)
+        import glob
+        for p in glob.glob(self.idx_path + ".bak-fillmissing-*"):
+            os.remove(p)
+
+    def test_apply_writes_backfilled_id_and_pruned_keywords(self):
+        BLI.fill_missing_main()
+        written = json.load(open(self.idx_path))
+        legacy = next(e for e in written["listings"] if e["listing_key"] == "bayshore")
+        self.assertEqual(legacy["landlord_id"], "LL088")
+        legacy_kws = [k.lower() for k in legacy["pg_url_keywords"]]
+        self.assertNotIn("bayshore", legacy_kws)
+        self.assertNotIn("the bayshore", legacy_kws)
+        self.assertIn("bayshore park", legacy_kws)
+        self.assertIn("blk 62 bayshore", legacy_kws)
+        self.assertIn("500170240", legacy_kws)
+        self.assertEqual(len(written["listings"]), 2)   # legacy (backfilled) + LL173's new entry
 
 
 class TestCheckKeywordSpecificityFatal(unittest.TestCase):
