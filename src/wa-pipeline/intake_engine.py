@@ -2094,6 +2094,84 @@ def _is_affirmative(t):
     return bool(core) and len(core) <= 20 and re.fullmatch(
         r"(ok(?:ay|ie|ok)?|sure|deal|can)(\s+(please|pls|can|sure|deal))?", core) is not None
 
+# ---------- short lease auto reply (Winfred, 8 Sep 2026) ----------
+# One wording everywhere a short lease note goes out, whether the trigger is this free text
+# scan (fires the moment the prospect ASKS for 6 months or less, bound or not) or the older
+# qualify() verdict (fires once the full profile is in and lease_term_months is a filled in
+# number below the floor). Both share the SAME lease_note_sent latch so only one note ever
+# goes to a given prospect.
+_LEASE_NOTE_TEXT = "Just to share, the landlord prefers a minimum 1 year lease \U0001F64F Would that work for you?"
+
+# a range or an "at least"/"minimum" phrasing states (or allows) a longer upper bound -- never
+# a firm ask for 6 months or less, even when a small number sits right next to the unit word
+# ("6 to 12 months", "at least 6 months").
+_LEASE_RANGE_RE = re.compile(
+    r"\b(\d{1,2})\s*(?:-|to|~|through|thru)\s*(\d{1,2})\s*(months?|mths?|mos?|years?|yrs?)\b", re.I)
+_LEASE_ATLEAST_RE = re.compile(
+    r"\b(?:at\s*least|min(?:imum)?)\s*\d{1,2}\s*(?:months?|mths?|mos?|years?|yrs?)\b", re.I)
+# an explicit 1 year (or 12 months) mention always wins, even if a shorter number rode along
+# earlier in the same message ("can't do 6 months, but 1 year works")
+_LEASE_YEAR_TOKEN_RE = re.compile(
+    r"\b(?:1\s*(?:year|yr)|one\s*year|12\s*(?:months?|mths?|mos?))\b", re.I)
+_LEASE_EXPLICIT_MONTHS_RE = re.compile(r"\b([1-6])\s*[- ]?\s*(?:months?|mths?|mos?)\b", re.I)
+_LEASE_HALFYEAR_RE = re.compile(r"\bhalf\s*(?:an?\s*)?year\b", re.I)
+_LEASE_KEYWORD_RE = re.compile(r"\bshort\s*(?:term|lease)\b|\bfew\s*months?\b|\btemporary\b", re.I)
+
+def _short_lease_requested(text):
+    """True when TEXT is a plain ask for a lease of 6 months or less (explicit month count 1
+    to 6, half a year, short term/lease, few months, temporary). False for an open ended or
+    long phrasing even when a small number appears in it ("6 to 12 months", "at least 6
+    months", "1 year", "12 months") -- those never disqualify on their own so must never
+    trip this reply."""
+    t = (text or "").lower()
+    if not t:
+        return False
+    if _LEASE_YEAR_TOKEN_RE.search(t):
+        return False
+    m = _LEASE_RANGE_RE.search(t)
+    if m:
+        hi, unit = int(m.group(2)), m.group(3)
+        hi_months = hi * 12 if unit.startswith(("year", "yr")) else hi
+        if hi_months > 6:
+            return False
+    if _LEASE_ATLEAST_RE.search(t):
+        return False
+    if _LEASE_HALFYEAR_RE.search(t) or _LEASE_KEYWORD_RE.search(t):
+        return True
+    return bool(_LEASE_EXPLICIT_MONTHS_RE.search(t))
+
+def _lease_note_pending_resolution(rec, ev, pn):
+    """Interpret a reply to an already sent short lease note. Never auto reject (Winfred, 8
+    Sep 2026): a decline or an insistence on staying short is FLAGGED to him, not redirected
+    away on the engine's own say so. An acceptance fills lease_term_months (only if it was
+    still empty) and lets the caller fall through to the normal flow. An ambiguous reply
+    (neither) returns None with lease_note_resolved still unset -- the caller reads that as
+    stay silent, one note only."""
+    t_now = (ev.get("text") or "").lower()
+    if re.search(r"\b(cannot|can'?t|cant|too long|shorter|short term|"
+                 r"only \d+ ?(?:months?|mths?|mos?)|max(?:imum)? \d+ ?(?:months?|mths?|mos?))\b", t_now):
+        if rec.get("lease_decline_flagged"):
+            return None                      # already flagged once -> stay silent
+        rec["lease_decline_flagged"] = True
+        rec["status"] = "short_lease_declined_flagged"
+        return {"type": "FLAG_HUMAN", "pn": pn, "text": None, "notify": True,
+                "reason": "cannot meet the 1 year minimum lease; reply by hand"}
+    if "?" in t_now:
+        # a QUESTION about the minimum ("why must be 1 year?") is not acceptance
+        if rec.get("lease_q_flagged"):
+            return None
+        rec["lease_q_flagged"] = True
+        return {"type": "FLAG_HUMAN", "pn": pn, "text": None, "notify": True,
+                "reason": "asked about the 1 year minimum lease; reply by hand"}
+    if _is_affirmative(ev.get("text")) or re.search(
+            r"\b(1 ?(?:year|yr)|one year|12 ?(?:months?|mths?|mos?)|"
+            r"(?:1[3-9]|2[0-9]) ?(?:months?|mths?)|2 ?(?:years?|yrs?))\b", t_now):
+        rec["lease_note_resolved"] = True
+        if not rec["profile"].get("lease_term_months"):
+            rec["profile"]["lease_term_months"] = rec.get("lease_note_min", 12)
+        return None                          # resolved; caller falls through to the normal flow
+    return None                              # ambiguous reply; one note only, stay silent
+
 # ---------- Category 1: factual auto-answers (never opinion/negotiation/legal) ----------
 # Winfred's rule: some tenant questions have one true, boring answer sitting in the listing's
 # own requirements (lease length, cooking, smoking, pets, rent) or in a facts sheet he fills in
@@ -2385,6 +2463,11 @@ def _handle_event_inner(state, ev):
             rec["copilot_muted"] = True
             rec["human_takeover"] = True   # genuine hand reply -- silences landlord onboarding too
             rec["status"] = "manual"
+            # takeover resume clock: the runner waits 5 minutes from THIS reply before it
+            # will offer to draft a follow up on Winfred's behalf, and a later hand reply
+            # always restarts the wait (Winfred, 8 Sep 2026).
+            if ev.get("ts"):
+                rec["last_hand_reply_ts"] = ev["ts"]
         # bind from OUTBOUND too: Winfred's hand reply often names the address, and a
         # sanctioned automation ack (PG auto-ack) always does. Either can carry the listing
         # that a plain inbound "still available?" never named. Never overwrite an existing bind.
@@ -2458,7 +2541,15 @@ def _handle_event_inner(state, ev):
 
     if ev.get("listing_key") and not rec.get("listing_key"):
         rec["listing_key"] = ev["listing_key"]; new_data = True
-    if rec["manual_takeover"]:
+    # ev["resume"] is set ONLY by the runner's takeover resume trigger (a prospect reply that
+    # Winfred never answered, 5+ minutes after his last hand reply): it runs THIS ONE inbound
+    # through the normal autonomous flow below exactly as if manual_takeover were not latched,
+    # so the SAME deterministic gates (qualify, policy_excluded, listing status, quiet hours
+    # etc, all still enforced by the runner's send choke point) decide the reply. The runner
+    # then allow lists which action TYPES that reply may actually reach a real send with --
+    # anything else becomes a drafted suggestion instead. The latch itself is untouched: the
+    # very next tick still treats this record as manual_takeover for every other purpose.
+    if rec["manual_takeover"] and not ev.get("resume"):
         rec["status"] = "manual"
         # Landlord onboarding runs INSIDE this latch: supply side detection sets
         # manual_takeover purely to keep the record out of the tenant/buyer flows, not
@@ -2480,6 +2571,32 @@ def _handle_event_inner(state, ev):
         return _copilot_verdict(rec)
 
     reqs = listing_reqs()
+
+    # SHORT LEASE AUTO REPLY (Winfred, 8 Sep 2026): fires on ANY tenant inbound, bound or not,
+    # form sent or not -- ahead of every other stage, since the whole point is to catch the
+    # ask the moment it is typed rather than waiting for a complete profile. Never for a buyer
+    # or a supply side (landlord/seller) record; never a second note (lease_note_sent latch,
+    # shared with the qualify()-driven path further down so only one note ever goes out).
+    if rec.get("lease_note_sent") and not rec.get("lease_note_resolved"):
+        _act = _lease_note_pending_resolution(rec, ev, pn)
+        if _act is not None:
+            return _act
+        if not rec.get("lease_note_resolved"):
+            return None                      # ambiguous reply; stay silent, one note only
+        # else: resolved this turn (accepted) -> fall through to the normal flow below
+    elif (not rec.get("lease_note_sent") and not rec.get("buyer_form_sent")
+            and not rec.get("supply_flagged")
+            and (rec.get("form_sent") or excluded_reason(pn, ev.get("text", "")) is None)
+            # already agreed to an acceptable term (12+ months) -> never re raise the note
+            and not (isinstance(rec["profile"].get("lease_term_months"), int)
+                     and rec["profile"]["lease_term_months"] >= 12)
+            and _short_lease_requested(ev.get("text"))):
+        rec["lease_note_min"] = 12
+        rec["lease_note_sent"] = True
+        rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
+        return {"type": "LEASE_NOTE", "pn": pn, "notify": False,
+                "reason": "asked for a lease of 6 months or less",
+                "text": _LEASE_NOTE_TEXT}
 
     # STAGE 1: first contact -> send the listing message (unit info + form) ONCE, with safety gates
     if not rec["form_sent"]:
@@ -2659,31 +2776,9 @@ def _handle_event_inner(state, ev):
 
     # STAGE 2: have form, not yet offered a viewing. Emit ONLY on a state change.
     if not rec["viewing_asked"] and not rec.get("terminal"):
-        # short-lease note pending -> interpret their answer FIRST (decline / accept / question)
-        if rec.get("lease_note_sent") and not rec.get("lease_note_resolved"):
-            t_now = (ev.get("text") or "").lower()
-            if re.search(r"\b(cannot|can'?t|cant|too long|shorter|short term|"
-                         r"only \d+ ?(?:months?|mths?|mos?)|max(?:imum)? \d+ ?(?:months?|mths?|mos?))\b", t_now):
-                rec["terminal"] = True; rec["stage"] = "SHORT_LEASE_DECLINED"
-                rec["status"] = "closed (needs shorter lease)"
-                return {"type": "REDIRECT", "pn": pn, "notify": True,
-                        "reason": "cannot meet the 1 year minimum lease",
-                        "text": "No worries 🙂 You can see my other available rooms here:\n" + CHANNEL
-                                + "\nLet me know if anything catches your eye and I will arrange a viewing."}
-            if "?" in t_now:
-                # a QUESTION about the minimum ("why must be 1 year?") is not acceptance
-                if rec.get("lease_q_flagged"): return None
-                rec["lease_q_flagged"] = True
-                return {"type": "FLAG_HUMAN", "pn": pn, "text": None, "notify": True,
-                        "reason": "asked about the 1 year minimum lease; reply by hand"}
-            if _is_affirmative(ev.get("text")) or re.search(
-                    r"\b(1 ?(?:year|yr)|one year|12 ?(?:months?|mths?|mos?)|"
-                    r"(?:1[3-9]|2[0-9]) ?(?:months?|mths?)|2 ?(?:years?|yrs?))\b", t_now):
-                rec["lease_note_resolved"] = True
-                rec["profile"]["lease_term_months"] = rec.get("lease_note_min", 12)
-                # fall through: requalify below and continue to the viewing question
-            else:
-                return None                    # ambiguous reply; one note only, stay silent
+        # short-lease note pending/resolved is handled ONCE, at the top of this function
+        # (fires regardless of stage) -- by the time we reach here it is either resolved
+        # (fell through) or was never sent, so there is nothing left to interpret here.
         # VIEWING-FIRST (Winfred, 11 Aug 2026): booking intent (a YES to the message-1 CTA, or
         # any proposed day/time) is honoured the moment the landlord's HARD requirements pass —
         # qualify() only gates on fields the landlord actually rules on. The full form is
@@ -2896,14 +2991,11 @@ def _handle_event_inner(state, ev):
                     "text":_redirect_text(why, rec["profile"], reqs, lk)}
         if verdict == "SHORT_LEASE":
             if rec.get("lease_note_sent"): return None      # one note only
-            m = re.search(r"\d+", (why or [""])[0])
-            rec["lease_note_min"] = int(m.group()) if m else 12
+            rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
-            _dur = "1 year" if rec["lease_note_min"] == 12 else str(rec["lease_note_min"]) + " months"
             return {"type": "LEASE_NOTE", "pn": pn, "notify": False, "reason": (why or [""])[0],
-                    "text": "Just to share, the landlord is looking for a minimum lease of "
-                            + _dur + " 🙏 Would that work for you?"}
+                    "text": _LEASE_NOTE_TEXT}
         _listing_gap = None
         if verdict == "NEEDS_INFO":
             if rec.get("needs_info_unknowns") == why:

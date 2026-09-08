@@ -13,17 +13,22 @@ To go live: set DRY_RUN = False in intake_engine.py, then watch the preview log 
 """
 import os, json, time, sqlite3, re, fcntl, random
 import intake_engine as E
+import wa_intake_resume as RES
+# split out 8 Sep 2026 to keep this file under the repo's 500 line guideline; re-imported
+# here so every existing call site (incl. tests reaching them via wa_intake_runner.<name>)
+# keeps working unchanged.
+from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _tg_send,
+                              _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly)
 
 MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 LASTF   = os.path.expanduser("~/.claude/state/listing-templates/runner-last.json")
-PREVIEW = os.path.expanduser("~/.claude/state/listing-templates/dry-run-preview.log")
 BRIDGE  = "http://localhost:8080/api/send"
 
 # Quiet hours: stay live, but never message prospects overnight. Outside this window the
 # runner holds and does NOT advance its cursor, so enquiries that arrive at night are
 # preserved and served together the next morning (no 3am pings to clients).
-QUIET_START_MIN = 1 * 60       # quiet hours 01:00–07:00 SGT (Winfred, 13 Jul 2026;
-SEND_START_MIN  = 7 * 60       # was 00:00–07:30). Messaging runs 07:00 through 01:00.
+QUIET_START_MIN = 2 * 60       # quiet hours 02:00–07:00 SGT (Winfred, 8 Sep 2026;
+SEND_START_MIN  = 7 * 60       # was 01:00–07:00). Messaging runs 07:00 through 02:00.
 
 def _quiet_hours():
     import datetime
@@ -103,59 +108,12 @@ def _guard_reserve(jid):
     except Exception:
         return True
 
-# Filled-profile detection: a prospect's COMPLETED form contains values after the labels,
-# unlike the blank form the bot sends (which the bridge sometimes echoes as is_from_me=0).
-_FILLED_RE = re.compile(r"(name|nationality|ethnicity|gender|age|pass|budget|occupation)\s*[:：][^\S\n]*\S", re.I)
-# Phrases ONLY the bot ever sends — a prospect would never type these.
-_OUTBOUND_ONLY = (
-    "your viewing is confirmed", "you fit what the landlord", "the next viewing is",
-    "i will send your profile", "good news, there is a viewing", "i will hold that slot",
-    "reply yes to take this slot", "profile does not match", "✅ suits", "📲 more listings",
-    "following up on your rental enquiry", "let me confirm that slot with the owner",
-    # full nudge prefixes, NOT the bare phrase "almost there" — that is exactly what a
-    # prospect texts when they are on the way to a viewing, and it must not be dropped.
-    "almost there :) to send your profile", "almost there :) i still need",
-    "could you confirm this so i can send your profile",
-    "when are you able to view", "by sharing these details you agree",
-    # viewing-first texts (11 Aug 2026) — echoed engine sends must never read as inbound
-    "keen to view? i can put you in", "are you free to view on", "i can arrange for viewing",
-    "to confirm your viewing slot with the landlord",
-    "can i just check your", "just need your profile above", "ok can, your viewing is on",
-    "what time will you be coming? i will keep", "see you then, i will send the unit number",
-    "on your question, let me check with the owner", "viewing slot:",
-    "no worries, which day and time would work better",
-    "more rooms available on my rental channel",
-    # landlord onboarding extension (never mistake our own send for a landlord reply)
-    "almost there, i just need",
-    "thanks, that is everything i need for now",
-    "just checking in, still keen to send a few photos",
-)
-
-# Landlord onboarding action types: manual_takeover is latched the moment supply side is
-# detected (to keep the record out of the tenant/buyer flows), so every send this sequence
-# makes needs the SAME carve out SEND_SUPPLY_FORM already had (runner-integration catch c74,
-# 11 Aug 2026). Module level (not inline in run()) so it is inspectable without a live tick.
-_LANDLORD_ONBOARDING_TYPES = ("SEND_SUPPLY_FORM", "SUPPLY_INFO_NUDGE",
-                              "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE")
-
-def _is_our_echo(content):
-    """True when a is_from_me=0 row is actually our OWN bot message echoed back by the
-    bridge (it stores some bot sends with is_from_me=0). Such a row must NOT be treated as a
-    prospect inbound — otherwise it poisons the profile (extract_profile on the blank form)
-    or self-triggers ANSWER_QUESTION/CONFIRM_VIEWING. A prospect's FILLED form (same 'fill
-    this in' text but WITH values) is NOT an echo and must still be processed."""
-    t = (content or "").lower()
-    if not t:
-        return False
-    # bot-only markers (incl. the unit-info message 1, which carries "✅ suits" / "📲 more
-    # listings" / "available viewing"). These are phrases a prospect never types — unlike the
-    # ambiguous "still available", which a prospect DOES say, so we must NOT match on that.
-    if any(s in t for s in _OUTBOUND_ONLY):
-        return True
-    # the blank intake form echoed back: contains the prompt but no filled-in values
-    if "fill this in" in t and not _FILLED_RE.search(content or ""):
-        return True
-    return False
+# Echo detection (_is_our_echo/_FILLED_RE/_OUTBOUND_ONLY) and the landlord onboarding action
+# type list live in wa_intake_echo.py (split out 8 Sep 2026 to keep this file under the
+# repo's 500 line guideline); re-imported here so every existing call site (and every test
+# that reaches them via wa_intake_runner.<name>) keeps working unchanged.
+from wa_intake_echo import (_FILLED_RE, _OUTBOUND_ONLY, _LANDLORD_ONBOARDING_TYPES,
+                            _is_our_echo)
 
 def _write_last(rowid):
     """Atomic watermark write (tmp + os.replace) so a crash mid-write cannot brick the runner.
@@ -224,10 +182,14 @@ def run():
             wm = {"last_rowid": con.execute("SELECT COALESCE(MAX(rowid),0) FROM messages").fetchone()[0]}
             print("watermark unreadable — re-derived at MAX(rowid)")
 
+        # also pull Winfred's OWN self chat: it never matches '%@lid' but is where /send and
+        # /drop draft commands live (takeover resume, Winfred 8 Sep 2026) -- same watermark,
+        # same ordering, so it never needs a second cursor.
         if "last_rowid" in wm:
             rows = con.execute(
                 f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp, media_type FROM messages "
-                f"WHERE rowid > ? AND chat_jid LIKE '%@lid' ORDER BY rowid", (wm["last_rowid"],)
+                f"WHERE rowid > ? AND (chat_jid LIKE '%@lid' OR chat_jid = ?) ORDER BY rowid",
+                (wm["last_rowid"], RES.OWN_JID)
             ).fetchall()
         else:
             # ONE-TIME migration from the legacy timestamp watermark. datetime() normalizes
@@ -235,8 +197,9 @@ def run():
             # are recovered here; the stale-row guard below keeps old history out.
             rows = con.execute(
                 f"SELECT rowid, {idc}, chat_jid, is_from_me, content, timestamp, media_type FROM messages "
-                f"WHERE datetime(timestamp) > datetime(?) AND chat_jid LIKE '%@lid' ORDER BY rowid",
-                (wm.get("last_ts", ""),)
+                f"WHERE datetime(timestamp) > datetime(?) AND (chat_jid LIKE '%@lid' OR chat_jid = ?) "
+                f"ORDER BY rowid",
+                (wm.get("last_ts", ""), RES.OWN_JID)
             ).fetchall()
             print(f"watermark migration: {len(rows)} rows newer than legacy ts watermark")
     except sqlite3.Error as e:
@@ -275,6 +238,8 @@ def run():
     for _rowid, _mid, _jid, _ifm, _content, _ts, _mtype in rows:
         if not _ifm:
             continue
+        if _jid == RES.OWN_JID:
+            continue          # self chat command console, never a prospect record
         try:
             _pn = E.resolve_pn(_jid)
             # a landlord chat never becomes a tenant record: latching one here only for
@@ -296,6 +261,7 @@ def run():
                         _rec["manual_takeover"] = True
                         _rec["copilot_muted"] = True   # mute BEFORE any inbound row in this batch acts
                         _rec["human_takeover"] = True  # genuine hand reply -- silences landlord onboarding too
+                        _rec["last_hand_reply_ts"] = _ts   # takeover resume clock (Winfred, 8 Sep 2026)
                         _log("PRELATCH", _pn, "manual reply found later in batch")
                 elif _decision == "FORM_PASTED" and not _rec.get("form_sent"):
                     # a hand paste of the BLANK intake form (Maddie re sending it, word
@@ -327,10 +293,17 @@ def run():
             # Skipping them here (not just inside the engine) keeps their rows out of the
             # dedup-less create-then-pop cycle that re-processed the boundary row every tick.
             _pn0 = E.resolve_pn(jid)
+            if jid == RES.OWN_JID:
+                # Winfred's own self chat: never a prospect record, only a /send or /drop
+                # command console for the takeover resume drafts (Winfred, 8 Sep 2026).
+                if ifm and (content or "").strip():
+                    RES.handle_self_chat_command(jid, content, send_fn=_send,
+                                                 guard_reserve_fn=_guard_reserve, log_fn=_log)
+                continue
             if _pn0 and _pn0 in landlords:
                 continue
             ev = {"jid": jid, "msg_id": str(rid), "text": content or "", "is_from_me": bool(ifm),
-                  "media_type": mtype or ""}
+                  "media_type": mtype or "", "ts": ts}
             # run on BOTH directions: an inbound enquiry rarely names the exact listing, but
             # Winfred's own hand reply or a sanctioned automation ack (PG auto-ack) often does.
             ev["listing_key"] = match_listing(content, reqs_tick)
@@ -338,7 +311,29 @@ def run():
             # STRICT prefix matching: a manual reply that merely contains "still available" must
             # latch takeover, so only exact engine template starts count as engine sends.
             ev["engine"] = E.is_engine_outbound(content) if ifm else False
+            # TAKEOVER RESUME (Winfred, 8 Sep 2026): only ever considered for a PROSPECT
+            # inbound on a record already under a hand takeover. ev["resume"] tells the
+            # engine to run this one inbound through its normal (non manual-takeover) flow;
+            # the allow list right below decides whether the result may actually reach a
+            # real send or must become a drafted suggestion instead.
+            if not ifm and _pn0:
+                _rec0 = state["conversations"].get(_pn0)
+                _blocked = RES.resume_reason_blocked(con, idc, jid, _rec0, rowid, ts)
+                if _blocked is None:
+                    ev["resume"] = True
+                elif _rec0 and (_rec0.get("manual_takeover") or _rec0.get("human_takeover")):
+                    _log("RESUME_SKIP", _pn0, _blocked)
             a = E.handle_event(state, ev)
+            if ev.get("resume"):
+                if RES.needs_draft(a):
+                    _rec_r = state["conversations"].get(_pn0, {})
+                    _listing_r = reqs_tick.get(_rec_r.get("listing_key"))
+                    RES.process_draft_needed(con, idc, jid, _pn0, _rec_r, _listing_r,
+                                             notify_winfred, _log)
+                    E.save_state(state); acted += 1
+                    continue
+                _log("RESUME_SENT", _pn0, (a or {}).get("type", "") + " :: "
+                     + ((a or {}).get("text") or " / ".join((a or {}).get("texts") or []) or ""))
             if not a:
                 continue
             # the ONLY thing Winfred is pinged about: a prospect giving a date/time to view.
@@ -528,82 +523,6 @@ def run():
         last_rowid = con.execute("SELECT COALESCE(MAX(rowid),0) FROM messages").fetchone()[0]
     _write_last(last_rowid)
     print(f"processed {len(rows)} new messages, {acted} engine actions, DRY_RUN={E.DRY_RUN}")
-
-WINFRED_CHAT = "540127870"
-TG_SEND = os.path.expanduser("~/.claude/bin/telegram_send.sh")
-NOTIFY_Q = os.path.expanduser("~/.claude/state/listing-templates/notify-queue.json")
-
-def _tg_send(msg):
-    """One Telegram send attempt. True only on a confirmed delivery (script exit 0 AND the
-    API replied ok:true) — curl reaching Telegram but the API rejecting still counts failed."""
-    try:
-        r = subprocess.run(["bash", TG_SEND, WINFRED_CHAT], input=msg, text=True,
-                           timeout=15, capture_output=True)
-        return r.returncode == 0 and '"ok":true' in (r.stdout or "")
-    except Exception:
-        return False
-
-def _hot_line(a):
-    """One extra Telegram line when the engine's cross-listing screen found other
-    live rooms this profile qualifies for (see intake_engine.hot_matches)."""
-    hm = a.get("hot_matches") or []
-    return ("\n🔥 Also fits: " + ", ".join(hm)) if hm else ""
-
-def notify_winfred(msg):
-    """Telegram ping to Winfred. Fires even in DRY_RUN (it is a note to him, not a prospect
-    send). A FAILED ping is queued and retried at the start of every later run: a viewing
-    confirmation or takeover flag must never be silently lost to a Telegram outage."""
-    if _tg_send(msg):
-        return
-    _log("TG_FAIL", WINFRED_CHAT, "queued for retry :: " + msg[:80].replace("\n", " / "))
-    try:
-        q = json.load(open(NOTIFY_Q)) if os.path.exists(NOTIFY_Q) else []
-        q = (q if isinstance(q, list) else []) + [{"ts": time.strftime("%Y-%m-%d %H:%M:%S"), "msg": msg}]
-        q = q[-50:]
-        tmp = NOTIFY_Q + ".tmp"
-        json.dump(q, open(tmp, "w"), ensure_ascii=False, indent=1)
-        os.replace(tmp, NOTIFY_Q)
-    except Exception as e:
-        _log("TG_QUEUE_FAIL", WINFRED_CHAT, str(e)[:100])
-
-def _drain_notify_queue():
-    """Re-attempt queued Telegram pings from earlier outages. Failures stay queued (cap 50)."""
-    try:
-        if not os.path.exists(NOTIFY_Q):
-            return
-        q = json.load(open(NOTIFY_Q))
-        if not isinstance(q, list):
-            raise ValueError("queue not a list")
-    except Exception:
-        try: os.remove(NOTIFY_Q)          # unreadable queue: drop it rather than crash every tick
-        except OSError: pass
-        return
-    left = [it for it in q if it.get("msg") and not _tg_send("(delayed from " + str(it.get("ts")) + ")\n" + it["msg"])]
-    try:
-        if left:
-            tmp = NOTIFY_Q + ".tmp"
-            json.dump(left[-50:], open(tmp, "w"), ensure_ascii=False, indent=1)
-            os.replace(tmp, NOTIFY_Q)
-        else:
-            os.remove(NOTIFY_Q)
-    except OSError:
-        pass
-
-def _alert_hourly(key, msg):
-    """notify_winfred, rate-limited to once per hour per key (for persistent conditions
-    like a corrupt file, which would otherwise ping every 60s tick)."""
-    mark = os.path.expanduser("~/.claude/state/listing-templates/.alert-" + key)
-    try:
-        if os.path.exists(mark) and time.time() - os.path.getmtime(mark) < 3600:
-            return
-        open(mark, "w").write(str(time.time()))
-    except OSError:
-        pass
-    notify_winfred(msg)
-
-def _log(kind, pn, msg):
-    line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} | {kind} | {pn} | {msg}\n"
-    with open(PREVIEW, "a") as f: f.write(line)
 
 if __name__ == "__main__":
     run()
