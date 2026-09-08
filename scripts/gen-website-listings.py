@@ -406,6 +406,11 @@ def js_tag(l):
     return " · ".join(bits)
 
 
+def sun_facing_url(l):
+    q = l.get("address") or l.get("title") or ""
+    return "https://sunfacing.com/?q=" + quote(q)
+
+
 def render_card_html(l):
     wa = l.get("wa_text") or quote(f"Hi Winfred, enquiring about {l.get('title', '')}.")
     data_type = (l.get("type") or "").lower()
@@ -433,7 +438,8 @@ def render_card_html(l):
           <h3 class="serif text-xl font-semibold mb-2">{esc(l.get('title', ''))}</h3>
           <p class="text-[var(--ink-soft)] text-sm mb-1">{esc(js_beds_baths_sqft(l))}</p>
           {highlights_html}
-          <div class="flex justify-between items-center mt-4 pt-4 border-t border-[var(--rule)]">
+          <a href="{esc(sun_facing_url(l))}" target="_blank" rel="noopener" class="btn btn-ghost text-xs w-full text-center mt-3" style="padding:.4rem .8rem;">Check the sun on this unit</a>
+          <div class="flex justify-between items-center mt-3 pt-4 border-t border-[var(--rule)]">
             <p class="serif text-lg font-semibold">{esc(js_price_label(l))}</p>
             <a href="https://wa.me/{WA_NUMBER}?text={wa}" class="btn btn-ghost text-sm" style="padding:.5rem .9rem;">Enquire</a>
           </div>

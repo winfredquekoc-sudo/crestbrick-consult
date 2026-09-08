@@ -577,6 +577,36 @@ ok("unknown: CTA phrase present but NOT anchored at 'Hi Winfred,' start (unlikel
    E.classify_lead_source("someone told me you can help, i have a property question", None)=="unknown")
 ok("unknown: no text at all", E.classify_lead_source(None, None)=="unknown")
 
+print("== LEAD SOURCE: Sun Facing Checker (sunfacing.com) ==")
+ok("sun-facing-checker: exact wa.me prefill with an address",
+   E.classify_lead_source(
+       "Hi Winfred, I checked the sun facing for 82 TIONG POH ROAD on your Sun Facing "
+       "Checker and would like a free valuation report on it.", None) == "sun-facing-checker")
+ok("sun-facing-checker: generic wa.me prefill, no address",
+   E.classify_lead_source(
+       "Hi Winfred, I found you on the Sun Facing Checker and would like a free "
+       "valuation report.", None) == "sun-facing-checker")
+ok("sun-facing-checker: negative, ordinary rental enquiry stays unknown",
+   E.classify_lead_source("hey is the flat still up for rent", None) == "unknown")
+ok("sun-facing-checker: portal still wins over the phrase if a listing_key is present",
+   E.classify_lead_source(
+       "Hi Winfred, I checked the sun facing for 82 Tiong Poh Road on your Sun Facing "
+       "Checker.", "bayshore") == "portal")
+
+print("== LEAD SOURCE: Sun Facing Checker address capture into profile ==")
+ok("address captured from 'sun facing for <addr> on your Sun Facing Checker'",
+   E.extract_profile(
+       "Hi Winfred, I checked the sun facing for 82 TIONG POH ROAD on your Sun Facing "
+       "Checker and would like a free valuation report on it."
+   ).get("address") == "82 TIONG POH ROAD")
+ok("no address captured when the message names no address",
+   E.extract_profile(
+       "Hi Winfred, I found you on the Sun Facing Checker and would like a free "
+       "valuation report."
+   ).get("address") is None)
+ok("no address captured on an unrelated message",
+   E.extract_profile("hey is the flat still up for rent").get("address") is None)
+
 # end to end via handle_event: stamped once on first genuine inbound, never re-classified
 _sp = {"version":1,"conversations":{}}
 E.handle_event(_sp, {"jid":"6590055501@s.whatsapp.net","msg_id":"sp1","text":"hi still available?","is_from_me":0,"listing_key":"bayshore"})

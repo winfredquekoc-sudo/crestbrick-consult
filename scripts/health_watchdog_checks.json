@@ -61,6 +61,23 @@
   "path": "~/crestbrick-consult/public/listings.json",
   "max_age_hours": 72,
   "night_muted": true,
-  "note": "listings-nightly (00:30) syncs this from the landlord DB. UNCERTAIN whether it rewrites unconditionally or only on change, so window is generous (72h) to avoid a quiet-period false alarm; it still catches a multi-day stall. Currently ~50h old (synced_at 2 Sep) — worth confirming listings-nightly is running. A run-marker for listings-nightly would let this window tighten (see output-contract note)."
+  "note": "listings-nightly (00:30) syncs this from the landlord DB. UNCERTAIN whether it rewrites unconditionally or only on change, so window is generous (72h) to avoid a quiet-period false alarm; it still catches a multi-day stall. Currently ~50h old (synced_at 2 Sep) \u2014 worth confirming listings-nightly is running. A run-marker for listings-nightly would let this window tighten (see output-contract note)."
+ },
+ {
+  "name": "refresh-rental-dbs-ran",
+  "type": "file_fresh",
+  "path": "~/.claude/state/refresh-rental-dbs-lastts.txt",
+  "max_age_hours": 30,
+  "night_muted": true,
+  "note": "the 5x/day rental refresh updates this stamp on every completed slot; 30h = a full missed day"
+ },
+ {
+  "name": "discovery-candidates-positive",
+  "type": "json_positive",
+  "path": "~/.claude/state/discovery-candidates.json",
+  "field": "candidates_found",
+  "min": 1,
+  "night_muted": true,
+  "note": "the deterministic step-5b scan should find at least one candidate on a live inbox"
  }
 ]

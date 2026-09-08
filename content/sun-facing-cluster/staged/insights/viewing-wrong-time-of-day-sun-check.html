@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viewing a Unit at the Wrong Time of Day: Check the Sun First</title>
+    <meta name="description" content="A single viewing at one hour hides afternoon west sun and shadow from neighbouring blocks. A checklist, and how to check the sun for any address before your next viewing.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="Viewing a Unit at the Wrong Time of Day: Check the Sun First">
+    <meta property="og:description" content="A single viewing at one hour hides afternoon west sun and shadow from neighbouring blocks. A checklist, and how to check the sun for any address before your next viewing.">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        body { padding: 0; margin: 0; }
+        article { max-width: 800px; margin: 0 auto; padding: 60px 20px; }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.2; color: var(--text-primary); }
+        .article-meta { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        h2 { font-size: 1.6rem; font-weight: 700; margin-top: 40px; margin-bottom: 20px; color: var(--accent-gold); }
+        h3 { font-size: 1.2rem; font-weight: 600; margin-top: 28px; margin-bottom: 12px; color: var(--text-primary); }
+        p { margin-bottom: 16px; color: var(--text-primary); }
+        a { color: var(--accent-light); }
+        strong { font-weight: 600; color: var(--text-primary); }
+        em { font-style: italic; color: var(--text-secondary); }
+        .callout { background-color: var(--bg-tertiary); border-left: 4px solid var(--accent-gold); padding: 20px; margin: 24px 0; border-radius: 4px; }
+        .callout-warning { border-left-color: var(--warning); }
+        .callout-info { border-left-color: var(--accent-light); }
+        table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--bg-tertiary); font-weight: 600; color: var(--accent-gold); }
+        tr:hover { background-color: var(--bg-tertiary); }
+        ul, ol { margin-left: 24px; margin-bottom: 16px; }
+        li { margin-bottom: 8px; }
+        .highlight-box { background-color: var(--bg-secondary); border: 1px solid var(--border-color); padding: 20px; margin: 24px 0; border-radius: 6px; }
+        .faq-question { font-weight: 600; font-size: 1.05rem; margin-bottom: 12px; color: var(--accent-gold); }
+        .faq-answer { color: var(--text-primary); line-height: 1.7; margin-bottom: 24px; }
+        .cta-box { background-color: var(--bg-tertiary); border: 2px solid var(--accent-gold); padding: 28px; margin: 40px 0; border-radius: 8px; text-align: center; }
+        .cta-box h3 { margin-top: 0; color: var(--accent-gold); }
+        .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .cta-btn { padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: 6px; text-decoration: none; transition: all 0.3s ease; border: 2px solid; cursor: pointer; display: inline-block; }
+        .cta-btn-primary { background-color: var(--accent-gold); color: var(--bg-primary); border-color: var(--accent-gold); }
+        .cta-btn-primary:hover { opacity: 0.9; }
+        .cta-btn-secondary { background-color: transparent; color: var(--accent-light); border-color: var(--accent-light); }
+        .cta-btn-secondary:hover { background-color: var(--accent-light); color: var(--bg-primary); }
+        .disclaimer { font-size: 0.85rem; color: var(--text-secondary); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); line-height: 1.6; }
+        .sources { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .sources h3 { color: var(--accent-gold); }
+        .sources ul { font-size: 0.9rem; color: var(--text-secondary); }
+        .sources li { margin-bottom: 6px; }
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Viewing a unit at the wrong time of day: how to check the sun before you commit</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Most viewings get booked around the agent's calendar, not yours. A Saturday morning slot, a quick visit after work, whatever time both sides can manage. Nobody schedules a viewing around what the unit actually looks like at 3 in the afternoon, when the sun swings west, or at 7 in the evening, when you would actually be home most weekdays. Then you exercise the Option to Purchase based on the fifteen minutes you saw.
+        </p>
+        <p>
+            This matters more than most buyers realise. The same unit can look and feel noticeably different depending on when you walk into it, and sun exposure is one of the biggest reasons why. This article covers what a single viewing at a single hour can hide, a short checklist to run before you commit, and how to check the sun for that exact address, at any hour and any month, before you go back for a second look.
+        </p>
+
+        <h2>The viewing time problem nobody mentions</h2>
+        <p>
+            Agents tend to schedule viewings for hours that suit a full day of appointments, often weekday mornings or early evenings, and many sellers prefer a tidy, well lit unit for a mid morning slot. None of that is a trick. It is simply how viewings get arranged when several parties' schedules need to line up. The result is that if you work regular office hours, you may only ever see a unit at times that do not match when you would actually be living in it: evenings, weekend afternoons, or a lazy Sunday morning at home.
+        </p>
+        <p>
+            A single viewing, at a single time, tells you how the unit looked at that one moment. It does not tell you how it looks across a full day, and it does not tell you how that changes across the year. For a resale flat you might view once or twice before deciding. For a new launch, the showflat itself is often furnished and lit to look its best at whatever hour it happens to be open, which is a separate reason to check the actual stack you would be buying into rather than judging by the show unit alone.
+        </p>
+
+        <h2>What a 10am viewing hides</h2>
+        <p>
+            Singapore sits close to the equator, so the sun tracks almost overhead through the year rather than staying low in one part of the sky. At 10am the sun still sits fairly high and toward the east side of the sky. A living room or bedroom facing west will look calm and unremarkable at that hour, with no hint of the direct low sun it receives once the sun swings around from around 2pm onward.
+        </p>
+        <ul>
+            <li>A neighbouring block that only shades the unit in the late afternoon, once the sun sits low enough to be blocked, may show no shadow at all during a mid morning viewing.</li>
+            <li>Glare that only becomes noticeable at a specific hour, for example on a home desk that faces the afternoon sun, will not show up either.</li>
+            <li>The reverse also happens. A unit that looks a little dim on an overcast morning visit may catch strong light most afternoons if it faces west, and you would only notice that at the right hour.</li>
+        </ul>
+        <p>
+            None of this makes a 10am viewing pointless. It only makes it incomplete on its own, which is exactly what a checklist and a second look are for.
+        </p>
+
+        <h2>A short checklist before you commit</h2>
+        <ul>
+            <li><strong>Ask which direction the unit faces.</strong> Get the direction of the main window or balcony from the agent or listing, and check it yourself rather than taking it at face value.</li>
+            <li><strong>Compare the viewing time against your actual hours.</strong> Be honest about when you would really be home and using the room that matters most to you.</li>
+            <li><strong>Request a second viewing at a different hour.</strong> If you are seriously considering the unit, this is a completely reasonable ask, especially closer to a decision. Our <a href="/insights/first-time-buyer-shortlist-viewings-singapore">shortlist and viewing guide</a> covers what else is worth checking on that second visit.</li>
+            <li><strong>Check the address online before you go back.</strong> Knowing roughly what to expect at the second viewing's hour means you know exactly what to look for once you are standing in the room.</li>
+            <li><strong>Look at the areas that matter to you specifically.</strong> The spot where the sofa or bed will sit, a home desk, a nursery, or wherever you plan to hang laundry.</li>
+        </ul>
+
+        <h2>Playing the whole day, and the whole year, before you go back</h2>
+        <p>
+            This is where checking online before a second viewing helps the most. The <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">Sun Facing Checker</a> is a free tool where you search the exact address, then drag a time slider to see the sun's direction and altitude at any hour, and a month slider to see how that shifts across the year. You can also set the floor level for the specific unit and pick the window direction it faces, and it will estimate how many hours of direct afternoon west sun that floor and facing typically get in a given month, along with which nearby buildings currently shade it and for how long.
+        </p>
+        <p>
+            Run the sun summary for a full 12 month readout of sunrise, sunset, which side the midday sun passes on, west sun hours and shaded hours for that spot, and you can email the summary to yourself to bring along to the second viewing or refer back to before you make an offer. Ten minutes on <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">sunfacing.com</a> before you go back tells you more about a full day and year than a second visit at one more single hour ever could on its own, and the two together give you a genuinely fuller picture than either alone. It works the same way for a resale flat as it does for a <a href="/insights/new-launch-showflat-viewing-guide-singapore">new launch showflat viewing</a>, where the show unit's own orientation may not even match the stack you are actually buying into.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Before your next viewing:</strong> Search the address on the <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">Sun Facing Checker</a>, set the floor and window direction to match the specific unit, and check both the exact hour of your first viewing and the hour you could not attend.
+        </div>
+
+        <h2>What this actually tells you, and what it does not</h2>
+        <p>
+            A sun and shadow check is about awareness, not a verdict on the unit. It shows where the sun sits and which buildings currently cast a shadow, based on building heights recorded in OpenStreetMap, which is community maintained data and can be missing, outdated, or approximate for some buildings. It also cannot model a building that has not been built yet, which is why it is worth checking the URA Master Plan for the surrounding site separately if a neighbouring plot is still vacant. Treat the check as a strong guide to bring to your second viewing, not a replacement for standing in the actual unit at the hour that matters most to you.
+        </p>
+        <p>
+            If, after checking, you still have questions specific to a unit you are close to committing to, that is a conversation worth having with an agent who can look at the whole picture with you, not just the sun. A viewing timed against the sun is one input among several, alongside lease, layout, and how the unit compares against recent transactions nearby, and it works best combined with the rest of your due diligence rather than in place of it.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3 class="faq-question">What time of day should I view a resale flat or condo before buying?</h3>
+        <p class="faq-answer">There is no single best time. The point is to check more than one hour, ideally including whichever hours matter most to your daily routine, and to use a sun and shadow tool to see how conditions shift across the day before you rely on a single visit.</p>
+
+        <h3 class="faq-question">Can I ask for a second viewing at a different time of day?</h3>
+        <p class="faq-answer">Yes. Most sellers and their agents will accommodate a second viewing, especially once you are close to a decision. Frame it plainly: you want to see the unit at a different hour before you commit, which is a reasonable and common request.</p>
+
+        <h3 class="faq-question">Does the month of the year change how much sun a unit gets?</h3>
+        <p class="faq-answer">Yes. Singapore sits close to the equator, so the sun's path shifts through the year, and both direct sun exposure and shadow from a neighbouring building can change from month to month. Checking a tool across a few months as well as a few hours of the day gives a fuller picture than a single viewing on a single day.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Close to committing to a unit</h3>
+            <p>Check the exact address on the Sun Facing Checker before your next viewing, or talk through what else to verify before you make an offer.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd. Sun and shadow estimates reflect building data recorded in OpenStreetMap at the time of checking and are a strong guide, not a survey. Always verify conditions for a specific unit in person before making a purchase decision.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Sun Facing Checker:</strong> methodology and building data sources, <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">sunfacing.com</a></li>
+                <li><strong>URA:</strong> Master Plan land use and building height guide plans, <a href="https://www.ura.gov.sg/maps/" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+                <li><strong>OpenStreetMap:</strong> community maintained building footprint and height data, <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">openstreetmap.org</a></li>
+                <li><strong>Related reading on this site:</strong> <a href="/insights/new-launch-showflat-viewing-guide-singapore">how to view a new launch showflat</a> and <a href="/insights/first-time-buyer-shortlist-viewings-singapore">how to shortlist and view your first home</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Viewing a unit at the wrong time of day: how to check the sun before you commit",
+    "description": "A single viewing at one hour hides afternoon west sun and shadow from neighbouring blocks. A checklist, and how to check the sun for any address before your next viewing.",
+    "image": "https://winfredquek.com/img/og-image.jpg",
+    "author": { "@type": "Person", "name": "Winfred Quek", "url": "https://winfredquek.com" },
+    "publisher": { "@type": "Organization", "name": "Crestbrick Pte Ltd", "url": "https://winfredquek.com" },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What time of day should I view a resale flat or condo before buying?",
+            "acceptedAnswer": { "@type": "Answer", "text": "There is no single best time. The point is to check more than one hour, ideally including whichever hours matter most to your daily routine, and to use a sun and shadow tool to see how conditions shift across the day before you rely on a single visit." }
+        },
+        {
+            "@type": "Question",
+            "name": "Can I ask for a second viewing at a different time of day?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Most sellers and their agents will accommodate a second viewing, especially once you are close to a decision. Frame it plainly: you want to see the unit at a different hour before you commit, which is a reasonable and common request." }
+        },
+        {
+            "@type": "Question",
+            "name": "Does the month of the year change how much sun a unit gets?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Singapore sits close to the equator, so the sun's path shifts through the year, and both direct sun exposure and shadow from a neighbouring building can change from month to month. Checking a tool across a few months as well as a few hours of the day gives a fuller picture than a single viewing on a single day." }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

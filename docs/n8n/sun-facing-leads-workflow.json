@@ -1,0 +1,198 @@
+{
+  "meta": {
+    "note": "This workflow IS the database for the Sun Facing Checker tool (api/sun-facing.js). There is no other datastore — every valuation_click and summary_email event lands here as a Google Sheets row. Import into n8n, open the 'Append to Sun Facing Leads Sheet' node, pick (or create) the 'Sun Facing Checker leads' spreadsheet + a Google Sheets credential, then activate."
+  },
+  "name": "Sun Facing Checker leads",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sun-facing",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [380, 300],
+      "webhookId": "sun-facing-leads-webhook"
+    },
+    {
+      "parameters": {
+        "mode": "manual",
+        "duplicateItem": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f-ts",
+              "name": "ts",
+              "type": "string",
+              "value": "={{ $json.body.ts }}"
+            },
+            {
+              "id": "f-kind",
+              "name": "kind",
+              "type": "string",
+              "value": "={{ $json.body.kind }}"
+            },
+            {
+              "id": "f-email",
+              "name": "email",
+              "type": "string",
+              "value": "={{ $json.body.email || '' }}"
+            },
+            {
+              "id": "f-address",
+              "name": "address",
+              "type": "string",
+              "value": "={{ $json.body.address || '' }}"
+            },
+            {
+              "id": "f-lat",
+              "name": "lat",
+              "type": "string",
+              "value": "={{ $json.body.lat }}"
+            },
+            {
+              "id": "f-lng",
+              "name": "lng",
+              "type": "string",
+              "value": "={{ $json.body.lng }}"
+            },
+            {
+              "id": "f-month",
+              "name": "month",
+              "type": "string",
+              "value": "={{ $json.body.month || '' }}"
+            },
+            {
+              "id": "f-time",
+              "name": "time",
+              "type": "string",
+              "value": "={{ $json.body.time || '' }}"
+            },
+            {
+              "id": "f-source",
+              "name": "source",
+              "type": "string",
+              "value": "={{ $json.body.source || '' }}"
+            },
+            {
+              "id": "f-ua",
+              "name": "ua",
+              "type": "string",
+              "value": "={{ $json.body.ua || '' }}"
+            },
+            {
+              "id": "f-sentences",
+              "name": "sentences",
+              "type": "string",
+              "value": "={{ ($json.body.summary && $json.body.summary.sentences || []).join(' | ') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Flatten lead fields",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [620, 300]
+    },
+    {
+      "parameters": {
+        "resource": "sheet",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "PLACEHOLDER_PICK_SPREADSHEET_ID_IN_N8N_UI",
+          "mode": "list",
+          "cachedResultName": "Sun Facing Checker leads"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.ts }}",
+            "Kind": "={{ $json.kind }}",
+            "Email": "={{ $json.email }}",
+            "Address": "={{ $json.address }}",
+            "Lat": "={{ $json.lat }}",
+            "Lng": "={{ $json.lng }}",
+            "Month": "={{ $json.month }}",
+            "Time": "={{ $json.time }}",
+            "Source": "={{ $json.source }}",
+            "UA": "={{ $json.ua }}",
+            "Sentences": "={{ $json.sentences }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            { "id": "Timestamp", "displayName": "Timestamp", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Kind", "displayName": "Kind", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Email", "displayName": "Email", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Address", "displayName": "Address", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Lat", "displayName": "Lat", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Lng", "displayName": "Lng", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Month", "displayName": "Month", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Time", "displayName": "Time", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Source", "displayName": "Source", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "UA", "displayName": "UA", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true },
+            { "id": "Sentences", "displayName": "Sentences", "required": false, "defaultMatch": false, "display": true, "type": "string", "canBeUsedToMatch": true }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "name": "Append to Sun Facing Leads Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [860, 300],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "PLACEHOLDER_PICK_GOOGLE_SHEETS_CREDENTIAL_IN_N8N_UI"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Flatten lead fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten lead fields": {
+      "main": [
+        [
+          {
+            "node": "Append to Sun Facing Leads Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}
