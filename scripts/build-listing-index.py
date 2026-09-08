@@ -28,9 +28,18 @@ DB = os.environ.get("BLI_DB", HOME + "/crestbrick-consult/_templates/landlord-db
 IDX = os.environ.get("BLI_IDX", HOME + "/.claude/state/listing-templates/listing-index.json")
 STATE = os.environ.get("BLI_STATE", HOME + "/.claude/state/listing-templates/intake-state.json")
 LOCK = HOME + "/.claude/state/listing-templates/.wa-intake.lock"
-MSG_DB = HOME + "/whatsapp-mcp/whatsapp-bridge/store/messages.db"
+MSG_DB = os.environ.get("BLI_MSG_DB", HOME + "/whatsapp-mcp/whatsapp-bridge/store/messages.db")
+PUB_LISTINGS = os.environ.get("BLI_PUBLIC_LISTINGS", HOME + "/crestbrick-consult/public/listings.json")
+PORTAL_IDS_FILE = os.environ.get("BLI_PORTAL_IDS",
+    "/private/tmp/claude-501/-Users-winfredquek-crestbrick-consult/92b405a9-4a65-471d-bd8e-97356c5a5b42"
+    "/scratchpad/landlord-portal-ids.json")
+IDX_OUT = os.environ.get("BLI_IDX_OUT")   # when set, --fill-missing writes the FULL proposed
+                                          # index (existing + new) here instead of the live IDX
 DRY = "--dry-run" in sys.argv
 STAMP = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import sync_listing_index_from_landlords as _SYNC   # reuse its gender/ethnicity/age parsers
 
 def parse_gender(t):
     t = (t or "").lower()
@@ -116,6 +125,336 @@ def new_entry(l):
         "requirements": req,
         "district": l.get("district", ""),
     }
+
+# ---------- fill-missing mode: every active/active-verify landlord that HAS NO index
+# entry at all (not only those that already carry a listing_key — the bug that left 51 of
+# 53 active landlords with zero matcher coverage). Conservative like new_entry() above: an
+# unparseable gate is left "any"/None the same way qualify() treats an unknown gate, so a
+# bad parse can only ever produce NEEDS_INFO, never a false DISQUALIFIED.
+
+_ST_ABBR = {"street": "st", "road": "rd", "avenue": "ave", "drive": "dr",
+            "crescent": "cres", "close": "cl", "place": "pl", "terrace": "ter"}
+
+def _addr_variants(address):
+    """Candidate pg_url_keywords for an address. Keeps the block/unit number attached to the
+    street wherever the street itself carries no distinguishing trailing number, so a bare
+    generic segment ('jurong west') is never emitted on its own — cross listing collisions
+    are then caught and stripped by _dedupe_conflicting()."""
+    addr = re.sub(r"#.*", "", address or "").strip()
+    addr = re.sub(r"^\s*(blk|block)\.?\s+", "", addr, flags=re.I)
+    addr = re.sub(r"\s+", " ", addr).strip()
+    if not addr:
+        return []
+    low = addr.lower()
+    m = re.match(r"(\d+[a-z]?)\s+(.+)", low)
+    variants = {low}
+    if not m:
+        return sorted(variants)              # property name only, e.g. "oxley edge"
+    num, rest = m.group(1), m.group(2)
+    words = rest.split()
+    variants.add(num + " " + rest)            # "703 jurong west street 71"
+    variants.add("blk " + num + " " + rest)
+    if re.search(r"\d$", rest):
+        # the street itself is numbered ("jurong west street 71") -> specific on its own
+        variants.add(rest)
+        for full, abbr in _ST_ABBR.items():
+            if re.search(r"\b" + full + r"\b", rest):
+                variants.add(re.sub(r"\b" + full + r"\b", abbr, rest))
+        if len(words) >= 2:
+            variants.add(num + " " + " ".join(words[:2]))   # "703 jurong west"
+    else:
+        # no trailing number on the street -> only ever emit it WITH the block number, so a
+        # generic street name shared by several blocks never becomes a bare keyword
+        if len(words) >= 1:
+            variants.add(num + " " + words[0])
+    return sorted(v for v in variants if v)
+
+_RE_RENT_ADDR = re.compile(r"RENT - ([^\n]+)")
+_RE_INTERESTED = re.compile(r"interested in:\s*([^\n]+)", re.I)
+_RE_99_STAR = re.compile(r"\bin \*([^*]+)\*")
+_RE_99_ROOMRENT = re.compile(r"Room Rent:\s*([^.\n]+)", re.I)
+_RE_PG_ID = re.compile(r"propertyguru\.com\.sg/l/(\d+)")
+_RE_99_CODE = re.compile(r"99\.co/e/([A-Za-z0-9]+)")
+
+def harvest_portal_ids(days=60, msg_db=None):
+    """Address text -> set of PropertyGuru listing ids / 99.co codes, parsed from tenant
+    enquiry messages in the last DAYS days. Read only (uri=ro); any failure (bridge down,
+    db locked, table missing) returns {} rather than raising -- this is best effort
+    enrichment, never a hard requirement for the entries to be usable."""
+    out = {}
+    try:
+        con = sqlite3.connect("file:" + (msg_db or MSG_DB) + "?mode=ro", uri=True, timeout=15)
+    except Exception:
+        return out
+    try:
+        rows = con.execute(
+            "SELECT content FROM messages WHERE is_from_me=0 AND datetime(timestamp) > "
+            "datetime('now', ?) AND (content LIKE '%propertyguru.com.sg/l/%' "
+            "OR content LIKE '%99.co/e/%')", ("-" + str(days) + " days",)).fetchall()
+    except Exception:
+        return out
+    finally:
+        con.close()
+    for (content,) in rows:
+        if not content:
+            continue
+        addr = None
+        for rx in (_RE_RENT_ADDR, _RE_INTERESTED, _RE_99_STAR, _RE_99_ROOMRENT):
+            mm = rx.search(content)
+            if mm:
+                addr = mm.group(1); break
+        if not addr:
+            continue
+        addr = addr.strip().rstrip(".").lower()
+        ids = set(_RE_PG_ID.findall(content)) | set(_RE_99_CODE.findall(content))
+        if not ids:
+            continue
+        out.setdefault(addr, set()).update(ids)
+    return out
+
+def _norm(s):
+    return re.sub(r"\s+", " ", re.sub(r"[^a-z0-9 ]", " ", (s or "").lower())).strip()
+
+def match_harvested(address, harvested):
+    a = _norm(address)
+    out = set()
+    for haddr, ids in (harvested or {}).items():
+        h = _norm(haddr)
+        if not h or not a:
+            continue
+        if h in a or a in h:
+            out |= ids
+    return out
+
+def _load_portal_ids_file(path=None):
+    try:
+        d = json.load(open(path or PORTAL_IDS_FILE))
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+def portal_ids_for(lid, listing_key, portal_map):
+    ids = set()
+    for key in (lid, listing_key):
+        v = portal_map.get(key) if key else None
+        if not v:
+            continue
+        if isinstance(v, str):
+            ids.add(v)
+        elif isinstance(v, (list, tuple, set)):
+            ids.update(str(x) for x in v if x)
+        elif isinstance(v, dict):
+            for vv in v.values():
+                if isinstance(vv, str):
+                    ids.add(vv)
+                elif isinstance(vv, (list, tuple, set)):
+                    ids.update(str(x) for x in vv if x)
+    return ids
+
+def _slugify(text):
+    s = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    return re.sub(r"-+", "-", s)
+
+def public_listing_key_map(path=None):
+    """{landlord id -> public/listings.json id} for landlords already synced to the website,
+    so a generated listing_key matches that style verbatim (e.g. common-room-93-paya-lebar-
+    way-ll136) instead of drifting into a second naming scheme."""
+    out = {}
+    try:
+        d = json.load(open(path or PUB_LISTINGS))
+    except Exception:
+        return out
+    for it in d.get("listings", []) or []:
+        i = it.get("id") or ""
+        mm = re.search(r"-([a-z]{2}\d+)$", i)
+        if mm:
+            out[mm.group(1).upper()] = i
+    return out
+
+def listing_key_for(l, pub_map):
+    pub = pub_map.get(l["id"])
+    if pub:
+        return pub
+    addr = l.get("full_address") or l.get("property_name") or l["id"]
+    return _slugify(addr) + "-" + l["id"].lower()
+
+_CLOSED_WORDS = ("closed", "tenanted", "archived", "dropped", "duplicate",
+                 "unregistered", "unqualified", "sale-active", "cold", "channel")
+
+def _is_active_landlord(l):
+    """active/active-verify PLUS any status carrying a parenthetical note on top of one of
+    those two (e.g. 'active (re marketed...)', 'available (reopened, per Winfred 2 Sep
+    2026)') -- an exact-match check silently dropped LL089 (Jalan Batu, reopened 2 Sep) and
+    would drop any future re-marketed landlord the same way."""
+    st = str(l.get("status", "")).strip().lower()
+    return st.startswith("active") or st.startswith("available")
+
+def derive_status(l):
+    st = str(l.get("status", "")).lower()
+    if "hold" in st:
+        return "hold"
+    if any(w in st for w in _CLOSED_WORDS):
+        return "closed (landlord db: " + l.get("status", "") + ")"
+    return "open"
+
+def fill_missing_entry(l, pub_map, harvested, portal_map):
+    r = l.get("requirements") or {}
+    addr = l.get("full_address") or l.get("property_name") or ""
+    lk = listing_key_for(l, pub_map)
+
+    kws = set(_addr_variants(addr))
+    kws |= portal_ids_for(l["id"], lk, portal_map)
+    kws |= match_harvested(addr, harvested)
+
+    g = _SYNC.parse_gender(r.get("gender"))
+    gender = g[0] if g else "any"
+    couple_ok = bool(g[1]) if g else False
+    couple_married = bool(g[2]) if g else False
+    eth = _SYNC.parse_ethnicity(r.get("ethnicity")) or {"mode": "any", "list": []}
+    nat = _SYNC.parse_ethnicity(r.get("nationality")) or {"mode": "any", "list": []}
+    min_age = _SYNC.parse_min_age(r)
+    max_pax = parse_pax(r.get("max_pax"))
+    lease_min = parse_lease(r.get("lease_min")) or 12
+    budget_floor = l.get("rent_min") if isinstance(l.get("rent_min"), int) else None
+
+    found, unknown = [], []
+    for name, val in (("gender", g), ("ethnicity", _SYNC.parse_ethnicity(r.get("ethnicity"))),
+                      ("min_age", min_age), ("max_pax", max_pax),
+                      ("lease_min", parse_lease(r.get("lease_min"))), ("budget_floor", budget_floor)):
+        (found if val not in (None, False) else unknown).append(name)
+
+    entry = {
+        "listing_key": lk, "landlord_id": l["id"], "landlord_phone": l.get("phone", ""),
+        "property_name": l.get("property_name") or addr, "block_address": addr,
+        "postal": r.get("postal", ""),
+        "deal_type": l.get("deal_type", "rent"),
+        "status": derive_status(l),
+        "pg_url_keywords": sorted(kws),
+        "requirements": {
+            "gender": gender, "couple_ok": couple_ok, "couple_must_be_married": couple_married,
+            "ethnicity_rule": eth, "nationality_pref": nat, "pass_type_allowed": [],
+            "occupation_rule": {"mode": "any", "list": []},
+            "max_pax": max_pax, "lease_min_months": lease_min, "lease_max_months": None,
+            "budget_floor": budget_floor, "min_age": min_age,
+            "cooking": "light", "pets_tenant_may_bring": False, "smoking": "any",
+            "notes_human": "GENERATED (fill-missing) from landlord-db " + l["id"],
+        },
+        "district": l.get("district", ""),
+        "notes": "GENERATED (fill-missing) from landlord-db " + l["id"] + " on " + STAMP,
+    }
+    return entry, found, unknown
+
+def _is_open(e):
+    st = str(e.get("status", "")).lower()
+    return not (st.startswith("closed") or st == "hold")
+
+def check_keyword_specificity(all_listings):
+    """Every keyword of every OPEN listing checked against every OTHER open listing's own
+    address text. Returns a list of (listing_key, keyword, other_listing_key) conflicts. A
+    clean fill-missing run must return []; the test suite asserts exactly that."""
+    open_l = [e for e in all_listings if _is_open(e)]
+    conflicts = []
+    for e in open_l:
+        addr_self = _norm(e.get("block_address") or e.get("address") or e.get("property_name") or "")
+        for kw in (e.get("pg_url_keywords") or []):
+            kwl = _norm(kw)
+            if not kwl or (kwl.isdigit() and len(kwl) >= 6):
+                continue                      # portal ids are always specific
+            for o in open_l:
+                if o is e:
+                    continue
+                addr_o = _norm(o.get("block_address") or o.get("address") or o.get("property_name") or "")
+                if addr_o and kwl in addr_o and kwl != addr_self:
+                    conflicts.append((e["listing_key"], kw, o["listing_key"]))
+    return conflicts
+
+def _dedupe_conflicting(new_entries, existing_open):
+    """Strip any keyword of a NEW entry that is a substring of another OPEN listing's own
+    address (existing or newly generated) -- existing entries are never mutated."""
+    pool = existing_open + new_entries
+    for e in new_entries:
+        others = [o for o in pool if o["listing_key"] != e["listing_key"] and _is_open(o)]
+        keep = []
+        for kw in e.get("pg_url_keywords", []):
+            kwl = _norm(kw)
+            if not kwl:
+                continue
+            if kwl.isdigit() and len(kwl) >= 6:
+                keep.append(kw); continue     # portal id -- always specific, always kept
+            addrs = [_norm(o.get("block_address") or o.get("address") or o.get("property_name") or "")
+                     for o in others]
+            if any(kwl and kwl in a for a in addrs if a):
+                continue                      # would cross match another open listing -> drop
+            keep.append(kw)
+        e["pg_url_keywords"] = sorted(set(keep))
+
+def fill_missing(idx, db, msg_db=None, pub_listings_path=None, portal_ids_path=None):
+    """Returns (new_entries, report) — report rows are
+    (listing_key, address, keyword_count, status, gates_found, gates_unknown)."""
+    existing_lids = {e.get("landlord_id") for e in idx["listings"] if e.get("landlord_id")}
+    pub_map = public_listing_key_map(pub_listings_path)
+    harvested = harvest_portal_ids(msg_db=msg_db)
+    portal_map = _load_portal_ids_file(portal_ids_path)
+
+    new_entries, report = [], []
+    for l in db["landlords"]:
+        if not _is_active_landlord(l):
+            continue
+        if l["id"] in existing_lids:
+            continue
+        entry, found, unknown = fill_missing_entry(l, pub_map, harvested, portal_map)
+        new_entries.append(entry)
+        report.append((entry["listing_key"], entry["block_address"], len(entry["pg_url_keywords"]),
+                       entry["status"], found, unknown))
+
+    existing_open = [e for e in idx["listings"] if _is_open(e)]
+    _dedupe_conflicting(new_entries, existing_open)
+    for lk, addr, _n, status, found, unknown in report:
+        pass  # report kept as originally computed keyword count (pre dedupe), for visibility
+    return new_entries, report
+
+def fill_missing_main():
+    APPLY = "--apply" in sys.argv
+    idx = json.load(open(IDX))
+    db = json.load(open(DB))
+    n_active = sum(1 for l in db["landlords"] if _is_active_landlord(l))
+    new_entries, report = fill_missing(idx, db)
+    print(f"== fill-missing: {len(new_entries)} new entries for {n_active} active/active-verify landlords "
+          f"({n_active - len(new_entries)} already had an index entry) ==")
+    for lk, addr, nkw, status, found, unknown in report:
+        print(f"  {lk:50} | {addr[:38]:38} | kw={nkw:2} | {status:8} | found={found} unknown={unknown}")
+
+    conflicts = check_keyword_specificity(idx["listings"] + new_entries)
+    if conflicts:
+        print("\n== CROSS MATCH WARNINGS (should be empty) ==")
+        for c in conflicts:
+            print("  ", c)
+    else:
+        print("\n== keyword specificity: clean, no open listing keyword crosses another ==")
+
+    if IDX_OUT:
+        merged = dict(idx); merged["listings"] = idx["listings"] + new_entries
+        tmp = IDX_OUT + ".tmp"
+        json.dump(merged, open(tmp, "w"), indent=1, ensure_ascii=False)
+        os.replace(tmp, IDX_OUT)
+        print(f"\nWROTE proposed full index to {IDX_OUT} ({len(merged['listings'])} total listings)")
+        return
+    if "--dry-run" in sys.argv or not APPLY:
+        print("\nDRY RUN -- nothing written. Re-run with --apply to write listing-index.json, "
+              "or set BLI_IDX_OUT to write the full proposed index elsewhere.")
+        print(json.dumps(new_entries, indent=1, ensure_ascii=False))
+        return
+    lf = open(LOCK, "a+"); fcntl.flock(lf, fcntl.LOCK_EX)
+    try:
+        idx_live = json.load(open(IDX))
+        shutil.copy(IDX, IDX + ".bak-fillmissing-" + STAMP)
+        idx_live["listings"] = idx_live["listings"] + new_entries
+        tmp = IDX + ".tmp"
+        json.dump(idx_live, open(tmp, "w"), indent=1, ensure_ascii=False)
+        os.replace(tmp, IDX)
+        print(f"\nWROTE: {IDX} (+{len(new_entries)} new entries)")
+    finally:
+        fcntl.flock(lf, fcntl.LOCK_UN)
 
 def main():
     db = json.load(open(DB))
@@ -226,4 +565,7 @@ def main():
         fcntl.flock(lf, fcntl.LOCK_UN)
 
 if __name__ == "__main__":
-    main()
+    if "--fill-missing" in sys.argv:
+        fill_missing_main()
+    else:
+        main()

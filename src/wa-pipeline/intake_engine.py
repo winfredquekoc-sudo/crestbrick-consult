@@ -1748,6 +1748,26 @@ def policy_excluded(profile, text="", open_intake=False):
     if _KIDRE.search(blob) and pax and pax >= 2: return "family"
     return None
 
+def _text_mentions_listing(text, lk, reqs=None):
+    """True if TEXT names the listing LK by any of its pg_url_keywords. Used to bind an
+    unbound-but-complete profile only when the tenant's own words (or Winfred's / the
+    automation ack's) actually named the one listing they qualify for -- never a silent
+    guess off qualify() alone."""
+    if not text or not lk:
+        return False
+    t = text.lower()
+    l = (reqs or listing_reqs()).get(lk) or {}
+    return any(kw and kw.lower() in t for kw in (l.get("pg_url_keywords") or []))
+
+def _profile_summary(profile):
+    """One line, human readable, for a Telegram flag -- never the raw dict."""
+    parts = []
+    for f in ("name", "nationality", "gender", "age", "no_of_pax", "budget", "move_in_date"):
+        v = (profile or {}).get(f)
+        if v not in (None, ""):
+            parts.append(f + "=" + str(v))
+    return ", ".join(parts) if parts else "profile incomplete"
+
 # ---------- manual-takeover co-pilot ----------
 def hot_matches(profile, exclude_key=None, limit=3):
     """Cross-listing screen for a COMPLETE profile: which OTHER live listings does
@@ -1783,7 +1803,21 @@ def _copilot_verdict(rec):
         return None
     lk = rec.get("listing_key")
     if not lk:
-        return None
+        # unbound but Winfred is handling this chat by hand: once the profile is complete
+        # against the generic (no listing-specific) requirement set, tell him what other
+        # open listings this person might fit, instead of staying silent forever.
+        if missing_required(rec.get("profile", {})):
+            return None
+        if excluded_reason(rec.get("pn")) in ("landlord", "agent", "colleague", "db_error"):
+            return None
+        matches = hot_matches(rec.get("profile", {}), exclude_key=None)
+        sig = "UNBOUND|" + ",".join(sorted(matches))
+        if rec.get("copilot_sig") == sig:
+            return None
+        rec["copilot_sig"] = sig
+        return {"type": "COPILOT_VERDICT", "pn": rec.get("pn"), "notify": True, "text": None,
+                "verdict": "UNBOUND", "why": ["listing not bound"], "listing_key": None,
+                "hot_matches": matches, "profile_summary": _profile_summary(rec.get("profile", {}))}
     listing = listing_reqs().get(lk)
     if not listing:
         return None
@@ -2180,6 +2214,13 @@ def _handle_event_inner(state, ev):
             rec["copilot_muted"] = True
             rec["human_takeover"] = True   # genuine hand reply -- silences landlord onboarding too
             rec["status"] = "manual"
+        # bind from OUTBOUND too: Winfred's hand reply often names the address, and a
+        # sanctioned automation ack (PG auto-ack) always does. Either can carry the listing
+        # that a plain inbound "still available?" never named. Never overwrite an existing bind.
+        if ev.get("listing_key") and not rec.get("listing_key"):
+            rec["listing_key"] = ev["listing_key"]
+        if ev.get("text"):
+            rec["last_outbound"] = ev["text"]
         return None
 
     # ----- inbound from prospect -----
@@ -2635,9 +2676,30 @@ def _handle_event_inner(state, ev):
         lk = rec.get("listing_key")
         listing = reqs.get(lk)
         if not listing:
-            if rec.get("flagged_human"): return None
-            rec["flagged_human"] = True; rec["status"] = "needs_listing"
-            return {"type":"FLAG_HUMAN", "pn":pn, "reason":"listing not bound"}
+            # unbound complete profile: screen against every OPEN listing instead of dead
+            # ending. A single confident match that the tenant (or Winfred, or the automation
+            # ack) actually named gets bound and falls through to the normal qualify path;
+            # anything else is a human call, flagged once per distinct match signature so a
+            # newly opened listing that now fits can re fire the flag.
+            matches = [m for m in hot_matches(rec["profile"], exclude_key=None)
+                       if not _listing_unavailable(m, reqs)]
+            mention_blob = " ".join(filter(None, [ev.get("text"), rec.get("last_inbound"),
+                                                   rec.get("last_outbound")]))
+            if len(matches) == 1 and _text_mentions_listing(mention_blob, matches[0], reqs):
+                rec["listing_key"] = lk = matches[0]
+                listing = reqs.get(lk)
+                rec.pop("unbound_sig", None)
+                rec["flagged_human"] = False
+                # fall through to the normal qualify path below, now that lk/listing are bound
+            else:
+                sig = "UNBOUND|" + ",".join(sorted(matches))
+                if rec.get("unbound_sig") == sig:
+                    return None
+                rec["unbound_sig"] = sig; rec["status"] = "needs_listing"
+                reason = (("possible listings: " + ", ".join(matches)) if matches
+                          else "no open listing fits") + " | profile: " + _profile_summary(rec["profile"])
+                return {"type":"FLAG_HUMAN", "pn":pn, "notify":True, "text":None,
+                        "reason":reason, "hot_matches":matches}
         verdict, why = qualify(listing, rec["profile"])
         rec["qualify"] = {"verdict":verdict, "why":why}
         if verdict == "DISQUALIFIED":

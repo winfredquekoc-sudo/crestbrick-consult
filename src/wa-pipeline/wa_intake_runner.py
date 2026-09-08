@@ -243,23 +243,33 @@ def run():
                       "enquiries are DEFERRED (no forms sent, nothing lost) until the file "
                       "is fixed — the engine cannot verify who is a landlord.")
         landlords = frozenset()
+    reqs_tick = E.listing_reqs()   # one disk read per tick, not one per row; feeds the pre pass too
     for _rowid, _mid, _jid, _ifm, _content, _ts, _mtype in rows:
-        if _ifm and not E.is_engine_outbound(_content):
-            try:
-                _pn = E.resolve_pn(_jid)
-                # a landlord chat never becomes a tenant record: latching one here only for
-                # the engine to pop it again re-processed the same boundary row every tick
-                # (observed: 18 consecutive PRELATCH logs on LL052, 12 Jul 2026).
-                if _pn and _pn not in landlords:
-                    _rec = E._rec(state, _pn)
+        if not _ifm:
+            continue
+        try:
+            _pn = E.resolve_pn(_jid)
+            # a landlord chat never becomes a tenant record: latching one here only for
+            # the engine to pop it again re-processed the same boundary row every tick
+            # (observed: 18 consecutive PRELATCH logs on LL052, 12 Jul 2026).
+            if _pn and _pn not in landlords:
+                _rec = E._rec(state, _pn)
+                # bind the listing from Winfred's hand text OR a sanctioned automation ack
+                # (PG auto-ack), whichever comes first in the batch — this can be a LATER
+                # row in rowid order than an unbound inbound enquiry earlier in the same
+                # tick, so it must run before the main per-row loop below.
+                if not _rec.get("listing_key"):
+                    _lk = match_listing(_content, reqs_tick)
+                    if _lk:
+                        _rec["listing_key"] = _lk
+                if not E.is_engine_outbound(_content):
                     if not _rec.get("manual_takeover") or not _rec.get("copilot_muted"):
                         _rec["manual_takeover"] = True
                         _rec["copilot_muted"] = True   # mute BEFORE any inbound row in this batch acts
                         _rec["human_takeover"] = True  # genuine hand reply -- silences landlord onboarding too
                         _log("PRELATCH", _pn, "manual reply found later in batch")
-            except Exception as _e:
-                _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
-    reqs_tick = E.listing_reqs()   # one disk read per tick, not one per row
+        except Exception as _e:
+            _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
     last_rowid = wm.get("last_rowid")
     for rowid, rid, jid, ifm, content, ts, mtype in rows:
         last_rowid = rowid if (last_rowid is None or rowid > last_rowid) else last_rowid
@@ -283,8 +293,9 @@ def run():
                 continue
             ev = {"jid": jid, "msg_id": str(rid), "text": content or "", "is_from_me": bool(ifm),
                   "media_type": mtype or ""}
-            if not ifm:
-                ev["listing_key"] = match_listing(content, reqs_tick)
+            # run on BOTH directions: an inbound enquiry rarely names the exact listing, but
+            # Winfred's own hand reply or a sanctioned automation ack (PG auto-ack) often does.
+            ev["listing_key"] = match_listing(content, reqs_tick)
             # a bot-template outbound is OUR send (no takeover); any other outbound = Winfred by hand.
             # STRICT prefix matching: a manual reply that merely contains "still available" must
             # latch takeover, so only exact engine template starts count as engine sends.
