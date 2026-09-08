@@ -61,14 +61,28 @@ def _bump_cap(rec):
     rec["sends_today"] = int(rec.get("sends_today") or 0) + 1
 
 
-def _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn):
+def _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn, con):
     """Run every remaining gate on one PENDING/APPROVED draft and either send it or refuse
     it, always telling Winfred the outcome. Shared by the immediate /send path and the
     queued-drafts sweep (drafts he approved while quiet hours were still in effect) so the
     two can never drift apart. Returns True if the draft reached a terminal state (sent,
-    failed, rejected, excluded, cold, expired); False if it is left exactly as it was for a
-    later retry (cap reached today, or the cross sender guard has it reserved right now)."""
+    failed, rejected, excluded, disputed, cold, expired); False if it is left exactly as it
+    was for a later retry (cap reached today, or the cross sender guard has it reserved
+    right now).
+
+    con: the runner's own sqlite messages.db connection. Review fix: neither /send nor the
+    approved-drafts sweep ever re-checked dispute language before this -- a one tap /send
+    could reach a prospect mid dispute. Re-run dispute_language_recent over the chat's last
+    10 messages HERE, at actual send time, regardless of whether the record is currently
+    under manual_takeover (dispute_language_recent itself fails CLOSED on a query error, so
+    passing con=None also refuses rather than silently sending)."""
     did, pn = d["id"], d.get("pn")
+    if RES.dispute_language_recent(con, d["jid"]):
+        RES.mark_draft(did, "disputed")
+        log_fn("SEND_CMD_DISPUTE", pn, did)
+        notify_fn(f"Draft {did} for {pn} NOT sent: dispute/legal language recently in this "
+                  f"chat. Reply by hand.")
+        return True
     bad = RES.validate_draft(d.get("text"))
     if bad:
         RES.mark_draft(did, "rejected")
@@ -114,11 +128,15 @@ def _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn):
     return True
 
 
-def sweep_approved_drafts(state, send_fn, guard_reserve_fn, log_fn, notify_fn):
+def sweep_approved_drafts(state, send_fn, guard_reserve_fn, log_fn, notify_fn, con=None):
     """Called once per runner tick, ONLY after that tick has already confirmed quiet hours
     are over -- retries every draft Winfred approved with /send while it was still quiet
     hours (status 'approved'). A draft that aged past its 24h expiry while queued is expired
-    here, never sent (Winfred, 9 Sep 2026)."""
+    here, never sent (Winfred, 9 Sep 2026).
+
+    con: the runner's own sqlite messages.db connection, passed straight through to
+    _attempt_send_draft so a queued draft re-checks dispute language at the actual moment
+    it goes out, same as an immediate /send (review fix)."""
     for d in RES._load_drafts():
         if d.get("status") != "approved":
             continue
@@ -127,18 +145,23 @@ def sweep_approved_drafts(state, send_fn, guard_reserve_fn, log_fn, notify_fn):
             log_fn("SEND_CMD_EXPIRED", d.get("pn"), d["id"])
             notify_fn(f"Draft {d['id']} for {d.get('pn')} expired before it could go out; not sent.")
             continue
-        _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn)
+        _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn, con)
 
 
 def handle_self_chat_command(jid, text, send_fn, guard_reserve_fn, log_fn,
-                              notify_fn=None, quiet_hours_fn=None, state=None):
+                              notify_fn=None, quiet_hours_fn=None, state=None, con=None):
     """A from_me row in Winfred's OWN self chat. Returns True if this row was a recognised
     command (handled or deliberately ignored) so the runner never routes a self chat row
     into the tenant pipeline. '/send'/'/drop' typed in any OTHER chat is not seen here at
     all -- that row is a real message already visible to whoever is in that chat, and the
     runner's normal per-row skip for OWN_JID keeps this function from ever being asked
     about it. notify_fn/quiet_hours_fn/state default to permissive no-ops so an existing
-    caller that does not pass them keeps behaving as it always did."""
+    caller that does not pass them keeps behaving as it always did.
+
+    con: the runner's own sqlite messages.db connection, threaded down to
+    _attempt_send_draft for the send-time dispute recheck (review fix). Omitting it fails
+    CLOSED (dispute_language_recent treats a bad connection as dispute present), so a
+    caller that forgets to pass it gets a hard refuse, never a silent bypass."""
     notify_fn = notify_fn or (lambda *a, **k: None)
     quiet_hours_fn = quiet_hours_fn or (lambda: False)
     t = (text or "").strip()
@@ -172,5 +195,5 @@ def handle_self_chat_command(jid, text, send_fn, guard_reserve_fn, log_fn,
             log_fn("SEND_CMD_QUEUED", jid, did)
             notify_fn(f"Got it, draft {did} for {d.get('pn')} is queued and will go out at 07:00.")
         return True
-    _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn)
+    _attempt_send_draft(d, state, send_fn, guard_reserve_fn, log_fn, notify_fn, con)
     return True

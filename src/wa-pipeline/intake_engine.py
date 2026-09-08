@@ -1804,6 +1804,10 @@ def _rec(state, pn):
         "manual_takeover":False, "status":"new", "last_inbound":None,
         "last_inbound_ts":None,   # takeover resume /send cold guard (Winfred, 9 Sep 2026)
         "source":None, "fact_answered":False,
+        # B established (review fix): listing_key provenance + first-touch direction, feeding
+        # wa_intake_resume.is_established_prospect().
+        "listing_key_source":None, "first_inbound_text":None,
+        "outbound_before_first_inbound":False, "_any_outbound_seen":False,
         # landlord onboarding extension (never touched by the tenant/buyer flows)
         "supply_kind":None, "supply_profile":{}, "human_takeover":False,
         "info_complete":False, "photos_received":False, "video_received":False,
@@ -2070,6 +2074,7 @@ def _room_gone_action(rec, pn, st):
         if alt:
             k2, alt_text = alt
             rec["listing_key"] = k2
+            rec["listing_key_source"] = "hotmatch"   # engine cross sell, never tenant named
             rec["sent_count"] = 0; rec["cap_flagged"] = False   # fresh qualification attempt
             rec["stage"] = "ALT_SUGGESTED"; rec["status"] = "alt_suggested:" + k2
             return {"type": "SUGGEST_ALT", "pn": pn, "notify": True, "listing_key": k2,
@@ -2472,6 +2477,10 @@ def _handle_event_inner(state, ev):
 
     # ----- our own / human outbound -----
     if ev.get("is_from_me"):
+        # B established (review fix): ANY outbound (hand or engine) seen at all, so a later
+        # first inbound can tell whether Winfred/automation spoke first in this chat -- an
+        # outbound-first chat is his own contact, not a lead who found him.
+        rec["_any_outbound_seen"] = True
         # if it is not an engine-tagged message, Winfred replied by hand -> go silent.
         # copilot_muted makes that silence REAL: after a hand reply the copilot may never
         # message this prospect again (no auto-offer, no confirm) — screening verdicts only.
@@ -2488,8 +2497,11 @@ def _handle_event_inner(state, ev):
         # bind from OUTBOUND too: Winfred's hand reply often names the address, and a
         # sanctioned automation ack (PG auto-ack) always does. Either can carry the listing
         # that a plain inbound "still available?" never named. Never overwrite an existing bind.
+        # Sourced "outbound": never counts toward is_established_prospect() (review fix) --
+        # Winfred/automation naming a listing is not proof the tenant enquired about it.
         if ev.get("listing_key") and not rec.get("listing_key"):
             rec["listing_key"] = ev["listing_key"]
+            rec["listing_key_source"] = "outbound"
         if ev.get("text"):
             rec["last_outbound"] = ev["text"]
         return None
@@ -2509,6 +2521,11 @@ def _handle_event_inner(state, ev):
         # cold guard timestamp for a /send-from-draft self-chat command (Winfred, 9 Sep
         # 2026) -- distinct from last_hand_reply_ts (that one is WINFRED's own reply clock).
         rec["last_inbound_ts"] = ev["ts"]
+    if rec.get("first_inbound_text") is None:
+        # B established (review fix): first-touch snapshot only -- portal boilerplate check
+        # and the outbound-before-first-inbound flag are both anchored to THIS one message.
+        rec["first_inbound_text"] = ev.get("text") or ""
+        rec["outbound_before_first_inbound"] = bool(rec.get("_any_outbound_seen"))
     if rec.get("source") is None:
         # first-touch only: never re-classify once stamped, even if a later message
         # happens to match a CTA phrase (e.g. copy-pasted from an article by hand).
@@ -2536,6 +2553,7 @@ def _handle_event_inner(state, ev):
         if alt:
             k2, alt_text = alt
             rec["listing_key"] = k2
+            rec["listing_key_source"] = "hotmatch"   # engine cross sell, never tenant named
             rec["viewing_asked"] = False; rec["viewing_confirmed"] = False
             rec["book_intent_asked"] = False    # intent never carries across listings
             rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
@@ -2561,7 +2579,10 @@ def _handle_event_inner(state, ev):
             if k in REQUIRED_FIELDS: new_data = True
 
     if ev.get("listing_key") and not rec.get("listing_key"):
+        # Sourced "inbound": the ONLY source is_established_prospect() trusts -- the tenant's
+        # own text named this listing (review fix).
         rec["listing_key"] = ev["listing_key"]; new_data = True
+        rec["listing_key_source"] = "inbound"
     # ev["resume"] is set ONLY by the runner's takeover resume trigger (a prospect reply that
     # Winfred never answered, 5+ minutes after his last hand reply): it runs THIS ONE inbound
     # through the normal autonomous flow below exactly as if manual_takeover were not latched,
@@ -3000,6 +3021,7 @@ def _handle_event_inner(state, ev):
                                                    rec.get("last_outbound")]))
             if len(matches) == 1 and _text_mentions_listing(mention_blob, matches[0], reqs):
                 rec["listing_key"] = lk = matches[0]
+                rec["listing_key_source"] = "hotmatch"   # engine guess, never tenant named
                 listing = reqs.get(lk)
                 rec.pop("unbound_sig", None)
                 rec["flagged_human"] = False

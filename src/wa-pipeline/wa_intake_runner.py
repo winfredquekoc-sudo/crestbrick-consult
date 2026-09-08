@@ -225,7 +225,7 @@ def run():
     # quiet hours are confirmed over (the return above) -- safe to retry any /send Winfred
     # approved while they were still in effect, still subject to every other /send gate.
     RESC.sweep_approved_drafts(state, send_fn=_send, guard_reserve_fn=_guard_reserve,
-                               log_fn=_log, notify_fn=notify_winfred)
+                               log_fn=_log, notify_fn=notify_winfred, con=con)
     acted = 0
     # PRE-PASS: if this batch contains a MANUAL outbound reply from Winfred in a chat, latch
     # manual_takeover for that chat BEFORE acting on any of its inbound rows. Without this,
@@ -308,7 +308,8 @@ def run():
                     RESC.handle_self_chat_command(jid, content, send_fn=_send,
                                                   guard_reserve_fn=_guard_reserve, log_fn=_log,
                                                   notify_fn=notify_winfred,
-                                                  quiet_hours_fn=_quiet_hours, state=state)
+                                                  quiet_hours_fn=_quiet_hours, state=state,
+                                                  con=con)
                 continue
             if _pn0 and _pn0 in landlords:
                 continue
@@ -326,11 +327,18 @@ def run():
             # engine to run this one inbound through its normal (non manual-takeover) flow;
             # the allow list right below decides whether the result may actually reach a
             # real send or must become a drafted suggestion instead.
-            _pre_snapshot = None   # B1: form_sent/listing_key BEFORE this inbound is processed
+            _pre_snapshot = None   # record state BEFORE this inbound is processed
             if not ifm and _pn0:
                 _rec0 = state["conversations"].get(_pn0)
-                _pre_snapshot = {"form_sent": bool(_rec0 and _rec0.get("form_sent")),
-                                 "listing_key": _rec0.get("listing_key") if _rec0 else None}
+                # B established (review fix): a full shallow snapshot, not just form_sent/
+                # listing_key -- is_established_prospect() also needs listing_key_source,
+                # profile (>= 2 REQUIRED_FIELDS), first_inbound_text and
+                # outbound_before_first_inbound, all as they stood BEFORE this inbound.
+                # 'profile' gets its OWN copy: handle_event mutates rec['profile'] in place,
+                # so a bare dict(_rec0) would let a field THIS inbound just added leak into
+                # the "before" snapshot through the shared dict reference.
+                _pre_snapshot = dict(_rec0) if _rec0 is not None else {}
+                _pre_snapshot["profile"] = dict((_rec0 or {}).get("profile") or {})
                 _under_takeover = bool(_rec0 and (_rec0.get("manual_takeover") or _rec0.get("human_takeover")))
                 # B2: dispute/legal escalation language anywhere in the last 10 messages ->
                 # no auto-send, no draft, ever, for as long as it stays in that window. Flag

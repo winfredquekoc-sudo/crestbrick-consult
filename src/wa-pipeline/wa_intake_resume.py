@@ -119,22 +119,37 @@ def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
 
 # B2 (Sep 2026): a chat carrying dispute/legal escalation language is never a resume/draft
 # candidate -- Winfred handles it entirely by hand. Word boundary matched, case insensitive.
-DISPUTE_KEYWORDS = ("dispute", "reimburse", "refund", "lawyer", "tribunal", "terminate",
-                   "termination", "police", "complain", "scam", "deposit back")
-_DISPUTE_RE = re.compile(r"\b(?:" + "|".join(DISPUTE_KEYWORDS) + r")\b", re.I)
+# Review fix: the bare-word list missed inflected forms ("disputed", "scammed", "reimbursed",
+# "complaining") and 2 new phrases ("small claims", "report you", "CEA" in complaint context).
+DISPUTE_KEYWORDS = ("dispute", "disputed", "disputes",
+                    "complain", "complaining", "complaint", "complaints",
+                    "scam", "scammer", "scammed",
+                    "reimburse", "reimbursement", "reimbursed",
+                    "refund", "refunded", "refunds",
+                    "lawyer", "lawyers",
+                    "tribunal",
+                    "terminate", "terminated", "termination",
+                    "police",
+                    "deposit back",
+                    "small claims",
+                    "cea",
+                    "report you")
+_DISPUTE_RE = re.compile(
+    r"\b(?:" + "|".join(k.replace(" ", r"\s+") for k in DISPUTE_KEYWORDS) + r")\b", re.I)
 
 
 def dispute_language_recent(con, jid, limit=10):
     """True if any of the last LIMIT messages in this chat (either direction) contain
-    dispute/legal escalation language. Read only; never raises (a query failure is treated
-    as 'no dispute language seen', never as a reason to block -- the resume gates upstream
-    already fail closed on anything genuinely unsafe)."""
+    dispute/legal escalation language. Read only. FAILS CLOSED (review fix): a query error
+    (locked/corrupt store, bad connection) means dispute PRESENT, not 'no dispute seen' -- a
+    DB hiccup must never silently let a disputed chat through /send or resume auto-send. The
+    /send path must re-run this at send time regardless of manual_takeover state."""
     try:
         rows = con.execute(
             "SELECT content FROM messages WHERE chat_jid=? AND content IS NOT NULL "
             "ORDER BY rowid DESC LIMIT ?", (jid, limit)).fetchall()
     except Exception:
-        return False
+        return True
     return any(_DISPUTE_RE.search(c or "") for (c,) in rows)
 
 
@@ -182,29 +197,71 @@ def resume_send_gate(a, grec, landlords_unreadable):
     return True, resume_gate_blocked(a.get("pn"), landlords_unreadable)
 
 
+# B established (review fix): form_sent + listing_key alone is not evidence of a real lead
+# -- listing_key can get bound off WINFRED'S OWN outbound text (a friend's chat, pn
+# 6581894357, "Where ah bro", bound purely because Winfred once mentioned Eastpoint Green)
+# or the engine's own hot_matches() guess, neither proving the tenant enquired about it.
+PORTAL_BOILERPLATE_RE = re.compile(
+    r"propertyguru\.com\.sg/l/|99\.co/e/|i am interested in|learn more about this listing",
+    re.I)
+
+
+def is_established_prospect(rec):
+    """Multi factor established-tenant-prospect check. ALL must hold, or this is False:
+      (a) rec['listing_key_source'] == 'inbound' -- bound off the TENANT'S OWN text, never
+          an 'outbound' (Winfred/automation named it) or 'hotmatch' (engine guessed it) bind.
+      (b) rec['profile'] (only ever populated from inbound text) has >= 2 REQUIRED_FIELDS,
+          OR the FIRST inbound itself carried portal boilerplate -- real signal, not chatter.
+      (c) rec['form_sent'] is True.
+      (d) not excluded (E.excluded_reason(pn, '') is None); fails CLOSED on a DB error.
+      (e) no outbound before the first inbound in this chat -- an outbound-first chat is
+          Winfred's own contact who happened to reply, not a lead who found him."""
+    if not rec:
+        return False
+    if rec.get("listing_key_source") != "inbound":
+        return False
+    profile = rec.get("profile") or {}
+    n_fields = sum(1 for f in E.REQUIRED_FIELDS if profile.get(f) not in (None, ""))
+    portal = bool(PORTAL_BOILERPLATE_RE.search(rec.get("first_inbound_text") or ""))
+    if n_fields < 2 and not portal:
+        return False
+    if not rec.get("form_sent"):
+        return False
+    if rec.get("outbound_before_first_inbound"):
+        return False
+    try:
+        why = E.excluded_reason(rec.get("pn"), "")
+    except Exception:
+        why = "db_error"
+    if why:
+        return False
+    return True
+
+
 def needs_draft(a, rec_before=None):
     """True when the engine's action for a resumed inbound must NOT reach a real send and
     instead needs a drafted suggestion for Winfred to review.
 
-    rec_before (optional): a snapshot of the conversation record's form_sent/listing_key
-    taken BEFORE this inbound was run through handle_event (a plain dict or the record
-    itself, read only -- never the live object AFTER the event, which handle_event may have
-    just mutated as a side effect of producing the very action being checked). B1 (Sep
-    2026): an allow listed action type is only trusted when the record was ALREADY an
-    established tenant prospect -- form_sent True AND listing_key bound -- before this
-    inbound. Without this, a friend's casual chat that only just got bound off Winfred's own
-    outbound text got a live SEND_FORM (pn 6581894357, "Where ah bro", 8-9 Sep 2026); when
-    rec_before is omitted, callers get the old type only behaviour (existing tests)."""
+    rec_before (optional): a snapshot of the conversation record taken BEFORE this inbound
+    was run through handle_event (read only -- never the live object AFTER the event, which
+    handle_event may have just mutated as a side effect of producing the very action).
+
+    B established (review fix): the multi factor is_established_prospect() gate now runs
+    FIRST, ahead of every other early return -- it used to run only for allow listed action
+    types, AFTER the ANSWER_QUESTION shortcut had already returned True/False on its own,
+    letting a category 1 fact answer auto-send landlord copy into a chat with listing_key
+    still None. An ANSWER_QUESTION fact now also always requires a bound listing on top of
+    the established gate. rec_before omitted -> old type only behaviour (existing tests)."""
     if not a:
+        return True
+    if rec_before is not None and not is_established_prospect(rec_before):
         return True
     t = a.get("type")
     if t == "ANSWER_QUESTION":
-        return not a.get("text")     # category 1 fact answer has text; anything else drafts
+        return not (a.get("text") and (rec_before is None or rec_before.get("listing_key")))
     if t in NOTIFY_ONLY_RESUME_TYPES:
         return bool(a.get("text") or a.get("texts"))
     if t not in ALLOWED_RESUME_TYPES:
-        return True
-    if rec_before is not None and not (rec_before.get("form_sent") and rec_before.get("listing_key")):
         return True
     return False
 

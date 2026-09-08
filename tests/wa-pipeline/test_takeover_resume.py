@@ -142,6 +142,20 @@ class TestAllowListEnforcement(unittest.TestCase):
         self.assertTrue(RES.needs_draft({"type": "ANSWER_QUESTION", "text": None,
                                          "question": "can you do 1400?"}))
 
+    def test_answer_question_with_text_but_no_bound_listing_needs_a_draft(self):
+        """Review fix: needs_draft used to return on ANSWER_QUESTION BEFORE the established
+        gate ever looked at rec_before, so a category 1 fact answer could auto-send landlord
+        copy into a chat with listing_key still None. With a rec_before snapshot given, a
+        fact answer now always requires a bound listing on top of being established."""
+        rec_before = {"pn": FAKE_PN, "form_sent": True, "listing_key": None,
+                     "listing_key_source": "inbound",
+                     "profile": {"name": "Tester", "nationality": "Singaporean"},
+                     "first_inbound_text": "is this room available",
+                     "outbound_before_first_inbound": False}
+        a = {"type": "ANSWER_QUESTION", "text": "no cooking allowed"}
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            self.assertTrue(RES.needs_draft(a, rec_before))
+
     def test_no_action_at_all_needs_a_draft(self):
         self.assertTrue(RES.needs_draft(None))
 
@@ -244,6 +258,7 @@ class TestSelfChatCommand(unittest.TestCase):
         RES.DRAFTS_FILE = self._tmp
         self.sent = []
         self.guard_calls = []
+        self.con = _mem_db([])   # clean, no dispute language -- B2 recheck must pass through
         self._exc_patch = mock.patch.object(E, "excluded_reason", return_value=None)
         self._exc_patch.start()
 
@@ -262,7 +277,8 @@ class TestSelfChatCommand(unittest.TestCase):
     def test_send_marks_sent_and_calls_send_fn(self):
         did = RES.new_draft("6598880000", "6598880000@lid", "test-listing", "hello there")
         handled = RESC.handle_self_chat_command(
-            RES.OWN_JID, f"/send {did}", self._send_fn, self._guard_fn, lambda *a: None)
+            RES.OWN_JID, f"/send {did}", self._send_fn, self._guard_fn, lambda *a: None,
+            con=self.con)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 1)
         self.assertEqual(self.sent[0], ("6598880000@lid", "hello there"))
@@ -293,10 +309,10 @@ class TestSelfChatCommand(unittest.TestCase):
     def test_already_sent_draft_cannot_be_sent_twice(self):
         did = RES.new_draft("6598880003", "6598880003@lid", "test-listing", "hello there")
         RESC.handle_self_chat_command(RES.OWN_JID, f"/send {did}", self._send_fn,
-                                     self._guard_fn, lambda *a: None)
+                                     self._guard_fn, lambda *a: None, con=self.con)
         self.assertEqual(len(self.sent), 1)
         RESC.handle_self_chat_command(RES.OWN_JID, f"/send {did}", self._send_fn,
-                                     self._guard_fn, lambda *a: None)
+                                     self._guard_fn, lambda *a: None, con=self.con)
         self.assertEqual(len(self.sent), 1)   # not sent again
 
     def test_unknown_draft_id_is_ignored(self):
@@ -314,7 +330,8 @@ class TestSelfChatCommand(unittest.TestCase):
     def test_guard_reserve_failure_blocks_the_send(self):
         did = RES.new_draft("6598880004", "6598880004@lid", "test-listing", "hello there")
         handled = RESC.handle_self_chat_command(
-            RES.OWN_JID, f"/send {did}", self._send_fn, lambda jid: False, lambda *a: None)
+            RES.OWN_JID, f"/send {did}", self._send_fn, lambda jid: False, lambda *a: None,
+            con=self.con)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 0)
         self.assertEqual(RES.find_draft(did)["status"], "pending")
@@ -491,7 +508,7 @@ class TestDraftValidator(unittest.TestCase):
             RESC.handle_self_chat_command(RES.OWN_JID, "/send " + did,
                                          send_fn=lambda j, t: sent.append((j, t)) or True,
                                          guard_reserve_fn=lambda j: True,
-                                         log_fn=lambda *a: None)
+                                         log_fn=lambda *a: None, con=_mem_db([]))
             self.assertEqual(sent, [])
             self.assertEqual(RES.find_draft(did)["status"], "rejected")
         finally:
@@ -775,8 +792,16 @@ class TestResumeSendSite(unittest.TestCase):
         # send choke at all -- these fixtures represent that legitimate, already qualified
         # case; the "not yet established" case is covered separately below.
         r = {"pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
-             "last_hand_reply_ts": _sgt_ts(20), "profile": {}, "processed_ids": [],
-             "form_sent": True, "listing_key": "test-listing"}
+             "last_hand_reply_ts": _sgt_ts(20),
+             # B established (Sep 2026 review): shaped as a genuinely established prospect
+             # (real inbound bind + 2 profile fields + no outbound before the first inbound)
+             # so these send-site tests keep exercising the choke's OWN gates (cap/cold/
+             # excluded/guard) unchanged by the established rewrite -- the "not yet
+             # established" case is covered separately in TestB1EstablishedProspectGate.
+             "profile": {"name": "Tester", "nationality": "Singaporean"},
+             "listing_key_source": "inbound", "first_inbound_text": "is this room available",
+             "outbound_before_first_inbound": False,
+             "processed_ids": [], "form_sent": True, "listing_key": "test-listing"}
         r.update(kw)
         return r
 
@@ -832,11 +857,11 @@ class TestResumeSendSite(unittest.TestCase):
         self.assertTrue(any(k == "DAILY_CAP_SKIP" for k, p, m in calls["logged"]))
 
     def test_excluded_contact_blocks_resume_send(self):
-        """Simulates a same-tick DB flip: excluded_reason says clean the FIRST time (inside
-        resume_reason_blocked, letting ev['resume'] get set) and excluded the SECOND time
-        (the choke's own independent re-check) -- proving the choke does not just trust the
-        earlier gate."""
-        with mock.patch.object(E, "excluded_reason", side_effect=[None, "agent"]):
+        """Simulates a same-tick DB flip: excluded_reason says clean the first two times
+        (resume_reason_blocked, then the established gate's own recheck inside needs_draft)
+        and excluded the THIRD time (the choke's own independent re-check) -- proving the
+        choke does not just trust the earlier gates."""
+        with mock.patch.object(E, "excluded_reason", side_effect=[None, None, "agent"]):
             calls = self._run(
                 conversations={FAKE_PN: self._rec()},
                 handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN, "text": "hi"})
@@ -873,6 +898,7 @@ class TestSendCommandHardening(unittest.TestCase):
         self._orig = RES.DRAFTS_FILE
         RES.DRAFTS_FILE = self._tmp
         self.sent, self.notified, self.logged = [], [], []
+        self.con = _mem_db([])   # clean, no dispute language -- B2 recheck must pass through
 
     def tearDown(self):
         RES.DRAFTS_FILE = self._orig
@@ -894,7 +920,7 @@ class TestSendCommandHardening(unittest.TestCase):
             handled = RESC.handle_self_chat_command(
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
                 lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
-                state=self._state(last_inbound_ts=old_ts))
+                state=self._state(last_inbound_ts=old_ts), con=self.con)
         self.assertTrue(handled)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "cold")
@@ -906,7 +932,7 @@ class TestSendCommandHardening(unittest.TestCase):
             handled = RESC.handle_self_chat_command(
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
                 lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
-                state=self._state(last_inbound_ts=_sgt_ts(10)))
+                state=self._state(last_inbound_ts=_sgt_ts(10)), con=self.con)
         self.assertTrue(handled)
         self.assertEqual(self.sent, [(FAKE_JID, "Keen to view this week?")])
         self.assertEqual(RES.find_draft(did)["status"], "sent")
@@ -918,7 +944,7 @@ class TestSendCommandHardening(unittest.TestCase):
             handled = RESC.handle_self_chat_command(
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
                 lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
-                state=self._state())
+                state=self._state(), con=self.con)
         self.assertTrue(handled)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "excluded")
@@ -930,7 +956,7 @@ class TestSendCommandHardening(unittest.TestCase):
             RESC.handle_self_chat_command(
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
                 lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
-                state=self._state())
+                state=self._state(), con=self.con)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "excluded")
 
@@ -942,7 +968,7 @@ class TestSendCommandHardening(unittest.TestCase):
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
                 lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
                 state=self._state(sends_today_date=today, sends_today=2,
-                                  last_inbound_ts=_sgt_ts(10)))
+                                  last_inbound_ts=_sgt_ts(10)), con=self.con)
         self.assertTrue(handled)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "pending")   # unchanged -- retried later
@@ -954,7 +980,7 @@ class TestSendCommandHardening(unittest.TestCase):
         with mock.patch.object(E, "excluded_reason", return_value=None):
             RESC.handle_self_chat_command(
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
-                lambda *a: None, notify_fn=self.notified.append, state=state)
+                lambda *a: None, notify_fn=self.notified.append, state=state, con=self.con)
         rec = state["conversations"][FAKE_PN]
         self.assertEqual(rec["sends_today"], 1)
 
@@ -963,7 +989,8 @@ class TestSendCommandHardening(unittest.TestCase):
         handled = RESC.handle_self_chat_command(
             RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
             lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
-            quiet_hours_fn=lambda: True, state=self._state(last_inbound_ts=_sgt_ts(10)))
+            quiet_hours_fn=lambda: True, state=self._state(last_inbound_ts=_sgt_ts(10)),
+            con=self.con)
         self.assertTrue(handled)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "approved")
@@ -975,7 +1002,8 @@ class TestSendCommandHardening(unittest.TestCase):
         state = self._state(last_inbound_ts=_sgt_ts(10))
         with mock.patch.object(E, "excluded_reason", return_value=None):
             RESC.sweep_approved_drafts(state, send_fn=self._send_fn, guard_reserve_fn=lambda j: True,
-                                      log_fn=lambda *a: None, notify_fn=self.notified.append)
+                                      log_fn=lambda *a: None, notify_fn=self.notified.append,
+                                      con=self.con)
         self.assertEqual(self.sent, [(FAKE_JID, "Keen to view this week?")])
         self.assertEqual(RES.find_draft(did)["status"], "sent")
 
@@ -989,7 +1017,7 @@ class TestSendCommandHardening(unittest.TestCase):
         RES._rewrite_drafts(items)
         RESC.sweep_approved_drafts(self._state(), send_fn=self._send_fn,
                                    guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
-                                   notify_fn=self.notified.append)
+                                   notify_fn=self.notified.append, con=self.con)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "expired")
 
@@ -999,10 +1027,62 @@ class TestSendCommandHardening(unittest.TestCase):
             RESC.handle_self_chat_command(
                 RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: False,
                 lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
-                state=self._state(last_inbound_ts=_sgt_ts(10)))
+                state=self._state(last_inbound_ts=_sgt_ts(10)), con=self.con)
         self.assertEqual(self.sent, [])
         self.assertEqual(RES.find_draft(did)["status"], "pending")
         self.assertTrue(any("reserved" in m for m in self.notified))
+
+    def test_dispute_language_recent_blocks_send_even_without_manual_takeover(self):
+        """Review fix: /send re-runs dispute_language_recent regardless of _under_takeover --
+        this record carries no manual_takeover/human_takeover flag at all (a plain resume
+        draft state), proving the check is not conditioned on takeover state the way the
+        autonomous resume path's check is."""
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        con = _mem_db([])
+        con.execute("INSERT INTO messages (rowid, id, chat_jid, is_from_me, content, timestamp) "
+                    "VALUES (1, 'D1', ?, 0, 'thinking of getting a lawyer over this', "
+                    "'2026-09-08 10:00:00+08:00')", (FAKE_JID,))
+        con.commit()
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            handled = RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state(last_inbound_ts=_sgt_ts(10)), con=con)
+        self.assertTrue(handled)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "disputed")
+        self.assertTrue(any("dispute" in m.lower() for m in self.notified))
+        self.assertTrue(any(k == "SEND_CMD_DISPUTE" for k, p, m in self.logged))
+
+    def test_sweep_also_blocks_a_disputed_chat(self):
+        """Same recheck applies to the queued-drafts sweep, not just the immediate /send."""
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        RES.mark_draft(did, "approved")
+        con = _mem_db([])
+        con.execute("INSERT INTO messages (rowid, id, chat_jid, is_from_me, content, timestamp) "
+                    "VALUES (1, 'D2', ?, 0, 'I want a refund for this', "
+                    "'2026-09-08 10:00:00+08:00')", (FAKE_JID,))
+        con.commit()
+        state = self._state(last_inbound_ts=_sgt_ts(10))
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            RESC.sweep_approved_drafts(state, send_fn=self._send_fn, guard_reserve_fn=lambda j: True,
+                                      log_fn=lambda *a: None, notify_fn=self.notified.append,
+                                      con=con)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "disputed")
+
+    def test_missing_connection_fails_closed_never_sends(self):
+        """con omitted entirely (a caller that forgot to wire it) must refuse, never
+        silently send -- dispute_language_recent's own fail-closed exception path covers a
+        bad/absent connection the same way it covers a real query error."""
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state(last_inbound_ts=_sgt_ts(10)))
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "disputed")
 
 
 class TestB1EstablishedProspectGate(unittest.TestCase):
@@ -1035,9 +1115,17 @@ class TestB1EstablishedProspectGate(unittest.TestCase):
         self.assertFalse(RES.needs_draft(a))
 
     def test_needs_draft_allows_offer_viewing_for_an_established_prospect(self):
-        rec_before = {"form_sent": True, "listing_key": "eastpoint-green"}
+        # B established (Sep 2026 review): form_sent + listing_key alone no longer suffices
+        # -- the fixture below is genuinely established per is_established_prospect() (real
+        # inbound bind, 2 profile fields, no outbound before the first inbound).
+        rec_before = {"pn": FAKE_PN, "form_sent": True, "listing_key": "eastpoint-green",
+                     "listing_key_source": "inbound",
+                     "profile": {"name": "Tester", "nationality": "Singaporean"},
+                     "first_inbound_text": "is this room available",
+                     "outbound_before_first_inbound": False}
         a = {"type": "OFFER_VIEWING", "text": "Keen to view?"}
-        self.assertFalse(RES.needs_draft(a, rec_before))
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            self.assertFalse(RES.needs_draft(a, rec_before))
 
     def test_revert_unsent_form_undoes_the_optimistic_mutation_when_drafted(self):
         # real incident, pn 6590590183: handle_event stamps form_sent=True the instant it
@@ -1082,12 +1170,65 @@ class TestB1EstablishedProspectGate(unittest.TestCase):
                     tmp,
                     conversations={FAKE_PN: {
                         "pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
-                        "last_hand_reply_ts": _sgt_ts(20), "profile": {}, "processed_ids": [],
-                        "form_sent": True, "listing_key": "eastpoint-green"}},
+                        "last_hand_reply_ts": _sgt_ts(20),
+                        "profile": {"name": "Tester", "nationality": "Singaporean"},
+                        "processed_ids": [], "form_sent": True,
+                        "listing_key": "eastpoint-green", "listing_key_source": "inbound",
+                        "first_inbound_text": "is this room available",
+                        "outbound_before_first_inbound": False}},
                     handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN,
                                          "text": "Keen to view Fri 3pm?"}) as calls:
                 pass
             self.assertEqual(calls["sent"], [(FAKE_JID, "Keen to view Fri 3pm?")])
+
+    def test_friend_chat_outbound_first_no_portal_no_profile_is_never_established(self):
+        """Real incident shape, pn 6581894357 (review fix): Winfred messages a friend
+        first, casually naming a listing in his own hand typed text; the friend's only
+        reply is idle chatter ("Where ah bro") -- no portal link, no profile data. Even if
+        form_sent later ends up True (a stray hand paste, exactly what happened for real),
+        this must never read as established: listing_key_source stays 'outbound' and
+        outbound_before_first_inbound is True."""
+        state = {"version": 1, "conversations": {}}
+        pn = "6581894357"
+        jid = pn + "@s.whatsapp.net"
+        with mock.patch.object(E, "_landlord_pn_set", lambda: frozenset()):
+            E.handle_event(state, {"jid": jid, "msg_id": "m1",
+                                   "text": "eh you still looking? I got a room at "
+                                           "eastpoint green if keen",
+                                   "is_from_me": True, "engine": False,
+                                   "listing_key": "eastpoint-green", "ts": _sgt_ts(120)})
+            E.handle_event(state, {"jid": jid, "msg_id": "m2", "text": "Where ah bro",
+                                   "is_from_me": False, "listing_key": None, "ts": _sgt_ts(100)})
+        rec = state["conversations"][pn]
+        self.assertEqual(rec["listing_key"], "eastpoint-green")
+        self.assertEqual(rec["listing_key_source"], "outbound")
+        self.assertTrue(rec["outbound_before_first_inbound"])
+        rec["form_sent"] = True   # exactly the real incident: form_sent True anyway
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            self.assertFalse(RES.is_established_prospect(rec))
+
+    def test_genuine_portal_lead_with_boilerplate_and_form_sent_is_established(self):
+        """A real tenant enquiry: the FIRST message is the tenant's own, carries portal
+        boilerplate and names the listing through their own text (no prior outbound at
+        all), and the form later gets filled -- the genuinely established shape
+        is_established_prospect() must accept."""
+        state = {"version": 1, "conversations": {}}
+        pn = "6591230000"
+        jid = pn + "@s.whatsapp.net"
+        with mock.patch.object(E, "_landlord_pn_set", lambda: frozenset()):
+            E.handle_event(state, {"jid": jid, "msg_id": "m1",
+                                   "text": "Hi I am interested in your listing "
+                                           "https://www.propertyguru.com.sg/l/12345678, "
+                                           "is it still available?",
+                                   "is_from_me": False, "listing_key": "genuine-listing",
+                                   "ts": _sgt_ts(30)})
+        rec = state["conversations"][pn]
+        self.assertEqual(rec["listing_key"], "genuine-listing")
+        self.assertEqual(rec["listing_key_source"], "inbound")
+        self.assertFalse(rec["outbound_before_first_inbound"])
+        rec["form_sent"] = True   # form went out and was filled in -- established from here
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            self.assertTrue(RES.is_established_prospect(rec))
 
 
 class TestB2DisputeBlock(unittest.TestCase):
@@ -1133,6 +1274,19 @@ class TestB2DisputeBlock(unittest.TestCase):
             con.commit()
             self.assertFalse(RES.dispute_language_recent(con, FAKE_JID, limit=10))
             con.close()
+
+    def test_dispute_language_recent_fails_closed_on_query_error(self):
+        """Review fix: a query error (closed connection, locked/corrupt store) must be
+        treated as dispute PRESENT, never as 'no dispute seen' -- the old behaviour failed
+        OPEN, so a DB hiccup could silently let a disputed chat through /send."""
+        con = sqlite3.connect(":memory:")
+        con.close()   # any query on a closed connection raises
+        self.assertTrue(RES.dispute_language_recent(con, FAKE_JID))
+
+    def test_dispute_language_recent_fails_closed_on_missing_table(self):
+        con = sqlite3.connect(":memory:")   # no messages table created at all
+        self.assertTrue(RES.dispute_language_recent(con, FAKE_JID))
+        con.close()
 
     def test_runner_blocks_resume_send_and_flags_once_on_dispute_language(self):
         with tempfile.TemporaryDirectory() as tmp:

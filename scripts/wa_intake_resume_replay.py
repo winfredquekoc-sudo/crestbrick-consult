@@ -106,8 +106,13 @@ def replay_chat(con, jid, rows, days):
         pre_snapshot, disputed = None, False
         if not ifm:
             rec_before = state["conversations"].get(pn)
-            pre_snapshot = {"form_sent": bool(rec_before and rec_before.get("form_sent")),
-                            "listing_key": rec_before.get("listing_key") if rec_before else None}
+            # B established (review fix): full shallow snapshot (mirrors wa_intake_runner.py
+            # exactly) -- is_established_prospect() needs listing_key_source/profile/
+            # first_inbound_text/outbound_before_first_inbound too, not just form_sent/
+            # listing_key. 'profile' gets its own copy so this inbound's own extraction
+            # never leaks into the "before" snapshot through a shared dict reference.
+            pre_snapshot = dict(rec_before) if rec_before is not None else {}
+            pre_snapshot["profile"] = dict((rec_before or {}).get("profile") or {})
             under_takeover = bool(rec_before and (rec_before.get("manual_takeover")
                                                   or rec_before.get("human_takeover")))
             # B2: dispute/legal escalation language in the last 10 messages -> never
@@ -271,8 +276,9 @@ def _collect_draft_candidates(days):
                 pre_snapshot = None
                 if not ifm:
                     rec_before = state["conversations"].get(pn)
-                    pre_snapshot = {"form_sent": bool(rec_before and rec_before.get("form_sent")),
-                                    "listing_key": rec_before.get("listing_key") if rec_before else None}
+                    # B established (review fix): see the mirrored comment above.
+                    pre_snapshot = dict(rec_before) if rec_before is not None else {}
+                    pre_snapshot["profile"] = dict((rec_before or {}).get("profile") or {})
                     under_takeover = bool(rec_before and (rec_before.get("manual_takeover")
                                                           or rec_before.get("human_takeover")))
                     if not (under_takeover and RES.dispute_language_recent(con, jid)):
