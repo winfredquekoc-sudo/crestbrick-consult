@@ -1802,6 +1802,7 @@ def _rec(state, pn):
         "processed_ids":[], "form_sent":False, "asked_fields":[],
         "viewing_asked":False, "viewing_confirmed":False, "asked_tenant_time":False,
         "manual_takeover":False, "status":"new", "last_inbound":None,
+        "last_inbound_ts":None,   # takeover resume /send cold guard (Winfred, 9 Sep 2026)
         "source":None, "fact_answered":False,
         # landlord onboarding extension (never touched by the tenant/buyer flows)
         "supply_kind":None, "supply_profile":{}, "human_takeover":False,
@@ -2504,6 +2505,10 @@ def _handle_event_inner(state, ev):
         if len(rec["processed_ids"]) > 200:
             rec["processed_ids"] = rec["processed_ids"][-200:]
     rec["last_inbound"] = ev.get("text")
+    if ev.get("ts"):
+        # cold guard timestamp for a /send-from-draft self-chat command (Winfred, 9 Sep
+        # 2026) -- distinct from last_hand_reply_ts (that one is WINFRED's own reply clock).
+        rec["last_inbound_ts"] = ev["ts"]
     if rec.get("source") is None:
         # first-touch only: never re-classify once stamped, even if a later message
         # happens to match a CTA phrase (e.g. copy-pasted from an article by hand).

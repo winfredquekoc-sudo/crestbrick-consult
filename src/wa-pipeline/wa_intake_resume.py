@@ -117,6 +117,50 @@ def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
     return None
 
 
+def mark_resume(a):
+    """Tag an action ELIGIBLE to bypass the runner's manual_takeover send choke. This is the
+    ONLY place a["resume"] is ever set True -- called by the runner exactly once, right after
+    it has already confirmed (via needs_draft) that the action is an allow listed template
+    carrying real text. The choke point trusts nothing else to decide this (Opus review, 9
+    Sep 2026: the choke used to ignore ev["resume"] entirely and TAKEOVER_SKIP every one)."""
+    if a is not None:
+        a["resume"] = True
+    return a
+
+
+def resume_gate_blocked(pn, landlords_unreadable):
+    """Defense-in-depth re-check run at the runner's send choke, the instant before a resume
+    action is allowed to bypass manual_takeover -- after quiet hours (whole-tick gate) and
+    the 5 day cold guard / daily cap (the choke's own existing checks, which already apply
+    to every action including a resume one). resume_reason_blocked already vetted
+    excluded_reason and the landlord DB once, earlier in the same tick, before the engine
+    ever ran; this repeats both checks at the actual moment of send so a same-tick DB flip
+    (or a future refactor that stops calling resume_reason_blocked first) can never slip a
+    landlord or an excluded contact through. None -> ok to send; otherwise a short
+    RESUME_SKIP reason. Fails CLOSED on an unreadable contact DB, same as excluded_reason."""
+    try:
+        why = E.excluded_reason(pn, "")
+    except Exception:
+        why = "db_error"
+    if why:
+        return "excluded contact: " + str(why)
+    if landlords_unreadable:
+        return "landlord-db unreadable, failing closed"
+    return None
+
+
+def resume_send_gate(a, grec, landlords_unreadable):
+    """The whole resume-bypass decision for the runner's send choke, in one call. Returns
+    (attempted, blocked_reason). attempted=False means A was not a resume action under a
+    manual_takeover record at all -- the normal TAKEOVER_SKIP choke runs completely
+    unmodified. attempted=True with blocked_reason=None means every resume gate passed and
+    this ONE action may bypass TAKEOVER_SKIP (the runner's own 5 day cold guard and daily
+    cap, checked earlier/later in its choke, still apply exactly like any other action)."""
+    if not (a.get("resume") and grec.get("manual_takeover")):
+        return False, None
+    return True, resume_gate_blocked(a.get("pn"), landlords_unreadable)
+
+
 def needs_draft(a):
     """True when the engine's action for a resumed inbound must NOT reach a real send and
     instead needs a drafted suggestion for Winfred to review."""
@@ -344,48 +388,3 @@ def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
               f"To send it, WhatsApp yourself: /send {did}. Or reply to them directly.")
 
 
-# ---------- /send <id> and /drop <id>, only from Winfred's own self chat ----------
-_SEND_RE = re.compile(r"^/send\s+([0-9a-f]{6,10})\s*$", re.I)
-_DROP_RE = re.compile(r"^/drop\s+([0-9a-f]{6,10})\s*$", re.I)
-
-
-def handle_self_chat_command(jid, text, send_fn, guard_reserve_fn, log_fn):
-    """A from_me row in Winfred's OWN self chat. Returns True if this row was a recognised
-    command (handled or deliberately ignored) so the runner never routes a self chat row
-    into the tenant pipeline. '/send'/'/drop' typed in any OTHER chat is not seen here at
-    all -- that row is a real message already visible to whoever is in that chat, and the
-    runner's normal per-row skip for OWN_JID keeps this function from ever being asked
-    about it."""
-    t = (text or "").strip()
-    m_send, m_drop = _SEND_RE.match(t), _DROP_RE.match(t)
-    if not (m_send or m_drop):
-        return False
-    did = (m_send or m_drop).group(1).lower()
-    d = find_draft(did)
-    if not d:
-        log_fn("SEND_CMD_UNKNOWN", jid, did)
-        return True
-    if m_drop:
-        mark_draft(did, "dropped")
-        log_fn("DRAFT_DROPPED", jid, did)
-        return True
-    # /send
-    if d.get("status") != "pending":
-        log_fn("SEND_CMD_STALE", jid, f"{did} status={d.get('status')}")
-        return True
-    if time.time() - d.get("created", 0) > DRAFT_EXPIRY_SEC:
-        mark_draft(did, "expired")
-        log_fn("SEND_CMD_EXPIRED", jid, did)
-        return True
-    bad = validate_draft(d.get("text"))
-    if bad:
-        mark_draft(did, "rejected")
-        log_fn("SEND_CMD_REJECTED", jid, f"{did} :: {bad}")
-        return True
-    if not guard_reserve_fn(d["jid"]):
-        log_fn("SEND_CMD_GUARD_SKIP", jid, did)
-        return True
-    ok = send_fn(d["jid"], d["text"])
-    mark_draft(did, "sent" if ok else "send_failed")
-    log_fn("DRAFT_SENT" if ok else "DRAFT_SEND_FAIL", d["pn"], did)
-    return True

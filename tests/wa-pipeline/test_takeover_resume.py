@@ -6,13 +6,15 @@ chat." AUTO SEND only fixed engine templates and category 1 facts; DRAFT everyth
 
 Run: /usr/bin/python3 tests/wa-pipeline/test_takeover_resume.py
 """
-import sys, os, sqlite3, time, unittest
+import sys, os, sqlite3, time, json, datetime, contextlib, tempfile, unittest
 from unittest import mock
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
 import intake_engine as E
 import wa_intake_resume as RES
+import wa_intake_selfchat as RESC
+import wa_intake_runner as R
 
 
 def _mem_db(rows):
@@ -231,14 +233,22 @@ class TestRunnerStructural(unittest.TestCase):
 
 
 class TestSelfChatCommand(unittest.TestCase):
+    """FIX 2 (Opus review, 9 Sep 2026) hardened /send to re-check excluded_reason on every
+    call -- every test in this class runs against a clean (not excluded) contact by default,
+    matching the old permissive behaviour these tests were written against; the excluded
+    path itself gets its own dedicated test in TestSendCommandHardening below."""
+
     def setUp(self):
         self._tmp = f"/tmp/test-drafts-{os.getpid()}-{time.time_ns()}.jsonl"
         self._orig = RES.DRAFTS_FILE
         RES.DRAFTS_FILE = self._tmp
         self.sent = []
         self.guard_calls = []
+        self._exc_patch = mock.patch.object(E, "excluded_reason", return_value=None)
+        self._exc_patch.start()
 
     def tearDown(self):
+        self._exc_patch.stop()
         RES.DRAFTS_FILE = self._orig
         try: os.remove(self._tmp)
         except OSError: pass
@@ -251,7 +261,7 @@ class TestSelfChatCommand(unittest.TestCase):
 
     def test_send_marks_sent_and_calls_send_fn(self):
         did = RES.new_draft("6598880000", "6598880000@lid", "test-listing", "hello there")
-        handled = RES.handle_self_chat_command(
+        handled = RESC.handle_self_chat_command(
             RES.OWN_JID, f"/send {did}", self._send_fn, self._guard_fn, lambda *a: None)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 1)
@@ -260,7 +270,7 @@ class TestSelfChatCommand(unittest.TestCase):
 
     def test_drop_marks_dropped_never_sends(self):
         did = RES.new_draft("6598880001", "6598880001@lid", "test-listing", "hello there")
-        handled = RES.handle_self_chat_command(
+        handled = RESC.handle_self_chat_command(
             RES.OWN_JID, f"/drop {did}", self._send_fn, self._guard_fn, lambda *a: None)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 0)
@@ -274,7 +284,7 @@ class TestSelfChatCommand(unittest.TestCase):
             if d["id"] == did:
                 d["created"] = time.time() - RES.DRAFT_EXPIRY_SEC - 60
         RES._rewrite_drafts(items)
-        handled = RES.handle_self_chat_command(
+        handled = RESC.handle_self_chat_command(
             RES.OWN_JID, f"/send {did}", self._send_fn, self._guard_fn, lambda *a: None)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 0)
@@ -282,28 +292,28 @@ class TestSelfChatCommand(unittest.TestCase):
 
     def test_already_sent_draft_cannot_be_sent_twice(self):
         did = RES.new_draft("6598880003", "6598880003@lid", "test-listing", "hello there")
-        RES.handle_self_chat_command(RES.OWN_JID, f"/send {did}", self._send_fn,
+        RESC.handle_self_chat_command(RES.OWN_JID, f"/send {did}", self._send_fn,
                                      self._guard_fn, lambda *a: None)
         self.assertEqual(len(self.sent), 1)
-        RES.handle_self_chat_command(RES.OWN_JID, f"/send {did}", self._send_fn,
+        RESC.handle_self_chat_command(RES.OWN_JID, f"/send {did}", self._send_fn,
                                      self._guard_fn, lambda *a: None)
         self.assertEqual(len(self.sent), 1)   # not sent again
 
     def test_unknown_draft_id_is_ignored(self):
-        handled = RES.handle_self_chat_command(
+        handled = RESC.handle_self_chat_command(
             RES.OWN_JID, "/send deadbeef", self._send_fn, self._guard_fn, lambda *a: None)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 0)
 
     def test_non_command_text_is_not_handled_here(self):
-        handled = RES.handle_self_chat_command(
+        handled = RESC.handle_self_chat_command(
             RES.OWN_JID, "just a normal note to myself", self._send_fn, self._guard_fn,
             lambda *a: None)
         self.assertFalse(handled)
 
     def test_guard_reserve_failure_blocks_the_send(self):
         did = RES.new_draft("6598880004", "6598880004@lid", "test-listing", "hello there")
-        handled = RES.handle_self_chat_command(
+        handled = RESC.handle_self_chat_command(
             RES.OWN_JID, f"/send {did}", self._send_fn, lambda jid: False, lambda *a: None)
         self.assertTrue(handled)
         self.assertEqual(len(self.sent), 0)
@@ -317,7 +327,7 @@ class TestSelfChatCommand(unittest.TestCase):
         path = os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_runner.py")
         src = open(path).read()
         i_jid_check = src.index('if jid == RES.OWN_JID:')
-        i_handle_call = src.index('RES.handle_self_chat_command(')
+        i_handle_call = src.index('RESC.handle_self_chat_command(')
         self.assertLess(i_jid_check, i_handle_call)
 
 
@@ -478,7 +488,7 @@ class TestDraftValidator(unittest.TestCase):
             did = RES.new_draft("6598888888", "6598888888@lid", "bayshore",
                                 "haha waste of time only")
             sent = []
-            RES.handle_self_chat_command(RES.OWN_JID, "/send " + did,
+            RESC.handle_self_chat_command(RES.OWN_JID, "/send " + did,
                                          send_fn=lambda j, t: sent.append((j, t)) or True,
                                          guard_reserve_fn=lambda j: True,
                                          log_fn=lambda *a: None)
@@ -586,6 +596,398 @@ class TestRowidNotTextId(unittest.TestCase):
         got = [m["text"] for m in RES.fetch_transcript(con, "id", self.JID)]
         self.assertEqual(got, ["msg10", "msg11", "msg12"])
 
+
+class TestResumeGateHelpers(unittest.TestCase):
+    """Unit coverage for the two small pieces the runner's send choke calls directly:
+    RES.mark_resume (the ONLY place a["resume"] is ever set) and RES.resume_send_gate (the
+    whole bypass decision in one call, so it is testable without a live tick)."""
+
+    def test_mark_resume_tags_the_action(self):
+        a = {"type": "OFFER_VIEWING", "text": "hi"}
+        out = RES.mark_resume(a)
+        self.assertIs(out, a)
+        self.assertTrue(a["resume"])
+
+    def test_mark_resume_tolerates_none(self):
+        self.assertIsNone(RES.mark_resume(None))
+
+    def test_gate_not_attempted_when_action_not_tagged_resume(self):
+        attempted, why = RES.resume_send_gate({"type": "OFFER_VIEWING"},
+                                              {"manual_takeover": True}, False)
+        self.assertFalse(attempted)
+        self.assertIsNone(why)
+
+    def test_gate_not_attempted_when_record_not_under_takeover(self):
+        attempted, why = RES.resume_send_gate({"type": "OFFER_VIEWING", "resume": True},
+                                              {"manual_takeover": False}, False)
+        self.assertFalse(attempted)
+
+    def test_gate_passes_clean_contact(self):
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            attempted, why = RES.resume_send_gate({"type": "OFFER_VIEWING", "resume": True},
+                                                  {"manual_takeover": True}, False)
+        self.assertTrue(attempted)
+        self.assertIsNone(why)
+
+    def test_gate_blocks_on_excluded_reason(self):
+        with mock.patch.object(E, "excluded_reason", return_value="agent"):
+            attempted, why = RES.resume_send_gate({"type": "OFFER_VIEWING", "resume": True},
+                                                  {"manual_takeover": True}, False)
+        self.assertTrue(attempted)
+        self.assertIn("agent", why)
+
+    def test_gate_fails_closed_on_excluded_reason_error(self):
+        with mock.patch.object(E, "excluded_reason", side_effect=RuntimeError("locked")):
+            attempted, why = RES.resume_send_gate({"type": "OFFER_VIEWING", "resume": True},
+                                                  {"manual_takeover": True}, False)
+        self.assertTrue(attempted)
+        self.assertIsNotNone(why)
+
+    def test_gate_blocks_on_unreadable_landlord_db(self):
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            attempted, why = RES.resume_send_gate({"type": "OFFER_VIEWING", "resume": True},
+                                                  {"manual_takeover": True}, True)
+        self.assertTrue(attempted)
+        self.assertIn("landlord-db", why)
+
+
+# ============================================================================================
+# FIX 1 integration: the runner's send choke point, exercised through a real run() tick
+# against a throwaway sqlite messages.db and a throwaway intake-state.json -- NEVER the live
+# ~/whatsapp-mcp or ~/.claude/state paths. E.handle_event is stubbed (it has its own full
+# coverage elsewhere) so these tests isolate exactly the code this task changed: the choke
+# point's resume bypass, its gates, and the actual _send call site. (Opus review, 9 Sep 2026:
+# the prior test suite only ever inspected wa_intake_runner.py's source text for this.)
+# ============================================================================================
+FAKE_PN = "6598889999"
+FAKE_JID = FAKE_PN + "@lid"
+
+
+def _sgt_ts(minutes_ago=0):
+    dt = (datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+          - datetime.timedelta(minutes=minutes_ago))
+    return dt.isoformat()
+
+
+def _resolve_pn_stub(jid):
+    if jid == FAKE_JID:
+        return FAKE_PN
+    if not jid:
+        return None
+    return jid.split("@")[0]
+
+
+@contextlib.contextmanager
+def _isolated_runner(tmp_dir, inbound_content="any updates?", conversations=None,
+                      handle_event_return=None, quiet_hours=False, guard_ok=True,
+                      dry_run=False, landlord_db_unreadable=False, watermark=0,
+                      inbound_minutes_ago=6):
+    """Runs wa_intake_runner.run() ONCE inside a fully sandboxed harness and yields a dict of
+    everything the choke point did: sent / guard_calls / notified / logged. Every path the
+    real runner touches on disk (messages.db, the watermark, intake-state.json, the listing
+    index, the run lock) is redirected under TMP_DIR; every path it touches on the network or
+    via subprocess (the bridge send, the cross sender guard, Telegram) is a recording stub."""
+    msg_db = os.path.join(tmp_dir, "messages.db")
+    con = sqlite3.connect(msg_db)
+    con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, id TEXT, chat_jid TEXT, "
+                "is_from_me INTEGER, content TEXT, timestamp TEXT, media_type TEXT)")
+    con.execute("INSERT INTO messages (rowid, id, chat_jid, is_from_me, content, timestamp, "
+                "media_type) VALUES (1, 'AAAA1', ?, 0, ?, ?, '')",
+                (FAKE_JID, inbound_content, _sgt_ts(inbound_minutes_ago)))
+    con.commit(); con.close()
+
+    lastf = os.path.join(tmp_dir, "runner-last.json")
+    with open(lastf, "w") as f:
+        json.dump({"last_rowid": watermark}, f)
+    lockf = os.path.join(tmp_dir, ".lock")
+    state_path = os.path.join(tmp_dir, "intake-state.json")
+    conv = conversations if conversations is not None else {}
+    with open(state_path, "w") as f:
+        json.dump({"version": 1, "conversations": conv}, f)
+
+    sent, guard_calls, notified, logged = [], [], [], []
+    calls = {"sent": sent, "guard_calls": guard_calls, "notified": notified, "logged": logged}
+
+    def fake_send(pn, text):
+        sent.append((pn, text)); return True
+
+    def fake_guard(jid):
+        guard_calls.append(jid); return guard_ok
+
+    stack = contextlib.ExitStack()
+    stack.enter_context(mock.patch.object(R, "MSG_DB", msg_db))
+    stack.enter_context(mock.patch.object(R, "LASTF", lastf))
+    stack.enter_context(mock.patch.object(R, "LOCKF", lockf))
+    # sweep_approved_drafts (called unconditionally, once per tick) reads this -- never the
+    # live drafts.jsonl, even read only.
+    stack.enter_context(mock.patch.object(RES, "DRAFTS_FILE", os.path.join(tmp_dir, "drafts.jsonl")))
+    stack.enter_context(mock.patch.object(E, "STATE", state_path))
+    stack.enter_context(mock.patch.object(E, "IDX", os.path.join(tmp_dir, "no-idx.json")))
+    stack.enter_context(mock.patch.object(E, "TEMPLATES", os.path.join(tmp_dir, "no-tmpl.json")))
+    stack.enter_context(mock.patch.object(E, "DRY_RUN", dry_run))
+    stack.enter_context(mock.patch.object(
+        E, "_landlord_pn_set", lambda: (None if landlord_db_unreadable else frozenset())))
+    stack.enter_context(mock.patch.object(E, "_landlord_form_recipients", lambda: frozenset()))
+    stack.enter_context(mock.patch.object(E, "_contact_names", lambda pn: ([], True)))
+    stack.enter_context(mock.patch.object(E, "_cobroke_agent_pn_set", lambda: frozenset()))
+    stack.enter_context(mock.patch.object(E, "resolve_pn", _resolve_pn_stub))
+    stack.enter_context(mock.patch.object(R, "_send", fake_send))
+    stack.enter_context(mock.patch.object(R, "_guard_reserve", fake_guard))
+    stack.enter_context(mock.patch.object(R, "notify_winfred", notified.append))
+    stack.enter_context(mock.patch.object(
+        R, "_log", lambda k, p, m: logged.append((k, p, m))))
+    stack.enter_context(mock.patch.object(R, "_alert_hourly", lambda *a: None))
+    stack.enter_context(mock.patch.object(R, "_drain_notify_queue", lambda: None))
+    stack.enter_context(mock.patch.object(R, "_quiet_hours", lambda: quiet_hours))
+    stack.enter_context(mock.patch("time.sleep", lambda *a: None))   # no real 4-9s throttle
+    if handle_event_return is not None:
+        stack.enter_context(mock.patch.object(
+            E, "handle_event", lambda state, ev: dict(handle_event_return)))
+    with stack:
+        R.run()
+    yield calls
+
+
+class TestResumeSendSite(unittest.TestCase):
+    """FIX 1: resume-mode actions used to be tagged nowhere, so the choke point's
+    manual_takeover check TAKEOVER_SKIP'd every single one -- the auto send half of the
+    feature never actually sent anything. These exercise the real send site end to end."""
+
+    def setUp(self):
+        self._tmpdir = tempfile.TemporaryDirectory()
+
+    def tearDown(self):
+        self._tmpdir.cleanup()
+
+    def _rec(self, **kw):
+        r = {"pn": FAKE_PN, "manual_takeover": True, "human_takeover": True,
+             "last_hand_reply_ts": _sgt_ts(20), "profile": {}, "processed_ids": []}
+        r.update(kw)
+        return r
+
+    def _run(self, **kw):
+        with _isolated_runner(self._tmpdir.name, **kw) as calls:
+            return calls
+
+    def test_resume_offer_viewing_reaches_send(self):
+        calls = self._run(
+            conversations={FAKE_PN: self._rec()},
+            handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN,
+                                 "text": "Keen to view? I can put you in for Sat 3pm."})
+        self.assertEqual(calls["sent"], [(FAKE_JID, "Keen to view? I can put you in for Sat 3pm.")])
+        self.assertTrue(any(k == "RESUME_SENT" for k, p, m in calls["logged"]))
+        self.assertFalse(any(k == "TAKEOVER_SKIP" for k, p, m in calls["logged"]))
+
+    def test_resume_redirect_never_reaches_send(self):
+        with mock.patch.object(RES, "process_draft_needed", lambda *a, **k: None):
+            calls = self._run(
+                conversations={FAKE_PN: self._rec()},
+                handle_event_return={"type": "REDIRECT", "pn": FAKE_PN,
+                                     "text": "No worries, here are my other rooms."})
+        self.assertEqual(calls["sent"], [])
+
+    def test_non_resume_action_under_takeover_still_takeover_skips(self):
+        """Same allow listed type and text as the first test, but the record does NOT clear
+        resume_reason_blocked (no last_hand_reply_ts at all) -- ev['resume'] is never set, so
+        a['resume'] is never tagged, and the ordinary TAKEOVER_SKIP choke applies."""
+        rec = self._rec(); rec.pop("last_hand_reply_ts", None)
+        calls = self._run(
+            conversations={FAKE_PN: rec},
+            handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN,
+                                 "text": "Keen to view? I can put you in for Sat 3pm."})
+        self.assertEqual(calls["sent"], [])
+        self.assertTrue(any(k == "TAKEOVER_SKIP" for k, p, m in calls["logged"]))
+
+    def test_quiet_hours_blocks_resume_send(self):
+        calls = self._run(
+            conversations={FAKE_PN: self._rec()},
+            handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN, "text": "hi"},
+            quiet_hours=True)
+        self.assertEqual(calls["sent"], [])
+
+    def test_daily_cap_blocks_resume_send(self):
+        today = time.strftime("%Y-%m-%d", time.gmtime(time.time() + 8 * 3600))
+        rec = self._rec(sends_today_date=today, sends_today=2)
+        calls = self._run(
+            conversations={FAKE_PN: rec},
+            # NUDGE_INCOMPLETE is on the allow list and NOT cap exempt (unlike
+            # CONFIRM_VIEWING/OFFER_VIEWING/ASK_ONE) -- proves resume sends count toward it
+            handle_event_return={"type": "NUDGE_INCOMPLETE", "pn": FAKE_PN, "text": "hi"})
+        self.assertEqual(calls["sent"], [])
+        self.assertTrue(any(k == "DAILY_CAP_SKIP" for k, p, m in calls["logged"]))
+
+    def test_excluded_contact_blocks_resume_send(self):
+        """Simulates a same-tick DB flip: excluded_reason says clean the FIRST time (inside
+        resume_reason_blocked, letting ev['resume'] get set) and excluded the SECOND time
+        (the choke's own independent re-check) -- proving the choke does not just trust the
+        earlier gate."""
+        with mock.patch.object(E, "excluded_reason", side_effect=[None, "agent"]):
+            calls = self._run(
+                conversations={FAKE_PN: self._rec()},
+                handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN, "text": "hi"})
+        self.assertEqual(calls["sent"], [])
+        self.assertTrue(any(k == "RESUME_SKIP" for k, p, m in calls["logged"]))
+
+    def test_landlord_db_unreadable_blocks_resume_send(self):
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            calls = self._run(
+                conversations={FAKE_PN: self._rec()},
+                handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN, "text": "hi"},
+                landlord_db_unreadable=True)
+        self.assertEqual(calls["sent"], [])
+        self.assertTrue(any(k == "RESUME_SKIP" for k, p, m in calls["logged"]))
+
+    def test_one_send_per_inbound(self):
+        """A single inbound row can never produce more than the one _send call the runner's
+        per-row loop naturally makes (handle_event's own one-dict-or-None contract already
+        guarantees this; this confirms the choke path does not fan it out)."""
+        calls = self._run(
+            conversations={FAKE_PN: self._rec()},
+            handle_event_return={"type": "OFFER_VIEWING", "pn": FAKE_PN, "text": "hi"})
+        self.assertEqual(len(calls["sent"]), 1)
+
+
+# ============================================================================================
+# FIX 2: '/send <id>' hardening -- cold guard, excluded recheck, quiet hours queueing, daily
+# cap, and a Winfred notification for every outcome (Opus review, 9 Sep 2026: none of this
+# existed; /send was a bare bypass of every one of these).
+# ============================================================================================
+class TestSendCommandHardening(unittest.TestCase):
+    def setUp(self):
+        self._tmp = f"/tmp/test-drafts-hard-{os.getpid()}-{time.time_ns()}.jsonl"
+        self._orig = RES.DRAFTS_FILE
+        RES.DRAFTS_FILE = self._tmp
+        self.sent, self.notified, self.logged = [], [], []
+
+    def tearDown(self):
+        RES.DRAFTS_FILE = self._orig
+        try: os.remove(self._tmp)
+        except OSError: pass
+
+    def _send_fn(self, jid, text):
+        self.sent.append((jid, text)); return True
+
+    def _state(self, **rec_fields):
+        rec = {"pn": FAKE_PN}
+        rec.update(rec_fields)
+        return {"version": 1, "conversations": {FAKE_PN: rec}}
+
+    def test_cold_lead_refused_with_last_message_date(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        old_ts = _sgt_ts(6 * 24 * 60)   # 6 days ago
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            handled = RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state(last_inbound_ts=old_ts))
+        self.assertTrue(handled)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "cold")
+        self.assertTrue(any("gone cold" in m and old_ts in m for m in self.notified))
+
+    def test_fresh_lead_still_sends(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            handled = RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state(last_inbound_ts=_sgt_ts(10)))
+        self.assertTrue(handled)
+        self.assertEqual(self.sent, [(FAKE_JID, "Keen to view this week?")])
+        self.assertEqual(RES.find_draft(did)["status"], "sent")
+        self.assertTrue(any("Sent your drafted reply" in m for m in self.notified))
+
+    def test_excluded_contact_refused(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        with mock.patch.object(E, "excluded_reason", return_value="agent"):
+            handled = RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state())
+        self.assertTrue(handled)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "excluded")
+        self.assertTrue(any("excluded" in m for m in self.notified))
+
+    def test_excluded_reason_db_error_fails_closed(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        with mock.patch.object(E, "excluded_reason", side_effect=RuntimeError("locked")):
+            RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state())
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "excluded")
+
+    def test_daily_cap_leaves_draft_pending_for_a_later_retry(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        today = time.strftime("%Y-%m-%d", time.gmtime(time.time() + 8 * 3600))
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            handled = RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state(sends_today_date=today, sends_today=2,
+                                  last_inbound_ts=_sgt_ts(10)))
+        self.assertTrue(handled)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "pending")   # unchanged -- retried later
+        self.assertTrue(any("cap" in m for m in self.notified))
+
+    def test_successful_send_counts_toward_the_daily_cap(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        state = self._state(last_inbound_ts=_sgt_ts(10))
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+                lambda *a: None, notify_fn=self.notified.append, state=state)
+        rec = state["conversations"][FAKE_PN]
+        self.assertEqual(rec["sends_today"], 1)
+
+    def test_quiet_hours_queues_instead_of_sending(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        handled = RESC.handle_self_chat_command(
+            RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: True,
+            lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+            quiet_hours_fn=lambda: True, state=self._state(last_inbound_ts=_sgt_ts(10)))
+        self.assertTrue(handled)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "approved")
+        self.assertTrue(any("queued" in m for m in self.notified))
+
+    def test_sweep_sends_a_queued_draft_once_quiet_hours_are_over(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        RES.mark_draft(did, "approved")
+        state = self._state(last_inbound_ts=_sgt_ts(10))
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            RESC.sweep_approved_drafts(state, send_fn=self._send_fn, guard_reserve_fn=lambda j: True,
+                                      log_fn=lambda *a: None, notify_fn=self.notified.append)
+        self.assertEqual(self.sent, [(FAKE_JID, "Keen to view this week?")])
+        self.assertEqual(RES.find_draft(did)["status"], "sent")
+
+    def test_sweep_expires_a_queued_draft_past_24h(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        items = RES._load_drafts()
+        for d in items:
+            if d["id"] == did:
+                d["status"] = "approved"
+                d["created"] = time.time() - RES.DRAFT_EXPIRY_SEC - 60
+        RES._rewrite_drafts(items)
+        RESC.sweep_approved_drafts(self._state(), send_fn=self._send_fn,
+                                   guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
+                                   notify_fn=self.notified.append)
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "expired")
+
+    def test_guard_reserve_failure_leaves_draft_pending(self):
+        did = RES.new_draft(FAKE_PN, FAKE_JID, "test-listing", "Keen to view this week?")
+        with mock.patch.object(E, "excluded_reason", return_value=None):
+            RESC.handle_self_chat_command(
+                RES.OWN_JID, f"/send {did}", self._send_fn, lambda j: False,
+                lambda k, p, m: self.logged.append((k, p, m)), notify_fn=self.notified.append,
+                state=self._state(last_inbound_ts=_sgt_ts(10)))
+        self.assertEqual(self.sent, [])
+        self.assertEqual(RES.find_draft(did)["status"], "pending")
+        self.assertTrue(any("reserved" in m for m in self.notified))
 
 
 if __name__ == "__main__":

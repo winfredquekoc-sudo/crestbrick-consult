@@ -14,6 +14,7 @@ To go live: set DRY_RUN = False in intake_engine.py, then watch the preview log 
 import os, json, time, sqlite3, re, fcntl, random
 import intake_engine as E
 import wa_intake_resume as RES
+import wa_intake_selfchat as RESC
 # split out 8 Sep 2026 to keep this file under the repo's 500 line guideline; re-imported
 # here so every existing call site (incl. tests reaching them via wa_intake_runner.<name>)
 # keeps working unchanged.
@@ -22,6 +23,7 @@ from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _t
 
 MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 LASTF   = os.path.expanduser("~/.claude/state/listing-templates/runner-last.json")
+LOCKF   = os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock")
 BRIDGE  = "http://localhost:8080/api/send"
 
 # Quiet hours: stay live, but never message prospects overnight. Outside this window the
@@ -146,7 +148,7 @@ DAILY_SEND_CAP = 2     # max automated touches per client per SGT day (Winfred, 
 def run():
     # single-instance lock: a slow run (bridge stalls) must not overlap the next 120s tick,
     # or two processes load the same state and double-send.
-    lock_fh = open(os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock"), "a+")
+    lock_fh = open(LOCKF, "a+")
     try:
         fcntl.flock(lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
@@ -220,12 +222,18 @@ def run():
                       "HOLDING (no sends, no messages lost) until the file is restored. "
                       "Latest backup: intake-state.json.bak-* in the same folder.\n" + str(e)[:200])
         return
+    # quiet hours are confirmed over (the return above) -- safe to retry any /send Winfred
+    # approved while they were still in effect, still subject to every other /send gate.
+    RESC.sweep_approved_drafts(state, send_fn=_send, guard_reserve_fn=_guard_reserve,
+                               log_fn=_log, notify_fn=notify_winfred)
     acted = 0
     # PRE-PASS: if this batch contains a MANUAL outbound reply from Winfred in a chat, latch
     # manual_takeover for that chat BEFORE acting on any of its inbound rows. Without this,
     # a backlog replay (e.g. after quiet hours) processes the prospect's 1am enquiry first
     # and form-blasts someone Winfred already answered by hand at 2am.
     landlords = E._landlord_pn_set()
+    landlords_unreadable = landlords is None   # resume auto sends fail CLOSED on this too --
+                                                # see RES.resume_gate_blocked at the send choke
     if landlords is None:
         # landlord DB unreadable: the engine fails closed per message (all new form sends
         # defer via db_error), so nothing wrong goes out — but Winfred must know, or new
@@ -297,8 +305,10 @@ def run():
                 # Winfred's own self chat: never a prospect record, only a /send or /drop
                 # command console for the takeover resume drafts (Winfred, 8 Sep 2026).
                 if ifm and (content or "").strip():
-                    RES.handle_self_chat_command(jid, content, send_fn=_send,
-                                                 guard_reserve_fn=_guard_reserve, log_fn=_log)
+                    RESC.handle_self_chat_command(jid, content, send_fn=_send,
+                                                  guard_reserve_fn=_guard_reserve, log_fn=_log,
+                                                  notify_fn=notify_winfred,
+                                                  quiet_hours_fn=_quiet_hours, state=state)
                 continue
             if _pn0 and _pn0 in landlords:
                 continue
@@ -332,8 +342,11 @@ def run():
                                              notify_winfred, _log)
                     E.save_state(state); acted += 1
                     continue
-                _log("RESUME_SENT", _pn0, (a or {}).get("type", "") + " :: "
-                     + ((a or {}).get("text") or " / ".join((a or {}).get("texts") or []) or ""))
+                # Tag ONLY here, once needs_draft confirms an allow listed action with real
+                # text -- the choke point below is the only place allowed to act on this tag
+                # (Opus review, 9 Sep 2026: this tag never existed, so the choke below
+                # TAKEOVER_SKIP'd every resume send — the auto send half was dead on arrival).
+                RES.mark_resume(a)
             if not a:
                 continue
             # the ONLY thing Winfred is pinged about: a prospect giving a date/time to view.
@@ -420,8 +433,18 @@ def run():
                 _log("STALE_SKIP", a.get("pn"),
                      a.get("type") + f" :: triggering inbound is {_real_age_hours(ts)/24:.1f}d old (>5d rule)")
                 E.save_state(state); acted += 1; continue
+            # TAKEOVER RESUME AUTO SEND (Winfred, 8-9 Sep 2026): the ONE other manual_takeover
+            # bypass, alongside co-pilot and landlord onboarding — decided in one call so it is
+            # unit testable without a live tick. Quiet hours already gated the whole tick
+            # above; the cold guard and daily cap below still apply to this action as normal.
+            _resume_attempted, _resume_why = RES.resume_send_gate(a, _grec, landlords_unreadable)
+            if _resume_attempted and _resume_why:
+                _log("RESUME_SKIP", a.get("pn"), a.get("type") + " :: " + _resume_why)
+                E.save_state(state); acted += 1; continue
+            _resume_bypass = _resume_attempted and not _resume_why
             if (_grec.get("manual_takeover") and not a.get("copilot")
-                    and a.get("type") not in _LANDLORD_ONBOARDING_TYPES):
+                    and a.get("type") not in _LANDLORD_ONBOARDING_TYPES
+                    and not _resume_bypass):
                 # the whole landlord onboarding sequence is exempt: the supply branch latches
                 # takeover BEFORE any of its sends (SEND_SUPPLY_FORM: runner-integration catch
                 # c74, 11 Aug 2026; the nudge/media ask/chase for the same reason) -- without
@@ -486,6 +509,11 @@ def run():
                         pass
                 else:
                     _r0.pop("partial_sent", None)
+                    if a.get("resume"):
+                        # logged only here, after delivery — it used to log BEFORE the choke
+                        # point and print even when TAKEOVER_SKIP then silently ate the send.
+                        _log("RESUME_SENT", a.get("pn"),
+                             a.get("type") + " :: " + " / ".join(texts).replace("\n", " / "))
                     # count this touch against the per-client daily cap (SGT day)
                     _rc = state["conversations"].get(a.get("pn"))
                     if _rc is not None:

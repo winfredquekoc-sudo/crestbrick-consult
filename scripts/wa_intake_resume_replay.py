@@ -36,9 +36,11 @@ def _ro_con():
     return sqlite3.connect("file:" + MSG_DB + "?mode=ro", uri=True, timeout=15)
 
 
-def discover_handtake_chats(days):
+def discover_handtake_chats(days, landlords):
     """Chats with a genuine hand reply (is_from_me, not our own engine template) in the
-    last DAYS days -- the population takeover resume ever applies to."""
+    last DAYS days -- the population takeover resume ever applies to. Skips landlord chats,
+    mirroring the runner's own pre-loop gate (a landlord never becomes a tenant record), so
+    this population matches production rather than over counting."""
     con = _ro_con()
     try:
         rows = con.execute(
@@ -49,8 +51,12 @@ def discover_handtake_chats(days):
         con.close()
     chats = set()
     for jid, content in rows:
-        if content and not E.is_engine_outbound(content):
-            chats.add(jid)
+        if not content or E.is_engine_outbound(content):
+            continue
+        pn = E.resolve_pn(jid)
+        if pn and pn in landlords:
+            continue          # landlord DB skip -- mirrors wa_intake_runner.run()'s own gate
+        chats.add(jid)
     return sorted(chats)
 
 
@@ -78,51 +84,49 @@ def _in_window(ts, days):
     return (now - dt).total_seconds() <= days * 86400
 
 
-def replay_chat(jid, rows, days):
+def replay_chat(con, jid, rows, days):
     """Returns a list of report rows: one per resume decision and one per short lease
-    free text fire that fell inside the reporting window."""
+    free text fire that fell inside the reporting window. Eligibility for resume is decided
+    by the SAME wa_intake_resume.resume_reason_blocked the live runner calls (not a separate
+    reimplementation) -- supply/buyer/excluded-status latches, the excluded_reason()
+    re-check, the 5 minute wait, and the rowid-ordered "did Winfred already answer this"
+    check all apply exactly as they do in production, so these numbers ARE production
+    numbers. CON is a read only connection to the SAME messages.db these rows came from --
+    resume_reason_blocked's own "already answered" check queries it directly."""
     engine_mod = E
     engine_mod.DRY_RUN = True
     state = {"version": 1, "conversations": {}}
     pn = engine_mod.resolve_pn(jid)
     out = []
-    n = len(rows)
-    for idx, (rowid, ifm, content, ts) in enumerate(rows):
+    for rowid, ifm, content, ts in rows:
         ev = {"jid": jid, "msg_id": str(rowid), "text": content or "", "is_from_me": bool(ifm),
               "ts": ts}
         ev["listing_key"] = RNR.match_listing(content)
         ev["engine"] = engine_mod.is_engine_outbound(content) if ifm else False
-        rec_before = state["conversations"].get(pn) or {}
-        resume = False
         if not ifm:
-            blocked = None
-            if rec_before.get("manual_takeover") or rec_before.get("human_takeover"):
-                last_hand = rec_before.get("last_hand_reply_ts")
-                if last_hand:
-                    gap = RES.seconds_since(last_hand, ts)
-                    if gap is not None and gap >= RES.RESUME_WAIT_SEC:
-                        answered = any(r[1] for r in rows[idx + 1:] if r[1])
-                        blocked = "already answered" if answered else None
-                    else:
-                        blocked = "too soon"
-                else:
-                    blocked = "no hand reply ts yet"
-            else:
-                blocked = "not under takeover"
-            if blocked is None:
-                resume = True
-            ev["resume"] = resume
+            rec_before = state["conversations"].get(pn)
+            blocked = RES.resume_reason_blocked(con, "rowid", jid, rec_before, rowid, ts)
+            ev["resume"] = blocked is None
         a = engine_mod.handle_event(state, ev)
         if ifm or not _in_window(ts, days):
             continue          # only inbound rows inside the reporting window are reportable
-        if resume:
+        if ev.get("resume"):
             if RES.needs_draft(a):
                 out.append({"jid": jid, "pn": pn, "kind": "DRAFT", "rowid": rowid,
                            "inbound": content, "would_be_type": (a or {}).get("type")})
             else:
                 texts = (a or {}).get("texts") or ([a["text"]] if (a or {}).get("text") else [])
-                out.append({"jid": jid, "pn": pn, "kind": "SENT", "rowid": rowid,
-                           "type": a.get("type"), "texts": texts})
+                # An allow listed action with NO text (a bare FLAG_HUMAN/COPILOT_VERDICT/
+                # VIEWING_TIME_PROPOSED notify) never reaches the runner's real send choke --
+                # it hits the runner's OWN earlier "if not texts:" branch and just logs a
+                # note to Winfred. Counting it as SENT overstated real auto sends 28-to-1 in
+                # an earlier pass of this report (Opus review, 9 Sep 2026).
+                if texts:
+                    out.append({"jid": jid, "pn": pn, "kind": "SENT", "rowid": rowid,
+                               "type": a.get("type"), "texts": texts})
+                else:
+                    out.append({"jid": jid, "pn": pn, "kind": "NOTIFY_ONLY", "rowid": rowid,
+                               "type": a.get("type")})
         else:
             if E._short_lease_requested(content) and (a or {}).get("type") == "LEASE_NOTE" \
                     and (a or {}).get("reason") == "asked for a lease of 6 months or less":
@@ -137,12 +141,26 @@ def results_fingerprint(all_rows):
                             for r in all_rows), sort_keys=True)
 
 
+def _landlords():
+    """Bare pns known to be landlords, fail OPEN to an empty set for replay purposes only
+    (mirrors wa_intake_runner.run()'s own fallback -- an unreadable landlord DB there defers
+    every new tenant send via excluded_reason's separate fail-closed 'db_error', it does not
+    widen who counts as a landlord)."""
+    ls = E._landlord_pn_set()
+    return ls if ls is not None else frozenset()
+
+
 def build_report(days):
-    chats = discover_handtake_chats(days)
-    all_rows = []
-    for jid in chats:
-        rows = fetch_full_chat(jid)
-        all_rows.extend(replay_chat(jid, rows, days))
+    landlords = _landlords()
+    chats = discover_handtake_chats(days, landlords)
+    con = _ro_con()
+    try:
+        all_rows = []
+        for jid in chats:
+            rows = fetch_full_chat(jid)
+            all_rows.extend(replay_chat(con, jid, rows, days))
+    finally:
+        con.close()
     return chats, all_rows
 
 
@@ -151,9 +169,10 @@ def format_report(chats, all_rows, days):
             f"last {days} days (DRY RUN, no sends, messages.db read only)", ""]
     sent = [r for r in all_rows if r["kind"] == "SENT"]
     drafts = [r for r in all_rows if r["kind"] == "DRAFT"]
+    notify_only = [r for r in all_rows if r["kind"] == "NOTIFY_ONLY"]
     fires = [r for r in all_rows if r["kind"] == "LEASE_FIRE"]
 
-    lines.append(f"== RESUME auto sends by type ({len(sent)} total) ==")
+    lines.append(f"== RESUME auto sends by type ({len(sent)} total, real prospect facing text) ==")
     by_type = {}
     for r in sent:
         by_type.setdefault(r["type"], []).append(r)
@@ -171,6 +190,14 @@ def format_report(chats, all_rows, days):
         skip_reasons[key] = skip_reasons.get(key, 0) + 1
     for t, n in sorted(skip_reasons.items()):
         lines.append(f"  would have been {t}: {n}")
+
+    lines.append("")
+    lines.append(f"== RESUME notify only, no prospect text sent ({len(notify_only)} total) ==")
+    notify_by_type = {}
+    for r in notify_only:
+        notify_by_type[r["type"]] = notify_by_type.get(r["type"], 0) + 1
+    for t, n in sorted(notify_by_type.items()):
+        lines.append(f"  {t}: {n}")
 
     lines.append("")
     lines.append(f"== SHORT LEASE auto reply fires ({len(fires)} total) ==")
@@ -205,32 +232,33 @@ def _classify_category(content):
 def _collect_draft_candidates(days):
     """Every resumed inbound across the window that needs a draft, tagged with a rough
     scenario category so sample_drafts() can pick a MIXED set rather than just the first
-    N chats discovered."""
-    chats = discover_handtake_chats(days)
+    N chats discovered. Same resume_reason_blocked + landlord skip as build_report/replay_chat
+    (Opus review, 9 Sep 2026: this used to be a second, drifted reimplementation)."""
+    landlords = _landlords()
+    chats = discover_handtake_chats(days, landlords)
+    con = _ro_con()
     candidates = []
-    for jid in chats:
-        rows = fetch_full_chat(jid)
-        E.DRY_RUN = True
-        state = {"version": 1, "conversations": {}}
-        pn = E.resolve_pn(jid)
-        for idx, (rowid, ifm, content, ts) in enumerate(rows):
-            ev = {"jid": jid, "msg_id": str(rowid), "text": content or "",
-                  "is_from_me": bool(ifm), "ts": ts}
-            ev["listing_key"] = RNR.match_listing(content)
-            ev["engine"] = E.is_engine_outbound(content) if ifm else False
-            rec_before = state["conversations"].get(pn) or {}
-            if not ifm and (rec_before.get("manual_takeover") or rec_before.get("human_takeover")):
-                last_hand = rec_before.get("last_hand_reply_ts")
-                if last_hand:
-                    gap = RES.seconds_since(last_hand, ts)
-                    if gap is not None and gap >= RES.RESUME_WAIT_SEC:
-                        answered = any(r[1] for r in rows[idx + 1:] if r[1])
-                        if not answered:
-                            ev["resume"] = True
-            a = E.handle_event(state, ev)
-            if ev.get("resume") and _in_window(ts, days) and RES.needs_draft(a):
-                candidates.append({"jid": jid, "rowid": rowid, "content": content,
-                                   "category": _classify_category(content)})
+    try:
+        for jid in chats:
+            rows = fetch_full_chat(jid)
+            E.DRY_RUN = True
+            state = {"version": 1, "conversations": {}}
+            pn = E.resolve_pn(jid)
+            for rowid, ifm, content, ts in rows:
+                ev = {"jid": jid, "msg_id": str(rowid), "text": content or "",
+                      "is_from_me": bool(ifm), "ts": ts}
+                ev["listing_key"] = RNR.match_listing(content)
+                ev["engine"] = E.is_engine_outbound(content) if ifm else False
+                if not ifm:
+                    rec_before = state["conversations"].get(pn)
+                    blocked = RES.resume_reason_blocked(con, "rowid", jid, rec_before, rowid, ts)
+                    ev["resume"] = blocked is None
+                a = E.handle_event(state, ev)
+                if ev.get("resume") and _in_window(ts, days) and RES.needs_draft(a):
+                    candidates.append({"jid": jid, "rowid": rowid, "content": content,
+                                       "category": _classify_category(content)})
+    finally:
+        con.close()
     return candidates
 
 
