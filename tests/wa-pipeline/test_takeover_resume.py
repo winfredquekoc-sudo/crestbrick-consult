@@ -1250,6 +1250,43 @@ class TestB2DisputeBlock(unittest.TestCase):
                     self.assertTrue(RES.dispute_language_recent(con, FAKE_JID))
             con.close()
 
+    def test_winfreds_own_cea_signature_is_not_a_dispute(self):
+        """Opus review, 9 Sep 2026: a bare "cea" keyword matched Winfred's OWN sign off
+        ("Winfred Quek | CEA R073319H"), which appears in his own outbound in 5 of the 260
+        hand takeover chats -- every one of them a false positive that silently disabled
+        resume for that chat. Only explicit escalation phrasing counts now."""
+        with tempfile.TemporaryDirectory() as tmp:
+            con = sqlite3.connect(os.path.join(tmp, "m.db"))
+            con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, chat_jid TEXT, content TEXT)")
+            for benign in ("Winfred Quek Crestbrick, CEA Reg No R073319H",
+                           "Winfred Quek | CEA R073319H",
+                           "can i get your CEA No?"):
+                con.execute("DELETE FROM messages")
+                con.execute("INSERT INTO messages (chat_jid, content) VALUES (?, ?)",
+                            (FAKE_JID, benign))
+                con.commit()
+                with self.subTest(text=benign):
+                    self.assertFalse(RES.dispute_language_recent(con, FAKE_JID))
+            con.close()
+
+    def test_real_cea_escalation_still_blocks(self):
+        """The narrowing must not lose a real threat: an explicit "report to CEA", and the
+        one genuine case in the live corpus ("They will complaint to CEA"), both still block."""
+        with tempfile.TemporaryDirectory() as tmp:
+            con = sqlite3.connect(os.path.join(tmp, "m.db"))
+            con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, chat_jid TEXT, content TEXT)")
+            for bad in ("I will report to CEA if you do not return my deposit",
+                        "Already reported to CEA",
+                        "Cos if other peoples see. They will complaint to CEA.",
+                        "I am reporting to CEA"):
+                con.execute("DELETE FROM messages")
+                con.execute("INSERT INTO messages (chat_jid, content) VALUES (?, ?)",
+                            (FAKE_JID, bad))
+                con.commit()
+                with self.subTest(text=bad):
+                    self.assertTrue(RES.dispute_language_recent(con, FAKE_JID))
+            con.close()
+
     def test_dispute_language_recent_false_for_ordinary_chat(self):
         with tempfile.TemporaryDirectory() as tmp:
             db = os.path.join(tmp, "m.db")

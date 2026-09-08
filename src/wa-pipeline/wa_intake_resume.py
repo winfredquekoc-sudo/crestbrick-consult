@@ -132,7 +132,15 @@ DISPUTE_KEYWORDS = ("dispute", "disputed", "disputes",
                     "police",
                     "deposit back",
                     "small claims",
-                    "cea",
+                    # NOT a bare "cea": Winfred signs his own messages "Winfred Quek |
+                    # CEA R073319H", so a bare word match blocked the chat off HIS OWN
+                    # signature. Measured over the 260 hand-takeover chats of the last 7
+                    # days: bare "cea" hit 5 chats and ALL 5 were his own outbound
+                    # signature/notes -- zero real detections. The one genuine escalation
+                    # in that corpus ("They will complaint to CEA") is already caught by
+                    # "complaint". Only the explicit threat phrasing stays. (Opus review,
+                    # 9 Sep 2026.)
+                    "report to cea", "reported to cea", "reporting to cea",
                     "report you")
 _DISPUTE_RE = re.compile(
     r"\b(?:" + "|".join(k.replace(" ", r"\s+") for k in DISPUTE_KEYWORDS) + r")\b", re.I)
