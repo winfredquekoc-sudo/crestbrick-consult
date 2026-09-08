@@ -1717,7 +1717,7 @@ def _rec(state, pn):
     for k, v in {
         "pn":pn, "listing_key":None, "stage":"NEW", "profile":{},
         "processed_ids":[], "form_sent":False, "asked_fields":[],
-        "viewing_asked":False, "viewing_confirmed":False,
+        "viewing_asked":False, "viewing_confirmed":False, "asked_tenant_time":False,
         "manual_takeover":False, "status":"new", "last_inbound":None,
         "source":None, "fact_answered":False,
         # landlord onboarding extension (never touched by the tenant/buyer flows)
@@ -2012,6 +2012,12 @@ def _tenant_fact_answer(question_text, listing):
 
     return None
 
+# a tenant declining the OFFERED slot outright (no counter time of their own yet) -- distinct
+# from _has_viewing_time, which fires when they DO name a day/time (a counter proposal).
+_DECLINE_RE = re.compile(
+    r"can\'?t\s+make|cannot\s+make|can\'?t\s+do|not\s+free|not\s+available"
+    r"|another\s+day|some\s+other\s+time|busy\s+then|unable\s+to", re.I)
+
 # ---------- stage 3 reaction (shared: autonomous flow + manual co-pilot after an auto-offer) ----------
 def _viewing_reaction(rec, ev, pn):
     """After a viewing has been offered, react to ONE prospect reply — confirm the slot, acknowledge a
@@ -2038,6 +2044,17 @@ def _viewing_reaction(rec, ev, pn):
                     "text": _redirect_text(_reason_r, rec.get("profile", {}),
                                            listing_reqs(), _lk_r)}
     txt = (ev.get("text") or "").lower()
+    # tenant declines the offered slot outright ("can't make it that day" etc, no time of
+    # their own yet) -> ask their preference ONCE, then let their NEXT reply (which will
+    # carry a day/time) fall through to the _has_viewing_time branch below as a normal
+    # counter proposal routed to Winfred via VIEWING_TIME_PROPOSED.
+    if (not rec.get("asked_tenant_time") and not _has_viewing_time(txt)
+            and _DECLINE_RE.search(txt)):
+        rec["asked_tenant_time"] = True
+        rec["status"] = "asked_tenant_time"
+        return {"type": "ASK_TENANT_TIME", "pn": pn, "notify": True,
+                "text": "No worries \U0001F642 When are you free to view? Just let me know a day "
+                        "and time and I will arrange it."}
     # viewing-first: once a slot is locked, chase whatever form fields are still missing —
     # after the booking, never in front of it (Winfred, 11 Aug 2026)
     _chase = ""
