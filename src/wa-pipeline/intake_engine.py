@@ -216,10 +216,24 @@ def _to_int(s):
         return None
     return int(val)
 
+_SUN_FACING_ADDR_RE = re.compile(
+    r"(?i)sun\s*facing\s+for\s+(.+?)(?=\s+on\s+(?:your|the)\s+sun\s*facing\s*checker\b|"
+    r"\s+on\s+sunfacing\.com\b|[.,\n]|$)"
+)
+
 def extract_profile(text):
     """Best-effort parse of a filled-in block or free text. Required fields only."""
     p = {}
     t = text or ""
+    # Sun Facing Checker lead: "...sun facing for <address> on your Sun Facing Checker...".
+    # Captured from the ORIGINAL text, before the boilerplate strip below -- a message that
+    # opens "Hi Winfred, ..." (every Sun Facing wa.me CTA does) is wholly blanked by that
+    # strip, so this must run first or the address is never seen.
+    sfc = _SUN_FACING_ADDR_RE.search(t)
+    if sfc:
+        addr = sfc.group(1).strip(" ,.")
+        if addr:
+            p["address"] = addr
     # strip portal enquiry boilerplate BEFORE parsing: lines like "RENT - 905 Jurong West
     # Street 91" made grab("rent") capture the street number as the tenant's budget.
     t = re.sub(r"(?im)^\s*(hi winfred.*|hi propertyguru.*|i am interested in:?.*|"
@@ -683,14 +697,23 @@ _WEBSITE_CTA_RE = re.compile(
     r"ownership restructuring|asking about|portfolio enquiry)"
 )
 
+# The Sun Facing Checker tool (sunfacing.com, mirrored at winfredquek.com/sun-facing-checker)
+# pre-fills its own wa.me CTA with either a generic opener or one naming the checked address
+# ("...sun facing for <address> on your Sun Facing Checker..."). Checked ahead of the generic
+# website CTA regex below so a Sun Facing lead is tagged precisely, not just "website".
+_SUN_FACING_SOURCE_RE = re.compile(r"(?i)sun\s*facing\s*checker|sunfacing\.com")
+
 def classify_lead_source(text, listing_key=None):
     """Best-effort FIRST-TOUCH attribution, not a compliance-grade field.
-    'portal'  = tied to a PropertyGuru/99.co listing_key.
-    'website' = inbound text matches the site's wa.me pre-filled CTA phrasing.
+    'portal'             = tied to a PropertyGuru/99.co listing_key.
+    'sun-facing-checker' = inbound text names the Sun Facing Checker tool or its domain.
+    'website'            = inbound text matches the site's wa.me pre-filled CTA phrasing.
     'unknown' = everything else -- Carousell, referral, and organic WA are today
     indistinguishable from each other, this only rules those two IN when detectable."""
     if listing_key:
         return "portal"
+    if text and _SUN_FACING_SOURCE_RE.search(text):
+        return "sun-facing-checker"
     if text and _WEBSITE_CTA_RE.search(text):
         return "website"
     return "unknown"
@@ -1694,7 +1717,7 @@ def _rec(state, pn):
     for k, v in {
         "pn":pn, "listing_key":None, "stage":"NEW", "profile":{},
         "processed_ids":[], "form_sent":False, "asked_fields":[],
-        "viewing_asked":False, "viewing_confirmed":False,
+        "viewing_asked":False, "viewing_confirmed":False, "asked_tenant_time":False,
         "manual_takeover":False, "status":"new", "last_inbound":None,
         "source":None, "fact_answered":False,
         # landlord onboarding extension (never touched by the tenant/buyer flows)
@@ -1989,6 +2012,12 @@ def _tenant_fact_answer(question_text, listing):
 
     return None
 
+# a tenant declining the OFFERED slot outright (no counter time of their own yet) -- distinct
+# from _has_viewing_time, which fires when they DO name a day/time (a counter proposal).
+_DECLINE_RE = re.compile(
+    r"can\'?t\s+make|cannot\s+make|can\'?t\s+do|not\s+free|not\s+available"
+    r"|another\s+day|some\s+other\s+time|busy\s+then|unable\s+to", re.I)
+
 # ---------- stage 3 reaction (shared: autonomous flow + manual co-pilot after an auto-offer) ----------
 def _viewing_reaction(rec, ev, pn):
     """After a viewing has been offered, react to ONE prospect reply — confirm the slot, acknowledge a
@@ -2015,6 +2044,17 @@ def _viewing_reaction(rec, ev, pn):
                     "text": _redirect_text(_reason_r, rec.get("profile", {}),
                                            listing_reqs(), _lk_r)}
     txt = (ev.get("text") or "").lower()
+    # tenant declines the offered slot outright ("can't make it that day" etc, no time of
+    # their own yet) -> ask their preference ONCE, then let their NEXT reply (which will
+    # carry a day/time) fall through to the _has_viewing_time branch below as a normal
+    # counter proposal routed to Winfred via VIEWING_TIME_PROPOSED.
+    if (not rec.get("asked_tenant_time") and not _has_viewing_time(txt)
+            and _DECLINE_RE.search(txt)):
+        rec["asked_tenant_time"] = True
+        rec["status"] = "asked_tenant_time"
+        return {"type": "ASK_TENANT_TIME", "pn": pn, "notify": True,
+                "text": "No worries \U0001F642 When are you free to view? Just let me know a day "
+                        "and time and I will arrange it."}
     # viewing-first: once a slot is locked, chase whatever form fields are still missing —
     # after the booking, never in front of it (Winfred, 11 Aug 2026)
     _chase = ""
