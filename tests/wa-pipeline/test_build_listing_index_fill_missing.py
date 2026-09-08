@@ -651,5 +651,138 @@ class TestProtectedGateProvenance(unittest.TestCase):
         self.assertIsNone(E._gate_unverified_offer_block("659", {"profile": {}}, listing))
 
 
+class TestExistingEntryGateProvenanceFailClosed(unittest.TestCase):
+    """A6 (Sep 2026): fill_missing_entry() already downgraded an unsourced protected gate to
+    gate_unverified for a brand NEW entry, but an EXISTING index entry never went through
+    that check -- main()'s reconcile loop only ever DIFF REPORTED an ethnicity/gender
+    mismatch, never inspected whether the gate had a landlord source. The reviewer found
+    this live: cherryhill (LL097) carries ethnicity_rule exclude ["Indian"] with no source
+    in BOTH the live index and the previously proposed (v5) index, so it silently
+    REDIRECTs a real Indian tenant today instead of flagging Winfred. enforce_gate_
+    provenance() closes the gap for every entry (old or new); this class proves it fires on
+    an EXISTING entry shaped exactly like the live cherryhill row, and that it is wired into
+    both the --fill-missing/BLI_IDX_OUT regeneration path (used to produce a proposed index)
+    and main()'s reconcile."""
+
+    def test_existing_ethnicity_exclude_gate_with_no_source_is_flagged(self):
+        entries = [{
+            "listing_key": "cherryhill", "landlord_id": "LL097", "status": "open",
+            "requirements": {"gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]}},
+        }]
+        db = {"landlords": [_landlord(
+            "LL097", "active", "21 Lorong Lew Lian",
+            {"ethnicity": "No Indian, No Bangladesh (landlord preference)"})]}
+        changes = BLI.enforce_gate_provenance(entries, db)
+        self.assertIn("ethnicity", entries[0]["requirements"]["gate_unverified"])
+        self.assertTrue(any("cherryhill" in c and "ethnicity" in c for c in changes))
+
+    def test_existing_nationality_only_gate_with_no_source_is_flagged(self):
+        entries = [{
+            "listing_key": "nat-only", "landlord_id": "LL700", "status": "open",
+            "requirements": {"gender": "any", "nationality_pref": {"mode": "only", "list": ["Singaporean"]}},
+        }]
+        db = {"landlords": [_landlord(
+            "LL700", "active", "1 Some Road",
+            {"nationality": "Singaporean only (landlord preference)"})]}
+        BLI.enforce_gate_provenance(entries, db)
+        self.assertIn("nationality", entries[0]["requirements"]["gate_unverified"])
+
+    def test_existing_gender_female_only_gate_with_no_source_is_flagged(self):
+        entries = [{
+            "listing_key": "gender-only", "landlord_id": "LL701", "status": "open",
+            "requirements": {"gender": "female_only"},
+        }]
+        db = {"landlords": [_landlord(
+            "LL701", "active", "1 Some Road", {"gender": "Female only (landlord preference)"})]}
+        BLI.enforce_gate_provenance(entries, db)
+        self.assertIn("gender", entries[0]["requirements"]["gate_unverified"])
+
+    def test_existing_gate_with_a_real_dated_quote_is_not_flagged(self):
+        entries = [{
+            "listing_key": "verified", "landlord_id": "LL702", "status": "open",
+            "requirements": {"gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]}},
+        }]
+        db = {"landlords": [_landlord("LL702", "active", "1 Some Road", {"ethnicity": "No Indian"})]}
+        db["landlords"][0]["wa_evidence"] = ['[2026-08-30] "no Indian tenants please"']
+        changes = BLI.enforce_gate_provenance(entries, db)
+        self.assertNotIn("ethnicity", entries[0]["requirements"].get("gate_unverified") or [])
+        self.assertEqual(changes, [])
+
+    def test_soft_prefer_mode_gate_is_never_flagged(self):
+        # *_pref is a soft nudge, never a hard REDIRECT/decline -- out of scope, same as
+        # qualify()'s own split (only exclude/only/female_only/male_only hard gate).
+        entries = [{
+            "listing_key": "soft", "landlord_id": "LL703", "status": "open",
+            "requirements": {"gender": "female_pref", "ethnicity_rule": {"mode": "prefer", "list": ["Chinese"]}},
+        }]
+        db = {"landlords": [_landlord("LL703", "active", "1 Some Road", {})]}
+        changes = BLI.enforce_gate_provenance(entries, db)
+        self.assertEqual(changes, [])
+        self.assertNotIn("gate_unverified", entries[0]["requirements"])
+
+    def test_landlord_id_missing_from_db_still_fails_closed(self):
+        entries = [{
+            "listing_key": "orphan", "landlord_id": "LL_GONE", "status": "open",
+            "requirements": {"gender": "any", "ethnicity_rule": {"mode": "only", "list": ["Chinese"]}},
+        }]
+        BLI.enforce_gate_provenance(entries, {"landlords": []})
+        self.assertIn("ethnicity", entries[0]["requirements"]["gate_unverified"])
+
+    def test_idempotent_second_pass_does_not_duplicate_or_re_report(self):
+        entries = [{
+            "listing_key": "cherryhill", "landlord_id": "LL097", "status": "open",
+            "requirements": {"gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]}},
+        }]
+        db = {"landlords": [_landlord(
+            "LL097", "active", "21 Lorong Lew Lian",
+            {"ethnicity": "No Indian, No Bangladesh (landlord preference)"})]}
+        BLI.enforce_gate_provenance(entries, db)
+        second_pass_changes = BLI.enforce_gate_provenance(entries, db)
+        self.assertEqual(entries[0]["requirements"]["gate_unverified"], ["ethnicity"])
+        self.assertEqual(second_pass_changes, [])
+
+    def test_regenerated_proposed_index_flags_the_live_cherryhill_shape(self):
+        """End to end through the exact real workflow: BLI_IDX_OUT regeneration
+        (--fill-missing, no --apply) against an index that ALREADY carries a
+        cherryhill-shaped existing entry (untouched by fill_missing's own new-entry path,
+        since LL097 already has an index entry) -- reverting enforce_gate_provenance's
+        wiring into fill_missing_main makes this fail."""
+        idx = {"listings": [{
+            "listing_key": "cherryhill", "landlord_id": "LL097", "landlord_phone": "+6598280170",
+            "status": "open", "block_address": "21 Lorong Lew Lian #01-05",
+            "pg_url_keywords": ["cherryhill", "cherry hill", "lorong lew lian"],
+            "requirements": {
+                "gender": "any", "max_pax": 2, "lease_min_months": 12, "budget_floor": 1150,
+                "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]},
+            },
+        }]}
+        db = {"landlords": [dict(
+            _landlord("LL097", "active", "21 Lorong Lew Lian", {
+                "ethnicity": "No Indian, No Bangladesh (landlord preference)",
+                "nationality": "Exclude Indian and Bangladesh (landlord preference)"}),
+            phone="+6598280170")]}
+        db_path = tempfile.mktemp(suffix=".json")
+        idx_path = tempfile.mktemp(suffix=".json")
+        out_path = tempfile.mktemp(suffix=".json")
+        with open(db_path, "w") as f: json.dump(db, f)
+        with open(idx_path, "w") as f: json.dump(idx, f)
+        orig = (BLI.DB, BLI.IDX, BLI.IDX_OUT, sys.argv)
+        BLI.DB, BLI.IDX, BLI.IDX_OUT = db_path, idx_path, out_path
+        sys.argv = ["build-listing-index.py", "--fill-missing"]
+        try:
+            BLI.fill_missing_main()
+            written = json.load(open(out_path))
+        finally:
+            BLI.DB, BLI.IDX, BLI.IDX_OUT, sys.argv = orig
+            for p in (db_path, idx_path, out_path):
+                if os.path.exists(p):
+                    os.remove(p)
+        cherry = next(e for e in written["listings"] if e["listing_key"] == "cherryhill")
+        self.assertIn("ethnicity", cherry["requirements"].get("gate_unverified") or [])
+        # the gate itself is untouched (still exclude [Indian]) -- A6 only adds the flag,
+        # it never mutates the rule the way fill_missing_entry downgrades a brand NEW one
+        self.assertEqual(cherry["requirements"]["ethnicity_rule"]["mode"], "exclude")
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
