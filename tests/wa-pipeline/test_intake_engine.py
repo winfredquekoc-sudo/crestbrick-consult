@@ -1135,6 +1135,8 @@ ok("Winfred notified, Telegram reason carries the code only (no attribute word)"
    aE.get("notify") is True and aE.get("reason") == "house_gate:E1")
 ok("prospect-facing redirect text still reveals nothing",
    "indian" not in (aE.get("text") or "").lower() and "ethnicity" not in (aE.get("text") or "").lower())
+ok("the persisted qualify.why in state carries the code, not the attribute word",
+   " ".join(sE["conversations"]["6590334400"].get("qualify", {}).get("why", [])) == "house_gate:E1")
 
 # bedok-north-522 is female_only + couple_ok(no single males) -- gender DISQUALIFIED.
 sG = {"version": 1, "conversations": {}}; jG = "6590334500@s.whatsapp.net"
@@ -1158,6 +1160,74 @@ _bf = ("Name: Wei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Male\nA
 aB = E.handle_event(sB, {"jid": jB, "msg_id": "b2", "text": _bf, "is_from_me": 0})
 ok("a non protected disqualify (budget) is untouched -- plain 'disqualified' status",
    aB and aB["type"] == "REDIRECT" and sB["conversations"]["6590334600"]["status"] == "disqualified")
+
+# 9 Sep 2026 review: an "only" mode gate names the accepted GROUP, not the attribute
+# ("landlord accepts only Chinese"), so the substring test missed it entirely -- the decline
+# fell through to plain "disqualified", notify absent, and the group name went out on the
+# Telegram flag. Resolve the attribute from the listing's own rules instead.
+_only_eth = {"listing_key": "only-eth", "status": "active", "requirements": {
+    "gender": "any", "ethnicity_rule": {"mode": "only", "list": ["Chinese"]},
+    "nationality_pref": {"mode": "any", "list": []}, "max_pax": 4,
+    "lease_min_months": 12, "budget_floor": 1000, "gate_unverified": []}}
+_only_nat = {"listing_key": "only-nat", "status": "active", "requirements": {
+    "open_intake": True, "gender": "any", "ethnicity_rule": {"mode": "any", "list": []},
+    "nationality_pref": {"mode": "only", "list": ["Singaporean"]},
+    "lease_min_months": 12, "budget_floor": 1000, "gate_unverified": []}}
+_pI = {"name": "Ravi", "nationality": "Singaporean", "ethnicity": "Indian", "gender": "Male",
+       "no_of_pax": 1, "lease_term_months": 12, "budget": 1500}
+_pM = {"name": "Lee", "nationality": "Malaysian", "ethnicity": "Chinese", "gender": "Male",
+       "no_of_pax": 1, "lease_term_months": 12, "budget": 1500}
+_vO, _whyO = E.qualify(_only_eth, _pI)
+ok("ethnicity ONLY mode still DISQUALIFIED (qualify unchanged)", _vO == "DISQUALIFIED")
+ok("the raw reason really does name the group (this is what used to leak)",
+   "chinese" in " ".join(_whyO).lower())
+ok("'landlord accepts only <group>' resolves to the ETHNICITY house gate",
+   E._protected_attr_from_why(_whyO, _only_eth) == "ethnicity")
+_vN, _whyN = E.qualify(_only_nat, _pM)
+ok("nationality ONLY mode resolves to the NATIONALITY house gate",
+   _vN == "DISQUALIFIED" and E._protected_attr_from_why(_whyN, _only_nat) == "nationality")
+ok("no listing to resolve against -> generic house_gate:U1, still never the group name",
+   E._protected_attr_from_why(["landlord accepts only Chinese"]) == "protected"
+   and E._house_gate_status("protected") == "house_gate:U1")
+_actO = E._house_gate_redirect("6590334700", {"profile": _pI}, _only_eth,
+                               {"only-eth": _only_eth}, "only-eth", "ethnicity", _whyO)
+ok("an ONLY mode decline now REDIRECTs with notify=True and a code-only reason",
+   _actO["type"] == "REDIRECT" and _actO.get("notify") is True
+   and _actO["reason"] == "house_gate:E1"
+   and "chinese" not in (_actO.get("text") or "").lower())
+
+# the co-pilot DISQUALIFIED ping is rendered verbatim into the Telegram line
+# ("... does NOT fit X. Reason: {why}") -- it must carry the code, never the attribute word.
+_saved_reqs, _saved_excl = E.listing_reqs, E.excluded_reason
+E.listing_reqs = lambda: {"only-eth": _only_eth, "cop-eth": {
+    "listing_key": "cop-eth", "status": "active", "requirements": {
+        "gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]},
+        "nationality_pref": {"mode": "any", "list": []}, "max_pax": 4,
+        "lease_min_months": 12, "budget_floor": 1000, "gate_unverified": []}}}
+E.excluded_reason = lambda pn: None
+try:
+    _full = dict(_pI); _full.update({"age": 28, "occupation": "eng", "pass_type": "EP",
+                                     "email": "r@x.com", "employment_type": "permanent",
+                                     "move_in_date": "1 Oct", "location": "Bedok"})
+    for _lk_c in ("cop-eth", "only-eth"):
+        _recC = {"pn": "6590334800", "listing_key": _lk_c, "profile": _full}
+        _aC = E._copilot_verdict(_recC)
+        _blob = " ".join(str(x) for x in (_aC.get("why") or [])).lower()
+        ok(f"co-pilot DISQUALIFIED ping on {_lk_c} carries a house_gate code only",
+           _aC and _aC["type"] == "COPILOT_VERDICT" and _aC["verdict"] == "DISQUALIFIED"
+           and _blob.startswith("house_gate:")
+           and not any(w in _blob for w in ("ethnic", "indian", "chinese", "nationalit", "gender")))
+        ok(f"state's persisted qualify.why on {_lk_c} is neutral too",
+           not any(w in " ".join(_recC["qualify"]["why"]).lower()
+                   for w in ("ethnic", "indian", "chinese")))
+    # a NON protected co-pilot decline still reports the real reason (Winfred needs it)
+    _recB2 = {"pn": "6590334900", "listing_key": "cop-eth",
+              "profile": dict(_full, ethnicity="Chinese", budget=200)}
+    _aB2 = E._copilot_verdict(_recB2)
+    ok("a non protected co-pilot decline still names the real reason (budget)",
+       _aB2 and _aB2["verdict"] == "DISQUALIFIED" and "budget" in " ".join(_aB2["why"]).lower())
+finally:
+    E.listing_reqs, E.excluded_reason = _saved_reqs, _saved_excl
 
 print("== 23. A2 A SAFETY NET: gate_unverified never reaches a prospect send ==")
 _unverified_listing = {

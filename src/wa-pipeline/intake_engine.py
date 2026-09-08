@@ -1842,13 +1842,23 @@ _HOUSE_GATE_CODE = {"gender": "G1", "ethnicity": "E1", "nationality": "N1"}
 def _house_gate_status(attr):
     return "house_gate:" + _HOUSE_GATE_CODE.get(attr, "U1")
 
-def _protected_attr_from_why(why):
+def _protected_attr_from_why(why, listing=None):
     """Which protected attribute (if any) a qualify() DISQUALIFIED reason list names."""
+    r = ((listing or {}).get("requirements", listing) or {}) if listing else {}
     for w in (why or []):
         wl = str(w).lower()
         if "ethnicity" in wl: return "ethnicity"
         if "nationality" in wl: return "nationality"
         if "tenant only" in wl or "no couples)" in wl: return "gender"
+        # an "only" mode gate names the accepted GROUP instead of the attribute ("landlord
+        # accepts only Chinese") -- the attribute word never appears, so the old substring
+        # test missed it and the decline escaped the house_gate path entirely: plain
+        # "disqualified" status, no notify, and the group name itself in the Telegram flag.
+        # Resolve the attribute from the listing's own rules (9 Sep 2026 review).
+        if wl.startswith("landlord accepts only"):
+            if (r.get("ethnicity_rule") or {}).get("mode") == "only": return "ethnicity"
+            if (r.get("nationality_pref") or {}).get("mode") == "only": return "nationality"
+            return "protected"     # attribute undeterminable -> generic house_gate:U1
     return None
 
 # ---------- A2: a protected attribute gate needs landlord provenance ----------
@@ -1863,6 +1873,11 @@ def _house_gate_redirect(pn, rec, listing, reqs, lk, attr, why_or_pol):
     the listing's gate for THIS attribute lacks landlord provenance (gate_unverified),
     the decline is blocked entirely -- FLAG_HUMAN instead, no prospect text at all."""
     code = _house_gate_status(attr)
+    # the raw qualify() reason ("ethnicity not accepted by landlord", "landlord accepts only
+    # Chinese") is also persisted in rec["qualify"] by the callers above -- intake-state.json
+    # is the durable record of WHY a tenant was declined, so it carries the code too.
+    if rec.get("qualify"):
+        rec["qualify"] = {"verdict": "DISQUALIFIED", "why": [code]}
     if attr in _gate_unverified_attrs(listing):
         rec["status"] = code
         return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
@@ -1963,6 +1978,14 @@ def _copilot_verdict(rec):
     if excluded_reason(rec.get("pn")) in ("landlord", "agent", "colleague", "db_error"):
         return None                       # never co-pilot a landlord/agent (or on a locked contact DB)
     verdict, why = qualify(listing, rec["profile"])
+    # A3: the co-pilot DISQUALIFIED ping is a decline notification like any other -- it must
+    # carry the house_gate code, never the attribute word or the accepted group name. The
+    # runner renders `why` verbatim into the Telegram line ("Reason: ...") and it is also
+    # persisted in rec["qualify"], so neutralise it here, at the single source (9 Sep 2026).
+    if verdict == "DISQUALIFIED":
+        _pattr = _protected_attr_from_why(why, listing)
+        if _pattr:
+            why = [_house_gate_status(_pattr)]
     sig = verdict + "|" + ",".join(why)
     if rec.get("copilot_sig") == sig:
         return None                       # already surfaced this exact verdict to Winfred
@@ -2211,7 +2234,7 @@ def _viewing_reaction(rec, ev, pn):
                                  open_intake=_open_intake(_listing_r))
         _v_r, _why_r = qualify(_listing_r, rec.get("profile", {}))
         if _pol_r or _v_r == "DISQUALIFIED":
-            _attr_r = "nationality" if _pol_r == "nationality" else _protected_attr_from_why(_why_r)
+            _attr_r = "nationality" if _pol_r == "nationality" else _protected_attr_from_why(_why_r, _listing_r)
             if _attr_r:
                 rec["viewing_confirmed"] = False
                 act_r = _house_gate_redirect(pn, rec, _listing_r, listing_reqs(), _lk_r,
@@ -2751,7 +2774,7 @@ def _handle_event_inner(state, ev):
                             "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
                 if v_b == "DISQUALIFIED":
                     # never book a profile the landlord would reject — kind referral as usual
-                    _attr_b = _protected_attr_from_why(why_b)
+                    _attr_b = _protected_attr_from_why(why_b, listing_b)
                     if _attr_b:
                         return _house_gate_redirect(pn, rec, listing_b, reqs, lk_b, _attr_b, why_b)
                     rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
@@ -2865,7 +2888,7 @@ def _handle_event_inner(state, ev):
         verdict, why = qualify(listing, rec["profile"])
         rec["qualify"] = {"verdict":verdict, "why":why}
         if verdict == "DISQUALIFIED":
-            _attr = _protected_attr_from_why(why)
+            _attr = _protected_attr_from_why(why, listing)
             if _attr:
                 return _house_gate_redirect(pn, rec, listing, reqs, lk, _attr, why)
             rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
