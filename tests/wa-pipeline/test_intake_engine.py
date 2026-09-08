@@ -347,7 +347,11 @@ ok("backfill opening recognised as bot message", E.is_bot_message("Hi! Following
 
 print("== 13. CYCLE-2 HARDENING regressions ==")
 import importlib.util as _ilu
-_rs = _ilu.spec_from_file_location("rnr", os.path.expanduser("~/crestbrick-consult/src/wa-pipeline/wa_intake_runner.py"))
+# same reason as the sys.path line at the top: this was still loading the LIVE repo's
+# runner, so every _is_our_echo assertion below silently validated deployed code instead of
+# the branch under test. Resolve it out of THIS file's own checkout/worktree.
+_rs = _ilu.spec_from_file_location("rnr", os.path.join(_REPO_ROOT, "src", "wa-pipeline",
+                                                       "wa_intake_runner.py"))
 RNR = _ilu.module_from_spec(_rs); _rs.loader.exec_module(RNR)
 # bot-echo detection (the bridge echoes our own sends as is_from_me=0)
 ok("blank intake form echo -> recognised as our echo (would poison if processed)", RNR._is_our_echo(E.INTAKE_FORM) is True)
