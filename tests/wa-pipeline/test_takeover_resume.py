@@ -20,12 +20,15 @@ def _mem_db(rows):
     sqlite db with the one column set resume_reason_blocked/fetch_transcript actually
     touch (id mirrors rowid, matching the real bridge's PRAGMA-discovered id column)."""
     con = sqlite3.connect(":memory:")
-    con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, id INTEGER, "
+    con.execute("CREATE TABLE messages (rowid INTEGER PRIMARY KEY, id TEXT, "
                 "chat_jid TEXT, is_from_me INTEGER, content TEXT, timestamp TEXT)")
-    for rowid, jid, ifm in rows:
+    # id is TEXT holding a hex WhatsApp message id, exactly as the real bridge stores it --
+    # the old fixture mirrored rowid as an INTEGER, which hid a live ordering bug.
+    for i, (rowid, jid, ifm) in enumerate(rows):
         con.execute("INSERT INTO messages (rowid, id, chat_jid, is_from_me, content, timestamp) "
-                    "VALUES (?, ?, ?, ?, 'x', '2026-09-08 10:00:00+08:00')",
-                    (rowid, rowid, jid, int(ifm)))
+                    "VALUES (?, ?, ?, ?, ?, '2026-09-08 10:00:00+08:00')",
+                    (rowid, "%016X" % (0xF000000000000000 - i * 0x111111111111111), jid,
+                     int(ifm), "msg%d" % rowid))
     con.commit()
     return con
 
@@ -552,6 +555,36 @@ class TestNotifyOnlyAllowList(unittest.TestCase):
         self.assertEqual(set(RES.ALLOWED_RESUME_TYPES), {
             "SEND_FORM", "NUDGE_INCOMPLETE", "ASK_ONE", "OFFER_VIEWING", "CONFIRM_VIEWING",
             "ASK_TENANT_TIME", "LEASE_NOTE"})
+
+
+
+class TestRowidNotTextId(unittest.TestCase):
+    """The bridge's id column is TEXT (hex message id). Comparing or ordering by it against a
+    decimal rowid is a string compare that succeeds at random. Opus review, 9 Sep 2026."""
+    JID = "6598886666@s.whatsapp.net"
+
+    def test_later_outbound_still_blocks_with_hex_ids(self):
+        con = _mem_db([(100, self.JID, 0), (101, self.JID, 1)])
+        rec = {"manual_takeover": True, "human_takeover": True,
+               "last_hand_reply_ts": "2026-09-08 10:00:00+08:00"}
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            reason = RES.resume_reason_blocked(con, "id", self.JID, rec, 100,
+                                               "2026-09-08 10:30:00+08:00")
+        self.assertEqual(reason, "Winfred already answered this inbound")
+
+    def test_earlier_outbound_does_not_block_with_hex_ids(self):
+        con = _mem_db([(99, self.JID, 1), (100, self.JID, 0)])
+        rec = {"manual_takeover": True, "human_takeover": True,
+               "last_hand_reply_ts": "2026-09-08 10:00:00+08:00"}
+        with mock.patch.object(RES.E, "excluded_reason", return_value=None):
+            reason = RES.resume_reason_blocked(con, "id", self.JID, rec, 100,
+                                               "2026-09-08 10:30:00+08:00")
+        self.assertIsNone(reason)
+
+    def test_transcript_is_in_chronological_order(self):
+        con = _mem_db([(10, self.JID, 0), (11, self.JID, 1), (12, self.JID, 0)])
+        got = [m["text"] for m in RES.fetch_transcript(con, "id", self.JID)]
+        self.assertEqual(got, ["msg10", "msg11", "msg12"])
 
 
 

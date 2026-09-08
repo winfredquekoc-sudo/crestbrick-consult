@@ -103,8 +103,14 @@ def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
         return "unparseable timestamp"
     if gap < RESUME_WAIT_SEC:
         return f"only {gap:.0f}s since the hand reply (< {RESUME_WAIT_SEC}s)"
+    # ORDER/COMPARE ON rowid, NEVER idc: the bridge's "id" column is TEXT holding a hex
+    # WhatsApp message id ("0662D94529A30EDEB2"), so "id > 219811" is a STRING compare against
+    # the decimal rowid -- true for roughly 4 in 5 unrelated rows and false for the rest. That
+    # made this guard fire at random in both directions. rowid is the insertion order the rest
+    # of the runner already trusts. (Opus review, 9 Sep 2026; idc kept in the signature so
+    # existing callers are unchanged.)
     answered = con.execute(
-        f"SELECT 1 FROM messages WHERE chat_jid=? AND is_from_me=1 AND {idc} > ? LIMIT 1",
+        "SELECT 1 FROM messages WHERE chat_jid=? AND is_from_me=1 AND rowid > ? LIMIT 1",
         (jid, inbound_rowid)).fetchone()
     if answered is not None:
         return "Winfred already answered this inbound"
@@ -128,9 +134,9 @@ def fetch_transcript(con, idc, jid, limit=80):
     """Last LIMIT text messages in this chat, oldest first, tagged ME (Winfred by hand) /
     BOT (the intake engine's own template sends) / THEM (the prospect)."""
     rows = con.execute(
-        f"SELECT is_from_me, content FROM messages WHERE chat_jid=? "
-        f"AND content IS NOT NULL AND content != '' ORDER BY {idc} DESC LIMIT ?",
-        (jid, limit)).fetchall()
+        "SELECT is_from_me, content FROM messages WHERE chat_jid=? "
+        "AND content IS NOT NULL AND content != '' ORDER BY rowid DESC LIMIT ?",
+        (jid, limit)).fetchall()      # rowid, not idc: see resume_reason_blocked
     rows.reverse()
     out = []
     for ifm, content in rows:
