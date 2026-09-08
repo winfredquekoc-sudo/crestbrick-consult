@@ -28,6 +28,17 @@ DATA = os.path.join(REPO, "scripts", "matchmaker", "matchmaker-data.json")
 DIST = os.path.join(HERE, "dist")
 PHOTOS_SRC = os.path.join(REPO, "scripts", "matchmaker", "deploy", "photos")
 
+
+def _staging_disclosure_line():
+    try:
+        p = json.load(open(os.path.join(REPO, "scripts", "matchmaker", "photo_staging_prompts.json")))
+        return p.get("disclosure_line") or ""
+    except Exception:
+        return ""
+
+
+STAGING_DISCLOSURE = _staging_disclosure_line()
+
 SITE_NAME = "Singapore Room Rental"
 BASE_URL = os.environ.get("PUBLIC_BASE_URL", "https://singapore-room-rental.vercel.app").rstrip("/")
 AGENT = "Winfred Quek"
@@ -35,6 +46,12 @@ AGENT_CEA = "R073319H"
 AGENT_FIRM = "Crestbrick Pte Ltd (L31010886H)"
 WA = "6581618149"   # Winfred's WhatsApp — the ONLY contact on the site
 WA_LINK = "https://wa.me/%s" % WA
+# Site-wide og:image fallback for pages with no listing photo of their own
+# (homepage, area/price/type/faq/guide pages). Set once in main() from the
+# first listing photo actually written into dist/photos — never invented,
+# never a listing's second choice image, and left None (no og:image tag) if
+# PUBLIC_PHOTOS=0 means no photo exists in dist at all.
+DEFAULT_OG_IMAGE = None
 MAIN_SITE = "https://winfredquek.com"   # cross-site: renters → future buyers
 INDEXNOW_KEY = "8f3c1e6a2b9d4f70a5c8e1b3d6f2a9c4"   # PUBLIC IndexNow ownership token, hosted at /<key>.txt — not a secret — gitleaks:allow
 
@@ -165,6 +182,12 @@ def neutral_rules(reqs, cooking):
         out.append(("Smoking", r["smoking"]))
     if r.get("utilities"):
         out.append(("Utilities", r["utilities"]))
+    # Yes/No only — never who else lives there. Omitted entirely when unknown
+    # (TBC or unparsed free text), same as every other optional row here.
+    if r.get("owner_stays") is True:
+        out.append(("Landlord lives in the unit", "Yes"))
+    elif r.get("owner_stays") is False:
+        out.append(("Landlord lives in the unit", "No"))
     return out
 
 
@@ -173,7 +196,13 @@ def load_public_listings():
     areas = d.get("districts", {})
     out = []
     for l in d.get("listings", []):
-        if l.get("availability") != "Available":
+        # Matchmaker's own counts.available_listings (export_data.py's
+        # build_listings) counts "Available" AND "Offer pending" as available —
+        # this site's homepage banner and result count previously counted
+        # "Available" only, so the two numbers could drift (35 shown here vs
+        # 34 in the source data). Match the exporter's own definition so both
+        # numbers are the same count by construction, not by coincidence.
+        if l.get("availability") not in ("Available", "Offer pending"):
             continue
         dist = l.get("district") or ""
         area = areas.get(dist, dist)
@@ -209,7 +238,9 @@ def load_public_listings():
             "rent_max": l.get("rent_max"),
             "rent_txt": rent_text(l.get("rent_min"), l.get("rent_max")),
             "rules": neutral_rules(l.get("reqs"), l.get("cooking")),
+            "owner_stays": (l.get("reqs") or {}).get("owner_stays"),
             "photos": photos,
+            "photos_staged": bool(l.get("photos_staged")) and bool(photos),
             "lat": l.get("lat"),
             "lng": l.get("lng"),
             "geo_src": l.get("geo_src"),
@@ -303,13 +334,16 @@ footer.site{border-top:1px solid var(--line);color:var(--mut);font-size:13px;pad
 
 def page(title, desc, body, canonical, jsonld=None, og_image=None):
     ld = ("<script type='application/ld+json'>%s</script>" % json.dumps(jsonld)) if jsonld else ""
+    chosen_image = og_image or DEFAULT_OG_IMAGE
     og = "\n".join([
         "<meta property='og:title' content='%s'>" % e(title),
         "<meta property='og:description' content='%s'>" % e(desc),
         "<meta property='og:type' content='website'>",
         "<meta property='og:url' content='%s'>" % e(canonical),
-        ("<meta property='og:image' content='%s'>" % e(og_image)) if og_image else "",
+        ("<meta property='og:image' content='%s'>" % e(chosen_image)) if chosen_image else "",
         "<meta name='twitter:card' content='summary_large_image'>",
+        "<meta name='twitter:title' content='%s'>" % e(title),
+        "<meta name='twitter:description' content='%s'>" % e(desc),
     ])
     return """<!doctype html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
@@ -379,6 +413,8 @@ def room_page(l):
         l["rtype"], l["block"], l["area"], l["rent_txt"], AGENT)
     canonical = "%s/room/%s/" % (BASE_URL, l["slug"])
     gallery = "".join("<img loading='lazy' src='/%s' alt='%s in %s'>" % (e(p), e(l["rtype"]), e(l["area_short"])) for p in l["photos"])
+    staging_note = ("<p class='stagenote' style='font-size:12px;color:var(--mut);margin-top:6px'>%s</p>"
+                     % e(STAGING_DISCLOSURE)) if (l.get("photos_staged") and STAGING_DISCLOSURE) else ""
     mrt = l.get("mrt")
     mrt_li = ("<li><span class='k'>Nearest MRT</span><span>%s MRT &middot; %d min walk (%dm)</span></li>"
               % (e(mrt["station"]), mrt["walk_min"], mrt["distance_m"])) if mrt else ""
@@ -400,6 +436,11 @@ def room_page(l):
                    "priceCurrency": "SGD", "availability": "https://schema.org/InStock",
                    "url": canonical, "seller": {"@type": "RealEstateAgent", "name": AGENT}},
     }
+    if l.get("owner_stays") is not None:
+        jsonld["additionalProperty"] = [{
+            "@type": "PropertyValue", "name": "Landlord lives in the unit",
+            "value": "Yes" if l["owner_stays"] else "No",
+        }]
     breadcrumb = {"@context": "https://schema.org", "@type": "BreadcrumbList", "itemListElement": [
         {"@type": "ListItem", "position": 1, "name": "Home", "item": BASE_URL + "/"},
         {"@type": "ListItem", "position": 2, "name": "Rooms in " + l["area_short"], "item": "%s/rooms-in-%s/" % (BASE_URL, l["area_slug"])},
@@ -436,7 +477,7 @@ def room_page(l):
         e(l["area_slug"]), e(l["area_short"]), e(l["rtype"]),
         e(l["rtype"]), e(l["area_short"]), e(l["district"]),
         e("%s at %s, %s." % (l["rtype"], l["block"], l["area"])),
-        ("<div class='gallery'>%s</div>" % gallery) if gallery else "",
+        (("<div class='gallery'>%s</div>" % gallery) + staging_note) if gallery else "",
         e(l["rent_txt"]), e(l["rtype"]), e(l["block"]), e(l["district"]),
         rules,
         ("<li><span class='k'>Available</span><span>%s</span></li>" % e(l["available_from"])) if l.get("available_from") else "",
@@ -609,12 +650,16 @@ def homepage(listings, areas):
     tlabel = {"master": "Master room", "common": "Common room", "whole": "Whole unit", "studio": "Studio", "room": "Room"}
     types_present = [k for k in ["master", "common", "whole", "studio", "room"] if any(x["type_key"] == k for x in listings)]
     type_opts = "".join("<option value='%s'>%s</option>" % (k, e(tlabel[k])) for k in types_present)
-    # quick-link pills to the landing pages (SEO internal links)
-    pills = "".join("<a href='/rooms-%s/'>%s</a>" % (slug, e(label)) for slug, label, cap in PRICE_BUCKETS
+    # quick-link pills to the landing pages (SEO internal links). Room type
+    # chips (incl. Whole Units) come first so they sit above the fold on
+    # mobile — the "Find a room" fType dropdown further down narrows the same
+    # grid, but a dropdown alone left the whole-units landing page one scroll
+    # too far down to be reachable without scrolling on a phone.
+    type_pills = "".join("<a href='/%s/'>%s</a>" % (url, e(label)) for key, label, url, noun in ROOM_TYPE_PAGES
+                         if key in types_present)
+    price_pills = "".join("<a href='/rooms-%s/'>%s</a>" % (slug, e(label)) for slug, label, cap in PRICE_BUCKETS
                     if any((x["rent_min"] or x["rent_max"] or 0) <= cap for x in listings))
-    # room-type pills dropped from the homepage — the "Find a room" fType dropdown
-    # below already narrows by type; the dedicated landing pages stay linked from
-    # the price/type grid pages' nav_pills, just not duplicated here.
+    pills = type_pills + price_pills
     cards = "".join(card_html(l) for l in listings)   # all rooms, filtered client-side
     body = """<div class="wrap">
 <section class="hero">
@@ -940,7 +985,12 @@ def copy_photos(listings):
 
 def main():
     import time
+    global DEFAULT_OG_IMAGE
     listings, areas = load_public_listings()
+    for l in listings:
+        if l.get("photos"):
+            DEFAULT_OG_IMAGE = "%s/%s" % (BASE_URL, l["photos"][0])
+            break
     # Per-listing pins: prefer the lat/lng Matchmaker already geocoded (carried
     # in matchmaker-data.json as lat/lng/geo_src — "exact" or "approx"), since
     # that pipeline is already vetted and needs no extra network calls here.

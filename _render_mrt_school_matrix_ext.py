@@ -153,7 +153,6 @@ PAGE_TPL = """<!doctype html>
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="canonical" href="https://winfredquek.com/area/{slug}" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

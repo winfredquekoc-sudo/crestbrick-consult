@@ -225,7 +225,6 @@ TEMPLATE = """<!doctype html>
   <meta property="og:url" content="{canonical}" />
   <link rel="canonical" href="{canonical}" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

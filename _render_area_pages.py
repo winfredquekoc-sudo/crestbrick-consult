@@ -84,7 +84,6 @@ HEAD_BASE = """<!doctype html>
   <meta name="twitter:image" content="/img/og-image.jpg" />
   <link rel="canonical" href="{canonical}" />
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <script defer src="/_vercel/insights/script.js"></script>
   <link rel="stylesheet" href="/tw.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

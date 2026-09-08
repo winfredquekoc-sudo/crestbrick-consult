@@ -48,7 +48,7 @@ INDEX_OUT = os.path.join(HERE, "photos-harvested.json")
 WATERMARK_PATH = os.path.expanduser("~/.claude/state/photo-harvest-watermark.json")
 OLLAMA = "http://localhost:11434/api/generate"
 MODEL = "moondream"
-MAX_PER_LANDLORD = 6
+MAX_PER_LANDLORD = 20
 MAX_EDGE = 1000  # downscale longest edge, px
 
 # Drop-first: ANY hint of a document / person / screen wins over a room hint, so
