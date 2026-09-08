@@ -177,6 +177,38 @@ class TestKeywordSpecificity(unittest.TestCase):
     def test_portal_ids_file_absence_is_tolerated(self):
         self.assertEqual(BLI._load_portal_ids_file("/no/such/file/exists.json"), {})
 
+    def test_open_vs_closed_keyword_collision_is_caught(self):
+        # A4 (Sep 2026): the reviewer found "ang mo kio ave 3" surviving on both a CLOSED
+        # row and an OPEN row -- check_keyword_specificity must check an open listing's
+        # keyword against EVERY other entry, not just other open ones.
+        closed = {"listing_key": "amk-closed", "status": "closed (tenanted)",
+                 "block_address": "123 Ang Mo Kio Ave 3 #04-05",
+                 "pg_url_keywords": ["ang mo kio ave 3"]}
+        opened = {"listing_key": "amk-open", "status": "open",
+                 "block_address": "456 Ang Mo Kio Ave 3 #08-12",
+                 "pg_url_keywords": ["ang mo kio ave 3"]}
+        conflicts = BLI.check_keyword_specificity([closed, opened])
+        self.assertTrue(any(a == "amk-open" and b == "amk-closed" for a, kw, b in conflicts))
+
+    def test_closed_vs_closed_collision_is_not_flagged(self):
+        c1 = {"listing_key": "c1", "status": "closed", "block_address": "1 Some Road",
+              "pg_url_keywords": ["some road"]}
+        c2 = {"listing_key": "c2", "status": "closed (tenanted)", "block_address": "3 Some Road",
+              "pg_url_keywords": ["some road"]}
+        self.assertEqual(BLI.check_keyword_specificity([c1, c2]), [])
+
+    def test_dedupe_conflicting_prunes_a_new_entry_keyword_that_matches_a_closed_row(self):
+        # a fresh fill-missing entry must never keep a keyword that would cross match a
+        # CLOSED row's address either -- match_listing() would otherwise route SOME of the
+        # traffic to the wrong listing depending on dict order.
+        idx = {"listings": [{"listing_key": "amk-closed", "status": "closed (tenanted)",
+                            "block_address": "123 Ang Mo Kio Ave 3 #04-05",
+                            "pg_url_keywords": ["ang mo kio ave 3", "123 ang mo kio"]}]}
+        db = {"landlords": [_landlord("LL910", "active", "456 Ang Mo Kio Ave 3 #08-12")]}
+        new_entries, _, _bf = BLI.fill_missing(idx, db)
+        new_kws = [k.lower() for k in new_entries[0]["pg_url_keywords"]]
+        self.assertNotIn("ang mo kio ave 3", new_kws)
+
 
 class TestPortalIdsForOnlyReadsPortalIdsField(unittest.TestCase):
     """Opus-review blocker #1: portal_ids_for() must never iterate the OTHER fields of a
@@ -451,6 +483,172 @@ class TestCheckKeywordSpecificityFatal(unittest.TestCase):
             for p in (db_path, idx_path, out_path):
                 if os.path.exists(p):
                     os.remove(p)
+
+
+class TestMarketingRestrictionsSuppressAddressKeywords(unittest.TestCase):
+    """A5 (Sep 2026): a landlord record carrying marketing_restrictions (e.g. real LL017 --
+    never confirmed a block/unit in writing, two conflicting guesses on file) must never
+    surface an address derived pg_url_keyword. Portal ids stay (opaque, not an address)."""
+
+    def test_restricted_listing_gets_no_address_keyword(self):
+        l = _landlord("LL017", "active", "851 Jurong West (full addr withheld)",
+                      {"gender": "Female only", "ethnicity": "No Indian"})
+        l["marketing_restrictions"] = ("Landlord has never provided a written block/unit/"
+                                       "postal code. Do NOT publish an address for this "
+                                       "listing on any portal until the landlord confirms "
+                                       "it in writing.")
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        self.assertEqual(entry["pg_url_keywords"], [])
+        self.assertTrue(entry["marketing_restrictions"])
+
+    def test_restricted_listing_keeps_a_portal_id_if_one_exists(self):
+        l = _landlord("LL017x", "active", "851 Jurong West (full addr withheld)", {})
+        l["marketing_restrictions"] = "Do NOT publish an address until confirmed."
+        harvested = {"851 jurong west": {"500999999"}}
+        entry, _, _ = BLI.fill_missing_entry(l, {}, harvested, {})
+        self.assertEqual(entry["pg_url_keywords"], ["500999999"])
+
+    def test_non_restricted_listing_unaffected(self):
+        l = _landlord("LL018", "active", "47 Marine Crescent, Singapore 440047", {})
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        self.assertIn("47 marine crescent", entry["pg_url_keywords"])
+        self.assertEqual(entry.get("marketing_restrictions"), "")
+
+    def test_comma_in_address_never_blocks_the_clean_short_keyword(self):
+        # real LL110 shape: "Blk 47 Marine Crescent, Singapore 440047 (...)" -- the internal
+        # comma must not glue onto "crescent" and block the plain "47 marine crescent" a
+        # tenant would actually type.
+        variants = BLI._addr_variants("Blk 47 Marine Crescent, Singapore 440047 "
+                                      "(Marine Crescent Gardens; high floor)")
+        self.assertIn("47 marine crescent", variants)
+
+
+class TestProtectedGateProvenance(unittest.TestCase):
+    """A2 (Sep 2026): a protected attribute gate (gender / ethnicity_rule / nationality_pref)
+    is only ever emitted when the landlord record carries the landlord's OWN dated
+    statement for it -- a paraphrase ('landlord preference') is never enough. Fixture
+    shapes copied from real landlord-db.json records (LL104, LL097, LL117, LL106)."""
+
+    def test_paraphrase_with_no_quote_or_date_is_unverified(self):
+        # real LL104 shape: "No Indian (landlord preference); Chinese preferred..." -- no
+        # quote marks, no date anywhere in the field or in wa_evidence.
+        l = _landlord("LL104", "active", "Blk 125 Bedok Reservoir Road",
+                      {"ethnicity": "No Indian (landlord preference); Chinese preferred",
+                       "gender": "Any"})
+        l["wa_evidence"] = ['[2026-08-26] No use of gas as my house is open kitchen']
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        req = entry["requirements"]
+        self.assertEqual(req["ethnicity_rule"], {"mode": "any", "list": []})
+        self.assertIn("ethnicity", req["gate_unverified"])
+
+    def test_summary_assertion_with_no_backing_wa_evidence_is_unverified(self):
+        # real LL097 (Cherryhill) shape: the requirements text AND the clarity summary both
+        # assert an exclusion, but no wa_evidence line actually says it ("no such line in
+        # the chat") -- must stay unverified.
+        l = _landlord("LL097", "active", "21 Lorong Lew Lian",
+                      {"ethnicity": "No Indian, No Bangladesh (landlord preference)",
+                       "nationality": "Exclude Indian and Bangladesh (landlord preference)"})
+        l["wa_evidence"] = ["[2026-09-03] Yep 1650 for the biggg one"]
+        l["clarity"] = {"summary": "No Indian or Bangladeshi tenants. Working professionals only."}
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        req = entry["requirements"]
+        self.assertEqual(req["ethnicity_rule"], {"mode": "any", "list": []})
+        self.assertEqual(req["nationality_pref"], {"mode": "any", "list": []})
+        self.assertEqual(set(req["gate_unverified"]), {"ethnicity", "nationality"})
+
+    def test_derived_from_an_observation_is_unverified_even_with_a_date(self):
+        # real LL117 shape: "No Indian (previous tenants all Chinese, stated 31 Aug 2026)"
+        # -- has a DATE but no actual quoted phrase (it's an inference, not a quote) and
+        # wa_evidence is empty. Must stay unverified despite the date.
+        l = _landlord("LL117", "active", "Blk 703 Jurong West",
+                      {"ethnicity": "No Indian (previous tenants all Chinese, stated 31 Aug 2026)",
+                       "gender": "Male preferred"})
+        l["wa_evidence"] = []
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        req = entry["requirements"]
+        self.assertEqual(req["ethnicity_rule"], {"mode": "any", "list": []})
+        self.assertIn("ethnicity", req["gate_unverified"])
+        self.assertIn("gender", req["gate_unverified"])
+
+    def test_wa_evidence_quote_verifies_the_gate(self):
+        # real LL106 shape: a genuine dated wa_evidence quote about gender.
+        l = _landlord("LL106", "active", "1 Some Road", {"gender": "Female preferred"})
+        l["wa_evidence"] = ["[2026-08-30] my husband is not very keen to rent out the room "
+                           "to a guy who speaks the same language due to privacy issues"]
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        req = entry["requirements"]
+        self.assertNotEqual(req["gender"], "any")
+        self.assertNotIn("gender", req["gate_unverified"])
+        self.assertEqual(req["gender_source"]["date"], "2026-08-30")
+
+    def test_inline_quote_with_date_verifies_the_gate(self):
+        # real LL104 gender shape: 'Any (landlord confirmed "gender is ok", 19 Aug 2026)' --
+        # but gender there already parses to "any" so nothing to verify. Use an ethnicity
+        # field with the same inline-quote-plus-date shape to exercise the "only" path.
+        l = _landlord("LL501x", "active", "1 Some Road",
+                      {"ethnicity": 'Chinese only (landlord confirmed "Chinese tenants only '
+                                    'please", 3 Sep 2026)'})
+        l["wa_evidence"] = []
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        req = entry["requirements"]
+        self.assertEqual(req["ethnicity_rule"]["mode"], "only")
+        self.assertNotIn("ethnicity", req["gate_unverified"])
+        self.assertIn("quote", req["ethnicity_rule"]["source"])
+        self.assertEqual(req["ethnicity_rule"]["source"]["date"], "3 Sep 2026")
+
+    def test_no_gate_at_all_never_flagged_unverified(self):
+        l = _landlord("LL502x", "active", "1 Some Road", {"ethnicity": "Any", "gender": "Any"})
+        entry, _, _ = BLI.fill_missing_entry(l, {}, set(), {})
+        self.assertEqual(entry["requirements"]["gate_unverified"], [])
+
+    def test_engine_flags_human_instead_of_redirecting_on_an_unverified_disqualify(self):
+        """A2 engine side: qualify()'s ethnicity/nationality/gender DISQUALIFIED path must
+        never reach the tenant when the listing's gate for that attribute is unverified --
+        it is entirely academic here since fill_missing always downgrades an unverified
+        gate to 'any' (so qualify() itself can never fail on it) -- this proves that
+        defense in depth: even if a listing is hand edited back to an active exclude/only
+        mode while gate_unverified still names the attribute, handle_event blocks the send."""
+        listing = {
+            "listing_key": "unverified-eth", "status": "active",
+            "requirements": {
+                "gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]},
+                "nationality_pref": {"mode": "any", "list": []}, "max_pax": 2,
+                "lease_min_months": 12, "budget_floor": 1000,
+                "gate_unverified": ["ethnicity"],
+            },
+        }
+        profile = {"ethnicity": "Indian", "gender": "Male", "no_of_pax": 1,
+                   "lease_term_months": 12, "budget": 1200}
+        verdict, why = E.qualify(listing, profile)
+        self.assertEqual(verdict, "DISQUALIFIED")   # qualify() itself is unchanged
+        act = E._house_gate_redirect("6591112222", {"profile": profile}, listing,
+                                     {"unverified-eth": listing}, "unverified-eth",
+                                     "ethnicity", why)
+        self.assertEqual(act["type"], "FLAG_HUMAN")
+        self.assertIsNone(act.get("text"))
+        self.assertEqual(act["reason"], "house_gate:E1")
+        self.assertTrue(act.get("notify") is True)
+
+    def test_engine_offer_viewing_blocked_when_any_gate_unverified(self):
+        listing = {
+            "listing_key": "unverified-gender", "status": "active",
+            "requirements": {"gender": "any", "ethnicity_rule": {"mode": "any", "list": []},
+                             "nationality_pref": {"mode": "any", "list": []},
+                             "gate_unverified": ["gender"]},
+        }
+        rec = {"profile": {}}
+        act = E._gate_unverified_offer_block("6591112222", rec, listing)
+        self.assertIsNotNone(act)
+        self.assertEqual(act["type"], "FLAG_HUMAN")
+        self.assertEqual(act["reason"], "house_gate:G1")
+        self.assertEqual(rec["status"], "house_gate:G1")
+
+    def test_verified_listing_never_blocks_offer(self):
+        listing = {"listing_key": "clean", "status": "active",
+                   "requirements": {"gender": "any", "ethnicity_rule": {"mode": "any", "list": []},
+                                    "nationality_pref": {"mode": "any", "list": []},
+                                    "gate_unverified": []}}
+        self.assertIsNone(E._gate_unverified_offer_block("659", {"profile": {}}, listing))
 
 
 if __name__ == "__main__":

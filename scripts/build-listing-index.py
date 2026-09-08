@@ -147,6 +147,10 @@ def _addr_variants(address):
     addr = re.sub(r"\([^)]*\)", " ", address or "")
     addr = re.sub(r"#.*", "", addr).strip()
     addr = re.sub(r"^\s*(blk|block)\.?\s+", "", addr, flags=re.I)
+    # an internal comma ("Blk 47 Marine Crescent, Singapore 440047") glued onto the street
+    # word ("crescent,") and blocked the clean "47 marine crescent" keyword a tenant would
+    # actually type -- treat every comma as a plain separator, same as whitespace.
+    addr = addr.replace(",", " ")
     addr = re.sub(r"\s+", " ", addr).strip()
     addr = addr.rstrip(",").strip()
     if not addr:
@@ -360,12 +364,79 @@ def derive_status(l):
         return "closed (landlord db: " + l.get("status", "") + ")"
     return "open"
 
+# ---------- A2: protected attribute gates need landlord provenance ----------
+# A landlord-db free text field like "No Indian (landlord preference)" or "originally 'no
+# Indian' but she has since accepted..." is Winfred's OWN paraphrase / an inferred
+# observation -- not proof the landlord actually said it. Only two things count as the
+# landlord's own dated statement: (1) a wa_evidence entry (an already dated, verbatim
+# quoted chat line, added by the clarity audit) that is topically about the attribute, or
+# (2) an inline quoted phrase WITH a date in the requirements text itself (e.g. LL104's
+# gender field: 'Any (landlord confirmed "gender is ok", 19 Aug 2026)'). A bare date with
+# no quote marks, or a quote with no date, is not enough.
+_GATE_DATE_RE = re.compile(
+    r"\[?\d{4}-\d{2}-\d{2}\]?|\b\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)"
+    r"[a-z]*\s+\d{4}\b", re.I)
+_GATE_QUOTE_RE = re.compile(r'["“]([^"”]{3,})["”]')
+_WA_EVIDENCE_RE = re.compile(r"^\[(\d{4}-\d{2}-\d{2})\]\s*(.+)$")
+
+_GATE_KEYWORDS = {
+    "gender": ("male", "female", "gender", "guy", "girl", "man", "woman"),
+    "ethnicity": ("chinese", "malay", "indian", "eurasian", "race", "ethnic"),
+    "nationality": ("nationality", "foreigner", "singaporean", "malaysian", " pr ",
+                    "permanent resident", "citizenship", "filipino"),
+}
+
+def _quoted_with_date(text):
+    """An inline landlord quote: an actual quoted phrase AND a date in the SAME passage --
+    a paraphrase ('landlord preference', 'stated 31 Aug 2026' with no quote marks) never
+    has both. Returns (quote, date) or None."""
+    if not text:
+        return None
+    qm = _GATE_QUOTE_RE.search(text)
+    dm = _GATE_DATE_RE.search(text)
+    if qm and dm:
+        return qm.group(1).strip(), dm.group(0).strip("[]")
+    return None
+
+def _wa_evidence_quote(wa_evidence, attr):
+    """A wa_evidence entry ('[DATE] verbatim chat line') topically about ATTR. wa_evidence
+    is already a dated, verbatim quote by construction -- no inline quote marks needed."""
+    kws = _GATE_KEYWORDS.get(attr, ())
+    for entry in (wa_evidence or []):
+        m = _WA_EVIDENCE_RE.match(str(entry).strip())
+        if not m:
+            continue
+        date, txt = m.groups()
+        if any(kw in txt.lower() for kw in kws):
+            return txt.strip(), date
+    return None
+
+def landlord_gate_provenance(l, attr, req_field_text):
+    """Returns {'quote':..., 'date':...} if the landlord record carries the landlord's OWN
+    dated statement about ATTR ('gender', 'ethnicity' or 'nationality'), else None."""
+    hit = _wa_evidence_quote(l.get("wa_evidence"), attr)
+    if hit:
+        return {"quote": hit[0], "date": hit[1]}
+    hit = _quoted_with_date(req_field_text)
+    if hit:
+        return {"quote": hit[0], "date": hit[1]}
+    # clarity.summary is Winfred's own audited paraphrase -- only counts if it ALSO happens
+    # to carry an inline quote+date (rare; most summaries are narration, not verbatim).
+    hit = _quoted_with_date(((l.get("clarity") or {}).get("summary")))
+    if hit:
+        return {"quote": hit[0], "date": hit[1]}
+    return None
+
 def fill_missing_entry(l, pub_map, harvested, portal_map):
     r = l.get("requirements") or {}
     addr = l.get("full_address") or l.get("property_name") or ""
     lk = listing_key_for(l, pub_map)
 
-    kws = set(_addr_variants(addr))
+    # A5: a landlord record carrying marketing_restrictions (e.g. LL017 -- never confirmed
+    # a block/unit in writing, two conflicting guesses on file) must never surface an
+    # address derived keyword -- portal ids / harvested ids stay (opaque, not an address).
+    restricted = bool(l.get("marketing_restrictions"))
+    kws = set() if restricted else set(_addr_variants(addr))
     kws |= portal_ids_for(l["id"], lk, portal_map)
     kws |= match_harvested(addr, harvested)
     kws = {k for k in kws if _is_valid_keyword(k, addr)}
@@ -376,6 +447,36 @@ def fill_missing_entry(l, pub_map, harvested, portal_map):
     couple_married = bool(g[2]) if g else False
     eth = _SYNC.parse_ethnicity(r.get("ethnicity")) or {"mode": "any", "list": []}
     nat = _SYNC.parse_ethnicity(r.get("nationality")) or {"mode": "any", "list": []}
+
+    # A2: a protected attribute gate (gender / ethnicity_rule / nationality_pref) is only
+    # ever emitted when the landlord record carries the landlord's OWN dated statement for
+    # it -- otherwise it is downgraded to "any"/"any" and the entry is marked
+    # gate_unverified so the engine (qualify()) refuses to silently REDIRECT or OFFER_VIEWING
+    # on it. See landlord_gate_provenance() above.
+    gate_unverified = []
+    gender_source = None
+    if gender != "any":
+        prov = landlord_gate_provenance(l, "gender", r.get("gender"))
+        if prov:
+            gender_source = prov
+        else:
+            gate_unverified.append("gender")
+            gender, couple_ok, couple_married = "any", False, False
+    if eth.get("mode") != "any":
+        prov = landlord_gate_provenance(l, "ethnicity", r.get("ethnicity"))
+        if prov:
+            eth = dict(eth); eth["source"] = prov
+        else:
+            gate_unverified.append("ethnicity")
+            eth = {"mode": "any", "list": []}
+    if nat.get("mode") != "any":
+        prov = landlord_gate_provenance(l, "nationality", r.get("nationality"))
+        if prov:
+            nat = dict(nat); nat["source"] = prov
+        else:
+            gate_unverified.append("nationality")
+            nat = {"mode": "any", "list": []}
+
     min_age = _SYNC.parse_min_age(r)
     max_pax = parse_pax(r.get("max_pax"))
     lease_min = parse_lease(r.get("lease_min")) or 12
@@ -399,13 +500,16 @@ def fill_missing_entry(l, pub_map, harvested, portal_map):
         "deal_type": l.get("deal_type", "rent"),
         "status": derive_status(l),
         "pg_url_keywords": sorted(kws),
+        "marketing_restrictions": l.get("marketing_restrictions") or "",
         "requirements": {
             "gender": gender, "couple_ok": couple_ok, "couple_must_be_married": couple_married,
+            "gender_source": gender_source,
             "ethnicity_rule": eth, "nationality_pref": nat, "pass_type_allowed": [],
             "occupation_rule": {"mode": "any", "list": []},
             "max_pax": max_pax, "lease_min_months": lease_min, "lease_max_months": None,
             "budget_floor": budget_floor, "min_age": min_age,
             "cooking": "light", "pets_tenant_may_bring": False, "smoking": "any",
+            "gate_unverified": gate_unverified,
             "notes_human": "GENERATED (fill-missing) from landlord-db " + l["id"],
         },
         "district": l.get("district", ""),
@@ -424,19 +528,24 @@ def _bare_kw(kwl):
     return re.sub(r"^\s*the\s+", "", kwl)
 
 def check_keyword_specificity(all_listings):
-    """Every keyword of every OPEN listing checked against every OTHER open listing's own
-    address text. Returns a list of (listing_key, keyword, other_listing_key) conflicts. A
-    clean fill-missing run must return []; the test suite asserts exactly that."""
-    open_l = [e for e in all_listings if _is_open(e)]
+    """Every keyword of every OPEN listing checked against every OTHER entry's own address
+    text -- OPEN or CLOSED (A4, Sep 2026). match_listing() scans the WHOLE index regardless
+    of status, so a keyword surviving on a CLOSED row is still a live routing risk for an
+    OPEN one -- the reviewer found "ang mo kio ave 3" on both a closed row and an open row.
+    A closed-vs-closed pair is not checked (nobody routes a tenant onto a closed listing).
+    Returns a list of (listing_key, keyword, other_listing_key) conflicts. A clean
+    fill-missing run must return []; the test suite asserts exactly that."""
     conflicts = []
-    for e in open_l:
+    for e in all_listings:
+        if not _is_open(e):
+            continue                          # only an OPEN entry's keyword is a live risk
         addr_self = _norm(e.get("block_address") or e.get("address") or e.get("property_name") or "")
         for kw in (e.get("pg_url_keywords") or []):
             kwl = _norm(kw)
             if not kwl or (kwl.isdigit() and len(kwl) >= 6):
                 continue                      # portal ids are always specific
             kwl_bare = _bare_kw(kwl)
-            for o in open_l:
+            for o in all_listings:
                 if o is e:
                     continue
                 addr_o = _norm(o.get("block_address") or o.get("address") or o.get("property_name") or "")
@@ -445,16 +554,21 @@ def check_keyword_specificity(all_listings):
                     conflicts.append((e["listing_key"], kw, o["listing_key"]))
     return conflicts
 
-def _dedupe_conflicting(new_entries, existing_open):
+def _dedupe_conflicting(new_entries, existing_open, all_entries=None):
     """Strip any keyword -- of a NEW entry OR an EXISTING open one -- that is a substring of
-    another OPEN listing's own address. Existing entries ARE mutated here (in place, via the
-    same dict references idx["listings"] holds): a legacy bare keyword like "bayshore" or
-    "the bayshore" on a long-standing manual entry starts stealing a brand new listing at the
+    ANY OTHER entry's own address, OPEN or CLOSED (A4, Sep 2026: match_listing() scans the
+    whole index regardless of status, so a stale keyword left on a CLOSED row is still a
+    live routing risk). Existing entries ARE mutated here (in place, via the same dict
+    references idx["listings"] holds): a legacy bare keyword like "bayshore" or "the
+    bayshore" on a long-standing manual entry starts stealing a brand new listing at the
     same estate ("66 Bayshore Rd") the moment that listing is created, so pruning only ever
-    NEW entries would leave the older entry's blast radius live."""
+    NEW entries would leave the older entry's blast radius live. A CLOSED entry's OWN
+    keywords are never pruned here (nobody routes a tenant onto a closed listing on
+    purpose) -- it is read only, as the "other side" of a collision."""
     pool = existing_open + new_entries
+    others_pool = all_entries if all_entries is not None else pool
     for e in pool:
-        others = [o for o in pool if o["listing_key"] != e["listing_key"] and _is_open(o)]
+        others = [o for o in others_pool if o["listing_key"] != e["listing_key"]]
         keep = []
         for kw in e.get("pg_url_keywords", []):
             kwl = _norm(kw)
@@ -513,7 +627,7 @@ def fill_missing(idx, db, msg_db=None, pub_listings_path=None, portal_ids_path=N
                        entry["status"], found, unknown))
 
     existing_open = [e for e in idx["listings"] if _is_open(e)]
-    _dedupe_conflicting(new_entries, existing_open)
+    _dedupe_conflicting(new_entries, existing_open, all_entries=idx["listings"] + new_entries)
     return new_entries, report, backfilled
 
 def fill_missing_main():

@@ -273,7 +273,12 @@ aP=E.handle_event(sP,{"jid":jp,"msg_id":"p2","text":"Name: Raj\nNationality: Ind
 # "does not match" wording. Same protective intent: a kind, reason free redirect.
 ok("India profile -> REDIRECT channel referral", aP and aP["type"]=="REDIRECT" and "not a fit" in aP["text"].lower())
 ok("redirect reveals NO reason", aP and "india" not in aP["text"].lower() and "nationality" not in aP["text"].lower())
-ok("excluded via service policy path", sP["conversations"]["6590008888"].get("status","").startswith("policy_excluded"))
+# A3 (Sep 2026): a protected attribute decline (nationality) is neutral in state -- status
+# is house_gate:N1, never the old "policy_excluded:nationality" (attribute word in state).
+ok("excluded via service policy path -> neutral house_gate status, not the attribute word",
+   sP["conversations"]["6590008888"].get("status","") == "house_gate:N1")
+ok("Winfred IS notified on a protected attribute decline (CEA visibility, A3)",
+   aP and aP.get("notify") is True and aP.get("reason") == "house_gate:N1")
 aP2=E.handle_event(sP,{"jid":jp,"msg_id":"p3","text":"hello? you there?","is_from_me":0})
 ok("excluded prospect NOT messaged again (terminal, no spam)", aP2 is None or aP2.get("text") is None)
 
@@ -1043,6 +1048,141 @@ _gdf = ("Name: Wei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Prefer
 aGd = E.handle_event(sgd, {"jid": jgd, "msg_id": "gd2", "text": _gdf, "is_from_me": 0})
 ok("askable gender gap -> ASK_ONE naming gender, not a listing-side reason",
    aGd and aGd["type"] == "ASK_ONE" and "gender" in (aGd.get("text") or "").lower())
+
+print("== 21. A1 PASTED FORM MUST NOT MUTE THE BOT (real byte patterns, messages.db 8 Sep 2026) ==")
+# 47 of 66 outbound form-like rows in a 7 day replay carried word joiners (U+2060) around
+# every bullet; some carried a leading U+200E (LTR mark) the client silently prepends. Both
+# defeated the old exact-prefix / label match and latched manual_takeover on the bot.
+_ZWJ = "⁠"  # word joiner WhatsApp threads around a pasted bullet
+_LRM = "‎"  # left to right mark some clients prepend to the whole message
+
+def _bullet(label):
+    return "•" + _ZWJ + "  " + _ZWJ + label
+
+_blank_zwj_with_header = (
+    "Pls fill this in so I can send your profile to the landlord :)\n"
+    + "\n".join(_bullet(x) for x in (
+        "Email address:", "Name:", "Nationality:", "Ethnicity:", "Gender:", "Age:",
+        "Pass type (SC/PR/EP/S Pass/STP etc):", "Occupation (your job/industry):",
+        "Employment type (permanent / fixed term / variable):", "No. of pax:",
+        "Move in date:", "Lease term:", "Budget:", "Location:")))
+ok("blank form + ZWJ + header -> engine outbound (already matched by prefix)",
+   E.is_engine_outbound(_blank_zwj_with_header) is True)
+
+_filled_zwj_no_header = (
+    _bullet("Name: chris") + "\n" + _bullet("Nationality: malaysia") + "\n"
+    + _bullet("Ethnicity: chinese") + "\n" + _bullet("Gender:female") + "\n"
+    + _bullet("Age:50") + "\n" + _bullet("Pass type (SC/PR/EP/S Pass/STP etc):pr"))
+ok("FILLED profile + ZWJ, no header -> still human (forwarded to landlord, real row 327078)",
+   E.is_engine_outbound(_filled_zwj_no_header) is False
+   and E.is_pasted_blank_intake_form(_filled_zwj_no_header) is False)
+
+_blank_zwj_custom_note = (
+    "Hi can help fill in so I can send tenant and possibility of scheduling a viewing\n\n"
+    + "\n".join(_bullet(x) for x in (
+        "Email address:", "Name:", "Nationality:", "Ethnicity:", "Gender:", "Age:")))
+ok("blank form + ZWJ, custom note in front, NO header -> engine equivalent (real row 326110)",
+   E.is_engine_outbound(_blank_zwj_custom_note) is True
+   and E.is_pasted_blank_intake_form(_blank_zwj_custom_note) is True)
+
+_blank_lrm_prefixed = (
+    _LRM + "Pls fill this in so I can send your profile to the landlord :)\n"
+    "• Email address:\n• Name:\n• Nationality:\n• Ethnicity:\n• Gender:\n• Age:\n"
+    "• Pass type (SC/PR/EP/S Pass/STP etc):\n• Occupation (your job/industry):\n"
+    "• Employment type (permanent / fixed term / variable):\n• No. of pax:\n"
+    "• Move in date:\n• Lease term:\n• Budget:\n• Location:")
+ok("leading U+200E (LRM) + exact header -> engine outbound (real row 326006, was human before fix)",
+   E.is_engine_outbound(_blank_lrm_prefixed) is True)
+
+_blank_possible_prefix = "Possible " + _blank_zwj_with_header
+ok("'Possible ' + blank form + ZWJ + header -> engine equivalent (real row 325189)",
+   E.is_engine_outbound(_blank_possible_prefix) is True
+   and E.is_pasted_blank_intake_form(_blank_possible_prefix) is True)
+
+_cn_blank = ("请帮我填好这个表格，这样我就能把个人资料发给房东\n"
+             "姓名Name: \n入住人数 No. of pax :\n性别 Gender :\n国籍 Nationality : \n"
+             "种族 Race : \n职业 Occupation : \n工作准证类型 Type of Pass：\n"
+             "批准通过 Workpass approved : \n入住日期 Move In Date :\n"
+             "租赁期 Lease duration: \n预算 Budget: \n首选地点 Preferred Location:")
+ok("Chinese variant, blank -> engine equivalent (real row 316008)",
+   E.is_engine_outbound(_cn_blank) is True and E.is_pasted_blank_intake_form(_cn_blank) is True)
+
+_cn_filled = ("姓名Name: Chenyanxia\n入住人数 No. 1-2pax :1-2人 多数时间一个人\n"
+              "性别 Gender :giirl \n国籍 Nationality : china\n种族 Race : china\n"
+              "职业 Occupation : \n工作准证类型 Type of Pass：EP /Dp\n"
+              "批准通过 Workpass approved : \n入住日期 Move In Date :10 月 15 日左右 \n"
+              "租赁期 Lease  : 1 year \n预算 Budget: \n首选地点 Preferred Location:marine parade center")
+ok("Chinese variant, FILLED -> still human (forwarded to landlord, real row 316104)",
+   E.is_engine_outbound(_cn_filled) is False and E.is_pasted_blank_intake_form(_cn_filled) is False)
+
+ok("plain human chat text is never mistaken for a pasted form",
+   E.is_pasted_blank_intake_form("ok can, see you saturday then") is False)
+
+print("== 22. A3 PROTECTED ATTRIBUTE DECLINES ARE VISIBLE + NEUTRAL IN STATE ==")
+# caspian excludes Indian ethnicity -- a real qualify() DISQUALIFIED on a protected attribute.
+sE = {"version": 1, "conversations": {}}; jE = "6590334400@s.whatsapp.net"
+E.handle_event(sE, {"jid": jE, "msg_id": "e1", "text": "Hi is caspian still available?",
+                    "is_from_me": 0, "listing_key": "caspian"})
+_ef = ("Name: Ravi\nNationality: Singaporean\nEthnicity: Indian\nGender: Male\nAge: 28\n"
+       "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12\n"
+       "Budget: 1200")
+aE = E.handle_event(sE, {"jid": jE, "msg_id": "e2", "text": _ef, "is_from_me": 0})
+ok("ethnicity DISQUALIFIED -> still REDIRECT (verified gate, not blocked)",
+   aE and aE["type"] == "REDIRECT")
+ok("status is house_gate:E1, never the word 'ethnicity'",
+   sE["conversations"]["6590334400"]["status"] == "house_gate:E1")
+ok("Winfred notified, Telegram reason carries the code only (no attribute word)",
+   aE.get("notify") is True and aE.get("reason") == "house_gate:E1")
+ok("prospect-facing redirect text still reveals nothing",
+   "indian" not in (aE.get("text") or "").lower() and "ethnicity" not in (aE.get("text") or "").lower())
+
+# bedok-north-522 is female_only + couple_ok(no single males) -- gender DISQUALIFIED.
+sG = {"version": 1, "conversations": {}}; jG = "6590334500@s.whatsapp.net"
+E.handle_event(sG, {"jid": jG, "msg_id": "g1", "text": "Hi is Bedok North still available?",
+                    "is_from_me": 0, "listing_key": "bedok-north-522"})
+_gf = ("Name: Sam\nNationality: Singaporean\nEthnicity: Chinese\nGender: Male\nAge: 30\n"
+       "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12\n"
+       "Budget: 1300")
+aG = E.handle_event(sG, {"jid": jG, "msg_id": "g2", "text": _gf, "is_from_me": 0})
+ok("gender DISQUALIFIED -> house_gate:G1, notify=True",
+   aG and aG["type"] == "REDIRECT" and sG["conversations"]["6590334500"]["status"] == "house_gate:G1"
+   and aG.get("notify") is True and aG.get("reason") == "house_gate:G1")
+
+# a non protected disqualify (budget too low) is UNCHANGED -- still "disqualified", no code.
+sB = {"version": 1, "conversations": {}}; jB = "6590334600@s.whatsapp.net"
+E.handle_event(sB, {"jid": jB, "msg_id": "b1", "text": "Hi is caspian still available?",
+                    "is_from_me": 0, "listing_key": "caspian"})
+_bf = ("Name: Wei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Male\nAge: 28\n"
+       "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12\n"
+       "Budget: 500")
+aB = E.handle_event(sB, {"jid": jB, "msg_id": "b2", "text": _bf, "is_from_me": 0})
+ok("a non protected disqualify (budget) is untouched -- plain 'disqualified' status",
+   aB and aB["type"] == "REDIRECT" and sB["conversations"]["6590334600"]["status"] == "disqualified")
+
+print("== 23. A2 A SAFETY NET: gate_unverified never reaches a prospect send ==")
+_unverified_listing = {
+    "listing_key": "unverified-fixture", "status": "active",
+    "requirements": {"gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]},
+                     "nationality_pref": {"mode": "any", "list": []},
+                     "max_pax": 2, "lease_min_months": 12, "budget_floor": 1000,
+                     "gate_unverified": ["ethnicity"]}}
+_v_u, _why_u = E.qualify(_unverified_listing, {"ethnicity": "Indian", "gender": "Male",
+                                               "no_of_pax": 1, "lease_term_months": 12, "budget": 1200})
+ok("qualify() itself is unchanged (still DISQUALIFIED -- the block is the caller's job)",
+   _v_u == "DISQUALIFIED")
+_act_u = E._house_gate_redirect("659", {"profile": {}}, _unverified_listing,
+                                {"unverified-fixture": _unverified_listing},
+                                "unverified-fixture", "ethnicity", _why_u)
+ok("an unverified ethnicity gate -> FLAG_HUMAN, no prospect text, notify=True",
+   _act_u["type"] == "FLAG_HUMAN" and _act_u.get("text") is None and _act_u.get("notify") is True
+   and _act_u["reason"] == "house_gate:E1")
+_offer_u = E._gate_unverified_offer_block("659", {"profile": {}}, _unverified_listing)
+ok("a QUALIFIED prospect on a listing with ANY unverified gate never auto OFFER_VIEWINGs",
+   _offer_u is not None and _offer_u["type"] == "FLAG_HUMAN" and _offer_u["reason"] == "house_gate:E1")
+_clean_listing = dict(_unverified_listing)
+_clean_listing["requirements"] = dict(_unverified_listing["requirements"]); _clean_listing["requirements"]["gate_unverified"] = []
+ok("a verified (or gateless) listing never gets blocked",
+   E._gate_unverified_offer_block("659", {"profile": {}}, _clean_listing) is None)
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

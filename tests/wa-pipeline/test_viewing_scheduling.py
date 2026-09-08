@@ -1,6 +1,9 @@
 import sys, os, datetime
-sys.path.insert(0, os.path.expanduser("~/crestbrick-consult/src/wa-pipeline"))
-sys.path.insert(0, os.path.expanduser("~/crestbrick-consult/scripts"))
+# resolve relative to THIS file so the suite tests the checkout/worktree it lives in, not
+# whichever copy happens to be at the shared live path (matches test_intake_engine.py).
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "scripts"))
 import intake_engine as E
 import viewing_slot_filler as VSF
 

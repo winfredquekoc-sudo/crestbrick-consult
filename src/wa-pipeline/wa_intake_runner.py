@@ -41,9 +41,37 @@ def _slot_confirm_count(state, slot_id):
     return sum(1 for r in (state.get("conversations") or {}).values()
                if r.get("viewing_confirmed") and r.get("offered_slot_id") == slot_id) or 1
 
+def _prelatch_decision(content):
+    """Pure classification for a PRE-PASS outbound row (no state, no I/O -- unit testable
+    in isolation): 'LATCH' (a genuine hand reply -- latch manual_takeover), 'FORM_PASTED'
+    (a hand paste of the blank intake form -- engine equivalent, stamp form_sent instead
+    of latching), or None (a normal engine template send, already accounted for)."""
+    if not E.is_engine_outbound(content):
+        return "LATCH"
+    if E.is_pasted_blank_intake_form(content):
+        return "FORM_PASTED"
+    return None
+
+def _listing_open(l):
+    st = str((l or {}).get("status", "")).lower()
+    return not (st.startswith("closed") or st == "hold")
+
 def match_listing(text, reqs=None):
+    """A4 (Sep 2026): a stale keyword can survive on a CLOSED index row that also matches a
+    live OPEN one (the review found "ang mo kio ave 3" on both) -- OPEN listings are always
+    matched first, in TWO passes, so match order never depends on dict iteration order.
+    A CLOSED listing is only ever returned when nothing OPEN matches."""
     t = (text or "").lower()
-    for l in (reqs if reqs is not None else E.listing_reqs()).values():
+    listings = list((reqs if reqs is not None else E.listing_reqs()).values())
+    for l in listings:
+        if not _listing_open(l):
+            continue
+        for kw in (l.get("pg_url_keywords") or []):
+            if kw and kw.lower() in t:
+                return l["listing_key"]
+    for l in listings:
+        if _listing_open(l):
+            continue
         for kw in (l.get("pg_url_keywords") or []):
             if kw and kw.lower() in t:
                 return l["listing_key"]
@@ -262,12 +290,22 @@ def run():
                     _lk = match_listing(_content, reqs_tick)
                     if _lk:
                         _rec["listing_key"] = _lk
-                if not E.is_engine_outbound(_content):
+                _decision = _prelatch_decision(_content)
+                if _decision == "LATCH":
                     if not _rec.get("manual_takeover") or not _rec.get("copilot_muted"):
                         _rec["manual_takeover"] = True
                         _rec["copilot_muted"] = True   # mute BEFORE any inbound row in this batch acts
                         _rec["human_takeover"] = True  # genuine hand reply -- silences landlord onboarding too
                         _log("PRELATCH", _pn, "manual reply found later in batch")
+                elif _decision == "FORM_PASTED" and not _rec.get("form_sent"):
+                    # a hand paste of the BLANK intake form (Maddie re sending it, word
+                    # joiners and all) is engine equivalent -- no latch (is_engine_outbound
+                    # already returned True for it) -- but the engine's own send flow never
+                    # ran for this row, so form_sent would otherwise stay False and the
+                    # engine could independently form blast the same prospect later.
+                    _rec["form_sent"] = True
+                    _rec["form_sent_ts"] = time.time()
+                    _log("FORM_PASTED", _pn, "blank intake form pasted by hand, no latch")
         except Exception as _e:
             _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
     last_rowid = wm.get("last_rowid")

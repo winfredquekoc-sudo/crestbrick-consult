@@ -1424,16 +1424,78 @@ _AUTOMATION_PREFIXES = (
     "hi, i’m winfred quek. i received your enquiry from",
 )
 
+# WhatsApp clients silently thread zero width / bidi formatting marks through a pasted
+# bulleted list (word joiner around the bullet, a leading LTR mark on the whole message) —
+# invisible, but they defeat an exact .startswith() prefix or label match. A 7 day replay
+# (8 Sep 2026) found 47 of 66 outbound form pastes carrying them. Strip before comparing.
+_INVISIBLE_CHARS = ("⁠", "​", "‌", "‍", "﻿", "‎", "‏")
+
+def _strip_invisible(text):
+    if not text: return ""
+    s = text
+    for ch in _INVISIBLE_CHARS:
+        s = s.replace(ch, "")
+    return s.replace(" ", " ")
+
+def _normalize_outbound(text):
+    """Invisible-char-stripped, whitespace-collapsed, lowercased text for OUTBOUND
+    classification only. Collapsing newlines to a single space is safe here: every
+    _ENGINE_PREFIXES / _AUTOMATION_PREFIXES entry and template head is one line, so a
+    startswith() check is unaffected by folded line breaks."""
+    s = _strip_invisible(text)
+    return re.sub(r"\s+", " ", s).strip().lower()
+
+# Tenant intake form field labels (English, INTAKE_FORM + OPEN_INTAKE_FORM) recognised when
+# pasted back BLANK — a copy/paste re send of the form, not a filled profile.
+_INTAKE_FIELD_LABELS = ("email address", "name", "nationality", "ethnicity", "gender", "age",
+                        "pass type", "occupation", "employment type", "no. of pax", "no of pax",
+                        "move in date", "lease term", "budget", "location")
+# The Chinese variant Maddie pastes puts the Chinese label directly before the English one
+# with no separator ("姓名Name:", "国籍 Nationality :") — same field, bilingual.
+_CN_FIELD_MARKERS = ("姓名", "入住人数", "性别", "国籍", "种族", "职业", "工作准证类型",
+                     "准证", "批准通过", "入住日期", "租赁期", "预算", "首选地点")
+
+def _blank_form_lines(text):
+    s = _strip_invisible(text or "").replace("：", ":")  # CJK full width colon -> ascii
+    return [ln.strip(" \t-") for ln in re.split(r"[\n•]+", s) if ln.strip(" \t-")]
+
+def is_pasted_blank_intake_form(text):
+    """A pasted copy of the tenant intake form (English or the Chinese variant) with every
+    bullet value left EMPTY -- e.g. Maddie re pasting the template by hand, with or without
+    the 'Pls fill this in' header, sometimes with a custom note in front ('Possible ...',
+    'Hi can help fill in so ...'). A single filled value anywhere (a real profile forwarded
+    to a landlord) disqualifies it -- that is a human message, unchanged."""
+    hits = 0
+    for ln in _blank_form_lines(text):
+        low = ln.lower()
+        label_len = next((len(lab) for lab in _INTAKE_FIELD_LABELS if low.startswith(lab)), 0)
+        if not label_len:
+            marker = next((m for m in _CN_FIELD_MARKERS if ln.startswith(m)), None)
+            if marker:
+                m = re.match(r"^.{0,20}?:", ln)
+                label_len = m.end() if m else len(ln)
+        if not label_len:
+            continue
+        rest = ln[label_len:].strip()
+        rest = re.sub(r"^\([^)]*\)", "", rest).strip()   # drop a "(SC/PR/EP...)" format hint
+        rest = rest.lstrip(" :：-").strip()
+        if rest:
+            return False   # a real value anywhere -> filled profile forward, not a blank paste
+        hits += 1
+    return hits >= 5
+
 def is_engine_outbound(text):
     """Strict classification for OUTBOUND rows: engine send iff it starts with an exact
-    engine template prefix, a known sanctioned-automation prefix (PG auto-ack), or a
-    listing unit-message head. Everything else = Winfred by hand."""
-    low = (text or "").strip().lower()
+    engine template prefix, a known sanctioned-automation prefix (PG auto-ack), a listing
+    unit-message head, or is a pasted BLANK copy of the tenant intake form (engine
+    equivalent -- see is_pasted_blank_intake_form). Everything else = Winfred by hand."""
+    low = _normalize_outbound(text)
     if not low: return False
     if low.startswith(_ENGINE_PREFIXES): return True
     if low.startswith(_AUTOMATION_PREFIXES): return True
     if low.startswith("almost there. ") and "could you confirm this so i can send your profile" in low: return True
-    return any(low.startswith(h) for h in _template_heads())
+    if any(low.startswith(h) for h in _template_heads()): return True
+    return is_pasted_blank_intake_form(text)
 
 EXCLUDE_NAMES = ("wanni","shaw","madeleine","darren","amanda","don chuang")
 def _contact_names(pn):
@@ -1769,6 +1831,60 @@ def policy_excluded(profile, text="", open_intake=False):
     if _KIDRE.search(blob) and pax and pax >= 2: return "family"
     return None
 
+# ---------- A3: protected attribute declines are visible + neutral in state ----------
+# Every decline that turns on ethnicity, nationality or gender (Winfred's own policy_excluded
+# nationality rule, or a landlord's listing side qualify() gate) must (a) ping Winfred
+# (notify=True -- CEA visibility) and (b) never leak the attribute word into rec["status"]
+# or the Telegram flag text -- both carry a house_gate:<code> only. Prospect-facing redirect
+# copy is unaffected (it was already neutral).
+_HOUSE_GATE_CODE = {"gender": "G1", "ethnicity": "E1", "nationality": "N1"}
+
+def _house_gate_status(attr):
+    return "house_gate:" + _HOUSE_GATE_CODE.get(attr, "U1")
+
+def _protected_attr_from_why(why):
+    """Which protected attribute (if any) a qualify() DISQUALIFIED reason list names."""
+    for w in (why or []):
+        wl = str(w).lower()
+        if "ethnicity" in wl: return "ethnicity"
+        if "nationality" in wl: return "nationality"
+        if "tenant only" in wl or "no couples)" in wl: return "gender"
+    return None
+
+# ---------- A2: a protected attribute gate needs landlord provenance ----------
+def _gate_unverified_attrs(listing):
+    r = (listing or {}).get("requirements", listing) or {}
+    return set(r.get("gate_unverified") or [])
+
+def _house_gate_redirect(pn, rec, listing, reqs, lk, attr, why_or_pol):
+    """Shared A2 + A3 handling for a decline that names a protected attribute (ethnicity,
+    nationality, gender). A3: always REDIRECT with notify=True, rec['status'] and the
+    Telegram reason carry only a house_gate:<code>, never the attribute word. A2: when
+    the listing's gate for THIS attribute lacks landlord provenance (gate_unverified),
+    the decline is blocked entirely -- FLAG_HUMAN instead, no prospect text at all."""
+    code = _house_gate_status(attr)
+    if attr in _gate_unverified_attrs(listing):
+        rec["status"] = code
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": code, "profile_summary": _profile_summary(rec.get("profile", {}))}
+    rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = code
+    return {"type": "REDIRECT", "pn": pn, "notify": True, "reason": code,
+            "text": _redirect_text(why_or_pol, rec.get("profile", {}), reqs, lk)}
+
+def _gate_unverified_offer_block(pn, rec, listing):
+    """A2 for the QUALIFIED side: a listing carrying ANY unverified protected attribute gate
+    must never auto OFFER_VIEWING off an 'any' gate that might not reflect the landlord's
+    real preference -- Winfred confirms by hand instead. Returns a FLAG_HUMAN action, or
+    None if the listing has no unverified gate (normal OFFER_VIEWING proceeds)."""
+    gu = _gate_unverified_attrs(listing)
+    if not gu:
+        return None
+    attr = sorted(gu)[0]
+    code = _house_gate_status(attr)
+    rec["status"] = code
+    return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+            "reason": code, "profile_summary": _profile_summary(rec.get("profile", {}))}
+
 def _text_mentions_listing(text, lk, reqs=None):
     """True if TEXT names the listing LK by any of its pg_url_keywords. Used to bind an
     unbound-but-complete profile only when the tenant's own words (or Winfred's / the
@@ -1859,6 +1975,9 @@ def _copilot_verdict(rec):
     # never on a listing that closed since Stage 1.
     if (verdict == "QUALIFIED" and not rec.get("viewing_asked")
             and not rec.get("copilot_muted") and not _listing_unavailable(lk)):
+        _gu_block = _gate_unverified_offer_block(rec.get("pn"), rec, listing)
+        if _gu_block:
+            return _gu_block
         slot = next_slot(lk)
         if slot:
             rec["viewing_asked"] = True
@@ -2092,6 +2211,14 @@ def _viewing_reaction(rec, ev, pn):
                                  open_intake=_open_intake(_listing_r))
         _v_r, _why_r = qualify(_listing_r, rec.get("profile", {}))
         if _pol_r or _v_r == "DISQUALIFIED":
+            _attr_r = "nationality" if _pol_r == "nationality" else _protected_attr_from_why(_why_r)
+            if _attr_r:
+                rec["viewing_confirmed"] = False
+                act_r = _house_gate_redirect(pn, rec, _listing_r, listing_reqs(), _lk_r,
+                                             _attr_r, _pol_r or _why_r)
+                if act_r["type"] == "REDIRECT":
+                    rec["stage"] = "DISQUALIFIED"
+                return act_r
             rec["terminal"] = True; rec["viewing_confirmed"] = False
             rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified_post_booking"
             _reason_r = _pol_r or _why_r
@@ -2461,7 +2588,12 @@ def _handle_event_inner(state, ev):
         pol = policy_excluded(rec["profile"], ev.get("text",""), open_intake=_open_intake(reqs.get(lk0)))
         if pol:
             rec["form_sent"] = True; rec["terminal"] = True
-            rec["stage"] = "POLICY_EXCLUDED"; rec["status"] = "policy_excluded:" + pol
+            rec["stage"] = "POLICY_EXCLUDED"
+            if pol == "nationality":   # A3: protected attribute -- neutral status, notify Winfred
+                rec["status"] = _house_gate_status("nationality")
+                return {"type":"REDIRECT", "pn":pn, "notify": True, "reason": _house_gate_status("nationality"),
+                        "text":_redirect_text(pol, rec["profile"], reqs, lk0)}
+            rec["status"] = "policy_excluded:" + pol
             return {"type":"REDIRECT", "pn":pn, "reason":pol,
                     "text":_redirect_text(pol, rec["profile"], reqs, lk0)}
         rec["form_sent"] = True
@@ -2588,11 +2720,19 @@ def _handle_event_inner(state, ev):
                                         open_intake=_open_intake(listing_b))
                 if pol_b:
                     rec["terminal"] = True; rec["stage"] = "POLICY_EXCLUDED"
+                    if pol_b == "nationality":   # A3: neutral status, notify Winfred
+                        rec["status"] = _house_gate_status("nationality")
+                        return {"type": "REDIRECT", "pn": pn, "notify": True,
+                                "reason": _house_gate_status("nationality"),
+                                "text": _redirect_text(pol_b, rec["profile"], reqs, lk_b)}
                     rec["status"] = "policy_excluded:" + pol_b
                     return {"type": "REDIRECT", "pn": pn, "reason": pol_b,
                             "text": _redirect_text(pol_b, rec["profile"], reqs, lk_b)}
                 v_b, why_b = qualify(listing_b, rec["profile"])
                 if v_b == "QUALIFIED":
+                    _gu_block = _gate_unverified_offer_block(pn, rec, listing_b)
+                    if _gu_block:
+                        return _gu_block
                     rec["viewing_asked"] = True
                     rec["stage"] = "VIEWING_OFFERED"; rec["status"] = "viewing_offered"
                     slot_b = next_slot(lk_b)
@@ -2611,6 +2751,9 @@ def _handle_event_inner(state, ev):
                             "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
                 if v_b == "DISQUALIFIED":
                     # never book a profile the landlord would reject — kind referral as usual
+                    _attr_b = _protected_attr_from_why(why_b)
+                    if _attr_b:
+                        return _house_gate_redirect(pn, rec, listing_b, reqs, lk_b, _attr_b, why_b)
                     rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
                     return {"type":"REDIRECT", "pn":pn, "reason":why_b,
                             "text":_redirect_text(why_b, rec["profile"], reqs, lk_b)}
@@ -2684,7 +2827,12 @@ def _handle_event_inner(state, ev):
         # service policy: never match a profile the landlords will not take. Kind referral, once.
         pol = policy_excluded(rec["profile"], rec.get("last_inbound",""), open_intake=_open_intake(reqs.get(rec.get("listing_key"))))
         if pol:
-            rec["terminal"] = True; rec["stage"] = "POLICY_EXCLUDED"; rec["status"] = "policy_excluded:" + pol
+            rec["terminal"] = True; rec["stage"] = "POLICY_EXCLUDED"
+            if pol == "nationality":   # A3: neutral status, notify Winfred
+                rec["status"] = _house_gate_status("nationality")
+                return {"type":"REDIRECT", "pn":pn, "notify": True, "reason": _house_gate_status("nationality"),
+                        "text":_redirect_text(pol, rec["profile"], reqs, rec.get("listing_key"))}
+            rec["status"] = "policy_excluded:" + pol
             return {"type":"REDIRECT", "pn":pn, "reason":pol,
                     "text":_redirect_text(pol, rec["profile"], reqs, rec.get("listing_key"))}
         lk = rec.get("listing_key")
@@ -2717,6 +2865,9 @@ def _handle_event_inner(state, ev):
         verdict, why = qualify(listing, rec["profile"])
         rec["qualify"] = {"verdict":verdict, "why":why}
         if verdict == "DISQUALIFIED":
+            _attr = _protected_attr_from_why(why)
+            if _attr:
+                return _house_gate_redirect(pn, rec, listing, reqs, lk, _attr, why)
             rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
             return {"type":"REDIRECT", "pn":pn, "reason":why,
                     "text":_redirect_text(why, rec["profile"], reqs, lk)}
@@ -2759,6 +2910,10 @@ def _handle_event_inner(state, ev):
         st_now = _listing_unavailable(lk, reqs)
         if st_now:
             return _room_gone_action(rec, pn, st_now)
+        if verdict == "QUALIFIED":
+            _gu_block = _gate_unverified_offer_block(pn, rec, listing)
+            if _gu_block:
+                return _gu_block
         # a QUESTION rides ahead of the auto-offer: answer it first (by hand), the offer
         # fires on their next message — never reply to "how much is this one?" with
         # "Reply YES to take this slot" (cycle-17 catch, 11 Aug 2026)
