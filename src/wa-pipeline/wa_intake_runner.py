@@ -30,7 +30,6 @@ from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _t
                               _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly,
                               notify_winfred_coalesced, _flush_stale_coalesce_windows,
                               notify_for_action, _slot_confirm_count, notify_stale_backfill)
-
 MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 LOCKF   = os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock")
 
@@ -43,7 +42,8 @@ LOCKF   = os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock"
 from wa_intake_send import (LASTF, BRIDGE, GUARD, QUIET_START_MIN, SEND_START_MIN,
                             _quiet_hours, _rowid_col, _prelatch_decision, _send,
                             _guard_reserve, _write_last, _real_age_hours,
-                            _BOUNDED_ONCE_FIELD, daily_cap_should_skip)
+                            _BOUNDED_ONCE_FIELD, daily_cap_should_skip,
+                            circuit_breaker_gate, record_prospect_send, CIRCUIT_MAX_SENDS)
 
 # match_listing() and its keyword/fallback ranking helpers live in
 # wa_intake_listing_match.py (split out 9 Sep 2026 merge review to keep this file under the
@@ -60,7 +60,6 @@ import subprocess
 # that reaches them via wa_intake_runner.<name>) keeps working unchanged.
 from wa_intake_echo import (_FILLED_RE, _OUTBOUND_ONLY, _LANDLORD_ONBOARDING_TYPES,
                             _is_our_echo)
-
 STALE_ROW_HOURS = 48   # backfilled history older than this is skipped (never auto-served)
 SEND_MAX_INBOUND_AGE_HOURS = 5 * 24   # never message anyone whose triggering reply is >5 days old
 DAILY_SEND_CAP = 2     # max automated touches per client per SGT day (Winfred, 29 Jul 2026)
@@ -324,10 +323,8 @@ def run():
                 RES.mark_resume(a)
             if not a:
                 continue
-            # the ONLY thing Winfred is pinged about: a prospect giving a date/time to view.
-            # (built + sent/coalesced by notify_for_action -- split out of this loop, 9 Sep
-            # 2026 merge review, to keep this file under the repo's 500 line guideline; see
-            # wa_intake_notify.py, pure move, no behaviour change)
+            # per-action Telegram ping, built + sent/coalesced by notify_for_action
+            # (wa_intake_notify.py; pure move out of this loop, 9 Sep 2026 merge review).
             notify_for_action(a, state)
             # at first enquiry for a listing with no captured viewing slot, ask Winfred for the
             # landlord's availability (once per listing per day, so it never spams).
@@ -375,10 +372,8 @@ def run():
                 # this carve-out every one of them is silently suppressed here.
                 _log("TAKEOVER_SKIP", a.get("pn"), a.get("type") + " :: manual takeover latched")
                 E.save_state(state); acted += 1; continue
-            # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day --
-            # decision + full rationale lives in wa_intake_send.daily_cap_should_skip (pure
-            # function, split out 9 Sep 2026 merge review); _bound_field is kept in scope
-            # here for the once-a-day stamp after a successful send, below.
+            # DAILY CAP: decision + full rationale in wa_intake_send.daily_cap_should_skip;
+            # _bound_field stays in scope for the once-a-day stamp after a successful send.
             _today_sgt = time.strftime("%Y-%m-%d",
                          time.gmtime(time.time() + 8 * 3600))
             _bound_field = _BOUNDED_ONCE_FIELD.get(a.get("type"))
@@ -398,6 +393,13 @@ def run():
                 # atomic reserve failed: another sender (or our own just-completed send) holds
                 # this person inside the shared cooldown — never double-send. State still advances.
                 _log("GUARD_SKIP", a.get("pn"), a.get("type"))
+            elif (_cb_gate := circuit_breaker_gate(a.get("type"))) is not None:
+                # GLOBAL circuit breaker (last line of defense, separate from the per-client
+                # cap above and the owner loop's own per-landlord cap) -- see
+                # wa_intake_send.circuit_breaker_gate for the decision + notify latch.
+                _log("CIRCUIT_OPEN", a.get("pn"), _cb_gate[0])
+                if _cb_gate[1]:
+                    notify_winfred(_cb_gate[1])
             else:
                 # reserve() already marked the send under one lock (no separate mark needed)
                 # PARTIAL-SEND RESUME: a 2-message action (unit info + form) whose second send
@@ -415,6 +417,7 @@ def run():
                     _log("SENT" if ok else "SEND_FAIL", a.get("pn"), a.get("type"))
                     if ok:
                         sent_n += 1
+                        record_prospect_send()   # count toward the global circuit breaker
                     else:
                         allok = False
                         break                  # do not attempt later texts out of order

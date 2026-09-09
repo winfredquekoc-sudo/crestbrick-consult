@@ -5,12 +5,13 @@ repo's 500 line guideline. Pure move, byte identical logic -- re-imported straig
 into wa_intake_runner's namespace so every existing call site (including tests that reach
 these via wa_intake_runner.<name>) keeps working unchanged.
 """
-import os, json, subprocess
+import os, json, time, subprocess
 import intake_engine as E
 
 LASTF = os.path.expanduser("~/.claude/state/listing-templates/runner-last.json")
 BRIDGE = "http://localhost:8080/api/send"
 GUARD = os.path.expanduser("~/crestbrick-consult/scripts/wa_send_guard.py")
+CIRCUIT_FILE = os.path.expanduser("~/.claude/state/listing-templates/send-circuit.json")
 
 # Quiet hours: stay live, but never message prospects overnight. Outside this window the
 # runner holds and does NOT advance its cursor, so enquiries that arrive at night are
@@ -120,6 +121,85 @@ def daily_cap_should_skip(a, grec, today_sgt, bound_field, daily_send_cap):
                f"{a.get('type')} reply, reply by hand if it needs to go out today.")
         return a.get("type") + f" :: already {daily_send_cap} touches today", msg
     return None
+
+# ---------- global circuit breaker: never more than CIRCUIT_MAX_SENDS prospect facing
+# sends in a rolling CIRCUIT_WINDOW_SEC window (Winfred's own anti-spam guarantee, 9 Sep
+# 2026 merge review) -- a runaway loop (a bug, a corrupted state file replaying old rows,
+# an attack) must physically stop sending, not just log a warning. Deliberately separate
+# from DAILY_SEND_CAP (per client) and the owner loop's own DAILY_CAP_PER_LANDLORD (per
+# landlord, wa_intake_owner.py) -- this is the LAST line of defense across every prospect
+# in the system at once. Never counts an owner/landlord send (that has its own caps) or a
+# DRY_RUN preview (nothing real went out) or a guard-skip (nothing real went out either).
+CIRCUIT_WINDOW_SEC = 60 * 60
+CIRCUIT_MAX_SENDS = 40
+
+def _load_circuit():
+    try:
+        d = json.load(open(CIRCUIT_FILE))
+        return d if isinstance(d, dict) else {}
+    except Exception:
+        return {}
+
+def _save_circuit(d):
+    tmp = CIRCUIT_FILE + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(d, f, ensure_ascii=False, indent=1)
+    os.replace(tmp, CIRCUIT_FILE)
+
+def _circuit_sends_in_window():
+    now = time.time()
+    d = _load_circuit()
+    sends = [t for t in d.get("sends", []) if now - t < CIRCUIT_WINDOW_SEC]
+    if sends != d.get("sends"):
+        d["sends"] = sends
+        _save_circuit(d)
+    return sends
+
+def circuit_breaker_ok():
+    """True if a prospect-facing send may go out right now (fewer than CIRCUIT_MAX_SENDS
+    recorded in the trailing CIRCUIT_WINDOW_SEC). Read-only -- pairs with
+    record_prospect_send(), called only for a send that actually went out."""
+    return len(_circuit_sends_in_window()) < CIRCUIT_MAX_SENDS
+
+def record_prospect_send():
+    """Record one prospect-facing send toward the rolling circuit breaker window. Call ONLY
+    after a real send actually goes out to a prospect -- never for DRY_RUN, a guard skip, or
+    an owner/landlord send (that has its own separate caps, see wa_intake_owner.py)."""
+    now = time.time()
+    d = _load_circuit()
+    sends = [t for t in d.get("sends", []) if now - t < CIRCUIT_WINDOW_SEC]
+    sends.append(now)
+    d["sends"] = sends
+    d["open_notified"] = False   # a real send just went through -- the window is healthy
+                                  # again, so the next time it opens is a FRESH event
+    _save_circuit(d)
+
+def circuit_breaker_should_notify():
+    """True the first time the breaker is found open since it last cleared -- latches so a
+    whole tick (or a long open period) pings Winfred once, never once per blocked send."""
+    d = _load_circuit()
+    if d.get("open_notified"):
+        return False
+    d["open_notified"] = True
+    _save_circuit(d)
+    return True
+
+def circuit_breaker_gate(action_type):
+    """Convenience wrapper for the runner's own send choke point: returns (log_suffix,
+    notify_msg_or_None) if the breaker is OPEN and this action must be held back, or None
+    if it may proceed. notify_msg is only set the first time the breaker opens (see
+    circuit_breaker_should_notify) so a long open period pings Winfred once."""
+    if circuit_breaker_ok():
+        return None
+    log_suffix = (action_type + f" :: over {CIRCUIT_MAX_SENDS} prospect sends in the last "
+                  f"60 minutes, holding all prospect sends until the window clears")
+    notify_msg = None
+    if circuit_breaker_should_notify():
+        notify_msg = (f"Circuit breaker tripped: over {CIRCUIT_MAX_SENDS} prospect facing "
+                      f"sends in the last 60 minutes. Holding ALL prospect sends until the "
+                      f"window clears. Check for a runaway loop or a replay bug if this is "
+                      f"unexpected.")
+    return log_suffix, notify_msg
 
 def _real_age_hours(ts):
     """Hours since a bridge timestamp, honouring its embedded offset. Unparseable -> 0

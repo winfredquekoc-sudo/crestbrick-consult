@@ -17,6 +17,7 @@ import wa_intake_selfchat as RESC
 import wa_intake_runner as R
 import wa_intake_notify as NOTIFY
 import wa_intake_draft as DRAFT
+import wa_intake_send as SEND
 
 
 def _mem_db(rows):
@@ -774,11 +775,14 @@ def _isolated_runner(tmp_dir, inbound_content="any updates?", conversations=None
     # THEIR OWN module's globals -- patching only R's imported reference misses those.
     stack.enter_context(mock.patch.object(R, "notify_winfred", notified.append))
     stack.enter_context(mock.patch.object(NOTIFY, "notify_winfred", notified.append))
-    # the per-chat notify coalescing window file MUST never touch the real state dir in a
-    # test (9 Sep 2026 near miss: an earlier cut of this harness left one behind, see
-    # reference_gitignore_bak2... class incidents) -- always redirected under tmp_dir.
+    # the per-chat notify coalescing window file AND the global circuit breaker's send log
+    # must never touch the real state dir in a test (9 Sep 2026 near miss: an earlier cut of
+    # this harness left a real notify-coalesce.json behind under
+    # ~/.claude/state/listing-templates) -- always redirected under tmp_dir.
     stack.enter_context(mock.patch.object(
         NOTIFY, "COALESCE_FILE", os.path.join(tmp_dir, "notify-coalesce.json")))
+    stack.enter_context(mock.patch.object(
+        SEND, "CIRCUIT_FILE", os.path.join(tmp_dir, "send-circuit.json")))
     stack.enter_context(mock.patch.object(
         R, "_log", lambda k, p, m: logged.append((k, p, m))))
     stack.enter_context(mock.patch.object(R, "_alert_hourly", lambda *a: None))
