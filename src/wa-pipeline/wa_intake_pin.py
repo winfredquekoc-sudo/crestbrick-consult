@@ -20,8 +20,15 @@ USAGE
 import os, sys, json, hashlib, subprocess, datetime
 import wa_intake_paths as _P
 
-REPO = os.path.expanduser("~/crestbrick-consult")
-SRC = os.path.join(REPO, "src", "wa-pipeline")
+# SRC/REPO are self-located from THIS file's own path, not a hardcoded ~/crestbrick-consult
+# constant (merge review, 9 Sep 2026): the worktree IS production (see docstring above), so
+# the pin must check the bytes and git state of whichever checkout it is actually running
+# from -- the main working dir in production, but any other worktree when this file is
+# tested or run there. A hardcoded path silently checked the WRONG checkout's files/git
+# state from inside a worktree. Byte-for-byte the same value in production, where this file
+# really does live at ~/crestbrick-consult/src/wa-pipeline/wa_intake_pin.py.
+SRC = os.path.dirname(os.path.abspath(__file__))
+REPO = os.path.dirname(os.path.dirname(SRC))
 # STEP 0 sandbox seal (9 Sep 2026 merge redo): PIN resolves through wa_intake_paths like
 # every other engine-family state file, so a sandboxed test never blesses/reads the LIVE
 # engine-pin.json. Unset (production, launchd) it is byte-for-byte the historical hardcoded
