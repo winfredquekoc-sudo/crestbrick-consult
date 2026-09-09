@@ -16,6 +16,7 @@ import wa_intake_resume as RES
 import wa_intake_selfchat as RESC
 import wa_intake_runner as R
 import wa_intake_notify as NOTIFY
+import wa_intake_draft as DRAFT
 
 
 def _mem_db(rows):
@@ -350,9 +351,15 @@ class TestSelfChatCommand(unittest.TestCase):
 
 
 class TestHaikuFailurePath(unittest.TestCase):
+    # call_haiku itself lives in wa_intake_draft.py now (9 Sep 2026 merge review split) --
+    # its "subprocess.run(...)" resolves in THAT module's own globals, so the mock must
+    # patch DRAFT.subprocess, not RES.subprocess (which is a separate, unrelated binding
+    # here). An earlier cut of this test patched the wrong module and silently fell through
+    # to the REAL claude-guard binary on every run -- caught only because it actually
+    # returned a live model reply instead of the stubbed one.
     def test_timeout_reports_error(self):
         import subprocess as sp
-        with mock.patch.object(RES, "subprocess") as m:
+        with mock.patch.object(DRAFT, "subprocess") as m:
             m.TimeoutExpired = sp.TimeoutExpired
             m.run.side_effect = sp.TimeoutExpired(cmd="x", timeout=25)
             text, err = RES.call_haiku("hello")
@@ -360,14 +367,14 @@ class TestHaikuFailurePath(unittest.TestCase):
         self.assertEqual(err, "timeout")
 
     def test_nonzero_exit_reports_error(self):
-        with mock.patch.object(RES, "subprocess") as m:
+        with mock.patch.object(DRAFT, "subprocess") as m:
             m.run.return_value = mock.Mock(returncode=1, stdout="", stderr="boom")
             text, err = RES.call_haiku("hello")
         self.assertIsNone(text)
         self.assertIn("exit 1", err)
 
     def test_success_returns_result_text(self):
-        with mock.patch.object(RES, "subprocess") as m:
+        with mock.patch.object(DRAFT, "subprocess") as m:
             m.run.return_value = mock.Mock(
                 returncode=0, stdout='{"result": "sure, happy to help", "is_error": false}')
             text, err = RES.call_haiku("hello")
