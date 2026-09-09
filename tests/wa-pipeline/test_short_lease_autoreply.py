@@ -165,12 +165,19 @@ class TestYesNoHandling(unittest.TestCase):
         E.handle_event(st, ev)
         self.assertTrue(rec.get("lease_note_resolved"))
 
-    def test_ambiguous_reply_stays_silent_one_note_only(self):
+    def test_ambiguous_reply_flags_once_never_resolves(self):
+        # 9 Sep 2026 fix: an ambiguous reply used to be swallowed forever (silent every time,
+        # including a later completed form or photo). It now flags Winfred ONCE with a
+        # neutral reason, never resolves the note, and never repeats the flag.
         st, pn, jid, rec = self._sent_note_state()
         ev = {"jid": jid, "msg_id": "1", "text": "let me check my schedule", "is_from_me": False}
         a = E.handle_event(st, ev)
-        self.assertIsNone(a)
+        self.assertEqual(a["type"], "FLAG_HUMAN")
+        self.assertIsNone(a["text"])
+        self.assertTrue(a["notify"])
         self.assertFalse(rec.get("lease_note_resolved"))
+        ev2 = {"jid": jid, "msg_id": "2", "text": "still deciding", "is_from_me": False}
+        self.assertIsNone(E.handle_event(st, ev2))   # second ambiguous reply -> silent (latch)
 
     def test_never_fires_again_once_already_agreed_to_a_year(self):
         st = _state()
