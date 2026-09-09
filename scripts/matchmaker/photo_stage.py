@@ -29,6 +29,7 @@ Usage:
 """
 import argparse
 import datetime
+import hashlib
 import json
 import os
 import shutil
@@ -121,21 +122,72 @@ def staged_sibling_exists(abs_src):
     return os.path.exists(base + "_staged" + ext)
 
 
-def gather_candidates(landlords_by_id, harvested, only_lid, include_all):
+def landlord_number(lid):
+    """Numeric part of a landlord id, LL229 -> 229, for newest first ordering."""
+    digits = "".join(ch for ch in (lid or "") if ch.isdigit())
+    return int(digits) if digits else -1
+
+
+def file_md5(path, block_size=65536):
+    h = hashlib.md5()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(block_size), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def staged_md5_index(folder):
+    """md5 of every photo in folder whose staged sibling already exists, so a
+    duplicate photo saved under a different filename in the same folder is
+    recognised and skipped rather than staged a second time."""
+    out = set()
+    try:
+        names = os.listdir(folder)
+    except OSError:
+        return out
+    for name in names:
+        if "_staged" in name:
+            continue
+        full = os.path.join(folder, name)
+        if os.path.isfile(full) and staged_sibling_exists(full):
+            out.add(file_md5(full))
+    return out
+
+
+def gather_candidates(landlords_by_id, harvested, only_lid, include_all, min_id=None):
     """(landlord_id, source_rel_path, abs_path) for every harvested photo eligible
-    for staging this run, respecting the onboarding gate unless include_all."""
+    for staging this run, respecting the onboarding gate unless include_all.
+
+    Ordered newest landlord first (by the numeric part of the landlord id) and,
+    within a landlord, newest photo file first (by modification time), so that
+    --per and --max-credits are applied against the most recent supply first."""
     out = []
-    for lid, rels in sorted(harvested.items()):
+    ordered_lids = sorted(harvested.keys(), key=landlord_number, reverse=True)
+    for lid in ordered_lids:
         if only_lid and lid != only_lid:
+            continue
+        if min_id is not None and landlord_number(lid) < min_id:
             continue
         l = landlords_by_id.get(lid)
         if l is None or not is_active(l):
             continue
         if not include_all and not form_and_photos_returned(l):
             continue
-        for rel in rels:
+
+        candidates = []
+        for rel in harvested[lid]:
             abs_path = os.path.join(HERE, "deploy", rel)
             if not os.path.exists(abs_path) or staged_sibling_exists(abs_path):
+                continue
+            candidates.append((rel, abs_path))
+        candidates.sort(key=lambda t: os.path.getmtime(t[1]), reverse=True)
+
+        dup_md5 = {}
+        for rel, abs_path in candidates:
+            folder = os.path.dirname(abs_path)
+            if folder not in dup_md5:
+                dup_md5[folder] = staged_md5_index(folder)
+            if dup_md5[folder] and file_md5(abs_path) in dup_md5[folder]:
                 continue
             out.append((lid, rel, abs_path))
     return out
@@ -150,7 +202,8 @@ def run_queue(args):
     queue = _load_json(QUEUE_PATH, [])
 
     only_lid = args.landlord.upper() if args.landlord else None
-    candidates = gather_candidates(landlords_by_id, harvested, only_lid, args.all)
+    min_id = landlord_number(args.min_id.upper()) if args.min_id else None
+    candidates = gather_candidates(landlords_by_id, harvested, only_lid, args.all, min_id)
 
     credits_used = 0
     per_landlord_count = {}
@@ -260,6 +313,7 @@ def main():
                          "form returned and photos received")
     ap.add_argument("--max-credits", type=int, default=100, help="credit budget for this run")
     ap.add_argument("--per", type=int, default=6, help="max photos to queue per landlord this run")
+    ap.add_argument("--min-id", help="restrict to landlords at or above this id, e.g. LL160")
     ap.add_argument("--complete", metavar="SOURCE",
                      help="mark a queued job done: SOURCE is its photos/LLxxx/N.jpg source path")
     ap.add_argument("--output", help="finished staged image file (with --complete)")
