@@ -3107,13 +3107,31 @@ def _handle_event_inner(state, ev):
     # STAGE 3: viewing offered -> react to one reply per inbound (shared with the manual co-pilot path)
     return _viewing_reaction(rec, ev, pn)
 
+
+# words that turn a day/time token into an unrelated activity, not a viewing proposal
+# ("sat exam", "weekend job") -- the near miss that sent chat 6580900266's "can I view it
+# tonight?" to a text-less ANSWER_QUESTION was the same class of gap in reverse (a real
+# time word the old regex just did not know), so this list is checked from both directions.
+_NOT_A_VIEWING_TIME = r"(?!\s+(?:job|exam|shift|duty|class|meeting|interview|test|practice))"
+# a day/time word followed by a travel departure verb is the tenant leaving, not proposing
+# a slot ("tonight I fly") -- narrow on purpose, only the verbs actually seen in the wild
+_NOT_A_DEPARTURE = r"(?!\s+i\W*(?:m\s+)?(?:fly|flying|leave|leaving|depart|departing))"
+
 def _has_viewing_time(t):
-    """True if the prospect's reply names a day or a time to view."""
+    """True if the prospect's reply names a day or a time to view (9 Sep 2026: also a bare
+    immediacy word like "tonight"/"now" -- these used to fall through to the '?' branch as a
+    plain question, so a prospect asking to view that same day got flagged with no reply)."""
     if not t: return False
-    has_time = re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b|\bnoon\b|after\s*\d", t)
+    t = t.lower()
+    has_time = re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b|\bnoon\b|after\s*\d"
+                         r"|\bright\s+now\b|\b(?:come|view|check|see)\s+now\b"
+                         r"|\bnow\b(?=\s*[?!.,]|$)", t)
     has_day  = re.search(r"\b(?:mon(?:day)?|tues?(?:day)?|wed(?:nesday)?|thur?s?(?:day)?|"
                          r"fri(?:day)?|sat(?:urday)?|sun(?:day)?|today|tomorrow|tmr|"
-                         r"weekends?)\b"
+                         r"weekends?)\b" + _NOT_A_VIEWING_TIME +
+                         r"|\btonight\b" + _NOT_A_DEPARTURE +
+                         r"|\bthis\s+evening\b|\bthis\s+afternoon\b"
+                         r"|今晚|明天|周末"       # 今晚 / 明天 / 周末
                          r"|\b\d{1,2}\s*/\s*\d{1,2}\b"
                          r"|\b\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)", t)
     return bool(has_time or has_day)

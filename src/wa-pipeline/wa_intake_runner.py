@@ -488,7 +488,19 @@ def run():
             # ASK_ONE and OFFER_VIEWING are direct replies to a prospect's own message in
             # the booking flow — the viewing-first happy path is 3 touches, and capping it
             # at 2 dropped the offer right after a YES (adversarial-review P2-8)
-            if a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
+            # VIEWING_TIME_PROPOSED and ASK_TENANT_TIME are also always a direct reply to the
+            # tenant's OWN time proposal or decline (neither type is ever produced any other
+            # way) — a chat that fills the form then proposes a time in the same day was
+            # otherwise dead ended by DAILY_CAP_SKIP until Winfred replied by hand (9 Sep 2026
+            # incident, pn 6589824485 / 6584553538). Bounded separately to ONE extra touch a
+            # day — never the ordinary cap, and never spam — so a second proposal the same day
+            # still waits for Winfred, same as before this fix.
+            if a.get("type") in ("VIEWING_TIME_PROPOSED", "ASK_TENANT_TIME"):
+                if _grec.get("time_reply_sent_date") == _today_sgt:
+                    _log("DAILY_CAP_SKIP", a.get("pn"),
+                         a.get("type") + " :: already sent a time reply today")
+                    E.save_state(state); acted += 1; continue
+            elif a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
                 if (_grec.get("sends_today_date") == _today_sgt
                         and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
                     _log("DAILY_CAP_SKIP", a.get("pn"),
@@ -549,6 +561,10 @@ def run():
                             _rc["sends_today_date"] = _today_sgt
                             _rc["sends_today"] = 0
                         _rc["sends_today"] = int(_rc.get("sends_today") or 0) + 1
+                        # latch the once-a-day time reply bound above, separate from the
+                        # ordinary cap counter
+                        if a.get("type") in ("VIEWING_TIME_PROPOSED", "ASK_TENANT_TIME"):
+                            _rc["time_reply_sent_date"] = _today_sgt
                 # throttle: drip the morning backlog instead of a bot-like instant burst
                 time.sleep(random.uniform(4, 9))
                 if allok and a.get("type") == "CONFIRM_VIEWING" and a.get("slot_id"):
