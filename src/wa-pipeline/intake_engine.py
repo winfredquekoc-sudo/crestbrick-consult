@@ -197,9 +197,16 @@ def book_slot(listing_key, slot_id, path=AVAIL):
         fcntl.flock(f, fcntl.LOCK_UN); f.close()
 
 # ---------- profile extraction ----------
+# a non SGD currency marker on the number (RM800, USD500, ₹15000...) must never be read as
+# a bare SGD figure -- no trailing \b so a glued prefix like "RM800" still matches (P2 fix,
+# 9 Sep 2026 cycle5 sc3: a ringgit budget auto qualified a prospect under the SGD floor).
+_NON_SGD_CCY_RE = re.compile(r"\b(?:rm|myr|usd|inr|rmb)|[₹¥]", re.I)
+
 def _to_int(s):
     if s is None: return None
     txt = str(s).lower().strip()
+    if _NON_SGD_CCY_RE.search(txt):
+        return None
     # 'k'/'m' multiply ONLY as a magnitude suffix on the number (e.g. 1.2k, 1.5m),
     # never just because the letter appears in the text ("ok", "looking" must not x1000).
     m = re.search(r"(\d[\d,\.]*)\s*([km])?\b", txt)
@@ -470,6 +477,43 @@ def extract_profile(text):
     emp = grab(r"employment(?:\s*type)?|就业类型")
     if emp: p["employment_type"]=emp.strip()
     return {k:v for k,v in p.items() if v not in (None,"")}
+
+# a numbered/positional answer to the intake form ("1) Alex 2) Singaporean 3) Chinese ...")
+# carries no field labels at all -- maps 1:1 onto the intake template's own field order
+# instead (P2 fix, 9 Sep 2026 cycle5 hg5-07: this used to parse to zero fields and the whole
+# profile was discarded, even though the raw text still got flagged to Winfred).
+_POSITIONAL_FIELD_ORDER = ("name", "nationality", "ethnicity", "gender", "pass_type",
+                           "occupation", "employment_type", "no_of_pax", "move_in_date",
+                           "lease_term_months", "budget")
+_POSITIONAL_MARKER_RE = re.compile(r"(?:^|\s)(\d{1,2})[).:]\s*")
+
+def _extract_positional_form(text):
+    """Only trusted when it type checks -- pax/lease/budget numeric, a non empty date --
+    so a genuinely unparseable numbered message still falls through to the existing
+    unparseable-form flag with the raw text, never a guessed profile."""
+    t = text or ""
+    if _FORM_LABEL_COLON_RE.search(t):
+        return {}   # a real labelled form -- the normal parser owns this, not positional
+    marks = list(_POSITIONAL_MARKER_RE.finditer(t))
+    if len(marks) < 8:
+        return {}
+    vals = []
+    for i, m in enumerate(marks):
+        start = m.end()
+        end = marks[i + 1].start() if i + 1 < len(marks) else len(t)
+        vals.append(t[start:end].strip(" ,;"))
+    out = {}
+    for i, key in enumerate(_POSITIONAL_FIELD_ORDER):
+        if i < len(vals) and vals[i]:
+            out[key] = vals[i]
+    if _to_int(out.get("no_of_pax")) is None: return {}
+    if _to_int(out.get("lease_term_months")) is None: return {}
+    if _to_int(out.get("budget")) is None: return {}
+    if not out.get("move_in_date"): return {}
+    out["no_of_pax"] = _to_int(out["no_of_pax"])
+    out["lease_term_months"] = _to_int(out["lease_term_months"])
+    out["budget"] = _to_int(out["budget"])
+    return out
 
 def _open_intake(listing):
     """True if a listing accepts all profiles (owner takes everyone) — only baby + the listing's
@@ -2106,10 +2150,13 @@ def _split_needs_info(why):
 
 _BUDGET_BORDERLINE_RE = re.compile(r"^budget\s+(\d+)\s+just\s+under\s+(\d+)$", re.I)
 
-def _ask_one_text(why, askable, sensitive):
+def _ask_one_text(why, askable, sensitive, just_flagged_topic=None):
     """Phrase the ASK_ONE / book intent question. A borderline budget gap ("budget 680 just
     under 700") references the figure ALREADY given and asks whether it is firm, instead of
-    a generic "check your budget" that reads as if the tenant never answered at all."""
+    a generic "check your budget" that reads as if the tenant never answered at all.
+    just_flagged_topic: the field (if any) the IMMEDIATELY preceding flagged inbound was
+    about -- softens the ask so it never reads as ignoring what they just said (cosmetic
+    only, the underlying flag to Winfred is unchanged)."""
     if not sensitive and askable == ["your budget"] and len(why) == 1:
         m = _BUDGET_BORDERLINE_RE.match(str(why[0]).strip())
         if m:
@@ -2120,7 +2167,10 @@ def _ask_one_text(why, askable, sensitive):
         # never isolate ethnicity/nationality in a one-line ask — the form already collects
         # them alongside everything else
         return "Just need your profile above and I can confirm your slot \U0001F64F\U0001F3FB"
-    return "Can I just check " + " and ".join(askable) + "? Then I can confirm your slot \U0001F642"
+    lead = "Can I just check "
+    if just_flagged_topic and any(just_flagged_topic in a for a in askable):
+        lead = "Sorry, just to double check - "
+    return lead + " and ".join(askable) + "? Then I can confirm your slot \U0001F642"
 
 # ---------- state ----------
 class StateCorrupt(RuntimeError):
@@ -2305,6 +2355,24 @@ def _copilot_verdict(rec):
     Winfred gets the qualify() result on Telegram (never a prospect send). Fires once per distinct
     verdict (copilot_sig latch); never for a known landlord/agent/colleague."""
     if rec.get("terminal"):
+        return None
+    # A2 belt-and-suspenders: a record already excluded (self disclosed agent/landlord/
+    # colleague) must never reach a prospect facing action here, whatever muted the chat.
+    # Verdict-only notifications to Winfred still fire further down; only OFFER_VIEWING is
+    # blocked (P0 fix, 9 Sep 2026 cycle5 c5ec07).
+    if str(rec.get("status") or "").startswith("excluded:"):
+        lk = rec.get("listing_key")
+        listing = listing_reqs().get(lk) if lk else None
+        if lk and listing and not missing_required(rec.get("profile", {}), listing):
+            verdict, why = qualify(listing, rec["profile"])
+            sig = "EXCLUDED|" + verdict + "|" + ",".join(why)
+            if rec.get("copilot_sig") == sig:
+                return None
+            rec["copilot_sig"] = sig
+            rec["qualify"] = {"verdict": verdict, "why": why}
+            return {"type": "COPILOT_VERDICT", "pn": rec.get("pn"), "notify": True, "text": None,
+                    "verdict": verdict, "why": why, "listing_key": lk,
+                    "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
         return None
     lk = rec.get("listing_key")
     if not lk:
@@ -2634,7 +2702,12 @@ _FACT_VETO_RE = re.compile(
     # attack replay: "can the landlord evict me early... what does the law say" auto answered
     # as a lease length FAQ)
     r"\bevict(?:ed|ion)?\b|notice\s+period|\blaw\b|\blegal(?:ly)?\b|\billegal\b|"
-    r"tenant'?s?\s+rights?|\bbreach\b|\bcourt\b|small\s+claims",
+    r"tenant'?s?\s+rights?|\bbreach\b|\bcourt\b|small\s+claims|"
+    # eligibility/policy questions (ethnic quota, HDB vs private, EIP) are never a rent/fact
+    # lookup -- always Winfred's call, even when "rent" rides along as a bare verb (P2 fix,
+    # 9 Sep 2026 cycle5 sc1: a quota eligibility question misfired the vague rent pivot).
+    r"\bquota\b|ethnic\s+integration|\beip\b|\beligib(?:le|ility)\b|allowed\s+to\s+rent|"
+    r"hdb\s+(?:vs\.?|versus|or)\s+private",
     re.I)
 _FACT_LEASE_RE = re.compile(r"\blease\b|how\s+long|\bminimum\b|contract\s+length", re.I)
 _FACT_COOK_RE = re.compile(r"\bcook(?:ing)?\b|\bkitchen\b", re.I)
@@ -2684,6 +2757,12 @@ def _fact_smoking_phrase(v):
 def _fact_pets_phrase(v):
     return ("Yes, you can bring your pet \U0001F642" if v
             else "Sorry, no pets allowed for this unit \U0001F642")
+
+# the generic price pivot (no listing fact, no figure) never consumes the one-shot fact
+# budget -- it is compared against verbatim below so the MRT/deposit/etc fact on file stays
+# available for the prospect's next question (P2 fix, 9 Sep 2026 cycle5 sc1).
+_RENT_PIVOT_TEXT = ("Rent is usually fixed \U0001F642 It's set by the landlord. Do come down to "
+                    "view first, and shall I arrange a viewing for you?")
 
 def _tenant_fact_answer(question_text, listing):
     """Return a truthful, Winfred-voice answer for a tenant's factual question, drawn ONLY from
@@ -2738,8 +2817,7 @@ def _tenant_fact_answer(question_text, listing):
         # viewing. No price-flexibility claim (P2 fix, 9 Sep 2026 cycle4 hg4-06): the bot has
         # no authority to represent what the landlord will or won't budge on -- rent is set by
         # the landlord, full stop, and the next step is a viewing.
-        return ("Rent is usually fixed \U0001F642 It's set by the landlord. Do come down to view "
-                "first, and shall I arrange a viewing for you?")
+        return _RENT_PIVOT_TEXT
 
     return None
 
@@ -2748,6 +2826,12 @@ def _tenant_fact_answer(question_text, listing):
 _DECLINE_RE = re.compile(
     r"can\'?t\s+make|cannot\s+make|can\'?t\s+do|not\s+free|not\s+available"
     r"|another\s+day|some\s+other\s+time|busy\s+then|unable\s+to", re.I)
+# a third party's unavailability ("she not free", "he can't make it") described mid message
+# is never the TENANT declining their own slot (P2 fix, 9 Sep 2026 cycle5 sc2: a companion's
+# unavailability corrupted state and nearly auto sent a non sequitur).
+_DECLINE_THIRDPARTY_RE = re.compile(
+    r"\b(?:she|he|they|her|him|them)\b[^.!?]{0,20}\b(?:not\s+free|can\'?t\s+make|"
+    r"cannot\s+make|can\'?t\s+do|not\s+available|busy\s+then|unable\s+to)\b", re.I)
 
 # a real question is not always punctuated ("can cook curry ah", "how far MRT from here") --
 # a literal "?" is sufficient but never necessary. Shared by the pre-viewing question check
@@ -2767,8 +2851,15 @@ _DECLINE_RE = re.compile(
 # negative here still falls through to the dead-end catch-all flag, so erring narrow is safe.
 _QUESTION_LEAD_RE = re.compile(
     r"\b(?:can|could|is|are|will|would|should)\b\s+"
-    r"(?:i|you|we|they|he|she|it|there|this|that|the\s+landlord|the\s+owner)\b|"
-    r"\b(?:how|what|when|why|who|where|which)\b", re.I)
+    r"(?:i|you|we|they|he|she|it|there|this|that|the\s+landlord|the\s+owner)\b", re.I)
+_QUESTION_WH_RE = re.compile(r"\b(?:how|what|when|why|who|where|which)\b", re.I)
+# an aux/copula immediately followed by a wh word and a subject pronoun is a declarative
+# RELATIVE clause ("that pin is where we stay"), never an interrogative -- a genuine wh
+# question fronts the wh word, it does not follow a copula this way (P3 fix, 9 Sep 2026
+# cycle5 sc4: a location pin caption misread "where" as a question).
+_WH_RELATIVE_CLAUSE_RE = re.compile(
+    r"\b(?:is|are|was|were)\s+(?:how|what|when|why|who|where|which)\s+"
+    r"(?:i|you|we|they|he|she|it)\b", re.I)
 _QUESTION_TRAIL_RE = re.compile(r"\b(?:anot|or\s+not|ah|lah|leh|meh|sia|right)\b", re.I)
 
 def _is_question(text):
@@ -2777,7 +2868,11 @@ def _is_question(text):
         return False
     if "?" in t:
         return True
-    return bool(_QUESTION_LEAD_RE.search(t) or _QUESTION_TRAIL_RE.search(t))
+    if _QUESTION_LEAD_RE.search(t):
+        return True
+    if _QUESTION_WH_RE.search(t) and not _WH_RELATIVE_CLAUSE_RE.search(t):
+        return True
+    return bool(_QUESTION_TRAIL_RE.search(t))
 
 # a genuine viewing/availability ask with no "?" and no lead/trail question word at all
 # ("Trying to call you", "Hi any viewing") still means engagement, not silence -- shared by
@@ -2851,7 +2946,9 @@ def _viewing_reaction(rec, ev, pn):
     # carry a day/time) fall through to the _has_viewing_time branch below as a normal
     # counter proposal routed to Winfred via VIEWING_TIME_PROPOSED.
     if (not rec.get("asked_tenant_time") and not _has_viewing_time(txt)
-            and _DECLINE_RE.search(txt)):
+            and _DECLINE_RE.search(txt)
+            and not _DECLINE_THIRDPARTY_RE.search(txt)
+            and not _is_question(ev.get("text"))):
         rec["asked_tenant_time"] = True
         rec["status"] = "asked_tenant_time"
         return {"type": "ASK_TENANT_TIME", "pn": pn, "notify": True,
@@ -2929,7 +3026,10 @@ def _viewing_reaction(rec, ev, pn):
         ans = (_tenant_fact_answer(ev.get("text"), listing_reqs().get(rec.get("listing_key")) or {})
                if not rec.get("fact_answered") else None)
         if ans:
-            rec["fact_answered"] = True
+            # the generic rent pivot never consumes the one-shot budget -- only a real
+            # facts sheet / listing attribute answer does (P2 fix, 9 Sep 2026 cycle5 sc1).
+            if ans != _RENT_PIVOT_TEXT:
+                rec["fact_answered"] = True
             return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": ans}
         return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": None}
     if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
@@ -3006,12 +3106,23 @@ def _dead_end_catch_all(state, ev):
         # complete sensitive-content/decline/question/ambiguous-once policy -- a None from it
         # is that policy's own considered silence, not a gap the catch-all should fill.
         return None
+    if rec.get("lease_note_unbound_flagged") and not (rec.get("form_sent") and rec.get("listing_key")):
+        # the SHORT LEASE gate already flagged this exact "unbound, mentioned a short lease"
+        # situation once, on purpose, and deliberately goes silent on every repeat until the
+        # record actually binds -- not a gap either.
+        return None
     text = ev.get("text") or ""
     if _is_trivial_inbound(text):
         return None
     now = __import__("time").time()
     status = rec.get("status") or ""
+    # the once-per-state window only ever suppresses a genuine REPEAT of the exact same
+    # inbound already notified under this status -- a different message on the same status
+    # (P1 fix, 9 Sep 2026 cycle5 c5rm01: a statement phrased message right after two
+    # question flags on the same "form_sent" status vanished with no flag at all) must
+    # always still reach Winfred.
     if (rec.get("_last_notified_status") == status
+            and rec.get("_last_notified_text") == text
             and (now - (rec.get("_last_notified_ts") or 0)) < _DEAD_END_RATE_WINDOW):
         return None
     return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
@@ -3055,6 +3166,7 @@ def handle_event(state, ev):
         _rec2 = (state.get("conversations") or {}).get(_pn2) if _pn2 else None
         if _rec2 is not None:
             _rec2["_last_notified_status"] = _rec2.get("status")
+            _rec2["_last_notified_text"] = ev.get("text") or ""
             _rec2["_last_notified_ts"] = __import__("time").time()
     return a
 
@@ -3136,6 +3248,21 @@ def _handle_event_inner(state, ev):
         # first-touch only: never re-classify once stamped, even if a later message
         # happens to match a CTA phrase (e.g. copy-pasted from an article by hand).
         rec["source"] = classify_lead_source(ev.get("text"), ev.get("listing_key"))
+    # a sticker/location pin with no text on a record already past Stage 1 carries nothing
+    # to reply to and nothing worth flagging Winfred about -- but it must still leave a
+    # trace, never a silent drop (P3 fix, 9 Sep 2026 cycle5 sc4). The louder "could be a
+    # landlord" flag above already owns the pre form_sent case.
+    if (str(ev.get("media_type") or "") in ("image", "video", "sticker", "location")
+            and not (ev.get("text") or "").strip()
+            and (rec.get("form_sent") or rec.get("profile"))
+            and not rec.get("terminal") and not rec.get("manual_takeover")
+            # the lease note sub flow owns every inbound while it is pending -- a media only
+            # message there is its own considered "falls through, resolved" policy, not a
+            # gap this quiet log should fill.
+            and not (rec.get("lease_note_sent") and not rec.get("lease_note_resolved"))):
+        return {"type": "MEDIA_NO_TEXT", "pn": pn, "notify": False, "text": None,
+                "reason": "media (" + str(ev.get("media_type") or "unknown") + ") with no "
+                          "text; no reply needed"}
     if rec.get("terminal"):
         # engine never sends again on a terminal record, but a fresh enquiry, a mention of
         # another open listing, or a complaint still needs a human's eyes -- once per
@@ -3159,6 +3286,10 @@ def _handle_event_inner(state, ev):
                 "listing_key": rec.get("listing_key"),
                 "reason": "said they found another place / no longer renting",
                 "quote": (ev.get("text") or "")[:160]}
+    if _protected_disclosure_question(ev.get("text")):
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "self disclosed a protected attribute and asked if acceptable; "
+                          "never auto decide, reply by hand"}
     if _unit_rejection(ev.get("text")) and not rec.get("alt_suggested") and not rec.get("buyer_form_sent"):
         # they rejected THIS unit but are still looking: cross sell once, same district,
         # then rebind the conversation to the suggested listing so the normal qualify ->
@@ -3194,6 +3325,11 @@ def _handle_event_inner(state, ev):
     # always merge any profile data, even under manual takeover (log once).
     # track whether THIS inbound added a new required field (drives state change).
     merged = extract_profile(ev.get("text",""))
+    _positional = {}
+    if len(merged) < 3:
+        _positional = _extract_positional_form(ev.get("text", ""))
+        if _positional:
+            merged = _positional
     new_data = False
     # provenance per field: a value grab() lifted out of ordinary prose ("...as ID, name Alex
     # Tan, hope that helps.") is a guess, never as trustworthy as a real filled labelled form
@@ -3201,7 +3337,7 @@ def _handle_event_inner(state, ev):
     # guess; free text may never overwrite anything, guess or form (9 Sep 2026 replay: a real
     # completed form was silently discarded because a stray "name" mid sentence got there
     # first under the old never overwrite rule).
-    _form_now = _looks_like_filled_form(ev.get("text", ""))
+    _form_now = _looks_like_filled_form(ev.get("text", "")) or bool(_positional)
     _correction_now = bool(_CORRECTION_RE.search(ev.get("text", "") or ""))
     _prov = rec.setdefault("profile_provenance", {})
     for k,v in merged.items():
@@ -3313,6 +3449,10 @@ def _handle_event_inner(state, ev):
         _mid_why = excluded_reason(pn, ev.get("text", ""))
         if _mid_why in ("landlord", "agent", "colleague"):
             rec["manual_takeover"] = True
+            rec["copilot_muted"] = True   # P0 fix, 9 Sep 2026 cycle5 c5ec07: a self disclosed
+            # agent/landlord/colleague who later recants and fills a tenant shaped profile
+            # must never reach a real prospect facing OFFER_VIEWING through the co-pilot
+            # verdict path -- mute it here exactly like the supply side branch already does.
             rec["status"] = "excluded:" + _mid_why
             return {"type": "FLAG_HUMAN", "pn": pn, "notify": True,
                     "reason": "excluded " + _mid_why, "text": None}
@@ -3342,18 +3482,27 @@ def _handle_event_inner(state, ev):
         # in a chat that only just got bound off Winfred's own outbound text (or never got
         # bound at all) flags him once instead (real incident, 8-9 Sep 2026: pn 6590590183,
         # wandering across 3 different properties with no confirmed listing_key).
-        if not (rec.get("form_sent") and rec.get("listing_key")):
+        if rec.get("form_sent") and rec.get("listing_key"):
+            rec["lease_note_min"] = 12
+            rec["lease_note_sent"] = True
+            rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
+            return {"type": "LEASE_NOTE", "pn": pn, "notify": False,
+                    "reason": "asked for a lease of 6 months or less",
+                    "text": _LEASE_NOTE_TEXT}
+        # a genuine FIRST TOUCH enquiry that also names the listing (bound already, or this
+        # very inbound names it) must still get its welcome + form -- never dead end silently
+        # on a brand new prospect (P2 fix, 9 Sep 2026 cycle5 sc5). The short lease ask itself
+        # is never auto answered; it rides as a notify on the SEND_FORM action once Stage 1
+        # actually sends it (fall through, no return, past this whole gate). Genuinely
+        # UNBOUND wandering (the real incident this gate was built for, pn 6590590183 across
+        # 3 properties) keeps the original silent flag.
+        if not (rec.get("listing_key") or ev.get("listing_key")):
             if rec.get("lease_note_unbound_flagged"):
                 return None
             rec["lease_note_unbound_flagged"] = True
             return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
                     "reason": "asked about a short lease, not yet a bound form sent prospect"}
-        rec["lease_note_min"] = 12
-        rec["lease_note_sent"] = True
-        rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
-        return {"type": "LEASE_NOTE", "pn": pn, "notify": False,
-                "reason": "asked for a lease of 6 months or less",
-                "text": _LEASE_NOTE_TEXT}
+        rec["pending_short_lease_notify"] = ev.get("text")
 
     # STAGE 1: first contact -> send the listing message (unit info + form) ONCE, with safety gates
     if not rec["form_sent"]:
@@ -3405,7 +3554,7 @@ def _handle_event_inner(state, ev):
         # landlords open with unit photos; Song +6596479676 sat 6 days as a silent not_enquiry).
         # Flag LOUDLY once, never auto-send at a picture. A captioned photo now carries its
         # caption as text (bridge fix, 11 Aug 2026) and classifies normally above.
-        if (str(ev.get("media_type") or "") in ("image", "video")
+        if (str(ev.get("media_type") or "") in ("image", "video", "sticker", "location")
                 and not (ev.get("text") or "").strip()
                 and not rec.get("form_sent") and not rec.get("profile")
                 and not rec.get("photo_flagged")):
@@ -3522,8 +3671,14 @@ def _handle_event_inner(state, ev):
             _slotted = bool(lk) and _has_open_future_slot(lk)
             form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
             texts = ([unit, form] if unit else [form]) + [CHANNEL_PITCH]
-            return {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
+            _act = {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
                     "listing_key":lk, "capture_availability":need_avail}
+            _pending_lease = rec.pop("pending_short_lease_notify", None)
+            if _pending_lease:
+                _act["notify"] = True
+                _act["reason"] = ("also asked about a short lease alongside the enquiry (\""
+                                  + _pending_lease[:100] + "\"); form sent, never auto answered")
+            return _act
         # profile already complete (an earlier message supplied it, e.g. a pasted form riding
         # with the opener) -- never re-ask a blank 14-field template for data already on file
         # (P2 fix, 9 Sep 2026 attack replay). Send the unit intro (it already carries the slot
@@ -3532,8 +3687,14 @@ def _handle_event_inner(state, ev):
         # -> stay silent here, the unbound-profile flag fires on their next message instead.
         if not unit:
             return None
-        return {"type":"SEND_FORM", "pn":pn, "texts":[unit, CHANNEL_PITCH], "text":unit,
+        _act = {"type":"SEND_FORM", "pn":pn, "texts":[unit, CHANNEL_PITCH], "text":unit,
                 "listing_key":lk, "capture_availability":need_avail}
+        _pending_lease = rec.pop("pending_short_lease_notify", None)
+        if _pending_lease:
+            _act["notify"] = True
+            _act["reason"] = ("also asked about a short lease alongside the enquiry (\""
+                              + _pending_lease[:100] + "\"); form sent, never auto answered")
+        return _act
 
     # SUPPLY RE-CHECK, post-form: "actually I am the landlord, help me rent out my room"
     # arriving AFTER the tenant form must flip the record to supply, not keep being chased
@@ -3583,9 +3744,14 @@ def _handle_event_inner(state, ev):
             _ans = (_tenant_fact_answer(_pretxt, reqs.get(_lk_pre) or {})
                     if (_lk_pre and not rec.get("fact_answered")) else None)
             if _ans:
-                rec["fact_answered"] = True
+                if _ans != _RENT_PIVOT_TEXT:
+                    rec["fact_answered"] = True
                 return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True,
                         "question": _pretxt, "text": _ans}
+            # remember what this flagged question was ABOUT, so a re-ask for the same field
+            # one turn later can soften its phrasing instead of reading as if it ignored
+            # what they just said (P3 fix, 9 Sep 2026 cycle5 hg5-06).
+            rec["last_flag_topic"] = "gender" if _GENDER_TOPIC_RE.search(_pretxt) else None
             return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
                     "reason": "question asked before the profile is complete; reply by hand"}
         # short-lease note pending/resolved is handled ONCE, at the top of this function
@@ -3725,7 +3891,8 @@ def _handle_event_inner(state, ev):
                         rec["book_intent_asked"] = True
                         rec["needs_info_unknowns"] = why_b
                         rec["stage"] = "BOOK_INTENT"; rec["status"] = "book_intent_hard_fields"
-                        txt_b = _ask_one_text(why_b, _askable, _sensitive)
+                        txt_b = _ask_one_text(why_b, _askable, _sensitive,
+                                              rec.get("last_flag_topic"))
                         return {"type":"ASK_ONE", "pn":pn, "reason":why_b, "text":txt_b}
                 # SHORT_LEASE (and a repeat NEEDS_INFO) fall through to the standard chase
         miss = missing_required(rec["profile"], reqs.get(rec.get("listing_key")))
@@ -3811,7 +3978,8 @@ def _handle_event_inner(state, ev):
                 # seed the fresh-content dedup with THIS text too, so an exact repeat of the
                 # very message that triggered this flag never re-notifies on its own.
                 rec["unbound_notify_sigs"] = [re.sub(r"\s+", " ", (ev.get("text") or "").strip().lower())]
-                reason = (("possible listings: " + ", ".join(matches)) if matches
+                reason = (("possible listings (best guess off the profile, not confirmed by "
+                           "name): " + ", ".join(matches)) if matches
                           else "no open listing fits") + " | profile: " + _profile_summary(rec["profile"])
                 return {"type":"FLAG_HUMAN", "pn":pn, "notify":True, "text":None,
                         "reason":reason, "hot_matches":matches}
@@ -3852,7 +4020,7 @@ def _handle_event_inner(state, ev):
                 _listing_gap = why
             else:
                 rec["stage"] = "NEEDS_INFO"; rec["status"] = "needs_info"
-                txt = _ask_one_text(why, askable, sensitive)
+                txt = _ask_one_text(why, askable, sensitive, rec.get("last_flag_topic"))
                 return {"type":"ASK_ONE", "pn":pn, "reason":why, "text":txt}
         # QUALIFIED (or a listing-only NEEDS_INFO gap, booked anyway) -> offer the viewing
         # once. Re-check the listing is STILL open first: it can have closed since the
@@ -3887,6 +4055,12 @@ def _handle_event_inner(state, ev):
     # STAGE 3: viewing offered -> react to one reply per inbound (shared with the manual co-pilot path)
     return _viewing_reaction(rec, ev, pn)
 
+# a bracketed media duration caption ("[Voice message, 0:42]", "[Video, 0:30]") is metadata
+# about the clip length, never a time the sender is proposing (P1 fix, 9 Sep 2026 cycle5
+# c5ec05: a voice note misread as VIEWING_TIME_PROPOSED off its own duration).
+_MEDIA_DURATION_RE = re.compile(
+    r"\[\s*(?:voice\s*(?:message|note)|video|audio)\s*,?\s*\d{1,2}[:.]\d{2}\s*\]", re.I)
+
 def _has_viewing_time(t):
     """True if the prospect's reply names a day or a time to view."""
     if not t: return False
@@ -3896,12 +4070,17 @@ def _has_viewing_time(t):
     # (replay 9 Sep 2026: a duplicate pasted form got read as VIEWING_TIME_PROPOSED).
     if len(_FORM_LABEL_COLON_RE.findall(t)) >= 3:
         return False
-    has_time = re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b|\bnoon\b|after\s*\d", t)
-    has_day  = re.search(r"\b(?:mon(?:day)?|tues?(?:day)?|wed(?:nesday)?|thur?s?(?:day)?|"
+    t2 = _MEDIA_DURATION_RE.sub(" ", t)
+    has_ampm = bool(re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\bnoon\b|after\s*\d", t2))
+    has_colon = bool(re.search(r"\b\d{1,2}[:.]\d{2}\b", t2))
+    has_day  = bool(re.search(r"\b(?:mon(?:day)?|tues?(?:day)?|wed(?:nesday)?|thur?s?(?:day)?|"
                          r"fri(?:day)?|sat(?:urday)?|sun(?:day)?|today|tomorrow|tmr|"
                          r"weekends?)\b"
                          r"|\b\d{1,2}\s*/\s*\d{1,2}\b"
-                         r"|\b\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)", t)
+                         r"|\b\d{1,2}\s*(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)", t2))
+    # a bare h:mm with no am/pm is ambiguous on its own (a media duration, a random number) --
+    # only counts as a real time when a day word rides along too.
+    has_time = has_ampm or (has_colon and has_day)
     return bool(has_time or has_day)
 
 _PROPOSED_DAY_MONTH_RE = re.compile(
@@ -3978,22 +4157,56 @@ _UNIT_REJECT_RE = re.compile(
 _UNIT_REJECT_HYPOTHETICAL_RE = re.compile(
     r"\b(?:if|unless|in\s+case)\b[^.!?]{0,40}\b(?:" +
     "|".join(re.escape(m).replace(r"\ ", r"\s+") for m in _UNIT_REJECT) + r")\b", re.I)
+# a rejection phrase attributed to a THIRD PARTY ("some landlords here don't like", "the
+# owner said not suitable") is a report of someone ELSE's preference, never the tenant
+# rejecting the unit themselves (P0 fix, 9 Sep 2026 cycle5 c5rm04).
+_UNIT_REJECT_THIRDPARTY_RE = re.compile(
+    r"\b(?:landlords?|owners?|some\s+people|they|them|agents?)\b[^.!?]{0,40}\b(?:" +
+    "|".join(re.escape(m).replace(r"\ ", r"\s+") for m in _UNIT_REJECT) + r")\b", re.I)
 
 def _unit_rejection(text):
     """True when the prospect rejects THIS unit but is still renting (withdrawal_signal is
     checked first by the caller, so 'found a place' style closes never reach here). Vetoed
-    when the phrase sits in a hypothetical clause, or the same message also carries booking
-    positive intent (a time, "coming", "see you") -- both mean this is a condition on a
-    viewing already locked in, never a rejection of it."""
+    when the phrase sits in a hypothetical clause, is attributed to a third party (the
+    landlord's/some people's preference, not the tenant's own), or the same message also
+    carries booking positive intent (a time, "coming", "see you") -- all of these mean this
+    is not the tenant rejecting the unit."""
     t = text or ""
     if not _UNIT_REJECT_RE.search(t):
         return False
     if _UNIT_REJECT_HYPOTHETICAL_RE.search(t):
         return False
+    if _UNIT_REJECT_THIRDPARTY_RE.search(t):
+        return False
     low = t.lower()
     if _has_viewing_time(low) or re.search(r"\bcoming\b|\bsee\s+you\b", low):
         return False
     return True
+
+# self disclosing a protected attribute AND asking whether it is acceptable must never be
+# read as a unit rejection just because a third party's preference phrase rides along in
+# the same breath ("some landlords here don't like") -- route to Winfred instead, no
+# tenant facing text (P0 fix, 9 Sep 2026 cycle5 c5rm04).
+_PROTECTED_SELF_DISCLOSE_RE = re.compile(
+    r"\bi'?m\s+(?:an?\s+)?(?:chinese|malay|indian|eurasian|caucasian|filipino|filipina|"
+    r"burmese|vietnamese|bangladeshi|myanmar(?:ese)?|african|nigerian|pakistani|"
+    r"sri\s*lankan)\b|"
+    r"\bi\s+am\s+(?:an?\s+)?(?:chinese|malay|indian|eurasian|caucasian|filipino|filipina|"
+    r"burmese|vietnamese|bangladeshi|myanmar(?:ese)?|african|nigerian|pakistani|"
+    r"sri\s*lankan)\b", re.I)
+_GENDER_TOPIC_RE = re.compile(
+    r"\bgender\b|\bladies\b|\bmen\s+only\b|\bwomen\s+only\b|\bmale\b|\bfemale\b|\bguy\b|"
+    r"\bgirl\b|\bboy\b|\bfeminine\b|\bmasculine\b", re.I)
+_ACCEPTABLE_CHECK_RE = re.compile(
+    r"\bis\s+(?:that|this|it)\s+(?:ok(?:ay)?|fine|alright|acceptable|a\s+problem|an?\s+issue)\b|"
+    r"\bwill\s+that\s+be\s+(?:ok(?:ay)?|fine|a\s+problem|an?\s+issue)\b|"
+    r"\b(?:does|will)\s+the\s+landlord\s+mind\b", re.I)
+
+def _protected_disclosure_question(text):
+    """True when the same message self discloses a protected attribute AND asks whether it
+    is acceptable -- must be flagged to Winfred, never closed as a unit rejection."""
+    t = text or ""
+    return bool(_PROTECTED_SELF_DISCLOSE_RE.search(t) and _ACCEPTABLE_CHECK_RE.search(t))
 
 def suggest_alternative(profile, exclude_key):
     """Cross sell: the best OTHER active listing in the same district as the rejected or

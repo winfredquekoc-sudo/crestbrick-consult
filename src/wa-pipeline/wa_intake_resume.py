@@ -499,7 +499,8 @@ def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
     if text.startswith("NEEDS_WINFRED"):
         why = text[len("NEEDS_WINFRED"):].strip(" :\n") or "needs your own judgement call"
         log_fn("RESUME_DRAFT_NEEDS_WINFRED", pn, why)
-        notify_fn(f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply: {why}")
+        notify_fn(f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply: {why}\n"
+                  f"They said: \"{last_inbound[:200]}\"")
         return
     bad = validate_draft(text)
     if bad:
@@ -512,7 +513,12 @@ def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
         return
     did = refresh_or_new_draft(pn, jid, listing_key, text)
     log_fn("RESUME_DRAFT", pn, f"{did} :: {text.replace(chr(10), ' / ')}")
-    notify_fn(f"Draft reply for {name} ({pn}), {listing_key or 'no listing'}:\n{text}\n\n"
+    # the drafted reply itself does not always differ message to message (a canned/templated
+    # draft can repeat), so a deposit scam claim and an urgent unit number demand must still
+    # be distinguishable to Winfred -- always carry the tenant's own verbatim inbound (P1 fix,
+    # 9 Sep 2026 cycle5 c5rm07).
+    notify_fn(f"Draft reply for {name} ({pn}), {listing_key or 'no listing'}:\n"
+              f"They said: \"{last_inbound[:200]}\"\n\n{text}\n\n"
               f"To send it, WhatsApp yourself: /send {did}. Or reply to them directly.")
 
 

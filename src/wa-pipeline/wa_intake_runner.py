@@ -67,6 +67,65 @@ def _listing_open(l):
 # number like "ave 10" is not a block number and must not tie with a real "blk 405" hit).
 _KW_HAS_NUM_RE = re.compile(r"\bblk\.?\s*\d+|\bblock\s*\d+|#\d+", re.I)
 
+_FALLBACK_POSTAL_RE = re.compile(r"\b(\d{6})\b")
+_FALLBACK_PAREN_RE = re.compile(r"\(([^)]*)\)")
+# generic Singapore condo/estate suffix words -- never distinctive enough to stand alone as
+# a fallback keyword (a listing whose project name is just "X Park" must not bind off any
+# message that happens to say "park").
+_FALLBACK_GENERIC_WORDS = {
+    "park", "court", "garden", "gardens", "view", "views", "heights", "residence",
+    "residences", "residency", "tower", "towers", "place", "walk", "green", "greens",
+    "hill", "hills", "rise", "gate", "vale", "mansion", "mansions", "house", "apartments",
+    "apartment", "condo", "condominium", "hdb", "block", "blk", "road", "street", "avenue",
+    "ave", "drive", "close", "crescent", "terrace", "lane", "the", "singapore", "estate",
+    "suites", "suite", "common", "master", "studio", "spacious", "bedroom", "bedrooms",
+    "corner", "premium", "shared", "rental", "rented", "tenant", "tenants", "landlord",
+}
+
+def _fallback_distinctive_word(name):
+    best = ""
+    for w in re.findall(r"[a-zA-Z]+", name or ""):
+        wl = w.lower()
+        if len(wl) >= 6 and wl not in _FALLBACK_GENERIC_WORDS and len(wl) > len(best):
+            best = wl
+    return best
+
+def _fallback_tokens(l):
+    """Lower specificity tokens derived from block_address / property_name (postal code,
+    block+street, condo/project name) -- a listing whose pg_url_keywords is empty is
+    otherwise structurally unbindable from inbound text at all (P1 fix, 9 Sep 2026 cycle5
+    hg5-03: 12 index rows currently have empty pg_url_keywords), and even a listing WITH
+    keywords can carry ones too specific for how a tenant actually phrases it ('Bayshore'
+    vs the keyword 'blk 62 bayshore', c5rm03). Never outranks a real pg_url_keywords hit
+    (see _match_pass tier 0 vs 1/2); a tie among fallback hits still returns None."""
+    addr = str(l.get("block_address") or "")
+    name = str(l.get("property_name") or "")
+    toks = []
+    pm = _FALLBACK_POSTAL_RE.search(addr) or _FALLBACK_POSTAL_RE.search(name)
+    if pm:
+        toks.append(pm.group(1))
+    paren = _FALLBACK_PAREN_RE.search(addr) or _FALLBACK_PAREN_RE.search(name)
+    if paren:
+        first = paren.group(1).split(",")[0].strip().lower()
+        if first:
+            toks.append(first)
+    main = _FALLBACK_PAREN_RE.sub(" ", addr)
+    main = re.sub(r"#.*", "", main)
+    main = re.sub(r"^\s*(blk|block)\.?\s+", "", main, flags=re.I)
+    main = main.split(",")[0].strip()
+    m = re.match(r"(\d+[a-z]?)\s+(.+)", main, re.I)
+    if m:
+        toks.append((m.group(1) + " " + m.group(2)).lower())
+    # the distinctive-word scan never looks inside parens -- that content is either a
+    # descriptive note ("HDB common room") or already captured whole by the paren phrase
+    # extraction above (a real project name, "High Oak Condo"); scanning it word by word too
+    # is what let a generic word like "common" leak out as its own fallback token.
+    dw = (_fallback_distinctive_word(_FALLBACK_PAREN_RE.sub(" ", name))
+          or _fallback_distinctive_word(_FALLBACK_PAREN_RE.sub(" ", addr)))
+    if dw:
+        toks.append(dw)
+    return [t for t in toks if t]
+
 def _match_pass(pool, t):
     """Rank hits within ONE pool (open, or closed): a keyword carrying a number (a block or
     street number) ranks above a bare street-name-only keyword hit -- a same-street listing
@@ -75,13 +134,20 @@ def _match_pass(pool, t):
     block number the tenant actually stated, silently binding to the wrong unit). Two
     listings tied at the SAME best tier are genuinely ambiguous -- return None so the
     caller's own needs_listing disambiguation takes over, rather than silently picking one
-    (and possibly auto closing the thread as "listing closed" on a guess)."""
+    (and possibly auto closing the thread as "listing closed" on a guess). A listing with no
+    real keyword hit falls back to tier 0 (_fallback_tokens) -- always dominated by a real
+    hit elsewhere, so this only ever resolves an otherwise dead enquiry, never overrides one."""
     best_tier, hits = -1, []
     for l in pool:
         tier = -1
         for kw in (l.get("pg_url_keywords") or []):
             if kw and kw.lower() in t:
                 tier = max(tier, 2 if _KW_HAS_NUM_RE.search(kw) else 1)
+        if tier < 0:
+            for kw in _fallback_tokens(l):
+                if kw and kw in t:
+                    tier = 0
+                    break
         if tier < 0:
             continue
         if tier > best_tier:
@@ -318,6 +384,17 @@ def run():
             stale_backfill_by_pn[_pn_stale] = stale_backfill_by_pn.get(_pn_stale, 0) + 1
             _log("STALE_BACKFILL_SKIP", jid,
                  f"row {rid} is {_real_age_hours(ts)/24:.1f}d old (>{STALE_ROW_HOURS}h backfill guard); never auto-served")
+            # BIND ONLY, never serve or reply from a stale row: a still active thread whose
+            # opening enquiry fell outside the backfill window otherwise permanently loses its
+            # listing anchor, and the later "possible listings" fallback names unrelated live
+            # rooms instead (P2 fix, 9 Sep 2026 cycle5 c5ec02).
+            if not ifm and _pn_stale and _pn_stale not in landlords:
+                _rec_stale = E._rec(state, _pn_stale)
+                if not _rec_stale.get("listing_key"):
+                    _lk_stale = match_listing(content, reqs_tick)
+                    if _lk_stale:
+                        _rec_stale["listing_key"] = _lk_stale
+                        _rec_stale["listing_key_source"] = "stale_backfill_guess"
             continue
         # the bridge echoes some of OUR bot sends with is_from_me=0. Do not treat those as a
         # prospect inbound (they poison the profile / self-trigger sends). A prospect's FILLED
