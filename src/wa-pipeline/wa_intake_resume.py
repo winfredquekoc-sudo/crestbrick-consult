@@ -46,9 +46,16 @@ from wa_intake_draft import (HAIKU_BIN, HAIKU_MODEL, HAIKU_MCP_CONFIG, HAIKU_TIM
 # handled separately (allowed only when it actually carries an answer, i.e. a category 1
 # fact); everything else (REDIRECT, SUGGEST_ALT, SEND_BUYER_FORM, an unanswerable
 # ANSWER_QUESTION, or no action at all) needs a drafted suggestion instead.
+# AUTO_CLOSED (Winfred, 9 Sep 2026 merge redo): the closing pleasantry is a single fixed
+# line (CLOSING_TEXT_NEW_PLACE / CLOSING_TEXT_GENERIC), always carries notify=False, and
+# latches rec['terminal']=True on the way out -- the engine itself refuses to ever return a
+# second one for the same chat, so allowing it straight through here cannot repeat and never
+# needs a human's judgement the way a free-text draft would. It still goes through every
+# other resume gate unchanged (cold guard, daily cap, circuit breaker) -- this only skips
+# the drafting step, never the send safeguards.
 ALLOWED_RESUME_TYPES = frozenset({
     "SEND_FORM", "NUDGE_INCOMPLETE", "ASK_ONE", "OFFER_VIEWING", "CONFIRM_VIEWING",
-    "ASK_TENANT_TIME", "LEASE_NOTE",
+    "ASK_TENANT_TIME", "LEASE_NOTE", "AUTO_CLOSED",
 })
 # Notify-only outcomes: safe to let through ONLY while they carry no prospect facing text.
 # FLAG_HUMAN and VIEWING_TIME_PROPOSED each have one branch that DOES carry a canned line

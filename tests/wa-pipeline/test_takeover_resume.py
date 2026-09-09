@@ -599,7 +599,69 @@ class TestNotifyOnlyAllowList(unittest.TestCase):
     def test_allow_list_is_exactly_winfreds_approved_set(self):
         self.assertEqual(set(RES.ALLOWED_RESUME_TYPES), {
             "SEND_FORM", "NUDGE_INCOMPLETE", "ASK_ONE", "OFFER_VIEWING", "CONFIRM_VIEWING",
-            "ASK_TENANT_TIME", "LEASE_NOTE"})
+            "ASK_TENANT_TIME", "LEASE_NOTE", "AUTO_CLOSED"})
+
+
+class TestAutoClosedResumePath(unittest.TestCase):
+    """AUTO_CLOSED added to ALLOWED_RESUME_TYPES (Winfred, 9 Sep 2026 merge redo): the fixed
+    closing pleasantry ("No worries ... Reach out anytime if you need a room again.") auto
+    sends once per chat under manual takeover too, same as the autonomous flow -- no draft,
+    no Telegram ping (notify is always False on this action type, engine side)."""
+
+    def test_auto_closed_never_needs_a_draft(self):
+        a = {"type": "AUTO_CLOSED", "text": E.CLOSING_TEXT_GENERIC, "notify": False}
+        self.assertFalse(RES.needs_draft(a))
+
+    def test_auto_closed_carries_no_notify_regardless_of_resume(self):
+        # notify=False is stamped by the engine itself, not by the resume plumbing -- prove
+        # it holds for both a resumed and a non resumed withdrawal signal.
+        for resume_flag in (True, False):
+            with self.subTest(resume=resume_flag):
+                st = {"version": 1, "conversations": {}}
+                jid = "6598885555@s.whatsapp.net"
+                pn = E.resolve_pn(jid)
+                rec = E._rec(st, pn)
+                if resume_flag:
+                    rec["manual_takeover"] = True; rec["human_takeover"] = True
+                ev = {"jid": jid, "msg_id": "1", "text": "found a place already, thanks!",
+                      "is_from_me": False, "resume": resume_flag}
+                a = E.handle_event(st, ev)
+                self.assertEqual(a["type"], "AUTO_CLOSED")
+                self.assertFalse(a.get("notify"))
+                self.assertEqual(a["text"], E.CLOSING_TEXT_NEW_PLACE)
+                self.assertTrue(st["conversations"][pn].get("terminal"))
+
+    def test_end_to_end_auto_closed_from_engine_is_allowed_under_resume(self):
+        """The actual engine, in resume mode on a manual_takeover record, really does emit
+        AUTO_CLOSED for a withdrawal signal -- allowed straight through, not drafted."""
+        st = {"version": 1, "conversations": {}}
+        jid = "6598886677@s.whatsapp.net"
+        pn = E.resolve_pn(jid)
+        rec = E._rec(st, pn)
+        rec["manual_takeover"] = True; rec["human_takeover"] = True
+        ev = {"jid": jid, "msg_id": "1", "text": "no longer looking, thanks anyway",
+              "is_from_me": False, "resume": True}
+        a = E.handle_event(st, ev)
+        self.assertEqual(a["type"], "AUTO_CLOSED")
+        self.assertFalse(RES.needs_draft(a))
+        self.assertFalse(a.get("notify"))
+
+    def test_terminal_latch_blocks_a_second_auto_closed_same_chat(self):
+        """'Once per chat' -- the engine's own terminal gate, not a resume specific check;
+        exercised here through the resume path since that is what item 2 is about."""
+        st = {"version": 1, "conversations": {}}
+        jid = "6598887788@s.whatsapp.net"
+        pn = E.resolve_pn(jid)
+        rec = E._rec(st, pn)
+        rec["manual_takeover"] = True; rec["human_takeover"] = True
+        ev1 = {"jid": jid, "msg_id": "1", "text": "thanks, not interested anymore",
+               "is_from_me": False, "resume": True}
+        a1 = E.handle_event(st, ev1)
+        self.assertEqual(a1["type"], "AUTO_CLOSED")
+        ev2 = {"jid": jid, "msg_id": "2", "text": "ok bye", "is_from_me": False,
+               "resume": True}
+        a2 = E.handle_event(st, ev2)
+        self.assertIsNone(a2)
 
 
 
