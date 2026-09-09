@@ -350,7 +350,6 @@ def render_html(report):
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <meta name="theme-color" content="#0f1117" />
-  <script defer src="/_vercel/insights/script.js"></script>
   <style>
     :root {{
       --bg:#0f1117;--highlight:#1a1c24;

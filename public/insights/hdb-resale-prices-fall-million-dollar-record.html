@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Why the RPI Fell as Million Dollar Flats Hit a Record</title>
+    <meta name="description" content="HDB resale prices fell two quarters running while million dollar flat resales hit a record in August. What the split market means for your listing price.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Why the RPI Fell as Million Dollar Flats Hit a Record">
+    <meta property="og:description" content="HDB resale prices fell two quarters running while million dollar flat resales hit a record in August. What the split market means for your listing price.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Why the RPI Fell as Million Dollar Flats Hit a Record</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Two headlines landed in the same week and seemed to contradict each other. The HDB Resale Price Index fell in the first quarter of 2026, then fell again in the second quarter, the first back to back decline in about seven years. Days later, August closed out with 201 million dollar HDB resales, a new record for a single month.
+        </p>
+
+        <p>
+            If you are selling a flat, both numbers are true at once, and neither tells you what your unit is worth. This is a split market, not a contradiction. Understanding the split is what stops you from underpricing a strong flat or overpricing an ordinary one.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>The short version:</strong> the index measures the average of a very wide base of transactions. A record at the top of the market can sit comfortably next to a soft average everywhere else.
+        </div>
+
+        <h2>Money: what the index actually measures</h2>
+
+        <p>
+            The Resale Price Index tracks price movement across the whole resale market, every town, every flat type, weighted by transaction volume. When it falls for two quarters in a row, that tells you the broad base, the 3 room and 4 room flats in ordinary estates that make up most of the volume, softened slightly. It does not tell you anything specific about a 5 room flat next to an MRT interchange in a mature estate.
+        </p>
+
+        <p>
+            Million dollar resales are a small, concentrated slice of the market. They are usually large flats, jumbo or 5 room, in mature estates like Queenstown, Bishan, Toa Payoh or Central Area, often with a short walk to an MRT station, a high floor, or a rare configuration. When 201 of these transact in a single month, that is a record for that slice. It can rise even while the broad index falls, because the two are measuring different populations of flats, not the same market seen twice.
+        </p>
+
+        <div class="highlight-box">
+            <strong>Think of it as a barbell.</strong> One end is the mass market, thousands of ordinary 3 room and 4 room resales where buyers are budget constrained and grant eligible. The other end is a thin, well funded segment chasing scarce, well located, larger flats. The middle of the barbell, where the index average sits, can look soft even when the top end is setting records.
+        </div>
+
+        <h2>Timing: pricing a typical 4 room versus a premium unit</h2>
+
+        <p>
+            If you own a standard 4 room flat in a non mature estate, the record breaking headline does not apply to you, and pricing off it will cost you weeks on the market. Your comparable set is other 4 room resales in your own precinct and nearby blocks over the last 3 to 6 months, not the town record. With the index down two quarters running, buyers in this segment have more room to negotiate and are watching recent transactions closely. Price a hair below the most recent comparable and let interest build, rather than testing the market high and chasing the price down later.
+        </p>
+
+        <p>
+            If you own a flat that genuinely sits in the premium slice, large format, mature estate, strong transport access, the record month is a real signal that demand at your end held up even as the broad market softened. You have more room to hold a firmer asking price and wait for the right buyer, particularly if your unit has a rare attribute like a corner stack, high floor or unblocked view. The risk here is the opposite one: overreading the headline and pricing well above the actual transacted range for flats like yours.
+        </p>
+
+        <h3>A practical check before you list</h3>
+
+        <ul>
+            <li>Pull the last 3 to 6 months of resale transactions for your exact flat type and precinct from the HDB resale flat prices dataset on data.gov.sg, not the town average.</li>
+            <li>Note whether recent transactions in your precinct are trending toward or away from your asking price. A widening gap is a warning sign, not a reason to hold firmer.</li>
+            <li>If your flat has premium attributes, check whether comparable premium flats nearby are the ones driving the record, or whether they are further away and not truly comparable.</li>
+        </ul>
+
+        <p>
+            For a step by step walkthrough of building this comparable set, see our guide on <a href="/insights/hdb-resale-how-to-price-2026.html">how to price an HDB resale flat</a>. If you are also weighing whether to wait out the current cycle, our piece on <a href="/insights/will-hdb-resale-prices-rise-wait-out-removed-2026.html">whether resale prices will rise from here</a> works through the same index data in more depth.
+        </p>
+
+        <h2>Safety: don't let a headline set your number</h2>
+
+        <p>
+            The biggest pricing mistake in a split market is anchoring to whichever headline you saw last. A seller of an ordinary flat who anchors to the million dollar record overprices and sits unsold for months while the market moves further away. A seller of a genuinely premium flat who anchors to the falling index underprices and leaves money on the table. Neither error is about the market being unpredictable. Both come from applying the wrong data point to your specific flat.
+        </p>
+
+        <p>
+            This also matters for your sale timeline. A flat priced against real comparables in a softening broad market can still sell within a normal window if the price is right from day one. A flat priced against an unrelated record tends to need one or two rounds of price cuts before it finds its real level, and each round costs credibility with buyers who are watching the listing age.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Watch for:</strong> a listing agent quoting the record month as justification for your asking price when your flat type, size or estate does not match the flats behind that record.
+        </div>
+
+        <h2>What this means if you are buying, not selling</h2>
+
+        <p>
+            Buyers face the mirror image of this problem. If you are shopping in the ordinary 3 room or 4 room segment, the softer index gives you real negotiating room, and recent comparables should carry more weight than seller asking prices. If you are chasing a premium mature estate flat, expect competition and be ready to move quickly, because that segment is the one still setting records. Either way, the useful number is the transaction closest to your target flat, not the index headline or the record count. Our overview of <a href="/insights/hdb-resale-price-singapore.html">HDB resale prices across Singapore</a> breaks the market down by town if you want a wider view before you commit to a precinct. A quick pass through our <a href="/tools/net-proceeds.html">net proceeds calculator</a> is also worth doing before you set a number, so you know what a given asking price actually nets you after CPF and fees.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <p class="faq-q">Why did the HDB Resale Price Index fall while million dollar flat sales hit a record?</p>
+        <p>The index averages the whole resale market by transaction volume, so it mostly reflects ordinary 3 room and 4 room flats. Million dollar resales are a small, concentrated slice of large flats in mature estates. The two can move in opposite directions because they are measuring different parts of the market, not the same flats twice.</p>
+
+        <p class="faq-q">Does the index decline mean my 4 room flat is worth less?</p>
+        <p>Possibly a little, if your flat and estate match the broad base the index tracks. The only reliable way to know is to check recent transactions for your exact flat type in your own precinct over the last few months, rather than reading the index level as your personal valuation.</p>
+
+        <p class="faq-q">Should I wait for prices to recover before selling?</p>
+        <p>Waiting on a broad index to move is a guess, not a plan, and it ignores your own segment. If your flat is in the segment still setting records, waiting may cost you nothing, but if it is an ordinary flat in a softening segment, waiting for a broad recovery could mean sitting through a longer decline. Price against your own comparables and revisit the plan if your personal timeline changes.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Find out which side of the market your flat sits on</h3>
+            <p>Get a comparable based read on your flat before you set an asking price, so you are not pricing off a headline that does not apply to you.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed financial advisor. Before making any property decision, consult your banker, accountant and lawyer as appropriate. Figures and examples are based on 2026 market conditions and are for illustration only, and are subject to change.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>Stacked Homes:</strong> Q1 2026 Singapore HDB resale price analysis, <a href="https://stackedhomes.com/q1-2026-singapore-hdb-resale-price-analysis/" target="_blank" rel="noopener noreferrer">stackedhomes.com</a></li>
+                <li><strong>99.co Insider:</strong> Million dollar HDB sales record, August 2026, <a href="https://www.99.co/singapore/insider/million-dollar-hdb-sales-record-august-2026/" target="_blank" rel="noopener noreferrer">99.co</a></li>
+                <li><strong>data.gov.sg:</strong> HDB resale flat prices dataset, <a href="https://data.gov.sg/datasets?query=resale+flat+prices" target="_blank" rel="noopener noreferrer">data.gov.sg</a></li>
+                <li><strong>HDB:</strong> official resale statistics and eligibility rules, <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">hdb.gov.sg</a></li>
+                <li><strong>URA:</strong> property market data, <a href="https://www.ura.gov.sg" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Why the RPI Fell as Million Dollar Flats Hit a Record",
+    "description": "HDB resale prices fell two quarters running while million dollar flat resales hit a record in August. What the split market means for your listing price.",
+    "image": "https://winfredquek.com/og-hdb-resale-prices-fall-million-dollar-record.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "The HDB Resale Price Index fell across the first two quarters of 2026 while million dollar flat resales hit a record in August, a split market between the broad base and a premium slice, and what that means for pricing a typical flat versus a premium unit."
+}
+</script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Why did the HDB Resale Price Index fall while million dollar flat sales hit a record?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "The index averages the whole resale market by transaction volume, so it mostly reflects ordinary 3 room and 4 room flats. Million dollar resales are a small, concentrated slice of large flats in mature estates. The two can move in opposite directions because they are measuring different parts of the market, not the same flats twice."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does the index decline mean my 4 room flat is worth less?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Possibly a little, if your flat and estate match the broad base the index tracks. The only reliable way to know is to check recent transactions for your exact flat type in your own precinct over the last few months, rather than reading the index level as your personal valuation."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should I wait for prices to recover before selling?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Waiting on a broad index to move is a guess, not a plan, and it ignores your own segment. If your flat is in the segment still setting records, waiting may cost you nothing, but if it is an ordinary flat in a softening segment, waiting for a broad recovery could mean sitting through a longer decline. Price against your own comparables and revisit the plan if your personal timeline changes."
+            }
+        }
+    ]
+}
+</script>
+    </article>
+</body>
+</html>

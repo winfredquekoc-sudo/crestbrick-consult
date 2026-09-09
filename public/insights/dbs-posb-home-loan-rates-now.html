@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBS and POSB Home Loan Rates: A Rate Check</title>
+    <meta name="description" content="How DBS and POSB structure fixed, SORA and hybrid home loan packages, what to compare beyond the headline rate, and where to read the current numbers.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="DBS and POSB Home Loan Rates: A Rate Check">
+    <meta property="og:description" content="How DBS and POSB structure fixed, SORA and hybrid home loan packages, what to compare beyond the headline rate, and where to read the current numbers.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>DBS and POSB Home Loan Rates: A Standalone Rate Check</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            If you bank with DBS or POSB and are shopping for a home loan, your first instinct is probably to just take whatever your relationship manager quotes and move on. That is a reasonable shortcut, but it skips a step that costs real money over a 25 or 30 year loan. Rates move every quarter. What does not move as often is the structure behind the number, and that structure is what actually decides whether a package suits you.
+        </p>
+
+        <p>
+            This article does not print a rate table with numbers that will be stale within weeks. Instead it explains how DBS and POSB build their home loan packages, what to compare beyond the headline figure, and exactly where to check the number as of today.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>On rates:</strong> any specific percentage printed in an article is out of date the moment the bank reprices, so always confirm the live rate on the bank's own page before you decide.
+        </div>
+
+        <h2>Money: how DBS and POSB packages are built</h2>
+
+        <p>
+            DBS and POSB share the same parent bank and the same underlying loan desk, so their home loan packages are structured the same way even though POSB markets to a slightly different customer base. Packages generally fall into three families.
+        </p>
+
+        <ul>
+            <li><strong>Fixed rate packages:</strong> the interest rate is locked for a set period, typically two to five years, then reverts to a floating reference rate. You know your monthly payment for the fixed window regardless of what happens to market rates.</li>
+            <li><strong>Floating rate packages pegged to SORA:</strong> the rate moves with three month compounded SORA plus a bank spread. Your payment changes as SORA moves, usually reviewed every three months.</li>
+            <li><strong>Hybrid packages:</strong> a portion of the tenure is fixed, the remainder floats on SORA, giving partial certainty without committing the whole loan to one structure.</li>
+        </ul>
+
+        <p>
+            Within each family, the bank also varies the package by property type. A loan for a completed private property, a building under construction, and an HDB flat can each sit on a different rate card, because the risk profile and disbursement schedule differ.
+        </p>
+
+        <h2>What to compare beyond the headline rate</h2>
+
+        <p>
+            Two packages with the same advertised rate can cost very differently once you read the fine print. Before you sign, check these four items against every package you shortlist.
+        </p>
+
+        <table>
+            <tr><th>Item</th><th>Why it matters</th></tr>
+            <tr><td>Lock in period</td><td>The window during which refinancing or full prepayment triggers a penalty, usually a percentage of the outstanding loan.</td></tr>
+            <tr><td>Clawback</td><td>Cash rebates, subsidies or legal fee coverage the bank recovers if you exit within a set number of years.</td></tr>
+            <tr><td>Conversion terms</td><td>What rate you land on once a fixed period ends, and whether you can switch packages within the same bank without full refinancing costs.</td></tr>
+            <tr><td>Repricing option</td><td>Whether the bank lets you move to a new package internally at a lower administrative cost than refinancing to another bank.</td></tr>
+        </table>
+
+        <div class="callout callout-info">
+            <strong>Rule of thumb:</strong> a slightly higher rate with no lock in and free conversion can beat a lower rate that traps you for three years.
+        </div>
+
+        <h2>Timing: reading the rate as of today</h2>
+
+        <p>
+            SORA linked packages reset with the market, so the correct way to check today's DBS or POSB rate is to open the bank's own rates page on the day you plan to apply, not to trust a number from an article, a forum post or a screenshot a friend sent you last month. The bank's page shows the current spread over SORA for each package and the current fixed rate offers by tenure.
+        </p>
+
+        <p>
+            If you are comparing DBS or POSB against other banks, pull each bank's own page on the same day, because packages are repriced on different schedules and a same day comparison avoids comparing a fresh number against a stale one. Our <a href="/insights/sora-vs-fixed-mortgage-2026.html">SORA versus fixed comparison</a> and <a href="/insights/sora-explained-singapore.html">explainer on how SORA works</a> cover the mechanics if you want the background before you call the bank.
+        </p>
+
+        <h2>Safety: what a loyal customer still needs to check</h2>
+
+        <p>
+            Being an existing DBS or POSB customer does not automatically get you the best rate on the shelf. Banks price new customer acquisition and existing customer retention differently, and a retention offer is not always the sharpest package available even within the same bank. Ask your relationship manager directly whether the quoted package is the best one currently open to your loan size and property type, and ask for the repricing menu in writing before you commit, not just the rate.
+        </p>
+
+        <p>
+            It is also worth checking your existing loan's lock in status before assuming you need a brand new package. If your current loan is out of lock in, a simple reprice within DBS or POSB can sometimes match a competing bank's offer without the legal and valuation costs of a full refinance. Our <a href="/insights/posb-dbs-home-loan-singapore.html">DBS and POSB loan overview</a> and <a href="/insights/refinancing-singapore-mortgage-2026.html">refinancing guide</a> walk through the paperwork either way, and the <a href="/tools/mortgage-rates.html">mortgage rate comparison tool</a> is a useful starting point before you call the bank.
+        </p>
+
+        <h2>HDB loan or bank loan: how the DBS and POSB packages compare with the HDB concessionary loan</h2>
+
+        <p>
+            Before you shortlist a DBS or POSB package, check what you would be walking away from. The HDB concessionary loan is pegged at 0.1 percent above the CPF Ordinary Account rate, not SORA or a bank spread, and only applies to an HDB flat under HDB's eligibility rules. Loan to value is the other gap: since the August 2024 changes an HDB loan can finance up to 80 percent of the flat's price or value, against 75 percent for a bank loan such as DBS or POSB.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>One way door:</strong> switching from an HDB loan to any bank loan is a one way move, HDB rules do not let you switch back later.
+        </div>
+
+        <p>
+            The HDB loan tends to suit buyers who value the higher LTV and payment stability over a sharper bank spread, particularly first timer families with less cash on hand. Buyers with more cash or CPF, or planning to sell or refinance within a few years, are more likely to find a DBS or POSB package worth it.
+        </p>
+
+        <h2>Repricing with the same bank versus refinancing out</h2>
+
+        <p>
+            When your DBS or POSB lock in period is ending, you have two paths. Repricing keeps your loan with the same bank and moves it onto a new package internally, usually for a smaller fee than the legal and valuation cost of refinancing to a different bank. Some packages also carry a free conversion clause, moving you to another package within the bank at no extra cost once the fixed period ends, worth confirming with your relationship manager. Refinancing out still wins when a competing package clears those extra costs within a reasonable payback window.
+        </p>
+
+        <p>
+            Start comparing your repricing menu against the market a few months ahead of your lock in expiry, since a loan that reverts to the bank's default rate while you decide costs you every month you wait. Our <a href="/insights/refinancing-singapore-mortgage-2026.html">refinancing guide</a> covers the legal timeline.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Where do I check the current DBS home loan rate?</div>
+            <div class="faq-answer">Go directly to DBS's own rates page on dbs.com.sg, which lists current fixed rate and SORA pegged packages by property type. This is more reliable than any third party article, since the bank reprices packages regularly.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is POSB cheaper than DBS for a home loan?</div>
+            <div class="faq-answer">POSB and DBS share the same parent bank and loan desk, so their underlying packages follow the same structure. Any difference in practice usually comes from which brand markets to your customer segment, not a separate pricing engine, so compare the actual package terms rather than the brand name.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Should I choose fixed or SORA pegged with DBS or POSB?</div>
+            <div class="faq-answer">Fixed gives payment certainty for the locked period, useful if you want a stable budget or expect rates to rise. SORA pegged tracks the market directly, which can cost less if rates stay low or fall, but your payment moves each reset. The right choice depends on your income stability and how much payment variation you can absorb, which is worth working through with a mortgage broker or the bank directly.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Want the numbers run for your loan</h3>
+            <p>Bring your loan amount and tenure and we will walk through how the current DBS, POSB and other bank packages compare for your specific situation.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information and education only, and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) and not a licensed financial advisor or mortgage broker. Interest rates, spreads and package terms change without notice. Always confirm the current rate and terms directly with the bank, and consult a licensed professional before committing to a loan package.
+        </div>
+
+        <div class="sources">
+            <h3>Sources & References</h3>
+            <ul>
+                <li><strong>DBS Bank, home loan rates:</strong> https://www.dbs.com.sg/personal/rates-online/home-loans.page</li>
+                <li><strong>DBS Bank, understanding SORA:</strong> https://www.dbs.com.sg/personal/articles/nav/my-home/what-is-sora-rate</li>
+                <li><strong>DBS Bank, fixed or floating home loan:</strong> https://www.dbs.com.sg/personal/articles/nav/my-home/getting-your-home-loan</li>
+                <li><strong>Monetary Authority of Singapore (MAS), SORA:</strong> https://www.mas.gov.sg/monetary-policy/sora</li>
+                <li><strong>Central Provident Fund (CPF), housing and loans:</strong> https://www.cpf.gov.sg</li>
+                <li><strong>Housing and Development Board (HDB), financing your flat purchase:</strong> https://www.hdb.gov.sg</li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "DBS and POSB Home Loan Rates: A Standalone Rate Check",
+    "description": "How DBS and POSB structure fixed, SORA and hybrid home loan packages, what to compare beyond the headline rate, and where to read the current numbers.",
+    "image": "https://winfredquek.com/og-image.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Where do I check the current DBS home loan rate?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Go directly to DBS's own rates page on dbs.com.sg, which lists current fixed rate and SORA pegged packages by property type. This is more reliable than any third party article, since the bank reprices packages regularly."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is POSB cheaper than DBS for a home loan?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "POSB and DBS share the same parent bank and loan desk, so their underlying packages follow the same structure. Any difference in practice usually comes from which brand markets to your customer segment, not a separate pricing engine, so compare the actual package terms rather than the brand name."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I choose fixed or SORA pegged with DBS or POSB?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Fixed gives payment certainty for the locked period, useful if you want a stable budget or expect rates to rise. SORA pegged tracks the market directly, which can cost less if rates stay low or fall, but your payment moves each reset. The right choice depends on your income stability and how much payment variation you can absorb."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>

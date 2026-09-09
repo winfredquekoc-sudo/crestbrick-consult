@@ -34,9 +34,6 @@
   <link rel="manifest" href="/manifest.webmanifest" />
   <meta name="theme-color" content="#0f1117" />
 
-  <!-- Vercel Analytics -->
-  <script defer src="/_vercel/insights/script.js"></script>
-
   <!-- JSON-LD: RealEstateAgent + Person + ProfessionalService + WebSite -->
   <script type="application/ld+json">
 {
@@ -89,6 +86,7 @@
         "https://www.instagram.com/imwinfred",
         "https://t.me/imwinfred",
         "https://crestbrick.com",
+        "https://sunfacing.com",
         "https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true"
       ],
       "logo": {
@@ -177,6 +175,7 @@
         "https://www.instagram.com/imwinfred",
         "https://t.me/imwinfred",
         "https://crestbrick.com",
+        "https://sunfacing.com",
         "https://eservices.cea.gov.sg/aceas/public-register/sales/1/62c6bcc8-02db-4cdb-b8cd-2e19c0bbf2dc/sales?name=winfred%20quek&page=1&pageSize=10&sort=name&sortAscFlag=true"
       ],
       "identifier": {
@@ -345,6 +344,47 @@
     .hero-rotator { position: relative; width: 100%; aspect-ratio: 4 / 5; border-radius: 1rem; overflow: hidden; }
     .hero-rotator img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; }
     .hero-rotator img.is-active { opacity: 1; }
+
+    /* Mobile hero fix (<640px only, desktop untouched): cap the portrait
+       photo so the headline + primary CTA land in the first viewport
+       instead of below the fold. Reorders the CTA ahead of the value-prop
+       paragraph and testimonial (order-only, same markup), shrinks the
+       floating theme toggle so it clears the headline, and gives the page
+       bottom padding so the fixed cookie banner never overlaps the CTA. */
+    @media (max-width: 639px) {
+      .hero-sequence { padding-top: 1rem; padding-bottom: 1.5rem; }
+      .hero-sequence .grid { gap: 0.85rem; }
+      .hero-rotator { aspect-ratio: auto; height: min(32vh, 230px); }
+      .hero-sequence .grid > div.order-2 { display: flex; flex-direction: column; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(1) { order: 1; margin-bottom: 0.5rem; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(2) {
+        order: 2;
+        font-size: 1.6rem !important;
+        line-height: 1.15 !important;
+        margin-bottom: 0.9rem;
+      }
+      .hero-sequence .grid > div.order-2 > *:nth-child(4) { order: 3; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(4) .btn { padding: 0.7rem 1.1rem; font-size: 13px; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(3) { order: 4; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(5) { order: 5; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(6) { order: 6; }
+      .hero-sequence .grid > div.order-2 > *:nth-child(7) { order: 7; }
+      #wf-theme-toggle {
+        width: 34px !important;
+        height: 34px !important;
+        font-size: 12px !important;
+        top: 68px !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: 10px !important;
+      }
+      #wf-consent-bar {
+        padding: 10px 14px !important;
+        font-size: 12px !important;
+        gap: 8px !important;
+      }
+      body { padding-bottom: 84px; }
+    }
     .divider { border-top: 1px solid var(--rule); }
     .section-label {
       font-size: 11px;
@@ -748,6 +788,13 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
 
+      <!-- Sun Facing Checker (external tool) -->
+      <a href="https://sunfacing.com/" target="_blank" rel="noopener" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
+        <p class="section-label mb-2">Free Tool</p>
+        <h3 class="serif text-base font-semibold mb-2 group-hover:text-[var(--accent)] transition">Sun Facing Checker</h3>
+        <p class="text-xs text-[var(--ink-muted)] leading-relaxed">See which way any Singapore home faces the sun, when the west sun hits and which buildings block your light. Free, at sunfacing.com.</p>
+      </a>
+
       <!-- HDB Upgrader Track -->
       <a href="/insights/hdb-mop-upgrade-timeline" class="group block p-6 crest-card border border-[var(--rule)] rounded-xl hover:border-[var(--accent)] transition card-lift">
         <p class="section-label mb-2">HDB Upgrader</p>
@@ -904,6 +951,8 @@
           <li><a href="/listings" class="link-underline hover:text-[var(--ink)]">Listings</a></li>
           <li><a href="/buyers-guide" class="link-underline hover:text-[var(--ink)]">Buyers Guide</a></li>
           <li><a href="/sellers-guide" class="link-underline hover:text-[var(--ink)]">Sellers Guide</a></li>
+          <li><a href="/tools" class="link-underline hover:text-[var(--ink)]">Tools</a></li>
+          <li><a href="https://sunfacing.com/" target="_blank" rel="noopener" class="link-underline hover:text-[var(--ink)]">Sun Facing Checker</a></li>
           <li><a href="/insights" class="link-underline hover:text-[var(--ink)]">Insights</a></li>
           <li><a href="/area" class="link-underline hover:text-[var(--ink)]">MRT &times; school areas</a></li>
           <li><a href="/testimonials" class="link-underline hover:text-[var(--ink)]">Testimonials</a></li>

@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What Happens to Your Deposit in a Mortgagee Sale</title>
+    <meta name="description" content="If your landlord's bank repossesses the unit, does your tenancy survive, what happens to your deposit, and practical steps to protect yourself as a tenant.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="What Happens to Your Deposit in a Mortgagee Sale">
+    <meta property="og:description" content="If your landlord's bank repossesses the unit, does your tenancy survive, what happens to your deposit, and practical steps to protect yourself as a tenant.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>What Happens to Your Deposit If the Landlord's Bank Repossesses the Unit</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            You are renting a unit and you hear your landlord is behind on the mortgage. Or a letter arrives from a law firm you do not recognise, addressed to the landlord, and you happen to see it. The question that follows is immediate and practical. If the bank takes the property back, what happens to you, and what happens to the deposit you already paid.
+        </p>
+
+        <p>
+            This is a general explainer, not legal advice for your specific lease. The details below explain how the process usually works so you know what to ask and who to contact if it happens to you.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Reality check:</strong> when a bank repossesses a mortgaged property, it acts as mortgagee, not as your landlord, and it did not sign your tenancy agreement.
+        </div>
+
+        <h2>Safety: does your tenancy survive a mortgagee sale</h2>
+
+        <p>
+            Whether your lease survives depends heavily on timing and consent. Most mortgages contain a clause that stops the owner from renting out the property, or from renting it on certain terms, without the bank's prior consent. If your tenancy started after the mortgage was already registered on the property and the bank never consented to it, the bank is generally not bound by your lease and can treat it as not binding on them when they take possession.
+        </p>
+
+        <p>
+            If the bank wants physical possession and is not bound by your tenancy, it typically has to apply to the court for a possession order, and proper notice has to be given so you have a chance to be heard before you are made to leave. In practice this means a tenant is rarely removed overnight without any warning, but it also means the protection is procedural, not a guarantee that your lease continues for its full term.
+        </p>
+
+        <p>
+            This applies to privately mortgaged property, which covers both private condominiums and HDB flats financed with a bank loan rather than an HDB loan. An HDB flat financed entirely through an HDB loan sits under a different framework, since HDB itself holds the interest rather than a commercial bank, and HDB's own enforcement process differs from a bank's mortgagee sale. Either way, the practical lesson for a tenant is the same: your protection depends on paperwork and timing, not on how sympathetic your situation is.
+        </p>
+
+        <h2>Money: what happens to your deposit</h2>
+
+        <p>
+            Your security deposit was paid to your landlord, not to the bank, and the bank taking over the property does not automatically inherit the landlord's obligation to return it. If the landlord has no funds left after the bank recovers what it is owed, recovering your deposit can become a straightforward but slow debt claim against the landlord personally, not against the property or the bank.
+        </p>
+
+        <p>
+            This is the single most important practical point for a tenant to understand. The deposit sits as an unsecured claim against your landlord, and a landlord in mortgage default is, by definition, someone already short on cash. Getting the deposit back may take real effort even with a valid claim.
+        </p>
+
+        <table>
+            <tr><th>Question</th><th>Practical answer</th></tr>
+            <tr><td>Does the bank owe me my deposit</td><td>No, the deposit remains a claim against your landlord, not the bank</td></tr>
+            <tr><td>Can I stay if my lease predates the mortgage or has bank consent</td><td>Often yes, since the bank is more likely to be bound by that tenancy</td></tr>
+            <tr><td>Can I stay if my lease came after the mortgage without consent</td><td>Not guaranteed, the bank can seek a court order for possession</td></tr>
+            <tr><td>Where do I claim my deposit back</td><td>As a debt claim against the landlord, potentially via the Small Claims Tribunal</td></tr>
+        </table>
+
+        <h2>Timing: practical steps if you suspect trouble</h2>
+
+        <p>
+            If you learn or suspect your landlord is in mortgage arrears, act early rather than waiting for a formal notice.
+        </p>
+
+        <ul>
+            <li>Ask your landlord directly whether the property is being repossessed, and ask for anything in writing from the bank if there is a dispute later.</li>
+            <li>Keep your own copy of the signed tenancy agreement, all rental payment records, and any correspondence with the landlord, since these become your evidence if you need to pursue a claim.</li>
+            <li>If a law firm or the bank contacts you directly about the property, respond and ask specifically whether your tenancy is being recognised or terminated, and by when.</li>
+            <li>Do not stop paying rent to the landlord without written confirmation of who you should be paying, since withholding rent without cause can weaken your own position later.</li>
+            <li>If the deposit is not returned and the landlord is unresponsive, the Small Claims Tribunal handles many rent and deposit disputes for residential tenancies up to two years, with a claim limit of twenty thousand dollars, or thirty thousand dollars by agreement of both parties.</li>
+        </ul>
+
+        <div class="callout callout-info">
+            <strong>Before you sign a lease:</strong> ask whether the unit is mortgaged and, where practical, whether the bank has consented to the tenancy, since this shapes your position later.
+        </div>
+
+        <h2>Reducing the risk before you sign</h2>
+
+        <p>
+            Some of this risk is avoidable at the point you choose a unit. A title search or basic due diligence through your agent can flag whether a property is heavily leveraged or already under financial strain, though this information is not always visible to a tenant. Favour landlords and agents who are transparent about the property's status, and treat an unusually low rent or a landlord who is unusually eager to sign quickly as a reason to ask more questions, not fewer. Our <a href="/insights/mortgagee-sale-property-singapore-guide.html">explainer on what a mortgagee sale is</a> and <a href="/insights/tenant-handover-deposit-protection.html">deposit protection guide</a> cover related ground from the buyer and general tenant side.
+        </p>
+
+        <p>
+            It also helps to ask the landlord, before signing, whether the tenancy will be registered against the property title where that option exists, or whether the landlord will confirm in writing that the bank has been informed of the tenancy. Neither step is common practice for an ordinary residential lease, and a landlord may reasonably decline, but asking the question at least tells you how transparent the landlord is willing to be, and gives you a paper trail if the situation later turns into a dispute over whether your tenancy should have been recognised.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Does my tenancy end automatically if the bank repossesses the unit?</div>
+            <div class="faq-answer">Not automatically. Whether your tenancy survives depends on whether it was granted with the bank's consent and whether it predates the mortgage. If the bank is not bound by the tenancy, it generally still needs a court order for possession, with notice given to you, rather than removing you without process.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Can I get my deposit back from the bank if the landlord disappears?</div>
+            <div class="faq-answer">No, the deposit is a claim against your landlord personally, not against the bank or the property. If the landlord cannot be reached or has no funds, recovering the deposit becomes a debt recovery matter, which can be pursued through the Small Claims Tribunal for smaller amounts.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Should I stop paying rent if I hear the landlord is in default?</div>
+            <div class="faq-answer">Do not stop paying without written confirmation of who you should pay and why. Withholding rent without a clear legal basis can weaken your own position if a dispute follows. Ask the landlord and, if contacted, the bank or law firm involved for written clarity before changing anything.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Worried about a landlord's financial position</h3>
+            <p>If you want a plain read on your situation before signing a lease or if you suspect trouble with your current one, talk it through directly.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information and education only, and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) and not a lawyer. Mortgagee rights, tenancy protection and deposit recovery depend on the specific facts of each case, including your lease terms and when it was granted. Consult a licensed lawyer for advice specific to your situation.
+        </div>
+
+        <div class="sources">
+            <h3>Sources & References</h3>
+            <ul>
+                <li><strong>Singapore Academy of Law, Land Titles Act, mortgagee possession provisions:</strong> https://faolex.fao.org/docs/pdf/sin46433.pdf</li>
+                <li><strong>Singapore Law Blog, mortgagee's right to take possession subject to an existing lease:</strong> https://singaporelawblog.sg/blog/article/111</li>
+                <li><strong>State Courts of Singapore, Small Claims Tribunals:</strong> https://www.judiciary.gov.sg/civil/small-claims</li>
+                <li><strong>SingaporeLegalAdvice.com, tenant and landlord rights:</strong> https://singaporelegaladvice.com/law-articles/tenant-landlord-rights-singapore/</li>
+                <li><strong>Monetary Authority of Singapore (MAS), banking and lending rules:</strong> https://www.mas.gov.sg</li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "What Happens to Your Deposit If the Landlord's Bank Repossesses the Unit",
+    "description": "If your landlord's bank repossesses the unit, does your tenancy survive, what happens to your deposit, and practical steps to protect yourself as a tenant.",
+    "image": "https://winfredquek.com/og-image.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Does my tenancy end automatically if the bank repossesses the unit?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Not automatically. Whether your tenancy survives depends on whether it was granted with the bank's consent and whether it predates the mortgage. If the bank is not bound by the tenancy, it generally still needs a court order for possession, with notice given to you, rather than removing you without process."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I get my deposit back from the bank if the landlord disappears?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "No, the deposit is a claim against your landlord personally, not against the bank or the property. If the landlord cannot be reached or has no funds, recovering the deposit becomes a debt recovery matter, which can be pursued through the Small Claims Tribunal for smaller amounts."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I stop paying rent if I hear the landlord is in default?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Do not stop paying without written confirmation of who you should pay and why. Withholding rent without a clear legal basis can weaken your own position if a dispute follows. Ask the landlord and, if contacted, the bank or law firm involved for written clarity before changing anything."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>

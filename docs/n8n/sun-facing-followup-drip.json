@@ -1,0 +1,87 @@
+{
+  "meta": {
+    "note": "Follow up drip for Sun Facing Checker leads. api/sun-facing.js posts here (best effort, never blocks the response) whenever someone emails themselves a sun summary. Waits 2 days, then sends a plain text email pointing to the buyers guide and Winfred's WhatsApp/Calendly links. No advice, no hyphens. Import into n8n, pick an SMTP or Gmail credential on the 'Send viewing checklist email' node, then activate."
+  },
+  "name": "Sun Facing Checker follow up drip",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sun-facing-followup",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000001",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [380, 300],
+      "webhookId": "sun-facing-followup-webhook"
+    },
+    {
+      "parameters": {
+        "resume": "timeInterval",
+        "amount": 2,
+        "unit": "days"
+      },
+      "id": "c1000000-0000-4000-8000-000000000002",
+      "name": "Wait 2 days",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [620, 300],
+      "webhookId": "c1000000-0000-4000-8000-000000000002-resume"
+    },
+    {
+      "parameters": {
+        "fromEmail": "winfred@winfredquek.com",
+        "toEmail": "={{ $json.body.email }}",
+        "subject": "Your viewing checklist",
+        "text": "={{ 'Hi,\\n\\nThanks for checking the sun facing' + ($json.body.address ? ' for ' + $json.body.address : '') + ' on the Sun Facing Checker.\\n\\nHere is your viewing checklist, so you can look at any unit with a clear head:\\nhttps://winfredquek.com/buyers-guide\\n\\nIf it is useful to talk it through, message me on WhatsApp (https://wa.me/6581618149) or book a free 30 minute call on my calendar (https://calendly.com/winfredquekoc).\\n\\nWinfred Quek' }}",
+        "options": {}
+      },
+      "id": "c1000000-0000-4000-8000-000000000003",
+      "name": "Send viewing checklist email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [860, 300],
+      "credentials": {
+        "smtp": {
+          "name": "PLACEHOLDER_PICK_SMTP_OR_GMAIL_CREDENTIAL_IN_N8N_UI"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 days": {
+      "main": [
+        [
+          {
+            "node": "Send viewing checklist email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

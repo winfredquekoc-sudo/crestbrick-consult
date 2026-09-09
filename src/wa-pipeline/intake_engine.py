@@ -216,10 +216,24 @@ def _to_int(s):
         return None
     return int(val)
 
+_SUN_FACING_ADDR_RE = re.compile(
+    r"(?i)sun\s*facing\s+for\s+(.+?)(?=\s+on\s+(?:your|the)\s+sun\s*facing\s*checker\b|"
+    r"\s+on\s+sunfacing\.com\b|[.,\n]|$)"
+)
+
 def extract_profile(text):
     """Best-effort parse of a filled-in block or free text. Required fields only."""
     p = {}
     t = text or ""
+    # Sun Facing Checker lead: "...sun facing for <address> on your Sun Facing Checker...".
+    # Captured from the ORIGINAL text, before the boilerplate strip below -- a message that
+    # opens "Hi Winfred, ..." (every Sun Facing wa.me CTA does) is wholly blanked by that
+    # strip, so this must run first or the address is never seen.
+    sfc = _SUN_FACING_ADDR_RE.search(t)
+    if sfc:
+        addr = sfc.group(1).strip(" ,.")
+        if addr:
+            p["address"] = addr
     # strip portal enquiry boilerplate BEFORE parsing: lines like "RENT - 905 Jurong West
     # Street 91" made grab("rent") capture the street number as the tenant's budget.
     t = re.sub(r"(?im)^\s*(hi winfred.*|hi propertyguru.*|i am interested in:?.*|"
@@ -683,14 +697,23 @@ _WEBSITE_CTA_RE = re.compile(
     r"ownership restructuring|asking about|portfolio enquiry)"
 )
 
+# The Sun Facing Checker tool (sunfacing.com, mirrored at winfredquek.com/sun-facing-checker)
+# pre-fills its own wa.me CTA with either a generic opener or one naming the checked address
+# ("...sun facing for <address> on your Sun Facing Checker..."). Checked ahead of the generic
+# website CTA regex below so a Sun Facing lead is tagged precisely, not just "website".
+_SUN_FACING_SOURCE_RE = re.compile(r"(?i)sun\s*facing\s*checker|sunfacing\.com")
+
 def classify_lead_source(text, listing_key=None):
     """Best-effort FIRST-TOUCH attribution, not a compliance-grade field.
-    'portal'  = tied to a PropertyGuru/99.co listing_key.
-    'website' = inbound text matches the site's wa.me pre-filled CTA phrasing.
+    'portal'             = tied to a PropertyGuru/99.co listing_key.
+    'sun-facing-checker' = inbound text names the Sun Facing Checker tool or its domain.
+    'website'            = inbound text matches the site's wa.me pre-filled CTA phrasing.
     'unknown' = everything else -- Carousell, referral, and organic WA are today
     indistinguishable from each other, this only rules those two IN when detectable."""
     if listing_key:
         return "portal"
+    if text and _SUN_FACING_SOURCE_RE.search(text):
+        return "sun-facing-checker"
     if text and _WEBSITE_CTA_RE.search(text):
         return "website"
     return "unknown"

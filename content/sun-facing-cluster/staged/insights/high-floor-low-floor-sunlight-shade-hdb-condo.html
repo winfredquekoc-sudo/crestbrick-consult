@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>High Floor or Low Floor: What Sunlight and Shade Really Change</title>
+    <meta name="description" content="Higher floor does not automatically mean more sun. How a neighbouring block's height and position shape sunlight and shade by storey, and how to check a specific stack.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="High Floor or Low Floor: What Sunlight and Shade Really Change">
+    <meta property="og:description" content="Higher floor does not automatically mean more sun. How a neighbouring block's height and position shape sunlight and shade by storey, and how to check a specific stack.">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        body { padding: 0; margin: 0; }
+        article { max-width: 800px; margin: 0 auto; padding: 60px 20px; }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.2; color: var(--text-primary); }
+        .article-meta { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        h2 { font-size: 1.6rem; font-weight: 700; margin-top: 40px; margin-bottom: 20px; color: var(--accent-gold); }
+        h3 { font-size: 1.2rem; font-weight: 600; margin-top: 28px; margin-bottom: 12px; color: var(--text-primary); }
+        p { margin-bottom: 16px; color: var(--text-primary); }
+        a { color: var(--accent-light); }
+        strong { font-weight: 600; color: var(--text-primary); }
+        em { font-style: italic; color: var(--text-secondary); }
+        .callout { background-color: var(--bg-tertiary); border-left: 4px solid var(--accent-gold); padding: 20px; margin: 24px 0; border-radius: 4px; }
+        .callout-warning { border-left-color: var(--warning); }
+        .callout-info { border-left-color: var(--accent-light); }
+        table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--bg-tertiary); font-weight: 600; color: var(--accent-gold); }
+        tr:hover { background-color: var(--bg-tertiary); }
+        ul, ol { margin-left: 24px; margin-bottom: 16px; }
+        li { margin-bottom: 8px; }
+        .highlight-box { background-color: var(--bg-secondary); border: 1px solid var(--border-color); padding: 20px; margin: 24px 0; border-radius: 6px; }
+        .faq-question { font-weight: 600; font-size: 1.05rem; margin-bottom: 12px; color: var(--accent-gold); }
+        .faq-answer { color: var(--text-primary); line-height: 1.7; margin-bottom: 24px; }
+        .cta-box { background-color: var(--bg-tertiary); border: 2px solid var(--accent-gold); padding: 28px; margin: 40px 0; border-radius: 8px; text-align: center; }
+        .cta-box h3 { margin-top: 0; color: var(--accent-gold); }
+        .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .cta-btn { padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: 6px; text-decoration: none; transition: all 0.3s ease; border: 2px solid; cursor: pointer; display: inline-block; }
+        .cta-btn-primary { background-color: var(--accent-gold); color: var(--bg-primary); border-color: var(--accent-gold); }
+        .cta-btn-primary:hover { opacity: 0.9; }
+        .cta-btn-secondary { background-color: transparent; color: var(--accent-light); border-color: var(--accent-light); }
+        .cta-btn-secondary:hover { background-color: var(--accent-light); color: var(--bg-primary); }
+        .disclaimer { font-size: 0.85rem; color: var(--text-secondary); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); line-height: 1.6; }
+        .sources { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .sources h3 { color: var(--accent-gold); }
+        .sources ul { font-size: 0.9rem; color: var(--text-secondary); }
+        .sources li { margin-bottom: 6px; }
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>High floor or low floor: what sunlight and shade really change in an HDB or condo</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Buyers and tenants often treat a higher floor as a blanket upgrade: more light, more air, less noise, a nicer view. Sometimes that holds. But how much sun and shade a specific unit actually gets is driven far more by the height, distance and position of the buildings around it than by the floor number on its own. Two units on the same floor of the same block, facing different directions, can end up with completely different amounts of direct sun.
+        </p>
+        <p>
+            This article walks through why a neighbouring block shades some floors and not others, why the same stack can differ noticeably by storey, how to read a shadow map, when a lower floor turns out to be genuinely fine, and how to check a specific stack and facing before you decide either way.
+        </p>
+
+        <h2>How a neighbouring block shades low floors</h2>
+        <p>
+            The sun sits low in the sky near sunrise and sunset, and higher overhead around midday. A low sun casts long shadows; a high sun casts short ones. A tall building standing close to a lower floor can block that low, direct morning or afternoon sun for a longer stretch of the day, simply because the shadow it casts at that hour reaches far enough to cover the lower unit entirely. A higher floor, sitting above the top of that same neighbouring block, clears the shadow earlier in the day, or avoids it altogether.
+        </p>
+        <p>
+            The distance between the two buildings matters just as much as height. A tall block set well back, across a road or a park, may cast very little shadow on a lower floor nearby, while a shorter block built close up can still block a surprising amount of light for the hours the sun sits in that direction. There is no fixed rule of thumb that works for every address. It depends entirely on the specific geometry between the unit and whatever stands near it.
+        </p>
+
+        <h2>Why the same stack can differ so much by storey</h2>
+        <p>
+            Within a single stack, meaning the same unit number repeated on every floor of a block, all units face the identical direction. What changes floor by floor is how much of a nearby building's shadow reaches that particular height. A unit on a low floor might sit inside a neighbouring block's shadow for a few hours most afternoons, while a unit ten floors higher in the very same stack clears that same building's shadow completely and gets direct sun for those same hours instead.
+        </p>
+        <p>
+            That gap is not a general statement that higher is always better. It is a straightforward function of the neighbouring building's height relative to that exact floor. A stack facing an open field or a low rise estate might show almost no difference in sun exposure between floor 3 and floor 20, because there is nothing tall enough nearby to cast a meaningful shadow at any height. Checking the specific stack, rather than assuming from the floor number, is the only way to know which situation you are in.
+        </p>
+
+        <h2>How to read a shadow map</h2>
+        <p>
+            A shadow map, like the one on the <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">Sun Facing Checker</a>, shades the areas around a searched address where a nearby building currently blocks the sun at the chosen time and month. Building heights come from OpenStreetMap, and where a specific building's height is not recorded, the tool assumes a typical height for that type of building, for example a taller estimate for an apartment block than for a landed house. The tool's sun summary also reports an estimated number of "shaded hours" for that spot in a given month, alongside sunrise, sunset, sun side and west sun hours.
+        </p>
+        <p>
+            Because the underlying building data is community maintained, some buildings may be missing, outdated, or only approximately sized, and a shadow map cannot show a building that has not been built yet. Treat the shading shown as a strong guide, not a survey. For a site with a large vacant plot nearby, it is worth checking the <a href="https://www.ura.gov.sg/maps/" target="_blank" rel="noopener noreferrer">URA Master Plan</a> for what could legally be built there in future, since that shadow does not exist yet on any current map.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Check the stack, not the block:</strong> Search the exact address on the <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">Sun Facing Checker</a>, set the floor level and window direction to match the specific unit, and look at the shadow map for the months and hours that matter most to you.
+        </div>
+
+        <h2>When a lower floor is genuinely fine</h2>
+        <p>
+            Floor level matters far less for sun and shade when there is simply nothing tall enough nearby to block it. A unit facing a road, a park, a reservoir, a low rise landed estate, or open land tends to receive a similar amount of sun whether it sits on floor 3 or floor 20, because there is no obstruction close enough to change the picture at any height. In these cases, the direction the unit faces, north south, east, or west, has far more influence on its sun exposure than the storey number does.
+        </p>
+        <p>
+            The opposite situation is a lower floor directly opposite a tall block built close by, where climbing several storeys higher can clear that specific obstruction and change sun exposure noticeably for at least part of the day. Neither case can be assumed from a floor number alone. Our <a href="/insights/ground-floor-hdb-unit-value-singapore">guide to ground floor HDB units</a> and <a href="/insights/floor-plan-efficiency-ratio-explained-singapore">floor plan efficiency guide</a> cover other floor level trade offs worth weighing alongside sun exposure, such as noise, privacy, and usable area.
+        </p>
+
+        <h2>Checking floor level and window direction directly</h2>
+        <p>
+            On the <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">Sun Facing Checker</a>, after searching an address you can set the exact floor number for the unit you are considering, and the tool notes that higher floors are shaded less, based on an assumed storey height of about 3 metres. You can also select the window direction the unit actually faces, from north through northwest, since a stack's listed block facing and a specific unit's window direction are not always the same thing, especially in an irregularly shaped block. Matching both settings to the real unit, rather than a general sense of the block, is what makes the shadow map and the 12 month sun summary useful for a decision rather than just a general reference.
+        </p>
+
+        <h2>Money, timing and safety, applied here</h2>
+        <ul>
+            <li><strong>Money:</strong> A quick check now costs nothing and takes a couple of minutes, against the cost of finding out after moving in that a specific stack sits in more shadow than expected.</li>
+            <li><strong>Timing:</strong> Sun and shadow shift across the year, so a check done for the current month alone may not reflect conditions in a different season. Run the 12 month sun summary rather than a single snapshot.</li>
+            <li><strong>Safety:</strong> A shadow map is a strong guide built from community maintained data, not a survey. Confirm what matters most to you with an actual site visit at the relevant hour before you commit.</li>
+        </ul>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3 class="faq-question">Does a higher floor always mean more sunlight?</h3>
+        <p class="faq-answer">Not automatically. A higher floor generally clears more of the shadow cast by nearby buildings, but the actual effect depends on the height and position of the specific buildings around that address, not the floor number by itself. Some stacks show little difference in sun exposure between a low floor and a high floor.</p>
+
+        <h3 class="faq-question">How is a shadow map calculated for a specific address?</h3>
+        <p class="faq-answer">A shadow map is modelled from building heights recorded in OpenStreetMap, combined with the sun's calculated position for the chosen date and time. Where a building's height is not recorded, a typical estimate for that building type is used, so the result is a strong guide rather than a survey.</p>
+
+        <h3 class="faq-question">Can two units on the same floor get different amounts of sun?</h3>
+        <p class="faq-answer">Yes. Two units on the same floor of the same block can receive very different amounts of sun and shade if they face different directions, or if only one of them has a taller neighbouring building directly in front of it. Checking needs to be done for the specific stack and facing, not the floor level alone.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Weighing a specific floor or stack</h3>
+            <p>Check the exact address, floor and facing on the Sun Facing Checker, or talk through what else to verify before you commit.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd. Sun and shadow estimates reflect building data recorded in OpenStreetMap at the time of checking and are a strong guide, not a survey. Always verify conditions for a specific unit in person before making a purchase or rental decision.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Sun Facing Checker:</strong> methodology and building data sources, <a href="https://sunfacing.com/" target="_blank" rel="noopener noreferrer">sunfacing.com</a></li>
+                <li><strong>URA:</strong> Master Plan land use and building height guide plans, <a href="https://www.ura.gov.sg/maps/" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+                <li><strong>OpenStreetMap:</strong> community maintained building footprint and height data, <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener noreferrer">openstreetmap.org</a></li>
+                <li><strong>Related reading on this site:</strong> <a href="/insights/ground-floor-hdb-unit-value-singapore">ground floor HDB units: resale value and buyer considerations</a> and <a href="/insights/floor-plan-efficiency-ratio-explained-singapore">floor plan efficiency ratio explained</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "High floor or low floor: what sunlight and shade really change in an HDB or condo",
+    "description": "Higher floor does not automatically mean more sun. How a neighbouring block's height and position shape sunlight and shade by storey, and how to check a specific stack.",
+    "image": "https://winfredquek.com/img/og-image.jpg",
+    "author": { "@type": "Person", "name": "Winfred Quek", "url": "https://winfredquek.com" },
+    "publisher": { "@type": "Organization", "name": "Crestbrick Pte Ltd", "url": "https://winfredquek.com" },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Does a higher floor always mean more sunlight?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Not automatically. A higher floor generally clears more of the shadow cast by nearby buildings, but the actual effect depends on the height and position of the specific buildings around that address, not the floor number by itself. Some stacks show little difference in sun exposure between a low floor and a high floor." }
+        },
+        {
+            "@type": "Question",
+            "name": "How is a shadow map calculated for a specific address?",
+            "acceptedAnswer": { "@type": "Answer", "text": "A shadow map is modelled from building heights recorded in OpenStreetMap, combined with the sun's calculated position for the chosen date and time. Where a building's height is not recorded, a typical estimate for that building type is used, so the result is a strong guide rather than a survey." }
+        },
+        {
+            "@type": "Question",
+            "name": "Can two units on the same floor get different amounts of sun?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Two units on the same floor of the same block can receive very different amounts of sun and shade if they face different directions, or if only one of them has a taller neighbouring building directly in front of it. Checking needs to be done for the specific stack and facing, not the floor level alone." }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

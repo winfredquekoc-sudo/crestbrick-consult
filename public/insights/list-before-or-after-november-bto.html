@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Should You List Before or After the November BTO</title>
+    <meta name="description" content="The BTO exercise moves to November 2026 and pulls first timer demand from the resale market for weeks. When to list your HDB flat before or after it opens.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Should You List Before or After the November BTO">
+    <meta property="og:description" content="The BTO exercise moves to November 2026 and pulls first timer demand from the resale market for weeks. When to list your HDB flat before or after it opens.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Should You List Before or After the November BTO</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            HDB moved its next Build To Order exercise from October to November 2026. If you are timing a resale listing around it, that shift matters more than it might look. A BTO launch pulls a specific group of buyers, first timer families and singles who are eligible and patient enough to wait years for a new flat, out of the resale market for a few weeks while they focus on their ballot application.
+        </p>
+
+        <p>
+            The effect is real but narrow. It does not freeze the whole resale market, and for many sellers it barely registers. Here is when it matters, when it does not, and how to time your listing around it without overreacting to a single exercise date.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>The short version:</strong> the pull away from resale is strongest for smaller flats in non mature estates, the segment that competes most directly with new BTO launches. It is much weaker for larger flats and mature estate premiums.
+        </div>
+
+        <h2>Timing: why a BTO exercise dents resale demand briefly</h2>
+
+        <p>
+            First timer families are the largest single buyer group in the HDB market, and many of them shop both channels at once, applying for a BTO ballot while also viewing resale flats as a backup or faster alternative. When a new exercise opens, a portion of that group pauses active resale viewings to focus on preparing their BTO application, checking eligibility, comparing project locations, deciding on flat type. That pause lasts roughly the length of the application window, typically a couple of weeks, plus a period afterward while applicants wait to see whether they are shortlisted before deciding their next move.
+        </p>
+
+        <p>
+            This is a temporary redirection of attention, not a permanent loss of demand. Once the application window closes, most of those buyers return to active house hunting, either because they were not successful in the ballot, or because they decide the wait for their BTO project is too long and a resale flat serves them better now.
+        </p>
+
+        <h2>Money: when to list around the exercise</h2>
+
+        <p>
+            There are two reasonable windows, and a middle stretch to be more cautious about.
+        </p>
+
+        <ul>
+            <li><strong>List before the exercise opens.</strong> Getting your flat in front of first timer buyers before they turn their attention to a fresh BTO application means you catch them while they are still comparing both channels side by side, rather than mentally checked out of resale for a few weeks.</li>
+            <li><strong>List a few weeks after results are announced.</strong> Once ballot outcomes are known, unsuccessful applicants return to resale in larger numbers, often more motivated than before because they now know they will not get a BTO flat this round, or at least not the one they wanted. This rebound period can bring a fresh wave of serious, decision ready buyers back into the market.</li>
+            <li><strong>Be more cautious about listing during the application window itself.</strong> This is when attention from the first timer segment is most diverted. It is not a dead period, but expect fewer of that buyer type actively viewing until the window closes.</li>
+        </ul>
+
+        <div class="highlight-box">
+            <strong>Practical takeaway:</strong> if your flat type and estate compete directly with the BTO segment, plan your listing date around the exercise rather than launching in the middle of the application window by coincidence. If your flat is outside that competing segment, the exercise date should barely factor into your decision.
+        </div>
+
+        <h2>Safety: this matters more for some flats than others</h2>
+
+        <p>
+            The caveat is important, and it is the difference between useful timing advice and overthinking a minor effect. BTO competes most directly with 2 room and 3 room flats in non mature estates, because that is the profile many first timer applicants are choosing between BTO and resale for in the first place. If your flat matches that profile, the timing effect described above is worth planning around.
+        </p>
+
+        <p>
+            If you are selling a larger flat, a unit in a mature estate, or a premium flat near an MRT interchange, the BTO exercise has far less pull on your buyer pool. Buyers for those flats are often upgraders, second timers, or first timers who have already decided resale suits them better regardless of any BTO ballot, and they are not meaningfully distracted by a ballot exercise aimed at a different segment. For these sellers, pricing correctly against recent comparables matters far more than which week you list in relative to the BTO calendar.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Do not overcorrect:</strong> delaying or rushing a listing purely to dodge a BTO exercise, when your flat does not compete with that segment anyway, can cost you more in lost time than any timing effect it avoids.
+        </div>
+
+        <h2>Timing: what changes from February 2027</h2>
+
+        <p>
+            From February 2027, first timer families with a child under 18 will get one extra ballot chance per child in future BTO exercises. Once that change takes effect, it may modestly increase the pull of future exercises on eligible families with children, since the improved odds could encourage more of them to wait for a ballot outcome before committing to a resale purchase. It is a change worth watching for later exercises rather than the November 2026 one, since it starts afterward.
+        </p>
+
+        <p>
+            For a full walkthrough of how the BTO application and ballot process works, our <a href="/insights/bto-application-guide-singapore-2026.html">BTO application guide</a> covers eligibility, timelines and the flat selection process in detail, and our <a href="/tools/bto-ballot-probability.html">BTO ballot probability tool</a> can help a buyer you are competing against, or a buyer you are trying to attract back to resale, understand their real odds in a given exercise.
+        </p>
+
+        <h2>Putting it together</h2>
+
+        <p>
+            Most sellers should not let a single BTO exercise date drive their entire listing strategy. Price correctly, prepare your flat well, and list when you are ready. But if your flat sits squarely in the segment that competes with BTO, small flat, non mature estate, first timer buyer pool, then choosing to list just before the exercise opens or a few weeks after results land can put your listing in front of a more attentive, more active buyer pool than launching in the middle of the application window. For the general question of timing a sale beyond just the BTO calendar, our answer on <a href="/answers/when-is-the-best-time-to-sell-an-hdb-flat.html">when is the best time to sell an HDB flat</a> covers the other seasonal factors worth weighing alongside this one, and our guide on <a href="/insights/hdb-resale-how-to-price-2026.html">how to price your resale flat</a> should still be your starting point regardless of which week you list.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <p class="faq-q">Does the BTO exercise really affect HDB resale demand?</p>
+        <p>Yes, but narrowly and temporarily. A portion of first timer buyers pause active resale viewings during a BTO application window to focus on their ballot application, then return to the resale market once the window closes or once ballot results are known. It is a redirection of attention for a few weeks, not a lasting drop in overall demand.</p>
+
+        <p class="faq-q">When should I list my flat around the November BTO exercise?</p>
+        <p>Two windows work well: listing before the exercise opens, while first timer buyers are still comparing BTO and resale side by side, or listing a few weeks after ballot results are announced, when unsuccessful applicants return to resale more motivated. Listing in the middle of the application window itself is the period to be more cautious about, since attention from that buyer segment is most diverted then.</p>
+
+        <p class="faq-q">Does BTO timing matter for larger or mature estate flats?</p>
+        <p>Much less so. BTO exercises compete most directly with 2 room and 3 room flats in non mature estates, the segment many first timer applicants are actively choosing between. Larger flats, mature estate units and premium resale flats draw a different buyer pool that is far less affected by a single ballot exercise, so pricing against recent comparables matters more than the BTO calendar for these sellers.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Get help deciding when to list your flat</h3>
+            <p>If you are weighing whether to list before or after the November exercise, let us build a plan around your flat type, your estate and your own timeline.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H). Confirm current BTO exercise dates and eligibility rules directly with HDB before making any decision based on this article. Figures and examples are based on 2026 conditions and are for illustration only.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>HDB:</strong> increase in income ceilings and greater support for families with children, <a href="https://www.hdb.gov.sg/hdb-pulse/news/2026/increase-in-income-ceilings-and-greater-support-for-families-with-children" target="_blank" rel="noopener noreferrer">hdb.gov.sg</a></li>
+                <li><strong>Little Big Red Dot:</strong> HDB BTO income ceiling change and HFE letter update, <a href="https://littlebigreddot.com/hdb-bto-income-ceiling-16000-hfe-24-august-2026/" target="_blank" rel="noopener noreferrer">littlebigreddot.com</a></li>
+                <li><strong>HDB:</strong> BTO exercise dates and application process, <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">hdb.gov.sg</a></li>
+                <li><strong>data.gov.sg:</strong> HDB resale flat prices dataset, <a href="https://data.gov.sg/datasets?query=resale+flat+prices" target="_blank" rel="noopener noreferrer">data.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Should You List Before or After the November BTO",
+    "description": "The BTO exercise moves to November 2026 and pulls first timer demand from the resale market for weeks. When to list your HDB flat before or after it opens.",
+    "image": "https://winfredquek.com/og-list-before-or-after-november-bto.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "HDB's next BTO exercise moves from October to November 2026, temporarily pulling first timer demand from the resale market. When a seller should list before or after the exercise, and why this matters far more for smaller flats in non mature estates than for larger or mature estate units."
+}
+</script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Does the BTO exercise really affect HDB resale demand?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, but narrowly and temporarily. A portion of first timer buyers pause active resale viewings during a BTO application window to focus on their ballot application, then return to the resale market once the window closes or once ballot results are known. It is a redirection of attention for a few weeks, not a lasting drop in overall demand."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "When should I list my flat around the November BTO exercise?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Two windows work well: listing before the exercise opens, while first timer buyers are still comparing BTO and resale side by side, or listing a few weeks after ballot results are announced, when unsuccessful applicants return to resale more motivated. Listing in the middle of the application window itself is the period to be more cautious about, since attention from that buyer segment is most diverted then."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does BTO timing matter for larger or mature estate flats?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Much less so. BTO exercises compete most directly with 2 room and 3 room flats in non mature estates, the segment many first timer applicants are actively choosing between. Larger flats, mature estate units and premium resale flats draw a different buyer pool that is far less affected by a single ballot exercise, so pricing against recent comparables matters more than the BTO calendar for these sellers."
+            }
+        }
+    ]
+}
+</script>
+    </article>
+</body>
+</html>

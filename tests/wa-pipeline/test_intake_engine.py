@@ -1,11 +1,11 @@
 import sys, json, sqlite3, os
-# Resolve src/wa-pipeline relative to THIS file (sibling of tests/wa-pipeline), not a
-# hardcoded ~/crestbrick-consult absolute path -- so a worktree-isolated agent branch tests
-# its OWN modified engine, not a stale copy from the main checkout (found while adding the
-# open house tests, Sep 2026: the old hardcoded path silently ran every worktree's test
-# suite against main's intake_engine.py, so "tests pass" never proved a branch's own code).
-_SRC = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..",
-                                      "src", "wa-pipeline"))
+# self referential (was a hardcoded ~/crestbrick-consult path): resolve relative to THIS file
+# so the suite always tests the checkout/worktree it actually lives in, not whichever copy
+# happens to be at the shared path. Production data files (messages.db, landlord-db.json,
+# intake-state.json) stay absolute inside intake_engine.py itself -- LIVE REPLAY below still
+# reads real data regardless of which worktree's code is under test.
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_SRC = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
 sys.path.insert(0, _SRC)
 import intake_engine as E
 
@@ -120,9 +120,7 @@ cols=[r[1] for r in mdb.execute("PRAGMA table_info(messages)").fetchall()]
 idcol = "id" if "id" in cols else cols[0]
 tdb = json.load(open(os.path.expanduser("~/crestbrick-consult/_templates/tenant-db.json")))
 # map a few open tenants to their jid
-# defensive: a handful of live records are missing "jid" (unrelated tenant-db drift,
-# tracked separately) -- skip them here rather than crash this unrelated replay smoke test.
-jids = [t["jid"] for t in tdb["tenants"] if t.get("jid") and not t.get("excluded")][:12]
+jids = [t["jid"] for t in tdb["tenants"] if not t.get("excluded") and t.get("jid")][:12]
 from collections import Counter
 worst_proactive=0; max_forms=0; max_views=0; max_redirect=0; reactive_total=0; dup_field=False
 for j in jids:
@@ -134,11 +132,17 @@ for j in jids:
             E.handle_event(st,{"jid":j,"msg_id":str(mid),"text":content or "","is_from_me":1,"engine":True}); continue
         a=E.handle_event(st,{"jid":j,"msg_id":str(mid),"text":content or "","is_from_me":0,"listing_key":None})
         if a: c[a["type"]]+=1
+    rec=list(st["conversations"].values())[0] if st["conversations"] else {}
+    if rec.get("supply_flagged"):
+        # landlord onboarding: a long running BACK OFFICE conversation with Winfred pings only
+        # (no prospect facing text once past SEND_SUPPLY_FORM), not the bounded tenant funnel
+        # this invariant guards -- skip it here the same way agent/colleague chats are never
+        # part of the tenant funnel either.
+        continue
     proactive = c["SEND_FORM"]+c["ASK_FIELDS"]+c["OFFER_VIEWING"]+c["REDIRECT"]+c["ASK_ONE"]+c["FLAG_HUMAN"]+c["NUDGE_INCOMPLETE"]
     reactive_total += c["ANSWER_QUESTION"]+c["CONFIRM_VIEWING"]
     worst_proactive=max(worst_proactive,proactive)
     max_forms=max(max_forms,c["SEND_FORM"]); max_views=max(max_views,c["OFFER_VIEWING"]); max_redirect=max(max_redirect,c["REDIRECT"])
-    rec=list(st["conversations"].values())[0] if st["conversations"] else {}
     if rec and len(rec.get("asked_fields",[]))!=len(set(rec.get("asked_fields",[]))): dup_field=True
 ok("intake form sent at most once per prospect", max_forms<=1)
 ok("viewing offered at most once per prospect", max_views<=1)
@@ -574,6 +578,36 @@ ok("unknown: CTA phrase present but NOT anchored at 'Hi Winfred,' start (unlikel
    E.classify_lead_source("someone told me you can help, i have a property question", None)=="unknown")
 ok("unknown: no text at all", E.classify_lead_source(None, None)=="unknown")
 
+print("== LEAD SOURCE: Sun Facing Checker (sunfacing.com) ==")
+ok("sun-facing-checker: exact wa.me prefill with an address",
+   E.classify_lead_source(
+       "Hi Winfred, I checked the sun facing for 82 TIONG POH ROAD on your Sun Facing "
+       "Checker and would like a free valuation report on it.", None) == "sun-facing-checker")
+ok("sun-facing-checker: generic wa.me prefill, no address",
+   E.classify_lead_source(
+       "Hi Winfred, I found you on the Sun Facing Checker and would like a free "
+       "valuation report.", None) == "sun-facing-checker")
+ok("sun-facing-checker: negative, ordinary rental enquiry stays unknown",
+   E.classify_lead_source("hey is the flat still up for rent", None) == "unknown")
+ok("sun-facing-checker: portal still wins over the phrase if a listing_key is present",
+   E.classify_lead_source(
+       "Hi Winfred, I checked the sun facing for 82 Tiong Poh Road on your Sun Facing "
+       "Checker.", "bayshore") == "portal")
+
+print("== LEAD SOURCE: Sun Facing Checker address capture into profile ==")
+ok("address captured from 'sun facing for <addr> on your Sun Facing Checker'",
+   E.extract_profile(
+       "Hi Winfred, I checked the sun facing for 82 TIONG POH ROAD on your Sun Facing "
+       "Checker and would like a free valuation report on it."
+   ).get("address") == "82 TIONG POH ROAD")
+ok("no address captured when the message names no address",
+   E.extract_profile(
+       "Hi Winfred, I found you on the Sun Facing Checker and would like a free "
+       "valuation report."
+   ).get("address") is None)
+ok("no address captured on an unrelated message",
+   E.extract_profile("hey is the flat still up for rent").get("address") is None)
+
 # end to end via handle_event: stamped once on first genuine inbound, never re-classified
 _sp = {"version":1,"conversations":{}}
 E.handle_event(_sp, {"jid":"6590055501@s.whatsapp.net","msg_id":"sp1","text":"hi still available?","is_from_me":0,"listing_key":"bayshore"})
@@ -772,7 +806,7 @@ print("== OPEN HOUSE (skip_buyer_form): buyer flow override, per listing templat
 _orig_buyer_template = E._buyer_template
 _OH_KEY = "open-house-test-listing"
 _OH_MSG = ("Hi, thanks for your interest in Test Open House Villas. There's an open house "
-           "this Saturday, 10am to 12noon, do drop by to view the unit. Let me know if "
+           "this Saturday, 11am to 12noon, do drop by to view the unit. Let me know if "
            "you're planning to come and I'll look out for you.")
 def _fake_buyer_template(listing_key):
     if listing_key == _OH_KEY:
@@ -867,6 +901,217 @@ ok("SEND_OPEN_HOUSE is not exempted from the manual_takeover skip carve out "
    "SEND_OPEN_HOUSE" not in _RCP._LANDLORD_ONBOARDING_TYPES)
 
 E._buyer_template = _orig_buyer_template
+print("== LANDLORD ONBOARDING EXTENSION ==")
+
+# ---- deterministic parsers: never depend on the form's own field labels ----
+ok("rent: dollar amount after 'asking rent'", E._parse_landlord_rent("asking rent is $1200") == 1200)
+ok("rent: bare number + /month", E._parse_landlord_rent("1500/month") == 1500)
+ok("rent: $1,200 a month", E._parse_landlord_rent("$1,200 a month") == 1200)
+ok("rent: ambiguous number with no rent context -> None", E._parse_landlord_rent("2 pax max, no cooking") is None)
+ok("address: blk + street", E._parse_landlord_address("Blk 123 Yishun Street 11") == "Blk 123 Yishun Street 11")
+ok("address: number + street word (no blk)", E._parse_landlord_address("550 West Coast Road") is not None)
+ok("address: bare number alone -> None (no street word/postal)", E._parse_landlord_address("2 pax only, budget flexible") is None)
+ok("address: postal code with street context", "760123" in (E._parse_landlord_address("near Yishun Street, S760123") or ""))
+ok("pax: max N pax", E._parse_landlord_pax("max 2 pax") == 2)
+ok("pax: bare N pax", E._parse_landlord_pax("3 pax") == 3)
+ok("pax: out of range rejected", E._parse_landlord_pax("15 pax") is None)
+ok("tenant_type: working professional", E._parse_landlord_tenant_type("prefer working professional") == "working professional")
+ok("tenant_type: student", E._parse_landlord_tenant_type("student only") == "student")
+ok("tenant_type: no keyword -> None", E._parse_landlord_tenant_type("nice guy") is None)
+ok("gender_pref: female only", E._parse_landlord_gender_pref("female only") == "female_only")
+ok("gender_pref: no preference -> any", E._parse_landlord_gender_pref("no preference") == "any")
+ok("gender_pref: unclear text -> None", E._parse_landlord_gender_pref("depends on the person") is None)
+ok("lease: min N year(s)", E._parse_landlord_lease_months("min 1 year") == 12)
+ok("lease: N months lease", E._parse_landlord_lease_months("6 months lease") == 6)
+ok("lease: unrelated number not read as a lease term", E._parse_landlord_lease_months("2 pax max") is None)
+
+_FT = ("hi, the unit is at Blk 88 Bedok North Street 4, asking 1400 a month, max 2 pax, "
+       "looking for a working professional, prefer female tenant, need at least 1 year lease")
+_ex = E.extract_landlord_supply_info(_FT)
+ok("free text with NO form labels -> all 6 required fields extracted",
+   all(k in _ex for k in E.LANDLORD_REQUIRED_FIELDS))
+ok("free text extraction never invents a 7th unrequested field with junk", isinstance(_ex, dict))
+
+def _new_landlord_state(seed):
+    """Fresh state with one landlord past SEND_SUPPLY_FORM, mirroring the real first
+    detection flow (mid conversation onboarding tests start from here)."""
+    st = {"version": 1, "conversations": {}}
+    jid = f"6590010{seed:03d}@s.whatsapp.net"
+    a0 = E.handle_event(st, {"jid": jid, "msg_id": f"L{seed}-0",
+                             "text": "I am the landlord, want to rent out my room", "is_from_me": 0})
+    assert a0 and a0["type"] == "SEND_SUPPLY_FORM", a0
+    return st, jid, jid.split("@")[0]
+
+print("-- (a) complete in one message: extracted correctly, jumps straight to the media ask --")
+st, jid, pn = _new_landlord_state(1)
+a1 = E.handle_event(st, {"jid": jid, "msg_id": "L1-1", "text": _FT, "is_from_me": 0})
+ok("complete info in one message -> SUPPLY_MEDIA_ASK (no nudge stage)", a1 and a1["type"] == "SUPPLY_MEDIA_ASK")
+ok("no nudge was ever sent on the way", st["conversations"][pn]["followup_nudges_sent"] == 0)
+ok("stage is SUPPLY_MEDIA_REQUESTED", st["conversations"][pn]["stage"] == "SUPPLY_MEDIA_REQUESTED")
+ok("media ask text has no hyphens (persona rule)", "-" not in E.LANDLORD_MEDIA_ASK)
+
+print("-- (b) partial reply: correct missing field nudge, capped at 1 --")
+st, jid, pn = _new_landlord_state(2)
+a2 = E.handle_event(st, {"jid": jid, "msg_id": "L2-1",
+                         "text": "the unit is at Blk 55 Tampines Street 81, asking $1300",
+                         "is_from_me": 0})
+ok("partial info -> SUPPLY_INFO_NUDGE", a2 and a2["type"] == "SUPPLY_INFO_NUDGE")
+ok("nudge does NOT re-ask for a field already given (address)", "unit address" not in a2["text"].lower())
+ok("nudge does NOT re-ask for a field already given (rent)", "asking rent" not in a2["text"].lower())
+ok("nudge asks for at least one still-missing field", any(w in a2["text"].lower() for w in
+   ("pax", "tenant", "gender", "lease")))
+a2b = E.handle_event(st, {"jid": jid, "msg_id": "L2-2", "text": "still thinking about the rest", "is_from_me": 0})
+ok("second incomplete reply after the ONE nudge cap -> FLAG_HUMAN, never a second nudge",
+   a2b and a2b["type"] == "FLAG_HUMAN")
+ok("nudge count never exceeds the cap", st["conversations"][pn]["followup_nudges_sent"] == E.LANDLORD_NUDGE_CAP)
+a2c = E.handle_event(st, {"jid": jid, "msg_id": "L2-3", "text": "sorry for the delay", "is_from_me": 0})
+ok("still no further nudge after the cap on a later reply too", not a2c or a2c["type"] != "SUPPLY_INFO_NUDGE")
+ok("Winfred is pinged ONCE for the cap, not on every later message",
+   a2c is None and st["conversations"][pn]["info_cap_flagged"] is True)
+
+print("-- (c) media ask fires ONLY once info is complete, never before --")
+st, jid, pn = _new_landlord_state(3)
+a3a = E.handle_event(st, {"jid": jid, "msg_id": "L3-1",
+                          "text": "Blk 12 Ang Mo Kio Ave 3, asking 1200, max 2 pax", "is_from_me": 0})
+ok("still incomplete -> nudge, NOT the media ask", a3a and a3a["type"] == "SUPPLY_INFO_NUDGE")
+a3b = E.handle_event(st, {"jid": jid, "msg_id": "L3-2",
+                          "text": "prefer working professional, female only, min 1 year lease", "is_from_me": 0})
+ok("now complete -> media ask fires", a3b and a3b["type"] == "SUPPLY_MEDIA_ASK")
+a3c = E.handle_event(st, {"jid": jid, "msg_id": "L3-3", "text": "ok will send soon", "is_from_me": 0})
+ok("media ask never repeats on a further reply", not a3c or a3c.get("type") != "SUPPLY_MEDIA_ASK")
+
+print("-- (d) media detection (absent) + one chase, then cap --")
+st, jid, pn = _new_landlord_state(4)
+E.handle_event(st, {"jid": jid, "msg_id": "L4-1", "text": _FT, "is_from_me": 0})
+rec4 = st["conversations"][pn]
+ok("media requested, stage set", rec4["stage"] == "SUPPLY_MEDIA_REQUESTED")
+_orig_media_status = E._landlord_media_status
+E._landlord_media_status = lambda pn_, jid_: (False, False)     # still no media, ever
+rec4["media_requested_at"] -= (E.LANDLORD_MEDIA_CHASE_DELAY_SEC + 10)   # simulate ~2 days elapsed
+a4a = E.handle_event(st, {"jid": jid, "msg_id": "L4-2", "text": "still finding time", "is_from_me": 0})
+ok("media still missing after the delay -> ONE chase", a4a and a4a["type"] == "SUPPLY_MEDIA_CHASE")
+ok("chase text has no hyphens (persona rule)", "-" not in E.LANDLORD_MEDIA_CHASE)
+a4b = E.handle_event(st, {"jid": jid, "msg_id": "L4-3", "text": "sorry, been busy", "is_from_me": 0})
+ok("after the chase cap -> FLAG_HUMAN, never a second chase", a4b and a4b["type"] == "FLAG_HUMAN")
+a4c = E.handle_event(st, {"jid": jid, "msg_id": "L4-4", "text": "hello?", "is_from_me": 0})
+ok("still no third message after the cap", not a4c or a4c.get("type") != "SUPPLY_MEDIA_CHASE")
+E._landlord_media_status = _orig_media_status
+
+print("-- media PRESENT -> SUPPLY_READY, no chase ever sent --")
+st, jid, pn = _new_landlord_state(5)
+E.handle_event(st, {"jid": jid, "msg_id": "L5-1", "text": _FT, "is_from_me": 0})
+_orig_media_status2 = E._landlord_media_status
+E._landlord_media_status = lambda pn_, jid_: (True, False)      # photos present, no video yet
+a5 = E.handle_event(st, {"jid": jid, "msg_id": "L5-2", "text": "sent!", "is_from_me": 0})
+ok("photos present -> SUPPLY_READY (flag to Winfred, no prospect text)",
+   a5 and a5["type"] == "FLAG_HUMAN" and a5.get("text") is None
+   and st["conversations"][pn]["stage"] == "SUPPLY_READY")
+ok("SUPPLY_READY never auto triggers tenant matching / 99.co (no such action type exists)",
+   a5["type"] not in ("SEND_MATCH", "CONFIRM_LISTING", "SEND_CONFIRMATION"))
+E._landlord_media_status = _orig_media_status2
+
+print("-- (e) manual takeover (human reply) silences the WHOLE sequence --")
+st, jid, pn = _new_landlord_state(6)
+E.handle_event(st, {"jid": jid, "msg_id": "L6-0b", "text": "got it, checking landlord's docs",
+                    "is_from_me": 1, "engine": False})   # Winfred replies by hand
+ok("human_takeover latched on a genuine hand reply", st["conversations"][pn]["human_takeover"] is True)
+a6 = E.handle_event(st, {"jid": jid, "msg_id": "L6-1", "text": _FT, "is_from_me": 0})
+ok("after human takeover -> engine fully silent even with a complete answer", a6 is None)
+ok("no supply_profile field was written after human takeover",
+   st["conversations"][pn].get("supply_profile") == {})
+
+print("-- (f) repeat / duplicate replies: same msg id never double processed --")
+st, jid, pn = _new_landlord_state(7)
+a7a = E.handle_event(st, {"jid": jid, "msg_id": "L7-1", "text": "Blk 1 Toa Payoh Lorong 1, asking 1100",
+                          "is_from_me": 0})
+ok("first partial reply -> nudge", a7a and a7a["type"] == "SUPPLY_INFO_NUDGE")
+a7b = E.handle_event(st, {"jid": jid, "msg_id": "L7-1", "text": "Blk 1 Toa Payoh Lorong 1, asking 1100",
+                          "is_from_me": 0})
+ok("same msg id replayed -> None (event dedup), nudge count unchanged",
+   a7b is None and st["conversations"][pn]["followup_nudges_sent"] == 1)
+
+print("-- (g) landlord question or negotiation always FLAG_HUMAN, never auto answered --")
+st, jid, pn = _new_landlord_state(8)
+a8 = E.handle_event(st, {"jid": jid, "msg_id": "L8-1",
+                         "text": "Blk 9 Clementi Ave 2, asking $1500, how long will it take to find a tenant?",
+                         "is_from_me": 0})
+ok("a question mid onboarding -> FLAG_HUMAN, no nudge/ask sent", a8 and a8["type"] == "FLAG_HUMAN" and a8.get("text") is None)
+ok("fields present in the SAME message are still captured for later",
+   st["conversations"][pn]["supply_profile"].get("address") and st["conversations"][pn]["supply_profile"].get("rent") == 1500)
+a8b = E.handle_event(st, {"jid": jid, "msg_id": "L8-2", "text": "can you lower your commission?", "is_from_me": 0})
+ok("a negotiation attempt (no '?') also FLAGS to human, never auto answered", a8b and a8b["type"] == "FLAG_HUMAN")
+
+print("-- (h) already complete landlord (SUPPLY_READY) stays silent on more chatter --")
+st, jid, pn = _new_landlord_state(9)
+E.handle_event(st, {"jid": jid, "msg_id": "L9-1", "text": _FT, "is_from_me": 0})
+_orig_media_status3 = E._landlord_media_status
+E._landlord_media_status = lambda pn_, jid_: (True, True)
+E.handle_event(st, {"jid": jid, "msg_id": "L9-2", "text": "sent the photos", "is_from_me": 0})
+ok("landlord reached SUPPLY_READY", st["conversations"][pn]["stage"] == "SUPPLY_READY")
+a9 = E.handle_event(st, {"jid": jid, "msg_id": "L9-3", "text": "just checking in, all good?", "is_from_me": 0})
+ok("SUPPLY_READY + a plain message -> FLAG_HUMAN (question), never re-runs the nudge/ask sequence",
+   (a9 is None) or (a9["type"] == "FLAG_HUMAN"))
+E._landlord_media_status = _orig_media_status3
+
+print("-- scheduled sweep: get_landlord_media_chase_actions finds a due record without any new inbound --")
+st, jid, pn = _new_landlord_state(10)
+E.handle_event(st, {"jid": jid, "msg_id": "L10-1", "text": _FT, "is_from_me": 0})
+rec10 = st["conversations"][pn]
+past = rec10["media_requested_at"] - (E.LANDLORD_MEDIA_CHASE_DELAY_SEC + 100)
+rec10["media_requested_at"] = past
+due = E.get_landlord_media_chase_actions(st, now_ts=rec10["media_requested_at"] + E.LANDLORD_MEDIA_CHASE_DELAY_SEC + 200)
+ok("sweep finds the due landlord with no inbound needed", any(d["pn"] == pn for d in due))
+ok("sweep marks the chase sent (never fires twice)", rec10["media_chase_sent"] is True)
+due2 = E.get_landlord_media_chase_actions(st, now_ts=rec10["media_requested_at"] + 999999)
+ok("sweep never re-fires for the same landlord", not any(d["pn"] == pn for d in due2))
+
+print("-- runner integration: every new send action carries the manual takeover carve out --")
+for _t in ("SEND_SUPPLY_FORM", "SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
+    ok(f"{_t} exempted from the runner's manual takeover skip gate", _t in _RCP._LANDLORD_ONBOARDING_TYPES)
+ok("new templates recognised as our own echo (is_from_me=1 classification)",
+   E.is_engine_outbound(E.LANDLORD_MEDIA_ASK) and E.is_engine_outbound(E.LANDLORD_MEDIA_CHASE)
+   and E.is_engine_outbound(E._landlord_nudge_text(["rent"])))
+ok("new templates recognised as our own echo (is_from_me=0 bridge echo, inbound side)",
+   _RCP._is_our_echo(E.LANDLORD_MEDIA_ASK) and _RCP._is_our_echo(E.LANDLORD_MEDIA_CHASE)
+   and _RCP._is_our_echo(E._landlord_nudge_text(["rent"])))
+ok("new templates recognised by is_bot_message (generic inbound echo helper)",
+   E.is_bot_message(E.LANDLORD_MEDIA_ASK) and E.is_bot_message(E.LANDLORD_MEDIA_CHASE))
+ok("media ask has NO hyphens, no CEA number, no sign off (persona rule)",
+   "-" not in E.LANDLORD_MEDIA_ASK and "R073319H" not in E.LANDLORD_MEDIA_ASK)
+
+print("-- DB sync: mirrors onto an EXISTING record only, never invents one, preserves siblings --")
+import tempfile
+_scratch_db = tempfile.NamedTemporaryFile(prefix="landlord-db-test-", suffix=".json", delete=False).name
+_fixture = {"last_updated": "x", "some_other_key": "must survive",
+            "landlords": [{"id": "LL999", "phone": "6590010999", "landlord_name": "Test Fixture"}]}
+json.dump(_fixture, open(_scratch_db, "w"))
+_orig_ldb_path = E.LANDLORD_DB
+E.LANDLORD_DB = _scratch_db
+try:
+    fake_rec = {"stage": "SUPPLY_MEDIA_REQUESTED", "info_complete": True, "photos_received": False,
+                "video_received": False, "media_requested_at": None, "followup_nudges_sent": 1}
+    hit = E._sync_landlord_db_fields("6590010999", fake_rec)
+    ok("sync hits an existing record by phone", hit is True)
+    _after = json.load(open(_scratch_db))
+    ok("sibling top level keys preserved (dict, never a bare list)", _after.get("some_other_key") == "must survive")
+    ok("onboarding fields written onto the matched record",
+       _after["landlords"][0]["onboarding_stage"] == "SUPPLY_MEDIA_REQUESTED"
+       and _after["landlords"][0]["info_complete"] is True
+       and _after["landlords"][0]["followup_nudges_sent"] == 1)
+    _bak_files = [f for f in os.listdir(os.path.dirname(_scratch_db))
+                  if f.startswith(os.path.basename(_scratch_db) + ".bak-onboarding-")]
+    ok("a backup file was written before the schema touching write", len(_bak_files) >= 1)
+    miss = E._sync_landlord_db_fields("6500000000", fake_rec)
+    ok("sync is a no-op (never creates a record) when the phone is not yet in the DB", miss is False)
+finally:
+    E.LANDLORD_DB = _orig_ldb_path
+    try:
+        os.remove(_scratch_db)
+        for f in os.listdir(os.path.dirname(_scratch_db)):
+            if f.startswith(os.path.basename(_scratch_db)) and ".bak-onboarding-" in f:
+                os.remove(os.path.join(os.path.dirname(_scratch_db), f))
+    except OSError:
+        pass
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

@@ -1,0 +1,30 @@
+{
+  "_readme": "Sun Facing Checker launch support articles. Staged HTML lives in staged/insights/<slug>.html, same schema as the live production queue at ~/.claude/state/insights-drip/manifest.json (top level: articles[], drip_rate). These 3 entries continue that queue's ids (last live id was 1053, dates ran through 2026-09-17) at the next free dates, 1 per day. To actually schedule them, copy these 3 objects into the live manifest.json's articles array and copy the 3 files from staged/insights/ into the live staged/insights/ directory. This PR does not touch the live queue.",
+  "drip_rate": 1,
+  "articles": [
+    {
+      "id": 1054,
+      "slug": "viewing-wrong-time-of-day-sun-check",
+      "title": "Viewing a Unit at the Wrong Time of Day: Check the Sun First",
+      "description": "A single viewing at one hour hides afternoon west sun and shadow from neighbouring blocks. A checklist, and how to check the sun for any address before your next viewing.",
+      "date": "2026-09-18",
+      "refresh": false
+    },
+    {
+      "id": 1055,
+      "slug": "high-floor-low-floor-sunlight-shade-hdb-condo",
+      "title": "High Floor or Low Floor: What Sunlight and Shade Really Change",
+      "description": "Higher floor does not automatically mean more sun. How a neighbouring block's height and position shape sunlight and shade by storey, and how to check a specific stack.",
+      "date": "2026-09-19",
+      "refresh": false
+    },
+    {
+      "id": 1056,
+      "slug": "renting-singapore-sun-shade-checklist",
+      "title": "Renting in Singapore: Check Sun and Shade Before You Sign",
+      "description": "Laundry drying, a west facing bedroom, working from home glare, and kids' rooms: a tenant's checklist for sun and shade, plus a two minute check before you sign.",
+      "date": "2026-09-20",
+      "refresh": false
+    }
+  ]
+}
