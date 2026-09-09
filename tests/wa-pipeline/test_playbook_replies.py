@@ -415,5 +415,102 @@ class TestSendPathIntegration(unittest.TestCase):
         return d.name
 
 
+# ============================================================================================
+# TestOwnerLoopWiring -- enqueue_owner_question() is called exactly when a reply above is
+# genuinely "let me check with the owner" (pax unknown, a fact not on file, the follow up
+# chaser), never when the listing's own data already answered, and never without a
+# landlord_id to ask against.
+# ============================================================================================
+class TestOwnerLoopWiring(unittest.TestCase):
+    def setUp(self):
+        self._patches = []
+        self._patch(E, "resolve_pn", lambda jid: jid.split("@")[0])
+        self.calls = []
+        self._patch(R.OWN, "enqueue_owner_question", self._fake_enqueue)
+
+    def tearDown(self):
+        for p in self._patches:
+            p.stop()
+
+    def _patch(self, target, attr, value):
+        p = mock.patch.object(target, attr, value)
+        p.start()
+        self._patches.append(p)
+
+    def _fake_enqueue(self, landlord_id, listing_key, code, text, source=None, **kw):
+        self.calls.append((landlord_id, listing_key, code, text, source))
+        return "fakeid"
+
+    def _state(self, listing_reqs):
+        self._patch(E, "listing_reqs", lambda: listing_reqs)
+        rec = {"pn": FAKE_PN, "status": "form_sent", "listing_key": "lk1",
+               "form_sent": True, "profile": {}}
+        return {"conversations": {FAKE_PN: rec}}
+
+    def _ev(self, text):
+        return {"jid": FAKE_JID, "text": text, "media_type": ""}
+
+    def test_pax_unknown_enqueues_pax_question(self):
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL001", "requirements": {}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        R.augment_action(state, self._ev("room for couple?"), action)
+        self.assertEqual(len(self.calls), 1)
+        lid, lk, code, text, source = self.calls[0]
+        self.assertEqual((lid, lk, code, source), ("LL001", "lk1", "PAX", FAKE_PN))
+        self.assertTrue(text)
+
+    def test_pax_known_never_enqueues(self):
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL001",
+                                     "requirements": {"max_pax": 2}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        R.augment_action(state, self._ev("room for couple?"), action)
+        self.assertEqual(self.calls, [])
+
+    def test_fact_not_on_file_enqueues_mapped_code(self):
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL002", "requirements": {}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        R.augment_action(state, self._ev("visitor policy?"), action)
+        self.assertEqual(len(self.calls), 1)
+        lid, lk, code, text, source = self.calls[0]
+        self.assertEqual((lid, lk, code), ("LL002", "lk1", "VISITORS"))
+
+    def test_fact_answered_from_listing_never_enqueues(self):
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL003",
+                                     "requirements": {"cooking": "all"}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        R.augment_action(state, self._ev("is cooking allowed?"), action)
+        self.assertEqual(self.calls, [])
+
+    def test_follow_up_chaser_enqueues_availability(self):
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL004", "requirements": {}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        R.augment_action(state, self._ev("hi any update?"), action)
+        self.assertEqual(len(self.calls), 1)
+        self.assertEqual(self.calls[0][2], "AVAILABILITY")
+
+    def test_no_landlord_id_never_enqueues_but_still_replies(self):
+        state = self._state({"lk1": {"status": "open", "requirements": {}}})   # no landlord_id
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        out = R.augment_action(state, self._ev("room for couple?"), action)
+        self.assertEqual(self.calls, [])
+        self.assertTrue(out["text"])   # the tenant still gets an acknowledgement either way
+
+    def test_availability_never_enqueues(self):
+        # availability is answered straight from listing status/slot, never routed to the owner
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL005", "requirements": {}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        R.augment_action(state, self._ev("still available?"), action)
+        self.assertEqual(self.calls, [])
+
+    def test_enqueue_never_raises_out_of_the_tenant_reply(self):
+        def _boom(*a, **kw):
+            raise RuntimeError("owner queue disk full")
+        R.OWN.enqueue_owner_question = _boom
+        state = self._state({"lk1": {"status": "open", "landlord_id": "LL006", "requirements": {}}})
+        action = {"type": "FLAG_HUMAN", "pn": FAKE_PN, "text": None}
+        out = R.augment_action(state, self._ev("room for couple?"), action)
+        self.assertTrue(out["text"])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

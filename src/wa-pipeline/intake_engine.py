@@ -2148,28 +2148,25 @@ def _split_needs_info(why):
     listing_only = not askable and not sensitive
     return askable, sensitive, listing_only
 
-_BUDGET_BORDERLINE_RE = re.compile(r"^budget\s+(\d+)\s+just\s+under\s+(\d+)$", re.I)
-
 def _ask_one_text(why, askable, sensitive, just_flagged_topic=None):
-    """Phrase the ASK_ONE / book intent question. A borderline budget gap ("budget 680 just
-    under 700") references the figure ALREADY given and asks whether it is firm, instead of
-    a generic "check your budget" that reads as if the tenant never answered at all.
+    """Phrase the ASK_ONE / book intent question. NEVER quotes a figure back at the tenant
+    (review fix, 9 Sep 2026 final attack pass): a borderline budget gap ("budget 680 just
+    under 700") used to reference the figure ALREADY given and ask if it was firm ("is your
+    $680 budget firm, or could you stretch to $700?") -- that is a live negotiation Claude
+    is not licensed to run (CEA role boundary), so it now falls through to the SAME
+    figure-free ask as every other askable gap ("Can I just check your budget?"); a genuinely
+    borderline case still reaches Winfred untouched via the caller's own FLAG_HUMAN path,
+    it just never gets a quoted-figure tenant message from here.
     just_flagged_topic: the field (if any) the IMMEDIATELY preceding flagged inbound was
     about -- softens the ask so it never reads as ignoring what they just said (cosmetic
     only, the underlying flag to Winfred is unchanged)."""
-    if not sensitive and askable == ["your budget"] and len(why) == 1:
-        m = _BUDGET_BORDERLINE_RE.match(str(why[0]).strip())
-        if m:
-            bud, floor = m.group(1), m.group(2)
-            return ("Can I just confirm, is your $" + bud + " budget firm, or could you "
-                    "stretch to $" + floor + "? Then I can confirm your slot \U0001F642")
     if sensitive:
         # never isolate ethnicity/nationality in a one-line ask — the form already collects
         # them alongside everything else
         return "Just need your profile above and I can confirm your slot \U0001F64F\U0001F3FB"
     lead = "Can I just check "
     if just_flagged_topic and any(just_flagged_topic in a for a in askable):
-        lead = "Sorry, just to double check - "
+        lead = "Sorry, just to double check, "
     return lead + " and ".join(askable) + "? Then I can confirm your slot \U0001F642"
 
 # ---------- state ----------

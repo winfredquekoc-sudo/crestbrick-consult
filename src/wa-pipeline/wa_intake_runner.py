@@ -27,7 +27,8 @@ import wa_intake_owner_answers as OWNA
 # here so every existing call site (incl. tests reaching them via wa_intake_runner.<name>)
 # keeps working unchanged.
 from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _tg_send,
-                              _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly)
+                              _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly,
+                              notify_winfred_coalesced, _flush_stale_coalesce_windows)
 
 MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 LASTF   = os.path.expanduser("~/.claude/state/listing-templates/runner-last.json")
@@ -250,6 +251,7 @@ def run():
         print("another wa-intake run is in progress — skipping this tick")
         return
     _drain_notify_queue()                 # deliver any pings lost to an earlier Telegram outage
+    _flush_stale_coalesce_windows()       # send any per-chat notify digest whose window ended
     try:
         con = sqlite3.connect(MSG_DB, timeout=30)
         con.execute("PRAGMA busy_timeout=30000")
@@ -558,7 +560,12 @@ def run():
                 elif a["type"] in ("SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
                     notify_winfred(f"Landlord onboarding — {a['type']}. {nm} ({a['pn']}): {a.get('reason','')}")
                 elif a.get("notify"):
-                    notify_winfred(f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}")
+                    # routine FLAG_HUMAN style ping (redirect/house_gate/edge case) -- coalesced
+                    # per chat (see wa_intake_notify.notify_winfred_coalesced); a dispute or
+                    # protected attribute flag inside it still goes out immediately, the
+                    # function detects that itself from the reason text.
+                    notify_winfred_coalesced(a.get("pn"),
+                        f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}")
             # at first enquiry for a listing with no captured viewing slot, ask Winfred for the
             # landlord's availability (once per listing per day, so it never spams).
             if a.get("type") == "SEND_FORM" and a.get("capture_availability"):
@@ -645,9 +652,10 @@ def run():
                     # reply must never vanish with zero signal to Winfred.
                     _nm_cap = _grec.get("profile", {}).get("name") or a.get("pn")
                     _lk_cap = _grec.get("listing_key") or "a listing"
-                    notify_winfred(f"Daily touch cap reached for {_nm_cap} ({a.get('pn')}) "
-                                    f"on {_lk_cap}: held a {a.get('type')} reply, reply by "
-                                    f"hand if it needs to go out today.")
+                    notify_winfred_coalesced(a.get("pn"),
+                        f"Daily touch cap reached for {_nm_cap} ({a.get('pn')}) "
+                        f"on {_lk_cap}: held a {a.get('type')} reply, reply by "
+                        f"hand if it needs to go out today.")
                     E.save_state(state); acted += 1; continue
             if E.DRY_RUN:
                 for tx in texts:

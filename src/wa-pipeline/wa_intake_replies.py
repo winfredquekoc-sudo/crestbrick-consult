@@ -25,6 +25,7 @@ No hyphens or dashes in any tenant facing copy (same standing rule as intake_eng
 """
 import re
 import intake_engine as E
+import wa_intake_owner as OWN   # owner side of the loop -- see _enqueue_owner_question below
 
 # ---------- gate: only a genuine tenant prospect, never landlord/agent/colleague/supply/buyer ----------
 def _is_non_tenant(rec):
@@ -182,13 +183,15 @@ def _reply_photos_video(rec, text):
     return ("Sure, let me get some photos and a short video over to you shortly \U0001F642 "
             "Meanwhile, are you " + _free_to_view_phrase(lk) + "?")
 
+_PAX_UNKNOWN_TEXT = "Let me check with the owner how many can stay and get back to you \U0001F642"
+
 def _reply_pax_or_friends(rec, text):
     lk, listing = _listing_for(rec)
     maxp = (listing.get("requirements") or {}).get("max_pax")
     if maxp:
         return (f"This room is for up to {maxp} pax \U0001F642 Are you "
                 + _free_to_view_phrase(lk) + "?")
-    return "Let me check with the owner how many can stay and get back to you \U0001F642"
+    return _PAX_UNKNOWN_TEXT
 
 def _reply_address_or_unit(rec, text):
     lk, listing = _listing_for(rec)
@@ -228,6 +231,58 @@ _BUILDERS = {
     "smoking": (_reply_fact, "FACT_SMOKING"),
     "follow_up_chaser": (_reply_follow_up_chaser, "CHASER"),
 }
+
+# ---------- owner side of the loop: whenever the reply above is genuinely "let me check
+# with the owner" (never when a fact was already answered from the listing's own data),
+# queue the SAME question for Winfred's VIP owner ask (see wa_intake_owner.py's module
+# docstring for the hook contract and the safety net that re-checks every one of these
+# before it can ever reach a real send).
+_OWNER_QUESTION_CODE = {
+    "pax_or_friends": "PAX",
+    "FACT_MOVEIN": "MOVE_IN",
+    "FACT_UTILITIES": "UTILITIES",
+    "FACT_MRT": "MRT",
+    "FACT_VISITORS": "VISITORS",
+    "FACT_COOKING": "COOKING",
+    "FACT_PETS": "PETS",
+    "FACT_SMOKING": "SMOKING",
+    "follow_up_chaser": "AVAILABILITY",
+}
+_OWNER_QUESTION_TEXT = {
+    "PAX": "A tenant is asking how many people are allowed to stay in this room. Could "
+           "you confirm the maximum number of occupants?",
+    "MOVE_IN": "A tenant is asking about the move in date for this room. Could you "
+               "confirm when it is available from?",
+    "UTILITIES": "A tenant is asking about utilities, wifi and aircon for this room. "
+                 "Could you confirm what is included?",
+    "MRT": "A tenant is asking how far this unit is from the nearest MRT station. Could "
+           "you confirm the walking distance?",
+    "VISITORS": "A tenant is asking about the visitor and overnight guest policy for "
+                "this unit. Could you confirm the house rules?",
+    "COOKING": "A tenant is asking whether cooking is allowed in this unit. Could you confirm?",
+    "PETS": "A tenant is asking whether pets are allowed in this unit. Could you confirm?",
+    "SMOKING": "A tenant is asking whether smoking is allowed in this unit. Could you confirm?",
+    "AVAILABILITY": "A tenant is following up on their enquiry. Could you confirm this "
+                     "room is still available and share your latest viewing availability?",
+}
+
+def _enqueue_owner_question(rec, rtype, code):
+    """Best effort, never raises and never blocks the tenant reply: no landlord_id (listing
+    unlinked, or none on this record) just means no question gets queued -- the tenant still
+    gets their acknowledgement text either way."""
+    owner_code = _OWNER_QUESTION_CODE.get(code) or _OWNER_QUESTION_CODE.get(rtype)
+    if not owner_code:
+        return
+    lk, listing = _listing_for(rec)
+    landlord_id = listing.get("landlord_id")
+    if not landlord_id:
+        return
+    try:
+        OWN.enqueue_owner_question(landlord_id, lk, owner_code,
+                                   _OWNER_QUESTION_TEXT[owner_code],
+                                   source=rec.get("pn"))
+    except Exception:
+        pass   # the tenant facing reply must never fail because the owner side hiccupped
 
 def _fire_once(rec, rtype, code):
     """One fire per request type per chat. Returns False (do not fire) on a repeat."""
@@ -292,6 +347,14 @@ def augment_action(state, ev, action):
     reply = builder(rec, text)
     if not reply:
         return action
+
+    # only when the tenant reply above is genuinely "let me check with the owner" -- a
+    # fact the listing's own data already answered (a normal _reply_fact hit) never queues
+    # anything, and the follow up chaser always does (it never has any other text).
+    if ((rtype == "pax_or_friends" and reply == _PAX_UNKNOWN_TEXT)
+            or (reply == _FACT_FALLBACK and code in _OWNER_QUESTION_CODE)
+            or rtype == "follow_up_chaser"):
+        _enqueue_owner_question(rec, rtype, code)
 
     out = dict(action)
     out["text"] = reply

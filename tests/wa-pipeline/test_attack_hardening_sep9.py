@@ -438,14 +438,19 @@ class TestUnpunctuatedPostOfferQuestion(unittest.TestCase):
 
 
 # ---------------------------------------------------------------------------
-# Finding 14: the borderline budget ASK_ONE must reference the actual figures and never
-# repeat the identical text on a reply that does not restate a number.
+# Finding 14 (superseded, 9 Sep 2026 final attack pass -- merge review mandatory fix): a
+# borderline budget ASK_ONE used to quote the tenant's own figure back and ask them to
+# stretch it ("is your $680 budget firm, or could you stretch to $700?") -- that is a live
+# negotiation, outside the CEA role boundary. It must now fall through to the SAME
+# figure-free ask as any other askable gap, exactly like a generic missing field.
 # ---------------------------------------------------------------------------
 class TestBudgetBorderlineAskOnce(unittest.TestCase):
-    def test_ask_text_references_the_actual_figures(self):
+    def test_ask_text_never_quotes_a_figure(self):
         txt = E._ask_one_text(["budget 680 just under 700"], ["your budget"], False)
-        self.assertIn("680", txt)
-        self.assertIn("700", txt)
+        self.assertNotIn("680", txt)
+        self.assertNotIn("700", txt)
+        self.assertNotRegex(txt, r"\$\d")
+        self.assertIn("your budget", txt)
 
     def test_generic_gap_unaffected(self):
         txt = E._ask_one_text(["gender missing"], ["your gender"], False)
