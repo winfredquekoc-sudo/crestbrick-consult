@@ -15,6 +15,9 @@ import os, json, time, sqlite3, re, fcntl, random
 import intake_engine as E
 import wa_intake_resume as RES
 import wa_intake_selfchat as RESC
+import wa_intake_replies as REPLIES2   # category 2: acknowledge and pivot (thin layer on
+                                        # top of handle_event's own FLAG_HUMAN/ANSWER_QUESTION,
+                                        # never a second sender -- see its own module docstring)
 # split out 8 Sep 2026 to keep this file under the repo's 500 line guideline; re-imported
 # here so every existing call site (incl. tests reaching them via wa_intake_runner.<name>)
 # keeps working unchanged.
@@ -468,6 +471,12 @@ def run():
                     elif _under_takeover:
                         _log("RESUME_SKIP", _pn0, _blocked)
             a = E.handle_event(state, ev)
+            # category 2 (acknowledge and pivot): only ever swaps text into a bare
+            # FLAG_HUMAN/ANSWER_QUESTION the engine already decided to leave silent, on a
+            # confirmed tenant record -- every gate below (resume allow list, takeover skip,
+            # cold guard, daily cap) still runs on the SAME action dict exactly as it does
+            # for any other engine action.
+            a = REPLIES2.augment_action(state, ev, a)
             if ev.get("resume"):
                 if RES.needs_draft(a, _pre_snapshot):
                     _rec_r = state["conversations"].get(_pn0, {})
@@ -489,7 +498,12 @@ def run():
                 rec = state["conversations"].get(a["pn"], {})
                 nm = rec.get("profile",{}).get("name") or a["pn"]
                 lk = rec.get("listing_key") or "a listing"
-                if a["type"] == "SEND_BUYER_FORM":
+                if a.get("category2_code"):
+                    # category 2 auto reply already sent -- a human still closes the loop,
+                    # but the ping says so it never reads like a silent unanswered flag.
+                    _q = a.get("question") or a.get("reason") or ""
+                    notify_winfred(f"Auto reply sent [{a['category2_code']}].\n{nm} ({a['pn']}) for {lk} asked:\n{_q}\nBot replied: {a.get('text','')}\nClose the loop by hand if it needs more.")
+                elif a["type"] == "SEND_BUYER_FORM":
                     _pt = a.get("property_type")
                     _fin = "HFE" if _pt == "hdb" else "IPA" if _pt == "private" else "HFE/IPA"
                     notify_winfred(f"Buyer enquiry — sent the buyer intake form.\n{nm} ({a['pn']}) looks like a {_pt or 'unknown-type'} buyer, so I sent the buyer form (asks {_fin}). Take over by hand if you want.")
