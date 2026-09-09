@@ -420,7 +420,27 @@ ok("fixed slot matches the configured time, marked fixed", _fx and _fx["start"]=
 ok("fixed slot lands on the configured weekday (Fri)", _fx and __import__("datetime").date(*map(int,_fx["date"].split("-"))).weekday()==4)
 ok("from a Wed -> offers the COMING Friday (06-19)", _fx and _fx["date"]=="2026-06-19")
 ok("rolls to next week once that Friday passes", E._fixed_viewing_slot("bayshore","2026-06-22")["date"]=="2026-06-26")
-ok("on the day itself it still offers that day", E._fixed_viewing_slot("bayshore","2026-06-19")["date"]=="2026-06-19")
+def _fixed_slot_on_the_day():
+    # _fixed_viewing_slot's "already started today -> roll to next week" check compares the
+    # REAL wall clock (datetime.datetime.utcnow(), by design -- see its own docstring: this
+    # only ever runs against production's actual today) against the listing's start time,
+    # not anything derived from the today_str argument. That is correct in production
+    # (today_str always IS the real today there) but makes this one assertion wall-clock
+    # dependent as a fixed historical test date (2026-06-19) ages -- freeze utcnow to a time
+    # before bayshore's 15:00 SGT start on that date so the test keeps proving what it always
+    # meant to prove, independent of when the suite happens to run.
+    import datetime as _dt
+    from unittest import mock as _mock
+
+    class _Frozen(_dt.datetime):
+        @classmethod
+        def utcnow(cls):
+            return _dt.datetime(2026, 6, 19, 3, 0, 0)   # 11:00 SGT, before the 15:00 start
+
+    with _mock.patch("datetime.datetime", _Frozen):
+        return E._fixed_viewing_slot("bayshore", "2026-06-19")
+
+ok("on the day itself it still offers that day", _fixed_slot_on_the_day()["date"]=="2026-06-19")
 ok("next_future_slot returns the fixed slot (overrides the availability file)", (E.next_future_slot("bayshore") or {}).get("fixed") is True)
 ok("a listing with NO fixed rule is unaffected", E._fixed_viewing_slot("caspian","2026-06-17") is None)
 
