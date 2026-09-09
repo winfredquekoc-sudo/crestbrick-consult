@@ -15,13 +15,75 @@ COALESCE_FILE = os.path.expanduser("~/.claude/state/listing-templates/notify-coa
 COALESCE_WINDOW_SEC = 30 * 60   # merge review 9 Sep 2026: attack fixes raised FLAG_HUMAN
                                  # style ping volume ~5x/day; hold routine ones together
 
+# ---------- Telegram kill switch (incident, 9 Sep 2026 merge redo) ----------
+# A sandbox harness run reached Winfred's real phone with synthetic scenario numbers and
+# listing keys. Root cause: the harness only patched wa_intake_runner.notify_winfred, a
+# SEPARATE `from wa_intake_notify import notify_winfred` binding in that other module's
+# namespace -- it never touched this module's own notify_winfred/notify_winfred_coalesced/
+# notify_for_action, which call the name `notify_winfred` (and _tg_send) as globals resolved
+# in THIS module's own dict. notify_for_action and _flush_stale_coalesce_windows fire real
+# pings from calls that live entirely inside this file, so patching the wrong module's
+# binding left them wide open. Rather than rely on every call site being patched correctly,
+# the kill switch lives at the one physical send call (_tg_send) that every path funnels
+# through -- it cannot be bypassed by patching the wrong name again.
+STATE_DIR = os.path.expanduser("~/.claude/state/listing-templates")     # module constant a
+                                                                          # sandbox can patch
+                                                                          # directly
+_REAL_STATE_DIR = os.path.expanduser("~/.claude/state/listing-templates")
+
+def _effective_state_dir():
+    """The state dir actually in effect right now: STATE_DIR if patched away from real, else
+    intake_engine.STATE's own directory (the harness already sandboxes E.STATE for every
+    scenario, so this catches that case too without needing a second patch)."""
+    if STATE_DIR != _REAL_STATE_DIR:
+        return STATE_DIR
+    try:
+        d = os.path.dirname(E.STATE)
+        if d and d != _REAL_STATE_DIR:
+            return d
+    except Exception:
+        pass
+    return STATE_DIR
+
+def _telegram_suppressed():
+    """None when a real Telegram send may proceed; otherwise a short reason string logged
+    alongside TG_SUPPRESSED. Three independent signals, any one is enough: an explicit env
+    var (set by every harness/replay script at import time), a state dir that no longer
+    matches the real one (sandboxes monkeypatch STATE_DIR or E.STATE), or a SANDBOX marker
+    file dropped into whatever dir is currently in effect."""
+    if os.environ.get("WA_INTAKE_NO_TELEGRAM") == "1":
+        return "env"
+    eff = _effective_state_dir()
+    if eff != _REAL_STATE_DIR:
+        return "state_dir"
+    if os.path.exists(os.path.join(eff, "SANDBOX")):
+        return "marker"
+    return None
+
 def _log(kind, pn, msg):
     line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} | {kind} | {pn} | {msg}\n"
     with open(PREVIEW, "a") as f: f.write(line)
 
 def _tg_send(msg):
     """One Telegram send attempt. True only on a confirmed delivery (script exit 0 AND the
-    API replied ok:true) — curl reaching Telegram but the API rejecting still counts failed."""
+    API replied ok:true) — curl reaching Telegram but the API rejecting still counts failed.
+    A suppressed sandbox call logs TG_SUPPRESSED and reports success (True) so callers never
+    queue a sandbox no-op for real-world retry. The log write itself only ever lands under a
+    genuinely sandboxed dir (STATE_DIR/E.STATE patched away from real) -- an env-var-only
+    suppression (the common harness/test case) never touches disk at all, so it can never
+    write into the real, live ~/.claude/state/listing-templates even for a log line."""
+    why = _telegram_suppressed()
+    if why:
+        eff = _effective_state_dir()
+        if eff != _REAL_STATE_DIR:
+            try:
+                with open(os.path.join(eff, "dry-run-preview.log"), "a") as f:
+                    f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} | TG_SUPPRESSED | "
+                            f"{WINFRED_CHAT} | [{why}] "
+                            f"{(msg or '')[:160].replace(chr(10), ' / ')}\n")
+            except Exception:
+                pass
+        return True
     try:
         r = subprocess.run(["bash", TG_SEND, WINFRED_CHAT], input=msg, text=True,
                            timeout=15, capture_output=True)
@@ -35,10 +97,41 @@ def _hot_line(a):
     hm = a.get("hot_matches") or []
     return ("\n🔥 Also fits: " + ", ".join(hm)) if hm else ""
 
+ALLOW_FILE = os.path.expanduser("~/.claude/state/listing-templates/notify-allow.json")
+MUTED_LOG = os.path.expanduser("~/.claude/state/listing-templates/notify-muted.log")
+
+def _allowed(msg):
+    # Winfred (9 Sep 2026): stop the useless pings. When the allow file exists, only messages
+    # starting with one of its prefixes go to Telegram; the rest are kept in a local digest.
+    try:
+        if not os.path.exists(ALLOW_FILE):
+            return True
+        prefixes = json.load(open(ALLOW_FILE)).get("prefixes") or []
+        head = (msg or "").lstrip()[:120].lower()
+        return any(head.startswith(p.lower()) for p in prefixes)
+    except Exception:
+        return True
+
 def notify_winfred(msg):
     """Telegram ping to Winfred. Fires even in DRY_RUN (it is a note to him, not a prospect
     send). A FAILED ping is queued and retried at the start of every later run: a viewing
-    confirmation or takeover flag must never be silently lost to a Telegram outage."""
+    confirmation or takeover flag must never be silently lost to a Telegram outage.
+
+    A suppressed (sandbox/test) call skips the allowlist/mute/queue logic entirely and goes
+    straight to _tg_send, which is where the actual kill switch lives -- those file paths
+    (ALLOW_FILE, MUTED_LOG, NOTIFY_Q) are real, live ~/.claude/state/listing-templates paths,
+    and reading or writing them from a sandbox run would itself be a live-state touch."""
+    if _telegram_suppressed():
+        _tg_send(msg)
+        return
+    if not _allowed(msg):
+        try:
+            with open(MUTED_LOG, "a") as f:
+                f.write(time.strftime("%Y-%m-%d %H:%M:%S") + " | "
+                        + (msg or "").replace("\n", " / ")[:400] + "\n")
+        except Exception:
+            pass
+        return
     if _tg_send(msg):
         return
     _log("TG_FAIL", WINFRED_CHAT, "queued for retry :: " + msg[:80].replace("\n", " / "))

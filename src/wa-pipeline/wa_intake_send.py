@@ -44,7 +44,29 @@ def _send(pn, text):
     """Real send via the bridge. Only called when not DRY_RUN. ANY bridge error is a
     failed send (returns False), never an exception — an exception here would propagate
     out of run() before state+watermark persist and replay the row, re-sending the form
-    every 120s during a bridge hiccup."""
+    every 120s during a bridge hiccup.
+
+    WA_INTAKE_NO_SEND=1 is the WhatsApp bridge kill switch (incident, 9 Sep 2026 merge redo:
+    a sandbox run reached real recipients because a harness's mock.patch only covered ITS OWN
+    module's imported binding, not every module this function is called through -- see
+    wa_intake_notify._tg_send's docstring for the matching Telegram incident). _send is the
+    ONE place requests.post ever reaches the bridge -- every caller across the pipeline
+    (runner, self-chat console, owner loop) is handed this same function object, so gating it
+    here covers all of them regardless of which name a sandbox did or didn't patch."""
+    if os.environ.get("WA_INTAKE_NO_SEND") == "1":
+        # Log only under a genuinely sandboxed dir (mirrors wa_intake_notify._tg_send): an
+        # env-var-only suppression must never write into the real, live state dir even for
+        # a log line.
+        try:
+            import wa_intake_notify as _N
+            eff = _N._effective_state_dir()
+            if eff != _N._REAL_STATE_DIR:
+                with open(os.path.join(eff, "dry-run-preview.log"), "a") as f:
+                    f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} | SEND_SUPPRESSED | "
+                            f"{pn} | {(text or '')[:120].replace(chr(10), ' / ')}\n")
+        except Exception:
+            pass
+        return True
     import requests
     try:
         r = requests.post(BRIDGE, json={"recipient": pn, "message": text}, timeout=10)
