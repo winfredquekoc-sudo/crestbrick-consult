@@ -43,6 +43,13 @@ Usage:
 import sys, os, io, re, json, time, sqlite3, hashlib, tempfile, argparse, traceback, contextlib, datetime
 from unittest import mock
 
+# Telegram/bridge kill switch (incident, 9 Sep 2026 merge redo -- see wa_intake_notify.py's
+# _tg_send / wa_intake_send.py's _send docstrings for the root cause). Set BEFORE importing
+# any wa-pipeline module: belt and suspenders alongside the per-scenario mock.patch calls and
+# the physical choke-point checks those two functions now do on their own.
+os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+os.environ["WA_INTAKE_NO_SEND"] = "1"
+
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _SRC = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
 sys.path.insert(0, _SRC)
@@ -50,6 +57,9 @@ sys.path.insert(0, _SRC)
 import intake_engine as E                    # noqa: E402
 import wa_intake_resume as RES                # noqa: E402
 import wa_intake_runner as R                  # noqa: E402
+import wa_intake_notify as N                  # noqa: E402  -- patched directly below: R's
+                                               # notify_winfred is a SEPARATE import binding
+                                               # from N's own (see _tg_send's docstring)
 
 # ---------- read-only live sources (copied into the sandbox, NEVER written) ----------
 _LIVE_IDX        = E.IDX
@@ -121,6 +131,8 @@ def _canned_haiku_draft(prompt):
 def build_sandbox(tmp_dir, scenario):
     """Creates every throwaway file the run needs and returns a dict of their paths, plus the
     scenario's own tenant jid/pn. Called once per scenario."""
+    open(os.path.join(tmp_dir, "SANDBOX"), "w").close()   # third, independent kill switch
+                                                            # signal -- see _tg_send/_send
     msg_db = os.path.join(tmp_dir, "messages.db")
     con = sqlite3.connect(msg_db)
     con.execute(_MESSAGES_SCHEMA)
@@ -237,6 +249,16 @@ def run_scenario(scenario):
         stack.enter_context(mock.patch.object(R, "_alert_hourly", lambda *a, **k: None))
         stack.enter_context(mock.patch.object(R, "_drain_notify_queue", lambda: None))
         stack.enter_context(mock.patch.object(R, "_quiet_hours", lambda: False))
+        # N (wa_intake_notify) itself, not just R's separate import binding above --
+        # notify_for_action/notify_winfred_coalesced/_flush_stale_coalesce_windows/
+        # notify_stale_backfill are DEFINED in N and resolve notify_winfred/_tg_send as N's
+        # OWN globals, never touched by patching R's binding (this is the exact bug behind
+        # the incident this harness redo is guarding against). Recorded into the SAME
+        # `notified` list so callers see one combined feed regardless of which path fired.
+        stack.enter_context(mock.patch.object(N, "notify_winfred", fake_notify))
+        stack.enter_context(mock.patch.object(N, "_tg_send", lambda msg: (_ for _ in ()).throw(
+            AssertionError("_tg_send reached the real send path -- kill switch bypassed"))))
+        stack.enter_context(mock.patch.object(N, "STATE_DIR", tmp_dir))
         stack.enter_context(mock.patch.object(RES, "call_haiku", _canned_haiku_draft))
         stack.enter_context(mock.patch("time.sleep", lambda *a: None))
 

@@ -243,8 +243,11 @@ def _flush_stale_coalesce_windows():
 
 def _alert_hourly(key, msg):
     """notify_winfred, rate-limited to once per hour per key (for persistent conditions
-    like a corrupt file, which would otherwise ping every 60s tick)."""
-    mark = os.path.expanduser("~/.claude/state/listing-templates/.alert-" + key)
+    like a corrupt file, which would otherwise ping every 60s tick). The marker path is
+    derived from _effective_state_dir(), not hardcoded to the real state dir (kill switch
+    hardening, 9 Sep 2026 merge redo) -- a sandboxed/test call must never leave a stray
+    .alert-* file under the real, live ~/.claude/state/listing-templates."""
+    mark = os.path.join(_effective_state_dir(), ".alert-" + key)
     try:
         if os.path.exists(mark) and time.time() - os.path.getmtime(mark) < 3600:
             return

@@ -20,6 +20,14 @@ Usage:
 """
 import os, sys, json, sqlite3, argparse, datetime
 
+# Telegram/bridge kill switch (incident, 9 Sep 2026 merge redo) -- set before importing any
+# wa-pipeline module. This replay never calls a send/notify function itself (it drives
+# intake_engine.handle_event on a fresh state dict), but it imports wa_intake_runner, and
+# defense in depth here costs nothing. See wa_intake_notify.py _tg_send's docstring for the
+# root cause this guards against.
+os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+os.environ["WA_INTAKE_NO_SEND"] = "1"
+
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _WA_DIR = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
 sys.path.insert(0, _WA_DIR)

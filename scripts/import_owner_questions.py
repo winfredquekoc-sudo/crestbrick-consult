@@ -14,6 +14,14 @@ wa_intake_owner.enqueue_owner_question.
 """
 import os, re, sys, json
 
+# Telegram/bridge kill switch (incident, 9 Sep 2026 merge redo) -- set before importing any
+# wa-pipeline module. enqueue_owner_question() never sends or notifies on its own, but
+# defense in depth here costs nothing, and this importer's --apply mode does write to the
+# real owner-questions queue by design (that write is intentional production behaviour, not
+# something this switch touches).
+os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+os.environ["WA_INTAKE_NO_SEND"] = "1"
+
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "src", "wa-pipeline"))
 import wa_intake_owner as OWN  # noqa: E402
