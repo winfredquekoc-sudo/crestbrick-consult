@@ -1,0 +1,22 @@
+# PII path guard patterns for CI (gate.yml, job "pii-paths").
+#
+# SOURCE OF TRUTH is the local pre-commit hook: ~/.claude/bin/pii_path_guard.sh
+# (its PII_PATTERNS array). This file is a hand-kept MIRROR of that array so the
+# same shapes are blocked in CI as on Winfred's machine. The two lists are NOT
+# auto-synced — whenever pii_path_guard.sh's PII_PATTERNS changes, copy the change
+# here too, in the same order, or CI and the local hook will silently drift apart.
+#
+# ERE (grep -E), one pattern per line, matched against each changed file path.
+# Blank lines and lines starting with # are ignored.
+database
+\.bak[0-9]*-[0-9]{6,8}
+(^|/)(landlord|tenant)-db\.(json|csv)
+_templates/.*-db\.json
+_templates/(match-board|tenant-location-map|area-demand|buyer-intake)
+scripts/matchmaker/matchmaker-data
+scripts/matchmaker/(photos|manual-photos)
+scripts/databases/
+scripts/fsbo-scraper/(message-queue|fsbo-state)
+^\.email-queue/
+docs/(tenant-recommendations|landlord-viewing|landlords-pending|landlord-extraction)
+seller-database

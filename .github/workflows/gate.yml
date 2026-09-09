@@ -1,0 +1,128 @@
+name: gate
+
+# Merge gate for winfredquek.com. Push to main deploys to production (Vercel), so this
+# is the pre-merge safety net. All jobs are read only: no deploy, no secrets required
+# beyond the auto-issued GITHUB_TOKEN. Requiring this check is a branch protection
+# setting only Winfred can enable (see scripts/ci/README.md) — this workflow alone does
+# not block a merge.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: gate-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  secrets:
+    name: secrets (gitleaks)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v3.0.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_COMMENTS: "false" # keep the job at contents:read only
+
+  pii-paths:
+    name: pii-paths
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Check changed paths against the PII path guard
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE="$(git rev-list --max-parents=0 HEAD)"
+          fi
+          git diff --name-only --diff-filter=ACMR "$BASE" "${{ github.sha }}" > changed_files.txt
+          echo "changed files:"; cat changed_files.txt
+          scripts/ci/check_pii_paths.sh - < changed_files.txt
+
+  intake-tests:
+    name: intake-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      # No requirements file: every wa-pipeline test/src import is stdlib (json, os, re,
+      # sqlite3, functools, tempfile, datetime, importlib) — nothing to pip install or cache.
+      - name: Run hermetic wa-pipeline tests
+        run: |
+          # Only these two files run clean with no production state present (verified by
+          # running the whole suite under an empty HOME). The rest need real
+          # ~/.claude/state, ~/whatsapp-mcp or a checkout literally at ~/crestbrick-consult
+          # and are excluded here — see scripts/ci/README.md and the PR description for
+          # the excluded files and why each one is excluded.
+          python3 tests/wa-pipeline/eval_withdrawal_corpus.py
+          python3 src/wa-pipeline/test_landlord_matcher.py
+
+  content-qa:
+    name: content-qa
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Find changed insights articles
+        id: changed
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            BASE="${{ github.event.pull_request.base.sha }}"
+          else
+            BASE="${{ github.event.before }}"
+          fi
+          if [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] \
+             || ! git cat-file -e "$BASE" 2>/dev/null; then
+            BASE="$(git rev-list --max-parents=0 HEAD)"
+          fi
+          git diff --name-only --diff-filter=ACMR "$BASE" "${{ github.sha }}" \
+            -- 'public/insights/*.html' > changed_insights.txt
+          echo "count=$(wc -l < changed_insights.txt | tr -d ' ')" >> "$GITHUB_OUTPUT"
+      - name: Run content rulecheck on changed articles
+        if: steps.changed.outputs.count != '0'
+        run: python3 scripts/ci/check_content_qa.py $(cat changed_insights.txt)
+      - name: No changed insights articles
+        if: steps.changed.outputs.count == '0'
+        run: echo "no public/insights/*.html changes in this diff; skipping content QA"
+
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+      - name: Install dependencies
+        run: |
+          if [ -f package-lock.json ]; then npm ci; else npm install; fi
+      - name: Build (nav stamping, districts, SEO index, sitemap)
+        run: npm run build
