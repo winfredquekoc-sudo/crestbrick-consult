@@ -18,6 +18,11 @@ import wa_intake_selfchat as RESC
 import wa_intake_replies as REPLIES2   # category 2: acknowledge and pivot (thin layer on
                                         # top of handle_event's own FLAG_HUMAN/ANSWER_QUESTION,
                                         # never a second sender -- see its own module docstring)
+# owner side of the loop (Winfred, 9 Sep 2026): asking/chasing landlords and capturing their
+# answers is entirely self contained in these two sibling modules -- see wa_intake_owner.py's
+# own docstring for the enqueue_owner_question() hook the category-2 reply layer calls.
+import wa_intake_owner as OWNQ
+import wa_intake_owner_answers as OWNA
 # split out 8 Sep 2026 to keep this file under the repo's 500 line guideline; re-imported
 # here so every existing call site (incl. tests reaching them via wa_intake_runner.<name>)
 # keeps working unchanged.
@@ -716,6 +721,16 @@ def run():
         notify_winfred(f"{stale_backfill_skipped} backfilled chat message(s) were older than "
                        f"{STALE_ROW_HOURS}h this run and were skipped (never auto-served): "
                        f"{_chats_line}. Check these chats by hand if any were real.")
+    # owner side of the loop -- entirely separate from the tenant watermark above, and
+    # wrapped so any failure here can never block the tenant pipeline's own progress.
+    try:
+        OWNQ.run_owner_asks(con, send_fn=_send, guard_reserve_fn=_guard_reserve,
+                            log_fn=_log, notify_fn=notify_winfred)
+        OWNQ.run_owner_chases(con, send_fn=_send, guard_reserve_fn=_guard_reserve,
+                              log_fn=_log, notify_fn=notify_winfred)
+        OWNA.run_owner_answer_capture(con, notify_fn=notify_winfred, log_fn=_log)
+    except Exception as e:
+        _log("OWNER_LOOP_ERROR", "-", f"{type(e).__name__}: {str(e)[:140]}")
     if last_rowid is None:
         # legacy-watermark migration tick with zero newer rows: everything on disk is
         # older than the old watermark, so pin at the newest row and move on.
