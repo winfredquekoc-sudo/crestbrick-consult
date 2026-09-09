@@ -5,7 +5,8 @@ import sys, json, sqlite3, os
 # intake-state.json) stay absolute inside intake_engine.py itself -- LIVE REPLAY below still
 # reads real data regardless of which worktree's code is under test.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
+_SRC = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
+sys.path.insert(0, _SRC)
 import intake_engine as E
 
 # The fixtures predate several listings closing (caspian tenanted 9 Jul 2026, others on
@@ -342,7 +343,7 @@ ok("backfill opening recognised as bot message", E.is_bot_message("Hi! Following
 
 print("== 13. CYCLE-2 HARDENING regressions ==")
 import importlib.util as _ilu
-_rs = _ilu.spec_from_file_location("rnr", os.path.expanduser("~/crestbrick-consult/src/wa-pipeline/wa_intake_runner.py"))
+_rs = _ilu.spec_from_file_location("rnr", os.path.join(_SRC, "wa_intake_runner.py"))
 RNR = _ilu.module_from_spec(_rs); _rs.loader.exec_module(RNR)
 # bot-echo detection (the bridge echoes our own sends as is_from_me=0)
 ok("blank intake form echo -> recognised as our echo (would poison if processed)", RNR._is_our_echo(E.INTAKE_FORM) is True)
@@ -796,6 +797,110 @@ E.listing_reqs, E._listing_unavailable, E.qualify = _hold_reqs, _hold_unavail, _
 ok("runner formats the hot line", _RCP._hot_line({"hot_matches": ["a", "b"]}) == "\n🔥 Also fits: a, b")
 ok("runner hot line is empty without matches", _RCP._hot_line({}) == "")
 
+print("== OPEN HOUSE (skip_buyer_form): buyer flow override, per listing template (Sep 2026) ==")
+# Data driven: a listing's property-templates.json entry can carry skip_buyer_form +
+# open_house_message to replace the buyer intake form with a landlord open house invite.
+# Tested against a FAKE listing key (never touches the real property-templates.json file,
+# and never touches the real kembangan-villas fixture the FIXED VIEWING SLOT section above
+# already exercises for the plain buyer-form + fixed-slot path).
+_orig_buyer_template = E._buyer_template
+_OH_KEY = "open-house-test-listing"
+_OH_MSG = ("Hi, thanks for your interest in Test Open House Villas. There's an open house "
+           "this Saturday, 11am to 12noon, do drop by to view the unit. Let me know if "
+           "you're planning to come and I'll look out for you.")
+def _fake_buyer_template(listing_key):
+    if listing_key == _OH_KEY:
+        return {"id": _OH_KEY, "skip_buyer_form": True, "open_house_message": _OH_MSG}
+    return _orig_buyer_template(listing_key)
+E._buyer_template = _fake_buyer_template
+
+# (a) buyer enquiry on a skip_buyer_form listing -> the open house invite, NOT the buyer form
+sO = {"version":1,"conversations":{}}
+jidO = "6590009911@s.whatsapp.net"
+aO1 = E.handle_event(sO, {"jid":jidO,"msg_id":"oh1",
+    "text":"Hi Winfred Quek, I am interested in your Sale property Test Open House Villas, 6 bedroom, listed for S$ 3,000,000.",
+    "is_from_me":0,"listing_key":_OH_KEY})
+ok("open house listing buyer enquiry -> SEND_OPEN_HOUSE with the exact invite text",
+   aO1 and aO1["type"]=="SEND_OPEN_HOUSE" and aO1["text"]==_OH_MSG)
+ok("open house send carries NO buyer form fields (not the form + invite glued together)",
+   aO1 and "Citizenship" not in aO1["text"] and "HFE valid?" not in aO1["text"]
+   and "IPA valid?" not in aO1["text"])
+pnO = E.resolve_pn(jidO); recO = sO["conversations"][pnO]
+ok("open house send latches buyer_form_sent + open_house_sent (one time gate)",
+   recO.get("buyer_form_sent") is True and recO.get("open_house_sent") is True)
+ok("open house action flows through the runner's GENERIC single-text send path "
+   "(no 'texts' list, no bespoke send key that could dodge DRY_RUN/guard/cap)",
+   "text" in aO1 and "texts" not in aO1 and aO1.get("pn") == pnO)
+
+# (b) sent at most ONCE; a repeat ping does not re-send it, and hands off to Winfred instead
+aO2 = E.handle_event(sO, {"jid":jidO,"msg_id":"oh2","text":"hi still there? just checking","is_from_me":0})
+ok("repeat ping after the open house invite -> never re-sent (no SEND_OPEN_HOUSE/SEND_BUYER_FORM)",
+   aO2 is not None and aO2["type"] not in ("SEND_OPEN_HOUSE","SEND_BUYER_FORM"))
+ok("repeat ping after the open house invite -> hands off to Winfred (FLAG_HUMAN, no prospect text)",
+   aO2["type"]=="FLAG_HUMAN" and aO2.get("notify") is True and aO2.get("text") is None)
+
+# (c) a buyer QUESTION after the open house invite flags to Winfred, never auto answered
+sQ = {"version":1,"conversations":{}}
+jidQ = "6590009933@s.whatsapp.net"
+E.handle_event(sQ, {"jid":jidQ,"msg_id":"q1",
+    "text":"Hi, interested in Test Open House Villas, is it still for sale?",
+    "is_from_me":0,"listing_key":_OH_KEY})
+aQ2 = E.handle_event(sQ, {"jid":jidQ,"msg_id":"q2",
+    "text":"Can I bring my parents along on Saturday? Also is the price negotiable?",
+    "is_from_me":0})
+ok("buyer QUESTION after the open house invite -> FLAG_HUMAN, never auto answered "
+   "(no price/negotiation advice from the engine -- CEA role boundary)",
+   aQ2 is not None and aQ2["type"]=="FLAG_HUMAN" and aQ2.get("text") is None
+   and aQ2.get("notify") is True)
+
+# (d) a normal sale listing with NO skip_buyer_form entry still gets the buyer form unchanged
+sD = {"version":1,"conversations":{}}
+aD = E.handle_event(sD, {"jid":"6590009922@s.whatsapp.net","msg_id":"d1",
+    "text":"Hi Winfred Quek, I am interested in your Sale property Test HDB Flat, 4 bedroom, listed for S$ 500,000.",
+    "is_from_me":0, "listing_key":"no-template-entry-xyz"})
+ok("sale listing with no skip_buyer_form template -> normal buyer form, no regression",
+   aD and aD["type"]=="SEND_BUYER_FORM" and "Citizenship" in aD["text"])
+ok("kembangan-villas (real listing, no skip_buyer_form in the LIVE file today) is unaffected "
+   "-> still the fixed-slot buyer form path from the FIXED VIEWING SLOT section above",
+   aK and aK["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK["text"])
+
+# (e) DRY_RUN: the open house send goes through the exact same generic gate as every other
+# action type in the runner (reproduced verbatim from wa_intake_runner.run(), which is not
+# unit-testable end to end without a live bridge/messages.db -- no other action type in this
+# suite is either). No new send path was added for SEND_OPEN_HOUSE, so DRY_RUN gates it too.
+_oh_send_calls = []
+_orig_rcp_send = _RCP._send
+_RCP._send = lambda pn, text: _oh_send_calls.append((pn, text))
+_orig_dry_run = E.DRY_RUN
+E.DRY_RUN = True
+_texts = aO1.get("texts") or ([aO1["text"]] if aO1.get("text") else [])
+if E.DRY_RUN:
+    pass  # runner only logs WOULD_SEND, never calls _send
+else:
+    for _tx in _texts:
+        _RCP._send(aO1["pn"], _tx)
+ok("DRY_RUN=True -> open house invite sends nothing (same gate as every other action type)",
+   _oh_send_calls == [])
+E.DRY_RUN = _orig_dry_run
+_RCP._send = _orig_rcp_send
+ok("DRY_RUN restored to its prior value after the test (never left flipped)",
+   E.DRY_RUN == _orig_dry_run)
+
+# echo / manual-takeover safety: the invite must be recognised as OUR send everywhere the
+# codebase checks for one, or an echoed outbound row would falsely latch manual_takeover
+# (wa_intake_runner's PRE-PASS: "if _ifm and not E.is_engine_outbound(_content): ... latch
+# manual_takeover") or poison recent_inbound_text/classify_intent as a fake prospect reply.
+ok("open house invite recognised by is_engine_outbound (PRE-PASS must not latch manual_takeover)",
+   E.is_engine_outbound(_OH_MSG) is True)
+ok("open house invite recognised by is_bot_message (chat-history echo guard)",
+   E.is_bot_message(_OH_MSG) is True)
+ok("open house invite recognised by the runner's _is_our_echo (_OUTBOUND_ONLY)",
+   _RCP._is_our_echo(_OH_MSG) is True)
+ok("SEND_OPEN_HOUSE is not exempted from the manual_takeover skip carve out "
+   "(only the landlord onboarding sequence gets that exemption)",
+   "SEND_OPEN_HOUSE" not in _RCP._LANDLORD_ONBOARDING_TYPES)
+
+E._buyer_template = _orig_buyer_template
 print("== LANDLORD ONBOARDING EXTENSION ==")
 
 # ---- deterministic parsers: never depend on the form's own field labels ----

@@ -101,7 +101,9 @@ _OUTBOUND_ONLY = (
     "almost there, i just need",
     "thanks, that is everything i need for now",
     "just checking in, still keen to send a few photos",
-)
+) + E._OPEN_HOUSE_MARKERS  # open house invite (skip_buyer_form listings, Sep 2026); single
+                           # source of truth lives in intake_engine so a listing name never
+                           # needs hardcoding here
 
 # Landlord onboarding action types: manual_takeover is latched the moment supply side is
 # detected (to keep the record out of the tenant/buyer flows), so every send this sequence
