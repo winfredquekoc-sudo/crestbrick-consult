@@ -244,6 +244,15 @@ _FIELD_LABEL_ALT = (
 _SEP_CHARS = r":\-："
 _NEXT_LABEL_STOP_RE = re.compile(
     r"[,，]\s*(?:" + _FIELD_LABEL_ALT + r")\b\s*[" + _SEP_CHARS + r"]?", re.I)
+# same as above but the comma is OPTIONAL: a caption/OCR-style form with NO punctuation at all
+# ("Name Alex Chua Nationality Singaporean Ethnicity Chinese...") still needs each field's
+# value to stop at the next recognised label word alone (P1 fix, 9 Sep 2026 cycle4 c4ec07).
+# Used ONLY when the current label itself consumed no separator (had_sep False) -- a real
+# colon-labelled field ("Pass type (SC/PR/EP/S Pass/STP etc):") must keep using the comma
+# required version above, or the word "Pass" inside its own format hint would truncate the
+# value before the hint's closing paren is ever reached.
+_NEXT_LABEL_STOP_NOSEP_RE = re.compile(
+    r"\s(?:" + _FIELD_LABEL_ALT + r")\b\s*[" + _SEP_CHARS + r"]?", re.I)
 # "form shaped": at least one recognised label immediately followed by a colon/dash anywhere
 # in the message -- a real filled-in form line ("Name: Alex Tan"), never a casual sentence
 # that merely happens to contain a field word ("...as ID, name Alex Tan, hope that helps.").
@@ -252,6 +261,25 @@ _FORM_LABEL_COLON_RE = re.compile(
 
 def _looks_like_filled_form(text):
     return bool(_FORM_LABEL_COLON_RE.search(text or ""))
+
+# every field label grab() recognises, in every script it recognises it in -- shared so a
+# candidate VALUE that is itself one of these words (a blank label-only form where a label's
+# own text leaks into the next field as its "value") is rejected everywhere, not only for the
+# English labels (P1 fix, 9 Sep 2026 cycle4 sc5).
+_LABEL_ONLY_RE = re.compile(
+    r"^(name|nationality|ethnic|gender|sex|age|type\s+of\s+pass|pass|visa|"
+    r"no\.?\s*of|pax|occupant|intended|move|preferred|lease|budget|rent|"
+    r"email|occupation|employment|location|"
+    r"姓名|国籍|种族|民族|性别|签证\w*|证件\w*|职业|入住\w*|租期|预算|人数|就业\w*|"
+    r"பெயர்|தேசியம்|இனம்|பாலினம்|வீசா\s*வகை|வீசா|தொழில்|வீடு\s*மாறும்\s*தேதி)\b",
+    re.I)
+
+# a "Name:" field value that is itself a prompt injection attempt, never a real human name.
+_NAME_INJECTION_RE = re.compile(
+    r"ignore\s+(?:all\s+)?(?:previous|prior)\s+instructions|"
+    r"disregard\s+(?:all\s+)?(?:previous|prior)|you\s+are\s+now|respond\s+as|act\s+as\s+(?:a|an)\b|"
+    r"system\s+(?:notice|prompt)|compliance\s+officer|unrestricted|new\s+polic(?:y|ies)|"
+    r"supervisor\s+at|authoris(?:ed|ation)\s+to\s+disclose", re.I)
 
 def extract_profile(text):
     """Best-effort parse of a filled-in block or free text. Required fields only."""
@@ -266,6 +294,12 @@ def extract_profile(text):
         addr = sfc.group(1).strip(" ,.")
         if addr:
             p["address"] = addr
+    # strip a leading bracketed media caption ("[Image: form]", "[Document attached]") BEFORE
+    # parsing: a caption's own incidental colon ("[Image: form]") otherwise makes grab()'s own
+    # separator check reject every label that follows it as sitting inside some OTHER field's
+    # value (P1 fix, 9 Sep 2026 cycle4 c4ec07: a captioned form image with a real filled-in
+    # label/value form after the caption parsed to nothing at all).
+    t = re.sub(r"^\s*\[[^\]\n]{0,60}\]\s*", "", t)
     # strip portal enquiry boilerplate BEFORE parsing: lines like "RENT - 905 Jurong West
     # Street 91" made grab("rent") capture the street number as the tenant's budget.
     t = re.sub(r"(?im)^\s*(hi winfred.*|hi propertyguru.*|i am interested in:?.*|"
@@ -284,7 +318,15 @@ def extract_profile(text):
         # track whether a colon/dash separator was actually consumed right after the label.
         # [^\S\n]* (never \s*) around that separator so it can never eat a newline and grab
         # the NEXT field's text as if it were this one's value.
-        lab_re = r"\b(?:" + label + r")\b[^\S\n]*([" + _SEP_CHARS + r"])?[^\S\n]*"
+        # the trailing boundary also accepts a lookahead for whitespace/separator/end -- a
+        # \b alone fails right after a script whose last character is a combining mark (e.g.
+        # Tamil "பெயர்" ends in a non-spacing virama, категория Mn, which Python's \w does not
+        # count as a word char, so no \b exists between it and a following ":" -- both sides
+        # read as non-word). Never widens matching for ASCII/CJK labels, where \b already
+        # covers every real case (P1 fix, 9 Sep 2026 cycle4 sc5: every Tamil label failed to
+        # match at all).
+        lab_re = (r"\b(?:" + label + r")(?:\b|(?=[\s" + _SEP_CHARS + r"]|$))"
+                  r"[^\S\n]*([" + _SEP_CHARS + r"])?[^\S\n]*")
         # PRIMARY: the label must sit at a real field start (start of message, its own line,
         # or right after a comma joined field) -- never mid value ("Work Pass" must not let
         # the PASS label hijack a different field just because the word "Pass" sits inside
@@ -326,8 +368,16 @@ def extract_profile(text):
             return None
         # stop the value at the next recognised field label on the SAME line -- a comma or
         # newline joined form ("Nationality: Singaporean, Ethnicity: Chinese, Gender: Male")
-        # must never let one field's grab() swallow the other fields' text too.
-        stop = _NEXT_LABEL_STOP_RE.search(same_line)
+        # must never let one field's grab() swallow the other fields' text too. The bare
+        # (comma-free) stop is used ONLY when this field has neither a separator right after
+        # its label NOR a colon anywhere later on the line -- a hinted field ("Pass type
+        # (SC/PR/EP/S Pass/STP etc):") has no separator immediately after the label either,
+        # but DOES have a colon further along the line (the real separator, past the hint),
+        # so it must keep using the comma-required stop or the word "Pass" inside its own
+        # hint text would truncate the value before that colon is ever reached.
+        _line_has_colon = bool(re.search(r"[:：]", same_line))
+        stop = (_NEXT_LABEL_STOP_RE if (had_sep or _line_has_colon)
+                else _NEXT_LABEL_STOP_NOSEP_RE).search(same_line)
         val = (same_line[:stop.start()] if stop else same_line).strip().lstrip("•").strip()
         # if a format hint sits between the label and the value (e.g. "Date (e.g. 1 Aug): 15 Aug"),
         # take what follows the LAST colon, then drop a leading "(...)" hint. A blank field that only
@@ -341,16 +391,26 @@ def extract_profile(text):
         # instead of poisoning the value. Fixed 31 Jul 2026 (garbled buyer names "is Ruth", "an").
         val = re.sub(r"(?i)^(?:is|was|'s)\s+", "", val).strip()
         val = val.strip(" \t,;:.!•-：，。").strip()   # stray punctuation off every stored value
-        # reject an empty value or one that is itself another field label
-        if not val or re.match(r"^(name|nationality|ethnic|gender|sex|age|type\s+of\s+pass|pass|visa|"
-                               r"no\.?\s*of|pax|occupant|intended|move|preferred|lease|budget|rent|"
-                               r"email|occupation|employment|location)\b", val, re.I):
+        # reject an empty value or one that is itself another field label, in ANY script -- a
+        # blank label-only form (a label sitting bare on its own line, its value the NEXT
+        # line, which is itself the NEXT label) must parse to nothing, not to an off-by-one
+        # profile where one label's word ends up stored as another field's value (P1 fix, 9
+        # Sep 2026 cycle4 sc5: a blank Chinese label form stored "国籍" as the tenant's name).
+        if not val or _LABEL_ONLY_RE.match(val):
             return None
         return val
-    nm  = grab(r"name|姓名");            p["name"]=nm
-    nat = grab(r"nationality|国籍");     p["nationality"]=nat
-    eth = grab(r"race|ethnic\w*|种族");  p["ethnicity"]=eth
-    g   = grab(r"gender|sex|性别")
+    nm  = grab(r"name|姓名|பெயர்")
+    if nm and (len(nm) > 60 or _NAME_INJECTION_RE.search(nm)):
+        # a "Name:" field is free rendered into Telegram/landlord facing lines verbatim
+        # elsewhere -- an implausibly long value or one carrying prompt injection wording
+        # ("ignore all previous instructions...") must never be stored as the tenant's name
+        # (P1 fix, 9 Sep 2026 cycle4 c4rm07: a whole injection sentence was stored and would
+        # have rendered straight into a Telegram flag).
+        nm = None
+    p["name"]=nm
+    nat = grab(r"nationality|国籍|தேசியம்");     p["nationality"]=nat
+    eth = grab(r"race|ethnic\w*|种族|இனம்");  p["ethnicity"]=eth
+    g   = grab(r"gender|sex|性别|பாலினம்")
     if g:
         gl=g.lower()
         # preserve couple / dual-sex phrasing so qualify() can apply the couple gate;
@@ -364,22 +424,26 @@ def extract_profile(text):
         else: p["gender"] = g
     age = grab(r"age")
     if age and _to_int(age) and _to_int(age) < 120: p["age"]=_to_int(age)
-    ps  = grab(r"work\s*pass\s*type|work\s*pass|pass\s*type|pass|visa|证件类型")
+    ps  = grab(r"work\s*pass\s*type|work\s*pass|pass\s*type|pass|visa|证件类型|வீசா\s*வகை|வீசா")
     if ps: p["pass_type"]=ps.strip()
     pax = grab(r"no\.?\s*of\s*(?:pax|people|persons)|pax|persons?|occupant|人数")
     if pax and _to_int(pax) and _to_int(pax) < 12: p["no_of_pax"]=_to_int(pax)
     # free-text solo signals: "just me", "staying alone", "myself", "only me", "me only",
     # "1 pax" inline. A real prospect answered the pax nudge with "just me staying alone"
-    # and was silently dropped because none of the label patterns matched.
+    # and was silently dropped because none of the label patterns matched. An EXPLICIT count
+    # elsewhere in the same message ("just me and my wife, 2 pax") is checked FIRST and wins
+    # -- "just me" alone is a solo signal, but "just me and X, N pax" names a second person
+    # and a real count in the same breath, which the bare phrase match would otherwise
+    # silently override to 1 (P0 fix, 9 Sep 2026 cycle4 c4ec01).
     if "no_of_pax" not in p:
         tl = t.lower()
-        if re.search(r"\b(just me|only me|me only|by myself|myself only|stay(?:ing)? alone|"
-                     r"alone|solo|single occupant|1 (?:pax|person|pp))\b", tl):
+        m2 = re.search(r"\b([2-9])\s*(?:pax|persons?|people|of us)\b", tl)
+        if m2:
+            p["no_of_pax"] = int(m2.group(1))
+        elif re.search(r"\b(just me|only me|me only|by myself|myself only|stay(?:ing)? alone|"
+                       r"alone|solo|single occupant|1 (?:pax|person|pp))\b", tl):
             p["no_of_pax"] = 1
-        else:
-            m2 = re.search(r"\b([2-9])\s*(?:pax|persons?|people|of us)\b", tl)
-            if m2: p["no_of_pax"] = int(m2.group(1))
-    mv  = grab(r"move.?in(?:\s*date)?|intended\s*move(?:\s*in)?(?:\s*date)?|入住日期")
+    mv  = grab(r"move.?in(?:\s*date)?|intended\s*move(?:\s*in)?(?:\s*date)?|入住日期|வீடு\s*மாறும்\s*தேதி")
     if mv: p["move_in_date"]=mv.strip()
     ls  = grab(r"lease(?:\s*term)?|租期")
     if ls:
@@ -401,7 +465,7 @@ def extract_profile(text):
     if loc: p["preferred_location"]=loc.strip()
     em = grab(r"email(?:\s*address)?")
     if em and "@" in em and "." in em: p["email"]=em.strip()
-    occ = grab(r"occupation|profession|职业")
+    occ = grab(r"occupation|profession|职业|தொழில்")
     if occ: p["occupation"]=occ.strip()
     emp = grab(r"employment(?:\s*type)?|就业类型")
     if emp: p["employment_type"]=emp.strip()
@@ -666,6 +730,13 @@ def supply_side_kind(chat_jid, text, with_confidence=False, rec=None):
             kind, confident = "landlord", False
     return (kind, confident) if with_confidence else kind
 
+# availability phrasing tolerant of word order/spacing -- ENQUIRY_SIGNS/EXTRA_ENQUIRY_SIGNS
+# are literal substrings, so "is it still available" matches but "May I know if this is
+# available ?" or a bare "available ?" never did (P1 fix, 9 Sep 2026 cycle4 c4rm06 replay).
+_AVAIL_ENQUIRY_RE = re.compile(
+    r"\bavailable\b\s*\?|\b(?:is|are)\b[^?.!\n]{0,25}\bavailable\b|"
+    r"\bavailable\b[^?.!\n]{0,25}\b(?:is|are)\b|\bstill\b[^?.!\n]{0,15}\bavailable\b", re.I)
+
 def is_tenant_enquiry(text, listing_key=None):
     """Broader than is_enquiry: also accepts natural tenant phrasings, non-English rental
     enquiries, and any message bound to one of OUR listings that is not a sale. A landlord-
@@ -673,12 +744,23 @@ def is_tenant_enquiry(text, listing_key=None):
     low = (text or "").lower()
     if any(n in low for n in _SUPPLY_NEG):
         return False
-    if is_enquiry(text) or any(p in low for p in EXTRA_ENQUIRY_SIGNS):
+    if (is_enquiry(text) or any(p in low for p in EXTRA_ENQUIRY_SIGNS)
+            or _AVAIL_ENQUIRY_RE.search(text or "")):
         return True
     if listing_key:
         tx, _ = classify_transaction(text, listing_key)
         if tx != "sale":
             return True
+    # a complete looking profile submission or an explicit booking affirmative is itself proof
+    # of a genuine tenant, even with no enquiry keyword present and no listing bound yet -- this
+    # is re-evaluated on EVERY inbound (the caller never latches "not_enquiry" as terminal), so
+    # a filled form or a plain "YES" re-opens a thread that earlier messages left unclassified
+    # (P1 fix, 9 Sep 2026 cycle4 c4rm06: a complete profile and an explicit YES both stayed
+    # dead ended as "not a clear tenant enquiry").
+    if len(extract_profile(text)) >= 3:
+        return True
+    if _is_affirmative(text):
+        return True
     return False
 
 # ---------- prospect withdrawal: "found another place" / "no longer renting" ----------
@@ -783,18 +865,57 @@ _SENSITIVE_CONTENT_RE = re.compile(
     r"tak\s+suka|tidak\s+suka|dont\s+like|don'?t\s+like|doesn'?t\s+like|\bhate\b|"
     r"tell\s+me\s+honestly|be\s+honest|honestly\s+lah", re.I)
 
+# superset of _SENSITIVE_CONTENT_RE: also landlord identity/contact fishing and a
+# deposit/payment ask. Shared by the once-per-state notify latches below AND
+# _terminal_worth_notifying, so any of these always breaks through a latch that has
+# already fired once on unrelated content (P1 fix, 9 Sep 2026 cycle4 hg4-03: a legal-advice
+# question and a landlord-name/number fishing attempt both vanished behind an already
+# tripped "closed listing" notify latch).
+_HIGH_RISK_CONTENT_RE = re.compile(
+    _SENSITIVE_CONTENT_RE.pattern + r"|"
+    r"landlord'?s?\s+(?:number|phone|handphone|mobile|contact|name|address)|"
+    r"who\s+is\s+the\s+landlord|landlord\s+called|"
+    r"(?:exact|unit)\s+(?:unit\s+)?(?:number|address)|"
+    r"bank\s+transfer|account\s+number|paynow|pay\s+you\s+directly|"
+    r"deposit\s+(?:amount|refund)|how\s+much\s+(?:is\s+the\s+)?deposit|"
+    r"\bevict(?:ed|ion)?\b|\bcourt\b|what'?s?\s+the\s+(?:actual\s+)?law|\blaw\b|\billegal\b", re.I)
+
+def _high_risk_escalate(rec, latch_key, text):
+    """True if TEXT introduces high risk content (legal/advice, landlord identity or contact
+    fishing, protected attribute questions, deposit/payment asks) not already seen under this
+    latch -- so a once-per-state notify suppression still lets a later, materially different
+    high risk message through instead of swallowing it as just another repeat."""
+    if not _HIGH_RISK_CONTENT_RE.search(text or ""):
+        return False
+    sig = re.sub(r"\s+", " ", (text or "").strip().lower())[:120]
+    seen_key = latch_key + "_hr_sigs"
+    seen = rec.get(seen_key) or []
+    if sig in seen:
+        return False
+    rec[seen_key] = (seen + [sig])[-20:]
+    return True
+
 def _terminal_worth_notifying(rec, text):
     """True if a new inbound on a TERMINAL record is a clear tenant enquiry, names a
-    different OPEN listing, or reads as a complaint/discrimination accusation -- any of
-    which Winfred must see even though the engine stays silent to the prospect."""
-    if _TERMINAL_COMPLAINT_RE.search(text or ""):
+    different OPEN listing, reads as a complaint/discrimination accusation/legal-advice/
+    landlord-fishing question, or is itself a supply-side pivot ("my colleague has a room to
+    rent out") -- any of which Winfred must see even though the engine stays silent to the
+    prospect."""
+    if _HIGH_RISK_CONTENT_RE.search(text or ""):
+        return True
+    low = (text or "").lower()
+    # reuse supply_side_kind's own high-precision phrase sets directly, NOT supply_side_kind()
+    # itself -- that function vetoes to None once a record is already bound+profiled, which is
+    # exactly the terminal case here (P2 fix, 9 Sep 2026 cycle4 c4ec01: a landlord pivot on a
+    # closed thread was dropped because _terminal_worth_notifying knew nothing of it, while a
+    # near-identical message on a non-terminal thread already notified).
+    if any(m in low for m in _LANDLORD_SUPPLY) or any(m in low for m in _SELLER_SUPPLY):
         return True
     lk = rec.get("listing_key")
     # a narrow, explicit enquiry phrase only (is_enquiry/EXTRA_ENQUIRY_SIGNS) -- NEVER
     # is_tenant_enquiry's listing-bound fallback, which reads almost any non-sale text on a
     # bound record as "an enquiry" and would notify on every single terminal message,
     # including a plain "yes 3pm" the engine must stay silent on.
-    low = (text or "").lower()
     if is_enquiry(text) or any(p in low for p in EXTRA_ENQUIRY_SIGNS):
         return True
     reqs = listing_reqs()
@@ -1812,6 +1933,36 @@ def excluded_reason(pn, text=""):
     return None
 
 # ---------- qualify (corrected, honours every mode) ----------
+_CORRECTION_RE = re.compile(
+    r"\b(sorry|oops|typo|actually|correction|i mean|meant|my bad|mistake|misspoke|"
+    r"scratch that|ignore that|no wait|forget what i said)\b", re.I)
+
+# maps a qualify() DISQUALIFIED reason string to the profile field it turns on, so a
+# disqualify can be traced back to whichever field actually decided it.
+_DISQ_FIELD_PATTERNS = (
+    (re.compile(r"\bpax\b"), "no_of_pax"),
+    (re.compile(r"female tenant only|male tenant only|\bgender\b"), "gender"),
+    (re.compile(r"ethnicity|accepts only"), "ethnicity"),
+    (re.compile(r"\bbudget\b"), "budget"),
+    (re.compile(r"\boccupation\b"), "occupation"),
+    (re.compile(r"\bnationality\b"), "nationality"),
+)
+
+def _disqualify_unsourced(rec, why):
+    """True if a DISQUALIFIED verdict rests on a field whose only source is incidental free
+    text -- never a form and never an explicit correction. Redirecting a prospect away on a
+    value grab() merely guessed out of ordinary prose is not safe; Winfred should verify by
+    hand instead (P0 fix, 9 Sep 2026 cycle4 c4ec01 replay)."""
+    prov = rec.get("profile_provenance") or {}
+    for reason in why or []:
+        low = (reason or "").lower()
+        for pat, field in _DISQ_FIELD_PATTERNS:
+            if pat.search(low):
+                if prov.get(field) not in ("form", "correction"):
+                    return True
+                break
+    return False
+
 def qualify(req, profile):
     r = req.get("requirements", req)
     if r.get("open_intake"):
@@ -2583,10 +2734,12 @@ def _tenant_fact_answer(question_text, listing):
         # a specific figure ("can you do 1400", "200 less") is a real negotiation -> Winfred handles it
         if _FACT_RENT_NUMBER_RE.search(t):
             return None
-        # general price / negotiability: stay vague, never quote a figure, and pivot to a viewing
-        return ("Rent is usually fixed \U0001F642 But do come down to view first, and if the landlord "
-                "is comfortable with you as a tenant there may be some room on price. Shall I arrange "
-                "a viewing for you?")
+        # general price / negotiability: stay vague, never quote a figure, and pivot to a
+        # viewing. No price-flexibility claim (P2 fix, 9 Sep 2026 cycle4 hg4-06): the bot has
+        # no authority to represent what the landlord will or won't budge on -- rent is set by
+        # the landlord, full stop, and the next step is a viewing.
+        return ("Rent is usually fixed \U0001F642 It's set by the landlord. Do come down to view "
+                "first, and shall I arrange a viewing for you?")
 
     return None
 
@@ -2605,9 +2758,17 @@ _DECLINE_RE = re.compile(
 # past word 3 and was silently dropped (P1 fix, 9 Sep 2026 attack replay: a legal advice
 # question got zero reply and zero flag). Singlish particles likewise count anywhere, not
 # only as the final token ("anot leh can view" vs "can view anot leh").
+# a modal auxiliary (can/is/will/...) alone is not enough: "1 year is actually fine for us" and
+# "yes can" are plain acceptances, not questions -- a bare substring test on these words flags a
+# plain acceptance to Winfred as if it were a question, with the wrong triage reason attached
+# (P3 fix, 9 Sep 2026 cycle4 c4ec01). A modal only reads as a real (inverted) question when it
+# is immediately followed by a subject -- "can I", "is there", "should i" -- wh-words (how/
+# what/...) still count anywhere, no subject needed, since those are unambiguous. A false
+# negative here still falls through to the dead-end catch-all flag, so erring narrow is safe.
 _QUESTION_LEAD_RE = re.compile(
-    r"\b(?:can|could|is|are|do|does|did|will|would|should|"
-    r"how|what|when|why|who|where|which)\b", re.I)
+    r"\b(?:can|could|is|are|will|would|should)\b\s+"
+    r"(?:i|you|we|they|he|she|it|there|this|that|the\s+landlord|the\s+owner)\b|"
+    r"\b(?:how|what|when|why|who|where|which)\b", re.I)
 _QUESTION_TRAIL_RE = re.compile(r"\b(?:anot|or\s+not|ah|lah|leh|meh|sia|right)\b", re.I)
 
 def _is_question(text):
@@ -2630,6 +2791,17 @@ def _is_engaged(text):
     return _is_question(text) or bool(_ENGAGEMENT_INTENT_RE.search(text or ""))
 
 # ---------- stage 3 reaction (shared: autonomous flow + manual co-pilot after an auto-offer) ----------
+def _no_slot_flag(pn):
+    """An affirmative/time reply is about to build CONFIRM_VIEWING, but offered_slot_label is
+    empty -- no slot was ever actually offered (a stray early YES, or the offer never landed).
+    Confirming here would tell the prospect a viewing exists when it does not (P0, cycle4
+    hg4-01). Send no tenant text at all and re-ask Winfred for the landlord's time, the same
+    notice already sent when the enquiry first came in with no slot captured."""
+    return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+            "reason": "prospect said yes to a viewing but no slot is bound for this listing; "
+                      "reply with the landlord's next available viewing time so I can offer it"}
+
+
 def _viewing_reaction(rec, ev, pn):
     """After a viewing has been offered, react to ONE prospect reply — confirm the slot, acknowledge a
     proposed time, or flag a question to Winfred. Used by the autonomous flow AND by the manual-takeover
@@ -2656,6 +2828,13 @@ def _viewing_reaction(rec, ev, pn):
                 if act_r["type"] == "REDIRECT":
                     rec["stage"] = "DISQUALIFIED"
                 return act_r
+            if (not _pol_r and _disqualify_unsourced(rec, _why_r)
+                    and not rec.get("unsourced_disqualify_flagged")):
+                rec["unsourced_disqualify_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "post booking re screen would DISQUALIFY (" + "; ".join(_why_r)
+                                  + ") but the deciding field is only sourced from incidental "
+                                  "free text; verify by hand: " + _profile_summary(rec.get("profile", {}))}
             rec["terminal"] = True; rec["viewing_confirmed"] = False
             rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified_post_booking"
             _reason_r = _pol_r or _why_r
@@ -2710,6 +2889,8 @@ def _viewing_reaction(rec, ev, pn):
         _day_mismatch = bool(_days_said) and _lbl_low and not any(d in _lbl_low for d in _days_said)
         if (_is_affirmative(ev.get("text")) and not _day_mismatch
                 and not re.search(r"\binstead\b|\bbut\b|\bchange\b|\banother\b|\bother (?:day|time)\b|\bcan'?n?o?t\b", txt)):
+            if not rec.get("offered_slot_label") and not rec.get("offered_slot_id"):
+                return _no_slot_flag(pn)
             rec["viewing_confirmed"] = True
             _lbl = rec.get("offered_slot_label")
             _win = (" The viewing window is " + _lbl + ".") if _lbl else ""
@@ -2734,6 +2915,8 @@ def _viewing_reaction(rec, ev, pn):
                 "text": "Got it, let me confirm that slot with the owner and get back to you shortly."}
     if _is_question(ev.get("text")):
         if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
+            if not rec.get("offered_slot_label") and not rec.get("offered_slot_id"):
+                return _no_slot_flag(pn)
             # "yes, is there aircon?" — confirm the slot AND hold the question for Winfred
             rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
             _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
@@ -2750,6 +2933,8 @@ def _viewing_reaction(rec, ev, pn):
             return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": ans}
         return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": None}
     if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
+        if not rec.get("offered_slot_label") and not rec.get("offered_slot_id"):
+            return _no_slot_flag(pn)
         rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
         _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
         _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
@@ -2761,24 +2946,116 @@ def _viewing_reaction(rec, ev, pn):
     return None
 
 # ---------- core handler: entry point enforces the per-prospect message cap ----------
+_TRIVIAL_ACK_RE = re.compile(
+    r"^(?:ok|okay|kk|k|noted|thanks|thank\s*you|thx|ty|👍|👌|🙏|❤️|😊|🙂)$", re.I)
+
+def _is_trivial_inbound(text):
+    """A bare emoji, ack, or blank message carries nothing to flag -- the dead end catch-all
+    below must never fire on these, only on a real (if silently mishandled) tenant message."""
+    t = (text or "").strip()
+    if not t:
+        return True
+    if _TRIVIAL_ACK_RE.match(t):
+        return True
+    if not re.search(r"\w", t):        # punctuation/emoji only, no letters or digits at all
+        return True
+    return False
+
+_DEAD_END_RATE_WINDOW = 4 * 3600
+
+def _dead_end_catch_all(state, ev):
+    """Shared safety net (P1 fix, 9 Sep 2026 cycle4): if the inbound is a real tenant message
+    and every branch in _handle_event_inner fell through to None -- a true silent dead end, no
+    send and no flag -- ping Winfred once instead of vanishing. Rate limited ONCE PER STATE per
+    few hours: it shares its rate limit bookkeeping (_last_notified_status/_ts, stamped by
+    handle_event after ANY notify, not only this catch-all) with every other gate's own
+    once-per-record notify latch, so a dead end right after a real flag on the SAME status
+    never double-notifies -- those dedicated gates already decided silence was correct for
+    THAT exact repeat. Never produces tenant-facing text, so every existing send/silence gate
+    (manual takeover, terminal notify, dedup, cap) is completely untouched -- this only ever
+    adds a notify on top of an existing silent None."""
+    pn = resolve_pn(ev.get("jid"))
+    if not pn or ev.get("is_from_me"):
+        return None
+    rec = (state.get("conversations") or {}).get(pn)
+    if rec is None:
+        return None
+    if rec.get("manual_takeover") or rec.get("terminal"):
+        return None       # already silenced/handled by its own dedicated gate
+    _text_pre = ev.get("text") or ""
+    if _HIGH_RISK_CONTENT_RE.search(_text_pre) and _high_risk_escalate(rec, "dead_end", _text_pre):
+        # high risk content (legal/advice, landlord identity/contact fishing, protected
+        # attribute, deposit/payment, prompt injection) always breaks through EVERY carve out
+        # and rate limit below -- including the incomplete-nudge and lease-note sub-flows,
+        # which have no sensitive-content escalation of their own for a non-question message
+        # (P1 fix, 9 Sep 2026 cycle4 c4rm03: a fake-authority injection immediately after
+        # another flag on the same status was silently rate limited away).
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "sensitive/high risk content, no automated reply matched: \""
+                          + _text_pre[:120] + "\"; reply by hand"}
+    if rec.get("nudged_incomplete") and not rec.get("incomplete_flagged"):
+        # the incomplete-profile nudge already OWNS this state's silence policy: it already
+        # sent the prospect the missing-fields text once, and deliberately stays silent
+        # afterward unless they re-engage with a question/viewing time (its own dedicated
+        # escalation, incomplete_flagged, handles that) -- the catch-all must not second
+        # guess a silence that specific mechanism already chose on purpose.
+        return None
+    if rec.get("lease_note_sent") and not rec.get("lease_note_resolved"):
+        # every inbound in this state is already routed exclusively through
+        # _lease_note_pending_resolution (top of _handle_event_inner), which has its own
+        # complete sensitive-content/decline/question/ambiguous-once policy -- a None from it
+        # is that policy's own considered silence, not a gap the catch-all should fill.
+        return None
+    text = ev.get("text") or ""
+    if _is_trivial_inbound(text):
+        return None
+    now = __import__("time").time()
+    status = rec.get("status") or ""
+    if (rec.get("_last_notified_status") == status
+            and (now - (rec.get("_last_notified_ts") or 0)) < _DEAD_END_RATE_WINDOW):
+        return None
+    return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+            "reason": "no automated reply matched (" + status + "): \""
+                      + text[:120] + "\"; reply by hand"}
+
 def handle_event(state, ev):
     """Entry point: run the engine, then enforce a hard cap of MAX_PROSPECT_MSGS prospect-facing
     messages per person across the whole qualification attempt. Beyond the cap the bot stops
     messaging them and pings Winfred once (CAP_REACHED). Notify-only actions (FLAG_HUMAN /
     COPILOT_VERDICT / ANSWER_QUESTION) carry no prospect text, so they never count and are never
     capped — a real back-and-forth that needs Winfred can still surface."""
+    # peek BEFORE _handle_event_inner runs: it unconditionally appends msg_id to processed_ids
+    # as part of normal processing, so checking membership AFTER the call can never tell a
+    # genuine redelivery of an already-seen id apart from the very message just processed.
+    _pn_probe = resolve_pn(ev.get("jid"))
+    _rec_probe = (state.get("conversations") or {}).get(_pn_probe) if _pn_probe else None
+    _mid = ev.get("msg_id")
+    _redelivered = bool(_rec_probe and _mid and _mid in (_rec_probe.get("processed_ids") or ()))
     a = _handle_event_inner(state, ev)
+    if a is None and not _redelivered:
+        a = _dead_end_catch_all(state, ev)
     if a and (a.get("text") or a.get("texts")):
         rec = state.get("conversations", {}).get(a.get("pn"))
         if rec is not None:
             if rec.get("sent_count", 0) >= MAX_PROSPECT_MSGS:
                 if rec.get("cap_flagged"):
-                    return None                       # already flagged once -> stay silent
-                rec["cap_flagged"] = True
-                return {"type": "CAP_REACHED", "pn": a.get("pn"), "notify": True, "text": None,
-                        "listing_key": rec.get("listing_key"),
-                        "reason": "reached the " + str(MAX_PROSPECT_MSGS) + " message cap"}
-            rec["sent_count"] = rec.get("sent_count", 0) + len(a.get("texts") or [a.get("text")])
+                    a = None                          # already flagged once -> stay silent
+                else:
+                    rec["cap_flagged"] = True
+                    a = {"type": "CAP_REACHED", "pn": a.get("pn"), "notify": True, "text": None,
+                         "listing_key": rec.get("listing_key"),
+                         "reason": "reached the " + str(MAX_PROSPECT_MSGS) + " message cap"}
+            else:
+                rec["sent_count"] = rec.get("sent_count", 0) + len(a.get("texts") or [a.get("text")])
+    # shared "last notified" bookkeeping (P1 fix, 9 Sep 2026 cycle4): stamped on EVERY notify,
+    # whatever branch produced it, so the dead end catch-all's once-per-state rate limit
+    # correctly treats a repeat right after a real, dedicated-gate notify as already covered.
+    if a and a.get("notify"):
+        _pn2 = a.get("pn") or _pn_probe
+        _rec2 = (state.get("conversations") or {}).get(_pn2) if _pn2 else None
+        if _rec2 is not None:
+            _rec2["_last_notified_status"] = _rec2.get("status")
+            _rec2["_last_notified_ts"] = __import__("time").time()
     return a
 
 # ---------- inner handler: returns at most ONE action ----------
@@ -2925,6 +3202,7 @@ def _handle_event_inner(state, ev):
     # completed form was silently discarded because a stray "name" mid sentence got there
     # first under the old never overwrite rule).
     _form_now = _looks_like_filled_form(ev.get("text", ""))
+    _correction_now = bool(_CORRECTION_RE.search(ev.get("text", "") or ""))
     _prov = rec.setdefault("profile_provenance", {})
     for k,v in merged.items():
         cur = rec["profile"].get(k)
@@ -2944,20 +3222,30 @@ def _handle_event_inner(state, ev):
             rec["profile"][k] = v
             _prov[k] = "form"
             if k in REQUIRED_FIELDS: new_data = True
+        elif _correction_now and v != cur and _prov.get(k) != "form":
+            # an explicit correction ("sorry typo", "actually", "i mean") may overwrite a
+            # value whose only source was incidental free text (grab() lifting a number out
+            # of ordinary prose, never a labelled answer) -- but a FORM sourced value still
+            # only yields to a later form, never to free text (P0 fix, 9 Sep 2026 cycle4
+            # c4ec01 replay: "3 of us" -> "sorry typo ... 2 pax" left pax stuck at 3).
+            rec["profile"][k] = v
+            _prov[k] = "correction"
+            if k in REQUIRED_FIELDS: new_data = True
 
-    # SAFETY NET: a message shaped like a filled form (5+ label-colon lines, e.g. a language
+    # SAFETY NET: a message carrying 5+ DISTINCT known field labels (whatever the punctuation
+    # -- colon-per-line, a numbered list, a bare space-separated caption/OCR form, a language
     # grab() has no synonym for) that still only parsed under 3 fields is unparseable, not
     # empty -- flag it once instead of silently treating it as if nothing was sent (replay 9
-    # Sep 2026: a fully completed Chinese label form fell through to nothing, dead silence).
-    _label_line_count = len(re.findall(
-        r"(?m)^\s*[•\-]?\s*(?:" + _FIELD_LABEL_ALT + r")\s*[" + _SEP_CHARS + r"]",
-        ev.get("text", "")))
-    if (_label_line_count >= 5 and len(merged) < 3
+    # Sep 2026: a fully completed Chinese label form fell through to nothing, dead silence;
+    # P1 fix, 9 Sep 2026 cycle4: a numbered/space-separated form the same way).
+    _label_word_count = len(set(w.lower() for w in re.findall(
+        r"\b(?:" + _FIELD_LABEL_ALT + r")\b", ev.get("text", "") or "", re.I)))
+    if (_label_word_count >= 5 and len(merged) < 3
             and not rec.get("unparseable_form_flagged")):
         rec["unparseable_form_flagged"] = True
         return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
-                "reason": "looks like a filled form (" + str(_label_line_count)
-                          + " labelled lines) but only " + str(len(merged))
+                "reason": "looks like a filled form (" + str(_label_word_count)
+                          + " labelled fields) but only " + str(len(merged))
                           + " field(s) parsed; reply by hand"}
 
     # SAFETY NET 2: an unlabeled, delimiter separated (comma/slash/semicolon) form has no
@@ -3010,6 +3298,24 @@ def _handle_event_inner(state, ev):
         return _copilot_verdict(rec)
 
     reqs = listing_reqs()
+
+    # MID THREAD SELF DISCLOSURE (P1 fix, 9 Sep 2026 cycle4 hg4-05): excluded_reason() used to
+    # run ONLY inside the stage-1 (not yet form_sent) branch below, so an agent, landlord, or
+    # colleague who reveals themselves AFTER the form already went out sailed straight through
+    # every later message -- including a message that would otherwise be swallowed into the
+    # short-lease-followup sub-flow below and mislabelled as routine chatter (hg4-05: "I'm
+    # actually a property agent too, co broke 50/50" landed as "message during short lease
+    # follow up" instead of latching takeover). Checked BEFORE that sub-flow so it always
+    # wins. _LANDLORD_FEE_NEG still vetoes inside excluded_reason(), so a landlord haggling
+    # commission is never mislabelled an agent. db_error is left to the stage-1 path only: a
+    # transient contact-DB lock must not latch takeover on a live thread.
+    if rec.get("form_sent"):
+        _mid_why = excluded_reason(pn, ev.get("text", ""))
+        if _mid_why in ("landlord", "agent", "colleague"):
+            rec["manual_takeover"] = True
+            rec["status"] = "excluded:" + _mid_why
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True,
+                    "reason": "excluded " + _mid_why, "text": None}
 
     # SHORT LEASE AUTO REPLY (Winfred, 8 Sep 2026): fires on ANY tenant inbound, bound or not,
     # form sent or not -- ahead of every other stage, since the whole point is to catch the
@@ -3163,8 +3469,11 @@ def _handle_event_inner(state, ev):
         if not is_tenant_enquiry(gate_text, rec.get("listing_key")):  # clear tenant enquiry only
             rec["status"] = "not_enquiry"
             # once-per-record latch: a burst of ambiguous messages pings Winfred once, not
-            # once per message (12-message burst, replay 9 Sep 2026).
-            first = not rec.get("not_enquiry_notified")
+            # once per message (12-message burst, replay 9 Sep 2026) -- but new high risk
+            # content always breaks through regardless of the latch (P1 fix, 9 Sep 2026
+            # cycle4 hg4-03).
+            first = (not rec.get("not_enquiry_notified")
+                     or _high_risk_escalate(rec, "not_enquiry", ev.get("text", "")))
             rec["not_enquiry_notified"] = True
             return {"type":"FLAG_HUMAN", "pn":pn, "notify": first,
                     "reason":"not a clear tenant enquiry", "text":None}
@@ -3177,7 +3486,11 @@ def _handle_event_inner(state, ev):
             st0 = str(lst0.get("status", "")).lower()
             if st0.startswith("closed") or st0 == "hold":
                 rec["status"] = "listing_" + (st0.split()[0] or "closed")
-                first = not rec.get("closed_listing_notified")
+                # same content-aware override as the not_enquiry latch above (P1 fix, 9 Sep
+                # 2026 cycle4 hg4-03: a legal-advice question and a landlord-name/number
+                # fishing attempt both vanished behind an already-tripped closed-listing latch).
+                first = (not rec.get("closed_listing_notified")
+                         or _high_risk_escalate(rec, "closed_listing", ev.get("text", "")))
                 rec["closed_listing_notified"] = True
                 return {"type":"FLAG_HUMAN", "pn":pn, "notify": first,
                         "reason":"enquiry on a " + st0 + " listing (" + lk0 + "); room no longer available", "text":None}
@@ -3256,12 +3569,19 @@ def _handle_event_inner(state, ev):
         # walk alone" tripping no_of_pax) must not silence a genuine question -- only skip
         # the pre-check for a message that is clearly ADVANCING the profile (2+ fields at
         # once, a real form reply).
-        if (_lk_pre and _is_engaged(_pretxt) and not _is_affirmative(_pretxt)
+        # P1 fix (9 Sep 2026 cycle4 c4rm03): this used to require _lk_pre (a bound listing)
+        # before ANY of these checks ran, so protected-attribute fishing, authority
+        # impersonation, and "call me"/"trying to call you" got zero reply AND zero flag on a
+        # thread that never bound a listing. Run every check regardless of binding; only the
+        # fact-answer lookup below genuinely needs a listing (it quotes the listing's own
+        # data), so that alone stays gated on _lk_pre -- with no listing it falls straight to
+        # FLAG_HUMAN, no tenant text.
+        if (_is_engaged(_pretxt) and not _is_affirmative(_pretxt)
                 and not _has_viewing_time(_pretxt.lower())
                 and len(extract_profile(_pretxt)) < 2
-                and missing_required(rec["profile"], reqs.get(_lk_pre))):
+                and missing_required(rec["profile"], reqs.get(_lk_pre) if _lk_pre else None)):
             _ans = (_tenant_fact_answer(_pretxt, reqs.get(_lk_pre) or {})
-                    if not rec.get("fact_answered") else None)
+                    if (_lk_pre and not rec.get("fact_answered")) else None)
             if _ans:
                 rec["fact_answered"] = True
                 return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True,
@@ -3501,6 +3821,12 @@ def _handle_event_inner(state, ev):
             _attr = _protected_attr_from_why(why, listing)
             if _attr:
                 return _house_gate_redirect(pn, rec, listing, reqs, lk, _attr, why)
+            if _disqualify_unsourced(rec, why) and not rec.get("unsourced_disqualify_flagged"):
+                rec["unsourced_disqualify_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "would DISQUALIFY (" + "; ".join(why) + ") but the deciding "
+                                  "field is only sourced from incidental free text; verify by "
+                                  "hand: " + _profile_summary(rec["profile"])}
             rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
             return {"type":"REDIRECT", "pn":pn, "reason":why,
                     "text":_redirect_text(why, rec["profile"], reqs, lk)}

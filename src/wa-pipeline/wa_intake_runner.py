@@ -63,26 +63,47 @@ def _listing_open(l):
     st = str((l or {}).get("status", "")).lower()
     return not (st.startswith("closed") or st == "hold")
 
+# a BLOCK/UNIT number specifically -- not just any digit in the keyword (a plain avenue/street
+# number like "ave 10" is not a block number and must not tie with a real "blk 405" hit).
+_KW_HAS_NUM_RE = re.compile(r"\bblk\.?\s*\d+|\bblock\s*\d+|#\d+", re.I)
+
+def _match_pass(pool, t):
+    """Rank hits within ONE pool (open, or closed): a keyword carrying a number (a block or
+    street number) ranks above a bare street-name-only keyword hit -- a same-street listing
+    with a DIFFERENT block must never silently outrank the block the tenant actually named
+    (P2 fix, 9 Sep 2026 cycle4 hg4-03: a same-street keyword on a closed listing beat the
+    block number the tenant actually stated, silently binding to the wrong unit). Two
+    listings tied at the SAME best tier are genuinely ambiguous -- return None so the
+    caller's own needs_listing disambiguation takes over, rather than silently picking one
+    (and possibly auto closing the thread as "listing closed" on a guess)."""
+    best_tier, hits = -1, []
+    for l in pool:
+        tier = -1
+        for kw in (l.get("pg_url_keywords") or []):
+            if kw and kw.lower() in t:
+                tier = max(tier, 2 if _KW_HAS_NUM_RE.search(kw) else 1)
+        if tier < 0:
+            continue
+        if tier > best_tier:
+            best_tier, hits = tier, [l]
+        elif tier == best_tier:
+            hits.append(l)
+    if len(hits) == 1:
+        return hits[0]["listing_key"]
+    return None
+
 def match_listing(text, reqs=None):
     """A4 (Sep 2026): a stale keyword can survive on a CLOSED index row that also matches a
     live OPEN one (the review found "ang mo kio ave 3" on both) -- OPEN listings are always
     matched first, in TWO passes, so match order never depends on dict iteration order.
-    A CLOSED listing is only ever returned when nothing OPEN matches."""
+    A CLOSED listing is only ever returned when nothing OPEN matches. Within each pass, a
+    tie at the same specificity tier (see _match_pass) returns None rather than guessing."""
     t = (text or "").lower()
     listings = list((reqs if reqs is not None else E.listing_reqs()).values())
-    for l in listings:
-        if not _listing_open(l):
-            continue
-        for kw in (l.get("pg_url_keywords") or []):
-            if kw and kw.lower() in t:
-                return l["listing_key"]
-    for l in listings:
-        if _listing_open(l):
-            continue
-        for kw in (l.get("pg_url_keywords") or []):
-            if kw and kw.lower() in t:
-                return l["listing_key"]
-    return None
+    r = _match_pass([l for l in listings if _listing_open(l)], t)
+    if r:
+        return r
+    return _match_pass([l for l in listings if not _listing_open(l)], t)
 
 import subprocess
 GUARD = os.path.expanduser("~/crestbrick-consult/scripts/wa_send_guard.py")
