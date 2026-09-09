@@ -304,10 +304,31 @@ def fetch_transcript(con, idc, jid, limit=80):
     return out
 
 
+# 12 of Winfred's own real replies from the 60 day WhatsApp corpus (winfred_replies.json),
+# picked for being short, warm, and pivoting to a viewing -- seeded into the draft prompt so
+# Haiku writes in his actual register instead of a generic agent voice. Verbatim, no PII
+# (no real address, unit number, or phone number survived the pick).
+STYLE_EXAMPLES = (
+    "When would you like to view?",
+    "What time please?",
+    "tonight what time can view?",
+    "Ok may I know when you want to views",
+    "Let me send you a video first , if you keen we can do physical viewing",
+    "Hello , thank you for contacting me. Are you interested to view this place ?",
+    "possible to view tonight?",
+    "Sure I understand :) would you like to view\nIt tonight?",
+    "Yes, still available:)",
+    "let me check",
+    "Let me check with landlord see which one works :)",
+    "Hi I have video if you keen can do physical viewing",
+)
+
+
 def build_prompt(name, phone, listing_key, listing, profile, transcript, last_inbound):
     facts = (listing or {}).get("facts") or {}
     req = (listing or {}).get("requirements") or {}
     convo = "\n".join(f"{m['who']}: {m['text']}" for m in transcript)
+    style = "\n".join(f"- {ex}" for ex in STYLE_EXAMPLES)
     return (
         "You are ghostwriting ONE WhatsApp reply as Winfred Quek, a Singapore property agent, "
         "to a rental prospect he is already talking to. He replied by hand earlier and has not "
@@ -317,6 +338,8 @@ def build_prompt(name, phone, listing_key, listing, profile, transcript, last_in
         f"Known profile: {profile}\n"
         f"Listing facts on file: lease_min_months={req.get('lease_min_months')}, "
         f"cooking={req.get('cooking')}, smoking={req.get('smoking')}, facts={facts}\n\n"
+        "Winfred's own real replies, for style only (short, warm, pivots to a viewing) -- "
+        f"never copy one verbatim unless it genuinely fits this exact message:\n{style}\n\n"
         "Chat so far (ME = Winfred, BOT = the automated intake engine, THEM = the prospect), "
         f"oldest first:\n{convo}\n\n"
         f"Their newest message to answer:\nTHEM: {last_inbound}\n\n"
