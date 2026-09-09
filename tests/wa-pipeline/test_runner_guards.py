@@ -131,5 +131,21 @@ _reqs_only_closed = {"amk-closed": _reqs_amk["amk-closed"]}
 ok("a CLOSED listing is still returned when nothing OPEN matches (never silently drop it)",
    R.match_listing("still available at ang mo kio ave 3?", _reqs_only_closed) == "amk-closed")
 
+print("== single sender doctrine: owner loop and category 2 share the SAME send/guard path ==")
+# anti-spam guarantee (i), 9 Sep 2026 merge review: the owner loop must never grow its own
+# sender or its own cooldown guard -- it is handed the runner's own _send/_guard_reserve,
+# the same ones the tenant flow itself calls.
+ok("owner asks use the runner's own _send", "send_fn=_send" in src)
+ok("owner asks use the runner's own _guard_reserve", "guard_reserve_fn=_guard_reserve" in src)
+ok("owner chases use the runner's own _send", "OWNQ.run_owner_chases" in src
+   and "send_fn=_send" in src[src.index("OWNQ.run_owner_chases"):src.index("OWNQ.run_owner_chases") + 200])
+ok("category 2 (REPLIES2) is called from inside the same run() tick, not a separate process",
+   "REPLIES2.augment_action" in src and "def run():" in src
+   and src.index("def run():") < src.index("REPLIES2.augment_action"))
+import wa_intake_owner as OWNQ_mod
+ok("OWNQ never imports its own bridge/requests sender (no second send path)",
+   "requests" not in open(os.path.join(_REPO_ROOT, "src", "wa-pipeline",
+                                       "wa_intake_owner.py")).read())
+
 print(f"\n{P} passed, {F} failed")
 sys.exit(1 if F else 0)
