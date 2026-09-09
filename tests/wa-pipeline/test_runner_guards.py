@@ -48,7 +48,18 @@ ok("cap keyed to the SGT day", "8 * 3600" in send_block and "sends_today_date" i
 ok("viewing confirmations exempt (a YES must never dead-end overnight)",
    '"CONFIRM_VIEWING"' in send_block
    and ('a.get("type") != "CONFIRM_VIEWING"' in send_block
-        or 'a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_block))
+        or 'a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_block
+        or ('a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE",'
+            in send_block)))
+# REDIRECT (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a one-time,
+# already-latched closure -- holding them for the daily cap dead-ends a prospect who was
+# already told something final (9 Sep 2026 cycle 3 attack replay fix).
+ok("REDIRECT and LEASE_NOTE also exempt from the daily cap",
+   '"REDIRECT"' in send_block and '"LEASE_NOTE"' in send_block)
+# whatever type the cap DOES still hold back must still reach Winfred -- a held reply must
+# never vanish with zero signal.
+ok("a daily cap skip still force notifies Winfred",
+   "notify_winfred" in src[src.index("DAILY_CAP_SKIP"):src.index("DAILY_CAP_SKIP") + 800])
 after_send = src[src.index("count this touch against the per-client daily cap"):]
 ok("counter increments only on a fully delivered send", "sends_today" in after_send[:500]
    and src.index("count this touch") > src.index("_r0.pop(\"partial_sent\", None)"))

@@ -228,10 +228,12 @@ _SUN_FACING_ADDR_RE = re.compile(
 # form line never bleeds one field's value into the next) and by _looks_like_filled_form()
 # below (merge provenance).
 _FIELD_LABEL_ALT = (
-    r"name|nationality|ethnic\w*|gender|sex|age|pass\s*type|pass|visa|"
-    r"no\.?\s*of\s*(?:pax|people)|pax|occupant|move.?in(?:\s*date)?|intended\s*move|"
+    r"name|nationality|race|ethnic\w*|gender|sex|age|work\s*pass\s*type|work\s*pass|"
+    r"pass\s*type|pass|visa|"
+    r"no\.?\s*of\s*(?:pax|people|persons)|pax|persons?|occupant|move.?in(?:\s*date)?|"
+    r"intended\s*move|"
     r"lease(?:\s*term)?|budget|rent|afford|preferred\s*location|preferred\s*area|location|"
-    r"email(?:\s*address)?|occupation|employment(?:\s*type)?|"
+    r"email(?:\s*address)?|occupation|profession|employment(?:\s*type)?|"
     # Chinese label synonyms (real filled forms replay 9 Sep 2026): 姓名 name, 国籍
     # nationality, 种族 ethnicity, 性别 gender, 证件类型 pass type, 职业 occupation,
     # 就业类型 employment type, 人数 pax, 入住日期 move in date, 租期 lease term, 预算 budget.
@@ -269,6 +271,14 @@ def extract_profile(text):
     t = re.sub(r"(?im)^\s*(hi winfred.*|hi propertyguru.*|i am interested in:?.*|"
                r"(?:rent|sale)\s*-\s.*|room\s*/\s*s?\$.*|\d[\s-]*(?:room|beds?)\s+hdb.*|"
                r"https?://\S+.*|ref id:.*|thanks?\.?)\s*$", "", t)
+    # a slash/pipe/semicolon delimited form ("name jason wong / email j@x.com / nationality
+    # singaporean / ...") has no colons at all, so grab()'s comma-then-label stop never
+    # fires and one field swallows the whole rest of the message. Normalize any such
+    # delimiter immediately followed by a recognised label into a newline BEFORE parsing --
+    # grab() already stops a value at end of line, so this alone fixes every field boundary
+    # (P2 fix, 9 Sep 2026 cycle 3 attack replay). Only when a label actually follows, so a
+    # real "/" inside a date or fraction ("1/12", "and/or") is left untouched.
+    t = re.sub(r"[ \t]*[/|;][ \t]*(?=(?:" + _FIELD_LABEL_ALT + r")\b)", "\n", t, flags=re.I)
     def grab(label):
         # anchor to a real WORD (never mid word -- "nickname" must not match "name"), and
         # track whether a colon/dash separator was actually consumed right after the label.
@@ -304,6 +314,16 @@ def extract_profile(text):
             # -- the value is the NEXT line, never the leftover continuation word.
             nl2 = t.find("\n", nl + 1)
             same_line = t[nl + 1: nl2 if nl2 != -1 else len(t)]
+        elif (not had_sep and not re.match(r"(?i)^(?:is|was|'s)\b", same_line.strip())
+              and not re.search(r"[:：]", same_line) and _is_question(t)):
+            # no explicit separator, no natural declaration ("name is Ruth"), no colon hint
+            # further along the line, AND the message itself is a question: a stray label
+            # word caught inside that question ("nationality and sexe please?", "...given my
+            # pass situation") is rejected outright rather than captured as a garbled value.
+            # Scoped to interrogative messages only -- a genuine unlabeled slash/space form
+            # ("name jason wong / email ...") is a plain declarative statement and must still
+            # parse (P2 fix, 9 Sep 2026 cycle 3 attack replay).
+            return None
         # stop the value at the next recognised field label on the SAME line -- a comma or
         # newline joined form ("Nationality: Singaporean, Ethnicity: Chinese, Gender: Male")
         # must never let one field's grab() swallow the other fields' text too.
@@ -329,7 +349,7 @@ def extract_profile(text):
         return val
     nm  = grab(r"name|姓名");            p["name"]=nm
     nat = grab(r"nationality|国籍");     p["nationality"]=nat
-    eth = grab(r"ethnic\w*|种族");       p["ethnicity"]=eth
+    eth = grab(r"race|ethnic\w*|种族");  p["ethnicity"]=eth
     g   = grab(r"gender|sex|性别")
     if g:
         gl=g.lower()
@@ -344,9 +364,9 @@ def extract_profile(text):
         else: p["gender"] = g
     age = grab(r"age")
     if age and _to_int(age) and _to_int(age) < 120: p["age"]=_to_int(age)
-    ps  = grab(r"pass\s*type|pass|visa|证件类型")
+    ps  = grab(r"work\s*pass\s*type|work\s*pass|pass\s*type|pass|visa|证件类型")
     if ps: p["pass_type"]=ps.strip()
-    pax = grab(r"no\.?\s*of\s*(?:pax|people)|pax|occupant|人数")
+    pax = grab(r"no\.?\s*of\s*(?:pax|people|persons)|pax|persons?|occupant|人数")
     if pax and _to_int(pax) and _to_int(pax) < 12: p["no_of_pax"]=_to_int(pax)
     # free-text solo signals: "just me", "staying alone", "myself", "only me", "me only",
     # "1 pax" inline. A real prospect answered the pax nudge with "just me staying alone"
@@ -381,7 +401,7 @@ def extract_profile(text):
     if loc: p["preferred_location"]=loc.strip()
     em = grab(r"email(?:\s*address)?")
     if em and "@" in em and "." in em: p["email"]=em.strip()
-    occ = grab(r"occupation|职业")
+    occ = grab(r"occupation|profession|职业")
     if occ: p["occupation"]=occ.strip()
     emp = grab(r"employment(?:\s*type)?|就业类型")
     if emp: p["employment_type"]=emp.strip()
@@ -551,6 +571,21 @@ _LANDLORD_SUPPLY = (
 # "My kim keat ave room is still avail" — possessive + availability with words in between,
 # unreachable by substring. Tenants say "the/your room", never "my room", about OUR listing.
 _MY_ROOM_AVAIL_RE = re.compile(r"\bmy [a-z0-9 ]{0,24}\b(room|unit|flat|place)s? (is |are )?(still )?avail")
+# a THIRD PARTY relationship claim ("I am the landlord's brother") contains the substring
+# "i am the landlord" and would otherwise match _LANDLORD_SUPPLY, but it is a claim about
+# someone else, never the owner speaking for themselves -- and a bare relationship claim,
+# with no real supply content of its own (an actual offer to rent out, a rent figure, or an
+# address), is exactly the shape a prospect fakes to get the unit number for free (P1 fix,
+# 9 Sep 2026 cycle 3 attack replay). Vetoes the match outright unless real supply content
+# rides along in the same blob.
+_RELATIONSHIP_CLAIM_RE = re.compile(
+    r"landlord'?s\s+(?:brother|sister|son|daughter|wife|husband|father|mother|friend|"
+    r"nephew|niece|cousin|relative|agent|rep(?:resentative)?)\b|"
+    r"\bon\s+behalf\s+of\s+the\s+landlord\b|\blandlord\s+(?:told|asked|said)\s+me\b", re.I)
+_SUPPLY_REAL_CONTENT_RE = re.compile(
+    r"\brent\s*out\b|\bfor\s*rent\b|\d{3,5}\s*(?:psf|per\s*month|/\s*mo|month(?:ly)?)|"
+    r"\bblk?\.?\s*\d|\bblock\s*\d|#\d{1,3}[- ]\d{1,4}|\bpostal\s*\d|\bavenue\b|\bstreet\b|"
+    r"\broad\b|\bdrive\b|\blane\b|\bcrescent\b", re.I)
 # SELLER-supply markers (selling their own property). A seller is SUPPLY for a sale, the
 # mirror of a landlord being supply for a rental, and must never get the buyer (demand) form.
 # High precision: possessive "my" or explicit "to sell" intent only, so a buyer who says
@@ -606,6 +641,14 @@ def supply_side_kind(chat_jid, text, with_confidence=False, rec=None):
     cur = (text or "").lower()
     hist = (recent_inbound_text(chat_jid) or "").lower() if _supply_shaped(cur) else ""
     blob = cur + " \n " + hist
+    # a bare relationship claim ("landlord's brother") with no real supply content of its own
+    # never counts as supply -- and once the record is already bound with a tenant form out
+    # (FORM_SENT or later), it never flips on a relationship claim alone regardless of any
+    # other phrase overlap; a real supply-side switch there still needs a human look.
+    if _RELATIONSHIP_CLAIM_RE.search(blob) and not _SUPPLY_REAL_CONTENT_RE.search(blob):
+        return (None, False) if with_confidence else None
+    if rec is not None and rec.get("form_sent") and _RELATIONSHIP_CLAIM_RE.search(cur):
+        return (None, False) if with_confidence else None
     kind, confident = None, False
     if any(v in blob for v in _DEMAND_VETO):
         pass                                # portal enquiry template -> demand side, never supply
@@ -728,6 +771,17 @@ def withdrawal_signal(text):
 _TERMINAL_COMPLAINT_RE = re.compile(
     r"discrimina|\bracist\b|\bracism\b|\bunfair\b|\bcomplain(?:t|ing)?\b|"
     r"report (?:you|this)\b|lodge a (?:complaint|report)|file a complaint", re.I)
+
+# broader than _TERMINAL_COMPLAINT_RE above: also protected attribute FISHING ("does the
+# landlord not like Indians, tell me honestly") and a legal threat/escalation, wherever it
+# surfaces mid conversation (not only on an already terminal record). Shared by the short
+# lease follow up latch so a sensitive message can never be swallowed as routine chatter.
+_SENSITIVE_CONTENT_RE = re.compile(
+    r"discrimina|\bracist\b|\bracism\b|\bunfair\b|\bcomplain(?:t|ing)?\b|"
+    r"report (?:you|this)\b|lodge a (?:complaint|report)|file a complaint|"
+    r"\bsue\b|\blawyer\b|legal\s+action|\bpolice\b|small\s+claims|"
+    r"tak\s+suka|tidak\s+suka|dont\s+like|don'?t\s+like|doesn'?t\s+like|\bhate\b|"
+    r"tell\s+me\s+honestly|be\s+honest|honestly\s+lah", re.I)
 
 def _terminal_worth_notifying(rec, text):
     """True if a new inbound on a TERMINAL record is a clear tenant enquiry, names a
@@ -2232,6 +2286,15 @@ def _room_gone_action(rec, pn, st):
 _YES_WORD = re.compile(r"\b(yes|yeah|yup|yep)\b|\btake (it|the (room|slot))\b")
 _CONFIRM_WORD_RE = re.compile(r"\bconfirm(?:ed)?\b")
 _INTERROGATIVE_OPEN_RE = re.compile(r"^\s*(?:can|could|please|is|are|do)\b", re.I)
+# a bare "confirm" only reads as consent when it IS the message's own main clause -- a short
+# reply, not one clause folded inside a longer request/instruction sentence ("please confirm
+# my profile was received and share the landlord's whatsapp"). Any embedded request verb, or
+# a "?" anywhere (not just trailing), disqualifies it; length is the last guard against a
+# long multi-clause message that just happens to carry the word "confirm".
+_CONFIRM_REQUEST_RE = re.compile(
+    r"\bplease\b|\bkindly\b|\bshare\b|\bsend\b|\bprovide\b|\bcan you\b|\bcould you\b|"
+    r"\bcoordination system\b|\bas the\b", re.I)
+_CONFIRM_MAX_WORDS = 8
 def _is_affirmative(t):
     """A reply counts as viewing consent only when it IS the consent: an explicit yes/confirm
     anywhere, or a short standalone ok/sure. 'Ok thank you!' and 'ok noted' are polite
@@ -2243,7 +2306,13 @@ def _is_affirmative(t):
         # a bare "confirm" inside a clearly interrogative message ("please hold ya, confirm
         # can hold?") is asking WHETHER Winfred can confirm, never consent on its own -- only
         # counts alongside a standalone yes word, already handled above ("yes i confirm").
-        if not (raw.endswith("?") or _INTERROGATIVE_OPEN_RE.search(raw)):
+        if "?" in raw or _INTERROGATIVE_OPEN_RE.search(raw):
+            pass
+        elif _CONFIRM_REQUEST_RE.search(raw):
+            pass
+        elif len(raw.split()) > _CONFIRM_MAX_WORDS:
+            pass
+        else:
             return True
     core = " ".join(re.sub(r"[^a-z]+", " ", raw).split())
     if any(w in core.split() for w in ("thank", "thanks", "noted")):
@@ -2276,6 +2345,23 @@ _LEASE_YEAR_TOKEN_RE = re.compile(
 _LEASE_EXPLICIT_MONTHS_RE = re.compile(
     r"\b([1-6])\s*[- ]?\s*(?:months?|mths?|mos?)\b"
     r"(?!\s*(?:ago|back|deposit|dep\b|notice|advance|advanced|in\s+advance))", re.I)
+# the deposit/cap/notice wording can also sit BEFORE the month count ("is a 2 month deposit
+# legal", "my friend said HDB caps it at 1 month") -- the lookahead above only reaches
+# forward, so a trailing "at 1 month" slips through undetected. Python re has no variable
+# width lookbehind, so this is a separate forward scan (keyword ... number) exactly like
+# _LEASE_PAST_RE below, checked before the count is trusted as a real lease-length ask.
+_LEASE_MONEYTERM_CONTEXT_RE = re.compile(
+    r"\b(?:deposit|cap(?:s|ped)?|notice)\b[^.!?\n]{0,30}?\b[1-6]\s*[- ]?\s*"
+    r"(?:months?|mths?|mos?)\b", re.I)
+# an explicit legal-advice marker anywhere in the message means this is a question ABOUT the
+# law, never a request for a short lease -- even when a stray month count also rides along
+# ("is a 2 month deposit even legal, my friend said HDB caps it at 1 month"). Always veto so
+# the message falls through to the normal fact-veto / FLAG_HUMAN path instead of being
+# auto-answered as a lease-length FAQ (P1 fix, 9 Sep 2026 cycle 3 attack replay).
+_LEASE_LEGAL_MARKER_RE = re.compile(
+    r"\bis\s+it\s+legal\b|\b(?:il)?legal(?:ly)?\b|\bhdb\s+caps?\b|\bnotice\s+period\b|"
+    r"\bevict(?:ed|ion)?\b|\bbreach\b|\bsmall\s+claims\b|\btenant'?s?\s+rights?\b|"
+    r"\bkick\s+(?:us|me|him|her|them)?\s*out\b", re.I)
 # past tense narration ("stayed 6 months at my last place", "I rented 3 months before") is a
 # history statement, never a request for a short lease.
 _LEASE_PAST_RE = re.compile(
@@ -2295,6 +2381,8 @@ def _short_lease_requested(text):
     t = (text or "").lower()
     if not t:
         return False
+    if _LEASE_LEGAL_MARKER_RE.search(t):
+        return False
     if _LEASE_YEAR_TOKEN_RE.search(t):
         return False
     m = _LEASE_RANGE_RE.search(t)
@@ -2311,6 +2399,8 @@ def _short_lease_requested(text):
         return True
     if _LEASE_CJK_MONTHS_RE.search(text or ""):
         return True
+    if _LEASE_MONEYTERM_CONTEXT_RE.search(t):
+        return False
     return bool(_LEASE_EXPLICIT_MONTHS_RE.search(t))
 
 def _lease_note_pending_resolution(rec, ev, pn):
@@ -2321,6 +2411,19 @@ def _lease_note_pending_resolution(rec, ev, pn):
     (neither) returns None with lease_note_resolved still unset -- the caller reads that as
     stay silent, one note only."""
     t_now = (ev.get("text") or "").lower()
+    # SENSITIVE CONTENT always breaks through the one-flag-per-burst latches below: a
+    # protected attribute fishing question, a dispute/complaint, or a legal threat must
+    # reach Winfred regardless of where it lands in a "short lease follow up" burst -- the
+    # routine-chatter latch (lease_ambiguous_flagged) is for exactly that, routine chatter,
+    # never for this (P2 fix, 9 Sep 2026 cycle 3 attack replay: a discrimination-fishing
+    # question sent 3rd in the burst produced zero action, zero Telegram, zero log line).
+    # Own latch so a genuinely repeated identical message does not re-notify forever, but it
+    # is checked and set independently of lease_q_flagged / lease_ambiguous_flagged.
+    if _SENSITIVE_CONTENT_RE.search(t_now) and not rec.get("lease_sensitive_flagged"):
+        rec["lease_sensitive_flagged"] = True
+        return {"type": "FLAG_HUMAN", "pn": pn, "text": None, "notify": True,
+                "reason": "sensitive content (protected attribute / dispute / legal) during "
+                          "short lease follow up; reply by hand"}
     if re.search(r"\b(cannot|can'?t|cant|too long|shorter|short term|"
                  r"only \d+ ?(?:months?|mths?|mos?)|max(?:imum)? \d+ ?(?:months?|mths?|mos?))\b", t_now):
         if rec.get("lease_decline_flagged"):
@@ -2374,7 +2477,13 @@ def _lease_note_pending_resolution(rec, ev, pn):
 _FACT_VETO_RE = re.compile(
     r"good deal|worth\s+it|\bworth\b|\bsafe\b|\bdangerous\b|break\s+(?:\w+\s+){0,2}lease|"
     r"end\s+(?:\w+\s+){0,2}lease\s+early|\bterminate\b|"
-    r"\bsublet(?:ting)?\b|stamp\s+duty|\bdiplomatic\b|deposit\s+refund\s+dispute",
+    r"\bsublet(?:ting)?\b|stamp\s+duty|\bdiplomatic\b|deposit\s+refund\s+dispute|"
+    # eviction/notice/law questions are legal advice, never a lease-length or other fact
+    # lookup, even when "lease" also appears in the same message (P1 fix, 9 Sep 2026 cycle 3
+    # attack replay: "can the landlord evict me early... what does the law say" auto answered
+    # as a lease length FAQ)
+    r"\bevict(?:ed|ion)?\b|notice\s+period|\blaw\b|\blegal(?:ly)?\b|\billegal\b|"
+    r"tenant'?s?\s+rights?|\bbreach\b|\bcourt\b|small\s+claims",
     re.I)
 _FACT_LEASE_RE = re.compile(r"\blease\b|how\s+long|\bminimum\b|contract\s+length", re.I)
 _FACT_COOK_RE = re.compile(r"\bcook(?:ing)?\b|\bkitchen\b", re.I)
@@ -2508,6 +2617,17 @@ def _is_question(text):
     if "?" in t:
         return True
     return bool(_QUESTION_LEAD_RE.search(t) or _QUESTION_TRAIL_RE.search(t))
+
+# a genuine viewing/availability ask with no "?" and no lead/trail question word at all
+# ("Trying to call you", "Hi any viewing") still means engagement, not silence -- shared by
+# both the pre-complete PRE-VIEWING QUESTION CHECK and the post-nudge incomplete-profile
+# flag, so neither dead ends a keen prospect just because they phrased it as a statement
+# (P2 fix, 9 Sep 2026 cycle 3 attack replay).
+_ENGAGEMENT_INTENT_RE = re.compile(
+    r"\bany\s+(?:viewing|update|news)\b|\bstill\s+available\b|\bstill\s+there\b|"
+    r"\btrying\s+to\s+call\b|\bcan\s+call\b", re.I)
+def _is_engaged(text):
+    return _is_question(text) or bool(_ENGAGEMENT_INTENT_RE.search(text or ""))
 
 # ---------- stage 3 reaction (shared: autonomous flow + manual co-pilot after an auto-offer) ----------
 def _viewing_reaction(rec, ev, pn):
@@ -2812,8 +2932,16 @@ def _handle_event_inner(state, ev):
             rec["profile"][k] = v
             _prov[k] = "form" if _form_now else "free_text"
             if k in REQUIRED_FIELDS: new_data = True
-        elif _form_now and _prov.get(k) == "free_text" and v != cur:
-            rec["profile"][k] = v        # a clean form corrects an earlier free text guess
+        elif _form_now and v != cur:
+            # a later CLEAN FORM resubmission always wins on the fields it explicitly states,
+            # whether the stored value came from an earlier free text guess OR an earlier
+            # form -- a prospect who sends contradictory duplicate forms is qualified on
+            # their LATEST stated values, never a stale first one (P1 fix, 9 Sep 2026 cycle 3
+            # attack replay: a 6 month/2 pax/1600 third form was discarded and the record
+            # still qualified past the 12 month gate on the first form's numbers). Never
+            # overwrite stays true only for fields THIS message does not restate -- those
+            # simply are not in merged at all.
+            rec["profile"][k] = v
             _prov[k] = "form"
             if k in REQUIRED_FIELDS: new_data = True
 
@@ -2831,6 +2959,21 @@ def _handle_event_inner(state, ev):
                 "reason": "looks like a filled form (" + str(_label_line_count)
                           + " labelled lines) but only " + str(len(merged))
                           + " field(s) parsed; reply by hand"}
+
+    # SAFETY NET 2: an unlabeled, delimiter separated (comma/slash/semicolon) form has no
+    # colons at all, so the label-line count above never sees it -- but a message carrying an
+    # email address plus several such values ("kevin tan,kevintan99@mail.com,singaporean,
+    # chinese,male,26,sc,retail,permanent,1,1dec,12,850") is unmistakably a filled-in form,
+    # not silence. Fail closed with the raw text in the reason rather than returning None and
+    # stranding every follow up after it too (P1 fix, 9 Sep 2026 cycle 3 attack replay).
+    _has_email = bool(re.search(r"[\w.+-]+@[\w.-]+\.\w+", ev.get("text", "")))
+    _delim_vals = [v for v in re.split(r"[,/;]", ev.get("text", "")) if v.strip()]
+    if (_has_email and len(_delim_vals) >= 6 and len(merged) < 3
+            and not rec.get("unparseable_form_flagged")):
+        rec["unparseable_form_flagged"] = True
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "unlabeled delimiter separated form, could not auto parse: \""
+                          + (ev.get("text", "") or "")[:200] + "\"; reply by hand"}
 
     if ev.get("listing_key") and not rec.get("listing_key"):
         # Sourced "inbound": the ONLY source is_established_prospect() trusts -- the tenant's
@@ -3113,7 +3256,7 @@ def _handle_event_inner(state, ev):
         # walk alone" tripping no_of_pax) must not silence a genuine question -- only skip
         # the pre-check for a message that is clearly ADVANCING the profile (2+ fields at
         # once, a real form reply).
-        if (_lk_pre and _is_question(_pretxt) and not _is_affirmative(_pretxt)
+        if (_lk_pre and _is_engaged(_pretxt) and not _is_affirmative(_pretxt)
                 and not _has_viewing_time(_pretxt.lower())
                 and len(extract_profile(_pretxt)) < 2
                 and missing_required(rec["profile"], reqs.get(_lk_pre))):
@@ -3279,7 +3422,8 @@ def _handle_event_inner(state, ev):
             # flag Winfred ONCE — a keen tenant must dead-end on a human, not on silence.
             if rec.get("nudged_incomplete"):
                 txt_now = ev.get("text") or ""
-                if (("?" in txt_now or _has_viewing_time(txt_now.lower()))
+                if (("?" in txt_now or _ENGAGEMENT_INTENT_RE.search(txt_now)
+                        or _has_viewing_time(txt_now.lower()))
                         and not rec.get("incomplete_flagged")):
                     rec["incomplete_flagged"] = True
                     return {"type": "FLAG_HUMAN", "pn": pn, "text": None, "notify": True,

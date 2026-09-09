@@ -284,6 +284,7 @@ def run():
             _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
     last_rowid = wm.get("last_rowid")
     stale_backfill_skipped = 0   # aggregated for ONE notify at the end of the tick, never per row
+    stale_backfill_by_pn = {}    # phone -> skipped row count, so the notify can name every chat
     for rowid, rid, jid, ifm, content, ts, mtype in rows:
         last_rowid = rowid if (last_rowid is None or rowid > last_rowid) else last_rowid
         # stale backfill guard: the bridge re-syncs reconnect gaps with old-stamped rows.
@@ -292,6 +293,8 @@ def run():
         # and no flag at all, P3 attack-harness finding 9 Sep 2026); no-auto-serve is unchanged.
         if _real_age_hours(ts) > STALE_ROW_HOURS:
             stale_backfill_skipped += 1
+            _pn_stale = E.resolve_pn(jid)
+            stale_backfill_by_pn[_pn_stale] = stale_backfill_by_pn.get(_pn_stale, 0) + 1
             _log("STALE_BACKFILL_SKIP", jid,
                  f"row {rid} is {_real_age_hours(ts)/24:.1f}d old (>{STALE_ROW_HOURS}h backfill guard); never auto-served")
             continue
@@ -493,12 +496,24 @@ def run():
                          time.gmtime(time.time() + 8 * 3600))
             # ASK_ONE and OFFER_VIEWING are direct replies to a prospect's own message in
             # the booking flow — the viewing-first happy path is 3 touches, and capping it
-            # at 2 dropped the offer right after a YES (adversarial-review P2-8)
-            if a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
+            # at 2 dropped the offer right after a YES (adversarial-review P2-8). REDIRECT
+            # (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a ONE-TIME,
+            # already-latched closure or note, never a repeat touch — holding them for the
+            # cap dead-ends a prospect who was already told something final, with nothing
+            # left for Winfred to see either (P2 fix, 9 Sep 2026 cycle 3 attack replay).
+            if a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE",
+                                      "REDIRECT", "LEASE_NOTE"):
                 if (_grec.get("sends_today_date") == _today_sgt
                         and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
                     _log("DAILY_CAP_SKIP", a.get("pn"),
                          a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")
+                    # force notify on every OTHER type the cap still holds back -- a held
+                    # reply must never vanish with zero signal to Winfred.
+                    _nm_cap = _grec.get("profile", {}).get("name") or a.get("pn")
+                    _lk_cap = _grec.get("listing_key") or "a listing"
+                    notify_winfred(f"Daily touch cap reached for {_nm_cap} ({a.get('pn')}) "
+                                    f"on {_lk_cap}: held a {a.get('type')} reply, reply by "
+                                    f"hand if it needs to go out today.")
                     E.save_state(state); acted += 1; continue
             if E.DRY_RUN:
                 for tx in texts:
@@ -581,10 +596,14 @@ def run():
     E.save_state(state)
     if stale_backfill_skipped:
         # one aggregated ping per run, never one per row -- a reconnect backfill can carry
-        # dozens of stale rows in a single tick.
+        # dozens of stale rows in a single tick. Name every affected chat (phone + its own
+        # skipped count), the way the STALE_BACKFILL_SKIP log line already does per row --
+        # otherwise Winfred has no way to tell which chats to review by hand (P3 fix, 9 Sep
+        # 2026 cycle 3 attack replay: a multi day outage backfill named no chat at all).
+        _chats_line = ", ".join(f"{_pn} ({_n})" for _pn, _n in stale_backfill_by_pn.items())
         notify_winfred(f"{stale_backfill_skipped} backfilled chat message(s) were older than "
-                       f"{STALE_ROW_HOURS}h this run and were skipped (never auto-served); "
-                       "check the affected chats by hand if any were real.")
+                       f"{STALE_ROW_HOURS}h this run and were skipped (never auto-served): "
+                       f"{_chats_line}. Check these chats by hand if any were real.")
     if last_rowid is None:
         # legacy-watermark migration tick with zero newer rows: everything on disk is
         # older than the old watermark, so pin at the newest row and move on.

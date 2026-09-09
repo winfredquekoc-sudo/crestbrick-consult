@@ -444,6 +444,21 @@ def new_draft(pn, jid, listing_key, text):
     return did
 
 
+def refresh_or_new_draft(pn, jid, listing_key, text):
+    """ONE pending resume draft per conversation: a later inbound while a draft is still
+    pending REFRESHES it in place (same /send code, new text) instead of minting a fresh
+    one, so an out of date middle draft can never be /send'd by mistake (P3 fix, 9 Sep 2026
+    cycle 3 attack replay). No-auto-send under takeover is unchanged."""
+    items = _load_drafts()
+    for d in items:
+        if d.get("pn") == pn and d.get("status") == "pending":
+            d["jid"] = jid; d["listing"] = listing_key
+            d["text"] = text; d["created"] = time.time()
+            _rewrite_drafts(items)
+            return d["id"]
+    return new_draft(pn, jid, listing_key, text)
+
+
 def find_draft(did):
     for d in _load_drafts():
         if d.get("id") == did:
@@ -495,7 +510,7 @@ def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
             + (" | ".join(f"{m['who']}: {m['text']}" for m in transcript[-3:]) or "(no recent text)"))
         notify_fn(notify_winfred_reason)
         return
-    did = new_draft(pn, jid, listing_key, text)
+    did = refresh_or_new_draft(pn, jid, listing_key, text)
     log_fn("RESUME_DRAFT", pn, f"{did} :: {text.replace(chr(10), ' / ')}")
     notify_fn(f"Draft reply for {name} ({pn}), {listing_key or 'no listing'}:\n{text}\n\n"
               f"To send it, WhatsApp yourself: /send {did}. Or reply to them directly.")
