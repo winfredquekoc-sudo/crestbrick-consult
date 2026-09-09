@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landlord Rent Cover: What Default Insurance Pays</title>
+    <meta name="description" content="Tenant default cover versus ordinary landlord insurance in Singapore: what actually pays out, common exclusions, claim documents, and cheaper alternatives.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Landlord Rent Cover: What Default Insurance Pays">
+    <meta property="og:description" content="Tenant default cover versus ordinary landlord insurance in Singapore: what actually pays out, common exclusions, claim documents, and cheaper alternatives.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Landlord Rent Cover: What Rental Default Insurance Actually Pays</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            A landlord searching for "rent cover" is usually thinking of one specific fear: the tenant stops paying, and the mortgage still has to be serviced. That worry is fair. What trips landlords up is assuming their existing home or landlord insurance already handles it. In most policies, it does not.
+        </p>
+
+        <p>
+            There are two different products hiding under similar sounding names, and mixing them up is the single biggest reason a landlord's claim gets rejected.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Key distinction:</strong> ordinary landlord insurance pays for loss of rent caused by damage, such as fire or flood. It does not pay you if the tenant simply stops paying rent.
+        </div>
+
+        <h2>Safety: default cover versus general landlord insurance</h2>
+
+        <p>
+            General landlord or home insurance in Singapore typically includes a "loss of rent" or "alternative accommodation" benefit. Read the trigger carefully. This benefit usually activates only when the unit becomes uninhabitable because of a covered event, fire, flood, or another insured peril, and the landlord loses rent while repairs happen. It is not designed to protect against a tenant who simply refuses or is unable to pay.
+        </p>
+
+        <p>
+            The product that actually covers non payment is separate, often called tenant default cover or rental protection. It is usually sold as an add on rider, either through a standalone insurer or bundled with a broader landlord package. When it pays out, it pays a monthly amount up to a set limit while the tenant is in arrears, typically for a capped number of months, and it is frequently bundled with legal cost cover for the eviction or recovery process itself.
+        </p>
+
+        <table>
+            <tr><th>Question</th><th>General landlord insurance</th><th>Tenant default cover</th></tr>
+            <tr><td>What triggers a payout</td><td>Physical damage that makes the unit unrentable, such as fire or flood</td><td>The tenant falling into arrears on the agreed rent</td></tr>
+            <tr><td>Where it sits</td><td>Usually the base policy</td><td>Usually an optional add on or a separate rider</td></tr>
+            <tr><td>Typical documents needed</td><td>Police report or damage assessment, repair invoices</td><td>Tenancy agreement, screening proof, demand letters</td></tr>
+            <tr><td>Common cap</td><td>A percentage of the sum insured on the building or contents</td><td>A fixed monthly amount for a capped number of months</td></tr>
+        </table>
+
+        <p>
+            The confusion is understandable because both benefits sometimes sit inside the same policy document under headings that look almost identical, such as "loss of rent" appearing twice with different conditions attached. Before you assume you are covered for a defaulting tenant, ask your insurer directly which of the two triggers applies to your specific clause, in writing, rather than relying on the product brochure summary.
+        </p>
+
+        <h2>What a policy usually asks for before it pays</h2>
+
+        <p>
+            Insurers do not pay a default claim on your word alone. Expect the policy to require most of the following before a claim is honoured.
+        </p>
+
+        <ul>
+            <li>A signed tenancy agreement showing the agreed rent, the term and the parties.</li>
+            <li>Proof that the tenant passed a credit or reference check before move in, since many policies make screening a condition of cover, not an optional extra.</li>
+            <li>A waiting period after the first missed payment, often measured in weeks, before the claim clock starts.</li>
+            <li>Formal demand letters sent to the tenant, showing you attempted to recover the arrears directly first.</li>
+            <li>Evidence of the eviction or recovery process if the arrears continue past the initial cover window.</li>
+        </ul>
+
+        <div class="callout callout-info">
+            <strong>Practical note:</strong> keep every WhatsApp message and payment reminder to a defaulting tenant, since these often double as evidence for a claim.
+        </div>
+
+        <h2>Common exclusions</h2>
+
+        <p>
+            Policies vary, but a few exclusions show up repeatedly across Singapore rental default products. Cover is usually void if the landlord did not run a proper tenant screening or credit check before signing. Rent disputes over the condition of the unit, rather than genuine non payment, are often excluded or contested. Related party tenancies, such as renting to a family member on informal terms, are commonly excluded outright. And most policies cap the payout period, meaning a default that drags on for many months beyond the cap becomes the landlord's own recovery problem again.
+        </p>
+
+        <h2>Money: is default cover worth the premium</h2>
+
+        <p>
+            For a landlord with one unit and a mortgage that depends on the rent coming in, a modest annual premium against months of lost income is often a reasonable trade. For a landlord holding several units with a strong cash buffer, self insuring through savings can work out cheaper over time than paying a premium every year for a risk that may never happen.
+        </p>
+
+        <p>
+            Two cheaper ways to reduce the same risk sit outside insurance entirely. A larger security deposit, where the lease terms allow it, absorbs a short default without a claim at all. And proper tenant screening before handover, checking employment, references and payment history, prevents most defaults from happening in the first place, which is also usually a condition insurers require anyway. Our <a href="/insights/how-to-screen-tenants-singapore.html">tenant screening guide</a> and <a href="/insights/landlord-insurance-singapore-guide.html">landlord insurance overview</a> go deeper into both approaches.
+        </p>
+
+        <p>
+            There is also a middle path some landlords overlook: a shorter lease term with a strong renewal track record. A tenant who has paid on time for a full year and renews is a materially lower risk than a brand new tenant on a fresh two year term, and some landlords price this into whether they buy default cover at renewal at all. If your unit has a history of reliable tenants, the case for paying an annual premium every single year weakens, even though the case for screening every new tenant properly never does.
+        </p>
+
+        <h2>If a tenant has already stopped paying</h2>
+
+        <p>
+            If you are past prevention and already dealing with arrears, the sequence matters. Send a written demand first, keep a paper trail, and check your lease for the notice period required before you can proceed to recovery. The Small Claims Tribunal handles many rent arrears disputes for residential tenancies of up to two years, with a claim limit of twenty thousand dollars, or thirty thousand dollars if both parties agree in writing to raise it. Our <a href="/insights/rent-arrears-non-payment-tenant-singapore.html">rent arrears guide</a> and <a href="/insights/landlord-small-claims-tribunal-guide-singapore.html">Small Claims Tribunal walkthrough</a> cover the process step by step.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Does landlord insurance cover unpaid rent?</div>
+            <div class="faq-answer">Usually not by default. Standard landlord or home insurance loss of rent benefits are triggered by property damage that makes the unit uninhabitable, such as fire or flood, not by a tenant who stops paying. Cover for non payment is a separate product, often called tenant default cover or rental protection, and it is typically an add on.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">What does a rental default insurance claim need?</div>
+            <div class="faq-answer">Most policies ask for the signed tenancy agreement, proof the tenant was screened or credit checked before move in, evidence of a waiting period after the missed payment, and copies of demand letters sent to the tenant. If arrears continue, evidence of the eviction or recovery process is usually required too.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is a bigger deposit better than buying default insurance?</div>
+            <div class="faq-answer">A larger deposit and proper tenant screening are cheaper ways to manage the same risk and do not depend on an insurer approving a claim. Default insurance can still make sense for a landlord with a single unit and tight cashflow, since a deposit only covers a short gap, while a policy can extend cover for a longer default period.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Weighing up cover for your rental unit</h3>
+            <p>If you want a plain read on whether default cover, a bigger deposit or better screening fits your situation, talk it through directly.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information and education only, and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) and not a licensed insurance advisor. Insurance products, triggers, waiting periods and exclusions vary by insurer and change over time. Always read the actual policy wording and consult a licensed insurance advisor or the insurer directly before buying a policy or relying on one for a claim.
+        </div>
+
+        <div class="sources">
+            <h3>Sources & References</h3>
+            <ul>
+                <li><strong>MSIG Singapore, home insurance and loss of rent cover:</strong> https://www.msig.com.sg/personal/home-insurance</li>
+                <li><strong>eazy Insurance, landlord insurance and rental protection:</strong> https://www.eazy.com.sg/home-insurance/landlord-insurance</li>
+                <li><strong>HL Assurance, tenant versus rental property insurance:</strong> https://www.hlas.com.sg/tenant-vs-rental-property-insurance/</li>
+                <li><strong>State Courts of Singapore, Small Claims Tribunals:</strong> https://www.judiciary.gov.sg/civil/small-claims</li>
+                <li><strong>Monetary Authority of Singapore (MAS), insurance rules:</strong> https://www.mas.gov.sg</li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Landlord Rent Cover: What Rental Default Insurance Actually Pays",
+    "description": "Tenant default cover versus ordinary landlord insurance in Singapore: what actually pays out, common exclusions, claim documents, and cheaper alternatives.",
+    "image": "https://winfredquek.com/og-image.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Does landlord insurance cover unpaid rent?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Usually not by default. Standard landlord or home insurance loss of rent benefits are triggered by property damage that makes the unit uninhabitable, such as fire or flood, not by a tenant who stops paying. Cover for non payment is a separate product, often called tenant default cover or rental protection, and it is typically an add on."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What does a rental default insurance claim need?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Most policies ask for the signed tenancy agreement, proof the tenant was screened or credit checked before move in, evidence of a waiting period after the missed payment, and copies of demand letters sent to the tenant. If arrears continue, evidence of the eviction or recovery process is usually required too."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is a bigger deposit better than buying default insurance?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A larger deposit and proper tenant screening are cheaper ways to manage the same risk and do not depend on an insurer approving a claim. Default insurance can still make sense for a landlord with a single unit and tight cashflow, since a deposit only covers a short gap, while a policy can extend cover for a longer default period."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>

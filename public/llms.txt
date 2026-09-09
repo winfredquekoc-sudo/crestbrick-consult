@@ -638,6 +638,11 @@
 
 ## Property guides (2026)
 <!-- undefined -->
+- [DBS and POSB Home Loan Rates: A Rate Check](https://winfredquek.com/insights/dbs-posb-home-loan-rates-now): How DBS and POSB structure fixed, SORA and hybrid home loan packages, what to compare beyond the headline rate, and where to read the current numbers.
+- [What Happens to Your Deposit in a Mortgagee Sale](https://winfredquek.com/insights/rent-deposit-landlord-bank-repossession): If your landlord's bank repossesses the unit, does your tenancy survive, what happens to your deposit, and practical steps to protect yourself as a tenant.
+- [Second Opinion on Your HDB Valuation Before Listing](https://winfredquek.com/insights/hdb-valuation-second-opinion-before-listing): How HDB resale valuation actually works, why the buyer's cash over valuation matters, and how to sanity check your price against real transactions first.
+- [Landlord Rent Cover: What Default Insurance Pays](https://winfredquek.com/insights/landlord-rent-cover-rental-default-insurance): Tenant default cover versus ordinary landlord insurance in Singapore: what actually pays out, common exclusions, claim documents, and cheaper alternatives.
+- [Which District Is My Condo In? Postal Code Lookup](https://winfredquek.com/insights/which-district-is-my-condo-postal-code-lookup): Match your postal code to Singapore's 28 property districts, see which estates sit in each one, and why agents and banks quote district, not town.
 - [Should You List Before or After the November BTO](https://winfredquek.com/insights/list-before-or-after-november-bto): The BTO exercise moves to November 2026 and pulls first timer demand from the resale market for weeks.
 - [Tan Boon Liat and the Boutique En Bloc Wave](https://winfredquek.com/insights/tan-boon-liat-boutique-en-bloc-wave): Tan Boon Liat, Loyang Valley and Serenity Park show en bloc appetite has shifted to small freehold sites.
 - [Income Above $16,000: The HDB to Condo Upgrade Math](https://winfredquek.com/insights/income-crossed-16000-hdb-to-condo-upgrade): Household income above $16,000 still qualifies for resale HDB without grants.
