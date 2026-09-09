@@ -88,15 +88,6 @@ scripts/matchmaker/manual-photos/
 # Public site build output (room photos, regenerated)
 scripts/publicsite/dist/
 
-# Root-level DB exports carry real names/phones — never commit (git add -A guard)
-/landlord-db.json
-/landlord-db.csv
-/tenant-db.json
-/tenant-db.csv
-
-# Stray prototype DB dir holds real WhatsApp snippets + colliding fake IDs — never commit (PII backstop)
-scripts/databases/
-
-# Dated CSV backups slipped the *.bak-* and docs/*database*.csv patterns (bak2- had no hyphen after bak, and did not end in .csv). Catch both shapes.
-docs/*.bak*
-docs/*database*.csv*
+# FSBO scraper runtime data (lead PII) — never commit
+scripts/fsbo-scraper/message-queue.json
+scripts/fsbo-scraper/message-queue-quarantine.json

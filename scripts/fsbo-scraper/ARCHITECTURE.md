@@ -2,108 +2,68 @@
 
 ## Overview
 
-The FSBO (For Sale By Owner) scraper is a production-ready prospecting engine for Carousell HDB listings. It combines three main components:
+The FSBO (For Sale By Owner) scraper is a prospecting engine for Carousell HDB and condo listings. It has four components:
 
-1. **Carousell Scraper** — Find HDB FSBO listings 60+ days old
-2. **PropertyGuru Data Enrichment** — Pull recent 3 sold units per block
-3. **Message Queue & Template Filler** — Generate & queue messages for sending
+1. **Fetch** (`carousell_client.py`) — search + detail-page fetch via curl_cffi, past Cloudflare.
+2. **Classify** (`classify.py`) — owner vs agent, regex-first with an Ollama fallback.
+3. **Dedupe** (`dedupe.py`) — cross-checked against every phone/listing source Winfred already has.
+4. **Queue** (`scraper.py`) — fills the day-1 message template and appends qualified leads to `message-queue.json`.
 
-**Current Status:** Messages are **queued for manual sending** (safe, CEA-compliant). Auto-send requires explicit approval.
+**Current status:** Messages are always queued for manual sending. This isn't a default that happens to be set to "off" — there is no send implementation in this codebase to turn on. See "Sending Strategy" below.
 
 ---
 
 ## Component Architecture
 
-### 1. Carousell Scraper (`scraper.py:scrape_carousell()`)
+### 1. Fetch (`carousell_client.py`)
 
-**Goal:** Find HDB FSBO listings on Carousell that are 60+ days old (likely stuck).
+**Goal:** Find HDB/condo FSBO listings on Carousell.
 
-**Current:** Placeholder returning empty list.
+**Why curl_cffi, not requests + BeautifulSoup:** the original design used plain `requests` + BeautifulSoup. It never worked — Carousell returned a Cloudflare 403 on every attempt, every time, with no listing ever recovered. `curl_cffi` with `impersonate="chrome"` (TLS/HTTP fingerprint impersonation) gets past that. No headless browser, no proxy rotation.
 
-**Implementation Needed:**
-```python
-from selenium import webdriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
+**How listing data is recovered:** Carousell has no `__NEXT_DATA__`. Each page embeds exactly one `<script type="application/json">` island holding the whole Redux store. Because Carousell escapes every `/` in that payload as `/`, a literal `</script>` can never occur inside the JSON string content — so a non-greedy regex extraction (`JSON_ISLAND_RE`) is safe, not just lucky, and needs no real HTML/JS parser.
 
-driver = webdriver.Chrome(options=options)  # headless, proxy rotation
-driver.get("https://www.carousell.sg/search/property?...")
-WebDriverWait(driver, 10).until(EC.presence_of_all_elements_located((By.CLASS_NAME, "listing")))
+**Two different shapes matter:**
+- Search page — `SearchListing.searchCache.<requestKey>.results[].listingCard` has title/price for the grid, but its bump timestamps (`active_bump`/`expired_bump`) reflect promotion activity, not the post date.
+- Detail page (`/p/<id>/`) — `Listing.listingsMap[id]` is fully populated, including the true `time_created`, which is the only reliable age signal and what `min_days_old` filtering is based on.
 
-for listing in driver.find_elements(By.CLASS_NAME, "listing-card"):
-    # Extract: block, unit, price, seller name/phone, listing date
-    # Filter: days_old >= 60 AND is_active (not delisted)
-```
+**Resilience:** each request retries once on a non-200 or exception, with a randomized delay (`fetch_delay_range_sec`) before every attempt. `_get()` never raises — a failed fetch just returns `None`, and the caller treats that as transient (not marked seen, retried next run).
 
-**Dependencies:** `pip3 install selenium` + ChromeDriver
+**Known limitation:** `search()` reads page 1 of results only, per query — there's no pagination.
 
-**Blocker:** Carousell actively blocks scrapers. Requires:
-- Rotating proxies (Bright Data, ScraperAPI, etc.)
-- User-Agent rotation
-- Request delays (1-3 sec between listings)
-- JavaScript rendering (Selenium headless Chrome)
+### 2. Classify (`classify.py`)
 
-### 2. PropertyGuru Data Enrichment (`scraper.py:get_propertyguru_sales()`)
+**Goal:** Decide OWNER vs AGENT vs UNSURE per listing, so agent posts never get queued as leads.
 
-**Goal:** For each block, pull last 3 sold units (price, unit number, date sold).
+**Layering, and why the order matters:** hard AGENT signals are checked before hard OWNER signals, because a real agent's post can still use owner-ish language ("seller wants X", "owner is motivated"). Checking OWNER phrases first would let agent posts using that language slip through.
+- AGENT signals: content-marketing phrasing, a CEA registration number pattern in the listing text, co-broke language, known agency/brand names, agent self-identification phrases ("my client", "my listing", etc.).
+- OWNER signals: phrases like "direct owner", "no agent", "sale by owner". A phrase match is downgraded to `UNSURE` instead of trusted outright when the seller's account name itself looks dealer-style (matches a rental/property/agent/homes-type pattern) — the wording says owner, the account looks like a business, so it goes to manual review rather than either bucket.
 
-**Current:** Hardcoded demo data (for testing).
+**Ollama fallback:** anything not resolved by hard signals goes to a local Ollama call (`http://127.0.0.1:11434`). Model selection is dynamic — whichever model `ollama list` returns first, so there's no hardcoded model name to keep in sync — but that has a real consequence documented in the source: on this machine, the first-listed model currently resolves to `moondream`, a vision-tuned model that returns an empty completion for plain-text prompts. The fallback is deliberately "best effort" — if Ollama is unreachable, or returns nothing parseable, the result is `UNSURE` rather than guessed. In practice, that means everything that reaches this fallback currently ends up `UNSURE`, until a text-capable model is installed or reordered ahead of `moondream`.
 
-**Implementation Needed:**
-```python
-from bs4 import BeautifulSoup
+**Cross-listing heuristic (lives in `scraper.py`, not `classify.py`):** after a run finishes, if the same `seller_name` appears on 2+ queued leads from that run, any `OWNER` verdicts from that seller are downgraded to `UNSURE` — one person listing multiple properties for sale in the same batch reads as a dealer, not a private seller, regardless of what each individual listing's text said.
 
-search_url = f"https://www.propertyguru.com.sg/property-for-sale?location={block}&sold=true"
-response = requests.get(search_url, headers=user_agent, timeout=10)
-soup = BeautifulSoup(response.text, "html.parser")
+### 3. Dedupe (`dedupe.py`)
 
-for card in soup.find_all("div", class_="property-card"):
-    unit = card.find("h2").text.strip()
-    price = card.find("span", class_="price").text.strip()
-    date = card.find("span", class_="sold-date").text.strip()
-    psf = int(price) / area  # Calculate PSF
-    
-    if is_sold_within_90_days(date):
-        sales.append({...})
-```
+**Goal:** Never queue a lead Winfred already has a relationship with, and never re-contact someone on a do-not-engage list.
 
-**Dependencies:** `pip3 install beautifulsoup4`
+**Sources checked, in this order:**
+1. `fsbo-state.json` — `seen_listings` (every listing ID processed before, any classification) plus `listings_sent`.
+2. `docs/seller-database.csv` — phone numbers already in the seller database.
+3. `_templates/landlord-db.json` — phone numbers from the landlord database. This file is **read-only** from this scraper's side — `dedupe.py` never writes to it, and never iterates its top-level dict directly (it's a dict with a `landlords` key plus sibling metadata keys, not a bare list of records).
+4. A small hardcoded do-not-engage phone set, checked independently of the two databases above.
 
-**Blocker:** PropertyGuru also blocks scrapers. Requires:
-- Retry logic + exponential backoff
-- HTML parsing robustness (PropertyGuru changes structure often)
-- Phone number extraction (for seller contact)
+Phones are normalized to `+65XXXXXXXX` before any comparison, so `+65 9123 4567`, `91234567`, and `6591234567` all match each other.
 
-### 3. Message Template Filler (`scraper.py:fill_message_template()`)
+**Why listing ID and phone are checked separately:** a listing-ID match is available before any page is even fetched (cheap pre-fetch skip via `already_seen()`); a phone match can only be known after fetching and parsing the detail page. `check()` is the fuller post-classification pass that covers both.
 
-**Goal:** Fill `/docs/fsbo-day1-message-template.md` with listing + PropertyGuru data.
+### 4. Queue + Template Fill (`scraper.py`)
 
-**Status:** ✅ Working. Extracts template from markdown, substitutes:
-- `[Name]` → Seller's first name
-- `[Block]` → Block name (e.g., "Bishan Block 123")
-- `[X]k` → Asking price (e.g., "615k")
-- PropertyGuru sales → Recent sold units + dates
+**Goal:** Turn a classified, deduped listing into a ready-to-send draft, without ever sending it.
 
-**Test:** `python3 test-demo.py` shows message fills correctly.
+**PropertyGuru enrichment is gone, on purpose.** The day-1 message template (`docs/fsbo-day1-message-template.md`) has a sold-comps paragraph ("Just checked PropertyGuru..." plus three bullet lines), a close-price prediction line, and a "recent closes" checkmark line — all originally meant to be filled from a PropertyGuru sold-comps lookup. That lookup was never built, and isn't planned. Rather than leave the template's placeholder example figures in a message sent to a real prospect, `fill_message_template()` strips the comps paragraph and the prediction line entirely via regex, and replaces the numeric "recent closes" line with a generic, non-numeric claim ("Track record of fast closes in similar blocks nearby"). No fake, estimated, or stale figures are ever substituted in — the section is just omitted when there's no real data.
 
-### 4. Message Queue Manager (`scraper.py:queue_message()`, `load_queue()`)
-
-**Goal:** Store prospecting messages in `message-queue.json` pending send.
-
-**Status:** ✅ Working. Stores:
-```json
-{
-  "id": "hash",
-  "block": "Bishan Block 123",
-  "seller_phone": "+65 ...",
-  "message": "...",
-  "status": "queued|sent|failed|manual_sent",
-  "created_at": "2026-08-31T04:01:00+00:00",
-  "sent_at": null
-}
-```
-
-**Dedup:** Checks if block already queued before adding.
+The seller's first name is used if it parses as a plausible name (alphabetic, reasonable length, not a generic word like "rental" or "owner"); otherwise the message falls back to "there".
 
 ---
 
@@ -111,284 +71,170 @@ for card in soup.find_all("div", class_="property-card"):
 
 ### The Constraint: Single Sender Doctrine
 
-From `CLAUDE.md`:
+From this repo's `CLAUDE.md`:
 
-> The intake engine (src/wa-pipeline, com.crestbrick.wa-intake) is the ONLY thing that ever
-> auto-sends WhatsApp messages on Winfred's number. No session, script, or agent may create
-> a second automated sender, auto-responder, or parallel enquiry/intake form.
+> The intake engine (src/wa-pipeline, com.crestbrick.wa-intake) is the ONLY thing that ever auto-sends WhatsApp messages on Winfred's number. No session, script, or agent may create a second automated sender, auto-responder, or parallel enquiry/intake form.
 >
-> Any new automated sender needs Winfred's explicit "go" AND must reserve through the shared
-> cross-sender guard before sending.
+> Drafts for prospects/clients are queued for human sending (WhatsApp Web) or Winfred's approval.
 
-**Why?** To prevent:
-- Spam filter triggers (multiple senders = suspicious activity)
-- Duplicate messages (two auto-senders on same number)
-- CEA compliance issues (messages must be reviewed before sending)
-- Rate limiting (WhatsApp blocks suspicious senders)
+### Current Implementation: Queue-Only, By Design
 
-### Current Implementation: Queue-Based (Safe)
+There is exactly one sending mode, and it is manual:
 
-**Default Mode:** `send_mode: "queue"` in `config.json`
+1. The scraper finds listings, classifies, dedupes, and fills the template.
+2. Entries are appended to `message-queue.json`. Nothing is sent.
+3. Winfred (or someone he delegates to) reviews `drafted_message` per entry and sends it by hand — WhatsApp Web if `phone` is set, Carousell chat if `needs_carousell_dm` is true.
 
-1. Scraper finds listings + fills templates
-2. Messages stored in `message-queue.json` (NOT sent)
-3. Winfred reviews messages (manually via WhatsApp Web)
-4. Winfred copies + sends to prospects
-5. (Optional) Winfred marks sent in `message-queue.json` (status = "manual_sent")
+`config.json` still carries a `send_mode` key, and `run.sh` still greps `config.json` for the literal string `"send_mode": "auto"` to decide whether to call `scraper.py send` — but `scraper.py send` is a hardcoded no-op:
 
-**Pros:**
-- ✅ CEA compliant (messages reviewed before sending)
-- ✅ No spam filter risk (human sender = trusted)
-- ✅ No parallel auto-sender (respects single sender doctrine)
-- ✅ Deniability (not an "automated outreach system")
-
-**Cons:**
-- ❌ Manual work (copy-paste per message)
-- ❌ Slower (one person can send 10-20/day max)
-
-### Option B: Auto-Send (Requires Explicit Approval)
-
-**If Winfred approves:** Can enable `send_mode: "auto"`
-
-**Architecture:**
-1. Scraper queues messages (same as above)
-2. Scraper calls `send_queued_messages()` to send via WhatsApp bridge
-3. Uses `wa_send_guard.py` to check cross-sender cooldown
-4. Sends to `/api/send` endpoint (same as intake engine)
-5. Respects `max_daily_sends` rate limit (20/day)
-6. Logs all sends + delivery status
-
-**Integration Points:**
 ```python
-from scripts.wa_send_guard import can_send, mark_sent
-
-for message in queue:
-    if not can_send(phone_jid):
-        continue  # Already sent to this person recently
-    
-    if send_via_bridge(message):
-        mark_sent(phone_jid, source="fsbo-scraper")
+elif command == "send":
+    print("This scraper never auto-sends. Messages are queued in message-queue.json for manual review.")
 ```
 
-**Pros:**
-- ✅ Scale to 20+ messages/day
-- ✅ Automated (runs via launchd)
-- ✅ Integrated with intake engine guard (no duplicates)
+There is no `send_via_bridge()`, no `wa_send_guard` integration, no `/api/send` call anywhere in this directory. Editing `send_mode` to `"auto"` in `config.json` would flip that grep and cause `run.sh` to invoke `scraper.py send` — but that call still only prints the line above. There is nothing left to enable by editing config. Treat this as a closed design decision, not a placeholder awaiting implementation.
 
-**Cons:**
-- ❌ Requires explicit "go" from Winfred (in chat)
-- ❌ Slightly higher spam risk (automated sender = suspicious)
-- ❌ Must ensure Carousell + PropertyGuru scrapers work first (currently placeholders)
-- ❌ Needs phone number validation (WhatsApp JID format)
+**Why this is permanent, not an MVP stopgap:** a second automated WhatsApp sender is exactly what the single-sender doctrine exists to prevent — spam-filter triggers, duplicate sends, and CEA review requirements all argue against it. Nothing about the fetch/classify/dedupe rewrite changes that calculus, so an auto-send path was deliberately not rebuilt alongside the rest of the pipeline.
 
 ---
 
 ## CEA Compliance Checklist
 
-**Status:** MVP compliant with queue-based approach. Auto-send requires approval.
-
-### Current (Queue-Based)
-- ✅ Messages NOT sent without Winfred's manual action
-- ✅ Template references CEA Reg. No. in signature (+65 8161 8149, R073319H)
-- ✅ Messages mention full service stack (photography, buyer screening, negotiation)
-- ✅ No advice given (template focuses on market data, not advice)
-- ✅ No negotiation on Winfred's behalf (just prospecting message)
-
-### If Auto-Send Enabled
-- ⚠️ Must show daily report to Winfred (transparency)
-- ⚠️ Must log all sends (audit trail)
-- ⚠️ Must respect /hold /pause from Telegram (Winfred's kill switch)
-- ⚠️ Must not re-send to same person (guard dedup)
-- ⚠️ Should not send during quiet hours (23:00–08:00 SGT)
+- ✅ Messages are never sent without Winfred's manual action — there is no code path in this directory that sends anything.
+- ✅ The day-1 template carries Winfred's own CEA registration and full-service framing; this scraper doesn't alter that part of the template.
+- ✅ No advice is given and no negotiation happens in the drafted message — it's a prospecting message, not deal terms.
+- ✅ No fabricated sold-comps data — the comps section is omitted, never faked, when there's no real data to fill it with (see "Queue + Template Fill" above).
+- ✅ Classification errors fail toward caution: ambiguous listings resolve to `UNSURE` and are flagged `needs_review` rather than auto-queued as confident OWNER leads.
 
 ---
 
 ## Files & State
 
-### Main Script
-- `scraper.py` (600 lines) — Core scraper, queue manager, message filler
+### Core pipeline
+- `scraper.py` — orchestrator: search, filter, classify, dedupe, template fill, queue, digest.
+- `carousell_client.py` — fetch layer (curl_cffi + JSON island extraction).
+- `classify.py` — owner/agent classification.
+- `dedupe.py` — cross-database dedupe + do-not-engage list.
 
 ### Configuration
-- `config.json` — Carousell URL, PropertyGuru URL, rate limits, send mode
-- `fsbo-state.json` — Contacted blocks, last run time (persisted)
-- `message-queue.json` — Pending messages (created on first run)
+- `config.json` — search queries, `min_days_old`, fetch pacing, fetch cap, plus a human-readable `notes` field. Also still carries a few keys nothing in the code reads (`max_daily_sends`, `send_time_hhmm`, `propertyguru_search_url` — leftovers from the pre-rewrite design) and a `send_mode` key that's loaded but never branches any Python behavior — see "Sending Strategy" above for why that's safe rather than a bug to fix.
+- `fsbo-state.json` — `seen_listings` (by listing ID, with classification + phone recorded for every classification including `AGENT` and `NOT_A_SALE`, not just queued leads), `listings_sent` (folded into the same seen-ID set as `seen_listings` — wired into `DedupeIndex`, but nothing currently appends to it, so it's always empty in practice), `last_run`. Also still carries a `contacted_blocks` key that nothing in the current code reads or writes at all — fully vestigial, unlike `listings_sent`.
+- `message-queue.json` — queued leads; schema documented in `README.md`.
 
 ### Scheduling
-- `launch-fsbo-scraper.plist` — launchd job (daily 00:00 UTC = 08:00 SGT)
-- `run.sh` — Wrapper script (calls `scraper.py scrape` + optionally `send`)
+- `launch-fsbo-scraper.plist` — launchd job, daily at 00:00 SGT (launchd's `StartCalendarInterval` runs in the system's local timezone, not UTC).
+- `run.sh` — wrapper: runs `scraper.py scrape`, conditionally runs `scraper.py send` (always a no-op — see "Sending Strategy" above), then appends `scraper.py queue` output to `logs/daily-report.log` as a running queue-status snapshot. `scraper.py` has no `report` subcommand — only `scrape`, `queue`, and `send`.
 
 ### Logs
-- `logs/fsbo-{date}.log` — Daily activity log
-- `logs/launchd.log` — launchd stdout
-- `logs/launchd-error.log` — launchd stderr
-- `logs/daily-report.log` — Daily reports (appended)
+- `logs/fsbo-{date}.log` — per-run activity log.
+- `logs/launchd.log` / `logs/launchd-error.log` — launchd stdout/stderr.
+- `logs/daily-report.log` — see the `run.sh` note above; a running history of `scraper.py queue` snapshots, not a per-run activity report.
 
 ### Documentation
-- `README.md` — User guide (running, configuring, troubleshooting)
-- `ARCHITECTURE.md` — This file (design decisions, compliance, integration)
-- `test-demo.py` — Demo script showing system in action
+- `README.md` — usage, configuration, troubleshooting.
+- `ARCHITECTURE.md` — this file.
+- `test-demo.py` — a demo script that predates this rewrite. It fabricates its own sample listings and PropertyGuru sales data with a schema (`block`, `unit`, `asking_price`, `seller_phone`, `status: "queued"`) that no longer matches `message-queue.json`, and it doesn't import or exercise `scraper.py`, `carousell_client.py`, `classify.py`, or `dedupe.py` at all — it's fully self-contained. It still runs standalone, but it doesn't exercise or demonstrate current behavior; treat it as historical reference, not a smoke test for this pipeline.
 
 ---
 
 ## Installation & Scheduling
 
 ### 1. Verify Directory Structure
-
 ```bash
 ls -la /Users/winfredquek/crestbrick-consult/scripts/fsbo-scraper/
 ```
 
-### 2. Test Demo (No Dependencies)
-
-```bash
-python3 /Users/winfredquek/crestbrick-consult/scripts/fsbo-scraper/test-demo.py
-```
-
-Shows message template being filled correctly.
-
-### 3. Test Scraper (Carousell/PropertyGuru Scrapers Not Implemented Yet)
-
+### 2. Run the Scraper
 ```bash
 python3 /Users/winfredquek/crestbrick-consult/scripts/fsbo-scraper/scraper.py scrape
 ```
+Searches Carousell, fetches new listings, filters/classifies/dedupes, and queues qualified leads to `message-queue.json`.
 
-Currently returns 0 listings (Selenium + BeautifulSoup not wired up).
-
-### 4. Enable Scheduling (Once Winfred Approves)
-
+### 3. Install the launchd Schedule
 ```bash
 cp /Users/winfredquek/crestbrick-consult/scripts/fsbo-scraper/launch-fsbo-scraper.plist \
    ~/Library/LaunchAgents/com.crestbrick.fsbo-scraper.plist
 
 launchctl load ~/Library/LaunchAgents/com.crestbrick.fsbo-scraper.plist
 ```
+Runs daily at 00:00 SGT (local time — see the `run.sh` note under "Files & State").
 
-Runs daily at 00:00 UTC (08:00 SGT).
-
-### 5. Monitor
-
+### 4. Monitor
 ```bash
 tail -f /Users/winfredquek/crestbrick-consult/scripts/fsbo-scraper/logs/fsbo-*.log
 ```
 
----
-
-## What Needs Winfred's Approval
-
-1. **Sending Strategy**
-   - Option A: Keep as queue-based (manual sending, safe)
-   - Option B: Enable auto-send (requires `send_mode: "auto"` + explicit go)
-
-2. **Scraper Implementation**
-   - Carousell scraper (Selenium + proxies)
-   - PropertyGuru scraper (BeautifulSoup)
-   - Both currently placeholder (return demo/empty data)
-
-3. **Scheduling**
-   - Install launchd job to run daily at 08:00 SGT
-   - Currently disabled (must install manually after go)
-
-4. **Rate Limits**
-   - Currently `max_daily_sends: 20` (configurable)
-   - May need adjustment based on spam filter tolerance
-
-5. **Message Template Customization**
-   - Current template references commission rates (2% vs 1.5%)
-   - May want variant messaging for different seller types
+### 5. Disable
+```bash
+launchctl unload ~/Library/LaunchAgents/com.crestbrick.fsbo-scraper.plist
+```
 
 ---
 
-## Production Readiness Checklist
+## Design Decisions Already Settled
 
-### MVP (Current State)
-- ✅ Message template filling (tested)
-- ✅ Message queue storage (tested)
-- ✅ Daily logging + reporting
+The previous version of this document carried a list of open questions for Winfred — sending strategy, whether to implement the scrapers at all, rate limits, template customization. Those aren't open anymore:
+
+- **Sending strategy:** queue-only, permanently — not a toggle. See "Sending Strategy" above.
+- **Fetch implementation:** built, using curl_cffi. No Selenium, no browser automation, no proxy rotation — none of that turned out to be necessary.
+- **PropertyGuru enrichment:** not built, and not planned. The template gracefully omits that section instead.
+- **Rate limits:** `max_listing_fetches_per_run` (30) and `fetch_delay_range_sec` (2.0–4.0s) are plain values in `config.json`, editable directly — they don't need a design decision, just an edit.
+
+What's still genuinely open is ordinary engineering follow-up, not a policy question — see "Known Gaps" below.
+
+---
+
+## Production Readiness
+
+### Implemented
+- ✅ Carousell search + detail fetch (curl_cffi, past Cloudflare)
+- ✅ Owner/agent classification (regex layers + Ollama fallback)
+- ✅ Dedupe against state file, seller database, landlord database, and do-not-engage list
+- ✅ Rental-post and under-price filtering (keeps sale search results clean of rental listings)
+- ✅ Message template fill, with graceful comps omission (no fabricated data)
+- ✅ Same-run dealer detection (multiple sale posts, same seller name)
+- ✅ Daily file logging + Telegram run digest
 - ✅ launchd scheduling infrastructure
-- ✅ Config-driven send mode (queue vs auto)
-- ✅ Error handling + retry logic
-- ✅ CEA compliance (queue-based, safe default)
+- ✅ Queue-only sending, permanently (no send path exists to misconfigure)
 
-### Missing (Needs Implementation)
-- ❌ Carousell scraper (Selenium + proxies)
-- ❌ PropertyGuru scraper (BeautifulSoup)
-- ❌ Phone number validation (WhatsApp JID format)
-- ❌ Duplicate detection (check existing WA contacts)
-- ❌ Auto-send to bridge (if send_mode == "auto")
-- ❌ Response tracking (click tracking, reply handling)
+### Known Gaps
+- `carousell_client.py`'s `search()` reads page 1 of results only, per query — no pagination.
+- The Ollama fallback is effectively inert on this machine until a text-capable model is installed or reordered ahead of `moondream` (see "Classify" above).
+- Nothing marks a queued entry as sent. Tracking what's actually gone out to a prospect is entirely outside this codebase today.
 
-### Nice-to-Have
-- [ ] A/B test message variants
-- [ ] Slack notifications (daily summary)
-- [ ] CSV export (for CRM)
-- [ ] Webhook integration (respond to replies)
-- [ ] Blocking list (never contact again)
+### Explicitly Not Planned (a decision, not a gap)
+- PropertyGuru sold-comps enrichment.
+- Any automatic-send path.
 
 ---
 
 ## Why This Design
 
-### Queue-Based Default (Not Auto-Send)
+### Queue-Only Is Permanent, Not a Default
 
-**Reason:** CLAUDE.md forbids parallel auto-senders. The intake engine is the single sender for WhatsApp. Creating a second auto-sender violates CEA compliance + spam filter rules.
+CLAUDE.md forbids a second automated WhatsApp sender; the intake engine is the single sender. This scraper was never going to grow a send path, so none of the plumbing for one — bridge integration, cross-sender guard, rate-limited send loop — was built. The previous version of this document's "Option B: Auto-Send" design was aspirational; it's now explicitly out of scope, not deferred.
 
-**Solution:** Queue messages for manual sending (Winfred via WhatsApp Web). This is:
-- 100% CEA compliant (messages reviewed)
-- 0% spam filter risk (human sender = trusted)
-- Clear audit trail (all queued messages logged)
+### curl_cffi Over Selenium
 
-### Modular Architecture
+The original plan assumed Carousell needed full browser automation (Selenium + proxy rotation) to get past its bot detection. In practice, TLS/HTTP fingerprint impersonation was enough on its own — no headless browser, no proxies, no JS rendering required. That keeps the fetch layer dependency-light and fast.
 
-**Message Filling** (this script) ← **Messages Queued** → **Sending** (manual or auto, future)
+### Fail-Closed Classification
 
-This separation allows:
-- Winfred to review before sending (CEA compliance)
-- Future auto-send without re-architecting (just wire up intake engine integration)
-- Safe default (queued), with opt-in to automation
+Every classification path that isn't a confident hard-signal match resolves to `UNSURE` rather than guessing: Ollama down, Ollama returning junk, dealer-style account name on owner phrasing, or multiple sale posts from the same seller in one run. `UNSURE` listings still get queued — nothing is silently dropped — but are flagged `needs_review`, keeping the actual owner/agent judgment call with Winfred wherever the automation isn't confident.
 
-### Config-Driven Send Mode
+### No Fabricated Data
 
-**Default:** `send_mode: "queue"` (manual)
-
-**Future:** `send_mode: "auto"` (auto-send, requires go + implementation)
-
-Allows toggling without code changes.
+The comps-block removal is the clearest example: rather than reuse the template's placeholder PropertyGuru figures as if real, or invent replacement numbers, the code drops that section entirely. This principle runs through the rest of the pipeline too — nothing here fills in a value it doesn't actually have.
 
 ---
 
-## Next Steps (For Winfred)
+## Support
 
-### Immediate
-1. Review this architecture + approve sending strategy
-2. Test demo: `python3 test-demo.py`
-3. Review message templates (do they match your brand voice?)
-
-### Short-Term
-1. Implement Carousell scraper (Selenium)
-2. Implement PropertyGuru scraper (BeautifulSoup)
-3. Test with real data (5-10 listings)
-4. Adjust message templates based on response
-
-### Medium-Term
-1. Enable launchd scheduling (if sending manually via Web)
-2. OR: Enable auto-send with `send_mode: "auto"` (if approved)
-3. Monitor daily reports for quality + response rate
-4. Adjust rate limits based on spam filter tolerance
-
-### Long-Term
-1. Add response tracking (link clicks, replies)
-2. A/B test message variants
-3. Export to CRM (Salesforce, etc.)
-4. Integrate with Matchmaker app (share seller contacts)
+For issues or questions:
+1. Check `logs/fsbo-{date}.log` for errors.
+2. Run `python3 scraper.py queue` for current queue status.
+3. Review the inline comments in `classify.py` and `dedupe.py` — most non-obvious decisions are explained at the point they're made.
 
 ---
 
-## Questions for Winfred
-
-1. **Sending Strategy:** Queue-based (manual) or auto-send (requires approval)?
-2. **Message Template:** Does the provided template match your brand voice?
-3. **Scraper Implementation:** Should I implement Carousell + PropertyGuru scrapers now?
-4. **Scheduling:** Want daily runs, or on-demand only?
-5. **Rate Limits:** Is 20/day OK, or should it be higher/lower?
-
-**Status:** Awaiting approval before proceeding with scraper implementation + scheduling.
+**Last Updated:** 2026-09-01 (rewritten to describe the curl_cffi / classify.py / dedupe.py pipeline; PropertyGuru enrichment and auto-send are documented as removed and ruled out, not deferred.)

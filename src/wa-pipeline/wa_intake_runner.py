@@ -93,6 +93,23 @@ def run():
         return
     _drain_notify_queue()                 # deliver any pings lost to an earlier Telegram outage
     _flush_stale_coalesce_windows()       # send any per-chat notify digest whose window ended
+    # Engine integrity pin (9 Sep 2026, merge redo): the working tree IS
+    # production, and another session's git reset silently reverted a deploy
+    # today. If the bytes on disk stop matching the pinned committed state, hold
+    # every send and alarm; a missing pin only logs (first deploy).
+    try:
+        import wa_intake_pin as _pin
+        _ok, _why, _detail = _pin.verify()
+        if not _ok and _why != "no_pin":
+            print("ENGINE PIN " + _why + " — holding, nothing processed:", json.dumps(_detail)[:300])
+            _alert_hourly("pin", "wa-intake: engine files on disk do not match the pinned deploy ("
+                          + _why + "). HOLDING all sends until re-pinned. "
+                          + json.dumps(_detail)[:200])
+            return
+        if not _ok:
+            print("ENGINE PIN missing — proceeding (run wa_intake_pin.py --pin after the next deploy)")
+    except Exception as _e:
+        print("ENGINE PIN check error (proceeding):", str(_e)[:120])
     try:
         con = sqlite3.connect(_msg_db(), timeout=30)
         con.execute("PRAGMA busy_timeout=30000")

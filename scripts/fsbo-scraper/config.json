@@ -1,9 +1,17 @@
 {
-  "carousell_url": "https://www.carousell.sg/search/property",
+  "carousell_url": "https://www.carousell.sg/search",
   "min_days_old": 60,
   "max_daily_sends": 20,
   "send_time_hhmm": "08:30",
   "propertyguru_search_url": "https://www.propertyguru.com.sg/property-for-sale",
   "send_mode": "queue",
-  "notes": "send_mode can be 'queue' (manual) or 'auto' (requires explicit go from Winfred)"
+  "fsbo_search_queries": [
+    "hdb for sale by owner",
+    "direct owner hdb",
+    "no agent hdb for sale",
+    "condo for sale owner"
+  ],
+  "max_listing_fetches_per_run": 30,
+  "fetch_delay_range_sec": [2.0, 4.0],
+  "notes": "send_mode is always 'queue' -- this scraper never auto-sends, messages are queued for manual review only. carousell_url is the /search base; each query in fsbo_search_queries is appended as a path segment (curl_cffi impersonate=chrome, plain requests gets a Cloudflare 403)."
 }

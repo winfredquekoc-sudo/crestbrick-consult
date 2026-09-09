@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Which District Is My Condo In? Postal Code Lookup</title>
+    <meta name="description" content="Match your postal code to Singapore's 28 property districts, see which estates sit in each one, and why agents and banks quote district, not town.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Which District Is My Condo In? Postal Code Lookup">
+    <meta property="og:description" content="Match your postal code to Singapore's 28 property districts, see which estates sit in each one, and why agents and banks quote district, not town.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Which District Is My Condo In: Postal Code to District Lookup</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            You are scrolling a listing and it says District 27. You thought the block was in Sembawang. It is, and Sembawang is District 27. The confusion is normal. Singapore does not label property by town on the paperwork that agents, banks and analysts actually use. It labels by one of 28 postal districts, and the district is read off the first two digits of the six digit postal code, not the town name on the sign outside your block.
+        </p>
+
+        <p>
+            This matters more than it sounds. A listing titled "Bukit Canberra area" and one titled "District 27" can be the exact same project. If you search only by town name on a portal, or only by district, you can miss half the listings that match what you actually want.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Quick check:</strong> take your postal code, read the first two digits, then match them to the table below.
+        </div>
+
+        <h2>Money: why the district number matters</h2>
+
+        <p>
+            Banks, valuers and property portals report price per square foot by district, not by estate name. When someone tells you the "district 15 psf" or the "district 9 median", they are pulling a number that groups every project inside that postal sector range, whether it faces the sea or a car park. Two condos five minutes apart by foot can sit in different districts if a boundary road runs between the postal sectors, and their price data gets grouped separately as a result.
+        </p>
+
+        <p>
+            Knowing your real district lets you pull the right comparison set. If you compare your unit against the wrong district's transactions, you will misread whether the asking price is fair. This is also how agents and analysts describe a submarket to a buyer over the phone. Saying "district 10" is faster and more precise than listing five estate names, and it matches exactly what shows up in URA and bank valuation reports.
+        </p>
+
+        <h2>The full postal sector to district table</h2>
+
+        <p>
+            Below is the standard mapping used across Singapore property listings. The postal sector is the first two digits of your six digit postal code.
+        </p>
+
+        <table>
+            <tr><th>District</th><th>Postal sectors</th><th>Estates and areas</th></tr>
+            <tr><td>D01</td><td>01 to 06</td><td>Raffles Place, Marina, Cecil, People's Park</td></tr>
+            <tr><td>D02</td><td>07 to 08</td><td>Anson, Tanjong Pagar</td></tr>
+            <tr><td>D03</td><td>14 to 16</td><td>Queenstown, Tiong Bahru, Alexandra</td></tr>
+            <tr><td>D04</td><td>09 to 10</td><td>Telok Blangah, Harbourfront, Sentosa</td></tr>
+            <tr><td>D05</td><td>11 to 13</td><td>Pasir Panjang, Clementi, West Coast</td></tr>
+            <tr><td>D06</td><td>17</td><td>High Street, City Hall</td></tr>
+            <tr><td>D07</td><td>18 to 19</td><td>Middle Road, Bugis, Golden Mile</td></tr>
+            <tr><td>D08</td><td>20 to 21</td><td>Little India, Farrer Park</td></tr>
+            <tr><td>D09</td><td>22 to 23</td><td>Orchard, Cairnhill, River Valley</td></tr>
+            <tr><td>D10</td><td>24 to 27</td><td>Ardmore, Bukit Timah, Holland, Tanglin</td></tr>
+            <tr><td>D11</td><td>28 to 30</td><td>Newton, Novena, Watten Estate, Dunearn</td></tr>
+            <tr><td>D12</td><td>31 to 33</td><td>Balestier, Toa Payoh, Serangoon</td></tr>
+            <tr><td>D13</td><td>34 to 37</td><td>Macpherson, Potong Pasir, Braddell</td></tr>
+            <tr><td>D14</td><td>38 to 41</td><td>Geylang, Eunos, Paya Lebar</td></tr>
+            <tr><td>D15</td><td>42 to 45</td><td>Katong, Joo Chiat, Marine Parade</td></tr>
+            <tr><td>D16</td><td>46 to 48</td><td>Bedok, Upper East Coast</td></tr>
+            <tr><td>D17</td><td>49 to 50, 81</td><td>Changi, Loyang</td></tr>
+            <tr><td>D18</td><td>51 to 52</td><td>Tampines, Pasir Ris</td></tr>
+            <tr><td>D19</td><td>53 to 55, 82</td><td>Hougang, Punggol, Sengkang, Serangoon Garden</td></tr>
+            <tr><td>D20</td><td>56 to 57</td><td>Bishan, Ang Mo Kio</td></tr>
+            <tr><td>D21</td><td>58 to 59</td><td>Upper Bukit Timah, Clementi Park</td></tr>
+            <tr><td>D22</td><td>60 to 64</td><td>Jurong, Boon Lay, Tuas</td></tr>
+            <tr><td>D23</td><td>65 to 68</td><td>Bukit Batok, Bukit Panjang, Choa Chu Kang, Hillview</td></tr>
+            <tr><td>D24</td><td>69 to 71</td><td>Lim Chu Kang, Tengah</td></tr>
+            <tr><td>D25</td><td>72 to 73</td><td>Woodlands, Kranji, Woodgrove</td></tr>
+            <tr><td>D26</td><td>77 to 78</td><td>Upper Thomson, Lentor, Springleaf, Mandai</td></tr>
+            <tr><td>D27</td><td>75 to 76</td><td>Sembawang, Yishun, Bukit Canberra</td></tr>
+            <tr><td>D28</td><td>79 to 80</td><td>Seletar</td></tr>
+        </table>
+
+        <p>
+            A few districts share a boundary road, so two blocks facing each other can sit in different rows of this table. If your postal code is not in the range you expected, trust the postal code, not the estate name.
+        </p>
+
+        <h2>Timing: how this affects your search</h2>
+
+        <p>
+            When a new launch calendar comes out, it is announced by district first, project name second. If you only track your preferred town by name, you can be a week behind buyers who filter by district number on the same portal alert. During a busy launch window, that lag is the difference between an early viewing slot and a sold out showflat.
+        </p>
+
+        <p>
+            The same applies to resale hunting. Most portals let you filter search results by district. If you assume your target estate falls in a district it does not, your filter silently excludes the very listings you are trying to find. Confirm the district from the postal code first, then set your filters.
+        </p>
+
+        <h2>Common mix ups</h2>
+
+        <p>
+            Three confusions come up again and again with buyers and tenants.
+        </p>
+
+        <ul>
+            <li><strong>Bukit Canberra and Sembawang:</strong> Bukit Canberra sits inside Sembawang, and both are District 27, along with Yishun. Buyers sometimes search for Bukit Canberra separately and miss the wider district 27 comparison set.</li>
+            <li><strong>Bishan:</strong> Bishan is District 20, grouped with Ang Mo Kio. It is often lumped in conversation with the Thomson corridor, which actually sits in District 11 and District 26.</li>
+            <li><strong>Seletar:</strong> Seletar is its own district, D28, separate from the nearby Yio Chu Kang and Hougang area, which falls under D19.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+            <strong>Watch out:</strong> a district number is a postal grouping, not a value judgement. Two projects in the same district can differ sharply in price and condition.
+        </div>
+
+        <h2>Safety: don't let the district number replace due diligence</h2>
+
+        <p>
+            The district table is a useful shorthand for search and comparison. It is not a substitute for checking the actual project. Before you rely on a district level price average to judge a specific unit, look up the project's own transaction history on data.gov.sg or through a valuer, and check the exact postal code of the block on its title documents, not just the marketing brochure. Marketing names change over the years, but the postal code does not.
+        </p>
+
+        <p>
+            If you are comparing your own flat or condo to district averages for a sale or purchase decision, treat the district figure as a starting point for a conversation with a professional, not a final number. For a deeper read on any single district, our <a href="/insights/singapore-property-yield-by-district.html">district by district property guide</a> and <a href="/insights/singapore-rental-yield-district-2026.html">rental yield by district breakdown</a> go further than the postal table alone, and our <a href="/insights/best-district-invest-singapore-2026.html">guide to choosing a district to invest in</a> covers how to weigh districts against each other.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">How do I find my district from a postal code?</div>
+            <div class="faq-answer">Take the first two digits of your six digit Singapore postal code and match them against the postal sector table. Each sector range maps to exactly one of the 28 postal districts, labelled D01 to D28.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Why is Bukit Canberra listed as District 27?</div>
+            <div class="faq-answer">Bukit Canberra sits within the Sembawang planning area, and Sembawang's postal sectors fall under District 27, along with Yishun. The estate name and the postal district are two different labelling systems, and District 27 is the correct one for price and listing comparisons.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Does the district number affect property value directly?</div>
+            <div class="faq-answer">The district itself is just a postal grouping and does not set value on its own. What matters for value is the specific project, its condition, tenure and transaction history. The district number is useful for finding comparable transactions, not for pricing a unit by itself.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Not sure how your district compares</h3>
+            <p>If you want a straight read on how your postal code stacks up against nearby districts before you buy, sell or rent, talk it through directly.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information and education only, and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) and not a licensed financial or legal professional. Postal sector boundaries and district groupings are administrative references and should be confirmed against official sources before use in any transaction. Consult a licensed professional for advice specific to your situation.
+        </div>
+
+        <div class="sources">
+            <h3>Sources & References</h3>
+            <ul>
+                <li><strong>Ming Property, Singapore District Code Mapping:</strong> https://www.mingproperty.sg/singapore-district-code/</li>
+                <li><strong>Asian Prime Properties, Singapore District Code Finder:</strong> https://asianprimeproperties.sg/singapore-district-code-finder/</li>
+                <li><strong>Propkaki, Singapore Property Districts Guide:</strong> https://propkaki.sg/guides/singapore-property-districts</li>
+                <li><strong>Urban Redevelopment Authority (URA), property data:</strong> https://www.ura.gov.sg</li>
+                <li><strong>Data.gov.sg, resale flat and transaction datasets:</strong> https://data.gov.sg</li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Which District Is My Condo In: Postal Code to District Lookup",
+    "description": "Match your postal code to Singapore's 28 property districts, see which estates sit in each one, and why agents and banks quote district, not town.",
+    "image": "https://winfredquek.com/og-image.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "How do I find my district from a postal code?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Take the first two digits of your six digit Singapore postal code and match them against the postal sector table. Each sector range maps to exactly one of the 28 postal districts, labelled D01 to D28."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Why is Bukit Canberra listed as District 27?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Bukit Canberra sits within the Sembawang planning area, and Sembawang's postal sectors fall under District 27, along with Yishun. The estate name and the postal district are two different labelling systems, and District 27 is the correct one for price and listing comparisons."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Does the district number affect property value directly?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The district itself is just a postal grouping and does not set value on its own. What matters for value is the specific project, its condition, tenure and transaction history. The district number is useful for finding comparable transactions, not for pricing a unit by itself."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>
