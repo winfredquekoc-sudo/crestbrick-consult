@@ -34,12 +34,37 @@ would violate them -- so a bug on the other branch can queue a bad question but 
 get Winfred's number to actually SEND it to an owner.
 """
 import os, re, json, time, hashlib, datetime, subprocess
+import wa_intake_paths as _P
 
-QUEUE_FILE = os.path.expanduser("~/.claude/state/listing-templates/owner-questions.jsonl")
-LANDLORD_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.json")
-MSG_DB = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
-REFRESH_LOCK_DIR = os.path.expanduser("~/.claude/state/refresh-rental-dbs.lock.d")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): constants kept for backward compat with
+# existing mock.patch.object(wa_intake_owner, "NAME", ...) tests; the functions below
+# resolve the CURRENT path via the _xxx() helpers at call time (see
+# wa_intake_paths.resolved's docstring).
+QUEUE_FILE = _P.paths()["owner_questions"]
+_default_QUEUE_FILE = QUEUE_FILE
+LANDLORD_DB = _P.paths()["landlord_db"]
+_default_LANDLORD_DB = LANDLORD_DB
+MSG_DB = _P.paths()["messages_db"]
+_default_MSG_DB = MSG_DB
+REFRESH_LOCK_DIR = _P.paths()["refresh_lock_dir"]
+_default_REFRESH_LOCK_DIR = REFRESH_LOCK_DIR
 REFRESH_LOCK_STALE_SEC = 30 * 60
+
+
+def _queue_file():
+    return _P.resolved(globals(), "QUEUE_FILE", "owner_questions")
+
+
+def _landlord_db():
+    return _P.resolved(globals(), "LANDLORD_DB", "landlord_db")
+
+
+def _msg_db():
+    return _P.resolved(globals(), "MSG_DB", "messages_db")
+
+
+def _refresh_lock_dir():
+    return _P.resolved(globals(), "REFRESH_LOCK_DIR", "refresh_lock_dir")
 
 QUESTION_CODES = ("PAX", "WIFI", "AIRCON", "UTILITIES", "MRT", "MOVE_IN", "VISITORS",
                   "COOKING", "PETS", "SMOKING", "AVAILABILITY", "VIEWING_WINDOW",
@@ -106,10 +131,11 @@ def in_ask_window():
 
 # ---------- queue persistence (same append-then-rewrite shape as drafts.jsonl) ----------
 def _load_queue():
-    if not os.path.exists(QUEUE_FILE):
+    queue_file = _queue_file()
+    if not os.path.exists(queue_file):
         return []
     out = []
-    with open(QUEUE_FILE) as f:
+    with open(queue_file) as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -122,14 +148,15 @@ def _load_queue():
 
 
 def _rewrite_queue(items):
-    d = os.path.dirname(QUEUE_FILE)
+    queue_file = _queue_file()
+    d = os.path.dirname(queue_file)
     if d and not os.path.isdir(d):
         os.makedirs(d, exist_ok=True)
-    tmp = QUEUE_FILE + ".tmp"
+    tmp = queue_file + ".tmp"
     with open(tmp, "w") as f:
         for it in items:
             f.write(json.dumps(it, ensure_ascii=False) + "\n")
-    os.replace(tmp, QUEUE_FILE)
+    os.replace(tmp, queue_file)
 
 
 def enqueue_owner_question(landlord_id, listing_key, question_code, question_text,
@@ -154,10 +181,11 @@ def enqueue_owner_question(landlord_id, listing_key, question_code, question_tex
               "question_code": code, "question_text": question_text.strip(),
               "source": source, "source_jid": source_jid, "created": time.time(),
               "status": "queued", "asked_at": None, "answer": None, "evidence": None}
-    d = os.path.dirname(QUEUE_FILE)
+    queue_file = _queue_file()
+    d = os.path.dirname(queue_file)
     if d and not os.path.isdir(d):
         os.makedirs(d, exist_ok=True)
-    with open(QUEUE_FILE, "a") as f:
+    with open(queue_file, "a") as f:
         f.write(json.dumps(entry, ensure_ascii=False) + "\n")
     log_fn("OWNER_Q_QUEUED", landlord_id, f"{qid} :: {code} :: {question_text.strip()[:120]}")
     return qid
@@ -187,7 +215,7 @@ def mark_question(qid, status, **fields):
 # not per row, so there is no reason to cache and risk acting on a stale review_flag) ----------
 def _load_landlord_db():
     try:
-        return json.load(open(LANDLORD_DB))
+        return json.load(open(_landlord_db()))
     except Exception:
         return None
 

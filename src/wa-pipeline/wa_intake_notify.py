@@ -6,12 +6,36 @@ keeps working unchanged (including tests that reach these via wa_intake_runner.<
 """
 import os, re, json, time, subprocess
 import intake_engine as E
+import wa_intake_paths as _P
 
-PREVIEW  = os.path.expanduser("~/.claude/state/listing-templates/dry-run-preview.log")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): PREVIEW/NOTIFY_Q/COALESCE_FILE/ALLOW_FILE/
+# MUTED_LOG kept as module constants for backward compat with existing
+# `mock.patch.object(wa_intake_notify, "NAME", ...)` tests; every function below resolves
+# the CURRENT path via the _xxx() helpers at call time. Previously these five were hardcoded
+# absolute paths independent of STATE_DIR/E.STATE, so patching STATE_DIR (the harness's own
+# belt-and-suspenders line) never actually redirected them -- _drain_notify_queue() in
+# particular could silently os.remove() the LIVE notify-queue.json on every sandboxed tick
+# (every queued item "succeeds" once Telegram is suppressed, so the queue always empties).
+PREVIEW  = _P.paths()["dry_run_preview"]
+_default_PREVIEW = PREVIEW
 WINFRED_CHAT = "540127870"
 TG_SEND = os.path.expanduser("~/.claude/bin/telegram_send.sh")
-NOTIFY_Q = os.path.expanduser("~/.claude/state/listing-templates/notify-queue.json")
-COALESCE_FILE = os.path.expanduser("~/.claude/state/listing-templates/notify-coalesce.json")
+NOTIFY_Q = _P.paths()["notify_queue"]
+_default_NOTIFY_Q = NOTIFY_Q
+COALESCE_FILE = _P.paths()["notify_coalesce"]
+_default_COALESCE_FILE = COALESCE_FILE
+
+
+def _preview():
+    return _P.resolved(globals(), "PREVIEW", "dry_run_preview")
+
+
+def _notify_q():
+    return _P.resolved(globals(), "NOTIFY_Q", "notify_queue")
+
+
+def _coalesce_file():
+    return _P.resolved(globals(), "COALESCE_FILE", "notify_coalesce")
 COALESCE_WINDOW_SEC = 30 * 60   # merge review 9 Sep 2026: attack fixes raised FLAG_HUMAN
                                  # style ping volume ~5x/day; hold routine ones together
 
@@ -26,24 +50,26 @@ COALESCE_WINDOW_SEC = 30 * 60   # merge review 9 Sep 2026: attack fixes raised F
 # binding left them wide open. Rather than rely on every call site being patched correctly,
 # the kill switch lives at the one physical send call (_tg_send) that every path funnels
 # through -- it cannot be bypassed by patching the wrong name again.
-STATE_DIR = os.path.expanduser("~/.claude/state/listing-templates")     # module constant a
-                                                                          # sandbox can patch
-                                                                          # directly
+STATE_DIR = _P.paths()["state_root"]     # module constant a sandbox can patch directly
+_default_STATE_DIR = STATE_DIR
 _REAL_STATE_DIR = os.path.expanduser("~/.claude/state/listing-templates")
 
 def _effective_state_dir():
-    """The state dir actually in effect right now: STATE_DIR if patched away from real, else
-    intake_engine.STATE's own directory (the harness already sandboxes E.STATE for every
-    scenario, so this catches that case too without needing a second patch)."""
-    if STATE_DIR != _REAL_STATE_DIR:
-        return STATE_DIR
+    """The state dir actually in effect right now: STATE_DIR if patched away from real
+    (either directly via mock.patch or via WA_INTAKE_STATE_ROOT, resolved at call time --
+    see wa_intake_paths.resolved), else intake_engine.STATE's own directory (the harness
+    already sandboxes E.STATE for every scenario, so this catches that case too without
+    needing a second patch)."""
+    sd = _P.resolved(globals(), "STATE_DIR", "state_root")
+    if sd != _REAL_STATE_DIR:
+        return sd
     try:
         d = os.path.dirname(E.STATE)
         if d and d != _REAL_STATE_DIR:
             return d
     except Exception:
         pass
-    return STATE_DIR
+    return sd
 
 def _telegram_suppressed():
     """None when a real Telegram send may proceed; otherwise a short reason string logged
@@ -62,7 +88,7 @@ def _telegram_suppressed():
 
 def _log(kind, pn, msg):
     line = f"{time.strftime('%Y-%m-%d %H:%M:%S')} | {kind} | {pn} | {msg}\n"
-    with open(PREVIEW, "a") as f: f.write(line)
+    with open(_preview(), "a") as f: f.write(line)
 
 def _tg_send(msg):
     """One Telegram send attempt. True only on a confirmed delivery (script exit 0 AND the
@@ -97,16 +123,28 @@ def _hot_line(a):
     hm = a.get("hot_matches") or []
     return ("\n🔥 Also fits: " + ", ".join(hm)) if hm else ""
 
-ALLOW_FILE = os.path.expanduser("~/.claude/state/listing-templates/notify-allow.json")
-MUTED_LOG = os.path.expanduser("~/.claude/state/listing-templates/notify-muted.log")
+ALLOW_FILE = _P.paths()["notify_allow"]
+_default_ALLOW_FILE = ALLOW_FILE
+MUTED_LOG = _P.paths()["notify_muted"]
+_default_MUTED_LOG = MUTED_LOG
+
+
+def _allow_file():
+    return _P.resolved(globals(), "ALLOW_FILE", "notify_allow")
+
+
+def _muted_log():
+    return _P.resolved(globals(), "MUTED_LOG", "notify_muted")
+
 
 def _allowed(msg):
     # Winfred (9 Sep 2026): stop the useless pings. When the allow file exists, only messages
     # starting with one of its prefixes go to Telegram; the rest are kept in a local digest.
     try:
-        if not os.path.exists(ALLOW_FILE):
+        allow_file = _allow_file()
+        if not os.path.exists(allow_file):
             return True
-        prefixes = json.load(open(ALLOW_FILE)).get("prefixes") or []
+        prefixes = json.load(open(allow_file)).get("prefixes") or []
         head = (msg or "").lstrip()[:120].lower()
         return any(head.startswith(p.lower()) for p in prefixes)
     except Exception:
@@ -126,7 +164,7 @@ def notify_winfred(msg):
         return
     if not _allowed(msg):
         try:
-            with open(MUTED_LOG, "a") as f:
+            with open(_muted_log(), "a") as f:
                 f.write(time.strftime("%Y-%m-%d %H:%M:%S") + " | "
                         + (msg or "").replace("\n", " / ")[:400] + "\n")
         except Exception:
@@ -136,35 +174,46 @@ def notify_winfred(msg):
         return
     _log("TG_FAIL", WINFRED_CHAT, "queued for retry :: " + msg[:80].replace("\n", " / "))
     try:
-        q = json.load(open(NOTIFY_Q)) if os.path.exists(NOTIFY_Q) else []
+        notify_q = _notify_q()
+        q = json.load(open(notify_q)) if os.path.exists(notify_q) else []
         q = (q if isinstance(q, list) else []) + [{"ts": time.strftime("%Y-%m-%d %H:%M:%S"), "msg": msg}]
         q = q[-50:]
-        tmp = NOTIFY_Q + ".tmp"
+        tmp = notify_q + ".tmp"
         json.dump(q, open(tmp, "w"), ensure_ascii=False, indent=1)
-        os.replace(tmp, NOTIFY_Q)
+        os.replace(tmp, notify_q)
     except Exception as e:
         _log("TG_QUEUE_FAIL", WINFRED_CHAT, str(e)[:100])
 
 def _drain_notify_queue():
-    """Re-attempt queued Telegram pings from earlier outages. Failures stay queued (cap 50)."""
+    """Re-attempt queued Telegram pings from earlier outages. Failures stay queued (cap 50).
+
+    Suppressed early-return (STEP 0 sandbox seal): with Telegram suppressed there is nothing
+    to drain TO -- every queued item would "succeed" via _tg_send's suppressed short circuit,
+    so the old code always took the `else: os.remove(NOTIFY_Q)` branch. Combined with NOTIFY_Q
+    previously being a hardcoded absolute path independent of STATE_DIR, a sandboxed run could
+    silently delete the LIVE retry queue. Path is now call-time resolved via _notify_q() too,
+    so this is belt-and-suspenders, not the only guard."""
+    if _telegram_suppressed():
+        return
     try:
-        if not os.path.exists(NOTIFY_Q):
+        notify_q = _notify_q()
+        if not os.path.exists(notify_q):
             return
-        q = json.load(open(NOTIFY_Q))
+        q = json.load(open(notify_q))
         if not isinstance(q, list):
             raise ValueError("queue not a list")
     except Exception:
-        try: os.remove(NOTIFY_Q)          # unreadable queue: drop it rather than crash every tick
+        try: os.remove(notify_q)          # unreadable queue: drop it rather than crash every tick
         except OSError: pass
         return
     left = [it for it in q if it.get("msg") and not _tg_send("(delayed from " + str(it.get("ts")) + ")\n" + it["msg"])]
     try:
         if left:
-            tmp = NOTIFY_Q + ".tmp"
+            tmp = notify_q + ".tmp"
             json.dump(left[-50:], open(tmp, "w"), ensure_ascii=False, indent=1)
-            os.replace(tmp, NOTIFY_Q)
+            os.replace(tmp, notify_q)
         else:
-            os.remove(NOTIFY_Q)
+            os.remove(notify_q)
     except OSError:
         pass
 
@@ -186,15 +235,16 @@ def _is_dispute_or_p0(reason):
 
 def _load_coalesce():
     try:
-        d = json.load(open(COALESCE_FILE))
+        d = json.load(open(_coalesce_file()))
         return d if isinstance(d, dict) else {}
     except Exception:
         return {}
 
 def _save_coalesce(d):
-    tmp = COALESCE_FILE + ".tmp"
+    coalesce_file = _coalesce_file()
+    tmp = coalesce_file + ".tmp"
     json.dump(d, open(tmp, "w"), ensure_ascii=False, indent=1)
-    os.replace(tmp, COALESCE_FILE)
+    os.replace(tmp, coalesce_file)
 
 def notify_winfred_coalesced(pn, msg, bypass=False):
     """Routine FLAG_HUMAN style ping for one chat (pn): at most one immediate Telegram ping

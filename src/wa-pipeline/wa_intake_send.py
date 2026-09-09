@@ -7,11 +7,34 @@ these via wa_intake_runner.<name>) keeps working unchanged.
 """
 import os, json, time, subprocess
 import intake_engine as E
+import wa_intake_paths as _P
 
-LASTF = os.path.expanduser("~/.claude/state/listing-templates/runner-last.json")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): these four are kept as module constants for
+# backward compatibility with existing `mock.patch.object(wa_intake_send, "NAME", ...)`
+# tests, but every function below that actually touches disk resolves the CURRENT path via
+# _lastf()/_circuit_file() at call time (see wa_intake_paths.resolved's docstring) -- a
+# harness that patches wa_intake_runner.LASTF instead of THIS module (the incident: this is
+# where _write_last is actually defined) is still caught, because the fallback is the live
+# WA_INTAKE_STATE_ROOT env var, not the stale unpatched constant.
+LASTF = _P.paths()["runner_last"]
+_default_LASTF = LASTF
 BRIDGE = "http://localhost:8080/api/send"
-GUARD = os.path.expanduser("~/crestbrick-consult/scripts/wa_send_guard.py")
-CIRCUIT_FILE = os.path.expanduser("~/.claude/state/listing-templates/send-circuit.json")
+GUARD = _P.paths()["guard_script"]
+_default_GUARD = GUARD
+CIRCUIT_FILE = _P.paths()["send_circuit"]
+_default_CIRCUIT_FILE = CIRCUIT_FILE
+
+
+def _lastf():
+    return _P.resolved(globals(), "LASTF", "runner_last")
+
+
+def _guard_script():
+    return _P.resolved(globals(), "GUARD", "guard_script")
+
+
+def _circuit_file():
+    return _P.resolved(globals(), "CIRCUIT_FILE", "send_circuit")
 
 # Quiet hours: stay live, but never message prospects overnight. Outside this window the
 # runner holds and does NOT advance its cursor, so enquiries that arrive at night are
@@ -80,7 +103,7 @@ def _guard_reserve(jid):
     has this person inside the cooldown. Fail-open if the guard binary is unavailable —
     the engine's form_sent flag remains the primary per-person gate."""
     try:
-        return subprocess.run(["python3", GUARD, "reserve", jid, "wa-intake"],
+        return subprocess.run(["python3", _guard_script(), "reserve", jid, "wa-intake"],
                               capture_output=True, text=True).returncode == 0
     except Exception:
         return True
@@ -92,10 +115,11 @@ def _write_last(rowid):
     string-compared mixed offsets silently hid a real Bayshore enquiry on 12 Jul 2026. It also
     backfills reconnect gaps with old-stamped rows BEHIND a timestamp watermark. Insertion
     order (rowid) is immune to both."""
-    tmp = LASTF + ".tmp"
+    lastf = _lastf()
+    tmp = lastf + ".tmp"
     with open(tmp, "w") as f:
         json.dump({"last_rowid": rowid}, f)
-    os.replace(tmp, LASTF)
+    os.replace(tmp, lastf)
 
 # ---------- daily send cap decision (pure function, split out of wa_intake_runner.run()
 # 9 Sep 2026 merge review to keep that file under the repo's 500 line guideline) ----------
@@ -157,16 +181,17 @@ CIRCUIT_MAX_SENDS = 40
 
 def _load_circuit():
     try:
-        d = json.load(open(CIRCUIT_FILE))
+        d = json.load(open(_circuit_file()))
         return d if isinstance(d, dict) else {}
     except Exception:
         return {}
 
 def _save_circuit(d):
-    tmp = CIRCUIT_FILE + ".tmp"
+    circuit_file = _circuit_file()
+    tmp = circuit_file + ".tmp"
     with open(tmp, "w") as f:
         json.dump(d, f, ensure_ascii=False, indent=1)
-    os.replace(tmp, CIRCUIT_FILE)
+    os.replace(tmp, circuit_file)
 
 def _circuit_sends_in_window():
     now = time.time()

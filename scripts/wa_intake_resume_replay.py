@@ -31,11 +31,17 @@ os.environ["WA_INTAKE_NO_SEND"] = "1"
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _WA_DIR = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
 sys.path.insert(0, _WA_DIR)
+import wa_intake_paths as _P
 import intake_engine as E
 import wa_intake_runner as RNR
 import wa_intake_resume as RES
 
-MSG_DB = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): read only (mode=ro) against REAL recent
+# WhatsApp history is this script's intentional design (see module docstring), not a leak
+# -- it never writes to messages.db and intake-state.json is never touched. MSG_DB now
+# honours WA_INTAKE_MSG_DB purely so a hermetic test can point this at a throwaway fixture
+# db; production usage (no env var set) is unchanged.
+MSG_DB = _P.paths()["messages_db"]
 SCRATCH = ("/private/tmp/claude-501/-Users-winfredquek-crestbrick-consult/"
           "92b405a9-4a65-471d-bd8e-97356c5a5b42/scratchpad")
 
@@ -371,6 +377,7 @@ def sample_drafts(n_chats, days, out_path):
 
 
 def main():
+    _P.sandbox_init()   # no-op unless WA_INTAKE_SANDBOX=1 (a test); see its own docstring
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=7)
     ap.add_argument("--out", default=SCRATCH)

@@ -13,6 +13,7 @@ To go live: set DRY_RUN = False in intake_engine.py, then watch the preview log 
 """
 import os, json, time, sqlite3, re, fcntl, random
 import intake_engine as E
+import wa_intake_paths as _P
 import wa_intake_resume as RES
 import wa_intake_selfchat as RESC
 import wa_intake_replies as REPLIES2   # category 2: acknowledge and pivot (thin layer on
@@ -30,8 +31,21 @@ from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _t
                               _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly,
                               notify_winfred_coalesced, _flush_stale_coalesce_windows,
                               notify_for_action, _slot_confirm_count, notify_stale_backfill)
-MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
-LOCKF   = os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): kept for backward compat with existing
+# mock.patch.object(wa_intake_runner, "NAME", ...) tests; _msg_db()/_lockf() resolve them at
+# call time (see wa_intake_paths.resolved's docstring).
+MSG_DB  = _P.paths()["messages_db"]
+_default_MSG_DB = MSG_DB
+LOCKF   = _P.paths()["lock_file"]
+_default_LOCKF = LOCKF
+
+
+def _msg_db():
+    return _P.resolved(globals(), "MSG_DB", "messages_db")
+
+
+def _lockf():
+    return _P.resolved(globals(), "LOCKF", "lock_file")
 
 # Low level send/guard primitives (_send, _guard_reserve, _write_last, _real_age_hours),
 # the PRE-PASS outbound classifier (_prelatch_decision), quiet hours (_quiet_hours,
@@ -41,7 +55,7 @@ LOCKF   = os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock"
 # wa_intake_runner.<name>) keeps working unchanged.
 from wa_intake_send import (LASTF, BRIDGE, GUARD, QUIET_START_MIN, SEND_START_MIN,
                             _quiet_hours, _rowid_col, _prelatch_decision, _send,
-                            _guard_reserve, _write_last, _real_age_hours,
+                            _guard_reserve, _write_last, _real_age_hours, _lastf,
                             _BOUNDED_ONCE_FIELD, daily_cap_should_skip,
                             circuit_breaker_gate, record_prospect_send, CIRCUIT_MAX_SENDS)
 
@@ -65,9 +79,13 @@ SEND_MAX_INBOUND_AGE_HOURS = 5 * 24   # never message anyone whose triggering re
 DAILY_SEND_CAP = 2     # max automated touches per client per SGT day (Winfred, 29 Jul 2026)
 
 def run():
+    # STEP 0 sandbox seal (9 Sep 2026 merge redo): a no-op unless WA_INTAKE_SANDBOX=1, in
+    # which case it refuses to proceed if any resolved path is still inside a real live
+    # root -- BEFORE the lock (or anything else) is touched. See wa_intake_paths.sandbox_init.
+    _P.sandbox_init()
     # single-instance lock: a slow run (bridge stalls) must not overlap the next 120s tick,
     # or two processes load the same state and double-send.
-    lock_fh = open(LOCKF, "a+")
+    lock_fh = open(_lockf(), "a+")
     try:
         fcntl.flock(lock_fh, fcntl.LOCK_EX | fcntl.LOCK_NB)
     except OSError:
@@ -76,7 +94,7 @@ def run():
     _drain_notify_queue()                 # deliver any pings lost to an earlier Telegram outage
     _flush_stale_coalesce_windows()       # send any per-chat notify digest whose window ended
     try:
-        con = sqlite3.connect(MSG_DB, timeout=30)
+        con = sqlite3.connect(_msg_db(), timeout=30)
         con.execute("PRAGMA busy_timeout=30000")
         idc = _rowid_col(con)
     except Exception as e:
@@ -91,14 +109,14 @@ def run():
         print("quiet hours (SGT) — holding; overnight enquiries will be served after 07:00")
         return
     try:
-        if not os.path.exists(LASTF):
+        if not os.path.exists(_lastf()):
             # first run: watermark at the newest row, do not backfill old threads
             mx = con.execute("SELECT COALESCE(MAX(rowid),0) FROM messages").fetchone()[0]
             _write_last(mx)
             print("first run: watermark set at rowid", mx, "(no backfill)")
             return
         try:
-            wm = json.load(open(LASTF))
+            wm = json.load(open(_lastf()))
         except (ValueError, OSError):
             # corrupt/half-written watermark -> re-derive at newest rather than crash/backfill
             wm = {"last_rowid": con.execute("SELECT COALESCE(MAX(rowid),0) FROM messages").fetchone()[0]}

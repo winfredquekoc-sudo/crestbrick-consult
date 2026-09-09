@@ -90,7 +90,15 @@ def build_prompt(name, phone, listing_key, listing, profile, transcript, last_in
 
 
 def call_haiku(prompt):
-    """One claude-guard call, Haiku, no tools. Returns (text, None) or (None, error)."""
+    """One claude-guard call, Haiku, no tools. Returns (text, None) or (None, error).
+
+    WA_INTAKE_SANDBOX=1 short circuits before the real subprocess call (STEP 0 sandbox seal,
+    9 Sep 2026 merge redo) -- see wa_intake_owner_answers.call_haiku_extract's matching
+    docstring. A harness that wants real draft-generation behaviour patches this function
+    directly instead (see wa_intake_attack_harness.py's RES.call_haiku patch, which supplies
+    a canned draft)."""
+    if os.environ.get("WA_INTAKE_SANDBOX") == "1":
+        return None, "sandboxed: real Haiku subprocess call suppressed"
     try:
         r = subprocess.run(
             [HAIKU_BIN, "-p", prompt, "--model", HAIKU_MODEL, "--strict-mcp-config",

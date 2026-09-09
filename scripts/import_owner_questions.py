@@ -24,6 +24,10 @@ os.environ["WA_INTAKE_NO_SEND"] = "1"
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, os.path.join(REPO_ROOT, "src", "wa-pipeline"))
+import wa_intake_paths as _P   # noqa: E402
+_P.sandbox_init()              # no-op unless WA_INTAKE_SANDBOX=1 (a test); see its own
+                               # docstring -- this importer's --apply mode is real production
+                               # behaviour when NOT sandboxed, unchanged by this call.
 import wa_intake_owner as OWN  # noqa: E402
 
 _HEADER_RE = re.compile(r"^\*\*(.+?)\*\*\s*\(([^)]+)\)\s*$")
@@ -108,7 +112,7 @@ def _phone_digits(raw):
 def run(report_path, apply_):
     text = open(report_path, encoding="utf-8").read()
     try:
-        db = json.load(open(OWN.LANDLORD_DB))
+        db = json.load(open(OWN._landlord_db()))
     except Exception as e:
         print(f"landlord-db.json unreadable ({e}); aborting import, nothing enqueued")
         return 1
@@ -159,7 +163,7 @@ def run(report_path, apply_):
     if apply_:
         for lid, lk, code, bullet in enqueued:
             OWN.enqueue_owner_question(lid, lk, code, bullet, source="clarity-report")
-        print(f"\n--apply: enqueued {len(enqueued)} questions to {OWN.QUEUE_FILE}")
+        print(f"\n--apply: enqueued {len(enqueued)} questions to {OWN._queue_file()}")
     else:
         print("\nDRY RUN -- nothing written. Re-run with --apply to enqueue.")
     return 0

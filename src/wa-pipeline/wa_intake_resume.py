@@ -14,10 +14,19 @@ here runs standalone against live state, and nothing here sends a WhatsApp messa
 """
 import os, re, json, time, hashlib, subprocess, datetime
 import intake_engine as E
+import wa_intake_paths as _P
 
 RESUME_WAIT_SEC = 5 * 60                 # Winfred's own stated wait: 5 minutes of silence
 DRAFT_EXPIRY_SEC = 24 * 3600             # a draft older than this can no longer be /send
-DRAFTS_FILE = os.path.expanduser("~/.claude/state/listing-templates/drafts.jsonl")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): kept for backward compat with existing
+# mock.patch.object(wa_intake_resume, "DRAFTS_FILE", ...) tests; _drafts_file() resolves it
+# at call time (see wa_intake_paths.resolved's docstring).
+DRAFTS_FILE = _P.paths()["drafts"]
+_default_DRAFTS_FILE = DRAFTS_FILE
+
+
+def _drafts_file():
+    return _P.resolved(globals(), "DRAFTS_FILE", "drafts")
 # Winfred's own connected WA number (self chat) -- confirmed against the bridge's device
 # table (whatsmeow_device.jid = 6581618149:52@s.whatsapp.net); a chat with himself always
 # carries this bare jid, never a device suffix or an @lid handle.
@@ -295,10 +304,10 @@ def revert_unsent_form(a, rec, rec_before):
 
 # ---------- draft persistence: id, pn, jid, listing, text, created, status ----------
 def _load_drafts():
-    if not os.path.exists(DRAFTS_FILE):
+    if not os.path.exists(_drafts_file()):
         return []
     out = []
-    with open(DRAFTS_FILE) as f:
+    with open(_drafts_file()) as f:
         for line in f:
             line = line.strip()
             if not line:
@@ -311,18 +320,19 @@ def _load_drafts():
 
 
 def _rewrite_drafts(items):
-    tmp = DRAFTS_FILE + ".tmp"
+    drafts_file = _drafts_file()
+    tmp = drafts_file + ".tmp"
     with open(tmp, "w") as f:
         for it in items:
             f.write(json.dumps(it, ensure_ascii=False) + "\n")
-    os.replace(tmp, DRAFTS_FILE)
+    os.replace(tmp, drafts_file)
 
 
 def new_draft(pn, jid, listing_key, text):
     did = hashlib.sha1(f"{pn}|{listing_key}|{time.time()}".encode()).hexdigest()[:8]
     rec = {"id": did, "pn": pn, "jid": jid, "listing": listing_key, "text": text,
            "created": time.time(), "status": "pending"}
-    with open(DRAFTS_FILE, "a") as f:      # append only: a brand new draft never needs the
+    with open(_drafts_file(), "a") as f:      # append only: a brand new draft never needs the
         f.write(json.dumps(rec, ensure_ascii=False) + "\n")   # read modify write below
     return did
 

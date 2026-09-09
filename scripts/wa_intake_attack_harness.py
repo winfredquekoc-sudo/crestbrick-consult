@@ -54,6 +54,7 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _SRC = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
 sys.path.insert(0, _SRC)
 
+import wa_intake_paths as _P                  # noqa: E402
 import intake_engine as E                    # noqa: E402
 import wa_intake_resume as RES                # noqa: E402
 import wa_intake_runner as R                  # noqa: E402
@@ -193,11 +194,36 @@ def _record_snapshot(state, pn):
 def run_scenario(scenario):
     """Runs the whole scenario inside one tempdir + one mock.patch.ExitStack. Ticks
     wa_intake_runner.run() once per message, exactly as the launchd job would tick every
-    120s -- one new inbound (or one hand reply) per tick."""
+    120s -- one new inbound (or one hand reply) per tick.
+
+    STEP 0 sandbox seal (9 Sep 2026 merge redo): build_sandbox() names every fixture file
+    to match wa_intake_paths.paths()'s own convention exactly (messages.db, whatsapp.db,
+    listing-index.json, property-templates.json, viewing-availability.json, landlord-db.json,
+    cobroke-agents.json, intake-state.json, drafts.jsonl, runner-last.json, .wa-intake.lock
+    -- all flat inside tmp_dir), so setting WA_INTAKE_STATE_ROOT/WA_INTAKE_DATA_ROOT/
+    WA_INTAKE_MSG_DB to tmp_dir redirects EVERY module's path resolution at once, at CALL
+    TIME (see wa_intake_paths.resolved) -- including wa_intake_owner.py/
+    wa_intake_owner_answers.py (the owner loop), which R.run() calls on every tick but which
+    the PRIOR per-constant mock.patch.object(R, "LASTF", ...) style list below never touched
+    at all (LASTF/QUEUE_FILE/etc. are read via each DEFINING module's own globals, not via
+    wa_intake_runner's separate name-import binding -- the exact bug shape behind BOTH
+    sandbox leak incidents). The individual mock.patch.object calls below are kept as
+    belt-and-suspenders for the same-module cases they already covered correctly; they are
+    no longer the ONLY thing standing between a harness run and a real live-state write."""
     with tempfile.TemporaryDirectory(prefix="wa-attack-") as tmp_dir:
         sb = build_sandbox(tmp_dir, scenario)
         with open(sb["lastf"], "w") as f:
             json.dump({"last_rowid": 0}, f)
+
+        _saved_env = {k: os.environ.get(k) for k in
+                      ("WA_INTAKE_SANDBOX", "WA_INTAKE_STATE_ROOT", "WA_INTAKE_DATA_ROOT",
+                       "WA_INTAKE_MSG_DB")}
+        os.environ["WA_INTAKE_SANDBOX"] = "1"
+        os.environ["WA_INTAKE_STATE_ROOT"] = tmp_dir
+        os.environ["WA_INTAKE_DATA_ROOT"] = tmp_dir
+        os.environ["WA_INTAKE_MSG_DB"] = tmp_dir
+        _P.sandbox_init()   # refuses (raises) if the above somehow still resolved live -- see
+                            # wa_intake_paths.sandbox_init's docstring
 
         # module level caches that would otherwise leak a PRIOR scenario's sandbox paths
         # across a --batch run (see harness docstring / commit message for why these three).
@@ -228,6 +254,15 @@ def run_scenario(scenario):
             return a
 
         stack = contextlib.ExitStack()
+
+        def _restore_env():
+            for k, v in _saved_env.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+        stack.callback(_restore_env)   # runs on the way out regardless of return/exception
+
         stack.enter_context(mock.patch.object(R, "MSG_DB", sb["msg_db"]))
         stack.enter_context(mock.patch.object(R, "LASTF", sb["lastf"]))
         stack.enter_context(mock.patch.object(R, "LOCKF", sb["lockf"]))

@@ -21,17 +21,59 @@ Nothing is sent while DRY_RUN is True; handle_event returns the action it WOULD 
 No hyphens or dashes in any tenant-facing copy (per Winfred's standing rule).
 """
 import json, os, re, sqlite3, functools
+import wa_intake_paths as _P
 
 DRY_RUN = False  # LIVE 2026-06-17: restored after form_sent crash fix (backlog already drained in preview)
 MAX_PROSPECT_MSGS = 10  # hard cap: at most this many prospect-facing messages per person (per qualification attempt)
 
-WA_DB   = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/whatsapp.db")
-MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
-IDX     = os.path.expanduser("~/.claude/state/listing-templates/listing-index.json")
-AVAIL   = os.path.expanduser("~/.claude/state/listing-templates/viewing-availability.json")
-STATE   = os.path.expanduser("~/.claude/state/listing-templates/intake-state.json")
-TEMPLATES = os.path.expanduser("~/.claude/state/listing-templates/property-templates.json")
-LANDLORD_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.json")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): kept as module constants for backward compat
+# with existing mock.patch.object(intake_engine, "NAME", ...) tests (this module's own
+# functions read these bare names directly, so that pattern keeps working); the _xxx()
+# helpers below additionally resolve fresh from wa_intake_paths at call time, so a script
+# that only sets WA_INTAKE_STATE_ROOT/WA_INTAKE_DATA_ROOT/WA_INTAKE_MSG_DB (no per-constant
+# mock.patch at all) is sandboxed too. See wa_intake_paths.resolved's docstring.
+WA_DB   = _P.paths()["whatsapp_db"]
+_default_WA_DB = WA_DB
+MSG_DB  = _P.paths()["messages_db"]
+_default_MSG_DB = MSG_DB
+IDX     = _P.paths()["listing_index"]
+_default_IDX = IDX
+AVAIL   = _P.paths()["viewing_availability"]
+_default_AVAIL = AVAIL
+STATE   = _P.paths()["intake_state"]
+_default_STATE = STATE
+TEMPLATES = _P.paths()["property_templates"]
+_default_TEMPLATES = TEMPLATES
+LANDLORD_DB = _P.paths()["landlord_db"]
+_default_LANDLORD_DB = LANDLORD_DB
+
+
+def _wa_db():
+    return _P.resolved(globals(), "WA_DB", "whatsapp_db")
+
+
+def _msg_db():
+    return _P.resolved(globals(), "MSG_DB", "messages_db")
+
+
+def _idx():
+    return _P.resolved(globals(), "IDX", "listing_index")
+
+
+def _avail():
+    return _P.resolved(globals(), "AVAIL", "viewing_availability")
+
+
+def _state():
+    return _P.resolved(globals(), "STATE", "intake_state")
+
+
+def _templates():
+    return _P.resolved(globals(), "TEMPLATES", "property_templates")
+
+
+def _landlord_db():
+    return _P.resolved(globals(), "LANDLORD_DB", "landlord_db")
 
 REQUIRED_FIELDS = ["name","nationality","ethnicity","gender",
                    "pass_type","no_of_pax","move_in_date","lease_term_months","budget"]
@@ -88,7 +130,7 @@ def resolve_pn(jid):
     raw = jid.split("@")[0]
     if jid.endswith("@s.whatsapp.net"): return raw
     try:
-        con = sqlite3.connect(WA_DB, timeout=30)
+        con = sqlite3.connect(_wa_db(), timeout=30)
         con.execute("PRAGMA busy_timeout=30000")
         r = con.execute("SELECT pn FROM whatsmeow_lid_map WHERE lid=?", (raw,)).fetchone()
         con.close()
@@ -103,7 +145,7 @@ def _load(p, d):
     except Exception: return d
 
 def listing_reqs():
-    return {l["listing_key"]: l for l in _load(IDX, {"listings":[]})["listings"]}
+    return {l["listing_key"]: l for l in _load(_idx(), {"listings":[]})["listings"]}
 
 def next_slot(listing_key):
     # the slot we OFFER must be in the future (today or later, SGT) — never a past-dated slot
@@ -155,7 +197,7 @@ def next_future_slot(listing_key):
         return fixed
     # the availability file is FLAT ({listing_key: {slots: []}}); older code expected a
     # {"slots": {...}} wrapper that never existed, so file slots were invisible. Read both.
-    data = _load(AVAIL, {})
+    data = _load(_avail(), {})
     a = (data.get("slots") or {}).get(listing_key) or data.get(listing_key) or {}
     now_hm = (datetime.datetime.utcnow() + datetime.timedelta(hours=8)).strftime("%H:%M")
     slots = [s for s in a.get("slots",[]) if s.get("status")=="open" and s.get("booked",0) < s.get("capacity",1)
@@ -168,11 +210,13 @@ def _has_open_future_slot(listing_key):
     Winfred to capture the landlord's availability."""
     return next_future_slot(listing_key) is not None
 
-def book_slot(listing_key, slot_id, path=AVAIL):
+def book_slot(listing_key, slot_id, path=None):
     """Atomic capacity guard. Increments booked iff booked < capacity. Returns True if booked,
     False if the slot just filled (so two YES on a one person slot can never both book)."""
     import fcntl
     if not slot_id: return False
+    if path is None:
+        path = _avail()
     try:
         f = open(path, "r+")
     except OSError:
@@ -547,7 +591,7 @@ def missing_required(profile, listing=None):
 def listing_unit_message(listing_key):
     """MESSAGE 1: unit info from the template + the landlord's available viewing slot.
     No intake form. The form is sent as a separate second message (see handle_event)."""
-    d = _load(TEMPLATES, {"listings":[]})
+    d = _load(_templates(), {"listings":[]})
     for l in d.get("listings", []):
         if l.get("id") == listing_key and l.get("message"):
             msg = l["message"]
@@ -1455,7 +1499,7 @@ def _phone_to_llid():
     curated media on disk once a landlord has been assigned an id by the nightly refresh or
     scripts/new_landlord.py -- the onboarding flow itself never allocates an id."""
     try:
-        d = json.load(open(LANDLORD_DB))
+        d = json.load(open(_landlord_db()))
     except Exception:
         return {}
     out = {}
@@ -1479,7 +1523,7 @@ def _landlord_media_status(pn, chat_jid):
     never invents a completed media state."""
     photos = video = False
     try:
-        con = sqlite3.connect(MSG_DB, timeout=10)
+        con = sqlite3.connect(_msg_db(), timeout=10)
         con.execute("PRAGMA busy_timeout=10000")
         rows = con.execute(
             "SELECT media_type FROM messages WHERE chat_jid=? AND is_from_me=0 "
@@ -1515,9 +1559,10 @@ def _backup_landlord_db_once():
         return
     try:
         import shutil, time as _t
-        if os.path.exists(LANDLORD_DB):
+        landlord_db = _landlord_db()
+        if os.path.exists(landlord_db):
             stamp = _t.strftime("%Y%m%d-%H%M%S")
-            shutil.copy2(LANDLORD_DB, LANDLORD_DB + ".bak-onboarding-" + stamp)
+            shutil.copy2(landlord_db, landlord_db + ".bak-onboarding-" + stamp)
     except Exception:
         pass
     _landlord_db_backup_done = True
@@ -1530,8 +1575,9 @@ def _sync_landlord_db_fields(pn, rec):
     stays the source of truth; a later sync call (next stage transition, or the sweep) tries
     again. Always preserves every sibling key -- the file is a dict, never dumped as a bare
     list. Backs up the file once per process before the first write."""
+    landlord_db = _landlord_db()
     try:
-        d = json.load(open(LANDLORD_DB))
+        d = json.load(open(landlord_db))
     except Exception:
         return False
     target_ph = re.sub(r"\D", "", str(pn or ""))
@@ -1553,9 +1599,9 @@ def _sync_landlord_db_fields(pn, rec):
             hit = True
     if not hit:
         return False
-    tmp = LANDLORD_DB + ".tmp"
+    tmp = landlord_db + ".tmp"
     json.dump(d, open(tmp, "w"), indent=1, ensure_ascii=False)
-    os.replace(tmp, LANDLORD_DB)
+    os.replace(tmp, landlord_db)
     return True
 
 def _rec_supply_kind(rec):
@@ -1688,7 +1734,7 @@ def recent_inbound_text(chat_jid, limit=25):
     if not chat_jid:
         return ""
     try:
-        con = sqlite3.connect(MSG_DB, timeout=10)
+        con = sqlite3.connect(_msg_db(), timeout=10)
         con.execute("PRAGMA busy_timeout=10000")
         rows = con.execute(
             "SELECT content FROM messages WHERE chat_jid=? AND is_from_me=0 "
@@ -1707,7 +1753,7 @@ def recent_inbound_media(chat_jid, limit=25):
     if not chat_jid:
         return (0, 0)
     try:
-        con = sqlite3.connect(MSG_DB, timeout=10)
+        con = sqlite3.connect(_msg_db(), timeout=10)
         con.execute("PRAGMA busy_timeout=10000")
         rows = con.execute(
             "SELECT media_type, content FROM messages WHERE chat_jid=? AND is_from_me=0 "
@@ -1800,7 +1846,7 @@ def _template_heads():
     except NameError:
         pass
     heads = []
-    d = _load(TEMPLATES, {"listings": []})
+    d = _load(_templates(), {"listings": []})
     for l in d.get("listings", []):
         msg = (l.get("message") or "")
         i = msg.lower().find("pls fill this in")
@@ -1897,7 +1943,7 @@ def _contact_names(pn):
     so the caller can fail-closed rather than treat a locked DB as 'no name = not excluded'."""
     out = []
     try:
-        con = sqlite3.connect(WA_DB, timeout=30)
+        con = sqlite3.connect(_wa_db(), timeout=30)
         con.execute("PRAGMA busy_timeout=30000")
     except Exception:
         return out, False
@@ -1926,7 +1972,7 @@ def _landlord_pn_set():
     CLOSED (defer sends) — an empty set would silently drop the landlord protection and
     form-blast landlords the moment the file is corrupted."""
     try:
-        d = json.load(open(LANDLORD_DB))
+        d = json.load(open(_landlord_db()))
     except Exception:
         return None
     out = set()
@@ -1947,7 +1993,7 @@ def _landlord_form_recipients():
     (empty set) like the cobroke gate — the landlord-DB gate stays the fail-closed one."""
     out = set()
     try:
-        con = sqlite3.connect(MSG_DB, timeout=10)
+        con = sqlite3.connect(_msg_db(), timeout=10)
         con.execute("PRAGMA busy_timeout=10000")
         jids = [j for (j,) in con.execute(
             "SELECT DISTINCT chat_jid FROM messages WHERE is_from_me=1 "
@@ -1960,7 +2006,7 @@ def _landlord_form_recipients():
         if bare: out.add(bare)
     if out:
         try:
-            wcon = sqlite3.connect(WA_DB, timeout=10)
+            wcon = sqlite3.connect(_wa_db(), timeout=10)
             wcon.execute("PRAGMA busy_timeout=10000")
             for lid, pn in wcon.execute("SELECT lid, pn FROM whatsmeow_lid_map"):
                 if str(lid).split("@")[0] in out:
@@ -1971,17 +2017,24 @@ def _landlord_form_recipients():
             pass                  # bare jids still protect when the event pn IS the jid user
     return frozenset(out)
 
-COBROKE_DB = os.path.expanduser("~/.claude/state/cobroke-agents.json")
+COBROKE_DB = _P.paths()["cobroke_db"]
+_default_COBROKE_DB = COBROKE_DB
+
+
+def _cobroke_db():
+    return _P.resolved(globals(), "COBROKE_DB", "cobroke_db")
+
 
 @functools.lru_cache(maxsize=1)
 def _cobroke_agent_pn_set():
     """Bare phone numbers of KNOWN agents from cobroke-agents.json (fed by /cobroke-dd and
-    /cea-check). Cached per runner process; next tick re-reads. Fails OPEN (empty set) on an
+    /cea-check). Cached per runner process; next tick re-reads (cache_clear() between
+    sandbox scenarios -- see wa_intake_attack_harness.py). Fails OPEN (empty set) on an
     unreadable file: the agent gate is protective polish — a corrupt agents file must never
     block real tenants (the landlord gate stays the fail-closed one). Gap closed 26 Jul 2026;
     was name/keyword heuristics only."""
     try:
-        d = json.load(open(COBROKE_DB))
+        d = json.load(open(_cobroke_db()))
     except Exception:
         return frozenset()
     out = set()
@@ -2226,19 +2279,21 @@ class StateCorrupt(RuntimeError):
     next tick would re-form every past prospect and talk over Winfred's manual chats."""
 
 def load_state():
-    if not os.path.exists(STATE):
+    state = _state()
+    if not os.path.exists(state):
         return {"version": 1, "conversations": {}}   # first install only
     try:
-        s = json.load(open(STATE))
+        s = json.load(open(state))
     except Exception as e:
-        raise StateCorrupt(f"{STATE}: {type(e).__name__}: {e}")
+        raise StateCorrupt(f"{state}: {type(e).__name__}: {e}")
     if not isinstance(s.get("conversations"), dict):
-        raise StateCorrupt(f"{STATE}: parsed but 'conversations' is not a dict")
+        raise StateCorrupt(f"{state}: parsed but 'conversations' is not a dict")
     return s
 def save_state(s):
-    tmp = STATE + ".tmp"
+    state_path = _state()
+    tmp = state_path + ".tmp"
     json.dump(s, open(tmp,"w"), indent=1, ensure_ascii=False)
-    os.replace(tmp, STATE)   # atomic; one writer
+    os.replace(tmp, state_path)   # atomic; one writer
 
 def _rec(state, pn):
     rec = state["conversations"].setdefault(pn, {})
@@ -2491,7 +2546,7 @@ def _landlord_by_id():
     Returns None when the DB is unreadable so callers can fail CLOSED (no suggestions)
     instead of treating corruption as 'no landlords'."""
     try:
-        d = json.load(open(LANDLORD_DB))
+        d = json.load(open(_landlord_db()))
     except Exception:
         return None
     return {str(l.get("id")): l for l in d.get("landlords", []) if l.get("id")}

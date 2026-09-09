@@ -12,8 +12,18 @@ import os, re, json, time, datetime, subprocess
 
 import wa_intake_owner as OWN
 import wa_intake_resume as RES
+import wa_intake_paths as _P
 
-IDX = os.path.expanduser("~/.claude/state/listing-templates/listing-index.json")
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): IDX kept for backward compat with existing
+# mock.patch.object(wa_intake_owner_answers, "IDX", ...) tests; _idx() resolves it at call
+# time (see wa_intake_paths.resolved's docstring).
+IDX = _P.paths()["listing_index"]
+_default_IDX = IDX
+
+
+def _idx():
+    return _P.resolved(globals(), "IDX", "listing_index")
+
 
 HAIKU_BIN = os.path.expanduser("~/.claude/bin/claude-guard")
 HAIKU_MODEL = "claude-haiku-4-5-20251001"
@@ -84,7 +94,7 @@ def _write_listing_fact(listing_key, code, value):
     if not listing_key:
         return False
     try:
-        f = open(IDX, "r+")
+        f = open(_idx(), "r+")
     except OSError:
         return False
     try:
@@ -126,7 +136,7 @@ def _write_listing_fact(listing_key, code, value):
 # refresh-rental-dbs.sh already uses this exact protocol so the nightly refresh and this
 # module can never race each other) ----------
 def _acquire_refresh_lock(timeout_sec=10):
-    lock_dir = OWN.REFRESH_LOCK_DIR
+    lock_dir = OWN._refresh_lock_dir()
     deadline = time.time() + timeout_sec
     while True:
         try:
@@ -148,7 +158,7 @@ def _acquire_refresh_lock(timeout_sec=10):
 
 def _release_refresh_lock():
     try:
-        os.rmdir(OWN.REFRESH_LOCK_DIR)
+        os.rmdir(OWN._refresh_lock_dir())
     except OSError:
         pass
 
@@ -199,7 +209,17 @@ def _build_extract_prompt(pending, transcript):
 
 def call_haiku_extract(pending, transcript):
     """Returns (dict-or-None, error-or-None). dict maps question_code -> {"value","quote"}
-    or None, for exactly the codes in `pending`. Never raises."""
+    or None, for exactly the codes in `pending`. Never raises.
+
+    WA_INTAKE_SANDBOX=1 short circuits before the real subprocess call (STEP 0 sandbox seal,
+    9 Sep 2026 merge redo): a harness/replay run with a pending owner answer to extract would
+    otherwise spawn a real claude-guard/Haiku process -- costs real API tokens and is exactly
+    the kind of live engine I/O a sandboxed run must never perform on its own. A harness that
+    wants real extraction behaviour patches this function directly (see
+    wa_intake_attack_harness.py's RES.call_haiku patch for the matching draft-generation
+    case), same as it already does for Telegram/bridge sends."""
+    if os.environ.get("WA_INTAKE_SANDBOX") == "1":
+        return None, "sandboxed: real Haiku subprocess call suppressed"
     prompt = _build_extract_prompt(pending, transcript)
     try:
         r = subprocess.run(

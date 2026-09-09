@@ -41,7 +41,15 @@ _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _WA_DIR = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
 sys.path.insert(0, _WA_DIR)
 
-MSG_DB = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
+import wa_intake_paths as _P   # noqa: E402
+
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): this script's whole PURPOSE is a read only
+# (mode=ro) replay against REAL recent WhatsApp history -- that is intentional, audited
+# design, not a leak (it never writes to messages.db, and intake-state.json is never
+# touched at all -- see module docstring). MSG_DB now honours WA_INTAKE_MSG_DB purely so a
+# hermetic test can point this at a throwaway fixture db instead of the real bridge store;
+# production usage (no env var set) is unchanged.
+MSG_DB = _P.paths()["messages_db"]
 LIVE_IDX_DEFAULT = os.path.expanduser("~/.claude/state/listing-templates/listing-index.json")
 SCRATCH = ("/private/tmp/claude-501/-Users-winfredquek-crestbrick-consult/"
            "92b405a9-4a65-471d-bd8e-97356c5a5b42/scratchpad")
@@ -233,6 +241,7 @@ def results_fingerprint(results):
 
 
 def main():
+    _P.sandbox_init()   # no-op unless WA_INTAKE_SANDBOX=1 (a test); see its own docstring
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=7)
     ap.add_argument("--old-ref", default=OLD_REF_DEFAULT)
