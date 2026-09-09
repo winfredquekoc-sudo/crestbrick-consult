@@ -56,6 +56,8 @@ class TestNoQuotedFigureOrHyphenInTenantText(unittest.TestCase):
         texts["_viewing_text no slot"] = E._viewing_text(None)
         texts["CHANNEL_PITCH"] = E.CHANNEL_PITCH
         texts["INTAKE_FORM"] = E.INTAKE_FORM
+        texts["CLOSING_TEXT_NEW_PLACE"] = E.CLOSING_TEXT_NEW_PLACE
+        texts["CLOSING_TEXT_GENERIC"] = E.CLOSING_TEXT_GENERIC
 
         # ASK_ONE -- every branch: sensitive, generic gap, borderline budget (must now fall
         # through to the SAME figure-free ask), and the "just to double check" lead.

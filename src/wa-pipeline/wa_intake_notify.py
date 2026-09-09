@@ -331,8 +331,10 @@ def notify_for_action(a, state):
         notify_winfred(f"Cross sell: {nm} ({a['pn']}) rejected the unit, so I suggested {a.get('listing_key')} (same district) with its post and next slot. Conversation rebound to the new listing.")
     elif a["type"] == "CAP_REACHED":
         notify_winfred(f"Auto-message cap ({E.MAX_PROSPECT_MSGS}) reached for {nm} ({a['pn']}) on {lk}. The bot will stop messaging them now — take over by hand if you want to keep going.")
-    elif a["type"] == "AUTO_CLOSED":
-        notify_winfred(f"Auto-closed a prospect.\n{nm} ({a['pn']}) for {lk} said:\n\"{a.get('quote','')}\"\nI marked them closed (found elsewhere); the bot will not message them again. Reopen by hand if that's wrong.")
+    # AUTO_CLOSED (closing pleasantry, Winfred 9 Sep 2026 merge redo): always carries
+    # notify=False -- the fixed reply closes the loop on its own, so this branch is
+    # deliberately absent. notify_for_action already returned above on notify=False; there
+    # is no code path left that would reach an elif for it.
     elif a["type"] == "SEND_SUPPLY_FORM":
         _sk = a.get("supply", "landlord")
         notify_winfred(f"New {_sk} detected: {nm} ({a['pn']}). I sent them the "

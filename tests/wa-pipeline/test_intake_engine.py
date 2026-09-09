@@ -554,10 +554,12 @@ print("== 21. WITHDRAWAL auto-close (found another place / no longer renting) ==
 def _wstate(pn, manual=False):
     return {"version":1,"conversations":{pn:{"pn":pn,"listing_key":"caspian","stage":"NEEDS_INFO","profile":{"name":"W"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":manual,"status":("manual" if manual else "needs_info"),"sent_count":1}}}
 s1=_wstate("6590010001"); a1=E.handle_event(s1,{"jid":"6590010001@s.whatsapp.net","msg_id":"w1","text":"Hi, I found another place already. Thank you!","is_from_me":0})
-ok("'found another place' -> AUTO_CLOSED, no prospect text", a1 and a1.get("type")=="AUTO_CLOSED" and a1.get("text") is None)
+ok("'found another place' -> AUTO_CLOSED, fixed 'new place' closing text, no Telegram ping",
+   a1 and a1.get("type")=="AUTO_CLOSED" and a1.get("text")==E.CLOSING_TEXT_NEW_PLACE and a1.get("notify") is False)
 ok("'found another place' -> terminal set", s1["conversations"]["6590010001"].get("terminal") is True)
 s2=_wstate("6590010002"); a2=E.handle_event(s2,{"jid":"6590010002@s.whatsapp.net","msg_id":"w2","text":"sorry, i do not wish to rent anymore","is_from_me":0})
-ok("'do not wish to rent anymore' -> AUTO_CLOSED", a2 and a2.get("type")=="AUTO_CLOSED")
+ok("'do not wish to rent anymore' -> AUTO_CLOSED, generic closing text (no place implied)",
+   a2 and a2.get("type")=="AUTO_CLOSED" and a2.get("text")==E.CLOSING_TEXT_GENERIC)
 s3=_wstate("6590010003"); a3=E.handle_event(s3,{"jid":"6590010003@s.whatsapp.net","msg_id":"w3","text":"no longer looking, thanks anyway","is_from_me":0})
 ok("'no longer looking' -> AUTO_CLOSED", a3 and a3.get("type")=="AUTO_CLOSED")
 s4=_wstate("6590010004",manual=True); a4=E.handle_event(s4,{"jid":"6590010004@s.whatsapp.net","msg_id":"w4","text":"we went with another unit in the end","is_from_me":0})
@@ -568,6 +570,19 @@ s6=_wstate("6590010006"); a6=E.handle_event(s6,{"jid":"6590010006@s.whatsapp.net
 ok("unit feedback 'found the place small' does NOT auto-close", not (a6 and a6.get("type")=="AUTO_CLOSED") and s6["conversations"]["6590010006"].get("terminal") is not True)
 a4b=E.handle_event(s4,{"jid":"6590010004@s.whatsapp.net","msg_id":"w4b","text":"yes 3pm works","is_from_me":0})
 ok("after withdrawal-close, later 'yes 3pm' stays silent", a4b is None)
+
+print("== 21b. BARE SIGN-OFF (thanks/bye) also closes, generic text, never a substring match ==")
+s7=_wstate("6590010007"); a7=E.handle_event(s7,{"jid":"6590010007@s.whatsapp.net","msg_id":"w7","text":"Thanks!","is_from_me":0})
+ok("bare 'Thanks!' -> AUTO_CLOSED, generic closing text, no Telegram ping",
+   a7 and a7.get("type")=="AUTO_CLOSED" and a7.get("text")==E.CLOSING_TEXT_GENERIC and a7.get("notify") is False)
+s8=_wstate("6590010008"); a8=E.handle_event(s8,{"jid":"6590010008@s.whatsapp.net","msg_id":"w8","text":"ok bye","is_from_me":0})
+ok("bare 'ok bye' -> AUTO_CLOSED", a8 and a8.get("type")=="AUTO_CLOSED" and a8.get("text")==E.CLOSING_TEXT_GENERIC)
+s9=_wstate("6590010009"); a9=E.handle_event(s9,{"jid":"6590010009@s.whatsapp.net","msg_id":"w9","text":"thanks, can you also tell me about parking?","is_from_me":0})
+ok("'thanks' followed by a real question does NOT auto-close (whole-message match only)",
+   not (a9 and a9.get("type")=="AUTO_CLOSED") and s9["conversations"]["6590010009"].get("terminal") is not True)
+s10=_wstate("6590010010"); a10=E.handle_event(s10,{"jid":"6590010010@s.whatsapp.net","msg_id":"w10","text":"my budget is 1200, thanks","is_from_me":0})
+ok("a field answer that happens to end in 'thanks' does NOT auto-close",
+   not (a10 and a10.get("type")=="AUTO_CLOSED") and s10["conversations"]["6590010010"].get("terminal") is not True)
 ok("withdrawal_signal direct: positive", E.withdrawal_signal("i already rented somewhere else") is True)
 ok("withdrawal_signal direct: negative (plain enquiry)", E.withdrawal_signal("hi is the room still available to rent?") is False)
 ok("withdrawal_signal direct: landlord availability question is NOT a withdrawal", E.withdrawal_signal("so the landlord still not going to rent?") is False)

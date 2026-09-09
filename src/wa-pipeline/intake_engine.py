@@ -888,6 +888,56 @@ def withdrawal_signal(text):
         return False
     return _phrase_hit(low)
 
+# ---------- closing pleasantry (Winfred, 9 Sep 2026 merge redo) ----------
+# A withdrawal, or a bare thanks/goodbye, gets ONE fixed reply -- never drafted (it needs no
+# Haiku call, no human judgement), never a Telegram ping (the whole point is the bot closes
+# small talk on its own without pulling Winfred in for every "thanks, bye"). Two templates:
+# one names "the new place" when the prospect said they found/secured/bought somewhere else,
+# the other is generic for "not keen"/"no longer renting"/a bare thanks or goodbye, where no
+# new place is implied.
+_FOUND_PLACE_PHRASES = (
+    "found another place","found another unit","found another room","found another apartment","found another flat",
+    "found a new place","found a new unit","found a new room","found a new apartment",
+    "found a place already","found a unit already","found a room already",
+    "found somewhere else","found something else","found somewhere","found elsewhere","found one already",
+    "already found a place","already found a room","already found a unit","already found somewhere","already found another",
+    "already got a place","already got another place","already secured a place","already secured another",
+    "already booked a place","already booked another",
+    "already rented a place","already rented another","already rented somewhere","already signed",
+    "rented another","secured another","booked another","signed another","took another place","went with another","going with another",
+    "taken another place","taken another unit","taken another room","taken another apartment",
+    "taken a place already","taken a room already","taken a unit already","committed to another",
+    "settled on another","decided on another",
+    "found liao","settled liao","rented liao","got already","already got a place liao",
+    "buy instead","buying instead","buy our own","buying our own","buy a place instead",
+    "租到了","已经租到","找到房","sudah dapat","dah dapat","dah jumpa",
+)
+def _closing_implies_new_place(text):
+    low = (text or "").lower()
+    return any(p in low for p in _FOUND_PLACE_PHRASES)
+
+CLOSING_TEXT_NEW_PLACE = "No worries, all the best with the new place \U0001F642 Reach out anytime if you need a room again."
+CLOSING_TEXT_GENERIC = "No worries \U0001F642 Reach out anytime if you need a room again."
+
+# Bare thanks/goodbye -- deliberately a WHOLE MESSAGE match, never a substring: "thanks, can
+# you also tell me about parking?" must never be mistaken for a close. Punctuation/emoji are
+# stripped and whitespace collapsed before comparing, so "Thanks!!" / "ok thanks :)" still hit.
+_SIGNOFF_EXACT = frozenset((
+    "thanks","thank you","ok thanks","okay thanks","thanks a lot","thank you so much",
+    "thanks so much","noted thanks","ok noted thanks","alright thanks","thanks alot",
+    "bye","goodbye","bye bye","cheers","ok bye","okay bye","thanks bye","no worries thanks",
+    "谢谢","多谢","拜拜",
+))
+_SIGNOFF_STRIP_RE = re.compile(r"[^\w\s一-鿿]+", re.U)
+def _signoff_signal(text):
+    """True only when the ENTIRE message (after stripping punctuation/emoji, collapsing
+    whitespace, lowercasing) is one of a small set of bare thanks/goodbye phrases -- never a
+    substring match, so it can never fire mid-conversation on a message that happens to
+    start with "thanks" but goes on to ask something."""
+    clean = _SIGNOFF_STRIP_RE.sub(" ", (text or "").lower())
+    clean = re.sub(r"\s+", " ", clean).strip()
+    return bool(clean) and clean in _SIGNOFF_EXACT
+
 # ---------- terminal record re-notify ----------
 # A terminal (closed) conversation must never send the prospect anything again -- but Winfred
 # still needs to SEE a fresh enquiry, a mention of another open listing, or a complaint that
@@ -3275,13 +3325,22 @@ def _handle_event_inner(state, ev):
                         "reason": "new message on a closed conversation (" + rec.get("status", "")
                                   + "): \"" + _text_now[:120] + "\""}
         return None                      # closed / terminal conversation -> engine never acts again
-    if withdrawal_signal(ev.get("text")):
+    if withdrawal_signal(ev.get("text")) or _signoff_signal(ev.get("text")):
+        # a bare thanks/goodbye is a POLITE close, never a withdrawal (Winfred, 9 Sep 2026
+        # merge redo): same fixed reply + terminal state, but framed and logged as such, and
+        # a new place is never implied for it.
+        _new_place = _closing_implies_new_place(ev.get("text"))
         rec["terminal"] = True; rec["stage"] = "WITHDRAWN"
-        rec["status"] = "closed (found elsewhere)"
-        rec["closed_reason"] = "auto: prospect signalled they found another place / no longer renting"
-        return {"type": "AUTO_CLOSED", "pn": pn, "notify": True, "text": None,
+        rec["status"] = "closed (found elsewhere)" if _new_place else "closed (not keen / signed off)"
+        rec["closed_reason"] = ("auto: prospect signalled they found another place"
+                                 if _new_place else
+                                 "auto: prospect signalled not keen / said thanks / signed off")
+        # notify=False: the fixed reply below closes the loop on its own -- no Telegram ping,
+        # no draft (never route a closing pleasantry through the drafting flow).
+        return {"type": "AUTO_CLOSED", "pn": pn, "notify": False,
+                "text": CLOSING_TEXT_NEW_PLACE if _new_place else CLOSING_TEXT_GENERIC,
                 "listing_key": rec.get("listing_key"),
-                "reason": "said they found another place / no longer renting",
+                "reason": rec["closed_reason"],
                 "quote": (ev.get("text") or "")[:160]}
     if _protected_disclosure_question(ev.get("text")):
         return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
