@@ -8,10 +8,24 @@ Selenium-based form-filling as fallback.
 CEA-compliant: all listings include Winfred's contact and CEA license.
 """
 import json, os, re, time
+import wa_intake_paths as _P
 from landlord_tenant_matcher import extract_landlord_property, _to_int
 
-LISTING_INDEX = os.path.expanduser("~/.claude/state/listing-templates/listing-index.json")
+# STEP 0 sandbox seal (merge review, 9 Sep 2026): these were bare os.path.expanduser
+# constants, so add_listing_to_index()/update_listing_url() wrote the REAL, LIVE
+# listing-index.json even under WA_INTAKE_SANDBOX=1 with every root pointed at a tempdir --
+# the module never consulted wa_intake_paths at all, so no env var could redirect it. That
+# is the same shape of bug as the runner-last.json incident, and it is reachable from a test
+# in the tree (src/wa-pipeline/test_landlord_matcher.py -> intake_engine.on_landlord_form_
+# completed -> on_landlord_form_completed_for_99co -> add_listing_to_index). Resolve at CALL
+# time via _listing_index() instead; production (env unset) resolves to the identical path.
+LISTING_INDEX = _P.paths()["listing_index"]
+_default_LISTING_INDEX = LISTING_INDEX
 NINETY_NINE_CO_CREDS = os.path.expanduser("~/.claude/secrets/99co-credentials.json")
+
+
+def _listing_index():
+    return _P.resolved(globals(), "LISTING_INDEX", "listing_index")
 
 def _load(p, d):
     try: return json.load(open(p))
@@ -232,9 +246,9 @@ def add_listing_to_index(listing_data, landlord_phone):
     Updates listing-index.json with new entry + 99co_url field.
     """
     try:
-        index = json.load(open(LISTING_INDEX))
+        index = json.load(open(_listing_index()))
     except Exception:
-        return {"success": False, "error": f"Cannot read {LISTING_INDEX}"}
+        return {"success": False, "error": f"Cannot read {_listing_index()}"}
 
     if "listings" not in index:
         index["listings"] = []
@@ -262,7 +276,7 @@ def add_listing_to_index(listing_data, landlord_phone):
     }
 
     index["listings"].append(new_listing)
-    _save_json(LISTING_INDEX, index)
+    _save_json(_listing_index(), index)
 
     return {"success": True, "listing_key": slug}
 
@@ -271,16 +285,16 @@ def update_listing_url(listing_key, url_99co):
     Update a listing with the confirmed 99.co URL.
     """
     try:
-        index = json.load(open(LISTING_INDEX))
+        index = json.load(open(_listing_index()))
     except Exception:
-        return {"success": False, "error": f"Cannot read {LISTING_INDEX}"}
+        return {"success": False, "error": f"Cannot read {_listing_index()}"}
 
     for lst in index.get("listings", []):
         if lst.get("listing_key") == listing_key:
             lst["ninety_nine_co_url"] = url_99co
             lst["status"] = "active_99co"
             lst["ninety_nine_co_pending"] = False
-            _save_json(LISTING_INDEX, index)
+            _save_json(_listing_index(), index)
             return {"success": True}
 
     return {"success": False, "error": f"Listing {listing_key} not found"}

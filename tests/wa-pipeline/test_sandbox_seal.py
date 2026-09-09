@@ -430,5 +430,88 @@ class TestRunnerRunIsSandboxed(SandboxedRun):
         self.assert_live_state_untouched()
 
 
+class TestDormantMatcherModulesAreSealed(unittest.TestCase):
+    """ninety_nine_co_lister / landlord_tenant_matcher used bare os.path.expanduser
+    constants, so they resolved (and add_listing_to_index WROTE) the REAL live
+    listing-index.json even with WA_INTAKE_SANDBOX=1 and every root on a tempdir -- no env
+    var could reach them, because they never consulted wa_intake_paths at all. Dormant in
+    production (nothing in the runner calls them), but reachable from a test in the tree:
+    src/wa-pipeline/test_landlord_matcher.py -> intake_engine.on_landlord_form_completed ->
+    on_landlord_form_completed_for_99co -> add_listing_to_index -> _save_json(live path).
+    Merge review, 9 Sep 2026."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="wa-seal-dormant-")
+        self._saved = {k: os.environ.get(k) for k in
+                       ("WA_INTAKE_SANDBOX", "WA_INTAKE_STATE_ROOT", "WA_INTAKE_DATA_ROOT",
+                        "WA_INTAKE_MSG_DB")}
+        os.environ.update(WA_INTAKE_SANDBOX="1", WA_INTAKE_STATE_ROOT=self.tmp,
+                          WA_INTAKE_DATA_ROOT=self.tmp, WA_INTAKE_MSG_DB=self.tmp)
+
+    def tearDown(self):
+        for k, v in self._saved.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+        shutil.rmtree(self.tmp, ignore_errors=True)
+
+    def test_listing_index_redirects_under_sandbox(self):
+        import importlib
+        import ninety_nine_co_lister as L
+        importlib.reload(L)
+        self.assertTrue(L._listing_index().startswith(self.tmp),
+                        f"lister still resolves {L._listing_index()!r} under a sandbox")
+
+    def test_add_listing_to_index_never_writes_the_live_file(self):
+        import importlib
+        import ninety_nine_co_lister as L
+        importlib.reload(L)
+        with open(os.path.join(self.tmp, "listing-index.json"), "w") as f:
+            json.dump({"listings": []}, f)
+        guards = _Guards()
+        guards.install()
+        try:
+            r = L.add_listing_to_index({"address": "Blk 123 Demo Ave 1"}, "6590000000")
+        finally:
+            guards.remove()
+        self.assertEqual(guards.violations, [])
+        self.assertTrue(r.get("success"), r)
+        with open(os.path.join(self.tmp, "listing-index.json")) as f:
+            self.assertEqual(len(json.load(f)["listings"]), 1)
+
+    def test_matching_config_redirects_under_sandbox(self):
+        import importlib
+        import landlord_tenant_matcher as M
+        importlib.reload(M)
+        self.assertTrue(M.MATCHING_CONFIG.startswith(self.tmp),
+                        f"matcher still resolves {M.MATCHING_CONFIG!r} under a sandbox")
+
+
+class TestDormantMatcherModulesUnsetAreUnchanged(unittest.TestCase):
+    """The mirror image: with the env vars unset, both modules resolve the historical real
+    paths byte for byte -- production is unchanged by the seal fix."""
+
+    def test_paths_unset_equal_real(self):
+        import importlib
+        saved = {k: os.environ.pop(k, None) for k in
+                 ("WA_INTAKE_SANDBOX", "WA_INTAKE_STATE_ROOT", "WA_INTAKE_DATA_ROOT",
+                  "WA_INTAKE_MSG_DB")}
+        try:
+            import ninety_nine_co_lister as L
+            import landlord_tenant_matcher as M
+            importlib.reload(L)
+            importlib.reload(M)
+            self.assertEqual(L.LISTING_INDEX, os.path.expanduser(
+                "~/.claude/state/listing-templates/listing-index.json"))
+            self.assertEqual(L._listing_index(), L.LISTING_INDEX)
+            self.assertEqual(M.MATCHING_CONFIG, os.path.expanduser(
+                "~/.claude/state/listing-templates/matching-config.json"))
+        finally:
+            for k, v in saved.items():
+                if v is not None:
+                    os.environ[k] = v
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)
