@@ -51,15 +51,24 @@ ok("viewing confirmations exempt (a YES must never dead-end overnight)",
         or 'a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_block
         or ('a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE",'
             in send_block)))
-# REDIRECT (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a one-time,
-# already-latched closure -- holding them for the daily cap dead-ends a prospect who was
-# already told something final (9 Sep 2026 cycle 3 attack replay fix).
-ok("REDIRECT and LEASE_NOTE also exempt from the daily cap",
-   '"REDIRECT"' in send_block and '"LEASE_NOTE"' in send_block)
-# whatever type the cap DOES still hold back must still reach Winfred -- a held reply must
-# never vanish with zero signal.
+# REDIRECT (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a direct,
+# one-shot reply to something the tenant just said -- holding them for the ordinary daily
+# cap dead-ends a prospect who was mid conversation (9 Sep 2026 cycle 3 attack replay fix).
+# Bounded to ONE touch a day via their own date stamp (merge review 9 Sep 2026 -- same
+# mechanism as the VIEWING_TIME_PROPOSED/ASK_TENANT_TIME time reply, never fully exempt;
+# see tests/wa-pipeline/test_time_reply_cap.py for the behavioural coverage).
+ok("REDIRECT and LEASE_NOTE also bounded (one touch a day) from the daily cap",
+   '"REDIRECT"' in send_block and '"LEASE_NOTE"' in send_block
+   and "redirect_sent_date" in send_block and "lease_note_reply_sent_date" in send_block)
+# whatever type the ORDINARY cap DOES still hold back must still reach Winfred -- a held
+# reply must never vanish with zero signal. (Not the earlier bounded-once DAILY_CAP_SKIP
+# shared by the time reply / REDIRECT / LEASE_NOTE carve out -- that one intentionally does
+# not notify, same as before this fix.)
+_ordinary_cap_marker = 'a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")'
 ok("a daily cap skip still force notifies Winfred",
-   "notify_winfred" in src[src.index("DAILY_CAP_SKIP"):src.index("DAILY_CAP_SKIP") + 800])
+   _ordinary_cap_marker in src
+   and "notify_winfred" in src[src.index(_ordinary_cap_marker):
+                               src.index(_ordinary_cap_marker) + 800])
 after_send = src[src.index("count this touch against the per-client daily cap"):]
 ok("counter increments only on a fully delivered send", "sends_today" in after_send[:500]
    and src.index("count this touch") > src.index("_r0.pop(\"partial_sent\", None)"))

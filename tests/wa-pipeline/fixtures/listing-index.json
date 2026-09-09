@@ -1,0 +1,3890 @@
+{
+  "_notes": "Single source of truth for listing<->landlord joins and machine-comparable normalized requirements. One row per ACTIVE listing slug from property-templates.json. requirements use CLOSED enums derived by translating landlord-db.json requirements + template landlord_prefs/suits_line. notes_human holds free-text rules for humans and is NEVER used for matching. The live WhatsApp pipeline does NOT read this file yet; creating it changes no pipeline behavior. Landlords with status containing 'tenanted' are treated as UNAVAILABLE and excluded. Slugs with no landlord record are set status 'hold' and landlord_id null pending verification. Generated 2026-06-14.",
+  "_timezone": "Asia/Singapore",
+  "listings": [
+    {
+      "listing_key": "watercolours",
+      "landlord_id": null,
+      "property_name": "Watercolours",
+      "block_address": "Watercolours, Pasir Ris",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "hold",
+      "pg_url_keywords": [
+        "watercolours",
+        "500141548"
+      ],
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": null,
+        "lease_max_months": null,
+        "budget_floor": 1000,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Female only, 1 pax. Owner (female) stays in unit. Light cooking, induction stove. No pets, no smoking, no visitors. Quiet after midnight. Utilities and WiFi included. no landlord record in DB, verify",
+        "gate_unverified": [
+          "gender"
+        ]
+      },
+      "area": "Pasir Ris",
+      "district": "D18"
+    },
+    {
+      "listing_key": "oxley-edge",
+      "landlord_id": null,
+      "property_name": "Oxley Edge",
+      "block_address": "Oxley Edge",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "hold",
+      "pg_url_keywords": [
+        "oxley-edge",
+        "oxley_edge",
+        "oxley edge",
+        "500153962"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": true,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": null,
+        "lease_max_months": null,
+        "budget_floor": 1200,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "notes_human": "Mixed, all welcome. Common room $1,200, master $2,300. Light cooking allowed. budget_floor reflects cheaper (common) room. no landlord record in DB, verify"
+      },
+      "area": "Oxley, Orchard",
+      "district": "D9"
+    },
+    {
+      "listing_key": "caspian",
+      "landlord_id": "LL012",
+      "property_name": "Caspian",
+      "block_address": "Caspian (Lakeside) Blk 2 #07-03",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "closed (tenanted 9 Jul 2026)",
+      "pg_url_keywords": [
+        "caspian",
+        "500157626"
+      ],
+      "requirements": {
+        "gender": "male_pref",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": 1100,
+        "min_age": null,
+        "cooking": "all",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Common rooms $1,000 to $1,100. Landlord prefers male tenants (co-living, mixed). no Indian (landlord preference). 6 month lease ok. All cooking allowed. No smoking. $30 gate fee. LL not on site (POA Frank, co-agents Don and Justin). Caspian master vacancy closes 1 Aug; CC4 avail 1 Jul. | Paused and treated as closed per Winfred 3 Jul 2026."
+      },
+      "area": "Lakeside, Jurong West",
+      "district": "D22"
+    },
+    {
+      "listing_key": "bedok-north-522",
+      "landlord_id": "LL010",
+      "property_name": "Bedok North Blk 522",
+      "block_address": "522 Bedok North Ave 1 #07-332",
+      "postal": "S460522",
+      "deal_type": "rent",
+      "status": "closed (dropped by Winfred)",
+      "pg_url_keywords": [
+        "522 bedok",
+        "bedok north ave 1",
+        "bedok north avenue 1",
+        "500156337"
+      ],
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": true,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": 24,
+        "budget_floor": 1300,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Master ensuite. Female or legally married couple only, no single males. $1,300 single / $1,600 couple or 2 females. Kitchen cooking only, none in room. No smoking, no subletting. Married couples only for couple option. Room vacant now. | Dropped per Winfred 3 Jul 2026 (difficult landlord). Do not market or offer.",
+        "couple_must_be_married": true
+      },
+      "area": "Bedok North",
+      "district": "D16"
+    },
+    {
+      "listing_key": "farrer-park",
+      "landlord_id": null,
+      "property_name": "Farrer Park Road",
+      "block_address": "Farrer Park Road",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "hold",
+      "pg_url_keywords": [
+        "farrer park",
+        "500113776"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": true,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": null,
+        "lease_max_months": null,
+        "budget_floor": 1300,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "notes_human": "Mixed, all welcome. $1,300 (1 pax) / $1,500 (2 pax). Light cooking. Utilities excluded. no landlord record in DB, verify"
+      },
+      "area": "Farrer Park",
+      "district": "D8"
+    },
+    {
+      "listing_key": "pasir-ris-151",
+      "landlord_id": null,
+      "property_name": "Pasir Ris Blk 151",
+      "block_address": "Pasir Ris Blk 151",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "hold",
+      "pg_url_keywords": [
+        "pasir-ris",
+        "500126094"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": null,
+        "lease_max_months": null,
+        "budget_floor": 1500,
+        "min_age": null,
+        "cooking": "unknown",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "notes_human": "$1,500/mo. Viewing by appointment. Utilities excluded. no landlord record in DB, verify"
+      },
+      "area": "Pasir Ris",
+      "district": "D18"
+    },
+    {
+      "listing_key": "summerdale",
+      "landlord_id": "LL012",
+      "property_name": "Summerdale",
+      "block_address": "Summerdale, Boon Lay",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "closed (paused by Winfred)",
+      "pg_url_keywords": [
+        "summerdale",
+        "60216592"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": 1900,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Master room $1,900 (template). Landlord-db LL012 lists Summerdale master $2,000 / common $1,000; budget_floor reflects the marketed master at $1,900. All welcome. Light cooking. No smoking. LL not on site (POA Frank). Utilities excluded per template. | Paused and treated as closed per Winfred 3 Jul 2026."
+      },
+      "area": "Jurong West, Boon Lay",
+      "district": "D22"
+    },
+    {
+      "listing_key": "tampines-855",
+      "landlord_id": "LL018",
+      "property_name": "855 Tampines St 83",
+      "block_address": "855 Tampines St 83 #08-248",
+      "postal": "S520855",
+      "deal_type": "rent",
+      "status": "closed (dropped)",
+      "pg_url_keywords": [
+        "855 tampines",
+        "tampines street 83",
+        "500157621"
+      ],
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1000,
+        "min_age": 30,
+        "cooking": "none",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Single female only, age 30 and above. $990 marketed, agreed $1,000. No cooking, no smoking, no drinking, no visitors, no couple, no subletting. Sole owner, MOP met. Aircon servicing by LL. budget_floor 1000 per agreed rent."
+      },
+      "area": "Tampines St 83",
+      "district": "D18"
+    },
+    {
+      "listing_key": "tampines-201",
+      "landlord_id": "LL003",
+      "property_name": "Tampines Blk 287",
+      "block_address": "201 Tampines St 21 (verify 201 vs 287)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "tampines 287",
+        "tampines blk 287",
+        "block 287 tampines",
+        "287 tampines street 22",
+        "287 tampines st 22",
+        "tampines st 22",
+        "tampines street 22",
+        "201 tampines street 21",
+        "tampines st 21"
+      ],
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "prefer",
+          "list": [
+            "professional",
+            "cabin crew"
+          ]
+        },
+        "max_pax": 1,
+        "lease_min_months": null,
+        "lease_max_months": null,
+        "budget_floor": 930,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Female professional only (cabin crew ok). $950 marketed (adv $1,000, can go $930). Light cooking, clean up after, no deep fry, no durian. Tenant must be comfortable with owner's cat and rabbit in unit. No smoking, no visitors. Aircon up to 10h/day, quarterly servicing $28. Unit number unconfirmed (201 vs 287).",
+        "gate_unverified": [
+          "gender"
+        ]
+      },
+      "area": "Tampines St 22",
+      "district": "D18"
+    },
+    {
+      "listing_key": "tampines-west-951b",
+      "landlord_id": "LL011",
+      "property_name": "Tampines St 96",
+      "block_address": "951B Tampines St 96 #10-117",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "951b tampines",
+        "tampines st 96",
+        "tampines street 96"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "prefer",
+          "list": [
+            "Malaysian Chinese",
+            "Japanese"
+          ]
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": 1100,
+        "min_age": null,
+        "cooking": "none",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Single female only. No Indian; Malaysian Chinese or Japanese preferred. $1,100 incl utilities. No cooking (boiling egg and microwave ok). No pets, no smoking. Owner couple plus 2 kids in unit. Aircon 10h, washer 2x/week. Wai Kin approved 14 Jun; Adinda 22 Jun (price gap). | Owner now accepts males too (2026-06-15).",
+        "gate_unverified": [
+          "ethnicity"
+        ]
+      },
+      "area": "Tampines West",
+      "district": "D18"
+    },
+    {
+      "listing_key": "hougang-358",
+      "landlord_id": "LL007",
+      "property_name": "Hougang Ave 5",
+      "block_address": "358 Hougang Ave 5 #02-354",
+      "postal": "S530358",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "358 hougang",
+        "hougang ave 5",
+        "hougang avenue 5"
+      ],
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese",
+            "Malay"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "prefer",
+          "list": [
+            "professional",
+            "expat",
+            "family"
+          ]
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": 24,
+        "budget_floor": 850,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "notes_human": "Single female only, Chinese or Malay preferred. $850 (was $1,000); whole unit $5,000. Simple cooking, must clean up, no pork, no liquor. No overnight visitors, inform before any visitor. Aircon payable by tenant, LL handles wear and tear. HIP works 20 Jun to 1 Jul. Jeevamalar viewing 18 Jun after 3pm.",
+        "gate_unverified": [
+          "gender"
+        ]
+      },
+      "area": "Hougang Ave 5",
+      "district": "D19"
+    },
+    {
+      "listing_key": "rivervale-185c",
+      "landlord_id": "LL002",
+      "property_name": "185C Rivervale Crescent",
+      "block_address": "185C Rivervale Crescent #15-139",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "185c rivervale",
+        "rivervale crescent",
+        "185c"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1400,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "notes_human": "Master room. All races welcome. Budget $1,400 and above (can do $1,300 per landlord-db, but marketed floor is $1,400 to filter low-budget). Min 1 year lease. Light cooking, induction. No subletting. LL stays in unit. Viewing Mon, Wed, Fri, Sun. TA signing in progress."
+      },
+      "area": "Rivervale, Sengkang",
+      "district": "D19"
+    },
+    {
+      "listing_key": "sumang-lane-232b",
+      "landlord_id": "LL020",
+      "property_name": "232B Sumang Lane",
+      "block_address": "232B Sumang Lane #10-381",
+      "postal": "S822232",
+      "deal_type": "rent",
+      "status": "closed",
+      "pg_url_keywords": [
+        "232b sumang",
+        "sumang lane",
+        "822232",
+        "mDUHVnBfPEm6YxNcYfP8ke"
+      ],
+      "requirements": {
+        "gender": "male_pref",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "exclude",
+          "list": [
+            "student",
+            "wfh"
+          ]
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 900,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "5rm, 2 common rooms. Male preferred, all nationalities ok. Professionals/expats, no students, no WFH. $900/room, 1 pax per room. Light cooking only. No visitors, no smoking, no subletting. MOP met. Repairs/aircon by LL. 2 rooms vacant."
+      },
+      "area": "Sumang, Punggol",
+      "district": "D19",
+      "closed_note": "per Winfred 7 Aug 2026"
+    },
+    {
+      "listing_key": "hougang-703",
+      "landlord_id": "LL029",
+      "property_name": "703 Hougang Ave 2",
+      "block_address": "703 Hougang Ave 2",
+      "postal": "S530703",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "703 hougang",
+        "703, hougang",
+        "hougang ave 2",
+        "hougang avenue 2"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": true,
+        "ethnicity_rule": {
+          "mode": "only",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1000,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "4NG 95sqm, 2 rooms plus 1 queen bunk. Chinese only (no Indian, no Malay) per landlord-db LL029. Template says suitable for couples, cooking yes. Rent ~$1,000 negotiable. Light cooking (air fryer/oven ok). No smoking. Sole owner, available now. Get 2nd room photos plus rent.",
+        "gate_unverified": [
+          "ethnicity"
+        ]
+      },
+      "area": "Hougang Ave 2",
+      "district": "D19"
+    },
+    {
+      "listing_key": "edgefield-104b",
+      "landlord_id": "LL008",
+      "property_name": "104B Edgefield Plains",
+      "block_address": "104B Edgefield Plains #14-29",
+      "postal": "S822104",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "104b edgefield",
+        "edgefield plains",
+        "822104",
+        "Hg7eBbqcoybYYPie9copLb"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": true,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [
+          "EP"
+        ],
+        "occupation_rule": {
+          "mode": "prefer",
+          "list": [
+            "EP salary range"
+          ]
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 850,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "2 common rooms. All races welcome, EP holders preferred (pass_type_allowed EP is a preference not a hard gate). No drunks. $850 to $950 per pax (1 pax) or $1,000 to $1,200 couple/2 pax. Light cooking only (Maggie mee etc). Utilities and aircon included. Owner stays in master. No smoking, no subletting. 2 rooms still marketing."
+      },
+      "area": "Edgefield, Punggol",
+      "district": "D19",
+      "portal_url": "https://www.99.co/singapore/rooms/property/104b-edgefield-plains-hdb-Hg7eBbqcoybYYPie9copLb"
+    },
+    {
+      "listing_key": "sunshine-terrace",
+      "landlord_id": "LL028",
+      "property_name": "Sunshine Terrace",
+      "block_address": "Alana at Sunrise Terrace, Yio Chu Kang Rd",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "active",
+      "pg_url_keywords": [
+        "806371",
+        "alana sunshine",
+        "sunrise terrace",
+        "sunshine terrace"
+      ],
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese",
+            "Korean",
+            "Japanese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Strata landed common room. Female preferred, Chinese/Korean/Japanese preferred; Indian female EP case by case. 1 pax. Light cooking, no garlic/onion/spring onion. No smoking, no subletting. Owner's mom stays in unit at all times; viewing anytime. Rent not stated in records. Hannah (E-Pass) proposed.",
+        "budget_unknown": true
+      },
+      "area": "Sunrise Terrace, Seletar Hills",
+      "district": "D28"
+    },
+    {
+      "listing_key": "bayshore",
+      "landlord_id": "LL088",
+      "property_name": "Bayshore Park",
+      "block_address": "Blk 62 Bayshore Park #15-07",
+      "postal": "468883",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "500170240",
+        "blk 62 bayshore"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1250,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no",
+        "notes_human": "Co living unit, Bayshore Park Blk 62 #15-07 S468883, 15th floor. Rooms marketed from $1,250: PR2 balcony $1,290; CR3 queen $1,650; MBR4 master queen $2,000; CR5 two single beds $1,600. PR1 pocket room $650 NOT marketed. PAX: only the MASTER (MBR4) takes 2 pax, every other room is 1 pax including CR5 (Winfred, 11 Aug 2026 — overrides operator's 9 Aug message which said CR5). So any couple or 2 pax enquiry goes to the master at $2,000. Cap 6 pax. Wifi included, utilities covered to $400 then shared by head count, weekly cleaning, $60/mth maintenance ($70 MBR). One time IRAS stamp duty + $54.50 admin. Operator Johnny Tan +6593368817, not on site. Viewing Fri 3 to 5pm or 8 to 9pm, needs 3 hours notice for door pin.",
+        "open_intake": true
+      },
+      "area": "Bayshore Park, Bedok South",
+      "district": "D16",
+      "portal_url": "https://www.propertyguru.com.sg/l/500170240",
+      "fixed_viewing": {
+        "weekday": "Fri",
+        "start": "15:00",
+        "end": "21:00",
+        "time_label": "3 to 5pm or 7 to 9pm"
+      }
+    },
+    {
+      "listing_key": "eastpoint-green",
+      "landlord_id": "LL033",
+      "property_name": "Eastpoint Green",
+      "block_address": "1C Simei St 3 #03-03",
+      "postal": "529890",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "eastpoint green",
+        "1c simei",
+        "simei st 3",
+        "simei street 3"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "exclude",
+          "list": [
+            "India",
+            "Indian"
+          ]
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "prefer",
+          "list": [
+            "EP",
+            "S Pass"
+          ]
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "min_age": null,
+        "budget_floor": 980,
+        "budget_unknown": false,
+        "notes_human": "5rm co-living (Simei), no owner on site. Room 3 common $1,200 from 1 Aug; Room 5 small $980 (can $950 for 1yr) from 1 Jul. Light cooking only, no pets, no overnight visitors. Landlord preference: no Indian (gate only, never advertised).",
+        "open_intake": true,
+        "gate_unverified": [
+          "ethnicity",
+          "nationality"
+        ]
+      },
+      "area": "Simei, Eastpoint",
+      "district": "D18",
+      "portal_url": "https://www.propertyguru.com.sg/l/500174210",
+      "fixed_viewing": {
+        "weekday": "Thu",
+        "start": "15:00",
+        "end": "16:00",
+        "time_label": "3pm"
+      },
+      "reopened_note": "reactivated for viewings per Winfred 26 Aug 2026"
+    },
+    {
+      "listing_key": "tampines-606d",
+      "landlord_id": "LL063",
+      "status": "closed (tenanted)",
+      "deal_type": "rent",
+      "property_type": "HDB 4rm whole flat",
+      "address": "606D Tampines St 61 #06-370",
+      "postal": "524606",
+      "budget_floor": 3700,
+      "max_pax": 6,
+      "lease_min": 12,
+      "lease_max": null,
+      "gender_gate": "any",
+      "female_only": false,
+      "male_only": false,
+      "female_pref": false,
+      "male_pref": false,
+      "couple_allowed": true,
+      "ethnicity_rule": "any",
+      "min_age": null,
+      "pg_url_keywords": [
+        "606d",
+        "tampines st 61",
+        "tampines street 61",
+        "500182474"
+      ],
+      "notes": "Whole flat; no strong preferences; deposit pending Jul 2026 from Taiwanese tenants | Closed 2026-07-06: offer accepted by landlord.",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "lease_min_months": 12,
+        "budget_floor": 3700,
+        "max_pax": 6
+      },
+      "area": "Tampines St 61",
+      "district": "D18",
+      "portal_url": "https://www.propertyguru.com.sg/l/500182474"
+    },
+    {
+      "listing_key": "simei-lane-168a",
+      "landlord_id": "LL052",
+      "status": "closed (no longer available, per Winfred 25 Jul 2026)",
+      "deal_type": "rent",
+      "property_type": "DBSS 5rm common room",
+      "address": "168A Simei Lane",
+      "postal": "",
+      "budget_floor": 1100,
+      "max_pax": 1,
+      "lease_min": 12,
+      "gender_gate": "any",
+      "female_only": false,
+      "male_only": false,
+      "female_pref": false,
+      "male_pref": false,
+      "couple_allowed": false,
+      "ethnicity_rule": "any",
+      "min_age": null,
+      "pg_url_keywords": [
+        "168a",
+        "simei lane",
+        "500183497"
+      ],
+      "notes": "Common room $1,200 (lowest $1,100); owner + son on site; available 10 Jul; all ethnicities ok (owner confirmed 13 Jul 2026); no pets (landlord confirmed 13 Jul 2026) | CLOSED 25 Jul 2026 per Winfred: no longer available.",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "lease_min_months": 6,
+        "budget_floor": 1100,
+        "max_pax": 1,
+        "pets_allowed": false
+      },
+      "area": "Simei Lane",
+      "district": "D18",
+      "portal_url": "https://www.propertyguru.com.sg/l/500183497",
+      "pets_allowed": false
+    },
+    {
+      "listing_key": "yishun-466a",
+      "landlord_id": null,
+      "status": "hold",
+      "deal_type": "rent",
+      "property_type": "HDB Yishun (room)",
+      "address": "466A Yishun",
+      "postal": "",
+      "gender_gate": "any",
+      "ethnicity_rule": "any",
+      "couple_allowed": true,
+      "pg_url_keywords": [
+        "466a",
+        "casa spring",
+        "yishun ave 6",
+        "yishun avenue 6"
+      ],
+      "notes": "Handled by sister Ziing Quek (CEA R055634G). Forward enquirer details to Ziing; she contacts the viewer directly. | Set to hold 3 Jul 2026: no landlord record, no unit template, Ziing handoff not implemented; human handles enquiries.",
+      "handoff": {
+        "name": "Ziing Quek",
+        "cea": "R055634G",
+        "jid_unconfirmed": "6581116934@s.whatsapp.net",
+        "action": "tell enquirer Ziing will contact; forward details to Ziing"
+      },
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        }
+      },
+      "area": "Yishun Ave 6",
+      "district": "D27"
+    },
+    {
+      "listing_key": "jurong-west-602",
+      "landlord_id": "LL081",
+      "status": "closed (tenanted 28 Jul 2026)",
+      "deal_type": "rent",
+      "property_type": "HDB 4rm common room",
+      "address": "602 Jurong West Street 62",
+      "postal": "640602",
+      "budget_floor": 1200,
+      "max_pax": 2,
+      "lease_min": 12,
+      "lease_max": null,
+      "gender_gate": "female_pref",
+      "female_only": false,
+      "male_only": false,
+      "female_pref": true,
+      "male_pref": false,
+      "couple_allowed": false,
+      "ethnicity_rule": "any",
+      "min_age": null,
+      "pg_url_keywords": [
+        "602 jurong",
+        "jurong west street 62",
+        "jurong west st 62",
+        "640602",
+        "500211989",
+        "Mw6mQp3K"
+      ],
+      "notes": "Owner Jason (wa chat 228397905117356@lid, no landlord-db record yet, verify). 2 common rooms $1,200 and above, fully furnished, utilities incl. Owner + wife stay in unit, 2 share bathroom. Female pref, working or student, max 2 pax per room. Light cooking, no pets, no smoking, no subletting, no overnight visitors. Mortgaged, MOP not met (room rental only), vacant now. Near Pioneer MRT 5min / Boon Lay 6min. Accompanied viewings, evenings per LL but fixed Sunday slot set by Winfred 25 Jul 2026.",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "lease_min_months": 12,
+        "budget_floor": 1200,
+        "max_pax": 2,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "no"
+      },
+      "area": "Jurong West St 62, Pioneer",
+      "district": "D22",
+      "portal_url": "https://www.propertyguru.com.sg/l/500211989",
+      "fixed_viewing": {
+        "weekday": "Sun",
+        "start": "15:00",
+        "end": "15:30",
+        "time_label": "3 to 3.30pm"
+      }
+    },
+    {
+      "listing_key": "jurong-west-905",
+      "landlord_id": "LL061",
+      "status": "closed",
+      "deal_type": "rent",
+      "property_type": "HDB 4A room rental",
+      "address": "905 Jurong West St 91 #04-153",
+      "postal": "640905",
+      "budget_floor": 1000,
+      "max_pax": 2,
+      "lease_min": 12,
+      "lease_max": null,
+      "gender_gate": "any",
+      "female_only": false,
+      "male_only": false,
+      "female_pref": false,
+      "male_pref": false,
+      "couple_allowed": true,
+      "ethnicity_rule": "any",
+      "min_age": null,
+      "pg_url_keywords": [
+        "905 jurong",
+        "jurong west st 91",
+        "jurong west street 91",
+        "500186579"
+      ],
+      "notes": "Rynn LL061. $1,000 1pax / $1,300 2pax. Owner stays in unit. MOP not met, room rental only. Added 3 Jul 2026",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "lease_min_months": 12,
+        "budget_floor": 1000,
+        "max_pax": 2
+      },
+      "area": "Jurong West St 91, Pioneer",
+      "district": "D22",
+      "portal_url": "https://www.propertyguru.com.sg/l/500186579",
+      "closed_reason": "deposit received 3 Jul 2026"
+    },
+    {
+      "listing_key": "ang-mo-kio-211",
+      "landlord_id": "LL084",
+      "property_name": "Blk 211 Ang Mo Kio Ave 3",
+      "block_address": "Blk 211 Ang Mo Kio Ave 3",
+      "postal": "560211",
+      "deal_type": "rent",
+      "status": "closed (offer ongoing 29 Jul 2026)",
+      "pg_url_keywords": [
+        "211 ang mo kio",
+        "ang mo kio ave 3",
+        "ang mo kio avenue 3",
+        "560211"
+      ],
+      "requirements": {
+        "notes_human": "Offer ongoing 29 Jul 2026; redirect enquiries to channel."
+      },
+      "area": "Ang Mo Kio",
+      "district": "D20"
+    },
+    {
+      "listing_key": "kembangan-villas",
+      "landlord_id": null,
+      "property_name": "Kembangan Villas",
+      "block_address": "Kembangan Villas",
+      "postal": null,
+      "deal_type": "sale",
+      "status": "active",
+      "pg_url_keywords": [
+        "500207631",
+        "kembangan villas"
+      ],
+      "area": "Kembangan",
+      "district": "D14",
+      "portal_url": "https://www.propertyguru.com.sg/l/500207631",
+      "fixed_viewing": {
+        "weekday": "Sat",
+        "start": "11:00",
+        "end": "12:00",
+        "time_label": "11 to 12noon"
+      }
+    },
+    {
+      "listing_key": "sin-ming-rd-23",
+      "landlord_id": null,
+      "property_name": "23 Sin Ming Road",
+      "block_address": "23 Sin Ming Road",
+      "postal": null,
+      "deal_type": "sale",
+      "status": "active",
+      "pg_url_keywords": [
+        "23 sin ming",
+        "23 sin ming road",
+        "500163262"
+      ],
+      "area": "Sin Ming",
+      "district": "D20",
+      "portal_url": "https://www.propertyguru.com.sg/l/500163262",
+      "fixed_viewing": {
+        "weekday": "Sat",
+        "start": "19:30",
+        "end": "20:30",
+        "time_label": "7.30pm"
+      }
+    },
+    {
+      "listing_key": "ang-mo-kio-539",
+      "landlord_id": "LL098",
+      "property_name": "Blk 539 Ang Mo Kio Ave 10",
+      "block_address": "Blk 539 Ang Mo Kio Ave 10, Level 8",
+      "postal": "560539",
+      "deal_type": "rent",
+      "status": "closed (tenanted)",
+      "pg_url_keywords": [
+        "539 ang mo kio",
+        "ang mo kio ave 10",
+        "ang mo kio avenue 10",
+        "560539",
+        "cheng san view"
+      ],
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "ethnicity_rule": {
+          "mode": "only",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1000,
+        "min_age": null,
+        "cooking": "TBC",
+        "pets_tenant_may_bring": null,
+        "smoking": null,
+        "notes_human": "2 common rooms, $1,000/month each, 130sqft, 1 pax per room. Owner (Mdm Neo + husband) on site. Single female preferred, Chinese preferred, but LL open to siblings/family groups case by case (Aug 2026). Aircon shared, not for 24hr use.",
+        "open_intake": false,
+        "gate_unverified": [
+          "ethnicity",
+          "gender"
+        ]
+      },
+      "area": "Ang Mo Kio",
+      "district": "D20",
+      "portal_url": "https://www.99.co/singapore/rooms/property/539-ang-mo-kio-avenue-10-hdb-RMuPgadh4hVQbS7ViZibZ6",
+      "fixed_viewing": {
+        "weekday": "Thu",
+        "start": "20:30",
+        "end": "21:30",
+        "time_label": "8.30 to 9.30pm"
+      },
+      "slot_proposal_pending": {
+        "proposed": "Sat 20:00",
+        "note": "Winfred proposing Sat 8pm to Mdm Neo for new enquiries, 13 Aug 2026; keep Thu 8.30 to 9.30pm until she confirms"
+      }
+    },
+    {
+      "listing_key": "riviere",
+      "landlord_id": null,
+      "property_name": "Riviere",
+      "block_address": "1 Jiak Kim St",
+      "postal": null,
+      "deal_type": "sale",
+      "status": "active",
+      "pg_url_keywords": [
+        "1 jiak kim",
+        "jiak kim",
+        "riviere"
+      ],
+      "area": "Jiak Kim, River Valley",
+      "district": "D3",
+      "portal_url": "https://www.99.co/singapore/sale/property/riviere-condo-cBqM7gsVU7dsWXuHKC7vH6",
+      "fixed_viewing": {
+        "weekday": "Sun",
+        "start": "13:00",
+        "end": "14:00",
+        "time_label": "1pm"
+      }
+    },
+    {
+      "listing_key": "cherryhill",
+      "landlord_id": "LL097",
+      "property_name": "Cherryhill",
+      "block_address": "21 Lorong Lew Lian #01-05",
+      "postal": "536467",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "500220113",
+        "cherry hill",
+        "cherryhill",
+        "lorong lew lian"
+      ],
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "budget_floor": 1150,
+        "notes_human": "3 common rooms. L shaped windowed room RENTED (deposit 7 Aug 2026). Small room $1,150 (1 pax) AVAILABLE. Big room (not master) $1,250 (1 pax) or $1,500 (2 pax) AVAILABLE (Myanmar couple offer fell through, back on market 13 Aug). Landlord Evangeline (LL097), on site contact Sky; mom at home to receive viewers. Toilets renovated Aug 2026. Corrected 13 Aug 2026 after deep chat analysis.",
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "gate_unverified": [
+          "ethnicity"
+        ]
+      },
+      "fixed_viewing": {
+        "weekday": "Fri",
+        "start": "19:30",
+        "end": "20:30",
+        "time_label": "7.30pm"
+      }
+    },
+    {
+      "listing_key": "jurong-west-680",
+      "landlord_id": "TBC",
+      "property_name": "Blk 680 Jurong West",
+      "block_address": "Blk 680 Jurong West (details TBC)",
+      "postal": null,
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "680 jurong west"
+      ],
+      "requirements": {
+        "notes_human": "Entry created 13 Aug 2026 for fixed viewing slot only; unit details TBC from Winfred/landlord DB."
+      },
+      "fixed_viewing": {
+        "weekday": "Sun",
+        "start": "15:30",
+        "end": "16:30",
+        "time_label": "3.30pm"
+      }
+    },
+    {
+      "listing_key": "tampines-908",
+      "landlord_id": "TBC",
+      "property_name": "Blk 908 Tampines Ave 4",
+      "block_address": "Blk 908 Tampines Avenue 4",
+      "postal": null,
+      "deal_type": "sale",
+      "status": "open",
+      "pg_url_keywords": [
+        "500248498",
+        "908 tampines",
+        "tampines avenue 4"
+      ],
+      "requirements": {
+        "notes_human": "SALE listing added 30 Aug 2026; fully renovated 4A, access balcony bought over; owner overseas till 4 Sept; open viewing 5 Sept 1.30 to 2.30pm; owner name/phone TBC from Winfred"
+      }
+    },
+    {
+      "listing_key": "blk-123-tampines-ave-1-12-34-2-room-hdb-950-sqft",
+      "property_name": "blk 123 tampines ave 1 #12-34, 2-room hdb, 950 sqft",
+      "block_address": "blk 123 tampines ave 1 #12-34, 2-room hdb, 950 sqft",
+      "deal_type": "rent",
+      "status": "pending_99co",
+      "requirements": {},
+      "created_at": 1788203987,
+      "ninety_nine_co_pending": true,
+      "pg_url_keywords": []
+    },
+    {
+      "listing_key": "room-851-jurong-west-ll017",
+      "landlord_id": "LL017",
+      "property_name": "851 Jurong West (full addr withheld)",
+      "block_address": "851 Jurong West (full addr withheld)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "Landlord has never provided a written block/unit/postal code (only an Apple Maps pin, and the record has two conflicting guesses on file: 851 vs 821 Jurong West). Do NOT publish an address for this listing on any portal until the landlord confirms it in writing.",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL017"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL017 on 20260909-101917"
+    },
+    {
+      "listing_key": "blk-119-simei-st-1-s520119-ll025",
+      "landlord_id": "LL025",
+      "property_name": "Blk 119 Simei St 1 S520119",
+      "block_address": "Blk 119 Simei St 1 S520119",
+      "postal": "S520119",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "119 simei st",
+        "119 simei st 1 s520119",
+        "blk 119 simei st 1 s520119",
+        "simei st 1 s520119"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Indian",
+            "Malay"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL025"
+      },
+      "district": "D18",
+      "notes": "GENERATED (fill-missing) from landlord-db LL025 on 20260909-101917"
+    },
+    {
+      "listing_key": "blk-108a-bidadari-park-dr-11-176-s341108-4rm-hdb-ll045",
+      "landlord_id": "LL045",
+      "property_name": "Blk 108A Bidadari Park Dr #11-176, S341108 (4rm HDB)",
+      "block_address": "Blk 108A Bidadari Park Dr #11-176, S341108 (4rm HDB)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "108a bidadari",
+        "108a bidadari park dr",
+        "blk 108a bidadari park dr"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL045"
+      },
+      "district": "D13",
+      "notes": "GENERATED (fill-missing) from landlord-db LL045 on 20260909-101917"
+    },
+    {
+      "listing_key": "108-teck-whye-lane-02-520-singapore-680108-ll049",
+      "landlord_id": "LL049",
+      "property_name": "108 Teck Whye Lane #02-520, Singapore 680108",
+      "block_address": "108 Teck Whye Lane #02-520, Singapore 680108",
+      "postal": "680108",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "108 teck",
+        "108 teck whye lane",
+        "blk 108 teck whye lane"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL049"
+      },
+      "district": "D23",
+      "notes": "GENERATED (fill-missing) from landlord-db LL049 on 20260909-101917"
+    },
+    {
+      "listing_key": "unknown-co-living-whole-house-ll054",
+      "landlord_id": "LL054",
+      "property_name": "unknown (co-living whole-house)",
+      "block_address": "unknown (co-living whole-house)",
+      "postal": "",
+      "deal_type": "channel",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL054"
+      },
+      "district": "",
+      "notes": "GENERATED (fill-missing) from landlord-db LL054 on 20260909-101917"
+    },
+    {
+      "listing_key": "7500a-beach-road-s199591-ll071",
+      "landlord_id": "LL071",
+      "property_name": "7500A Beach Road, S199591",
+      "block_address": "7500A Beach Road, S199591",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "7500a beach road",
+        "7500a beach road s199591",
+        "beach rd s199591",
+        "beach road s199591",
+        "blk 7500a beach road s199591"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 3,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL071"
+      },
+      "district": "D7",
+      "notes": "GENERATED (fill-missing) from landlord-db LL071 on 20260909-101917"
+    },
+    {
+      "listing_key": "studio-34-jalan-tanjong-ll077",
+      "landlord_id": "LL077",
+      "property_name": "34 Jalan Tanjong Singapore 468039 (standalone studio at landed house, 430sqft)",
+      "block_address": "34 Jalan Tanjong Singapore 468039 (standalone studio at landed house, 430sqft)",
+      "postal": "468039",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "34 jalan tanjong",
+        "34 jalan tanjong singapore 468039",
+        "RZ83WAmk",
+        "blk 34 jalan tanjong singapore 468039",
+        "jalan tanjong singapore 468039",
+        "xa7YFYEL"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 2200,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL077"
+      },
+      "district": "D16",
+      "notes": "GENERATED (fill-missing) from landlord-db LL077 on 20260909-101917"
+    },
+    {
+      "listing_key": "2-jalan-batu-09-49-s431002-hdb-common-room-ll089",
+      "landlord_id": "LL089",
+      "property_name": "2 Jalan Batu #09-49, S431002 (HDB common room)",
+      "block_address": "2 Jalan Batu #09-49, S431002 (HDB common room)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "2 jalan",
+        "2 jalan batu",
+        "500224010",
+        "6ZACQxcK",
+        "Nbww4xIp",
+        "blk 2 jalan batu"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 900,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL089"
+      },
+      "district": "D15",
+      "notes": "GENERATED (fill-missing) from landlord-db LL089 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-blk-160-pasir-ris-street-13-ll099",
+      "landlord_id": "LL099",
+      "property_name": "Blk 160 Pasir Ris Street 13 #04-81, S510160 (Executive Apartment)",
+      "block_address": "Blk 160 Pasir Ris Street 13 #04-81, S510160 (Executive Apartment)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "160 pasir ris",
+        "160 pasir ris street 13",
+        "500228035",
+        "PfW3DQrB",
+        "blk 160 pasir ris street 13",
+        "pasir ris st 13",
+        "pasir ris street 13"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1300,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL099"
+      },
+      "district": "D18",
+      "notes": "GENERATED (fill-missing) from landlord-db LL099 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-blk-125-bedok-reservoir-area-ll104",
+      "landlord_id": "LL104",
+      "property_name": "Blk 125 Bedok Reservoir Road #09-1091, Singapore 470125 (Eunos Spring; lift B)",
+      "block_address": "Blk 125 Bedok Reservoir Road #09-1091, Singapore 470125 (Eunos Spring; lift B)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "125 bedok",
+        "125 bedok reservoir road",
+        "8zkqozsM",
+        "blk 125 bedok reservoir road",
+        "e56f4jrl",
+        "p4FMY3nH",
+        "wyUMnl0J"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1300,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL104"
+      },
+      "district": "D16",
+      "notes": "GENERATED (fill-missing) from landlord-db LL104 on 20260909-101917"
+    },
+    {
+      "listing_key": "master-room-blk-503-ang-mo-kio-ave-8-ll106",
+      "landlord_id": "LL106",
+      "property_name": "Blk 503 Ang Mo Kio Ave 5 #12-3764, S560503 (Cheng San Crest)",
+      "block_address": "Blk 503 Ang Mo Kio Ave 5 #12-3764, S560503 (Cheng San Crest)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "503 ang mo",
+        "503 ang mo kio ave 5",
+        "ang mo kio ave 5",
+        "blk 503 ang mo kio ave 5"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": {
+          "quote": "my husband is not very keen to rent out the room to a guy who speaks the same language due to privacy issues",
+          "date": "2026-08-30"
+        },
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1200,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL106"
+      },
+      "district": "D20",
+      "notes": "GENERATED (fill-missing) from landlord-db LL106 on 20260909-101917"
+    },
+    {
+      "listing_key": "whole-unit-766-bedok-reservoir-road-ll109",
+      "landlord_id": "LL109",
+      "property_name": "766 Bedok Reservoir Road #09-24, Singapore 479248 (Waterfront Waves)",
+      "block_address": "766 Bedok Reservoir Road #09-24, Singapore 479248 (Waterfront Waves)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "766 bedok",
+        "766 bedok reservoir road",
+        "blk 766 bedok reservoir road"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 6200,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL109"
+      },
+      "district": "D16",
+      "notes": "GENERATED (fill-missing) from landlord-db LL109 on 20260909-101917"
+    },
+    {
+      "listing_key": "blk-47-marine-crescent-singapore-440047-marine-crescent-gardens-high-floor-exact-unit-not-disclosed-ll110",
+      "landlord_id": "LL110",
+      "property_name": "Blk 47 Marine Crescent, Singapore 440047 (Marine Crescent Gardens; high floor, exact unit not disclosed)",
+      "block_address": "Blk 47 Marine Crescent, Singapore 440047 (Marine Crescent Gardens; high floor, exact unit not disclosed)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "47 marine crescent",
+        "47 marine crescent singapore 440047",
+        "500249654",
+        "90zKcEeZ",
+        "UERUl0zy",
+        "blk 47 marine crescent singapore 440047",
+        "marine cres singapore 440047",
+        "marine crescent singapore 440047"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Indian",
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL110"
+      },
+      "district": "D15",
+      "notes": "GENERATED (fill-missing) from landlord-db LL110 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-138a-yuan-ching-road-ll111",
+      "landlord_id": "LL111",
+      "property_name": "138A Yuan Ching Road #15-113, S611138 (Lake Vista @ Yuan Ching; Lakeside MRT less than 1km)",
+      "block_address": "138A Yuan Ching Road #15-113, S611138 (Lake Vista @ Yuan Ching; Lakeside MRT less than 1km)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "138a yuan",
+        "138a yuan ching road",
+        "blk 138a yuan ching road"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1000,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL111"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL111 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-88-telok-blangah-heights-ll112",
+      "landlord_id": "LL112",
+      "property_name": "88 Telok Blangah Heights #04-355, Singapore 100088",
+      "block_address": "88 Telok Blangah Heights #04-355, Singapore 100088",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "1h8IuI7M",
+        "500236749",
+        "88 telok",
+        "88 telok blangah heights",
+        "98VGew5l",
+        "D3T90yDa",
+        "VdhNC1gs",
+        "blk 88 telok blangah heights",
+        "lhhFC3ak",
+        "u5raVs3v"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": true,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1200,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL112"
+      },
+      "district": "D4",
+      "notes": "GENERATED (fill-missing) from landlord-db LL112 on 20260909-101917"
+    },
+    {
+      "listing_key": "master-room-blk-233-pending-rd-ll115",
+      "landlord_id": "LL115",
+      "property_name": "Blk 233 Pending Rd #11-03 (EA), S670233",
+      "block_address": "Blk 233 Pending Rd #11-03 (EA), S670233",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "233 pending",
+        "233 pending rd",
+        "blk 233 pending rd"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1200,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL115"
+      },
+      "district": "D23",
+      "notes": "GENERATED (fill-missing) from landlord-db LL115 on 20260909-101917"
+    },
+    {
+      "listing_key": "bukit-batok-street-25-5-room-hdb-unit-tbc-bukit-batok-mrt-ll116",
+      "landlord_id": "LL116",
+      "property_name": "Bukit Batok Street 25, 5 room HDB (unit TBC; Bukit Batok MRT)",
+      "block_address": "Bukit Batok Street 25, 5 room HDB (unit TBC; Bukit Batok MRT)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "bukit batok street 25 5 room hdb"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": {
+          "quote": "Hi. And no. We are looking for a female tenant. As its a all female householf",
+          "date": "2026-09-03"
+        },
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 6,
+        "lease_max_months": 12,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL116"
+      },
+      "district": "D23",
+      "notes": "GENERATED (fill-missing) from landlord-db LL116 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-blk-703-jurong-west-ll117",
+      "landlord_id": "LL117",
+      "property_name": "Blk 703 Jurong West (street not stated), #02-110, near Pioneer MRT (8 to 10 min walk)",
+      "block_address": "Blk 703 Jurong West (street not stated), #02-110, near Pioneer MRT (8 to 10 min walk)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "703 jurong",
+        "703 jurong west",
+        "blk 703 jurong west"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "male_pref",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL117"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL117 on 20260909-101917"
+    },
+    {
+      "listing_key": "master-room-blk-528-jurong-west-street-52-ll118",
+      "landlord_id": "LL118",
+      "property_name": "Blk 528 Jurong West Street 52 #02-337, S640528 (600m to Lakeside MRT EW26)",
+      "block_address": "Blk 528 Jurong West Street 52 #02-337, S640528 (600m to Lakeside MRT EW26)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "528 jurong west",
+        "528 jurong west street 52",
+        "G1bf0TCk",
+        "blk 528 jurong west street 52",
+        "jurong west st 52",
+        "jurong west street 52",
+        "yg6XuS4E"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1300,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL118"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL118 on 20260909-101917"
+    },
+    {
+      "listing_key": "blk-405-ang-mo-kio-avenue-10-singapore-560405-unit-number-to-confirm-with-kumar-ll121",
+      "landlord_id": "LL121",
+      "property_name": "Blk 405 Ang Mo Kio Avenue 10, Singapore 560405 (unit number to confirm with Kumar)",
+      "block_address": "Blk 405 Ang Mo Kio Avenue 10, Singapore 560405 (unit number to confirm with Kumar)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "405 ang mo",
+        "405 ang mo kio avenue 10 singapore 560405",
+        "ang mo kio ave 10 singapore 560405",
+        "ang mo kio avenue 10 singapore 560405",
+        "blk 405 ang mo kio avenue 10 singapore 560405"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "only",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL121"
+      },
+      "district": "D20",
+      "notes": "GENERATED (fill-missing) from landlord-db LL121 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-16-bedok-north-drive-ll122",
+      "landlord_id": "LL122",
+      "property_name": "16 Bedok North Drive #04-02, Singapore 465494 (Bedok Residences; Prem Room 1)",
+      "block_address": "16 Bedok North Drive #04-02, Singapore 465494 (Bedok Residences; Prem Room 1)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "16 bedok",
+        "16 bedok north drive",
+        "blk 16 bedok north drive"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1350,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL122"
+      },
+      "district": "D16",
+      "notes": "GENERATED (fill-missing) from landlord-db LL122 on 20260909-101917"
+    },
+    {
+      "listing_key": "whole-unit-hillcrest-villa-ll124",
+      "landlord_id": "LL124",
+      "property_name": "1 Hillcrest Road, Singapore 288893 (Hillcrest Villa, District 11)",
+      "block_address": "1 Hillcrest Road, Singapore 288893 (Hillcrest Villa, District 11)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "1 hillcrest road",
+        "1 hillcrest road singapore 288893",
+        "blk 1 hillcrest road singapore 288893",
+        "hillcrest rd singapore 288893",
+        "hillcrest road singapore 288893"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": 36,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL124"
+      },
+      "district": "D11",
+      "notes": "GENERATED (fill-missing) from landlord-db LL124 on 20260909-101917"
+    },
+    {
+      "listing_key": "master-room-20-simei-street-1-ll125",
+      "landlord_id": "LL125",
+      "property_name": "20 Simei Street 1 #02-08, S529944 (Melville Park)",
+      "block_address": "20 Simei Street 1 #02-08, S529944 (Melville Park)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "20 simei street",
+        "20 simei street 1",
+        "500256371",
+        "blk 20 simei street 1",
+        "simei street 1"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL125"
+      },
+      "district": "D18",
+      "notes": "GENERATED (fill-missing) from landlord-db LL125 on 20260909-101917"
+    },
+    {
+      "listing_key": "room-tampines-ll135",
+      "landlord_id": "LL135",
+      "property_name": "Blk 428 Pasir Ris Drive 6, Singapore 510428 (unit not disclosed)",
+      "block_address": "Blk 428 Pasir Ris Drive 6, Singapore 510428 (unit not disclosed)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "428 pasir ris",
+        "428 pasir ris drive 6 singapore 510428",
+        "blk 428 pasir ris drive 6 singapore 510428",
+        "pasir ris dr 6 singapore 510428",
+        "pasir ris drive 6 singapore 510428"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL135"
+      },
+      "district": "D18",
+      "notes": "GENERATED (fill-missing) from landlord-db LL135 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-93-paya-lebar-way-ll136",
+      "landlord_id": "LL136",
+      "property_name": "93 Paya Lebar Way, Singapore 370093 (MacPherson MRT 5 min walk; unit not disclosed)",
+      "block_address": "93 Paya Lebar Way, Singapore 370093 (MacPherson MRT 5 min walk; unit not disclosed)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "500256368",
+        "93 paya lebar",
+        "93 paya lebar way singapore 370093",
+        "blk 93 paya lebar way singapore 370093",
+        "eo4VnRFH",
+        "paya lebar way singapore 370093"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL136"
+      },
+      "district": "D14",
+      "notes": "GENERATED (fill-missing) from landlord-db LL136 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-sin-ming-road-ll137",
+      "landlord_id": "LL137",
+      "property_name": "Blk 25 Sin Ming Road, Singapore 570025 (Marymount MRT 5 min walk)",
+      "block_address": "Blk 25 Sin Ming Road, Singapore 570025 (Marymount MRT 5 min walk)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "25 sin ming",
+        "25 sin ming road singapore 570025",
+        "blk 25 sin ming road singapore 570025",
+        "sin ming rd singapore 570025",
+        "sin ming road singapore 570025"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 1000,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL137"
+      },
+      "district": "D20",
+      "notes": "GENERATED (fill-missing) from landlord-db LL137 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-992b-buangkok-link-ll138",
+      "landlord_id": "LL138",
+      "property_name": "992B Buangkok Link, S532992 (Buangkok MRT)",
+      "block_address": "992B Buangkok Link, S532992 (Buangkok MRT)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "992b buangkok link",
+        "992b buangkok link s532992",
+        "blk 992b buangkok link s532992",
+        "buangkok link s532992"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 900,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL138"
+      },
+      "district": "D19",
+      "notes": "GENERATED (fill-missing) from landlord-db LL138 on 20260909-101917"
+    },
+    {
+      "listing_key": "134-ang-mo-kio-avenue-3-02-1689-singapore-560134-yio-chu-kang-ville-ll139",
+      "landlord_id": "LL139",
+      "property_name": "134 Ang Mo Kio Avenue 3 #02-1689, Singapore 560134 (Yio Chu Kang Ville)",
+      "block_address": "134 Ang Mo Kio Avenue 3 #02-1689, Singapore 560134 (Yio Chu Kang Ville)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "134 ang mo",
+        "134 ang mo kio avenue 3",
+        "ang mo kio avenue 3",
+        "blk 134 ang mo kio avenue 3"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL139"
+      },
+      "district": "D20",
+      "notes": "GENERATED (fill-missing) from landlord-db LL139 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-156a-bishan-street-11-ll142",
+      "landlord_id": "LL142",
+      "property_name": "156A Bishan Street 11 #24-102, S571156",
+      "block_address": "156A Bishan Street 11 #24-102, S571156",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "156a bishan street",
+        "156a bishan street 11",
+        "bishan st 11",
+        "bishan street 11",
+        "blk 156a bishan street 11"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL142"
+      },
+      "district": "D20",
+      "notes": "GENERATED (fill-missing) from landlord-db LL142 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-blk-282-toh-guan-road-ll146",
+      "landlord_id": "LL146",
+      "property_name": "Blk 282 Toh Guan Road #10-233, Singapore 600282 (Toh Guan View)",
+      "block_address": "Blk 282 Toh Guan Road #10-233, Singapore 600282 (Toh Guan View)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "282 toh",
+        "282 toh guan road",
+        "blk 282 toh guan road"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": 600,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity",
+          "nationality"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL146"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL146 on 20260909-101917"
+    },
+    {
+      "listing_key": "blk-648-hougang-ave-8-s530648-4-room-ll159",
+      "landlord_id": "LL159",
+      "property_name": "Blk 648 Hougang Ave 8, S530648 (4 room)",
+      "block_address": "Blk 648 Hougang Ave 8, S530648 (4 room)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "648 hougang ave",
+        "648 hougang ave 8 s530648",
+        "blk 648 hougang ave 8 s530648",
+        "hougang ave 8 s530648"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "male_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL159"
+      },
+      "district": "D19",
+      "notes": "GENERATED (fill-missing) from landlord-db LL159 on 20260909-101917"
+    },
+    {
+      "listing_key": "room-blk-208-ang-mo-kio-ave-1-ll160",
+      "landlord_id": "LL160",
+      "property_name": "Blk 208 Ang Mo Kio Ave 1 #08-1013, S560208",
+      "block_address": "Blk 208 Ang Mo Kio Ave 1 #08-1013, S560208",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "208 ang mo",
+        "208 ang mo kio ave 1",
+        "blk 208 ang mo kio ave 1"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "exclude",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL160"
+      },
+      "district": "D20",
+      "notes": "GENERATED (fill-missing) from landlord-db LL160 on 20260909-101917"
+    },
+    {
+      "listing_key": "room-blk-830a-jurong-west-st-81-ll161",
+      "landlord_id": "LL161",
+      "property_name": "Blk 830A Jurong West Street 81, Singapore 641830 (unit TBC)",
+      "block_address": "Blk 830A Jurong West Street 81, Singapore 641830 (unit TBC)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "830a jurong west",
+        "830a jurong west street 81 singapore 641830",
+        "blk 830a jurong west street 81 singapore 641830",
+        "jurong west st 81 singapore 641830",
+        "jurong west street 81 singapore 641830"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_pref",
+        "couple_ok": true,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "prefer",
+          "list": [
+            "Chinese"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 3,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL161"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL161 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-21-teban-gardens-road-ll162",
+      "landlord_id": "LL162",
+      "property_name": "21 Teban Gardens Road #35-113, S600021 (4rm, 86sqm)",
+      "block_address": "21 Teban Gardens Road #35-113, S600021 (4rm, 86sqm)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "21 teban",
+        "21 teban gardens road",
+        "blk 21 teban gardens road"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "only",
+          "list": [
+            "Malay"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": 900,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender",
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL162"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL162 on 20260909-101917"
+    },
+    {
+      "listing_key": "address-tbc-ll169",
+      "landlord_id": "LL169",
+      "property_name": "(address TBC)",
+      "block_address": "(address TBC)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL169"
+      },
+      "district": null,
+      "notes": "GENERATED (fill-missing) from landlord-db LL169 on 20260909-101917"
+    },
+    {
+      "listing_key": "room-66-bayshore-rd-ll173",
+      "landlord_id": "LL173",
+      "property_name": "66 Bayshore Rd #22-03, Singapore 469985 (Bayshore Park; co living unit)",
+      "block_address": "66 Bayshore Rd #22-03, Singapore 469985 (Bayshore Park; co living unit)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "0S7XXJ1o",
+        "3yJEQfqg",
+        "4HyAirpe",
+        "66 bayshore",
+        "66 bayshore rd",
+        "6SWYyCOJ",
+        "74krwGvU",
+        "GPuMl6Ty",
+        "GSvdG40P",
+        "Ns85Rhw6",
+        "Nux8QlW2",
+        "UZam6TOc",
+        "XQXwV4pc",
+        "blk 66 bayshore rd",
+        "crGjoFz5",
+        "eK9u2mDM",
+        "pB3TM4Lc",
+        "yJhzmo8u"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL173"
+      },
+      "district": "D16",
+      "notes": "GENERATED (fill-missing) from landlord-db LL173 on 20260909-101917"
+    },
+    {
+      "listing_key": "room-parc-oasis-ll174",
+      "landlord_id": "LL174",
+      "property_name": "Parc Oasis (co-living, corporate-owned)",
+      "block_address": "Parc Oasis (co-living, corporate-owned)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 8,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL174"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL174 on 20260909-101917"
+    },
+    {
+      "listing_key": "address-tbc-punggol-per-listing-context-ll185",
+      "landlord_id": "LL185",
+      "property_name": "(address TBC — Punggol per listing context)",
+      "block_address": "(address TBC — Punggol per listing context)",
+      "postal": "",
+      "deal_type": "sale",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL185"
+      },
+      "district": "D19",
+      "notes": "GENERATED (fill-missing) from landlord-db LL185 on 20260909-101917"
+    },
+    {
+      "listing_key": "73-lengkong-dua-singapore-417731-landed-ll186",
+      "landlord_id": "LL186",
+      "property_name": "73 Lengkong Dua, Singapore 417731 (landed)",
+      "block_address": "73 Lengkong Dua, Singapore 417731 (landed)",
+      "postal": "",
+      "deal_type": "sale",
+      "status": "open",
+      "pg_url_keywords": [
+        "73 lengkong dua",
+        "73 lengkong dua singapore 417731",
+        "blk 73 lengkong dua singapore 417731",
+        "lengkong dua singapore 417731"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL186"
+      },
+      "district": "D14",
+      "notes": "GENERATED (fill-missing) from landlord-db LL186 on 20260909-101917"
+    },
+    {
+      "listing_key": "common-room-oxley-edge-ll188",
+      "landlord_id": "LL188",
+      "property_name": "Oxley Edge, 308 River Valley Road #04-02, Singapore 238349 (freehold, D9)",
+      "block_address": "Oxley Edge, 308 River Valley Road #04-02, Singapore 238349 (freehold, D9)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "500248513",
+        "Gh69HMtA",
+        "oxley edge 308 river valley road",
+        "r8LJtK0H"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 7,
+        "lease_max_months": null,
+        "budget_floor": 1400,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL188"
+      },
+      "district": "D9",
+      "notes": "GENERATED (fill-missing) from landlord-db LL188 on 20260909-101917"
+    },
+    {
+      "listing_key": "eastpoint-green-5-simei-street-3-08-03-singapore-529892-d18-ll215",
+      "landlord_id": "LL215",
+      "property_name": "Eastpoint Green, 5 Simei Street 3 #08-03, Singapore 529892 (D18)",
+      "block_address": "Eastpoint Green, 5 Simei Street 3 #08-03, Singapore 529892 (D18)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "27VoYm9g",
+        "500174210",
+        "9hmy8EZx",
+        "C6T6Gspc",
+        "dtd0FQqb",
+        "eastpoint green 5 simei street 3",
+        "gMngs5Va",
+        "jypE1k1N"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL215"
+      },
+      "district": "D18",
+      "notes": "GENERATED (fill-missing) from landlord-db LL215 on 20260909-101917"
+    },
+    {
+      "listing_key": "715-clementi-west-street-2-s120715-ll216",
+      "landlord_id": "LL216",
+      "property_name": "715 Clementi West Street 2, S120715",
+      "block_address": "715 Clementi West Street 2, S120715",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "715 clementi west",
+        "715 clementi west street 2 s120715",
+        "blk 715 clementi west street 2 s120715",
+        "clementi west st 2 s120715",
+        "clementi west street 2 s120715"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL216"
+      },
+      "district": "D5",
+      "notes": "GENERATED (fill-missing) from landlord-db LL216 on 20260909-101917"
+    },
+    {
+      "listing_key": "687c-choa-chu-kang-drive-xx-xxx-singapore-683687-unit-number-not-yet-disclosed-ll217",
+      "landlord_id": "LL217",
+      "property_name": "687C Choa Chu Kang Drive #xx-xxx, Singapore 683687 (unit number not yet disclosed)",
+      "block_address": "687C Choa Chu Kang Drive #xx-xxx, Singapore 683687 (unit number not yet disclosed)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "687c choa",
+        "687c choa chu kang drive",
+        "blk 687c choa chu kang drive"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "female_only",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "gender"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL217"
+      },
+      "district": "D23",
+      "notes": "GENERATED (fill-missing) from landlord-db LL217 on 20260909-101917"
+    },
+    {
+      "listing_key": "11-toh-tuck-rd-singapore-596290-high-oak-condo-beauty-world-mrt-5min-d21-ll218",
+      "landlord_id": "LL218",
+      "property_name": "11 Toh Tuck Rd, Singapore 596290 (High Oak Condo, Beauty World MRT ~5min, D21)",
+      "block_address": "11 Toh Tuck Rd, Singapore 596290 (High Oak Condo, Beauty World MRT ~5min, D21)",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "Landlord explicitly asked (6 Sep 2026): 'kindly do not post to propertyguru or the other main sites as agreed' — market ONLY via Winfred's own channel/website, never PropertyGuru/99.co or other major portals.",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "only",
+          "list": [
+            "Indian"
+          ]
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 1,
+        "lease_min_months": 6,
+        "lease_max_months": null,
+        "budget_floor": 1900,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [
+          "ethnicity"
+        ],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL218"
+      },
+      "district": "D21",
+      "notes": "GENERATED (fill-missing) from landlord-db LL218 on 20260909-101917"
+    },
+    {
+      "listing_key": "ll219-ll219",
+      "landlord_id": "LL219",
+      "property_name": "",
+      "block_address": "",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": 12,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL219"
+      },
+      "district": "",
+      "notes": "GENERATED (fill-missing) from landlord-db LL219 on 20260909-101917"
+    },
+    {
+      "listing_key": "82-tiong-poh-road-02-21-s160082-ll220",
+      "landlord_id": "LL220",
+      "property_name": "82 Tiong Poh Road #02-21, S160082",
+      "block_address": "82 Tiong Poh Road #02-21, S160082",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "82 tiong",
+        "82 tiong poh road",
+        "blk 82 tiong poh road"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL220"
+      },
+      "district": "D3",
+      "notes": "GENERATED (fill-missing) from landlord-db LL220 on 20260909-101917"
+    },
+    {
+      "listing_key": "blk-113-potong-pasir-avenue-1-13-838-s350113-ll221",
+      "landlord_id": "LL221",
+      "property_name": "Blk 113 Potong Pasir Avenue 1 #13-838, S350113",
+      "block_address": "Blk 113 Potong Pasir Avenue 1 #13-838, S350113",
+      "postal": "",
+      "deal_type": "rental",
+      "status": "open",
+      "pg_url_keywords": [
+        "113 potong pasir",
+        "113 potong pasir avenue 1",
+        "blk 113 potong pasir avenue 1",
+        "potong pasir ave 1",
+        "potong pasir avenue 1"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL221"
+      },
+      "district": "D13",
+      "notes": "GENERATED (fill-missing) from landlord-db LL221 on 20260909-101917"
+    },
+    {
+      "listing_key": "sembawang-drive-block-unit-not-yet-provided-common-room-ll224",
+      "landlord_id": "LL224",
+      "property_name": "Sembawang Drive (block/unit not yet provided; common room)",
+      "block_address": "Sembawang Drive (block/unit not yet provided; common room)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "sembawang drive"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": 2,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL224"
+      },
+      "district": "D27",
+      "notes": "GENERATED (fill-missing) from landlord-db LL224 on 20260909-101917"
+    },
+    {
+      "listing_key": "jurong-east-block-unit-not-yet-provided-room-for-rent-ll225",
+      "landlord_id": "LL225",
+      "property_name": "Jurong East (block/unit not yet provided; room for rent)",
+      "block_address": "Jurong East (block/unit not yet provided; room for rent)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL225"
+      },
+      "district": "D22",
+      "notes": "GENERATED (fill-missing) from landlord-db LL225 on 20260909-101917"
+    },
+    {
+      "listing_key": "ll226-ll226",
+      "landlord_id": "LL226",
+      "property_name": "",
+      "block_address": "",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL226"
+      },
+      "district": "",
+      "notes": "GENERATED (fill-missing) from landlord-db LL226 on 20260909-101917"
+    },
+    {
+      "listing_key": "ll227-ll227",
+      "landlord_id": "LL227",
+      "property_name": "",
+      "block_address": "",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL227"
+      },
+      "district": "",
+      "notes": "GENERATED (fill-missing) from landlord-db LL227 on 20260909-101917"
+    },
+    {
+      "listing_key": "ll228-ll228",
+      "landlord_id": "LL228",
+      "property_name": "",
+      "block_address": "",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL228"
+      },
+      "district": "",
+      "notes": "GENERATED (fill-missing) from landlord-db LL228 on 20260909-101917"
+    },
+    {
+      "listing_key": "unit-05-04-address-not-stated-in-chat-context-suggests-oxley-bizhub-2-to-confirm-ll229",
+      "landlord_id": "LL229",
+      "property_name": "Unit 05-04, address not stated in chat (context suggests Oxley BizHub 2; to confirm)",
+      "block_address": "Unit 05-04, address not stated in chat (context suggests Oxley BizHub 2; to confirm)",
+      "postal": "",
+      "deal_type": "rent",
+      "status": "open",
+      "pg_url_keywords": [
+        "unit 05-04 address not stated in chat"
+      ],
+      "marketing_restrictions": "",
+      "requirements": {
+        "gender": "any",
+        "couple_ok": false,
+        "couple_must_be_married": false,
+        "gender_source": null,
+        "ethnicity_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "nationality_pref": {
+          "mode": "any",
+          "list": []
+        },
+        "pass_type_allowed": [],
+        "occupation_rule": {
+          "mode": "any",
+          "list": []
+        },
+        "max_pax": null,
+        "lease_min_months": 12,
+        "lease_max_months": null,
+        "budget_floor": null,
+        "min_age": null,
+        "cooking": "light",
+        "pets_tenant_may_bring": false,
+        "smoking": "any",
+        "gate_unverified": [],
+        "notes_human": "GENERATED (fill-missing) from landlord-db LL229"
+      },
+      "district": "D9",
+      "notes": "GENERATED (fill-missing) from landlord-db LL229 on 20260909-101917"
+    }
+  ],
+  "_fix_log": "2026-06-14: encoded no-single-males, null-budget, ethnicity only/exclude as hard gates for corrected qualify()"
+}

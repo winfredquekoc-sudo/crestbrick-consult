@@ -221,7 +221,10 @@ class TestRealWorldLabelSynonyms(unittest.TestCase):
 
 # ---------------------------------------------------------------------------
 # Finding 10: the daily automated-touch cap must never silently swallow REDIRECT or
-# LEASE_NOTE, and whatever the cap DOES still hold back must force a notify.
+# LEASE_NOTE without at least one bounded touch a day, and whatever the ORDINARY cap DOES
+# still hold back must force a notify. (Merge review 9 Sep 2026: REDIRECT/LEASE_NOTE moved
+# from fully exempt to bounded-once, same mechanism as the time reply -- see
+# tests/wa-pipeline/test_time_reply_cap.py for the behavioural coverage of that bound.)
 # ---------------------------------------------------------------------------
 class TestDailyCapExemptionsAndNotify(unittest.TestCase):
     def setUp(self):
@@ -230,16 +233,21 @@ class TestDailyCapExemptionsAndNotify(unittest.TestCase):
         self.send_block = self.src[self.src.index("HARD SEND SAFEGUARDS"):
                                     self.src.index("if E.DRY_RUN:")]
 
-    def test_redirect_and_lease_note_exempt_from_daily_cap(self):
+    def test_redirect_and_lease_note_bounded_from_daily_cap(self):
         self.assertIn('"REDIRECT"', self.send_block)
         self.assertIn('"LEASE_NOTE"', self.send_block)
-        cap_line = self.send_block[self.send_block.index("DAILY_SEND_CAP is 2 automated"):] \
-            if "DAILY_SEND_CAP is 2 automated" in self.send_block else self.send_block
-        self.assertIn("DAILY_CAP_SKIP", cap_line)
+        self.assertIn("redirect_sent_date", self.send_block)
+        self.assertIn("lease_note_reply_sent_date", self.send_block)
+        self.assertIn("DAILY_CAP_SKIP", self.send_block)
 
     def test_daily_cap_skip_notifies_winfred(self):
-        skip_block = self.src[self.src.index("DAILY_CAP_SKIP"):
-                               self.src.index("DAILY_CAP_SKIP") + 800]
+        # the ORDINARY cap's own DAILY_CAP_SKIP line (the f-string one), not the earlier
+        # bounded-once DAILY_CAP_SKIP shared by the time reply / REDIRECT / LEASE_NOTE carve
+        # out -- that one intentionally does not notify (same as before this fix; see
+        # test_time_reply_cap.py's docstring).
+        _marker = 'a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")'
+        self.assertIn(_marker, self.src)
+        skip_block = self.src[self.src.index(_marker):self.src.index(_marker) + 800]
         self.assertIn("notify_winfred", skip_block)
 
 

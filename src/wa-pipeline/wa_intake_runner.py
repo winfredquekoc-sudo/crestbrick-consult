@@ -607,31 +607,36 @@ def run():
                 E.save_state(state); acted += 1; continue
             # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day
             # (a touch = one engine action; SEND_FORM's unit-info + form pair counts as one).
-            # CONFIRM_VIEWING is exempt — it answers a tenant's explicit YES to a slot;
-            # holding it overnight dead-ends a converting lead, which is not spam.
+            # CONFIRM_VIEWING, OFFER_VIEWING and ASK_ONE are always exempt -- each is a direct
+            # reply to the prospect's own message in the booking flow (the viewing-first happy
+            # path is 3 touches, and capping it at 2 dropped the offer right after a YES,
+            # adversarial-review P2-8).
             _today_sgt = time.strftime("%Y-%m-%d",
                          time.gmtime(time.time() + 8 * 3600))
-            # ASK_ONE and OFFER_VIEWING are direct replies to a prospect's own message in
-            # the booking flow — the viewing-first happy path is 3 touches, and capping it
-            # at 2 dropped the offer right after a YES (adversarial-review P2-8). REDIRECT
-            # (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a ONE-TIME,
-            # already-latched closure or note, never a repeat touch — holding them for the
-            # cap dead-ends a prospect who was already told something final, with nothing
-            # left for Winfred to see either (P2 fix, 9 Sep 2026 cycle 3 attack replay).
-            # VIEWING_TIME_PROPOSED and ASK_TENANT_TIME are also always a direct reply to the
-            # tenant's OWN time proposal or decline (neither type is ever produced any other
-            # way) — a chat that fills the form then proposes a time in the same day was
-            # otherwise dead ended by DAILY_CAP_SKIP until Winfred replied by hand (9 Sep 2026
-            # incident, pn 6589824485 / 6584553538). Bounded separately to ONE extra touch a
-            # day — never the ordinary cap, and never spam — so a second proposal the same day
-            # still waits for Winfred, same as before this fix.
-            if a.get("type") in ("VIEWING_TIME_PROPOSED", "ASK_TENANT_TIME"):
-                if _grec.get("time_reply_sent_date") == _today_sgt:
+            # REDIRECT (unit gone / policy excluded / cross sell), LEASE_NOTE and the
+            # tenant-time-proposal replies (VIEWING_TIME_PROPOSED / ASK_TENANT_TIME) are each
+            # a direct, one-shot reply to something the tenant just said -- holding them for
+            # the ordinary cap dead-ends a prospect who was mid conversation (P2 fix, 9 Sep
+            # 2026 cycle 3 attack replay; time-reply incident pn 6589824485 / 6584553538).
+            # But unlike CONFIRM_VIEWING/OFFER_VIEWING/ASK_ONE they are NOT unconditionally
+            # exempt forever -- each is bounded to ONE extra touch a client a SGT day via its
+            # own date stamp below, separate from the ordinary sends_today counter, so a
+            # second one the same day still waits for Winfred same as before this fix (9 Sep
+            # 2026 merge review: an earlier cut made REDIRECT/LEASE_NOTE fully exempt, which
+            # a stress test showed could be replayed repeatedly against the same chat).
+            _BOUNDED_ONCE_FIELD = {
+                "VIEWING_TIME_PROPOSED": "time_reply_sent_date",
+                "ASK_TENANT_TIME": "time_reply_sent_date",
+                "REDIRECT": "redirect_sent_date",
+                "LEASE_NOTE": "lease_note_reply_sent_date",
+            }
+            _bound_field = _BOUNDED_ONCE_FIELD.get(a.get("type"))
+            if _bound_field:
+                if _grec.get(_bound_field) == _today_sgt:
                     _log("DAILY_CAP_SKIP", a.get("pn"),
-                         a.get("type") + " :: already sent a time reply today")
+                         a.get("type") + " :: already sent one today")
                     E.save_state(state); acted += 1; continue
-            elif a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE",
-                                        "REDIRECT", "LEASE_NOTE"):
+            elif a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
                 if (_grec.get("sends_today_date") == _today_sgt
                         and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
                     _log("DAILY_CAP_SKIP", a.get("pn"),
@@ -699,10 +704,10 @@ def run():
                             _rc["sends_today_date"] = _today_sgt
                             _rc["sends_today"] = 0
                         _rc["sends_today"] = int(_rc.get("sends_today") or 0) + 1
-                        # latch the once-a-day time reply bound above, separate from the
-                        # ordinary cap counter
-                        if a.get("type") in ("VIEWING_TIME_PROPOSED", "ASK_TENANT_TIME"):
-                            _rc["time_reply_sent_date"] = _today_sgt
+                        # latch the once-a-day bound for VIEWING_TIME_PROPOSED / ASK_TENANT_TIME
+                        # / REDIRECT / LEASE_NOTE above, separate from the ordinary cap counter
+                        if _bound_field:
+                            _rc[_bound_field] = _today_sgt
                 # throttle: drip the morning backlog instead of a bot-like instant burst
                 time.sleep(random.uniform(4, 9))
                 if allok and a.get("type") == "CONFIRM_VIEWING" and a.get("slot_id"):

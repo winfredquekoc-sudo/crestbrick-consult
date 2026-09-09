@@ -7,6 +7,14 @@ cap, and never a second reply the same day. Real incidents: pn 6589824485 ("Woul
 work?") and pn 6584553538 ("this weekend Saturday can?") both got DAILY_CAP_SKIP and heard
 nothing until Winfred replied by hand.
 
+Merge review (9 Sep 2026, four-branch intake merge): REDIRECT and LEASE_NOTE get the SAME
+bounded-once treatment as the time reply, each via its own date stamp
+(rec["redirect_sent_date"] / rec["lease_note_reply_sent_date"]) -- ONE free touch a SGT day,
+never the ordinary ceiling, but never a second one the same day either. An earlier cut made
+them fully exempt (see the attack-fixes cycle 3 commit); that assumed both were always
+already-latched one-shots upstream in intake_engine, which is true in production but is not
+something this runner-level safeguard should rely on -- defense in depth.
+
 Exercises the real runner send choke point end to end (throwaway sqlite messages.db +
 throwaway intake-state.json, _send stubbed) via the _isolated_runner harness already built
 for the takeover resume send site tests -- never a live path.
@@ -36,8 +44,10 @@ def _read_state(tmp_dir):
 
 
 class TestTimeReplyExemption(unittest.TestCase):
-    """Never exempt SEND_FORM, NUDGE_INCOMPLETE, REDIRECT, LEASE_NOTE or a category 2 reply
-    (ANSWER_QUESTION) -- only VIEWING_TIME_PROPOSED / ASK_TENANT_TIME, and only once a day."""
+    """Never exempt SEND_FORM, NUDGE_INCOMPLETE or a category 2 reply (ANSWER_QUESTION) at
+    all. VIEWING_TIME_PROPOSED / ASK_TENANT_TIME / REDIRECT / LEASE_NOTE each get ONE bounded
+    touch a day (their own date stamp), never the ordinary cap -- but never a second one the
+    same day either."""
 
     def _run(self, conversations, handle_event_return):
         with tempfile.TemporaryDirectory() as tmp:
@@ -109,18 +119,40 @@ class TestTimeReplyExemption(unittest.TestCase):
         self.assertEqual(calls["sent"], [])
         self.assertTrue(any(k == "DAILY_CAP_SKIP" for k, p, m in calls["logged"]))
 
-    def test_redirect_never_exempt_even_at_the_cap(self):
+    def test_redirect_gets_one_reply_even_at_the_cap(self):
+        # bounded-once exemption, same shape as the time reply -- first REDIRECT today still
+        # goes out even though the ordinary sends_today cap is already reached.
         today = _today_sgt()
         rec = {"pn": FAKE_PN, "sends_today_date": today, "sends_today": R.DAILY_SEND_CAP}
+        calls, state = self._run(
+            {FAKE_PN: rec},
+            {"type": "REDIRECT", "pn": FAKE_PN, "text": "No worries, other rooms here."})
+        self.assertEqual(calls["sent"], [(FAKE_JID, "No worries, other rooms here.")])
+        self.assertFalse(any(k == "DAILY_CAP_SKIP" for k, p, m in calls["logged"]))
+        self.assertEqual(state["conversations"][FAKE_PN].get("redirect_sent_date"), today)
+
+    def test_a_second_redirect_the_same_day_does_not_send(self):
+        today = _today_sgt()
+        rec = {"pn": FAKE_PN, "redirect_sent_date": today}
         calls, state = self._run(
             {FAKE_PN: rec},
             {"type": "REDIRECT", "pn": FAKE_PN, "text": "No worries, other rooms here."})
         self.assertEqual(calls["sent"], [])
         self.assertTrue(any(k == "DAILY_CAP_SKIP" for k, p, m in calls["logged"]))
 
-    def test_lease_note_never_exempt_even_at_the_cap(self):
+    def test_lease_note_gets_one_reply_even_at_the_cap(self):
         today = _today_sgt()
         rec = {"pn": FAKE_PN, "sends_today_date": today, "sends_today": R.DAILY_SEND_CAP}
+        calls, state = self._run(
+            {FAKE_PN: rec},
+            {"type": "LEASE_NOTE", "pn": FAKE_PN, "text": "minimum 1 year lease note"})
+        self.assertEqual(calls["sent"], [(FAKE_JID, "minimum 1 year lease note")])
+        self.assertFalse(any(k == "DAILY_CAP_SKIP" for k, p, m in calls["logged"]))
+        self.assertEqual(state["conversations"][FAKE_PN].get("lease_note_reply_sent_date"), today)
+
+    def test_a_second_lease_note_the_same_day_does_not_send(self):
+        today = _today_sgt()
+        rec = {"pn": FAKE_PN, "lease_note_reply_sent_date": today}
         calls, state = self._run(
             {FAKE_PN: rec},
             {"type": "LEASE_NOTE", "pn": FAKE_PN, "text": "minimum 1 year lease note"})
