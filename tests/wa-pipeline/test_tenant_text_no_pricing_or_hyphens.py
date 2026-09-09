@@ -148,7 +148,10 @@ class TestNoQuotedFigureOrHyphenInTenantText(unittest.TestCase):
         # by any of the builders scanned above.
         import inspect
         src = inspect.getsource(E.listing_unit_message)
-        self.assertIn("TEMPLATES", src)
+        # STEP 0 sandbox seal (9 Sep 2026 merge redo): TEMPLATES itself is now resolved at
+        # call time via _templates() (see wa_intake_paths.resolved), not read as a bare
+        # constant -- same file, same intent, different spelling.
+        self.assertIn("_templates()", src)
 
 
 if __name__ == "__main__":

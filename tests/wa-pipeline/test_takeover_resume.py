@@ -26,6 +26,7 @@ import wa_intake_runner as R
 import wa_intake_notify as NOTIFY
 import wa_intake_draft as DRAFT
 import wa_intake_send as SEND
+import wa_intake_paths as PATHS
 
 
 def _mem_db(rows):
@@ -758,7 +759,33 @@ def _isolated_runner(tmp_dir, inbound_content="any updates?", conversations=None
     def fake_guard(jid):
         guard_calls.append(jid); return guard_ok
 
+    # STEP 0 sandbox seal (9 Sep 2026 merge redo): LASTF (wa_intake_send._write_last) and
+    # the owner loop (wa_intake_owner.py / wa_intake_owner_answers.py, which R.run() calls
+    # on every tick but which this helper never patched at all) read their paths via THEIR
+    # OWN defining module's globals, not wa_intake_runner's separate name-import binding --
+    # mock.patch.object(R, "LASTF", lastf) below never reached them (a real run watermark
+    # was being read/written by this "isolated" runner). WA_INTAKE_STATE_ROOT/
+    # WA_INTAKE_DATA_ROOT/WA_INTAKE_MSG_DB redirect every module uniformly, at call time,
+    # regardless of which module a function lives in -- see wa_intake_paths.resolved.
+    _saved_env = {k: os.environ.get(k) for k in
+                  ("WA_INTAKE_SANDBOX", "WA_INTAKE_STATE_ROOT", "WA_INTAKE_DATA_ROOT",
+                   "WA_INTAKE_MSG_DB")}
+    os.environ["WA_INTAKE_SANDBOX"] = "1"
+    os.environ["WA_INTAKE_STATE_ROOT"] = tmp_dir
+    os.environ["WA_INTAKE_DATA_ROOT"] = tmp_dir
+    os.environ["WA_INTAKE_MSG_DB"] = tmp_dir
+    PATHS.sandbox_init()
+
     stack = contextlib.ExitStack()
+
+    def _restore_env():
+        for k, v in _saved_env.items():
+            if v is None:
+                os.environ.pop(k, None)
+            else:
+                os.environ[k] = v
+    stack.callback(_restore_env)
+
     stack.enter_context(mock.patch.object(R, "MSG_DB", msg_db))
     stack.enter_context(mock.patch.object(R, "LASTF", lastf))
     stack.enter_context(mock.patch.object(R, "LOCKF", lockf))
