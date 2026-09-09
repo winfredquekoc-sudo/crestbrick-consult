@@ -13,6 +13,7 @@ import os, re, json, time, datetime, subprocess
 import wa_intake_owner as OWN
 import wa_intake_resume as RES
 import wa_intake_paths as _P
+import wa_intake_draft_worker as WORKER
 
 # STEP 0 sandbox seal (9 Sep 2026 merge redo): IDX kept for backward compat with existing
 # mock.patch.object(wa_intake_owner_answers, "IDX", ...) tests; _idx() resolves it at call
@@ -239,14 +240,21 @@ def call_haiku_extract(pending, transcript):
     if outer.get("is_error"):
         return None, "is_error: " + str(outer.get("result"))[:200]
     raw = (outer.get("result") or "").strip()
-    m = re.search(r"\{.*\}", raw, re.S)
+    return _extract_json_object(raw)
+
+
+def _extract_json_object(raw):
+    """The claude-guard result TEXT (already pulled out of the outer claude-guard JSON
+    envelope) still has one JSON object embedded in it, not always the whole string --
+    shared by the synchronous call_haiku_extract above and finish_owner_extract's
+    background-worker path below, so the two never drift on how they read a result."""
+    m = re.search(r"\{.*\}", raw or "", re.S)
     if not m:
         return None, "no json object in result"
     try:
-        parsed = json.loads(m.group(0))
+        return json.loads(m.group(0)), None
     except Exception:
         return None, "unparseable inner json"
-    return parsed, None
 
 
 def _fetch_landlord_transcript(con, jid, since_iso, limit=200):
@@ -308,10 +316,15 @@ def _fact_sentence(code, value):
     return None
 
 
-def run_owner_answer_capture(con, notify_fn, log_fn):
-    """Called once per runner tick. For every landlord with a 'sent'/'chased' question,
-    looks for his reply since the ask, extracts an answer via Haiku, records it, and
-    prepares the waiting tenant's follow up as a one tap draft. Never raises."""
+def spawn_owner_answer_extracts(con, log_fn):
+    """Called once per runner tick. For every landlord with a 'sent'/'chased' question who
+    has replied since the ask, spawns a BACKGROUND claude-guard extract request and returns
+    immediately -- never blocks the tick (9 Sep 2026 merge redo, item 3: the old cut of this
+    function called call_haiku_extract synchronously, holding up every OTHER landlord and
+    every tenant draft in the same tick for up to 25 seconds). The actual fact recording /
+    tenant follow up drafting happens later, in finish_owner_extract(), called from
+    wa_intake_draft_worker.sweep() once the background job finishes (or times out). Never
+    raises."""
     items = OWN._load_queue()
     pending_by_landlord = {}
     for q in items:
@@ -331,36 +344,93 @@ def run_owner_answer_capture(con, notify_fn, log_fn):
         transcript = _fetch_landlord_transcript(con, jid, since)
         if not any(m["ifm"] is False for m in transcript):
             continue                      # no reply yet, nothing to extract
-        parsed, err = call_haiku_extract(qs, transcript)
-        if err:
-            log_fn("OWNER_ANSWER_EXTRACT_FAIL", lid, err)
+        prompt = _build_extract_prompt(qs, transcript)
+        context = {"lid": lid, "qs": qs, "landlord_name": l.get("landlord_name"),
+                  "landlord_phone": l.get("phone")}
+        status = WORKER.spawn_request("owner_extract", lid, jid, prompt, context)
+        if status == "spawned":
+            log_fn("OWNER_EXTRACT_SPAWNED", lid, f"background extract requested ({len(qs)} question(s))")
+        elif status == "in_flight":
+            log_fn("OWNER_EXTRACT_IN_FLIGHT", lid, "already has an unresolved extract request")
+        elif status == "cap_reached":
+            log_fn("OWNER_EXTRACT_CAP", lid, "tick spawn cap reached, will retry next tick")
+        elif status == "spawn_error":
+            log_fn("OWNER_EXTRACT_SPAWN_ERROR", lid, "failed to start the background extract worker")
+        # "sandboxed" -- silent and expected under WA_INTAKE_SANDBOX=1 (see spawn_request).
+
+
+def finish_owner_extract(record, text, err, notify_fn, log_fn, timed_out=False):
+    """The on_result/on_timeout handler wa_intake_runner.run() wires into
+    wa_intake_draft_worker.sweep() for kind='owner_extract'. Same per-code processing
+    run_owner_answer_capture used to run inline right after call_haiku_extract returned.
+    Never raises."""
+    ctx = record.get("context") or {}
+    lid = ctx.get("lid")
+    qs = ctx.get("qs") or []
+    landlord_name = ctx.get("landlord_name")
+    jid = record.get("jid")
+    if timed_out or err:
+        # Owner extracts are never tenant time critical the way a resume draft is -- the
+        # SAME pending question is simply picked up again the next time this landlord's
+        # chat is checked for a reply (spawn_owner_answer_extracts re-spawns for any
+        # 'sent'/'chased' question, unaffected by one timed out attempt), and Winfred
+        # already has the landlord's raw reply in his own WhatsApp regardless. No
+        # FLAG_HUMAN carve out here (contrast wa_intake_resume.finish_resume_draft, which
+        # DOES escalate on timeout when the ORIGINAL tenant message demanded an answer).
+        log_fn("DRAFT_TIMEOUT", lid, "wall budget exceeded" if timed_out else str(err))
+        return
+    parsed, perr = _extract_json_object(text)
+    if perr:
+        log_fn("OWNER_ANSWER_EXTRACT_FAIL", lid, perr)
+        return
+    for q in qs:
+        code = q["question_code"]
+        got = parsed.get(code) if isinstance(parsed, dict) else None
+        if not isinstance(got, dict) or got.get("value") in (None, ""):
+            OWN.mark_question(q["id"], "drafted")
+            did = RES.new_draft(
+                ctx.get("landlord_phone"), jid, q.get("listing_key"),
+                f"Sorry to double check, {q['question_text'].rstrip('?')}?")
+            notify_fn(f"{landlord_name or lid}'s reply did not clearly answer "
+                      f"'{q['question_text']}'. Draft clarifying follow up ready: /send {did}")
             continue
-        for q in qs:
-            code = q["question_code"]
-            got = parsed.get(code) if isinstance(parsed, dict) else None
-            if not isinstance(got, dict) or got.get("value") in (None, ""):
-                OWN.mark_question(q["id"], "drafted")
-                did = RES.new_draft(
-                    l.get("phone"), jid, q.get("listing_key"),
-                    f"Sorry to double check, {q['question_text'].rstrip('?')}?")
-                notify_fn(f"{l.get('landlord_name') or lid}'s reply did not clearly answer "
-                          f"'{q['question_text']}'. Draft clarifying follow up ready: /send {did}")
-                continue
-            value, quote = got.get("value"), got.get("quote") or ""
-            _write_landlord_evidence(lid, code, quote)
-            _write_listing_fact(q.get("listing_key"), code, value)
-            OWN.mark_question(q["id"], "answered", answer=value, evidence=quote)
-            notify_fn(f"{l.get('landlord_name') or lid} answered {code}: {value} "
-                      f"(\"{quote[:100]}\")")
-            sentence = _fact_sentence(code, value)
-            source_pn = q.get("source")
-            if sentence and source_pn and source_pn != "clarity-report":
-                text = f"Just heard back from the owner, {sentence} \U0001F642"
-                bad = RES.validate_draft(text)
-                if not bad:
-                    tenant_jid = q.get("source_jid") or f"{source_pn}@s.whatsapp.net"
-                    did = RES.new_draft(source_pn, tenant_jid, q.get("listing_key"), text)
-                    notify_fn(f"Tenant follow up ready for {source_pn}: /send {did}")
-                else:
-                    notify_fn(f"Owner answered for {source_pn} but the drafted follow up "
-                              f"failed its own check ({bad}); reply by hand: {sentence}")
+        value, quote = got.get("value"), got.get("quote") or ""
+        _write_landlord_evidence(lid, code, quote)
+        _write_listing_fact(q.get("listing_key"), code, value)
+        OWN.mark_question(q["id"], "answered", answer=value, evidence=quote)
+        notify_fn(f"{landlord_name or lid} answered {code}: {value} "
+                  f"(\"{quote[:100]}\")")
+        sentence = _fact_sentence(code, value)
+        source_pn = q.get("source")
+        if sentence and source_pn and source_pn != "clarity-report":
+            tenant_text = f"Just heard back from the owner, {sentence} \U0001F642"
+            bad = RES.validate_draft(tenant_text)
+            if not bad:
+                tenant_jid = q.get("source_jid") or f"{source_pn}@s.whatsapp.net"
+                did = RES.new_draft(source_pn, tenant_jid, q.get("listing_key"), tenant_text)
+                notify_fn(f"Tenant follow up ready for {source_pn}: /send {did}")
+            else:
+                notify_fn(f"Owner answered for {source_pn} but the drafted follow up "
+                          f"failed its own check ({bad}); reply by hand: {sentence}")
+
+
+def sweep_all_drafts(notify_fn, log_fn):
+    """One call, once per tick, collects BOTH kinds of background worker request -- resume
+    drafts (wa_intake_resume.py) and owner extracts (this module). Kept here rather than in
+    wa_intake_runner.py purely to keep that file under the repo's 500 line guideline; this
+    module already imports both RES and WORKER, so it is the natural place for the one glue
+    call that wires their finish functions into wa_intake_draft_worker.sweep()."""
+    WORKER.sweep({
+        "resume_draft": {
+            "on_result": lambda rec, text, err: RES.finish_resume_draft(
+                rec, text, err, notify_fn, log_fn),
+            "on_timeout": lambda rec: RES.finish_resume_draft(
+                rec, None, "timeout", notify_fn, log_fn, timed_out=True),
+        },
+        "owner_extract": {
+            "on_result": lambda rec, text, err: finish_owner_extract(
+                rec, text, err, notify_fn, log_fn),
+            "on_timeout": lambda rec: finish_owner_extract(
+                rec, None, "timeout", notify_fn, log_fn, timed_out=True),
+        },
+    })

@@ -27,6 +27,7 @@ import wa_intake_notify as NOTIFY
 import wa_intake_draft as DRAFT
 import wa_intake_send as SEND
 import wa_intake_paths as PATHS
+import wa_intake_draft_worker as WORKER
 
 
 def _mem_db(rows):
@@ -391,30 +392,39 @@ class TestHaikuFailurePath(unittest.TestCase):
         self.assertIsNone(err)
         self.assertEqual(text, "sure, happy to help")
 
-    def test_process_draft_needed_flags_human_on_failure(self):
+    def test_process_draft_needed_spawns_instead_of_blocking(self):
+        """item 3 (9 Sep 2026 merge redo): process_draft_needed no longer calls call_haiku
+        at all -- it spawns a background request through wa_intake_draft_worker and returns
+        immediately. Never blocks the tick waiting on claude-guard."""
         con = _mem_db([(1, "6598886666@lid", 0)])
-        notified = []
-        logged = []
-        rec = {"profile": {"name": "Test"}, "listing_key": None, "last_inbound": "hmm"}
-        with mock.patch.object(RES, "call_haiku", return_value=(None, "timeout")):
-            RES.process_draft_needed(con, "id", "6598886666@lid", "6598886666", rec, None,
-                                     notified.append, lambda k, p, m: logged.append((k, p, m)))
-        self.assertEqual(len(notified), 1)
-        self.assertIn("Reply by hand", notified[0])
-        self.assertTrue(any(k == "RESUME_DRAFT_FAIL" for k, p, m in logged))
-
-    def test_process_draft_needed_saves_draft_on_success(self):
-        con = _mem_db([(1, "6598887777@lid", 0)])
-        notified = []
         logged = []
         rec = {"profile": {"name": "Test"}, "listing_key": "test-listing", "last_inbound": "hmm"}
+        captured = {}
+
+        def fake_spawn(kind, key, jid, prompt, context=None):
+            captured.update(kind=kind, key=key, jid=jid, context=context)
+            return "spawned"
+
+        with mock.patch.object(WORKER, "spawn_request", side_effect=fake_spawn):
+            RES.process_draft_needed(con, "id", "6598886666@lid", "6598886666", rec, None,
+                                     lambda m: None, lambda k, p, m: logged.append((k, p, m)))
+        self.assertEqual(captured["kind"], "resume_draft")
+        self.assertEqual(captured["key"], "6598886666")
+        self.assertEqual(captured["context"]["listing_key"], "test-listing")
+        self.assertTrue(any(k == "RESUME_DRAFT_SPAWNED" for k, p, m in logged))
+
+    def test_finish_resume_draft_saves_draft_on_success(self):
+        notified = []
+        logged = []
+        record = {"pn": "6598887777", "jid": "6598887777@lid",
+                 "context": {"name": "Test", "listing_key": "test-listing",
+                            "last_inbound": "hmm", "transcript_tail": []}}
         tmp = f"/tmp/test-drafts-succ-{os.getpid()}.jsonl"
         orig = RES.DRAFTS_FILE
         RES.DRAFTS_FILE = tmp
         try:
-            with mock.patch.object(RES, "call_haiku", return_value=("sure, come by anytime", None)):
-                RES.process_draft_needed(con, "id", "6598887777@lid", "6598887777", rec, None,
-                                         notified.append, lambda k, p, m: logged.append((k, p, m)))
+            RES.finish_resume_draft(record, "sure, come by anytime", None,
+                                    notified.append, lambda k, p, m: logged.append((k, p, m)))
             self.assertEqual(len(notified), 1)
             self.assertIn("/send", notified[0])
             self.assertTrue(any(k == "RESUME_DRAFT" for k, p, m in logged))
@@ -427,22 +437,50 @@ class TestHaikuFailurePath(unittest.TestCase):
             except OSError: pass
 
     def test_needs_winfred_reply_flags_without_saving_a_draft(self):
-        con = _mem_db([(1, "6598888888@lid", 0)])
         notified = []
-        rec = {"profile": {"name": "Test"}, "listing_key": None, "last_inbound": "hmm"}
+        record = {"pn": "6598888888", "jid": "6598888888@lid",
+                 "context": {"name": "Test", "listing_key": None, "last_inbound": "hmm",
+                            "transcript_tail": []}}
         tmp = f"/tmp/test-drafts-nw-{os.getpid()}.jsonl"
         orig = RES.DRAFTS_FILE
         RES.DRAFTS_FILE = tmp
         try:
-            with mock.patch.object(RES, "call_haiku",
-                                   return_value=("NEEDS_WINFRED: they are negotiating rent", None)):
-                RES.process_draft_needed(con, "id", "6598888888@lid", "6598888888", rec, None,
-                                         notified.append, lambda *a: None)
+            RES.finish_resume_draft(record, "NEEDS_WINFRED: they are negotiating rent", None,
+                                    notified.append, lambda *a: None)
             self.assertEqual(len(notified), 1)
             self.assertIn("needs your own reply", notified[0])
             self.assertFalse(os.path.exists(tmp))
         finally:
             RES.DRAFTS_FILE = orig
+
+    def test_finish_resume_draft_silent_on_trivial_timeout(self):
+        """Item 3: a background request that produced nothing usable stays SILENT (log
+        DRAFT_TIMEOUT only) when the message it would have answered was trivial -- pinging
+        Winfred for every timed out 'ok thanks' would be noisier than the timeout itself."""
+        logged = []
+        record = {"pn": "6598889999", "jid": "6598889999@lid",
+                 "context": {"name": "Test", "listing_key": None,
+                            "last_inbound": "ok thanks", "transcript_tail": []}}
+        with mock.patch.object(RES, "notify_winfred_coalesced") as coalesced:
+            RES.finish_resume_draft(record, None, "timeout", lambda m: None,
+                                    lambda k, p, m: logged.append(k), timed_out=True)
+        coalesced.assert_not_called()
+        self.assertIn("DRAFT_TIMEOUT", logged)
+
+    def test_finish_resume_draft_flags_when_undrafted_message_needed_an_answer(self):
+        """A timeout on a message that DID demand an answer (here, a real question) still
+        reaches Winfred, through the coalesced notify -- never silently dropped."""
+        record = {"pn": "6598880000", "jid": "6598880000@lid",
+                 "context": {"name": "Test", "listing_key": "bayshore",
+                            "last_inbound": "what time can I view tomorrow?",
+                            "transcript_tail": []}}
+        with mock.patch.object(RES, "notify_winfred_coalesced") as coalesced:
+            RES.finish_resume_draft(record, None, "empty result", lambda m: None,
+                                    lambda *a: None, timed_out=False)
+        coalesced.assert_called_once()
+        args, _ = coalesced.call_args
+        self.assertEqual(args[0], "6598880000")
+        self.assertIn("what time can I view", args[1])
 
 
 class TestDraftValidator(unittest.TestCase):
@@ -499,14 +537,12 @@ class TestDraftValidator(unittest.TestCase):
         orig = RES.DRAFTS_FILE
         RES.DRAFTS_FILE = tmp
         try:
-            con = _mem_db([(1, "6598888888@lid", 0)])
-            rec = {"profile": {"name": "Tester"}, "listing_key": "bayshore",
-                   "last_inbound": "Roti prata couple"}
+            record = {"pn": "6598888888", "jid": "6598888888@lid",
+                     "context": {"name": "Tester", "listing_key": "bayshore",
+                                "last_inbound": "Roti prata couple", "transcript_tail": []}}
             notified, logged = [], []
-            with mock.patch.object(RES, "call_haiku",
-                                   return_value=("Tell me about it lol waste of time only", None)):
-                RES.process_draft_needed(con, "id", "6598888888@lid", "6598888888", rec, None,
-                                         notified.append, lambda k, p, m: logged.append(k))
+            RES.finish_resume_draft(record, "Tell me about it lol waste of time only", None,
+                                    notified.append, lambda k, p, m: logged.append(k))
             self.assertEqual(len(notified), 1)
             self.assertIn("needs your own reply", notified[0])
             self.assertIn("RESUME_DRAFT_REJECTED", logged)

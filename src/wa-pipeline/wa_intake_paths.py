@@ -89,6 +89,11 @@ def paths(root=None):
         "matching_config": j(state_root, "matching-config.json"),
         "send_circuit": j(state_root, "send-circuit.json"),
         "lock_file": j(state_root, ".wa-intake.lock"),
+        # background Haiku draft/extract worker (9 Sep 2026 merge redo, item 3): pending
+        # request records + one result file per request, so the blocking claude-guard call
+        # never sits inside a runner tick.
+        "draft_worker_pending": j(state_root, "draft-worker-pending.json"),
+        "draft_worker_results_dir": j(state_root, "draft-worker-results"),
         "cobroke_db": j(state_root, "cobroke-agents.json") if state_root != _REAL_STATE_ROOT
                       else os.path.expanduser("~/.claude/state/cobroke-agents.json"),
         "refresh_lock_dir": j(state_root, "refresh-rental-dbs.lock.d") if state_root != _REAL_STATE_ROOT

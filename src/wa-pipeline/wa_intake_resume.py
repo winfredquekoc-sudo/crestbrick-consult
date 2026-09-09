@@ -15,6 +15,8 @@ here runs standalone against live state, and nothing here sends a WhatsApp messa
 import os, re, json, time, hashlib, subprocess, datetime
 import intake_engine as E
 import wa_intake_paths as _P
+import wa_intake_draft_worker as WORKER
+from wa_intake_notify import notify_winfred_coalesced
 
 RESUME_WAIT_SEC = 5 * 60                 # Winfred's own stated wait: 5 minutes of silence
 DRAFT_EXPIRY_SEC = 24 * 3600             # a draft older than this can no longer be /send
@@ -379,22 +381,66 @@ def mark_draft(did, status):
 
 
 def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
-    """Build and persist a draft for a resumed inbound the allow list rejected, or FLAG_HUMAN
-    Winfred with the last 3 messages if the draft helper fails or times out. Never raises --
-    a draft failure must never block the tick (Winfred, 8 Sep 2026)."""
+    """Spawns a BACKGROUND claude-guard draft request and returns immediately -- never
+    blocks the runner's tick (9 Sep 2026 merge redo, item 3: drafts off the critical path;
+    the old cut of this function called call_haiku() synchronously, holding up every other
+    prospect in the same tick for up to 25 seconds). The actual draft persistence / Winfred
+    notify happens later: finish_resume_draft(), called from wa_intake_draft_worker.sweep()
+    on a LATER tick once the background job finishes (or times out). Never raises."""
     name = (rec.get("profile") or {}).get("name") or pn
     listing_key = rec.get("listing_key")
     transcript = fetch_transcript(con, idc, jid, limit=80)
     last_inbound = rec.get("last_inbound") or ""
     prompt = build_prompt(name, pn, listing_key, listing, rec.get("profile") or {},
                           transcript, last_inbound)
-    text, err = call_haiku(prompt)
-    if err:
-        log_fn("RESUME_DRAFT_FAIL", pn, f"haiku {err}; flagging instead")
-        last3 = transcript[-3:]
-        quote = " | ".join(f"{m['who']}: {m['text']}" for m in last3) or "(no recent text)"
-        notify_fn(f"Could not draft a reply for {name} ({pn}), {listing_key or 'no listing'} "
-                  f"(draft helper failed: {err}). Last messages:\n{quote}\nReply by hand.")
+    context = {"name": name, "listing_key": listing_key, "last_inbound": last_inbound,
+              "transcript_tail": transcript[-3:]}
+    status = WORKER.spawn_request("resume_draft", pn, jid, prompt, context)
+    if status == "spawned":
+        log_fn("RESUME_DRAFT_SPAWNED", pn, f"background draft requested for {listing_key or 'no listing'}")
+    elif status == "in_flight":
+        log_fn("RESUME_DRAFT_IN_FLIGHT", pn, "already has an unresolved draft request")
+    elif status == "cap_reached":
+        log_fn("RESUME_DRAFT_CAP", pn, "tick spawn cap reached, will retry next tick")
+    elif status == "spawn_error":
+        log_fn("RESUME_DRAFT_SPAWN_ERROR", pn, "failed to start the background draft worker")
+    # "sandboxed" -- silent and expected under WA_INTAKE_SANDBOX=1 (see spawn_request).
+
+
+def _needs_a_human_when_undrafted(last_inbound):
+    """A background draft request that produced nothing usable (timed out, empty result,
+    claude-guard errored) stays SILENT unless the message it would have answered itself
+    demanded a reply -- a real question, a viewing time proposal, or dispute language. Item
+    3: pinging Winfred for every trivial undrafted message ('ok', a thumbs up, a sticker)
+    would be noisier than the timeout itself; a question or a dispute must never wait
+    silently for him to notice on his own."""
+    t = last_inbound or ""
+    return bool(E._is_question(t) or E._has_viewing_time(t.lower()) or _DISPUTE_RE.search(t))
+
+
+def finish_resume_draft(record, text, err, notify_fn, log_fn, timed_out=False):
+    """The on_result/on_timeout handler wa_intake_runner.run() wires into
+    wa_intake_draft_worker.sweep() for kind='resume_draft'. Same decision tree
+    process_draft_needed used to run inline right after call_haiku returned, plus the new
+    silent-unless-needed-an-answer rule for a request that produced nothing at all. Never
+    raises."""
+    ctx = record.get("context") or {}
+    pn = record.get("pn"); jid = record.get("jid")
+    name = ctx.get("name") or pn
+    listing_key = ctx.get("listing_key")
+    last_inbound = ctx.get("last_inbound") or ""
+    if timed_out or err:
+        # one shared log tag for both shapes of "no draft came back" -- a real 60s wall
+        # budget kill and a claude-guard run that finished but produced nothing usable are
+        # the same event from Winfred's point of view.
+        log_fn("DRAFT_TIMEOUT", pn, "wall budget exceeded" if timed_out else str(err))
+        if _needs_a_human_when_undrafted(last_inbound):
+            tail = ctx.get("transcript_tail") or []
+            quote = " | ".join(f"{m['who']}: {m['text']}" for m in tail) or "(no recent text)"
+            notify_winfred_coalesced(pn,
+                f"Could not draft a reply for {name} ({pn}), {listing_key or 'no listing'} "
+                f"in time. They said: \"{last_inbound[:200]}\"\nLast messages:\n{quote}\n"
+                f"Reply by hand.")
         return
     if text.startswith("NEEDS_WINFRED"):
         why = text[len("NEEDS_WINFRED"):].strip(" :\n") or "needs your own judgement call"
@@ -405,10 +451,11 @@ def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
     bad = validate_draft(text)
     if bad:
         log_fn("RESUME_DRAFT_REJECTED", pn, f"{bad} :: {text.replace(chr(10), ' / ')[:160]}")
+        tail = ctx.get("transcript_tail") or []
         notify_winfred_reason = (
             f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply "
             f"(drafted line rejected: {bad}). Last messages:\n"
-            + (" | ".join(f"{m['who']}: {m['text']}" for m in transcript[-3:]) or "(no recent text)"))
+            + (" | ".join(f"{m['who']}: {m['text']}" for m in tail) or "(no recent text)"))
         notify_fn(notify_winfred_reason)
         return
     did = refresh_or_new_draft(pn, jid, listing_key, text)

@@ -24,6 +24,7 @@ import wa_intake_replies as REPLIES2   # category 2: acknowledge and pivot (thin
 # own docstring for the enqueue_owner_question() hook the category-2 reply layer calls.
 import wa_intake_owner as OWNQ
 import wa_intake_owner_answers as OWNA
+import wa_intake_draft_worker as WORKER
 # split out 8 Sep 2026 to keep this file under the repo's 500 line guideline; re-imported
 # here so every existing call site (incl. tests reaching them via wa_intake_runner.<name>)
 # keeps working unchanged.
@@ -91,6 +92,7 @@ def run():
     except OSError:
         print("another wa-intake run is in progress — skipping this tick")
         return
+    WORKER.reset_tick_budget()             # fresh 2-spawn draft/extract budget for this tick
     _drain_notify_queue()                 # deliver any pings lost to an earlier Telegram outage
     _flush_stale_coalesce_windows()       # send any per-chat notify digest whose window ended
     # Engine integrity pin (9 Sep 2026, merge redo): the working tree IS
@@ -520,9 +522,15 @@ def run():
                             log_fn=_log, notify_fn=notify_winfred)
         OWNQ.run_owner_chases(con, send_fn=_send, guard_reserve_fn=_guard_reserve,
                               log_fn=_log, notify_fn=notify_winfred)
-        OWNA.run_owner_answer_capture(con, notify_fn=notify_winfred, log_fn=_log)
+        OWNA.spawn_owner_answer_extracts(con, log_fn=_log)
     except Exception as e:
         _log("OWNER_LOOP_ERROR", "-", f"{type(e).__name__}: {str(e)[:140]}")
+    # Background draft/extract sweep (item 3): collects a PRIOR tick's finished/timed out
+    # resume draft or owner extract; never blocks on one still within its wall budget.
+    try:
+        OWNA.sweep_all_drafts(notify_winfred, _log)
+    except Exception as e:
+        _log("DRAFT_WORKER_SWEEP_ERROR", "-", f"{type(e).__name__}: {str(e)[:140]}")
     if last_rowid is None:
         # legacy-watermark migration tick with zero newer rows: everything on disk is
         # older than the old watermark, so pin at the newest row and move on.

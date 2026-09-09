@@ -98,6 +98,7 @@ class _Guards:
         self._real_rename = os.rename
         self._real_sqlite_connect = sqlite3.connect
         self._real_subprocess_run = subprocess.run
+        self._real_subprocess_popen = subprocess.Popen
         self._real_requests_post = None
 
     def _record(self, msg):
@@ -133,11 +134,24 @@ class _Guards:
                 guards._record(f"subprocess.run reached a forbidden target: {cmd_str!r}")
             return guards._real_subprocess_run(cmd, *a, **k)
 
+        def guarded_subprocess_popen(cmd, *a, **k):
+            # wa_intake_draft_worker.spawn_request (9 Sep 2026, item 3: background
+            # draft/extract worker) Popens claude-guard directly instead of subprocess.run --
+            # WA_INTAKE_SANDBOX=1 already short circuits before this is ever reached (same
+            # pattern as call_haiku/call_haiku_extract), so this guard should never actually
+            # fire; it exists purely as the same defense in depth subprocess.run already
+            # gets, in case a future edit removes that early return by mistake.
+            cmd_str = " ".join(cmd) if isinstance(cmd, (list, tuple)) else str(cmd)
+            if any(sub in cmd_str for sub in _FORBIDDEN_SUBSTRINGS):
+                guards._record(f"subprocess.Popen reached a forbidden target: {cmd_str!r}")
+            return guards._real_subprocess_popen(cmd, *a, **k)
+
         builtins.open = guarded_open
         os.replace = guarded_replace
         os.rename = guarded_rename
         sqlite3.connect = guarded_sqlite_connect
         subprocess.run = guarded_subprocess_run
+        subprocess.Popen = guarded_subprocess_popen
 
         # requests is imported lazily inside wa_intake_send._send; only patch it if/when the
         # module is already importable, and make ANY call a violation -- while sandboxed,
@@ -158,6 +172,7 @@ class _Guards:
         os.rename = self._real_rename
         sqlite3.connect = self._real_sqlite_connect
         subprocess.run = self._real_subprocess_run
+        subprocess.Popen = self._real_subprocess_popen
         if self._real_requests_post is not None:
             import requests
             requests.post = self._real_requests_post

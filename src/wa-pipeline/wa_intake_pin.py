@@ -61,6 +61,7 @@ ENGINE_FILES = (
     "wa_intake_owner_answers.py",
     "wa_intake_listing_match.py",
     "wa_intake_draft.py",
+    "wa_intake_draft_worker.py",
     "wa_intake_echo.py",
     "wa_intake_pin.py",          # the guard guards itself, or it can be silently defanged
 )

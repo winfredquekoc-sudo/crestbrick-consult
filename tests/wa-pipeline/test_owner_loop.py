@@ -23,7 +23,33 @@ sys.path.insert(0, os.path.join(_REPO_ROOT, "scripts"))
 import wa_intake_owner as OWN
 import wa_intake_owner_answers as OWNA
 import wa_intake_resume as RES
+import wa_intake_draft_worker as WORKER
 import import_owner_questions as IMP
+
+
+def _spawn_then_finish(con, result, notify_fn=lambda m: None, log_fn=lambda *a: None):
+    """item 3 (9 Sep 2026 merge redo): OWNA.run_owner_answer_capture no longer exists --
+    spawning and finishing an owner extract are now two separate calls, connected only
+    through wa_intake_draft_worker's pending file. This helper drives both halves in one
+    call for tests that only care about the end result: patches WORKER.spawn_request to
+    capture its args instead of really Popen-ing claude-guard, runs the real
+    spawn_owner_answer_extracts against `con`, then feeds each captured spawn straight into
+    finish_owner_extract with `result` (a dict, JSON encoded here exactly the way a real
+    claude-guard result string would arrive) as if the background job had already finished.
+    Returns the list of finish_owner_extract call args, mostly for assertions that need to
+    inspect the record itself."""
+    calls = []
+
+    def _fake_spawn(kind, key, jid, prompt, context=None):
+        calls.append({"kind": kind, "pn": key, "jid": jid, "context": context})
+        return "spawned"
+
+    with mock.patch.object(WORKER, "spawn_request", side_effect=_fake_spawn):
+        OWNA.spawn_owner_answer_extracts(con, log_fn=log_fn)
+    text = json.dumps(result) if result is not None else None
+    for rec in calls:
+        OWNA.finish_owner_extract(rec, text, None, notify_fn, log_fn)
+    return calls
 
 
 def _sgt(y, mo, d, h, mi, s=0):
@@ -298,11 +324,9 @@ class TestAnswerExtraction(OwnerLoopTestBase):
         path, con = _mkdb([("6591234567@s.whatsapp.net", 0, "yes wifi is included, unlimited",
                             datetime.datetime.now(datetime.timezone.utc).isoformat())])
         notes = []
-        with mock.patch.object(OWNA, "call_haiku_extract",
-                               return_value=({"WIFI": {"value": "included, unlimited",
-                                                       "quote": "yes wifi is included, unlimited"}}, None)):
-            OWNA.run_owner_answer_capture(con, notify_fn=lambda m: notes.append(m),
-                                          log_fn=lambda *a: None)
+        _spawn_then_finish(con, {"WIFI": {"value": "included, unlimited",
+                                          "quote": "yes wifi is included, unlimited"}},
+                          notify_fn=lambda m: notes.append(m))
         q = OWN.find_question(qid)
         self.assertEqual(q["status"], "answered")
         self.assertEqual(q["answer"], "included, unlimited")
@@ -325,8 +349,7 @@ class TestAnswerExtraction(OwnerLoopTestBase):
                                                   - datetime.timedelta(hours=2)).isoformat())
         path, con = _mkdb([("6591234567@s.whatsapp.net", 0, "let me check with my wife",
                             datetime.datetime.now(datetime.timezone.utc).isoformat())])
-        with mock.patch.object(OWNA, "call_haiku_extract", return_value=({"WIFI": None}, None)):
-            OWNA.run_owner_answer_capture(con, notify_fn=lambda m: None, log_fn=lambda *a: None)
+        _spawn_then_finish(con, {"WIFI": None})
         q = OWN.find_question(qid)
         self.assertEqual(q["status"], "drafted")
         drafts = RES._load_drafts()
@@ -338,7 +361,8 @@ class TestAnswerExtraction(OwnerLoopTestBase):
         OWN.mark_question(qid, "sent", asked_at=(datetime.datetime.now(datetime.timezone.utc)
                                                   - datetime.timedelta(hours=2)).isoformat())
         path, con = _mkdb([])   # nothing from the landlord at all
-        OWNA.run_owner_answer_capture(con, notify_fn=lambda m: None, log_fn=lambda *a: None)
+        calls = _spawn_then_finish(con, None)
+        self.assertEqual(calls, [])   # no reply yet -- nothing spawned at all
         q = OWN.find_question(qid)
         self.assertEqual(q["status"], "sent")
 
@@ -456,10 +480,8 @@ class TestEndToEnd(OwnerLoopTestBase):
                     ("6591234567@s.whatsapp.net", 0, "yes serviced every 3 months",
                      datetime.datetime.now(datetime.timezone.utc).isoformat()))
         con.commit()
-        with mock.patch.object(OWNA, "call_haiku_extract",
-                               return_value=({"AIRCON": {"value": "serviced every 3 months",
-                                                         "quote": "yes serviced every 3 months"}}, None)):
-            OWNA.run_owner_answer_capture(con, notify_fn=lambda m: None, log_fn=lambda *a: None)
+        _spawn_then_finish(con, {"AIRCON": {"value": "serviced every 3 months",
+                                            "quote": "yes serviced every 3 months"}})
 
         q = OWN.find_question(qid)
         self.assertEqual(q["status"], "answered")

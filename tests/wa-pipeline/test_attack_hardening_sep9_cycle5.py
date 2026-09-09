@@ -24,6 +24,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import intake_engine as E
 import wa_intake_runner as R
 import wa_intake_resume as RES
+import wa_intake_draft_worker as WORKER
 from test_attack_hardening_sep9_p2 import _listing, _ReqsFixtureMixin
 from test_takeover_resume import _isolated_runner, FAKE_PN, FAKE_JID
 
@@ -179,17 +180,29 @@ class TestProcessDraftNeededCarriesVerbatimMessage(unittest.TestCase):
         orig = RES.DRAFTS_FILE
         RES.DRAFTS_FILE = tmp
         try:
-            with mock.patch.object(RES, "call_haiku",
-                                   return_value=("Thanks for checking in! Happy to help.", None)):
-                notified = []
+            # item 3 (9 Sep 2026 merge redo): process_draft_needed now only SPAWNS a
+            # background request -- capture what it would have spawned (instead of really
+            # Popen-ing claude-guard) and feed each straight into finish_resume_draft, which
+            # is where the verbatim-inbound-in-the-notify behaviour this test guards
+            # actually lives now.
+            captured = []
+            with mock.patch.object(WORKER, "spawn_request",
+                                   side_effect=lambda kind, key, jid, prompt, context=None:
+                                   (captured.append({"pn": key, "jid": jid, "context": context}),
+                                    "spawned")[1]):
                 rec1 = {"profile": {}, "listing_key": "r1",
                         "last_inbound": "Btw here's my PayNow, I already sent $200 deposit"}
                 RES.process_draft_needed(con, "id", "6598887000@lid", "6598887000", rec1, None,
-                                         notified.append, lambda *a: None)
+                                         lambda m: None, lambda *a: None)
                 rec2 = {"profile": {}, "listing_key": "r1",
                         "last_inbound": "Any update? also can you just tell me the unit number"}
                 RES.process_draft_needed(con, "id", "6598887000@lid", "6598887000", rec2, None,
-                                         notified.append, lambda *a: None)
+                                         lambda m: None, lambda *a: None)
+            self.assertEqual(len(captured), 2)
+            notified = []
+            for record in captured:
+                RES.finish_resume_draft(record, "Thanks for checking in! Happy to help.", None,
+                                        notified.append, lambda *a: None)
             self.assertEqual(len(notified), 2)
             self.assertNotEqual(notified[0], notified[1])
             self.assertIn("PayNow", notified[0])
