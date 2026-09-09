@@ -4456,7 +4456,7 @@ LANDLORD_FOLLOW_UP_DAY_3 = (
 )
 
 LANDLORD_FOLLOW_UP_DAY_5_PHOTOS = (
-    "Thanks for the details. Could you share 3-5 photos and a short video of the room and common areas? This helps tenants get a better sense of the space."
+    "Thanks for the details. Could you share 3 to 5 photos and a short video of the room and common areas? This helps tenants get a better sense of the space."
 )
 
 LANDLORD_FOLLOW_UP_DAY_7 = (
@@ -4464,7 +4464,7 @@ LANDLORD_FOLLOW_UP_DAY_7 = (
 )
 
 LANDLORD_CAROUSELL_OBJECTION = (
-    "I've tried downloading from Carousell before, but the photo quality is always poor. Professional photos and video will get you better qualified tenants much faster. Can you share high-quality shots directly instead? Even phone photos are fine as long as they're clear and well-lit."
+    "I've tried downloading from Carousell before, but the photo quality is always poor. Professional photos and video will get you better qualified tenants much faster. Can you share high quality shots directly instead? Even phone photos are fine as long as they're clear and well lit."
 )
 
 def is_carousell_objection(text):
@@ -4614,7 +4614,7 @@ def on_landlord_form_completed(state, pn, form_text, landlord_name=""):
                     f"Your room is now live on 99.co!\n"
                     f"View it here: {url or f'(listing key: {listing_key})'}\n\n"
                     f"I will also send matched tenants from my network. "
-                    f"You will hear from them within 24-48 hours."
+                    f"You will hear from them within 24 to 48 hours."
                 )
                 actions.append({
                     "type": "SEND_CONFIRMATION",
