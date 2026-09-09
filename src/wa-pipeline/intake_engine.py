@@ -581,14 +581,31 @@ _LANDLORD_SUPPLY_LOW_CONTEXT = ("carousell", "carousel", "carosell", "carrousel"
                                 "got tenant already")
 _LOW_CONTEXT_VETO = ("still available", "still there", "still open", "can view", "or not")
 
-def supply_side_kind(chat_jid, text, with_confidence=False):
+def _supply_shaped(low):
+    """True when a single piece of text (no history) itself carries any supply marker,
+    high or low precision. Used to decide whether history may even be consulted."""
+    return (any(m in low for m in _LANDLORD_SUPPLY) or _MY_ROOM_AVAIL_RE.search(low)
+            or any(m in low for m in _SELLER_SUPPLY)
+            or any(m in low for m in _LANDLORD_SUPPLY_LOW_CONTEXT))
+
+def supply_side_kind(chat_jid, text, with_confidence=False, rec=None):
     """'landlord' (renting out), 'seller' (selling), or None. Reads across the current
-    message AND the contact's recent history. High precision so a genuine tenant or buyer is
-    never misread as supply. With with_confidence=True returns (kind, confident) — the
-    image-only Carousell opener and the low-context markers are a PROBABLE landlord (flag a
-    human, never auto-send a form), a high-precision phrase match is confident."""
+    message AND the contact's recent history -- but history only ever AMPLIFIES a read the
+    current message already shows some shape of; a one-off remark several turns back
+    ("my brother has a spare room to rent, help him find a tenant") must never permanently
+    flip a later, purely-demand message ("what time are you free for me to view?") into
+    landlord onboarding (P1 fix, 9 Sep 2026 attack replay). High precision so a genuine
+    tenant or buyer is never misread as supply. With with_confidence=True returns
+    (kind, confident) — the image-only Carousell opener and the low-context markers are a
+    PROBABLE landlord (flag a human, never auto-send a form), a high-precision phrase match
+    is confident. Pass rec to veto supply outright once the record already holds a bound
+    listing_key plus a tenant profile or a qualify verdict -- a screened, bound tenant is
+    never re-read as an owner from stale history."""
+    if rec is not None and rec.get("listing_key") and (rec.get("profile") or rec.get("qualify")):
+        return (None, False) if with_confidence else None
     cur = (text or "").lower()
-    blob = (cur + " \n " + (recent_inbound_text(chat_jid) or "")).lower()
+    hist = (recent_inbound_text(chat_jid) or "").lower() if _supply_shaped(cur) else ""
+    blob = cur + " \n " + hist
     kind, confident = None, False
     if any(v in blob for v in _DEMAND_VETO):
         pass                                # portal enquiry template -> demand side, never supply
@@ -2443,6 +2460,16 @@ def _tenant_fact_answer(question_text, listing):
             return _fact_pets_phrase(req["pets_tenant_may_bring"])
         return None
 
+    # facts sheet BEFORE the rent pivot: "deposit how much" must never be read as a bare rent
+    # negotiation just because it also contains "how much" (P0 fix, 9 Sep 2026 attack replay --
+    # a deposit/refund question was misrouted into the vague rent pivot and auto-sent).
+    for key, rx in _FACT_SHEET_PATTERNS:
+        if rx.search(t):
+            v = facts.get(key)
+            if isinstance(v, str) and v.strip():
+                return v.strip()
+            return None
+
     if _FACT_RENT_RE.search(t):
         # a specific figure ("can you do 1400", "200 less") is a real negotiation -> Winfred handles it
         if _FACT_RENT_NUMBER_RE.search(t):
@@ -2451,13 +2478,6 @@ def _tenant_fact_answer(question_text, listing):
         return ("Rent is usually fixed \U0001F642 But do come down to view first, and if the landlord "
                 "is comfortable with you as a tenant there may be some room on price. Shall I arrange "
                 "a viewing for you?")
-
-    for key, rx in _FACT_SHEET_PATTERNS:
-        if rx.search(t):
-            v = facts.get(key)
-            if isinstance(v, str) and v.strip():
-                return v.strip()
-            return None
 
     return None
 
@@ -2471,10 +2491,15 @@ _DECLINE_RE = re.compile(
 # a literal "?" is sufficient but never necessary. Shared by the pre-viewing question check
 # below AND _viewing_reaction's post-offer question branch, so both stages read a question
 # the same way (a bare "?" gate used to treat these two stages inconsistently).
+# an interrogative token counts ANYWHERE in the message, not only in the first three words --
+# "before i sign should i get a lawyer to check this, is that necessary" buries "should"/"is"
+# past word 3 and was silently dropped (P1 fix, 9 Sep 2026 attack replay: a legal advice
+# question got zero reply and zero flag). Singlish particles likewise count anywhere, not
+# only as the final token ("anot leh can view" vs "can view anot leh").
 _QUESTION_LEAD_RE = re.compile(
-    r"^\s*(?:\w+[\s,]+){0,2}(?:can|could|is|are|do|does|did|will|would|should|"
+    r"\b(?:can|could|is|are|do|does|did|will|would|should|"
     r"how|what|when|why|who|where|which)\b", re.I)
-_QUESTION_TRAIL_RE = re.compile(r"(?:\banot\b|\bor\s+not\b|\bah\b|\bright\b)\s*[.!]?\s*$", re.I)
+_QUESTION_TRAIL_RE = re.compile(r"\b(?:anot|or\s+not|ah|lah|leh|meh|sia|right)\b", re.I)
 
 def _is_question(text):
     t = (text or "").strip()
@@ -2762,7 +2787,10 @@ def _handle_event_inner(state, ev):
                             + alt_text + "\n\nKeen to take a look? I can arrange a viewing for you."}
         rec["terminal"] = True; rec["stage"] = "CLOSED_UNIT_REJECTED"
         rec["status"] = "closed (unit rejected, no alternative)"
-        return {"type": "REDIRECT", "pn": pn, "reason": "unit rejected, no alternative in district",
+        # always notify: a terminal close silently drops an already confirmed viewing off
+        # Winfred's radar otherwise (P0 fix, 9 Sep 2026 attack replay).
+        return {"type": "REDIRECT", "pn": pn, "notify": True,
+                "reason": "unit rejected, no alternative in district",
                 "text": "No worries 🙂 You can see my other available rooms here:\n" + CHANNEL
                         + "\nLet me know if anything catches your eye and I'll arrange a viewing."}
 
@@ -2904,7 +2932,7 @@ def _handle_event_inner(state, ev):
         # SUPPLY SIDE: read across the contact's first few messages. An owner — landlord (renting
         # out) OR seller (selling) — even one not yet in the DB, must never get a tenant or buyer
         # intake form. Flag once, stay silent. Renting and selling are kept distinct in the flag.
-        _supply, _sup_conf = supply_side_kind(ev.get("jid"), ev.get("text",""), with_confidence=True)
+        _supply, _sup_conf = supply_side_kind(ev.get("jid"), ev.get("text",""), with_confidence=True, rec=rec)
         if _supply:
             if rec.get("supply_flagged"):
                 return None
@@ -3027,19 +3055,28 @@ def _handle_event_inner(state, ev):
         rec["form_sent_ts"] = __import__("time").time()
         rec["stage"] = "FORM_SENT"; rec["status"] = "form_sent"
         lk = rec.get("listing_key")
-        # TWO messages, once only: (1) unit info, (2) the FULL intake form. ALWAYS the full
-        # form (Winfred, 13 Jul 2026): the short open-intake form caused form-after-form
-        # sequences and violated the standing full-form rule.
         unit = listing_unit_message(lk)
-        # the form rides behind the slot CTA as the TICKET to the viewing (full 14 fields,
-        # verbatim, per the standing full-form rule — only the intro line changes)
-        _slotted = bool(lk) and _has_open_future_slot(lk)
-        form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
-        texts = ([unit, form] if unit else [form]) + [CHANNEL_PITCH]
         # capture landlord availability at first enquiry: flag if this listing has no
         # upcoming viewing slot yet, so Winfred can grab the landlord's next slot.
         need_avail = bool(lk) and not _has_open_future_slot(lk)
-        return {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
+        if missing_required(rec["profile"], reqs.get(lk)):
+            # TWO messages, once only: (1) unit info, (2) the FULL intake form. ALWAYS the full
+            # form (Winfred, 13 Jul 2026): the short open-intake form caused form-after-form
+            # sequences and violated the standing full-form rule.
+            _slotted = bool(lk) and _has_open_future_slot(lk)
+            form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
+            texts = ([unit, form] if unit else [form]) + [CHANNEL_PITCH]
+            return {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
+                    "listing_key":lk, "capture_availability":need_avail}
+        # profile already complete (an earlier message supplied it, e.g. a pasted form riding
+        # with the opener) -- never re-ask a blank 14-field template for data already on file
+        # (P2 fix, 9 Sep 2026 attack replay). Send the unit intro (it already carries the slot
+        # CTA) + channel pitch when a listing is bound; qualify()/OFFER_VIEWING then run as
+        # usual on their next reply via the existing book-intent path below. Nothing bound yet
+        # -> stay silent here, the unbound-profile flag fires on their next message instead.
+        if not unit:
+            return None
+        return {"type":"SEND_FORM", "pn":pn, "texts":[unit, CHANNEL_PITCH], "text":unit,
                 "listing_key":lk, "capture_availability":need_avail}
 
     # SUPPLY RE-CHECK, post-form: "actually I am the landlord, help me rent out my room"
@@ -3047,7 +3084,7 @@ def _handle_event_inner(state, ev):
     # as a tenant (fuzz catch c41-60, 11 Aug 2026). Confident phrase match only.
     if rec.get("form_sent") and not rec.get("supply_flagged"):
         _sup2, _sup2_conf = supply_side_kind(ev.get("jid"), ev.get("text", ""),
-                                             with_confidence=True)
+                                             with_confidence=True, rec=rec)
         if _sup2 and _sup2_conf:
             rec["supply_flagged"] = True; rec["status"] = "supply_side:" + _sup2; rec["supply_kind"] = _sup2
             rec["manual_takeover"] = True; rec["copilot_muted"] = True
@@ -3462,11 +3499,31 @@ _UNIT_REJECT = ("don't like","dont like","didn't like","didnt like","not suitabl
                 "too far","too old","not keen on this","not for me","give it a miss","give this a miss",
                 "pass on this","not what i am looking","not what i'm looking","don't think this",
                 "dont think this","prefer something else","looking for something else")
+_UNIT_REJECT_RE = re.compile(
+    r"\b(?:" + "|".join(re.escape(m).replace(r"\ ", r"\s+") for m in _UNIT_REJECT) + r")\b", re.I)
+# a rejection phrase sitting inside a hypothetical ("if I don't like it", "in case I don't
+# like it") is not a rejection at all -- it is a condition on an ALREADY confirmed viewing
+# (P0 fix, 9 Sep 2026 attack replay: "coming around 3pm... if I don't like it" silently
+# killed a just-confirmed viewing with no flag to Winfred).
+_UNIT_REJECT_HYPOTHETICAL_RE = re.compile(
+    r"\b(?:if|unless|in\s+case)\b[^.!?]{0,40}\b(?:" +
+    "|".join(re.escape(m).replace(r"\ ", r"\s+") for m in _UNIT_REJECT) + r")\b", re.I)
+
 def _unit_rejection(text):
     """True when the prospect rejects THIS unit but is still renting (withdrawal_signal is
-    checked first by the caller, so 'found a place' style closes never reach here)."""
-    low = (text or "").lower()
-    return any(m in low for m in _UNIT_REJECT)
+    checked first by the caller, so 'found a place' style closes never reach here). Vetoed
+    when the phrase sits in a hypothetical clause, or the same message also carries booking
+    positive intent (a time, "coming", "see you") -- both mean this is a condition on a
+    viewing already locked in, never a rejection of it."""
+    t = text or ""
+    if not _UNIT_REJECT_RE.search(t):
+        return False
+    if _UNIT_REJECT_HYPOTHETICAL_RE.search(t):
+        return False
+    low = t.lower()
+    if _has_viewing_time(low) or re.search(r"\bcoming\b|\bsee\s+you\b", low):
+        return False
+    return True
 
 def suggest_alternative(profile, exclude_key):
     """Cross sell: the best OTHER active listing in the same district as the rejected or

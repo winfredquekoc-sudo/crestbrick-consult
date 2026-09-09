@@ -283,11 +283,17 @@ def run():
         except Exception as _e:
             _log("PRELATCH_ERR", _jid, f"{type(_e).__name__}: {str(_e)[:100]}")
     last_rowid = wm.get("last_rowid")
+    stale_backfill_skipped = 0   # aggregated for ONE notify at the end of the tick, never per row
     for rowid, rid, jid, ifm, content, ts, mtype in rows:
         last_rowid = rowid if (last_rowid is None or rowid > last_rowid) else last_rowid
         # stale backfill guard: the bridge re-syncs reconnect gaps with old-stamped rows.
-        # Genuinely old history must never be auto-served as a fresh enquiry.
+        # Genuinely old history must never be auto-served as a fresh enquiry -- this only
+        # makes the drop VISIBLE (a runner outage used to swallow a backlog with no log line
+        # and no flag at all, P3 attack-harness finding 9 Sep 2026); no-auto-serve is unchanged.
         if _real_age_hours(ts) > STALE_ROW_HOURS:
+            stale_backfill_skipped += 1
+            _log("STALE_BACKFILL_SKIP", jid,
+                 f"row {rid} is {_real_age_hours(ts)/24:.1f}d old (>{STALE_ROW_HOURS}h backfill guard); never auto-served")
             continue
         # the bridge echoes some of OUR bot sends with is_from_me=0. Do not treat those as a
         # prospect inbound (they poison the profile / self-trigger sends). A prospect's FILLED
@@ -573,6 +579,12 @@ def run():
             continue
 
     E.save_state(state)
+    if stale_backfill_skipped:
+        # one aggregated ping per run, never one per row -- a reconnect backfill can carry
+        # dozens of stale rows in a single tick.
+        notify_winfred(f"{stale_backfill_skipped} backfilled chat message(s) were older than "
+                       f"{STALE_ROW_HOURS}h this run and were skipped (never auto-served); "
+                       "check the affected chats by hand if any were real.")
     if last_rowid is None:
         # legacy-watermark migration tick with zero newer rows: everything on disk is
         # older than the old watermark, so pin at the newest row and move on.
