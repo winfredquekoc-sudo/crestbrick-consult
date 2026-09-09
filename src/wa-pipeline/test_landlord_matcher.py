@@ -7,7 +7,27 @@ Run as: python3 test_landlord_matcher.py
 Tests the matching algorithm and 99.co listing generation without sending actual
 WhatsApp messages (DRY_RUN mode).
 """
-import json, sys, os
+import json, sys, os, tempfile
+
+# STEP 0 sandbox seal (9 Sep 2026 merge review, item 4): this file used to import
+# intake_engine and call load_state()/save_state()/on_landlord_form_completed() with NO
+# sandboxing at all, so an ordinary `python3 test_landlord_matcher.py` run touched the REAL
+# ~/.claude/state/listing-templates/intake-state.json (and, through
+# on_landlord_form_completed_for_99co -> add_listing_to_index, the real
+# listing-index.json). Every root MUST be redirected to a throwaway tempdir BEFORE the
+# first wa-pipeline import: intake_engine.py's STATE/IDX/etc constants are captured once,
+# at import time, from whatever the environment says then (see
+# wa_intake_paths.resolved's docstring for why that is safe: a later env change alone would
+# NOT be picked up, only an explicit patch or the value already being the sandboxed one).
+_SANDBOX_TMP = tempfile.mkdtemp(prefix="wa-landlord-matcher-test-")
+os.environ["WA_INTAKE_SANDBOX"] = "1"
+os.environ["WA_INTAKE_STATE_ROOT"] = _SANDBOX_TMP
+os.environ["WA_INTAKE_DATA_ROOT"] = _SANDBOX_TMP
+os.environ["WA_INTAKE_MSG_DB"] = _SANDBOX_TMP
+
+import wa_intake_paths as _P
+_P.sandbox_init()   # refuses to proceed if any of the above still resolved into a real root
+
 from intake_engine import load_state, save_state, is_supply_form_filled, on_landlord_form_completed
 from landlord_tenant_matcher import (
     extract_landlord_property, load_active_tenants, find_tenant_matches, format_match_notification

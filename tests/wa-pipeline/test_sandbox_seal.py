@@ -445,6 +445,40 @@ class TestRunnerRunIsSandboxed(SandboxedRun):
         self.assert_live_state_untouched()
 
 
+class TestLandlordMatcherScriptIsSealed(unittest.TestCase):
+    """item 4 (9 Sep 2026 merge review): src/wa-pipeline/test_landlord_matcher.py used to
+    import intake_engine and call load_state()/save_state()/on_landlord_form_completed()
+    with NO sandboxing at all -- a plain `python3 test_landlord_matcher.py`, run by hand or
+    by a future CI step with no special environment, touched the REAL intake-state.json
+    (and, via on_landlord_form_completed_for_99co, the real listing-index.json). The file
+    now calls wa_intake_paths.sandbox_init() against its own throwaway tempdir before its
+    first wa-pipeline import (see its own top-of-file comment). Proved here from the
+    OUTSIDE, adversarially, exactly like every other case in this file: run it as a real
+    subprocess with a DELIBERATELY CLEAN environment (no WA_INTAKE_SANDBOX pre-set by the
+    caller -- the whole point is that an unsandboxed INVOKER still cannot reach live state,
+    because the script protects itself) and confirm neither live file's mtime moved."""
+
+    @staticmethod
+    def _live_mtimes():
+        out = {}
+        for name in ("runner-last.json", "intake-state.json"):
+            p = os.path.join(_REAL_STATE_ROOT, name)
+            out[p] = os.path.getmtime(p) if os.path.exists(p) else None
+        return out
+
+    def test_unsandboxed_invocation_never_touches_live_state(self):
+        before = self._live_mtimes()
+        script = os.path.join(_WA_DIR, "test_landlord_matcher.py")
+        env = {k: v for k, v in os.environ.items()
+               if not k.startswith("WA_INTAKE_")}   # deliberately clean: no inherited sandbox
+        r = subprocess.run([sys.executable, script], capture_output=True, text=True,
+                           timeout=60, env=env)
+        self.assertEqual(r.returncode, 0, r.stdout[-2000:] + r.stderr[-2000:])
+        after = self._live_mtimes()
+        self.assertEqual(before, after,
+                         "test_landlord_matcher.py moved a live state file's mtime")
+
+
 class TestDormantMatcherModulesAreSealed(unittest.TestCase):
     """ninety_nine_co_lister / landlord_tenant_matcher used bare os.path.expanduser
     constants, so they resolved (and add_listing_to_index WROTE) the REAL live
