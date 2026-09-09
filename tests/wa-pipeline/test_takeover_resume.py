@@ -1521,5 +1521,63 @@ class TestB2DisputeBlock(unittest.TestCase):
             self.assertEqual(calls["notified"], [])
 
 
+class TestResumeDraftTimeoutEscalation(unittest.TestCase):
+    """finish_resume_draft's timeout/no-result branch (9 Sep 2026 merge redo, item 3). The
+    background worker replaced a blocking call, so "the draft never came back" is now a
+    routine outcome rather than an error -- and it must stay SILENT for a message that never
+    wanted an answer ("thanks!") while still escalating exactly ONE flag, through the
+    coalesced notify, for one that did ("can I view tomorrow?"). Verified end to end through
+    wa_intake_owner_answers.sweep_all_drafts, the same glue wa_intake_runner.run() calls, so
+    a rewiring of the handlers is caught here too."""
+
+    def setUp(self):
+        import wa_intake_owner_answers as OWNA
+        self.OWNA = OWNA
+        self.tmp = tempfile.mkdtemp(prefix="wa-drafttimeout-")
+        import shutil as _sh
+        self.addCleanup(_sh.rmtree, self.tmp, ignore_errors=True)
+        self.pending = os.path.join(self.tmp, "pending.json")
+        self.results = os.path.join(self.tmp, "results")
+        os.makedirs(self.results, exist_ok=True)
+        for p in (mock.patch.object(WORKER, "PENDING", self.pending),
+                  mock.patch.object(WORKER, "RESULTS_DIR", self.results),
+                  mock.patch.object(RES, "DRAFTS_FILE", os.path.join(self.tmp, "drafts.jsonl"))):
+            p.start(); self.addCleanup(p.stop)
+
+    def _sweep_timed_out(self, inbound):
+        """One pending resume_draft whose child is long gone and whose wall budget expired."""
+        rec = {"kind": "resume_draft", "pn": "6598889999", "jid": FAKE_JID,
+               "pid": 999999,        # never a live pid in this test process
+               "id": "t", "started_ts": time.time() - (WORKER.WALL_BUDGET_SEC + 600),
+               "result_file": os.path.join(self.results, "missing.json"),
+               "context": {"name": "Ann", "listing_key": "caspian", "last_inbound": inbound,
+                           "transcript_tail": [{"who": "them", "text": inbound}]}}
+        with open(self.pending, "w") as f:
+            json.dump([rec], f)
+        logs, notified, coalesced = [], [], []
+        with mock.patch.object(RES, "notify_winfred_coalesced",
+                               lambda pn, msg, **kw: coalesced.append((pn, msg))):
+            self.OWNA.sweep_all_drafts(lambda m: notified.append(m),
+                                       lambda k, pn, m: logs.append((k, pn, m)))
+        return [k for k, _, _ in logs], notified, coalesced
+
+    def test_timeout_on_a_pleasantry_is_silent(self):
+        tags, notified, coalesced = self._sweep_timed_out("thanks!")
+        self.assertIn("DRAFT_TIMEOUT", tags)
+        self.assertEqual(coalesced, [], "a pleasantry that never asked anything must not ping")
+        self.assertEqual(notified, [])
+
+    def test_timeout_on_a_real_question_flags_exactly_once(self):
+        tags, notified, coalesced = self._sweep_timed_out("can I view tomorrow?")
+        self.assertIn("DRAFT_TIMEOUT", tags)
+        self.assertEqual(len(coalesced), 1, "one flag, through the coalesced notify")
+        self.assertIn("Reply by hand", coalesced[0][1])
+        self.assertEqual(notified, [], "the escalation goes through the coalescer, not a raw ping")
+
+    def test_a_timed_out_request_is_retired_never_retried(self):
+        self._sweep_timed_out("can I view tomorrow?")
+        self.assertEqual(WORKER._load_pending(), [])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

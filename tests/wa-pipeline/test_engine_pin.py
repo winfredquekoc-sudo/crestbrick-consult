@@ -132,8 +132,10 @@ class TestEngineDriftHoldsAndAlarmsOnce(_FakeCheckout):
     def test_runner_alerts_hourly_not_once_per_tick(self):
         # the runner's own hook calls _alert_hourly("pin", ...) on every failed tick; that
         # primitive is what turns "holds forever" into "alarms ONCE per hour" rather than
-        # once per 60s tick. Prove the rate limit itself here (the runner wiring is proven
-        # separately in test_runner_guards.py's own pin-hook test).
+        # once per 60s tick. Prove the rate limit itself here; the runner wiring that calls
+        # it is proven in TestRunnerPinHook below (merge review, 9 Sep 2026: this comment
+        # used to point at a test_runner_guards.py pin-hook test that never existed, so the
+        # runner half of the contract was asserted nowhere).
         import wa_intake_notify as NOTIFY
         calls = []
         mark_dir = tempfile.mkdtemp(prefix="wa-pin-mark-")
@@ -194,6 +196,56 @@ class TestEngineFilesCoverage(unittest.TestCase):
 
     def test_pin_guards_itself(self):
         self.assertIn("wa_intake_pin.py", PIN.ENGINE_FILES)
+
+
+class TestRunnerPinHook(unittest.TestCase):
+    """The runner half of the contract the pin exists for. verify() failing is worthless if
+    wa_intake_runner.run() does not actually stop on it, so drive run() itself:
+      engine_drift -> returns before the send path is reached, one "pin" alarm;
+      no_pin       -> proceeds past the gate (first deploy, nothing pinned yet).
+    Every root is redirected to a throwaway tempdir first, so the live state dir, the live
+    watermark and the real messages.db are never opened (STEP 0 seal, see
+    test_sandbox_seal.py)."""
+
+    def setUp(self):
+        self.tmp = tempfile.mkdtemp(prefix="wa-pin-runner-")
+        self.addCleanup(shutil.rmtree, self.tmp, ignore_errors=True)
+        self._saved = {k: os.environ.get(k) for k in
+                       ("WA_INTAKE_SANDBOX", "WA_INTAKE_STATE_ROOT", "WA_INTAKE_DATA_ROOT",
+                        "WA_INTAKE_MSG_DB")}
+
+        def _restore():
+            for k, v in self._saved.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
+        self.addCleanup(_restore)
+        os.environ["WA_INTAKE_SANDBOX"] = "1"
+        for k in ("WA_INTAKE_STATE_ROOT", "WA_INTAKE_DATA_ROOT", "WA_INTAKE_MSG_DB"):
+            os.environ[k] = self.tmp
+        P.sandbox_init()
+        import wa_intake_runner
+        self.R = wa_intake_runner
+
+    def _tick(self, verify_ret):
+        alerts, sent = [], []
+        with mock.patch.object(PIN, "verify", lambda: verify_ret), \
+             mock.patch.object(self.R, "_alert_hourly", lambda k, m: alerts.append((k, m))), \
+             mock.patch.object(self.R, "_send", lambda pn, t: sent.append((pn, t)) or True):
+            self.R.run()
+        return alerts, sent
+
+    def test_drift_holds_the_tick_and_alarms_once(self):
+        alerts, sent = self._tick((False, "engine_drift", {"drifted": ["intake_engine.py"]}))
+        self.assertEqual(sent, [], "a drifted engine must not reach the send path")
+        self.assertEqual([k for k, _ in alerts], ["pin"])
+        self.assertIn("HOLDING", alerts[0][1])
+
+    def test_no_pin_proceeds_past_the_gate(self):
+        alerts, sent = self._tick((False, "no_pin", {"hint": "run --pin"}))
+        self.assertNotIn("pin", [k for k, _ in alerts],
+                         "a missing pin only logs; it must never hold the pipeline")
 
 
 if __name__ == "__main__":
