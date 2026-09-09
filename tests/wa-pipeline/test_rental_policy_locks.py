@@ -11,21 +11,23 @@ import intake_engine as E
 # to end instead of dead-ending on "room no longer available".
 _FIXTURE_LISTINGS = ("caspian", "hougang-703", "bedok-north-522", "tampines-855",
                      "sunshine-terrace", "rivervale-185c", "bayshore", "eastpoint-green")
-# Point listing_reqs at a STATIC local fixture, not the live index (Winfred's landlord
-# database and listing sync run nightly and can change any morning -- a suite that reads
-# the live file breaks with no code change, exactly what happened 9 Sep 2026 when a routine
-# sync flipped caspian's ethnicity gate and bedok-north-522 / tampines-855's gender gate to
+# Point E.IDX at a STATIC local fixture, not the live index (Winfred's landlord database
+# and listing sync run nightly and can change any morning -- a suite that reads the live
+# file breaks with no code change, exactly what happened 9 Sep 2026 when a routine sync
+# flipped caspian's ethnicity gate and bedok-north-522 / tampines-855's gender gate to
 # gate_unverified and silently broke this suite on every branch). tests/wa-pipeline/
 # fixtures/listing-index.json is a one time snapshot (PII stripped) frozen for this suite.
+# Reassigning the PATH constant (not listing_reqs itself) keeps this test process safe for
+# _isolated_runner style tests elsewhere in the suite that scope their OWN mock.patch.object
+# of E.IDX to a tmp file per test -- those still take priority and are correctly restored
+# back to this fixture path afterward (discover-mode cross file regression, 9 Sep 2026 merge
+# review: an earlier cut replaced E.listing_reqs itself wholesale and broke that nesting).
 _FIXTURE_IDX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                  "fixtures", "listing-index.json")
-def _load_fixture_index():
-    import json as _json
-    with open(_FIXTURE_IDX_PATH) as f:
-        d = _json.load(f)
-    return {l["listing_key"]: l for l in d["listings"]}
+E.IDX = _FIXTURE_IDX_PATH
+_orig_listing_reqs = E.listing_reqs
 def _reqs_fixtures_open():
-    r = dict(_load_fixture_index())
+    r = dict(_orig_listing_reqs())
     for k in _FIXTURE_LISTINGS:
         if k in r:
             c = dict(r[k]); c["status"] = "open"; r[k] = c

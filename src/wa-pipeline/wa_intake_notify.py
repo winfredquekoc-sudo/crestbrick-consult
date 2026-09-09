@@ -5,6 +5,7 @@ Re-imported straight back into wa_intake_runner's namespace so every existing ca
 keeps working unchanged (including tests that reach these via wa_intake_runner.<name>).
 """
 import os, re, json, time, subprocess
+import intake_engine as E
 
 PREVIEW  = os.path.expanduser("~/.claude/state/listing-templates/dry-run-preview.log")
 WINFRED_CHAT = "540127870"
@@ -158,3 +159,99 @@ def _alert_hourly(key, msg):
     except OSError:
         pass
     notify_winfred(msg)
+
+# ---------- per-action Telegram ping (split out of wa_intake_runner.run(), 9 Sep 2026 merge
+# review, to keep that file under the repo's 500 line guideline) -- pure move, byte
+# identical output, just parameterized on (a, state) instead of the loop's own locals.
+# Re-imported straight back into wa_intake_runner's namespace so every existing call site
+# keeps working unchanged. ----------
+def _slot_confirm_count(state, slot_id):
+    """How many conversations have CONFIRMED this exact slot (incl. the one just confirmed)."""
+    if not slot_id: return 1
+    return sum(1 for r in (state.get("conversations") or {}).values()
+               if r.get("viewing_confirmed") and r.get("offered_slot_id") == slot_id) or 1
+
+def notify_stale_backfill(skipped, by_pn, stale_row_hours):
+    """One aggregated ping per run, never one per row -- a reconnect backfill can carry
+    dozens of stale rows in a single tick. Names every affected chat (phone + its own
+    skipped count), the way the STALE_BACKFILL_SKIP log line already does per row --
+    otherwise Winfred has no way to tell which chats to review by hand (P3 fix, 9 Sep 2026
+    cycle 3 attack replay: a multi day outage backfill named no chat at all). No-ops when
+    nothing was skipped this tick. Pure move out of wa_intake_runner.run(), 9 Sep 2026
+    merge review, to keep that file under the repo's 500 line guideline."""
+    if not skipped:
+        return
+    chats_line = ", ".join(f"{pn} ({n})" for pn, n in by_pn.items())
+    notify_winfred(f"{skipped} backfilled chat message(s) were older than "
+                   f"{stale_row_hours}h this run and were skipped (never auto-served): "
+                   f"{chats_line}. Check these chats by hand if any were real.")
+
+def notify_for_action(a, state):
+    """Builds and sends (or coalesces) the ONE Telegram ping for an engine action that
+    asked for one (a.get('notify')). No-ops for anything that did not ask."""
+    if not a.get("notify"):
+        return
+    rec = state["conversations"].get(a["pn"], {})
+    nm = rec.get("profile",{}).get("name") or a["pn"]
+    lk = rec.get("listing_key") or "a listing"
+    if a.get("category2_code"):
+        # category 2 auto reply already sent -- a human still closes the loop,
+        # but the ping says so it never reads like a silent unanswered flag.
+        _q = a.get("question") or a.get("reason") or ""
+        notify_winfred(f"Auto reply sent [{a['category2_code']}].\n{nm} ({a['pn']}) for {lk} asked:\n{_q}\nBot replied: {a.get('text','')}\nClose the loop by hand if it needs more.")
+    elif a["type"] == "SEND_BUYER_FORM":
+        _pt = a.get("property_type")
+        _fin = "HFE" if _pt == "hdb" else "IPA" if _pt == "private" else "HFE/IPA"
+        notify_winfred(f"Buyer enquiry — sent the buyer intake form.\n{nm} ({a['pn']}) looks like a {_pt or 'unknown-type'} buyer, so I sent the buyer form (asks {_fin}). Take over by hand if you want.")
+    elif a["type"] == "VIEWING_TIME_PROPOSED":
+        notify_winfred(f"Viewing time from a prospect.\n{nm} ({a['pn']}) for {lk} said:\n{a.get('when','')}\nReply to them to confirm.")
+    elif a["type"] == "CONFIRM_VIEWING":
+        # fixed slots have no capacity file entry, so nothing ever caps them —
+        # tell Winfred how full the slot is getting (26 Jul 2026)
+        _n = _slot_confirm_count(state, a.get("slot_id"))
+        _crowd = f" This is confirmation #{_n} for this slot." if _n > 1 else ""
+        _warn = " Slot is getting crowded — consider pointing new confirmations to next week." if _n >= 4 else ""
+        notify_winfred(f"Prospect confirmed a viewing.\n{nm} ({a['pn']}) accepted the slot for {lk}.{_crowd}{_warn}")
+    elif a["type"] == "ANSWER_QUESTION":
+        notify_winfred(f"Prospect question (reply by hand).\n{nm} ({a['pn']}) for {lk} asked:\n{a.get('question','')}")
+    elif a["type"] == "COPILOT_VERDICT":
+        # Winfred is handling this chat by hand; the engine stays silent to the prospect
+        # but tells HIM the screening result so a qualified tenant is never missed.
+        v = a.get("verdict"); why = a.get("why") or []
+        if v == "QUALIFIED":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}. Full profile in, fits the landlord's criteria. Worth offering a viewing.{_hot_line(a)}")
+        elif v == "NEEDS_INFO":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) for {lk} is almost there. Still unclear: {'; '.join(why)}.{_hot_line(a)}")
+        elif v == "DISQUALIFIED":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) does NOT fit {lk}. Reason: {'; '.join(why)}.{_hot_line(a)}")
+    elif a["type"] == "OFFER_VIEWING" and a.get("copilot"):
+        notify_winfred(f"Co-pilot offered a viewing (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}, so I sent them the next slot and asked them to reply YES. Step in if you want to take it from here.{_hot_line(a)}")
+    elif a["type"] == "OFFER_VIEWING" and a.get("hot_matches"):
+        # the auto-offer itself needs no ping, but a fresh tenant who fits OTHER
+        # live rooms too is a hot lead Winfred should hear about within a tick,
+        # not at the next 3-hourly batch refresh
+        notify_winfred(f"Hot prospect: {nm} ({a['pn']}) qualified for {lk} (viewing slot offered automatically).{_hot_line(a)}")
+    elif a["type"] == "SUGGEST_ALT":
+        notify_winfred(f"Cross sell: {nm} ({a['pn']}) rejected the unit, so I suggested {a.get('listing_key')} (same district) with its post and next slot. Conversation rebound to the new listing.")
+    elif a["type"] == "CAP_REACHED":
+        notify_winfred(f"Auto-message cap ({E.MAX_PROSPECT_MSGS}) reached for {nm} ({a['pn']}) on {lk}. The bot will stop messaging them now — take over by hand if you want to keep going.")
+    elif a["type"] == "AUTO_CLOSED":
+        notify_winfred(f"Auto-closed a prospect.\n{nm} ({a['pn']}) for {lk} said:\n\"{a.get('quote','')}\"\nI marked them closed (found elsewhere); the bot will not message them again. Reopen by hand if that's wrong.")
+    elif a["type"] == "SEND_SUPPLY_FORM":
+        _sk = a.get("supply", "landlord")
+        notify_winfred(f"New {_sk} detected: {nm} ({a['pn']}). I sent them the "
+                       f"{'landlord onboarding' if _sk == 'landlord' else 'seller intake'} form and the bot "
+                       f"goes silent on this chat — their answers are yours to work "
+                       f"(nightly refresh will capture landlord details).")
+    elif a["type"] == "BUYER_COMPLETE":
+        notify_winfred(f"Buyer profile complete — take over now (nothing was sent to them).\n"
+                       f"{nm} ({a['pn']}): {a.get('summary','')}")
+    elif a["type"] in ("SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
+        notify_winfred(f"Landlord onboarding — {a['type']}. {nm} ({a['pn']}): {a.get('reason','')}")
+    elif a.get("notify"):
+        # routine FLAG_HUMAN style ping (redirect/house_gate/edge case) -- coalesced
+        # per chat (see notify_winfred_coalesced above); a dispute or protected attribute
+        # flag inside it still goes out immediately, the function detects that itself
+        # from the reason text.
+        notify_winfred_coalesced(a.get("pn"),
+            f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}")

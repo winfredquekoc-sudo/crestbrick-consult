@@ -228,27 +228,35 @@ class TestRealWorldLabelSynonyms(unittest.TestCase):
 # ---------------------------------------------------------------------------
 class TestDailyCapExemptionsAndNotify(unittest.TestCase):
     def setUp(self):
-        src_path = os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_runner.py")
-        self.src = open(src_path).read()
+        wap = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
+        self.src = open(os.path.join(wap, "wa_intake_runner.py")).read()
+        # the daily cap decision itself (bounded-once fields, the ordinary ceiling, the
+        # notify text) was split out to wa_intake_send.daily_cap_should_skip, 9 Sep 2026
+        # merge review -- the runner's own HARD SEND SAFEGUARDS block now just calls it.
+        self.send_module_src = open(os.path.join(wap, "wa_intake_send.py")).read()
         self.send_block = self.src[self.src.index("HARD SEND SAFEGUARDS"):
                                     self.src.index("if E.DRY_RUN:")]
 
     def test_redirect_and_lease_note_bounded_from_daily_cap(self):
-        self.assertIn('"REDIRECT"', self.send_block)
-        self.assertIn('"LEASE_NOTE"', self.send_block)
-        self.assertIn("redirect_sent_date", self.send_block)
-        self.assertIn("lease_note_reply_sent_date", self.send_block)
+        self.assertIn('"REDIRECT"', self.send_module_src)
+        self.assertIn('"LEASE_NOTE"', self.send_module_src)
+        self.assertIn("redirect_sent_date", self.send_module_src)
+        self.assertIn("lease_note_reply_sent_date", self.send_module_src)
+        self.assertIn("daily_cap_should_skip", self.send_block)
         self.assertIn("DAILY_CAP_SKIP", self.send_block)
 
     def test_daily_cap_skip_notifies_winfred(self):
-        # the ORDINARY cap's own DAILY_CAP_SKIP line (the f-string one), not the earlier
-        # bounded-once DAILY_CAP_SKIP shared by the time reply / REDIRECT / LEASE_NOTE carve
-        # out -- that one intentionally does not notify (same as before this fix; see
-        # test_time_reply_cap.py's docstring).
-        _marker = 'a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")'
-        self.assertIn(_marker, self.src)
-        skip_block = self.src[self.src.index(_marker):self.src.index(_marker) + 800]
-        self.assertIn("notify_winfred", skip_block)
+        # the ORDINARY cap's own notify text (the f-string one, in wa_intake_send.py), not
+        # the earlier bounded-once carve out shared by the time reply / REDIRECT / LEASE_NOTE
+        # -- that one intentionally does not notify (same as before this fix; see
+        # test_time_reply_cap.py's docstring). The runner's own call site then routes
+        # whatever message comes back through notify_winfred_coalesced.
+        _marker = "Daily touch cap reached for "
+        self.assertIn(_marker, self.send_module_src)
+        skip_block = self.send_module_src[self.send_module_src.index(_marker):
+                                          self.send_module_src.index(_marker) + 400]
+        self.assertIn('f" :: already {daily_send_cap} touches today"', skip_block)
+        self.assertIn("notify_winfred_coalesced(", self.send_block)
 
 
 # ---------------------------------------------------------------------------

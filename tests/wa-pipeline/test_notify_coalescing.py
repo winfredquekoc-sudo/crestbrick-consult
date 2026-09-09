@@ -103,30 +103,38 @@ class TestNotifyCoalescing(unittest.TestCase):
 
 
 class TestRunnerWiring(unittest.TestCase):
-    """The runner's own generic FLAG_HUMAN catch all and the DAILY_CAP_SKIP notify both route
-    through notify_winfred_coalesced now, not the raw notify_winfred -- confirmed by source
-    scan (behavioural coverage is TestNotifyCoalescing above and test_time_reply_cap.py /
+    """The runner's own generic FLAG_HUMAN catch all (wa_intake_notify.notify_for_action,
+    split out 9 Sep 2026 merge review) and the DAILY_CAP_SKIP notify
+    (wa_intake_send.daily_cap_should_skip + the runner's own call site) both route through
+    notify_winfred_coalesced now, not the raw notify_winfred -- confirmed by source scan
+    (behavioural coverage is TestNotifyCoalescing above and test_time_reply_cap.py /
     test_runner_guards.py's existing DAILY_CAP_SKIP coverage)."""
     def setUp(self):
-        src_path = os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_runner.py")
-        self.src = open(src_path).read()
+        wap = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
+        self.runner_src = open(os.path.join(wap, "wa_intake_runner.py")).read()
+        self.notify_src = open(os.path.join(wap, "wa_intake_notify.py")).read()
+        self.send_src = open(os.path.join(wap, "wa_intake_send.py")).read()
 
     def test_generic_notify_catch_all_uses_coalesced(self):
-        i = self.src.index('elif a.get("notify"):')
-        block = self.src[i:i + 600]
+        i = self.notify_src.index('elif a.get("notify"):')
+        block = self.notify_src[i:i + 400]
         self.assertIn("notify_winfred_coalesced(", block)
 
     def test_daily_cap_skip_uses_coalesced(self):
-        marker = 'a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")'
-        block = self.src[self.src.index(marker):self.src.index(marker) + 700]
+        # the decision (does this action get held back) lives in wa_intake_send.py; the
+        # actual notify_winfred_coalesced call is at the runner's own call site.
+        self.assertIn("daily_cap_should_skip", self.send_src)
+        marker = "_cap_skip = daily_cap_should_skip("
+        block = self.runner_src[self.runner_src.index(marker):
+                                self.runner_src.index(marker) + 500]
         self.assertIn("notify_winfred_coalesced(", block)
 
     def test_flush_called_once_per_tick(self):
-        self.assertIn("_flush_stale_coalesce_windows()", self.src)
+        self.assertIn("_flush_stale_coalesce_windows()", self.runner_src)
 
     def test_viewing_time_proposed_still_direct_not_coalesced(self):
-        i = self.src.index('a["type"] == "VIEWING_TIME_PROPOSED"')
-        block = self.src[i:i + 300]
+        i = self.notify_src.index('a["type"] == "VIEWING_TIME_PROPOSED"')
+        block = self.notify_src[i:i + 300]
         self.assertIn("notify_winfred(", block)
         self.assertNotIn("notify_winfred_coalesced(", block)
 

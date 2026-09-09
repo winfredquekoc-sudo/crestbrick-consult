@@ -28,183 +28,31 @@ import wa_intake_owner_answers as OWNA
 # keeps working unchanged.
 from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _tg_send,
                               _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly,
-                              notify_winfred_coalesced, _flush_stale_coalesce_windows)
+                              notify_winfred_coalesced, _flush_stale_coalesce_windows,
+                              notify_for_action, _slot_confirm_count, notify_stale_backfill)
 
 MSG_DB  = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
-LASTF   = os.path.expanduser("~/.claude/state/listing-templates/runner-last.json")
 LOCKF   = os.path.expanduser("~/.claude/state/listing-templates/.wa-intake.lock")
-BRIDGE  = "http://localhost:8080/api/send"
 
-# Quiet hours: stay live, but never message prospects overnight. Outside this window the
-# runner holds and does NOT advance its cursor, so enquiries that arrive at night are
-# preserved and served together the next morning (no 3am pings to clients).
-QUIET_START_MIN = 2 * 60       # quiet hours 02:00–07:00 SGT (Winfred, 8 Sep 2026;
-SEND_START_MIN  = 7 * 60       # was 01:00–07:00). Messaging runs 07:00 through 02:00.
+# Low level send/guard primitives (_send, _guard_reserve, _write_last, _real_age_hours),
+# the PRE-PASS outbound classifier (_prelatch_decision), quiet hours (_quiet_hours,
+# QUIET_START_MIN/SEND_START_MIN) and the watermark path (LASTF) live in wa_intake_send.py
+# (split out 9 Sep 2026 merge review to keep this file under the repo's 500 line guideline);
+# re-imported here so every existing call site (incl. tests that reach them via
+# wa_intake_runner.<name>) keeps working unchanged.
+from wa_intake_send import (LASTF, BRIDGE, GUARD, QUIET_START_MIN, SEND_START_MIN,
+                            _quiet_hours, _rowid_col, _prelatch_decision, _send,
+                            _guard_reserve, _write_last, _real_age_hours,
+                            _BOUNDED_ONCE_FIELD, daily_cap_should_skip)
 
-def _quiet_hours():
-    import datetime
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=8)
-    mins = now.hour * 60 + now.minute
-    return QUIET_START_MIN <= mins < SEND_START_MIN
-
-def _rowid_col(con):
-    cols = [r[1] for r in con.execute("PRAGMA table_info(messages)").fetchall()]
-    return "id" if "id" in cols else "rowid"
-
-def _slot_confirm_count(state, slot_id):
-    """How many conversations have CONFIRMED this exact slot (incl. the one just confirmed)."""
-    if not slot_id: return 1
-    return sum(1 for r in (state.get("conversations") or {}).values()
-               if r.get("viewing_confirmed") and r.get("offered_slot_id") == slot_id) or 1
-
-def _prelatch_decision(content):
-    """Pure classification for a PRE-PASS outbound row (no state, no I/O -- unit testable
-    in isolation): 'LATCH' (a genuine hand reply -- latch manual_takeover), 'FORM_PASTED'
-    (a hand paste of the blank intake form -- engine equivalent, stamp form_sent instead
-    of latching), or None (a normal engine template send, already accounted for)."""
-    if not E.is_engine_outbound(content):
-        return "LATCH"
-    if E.is_pasted_blank_intake_form(content):
-        return "FORM_PASTED"
-    return None
-
-def _listing_open(l):
-    st = str((l or {}).get("status", "")).lower()
-    return not (st.startswith("closed") or st == "hold")
-
-# a BLOCK/UNIT number specifically -- not just any digit in the keyword (a plain avenue/street
-# number like "ave 10" is not a block number and must not tie with a real "blk 405" hit).
-_KW_HAS_NUM_RE = re.compile(r"\bblk\.?\s*\d+|\bblock\s*\d+|#\d+", re.I)
-
-_FALLBACK_POSTAL_RE = re.compile(r"\b(\d{6})\b")
-_FALLBACK_PAREN_RE = re.compile(r"\(([^)]*)\)")
-# generic Singapore condo/estate suffix words -- never distinctive enough to stand alone as
-# a fallback keyword (a listing whose project name is just "X Park" must not bind off any
-# message that happens to say "park").
-_FALLBACK_GENERIC_WORDS = {
-    "park", "court", "garden", "gardens", "view", "views", "heights", "residence",
-    "residences", "residency", "tower", "towers", "place", "walk", "green", "greens",
-    "hill", "hills", "rise", "gate", "vale", "mansion", "mansions", "house", "apartments",
-    "apartment", "condo", "condominium", "hdb", "block", "blk", "road", "street", "avenue",
-    "ave", "drive", "close", "crescent", "terrace", "lane", "the", "singapore", "estate",
-    "suites", "suite", "common", "master", "studio", "spacious", "bedroom", "bedrooms",
-    "corner", "premium", "shared", "rental", "rented", "tenant", "tenants", "landlord",
-}
-
-def _fallback_distinctive_word(name):
-    best = ""
-    for w in re.findall(r"[a-zA-Z]+", name or ""):
-        wl = w.lower()
-        if len(wl) >= 6 and wl not in _FALLBACK_GENERIC_WORDS and len(wl) > len(best):
-            best = wl
-    return best
-
-def _fallback_tokens(l):
-    """Lower specificity tokens derived from block_address / property_name (postal code,
-    block+street, condo/project name) -- a listing whose pg_url_keywords is empty is
-    otherwise structurally unbindable from inbound text at all (P1 fix, 9 Sep 2026 cycle5
-    hg5-03: 12 index rows currently have empty pg_url_keywords), and even a listing WITH
-    keywords can carry ones too specific for how a tenant actually phrases it ('Bayshore'
-    vs the keyword 'blk 62 bayshore', c5rm03). Never outranks a real pg_url_keywords hit
-    (see _match_pass tier 0 vs 1/2); a tie among fallback hits still returns None."""
-    addr = str(l.get("block_address") or "")
-    name = str(l.get("property_name") or "")
-    toks = []
-    pm = _FALLBACK_POSTAL_RE.search(addr) or _FALLBACK_POSTAL_RE.search(name)
-    if pm:
-        toks.append(pm.group(1))
-    paren = _FALLBACK_PAREN_RE.search(addr) or _FALLBACK_PAREN_RE.search(name)
-    if paren:
-        first = paren.group(1).split(",")[0].strip().lower()
-        if first:
-            toks.append(first)
-    main = _FALLBACK_PAREN_RE.sub(" ", addr)
-    main = re.sub(r"#.*", "", main)
-    main = re.sub(r"^\s*(blk|block)\.?\s+", "", main, flags=re.I)
-    main = main.split(",")[0].strip()
-    m = re.match(r"(\d+[a-z]?)\s+(.+)", main, re.I)
-    if m:
-        toks.append((m.group(1) + " " + m.group(2)).lower())
-    # the distinctive-word scan never looks inside parens -- that content is either a
-    # descriptive note ("HDB common room") or already captured whole by the paren phrase
-    # extraction above (a real project name, "High Oak Condo"); scanning it word by word too
-    # is what let a generic word like "common" leak out as its own fallback token.
-    dw = (_fallback_distinctive_word(_FALLBACK_PAREN_RE.sub(" ", name))
-          or _fallback_distinctive_word(_FALLBACK_PAREN_RE.sub(" ", addr)))
-    if dw:
-        toks.append(dw)
-    return [t for t in toks if t]
-
-def _match_pass(pool, t):
-    """Rank hits within ONE pool (open, or closed): a keyword carrying a number (a block or
-    street number) ranks above a bare street-name-only keyword hit -- a same-street listing
-    with a DIFFERENT block must never silently outrank the block the tenant actually named
-    (P2 fix, 9 Sep 2026 cycle4 hg4-03: a same-street keyword on a closed listing beat the
-    block number the tenant actually stated, silently binding to the wrong unit). Two
-    listings tied at the SAME best tier are genuinely ambiguous -- return None so the
-    caller's own needs_listing disambiguation takes over, rather than silently picking one
-    (and possibly auto closing the thread as "listing closed" on a guess). A listing with no
-    real keyword hit falls back to tier 0 (_fallback_tokens) -- always dominated by a real
-    hit elsewhere, so this only ever resolves an otherwise dead enquiry, never overrides one."""
-    best_tier, hits = -1, []
-    for l in pool:
-        tier = -1
-        for kw in (l.get("pg_url_keywords") or []):
-            if kw and kw.lower() in t:
-                tier = max(tier, 2 if _KW_HAS_NUM_RE.search(kw) else 1)
-        if tier < 0:
-            for kw in _fallback_tokens(l):
-                if kw and kw in t:
-                    tier = 0
-                    break
-        if tier < 0:
-            continue
-        if tier > best_tier:
-            best_tier, hits = tier, [l]
-        elif tier == best_tier:
-            hits.append(l)
-    if len(hits) == 1:
-        return hits[0]["listing_key"]
-    return None
-
-def match_listing(text, reqs=None):
-    """A4 (Sep 2026): a stale keyword can survive on a CLOSED index row that also matches a
-    live OPEN one (the review found "ang mo kio ave 3" on both) -- OPEN listings are always
-    matched first, in TWO passes, so match order never depends on dict iteration order.
-    A CLOSED listing is only ever returned when nothing OPEN matches. Within each pass, a
-    tie at the same specificity tier (see _match_pass) returns None rather than guessing."""
-    t = (text or "").lower()
-    listings = list((reqs if reqs is not None else E.listing_reqs()).values())
-    r = _match_pass([l for l in listings if _listing_open(l)], t)
-    if r:
-        return r
-    return _match_pass([l for l in listings if not _listing_open(l)], t)
+# match_listing() and its keyword/fallback ranking helpers live in
+# wa_intake_listing_match.py (split out 9 Sep 2026 merge review to keep this file under the
+# repo's 500 line guideline); re-imported here so every existing call site (incl. tests that
+# reach them via wa_intake_runner.<name>) keeps working unchanged.
+from wa_intake_listing_match import (_listing_open, _fallback_tokens, _match_pass,
+                                     match_listing)
 
 import subprocess
-GUARD = os.path.expanduser("~/crestbrick-consult/scripts/wa_send_guard.py")
-
-def _send(pn, text):
-    """Real send via the bridge. Only called when not DRY_RUN. ANY bridge error is a
-    failed send (returns False), never an exception — an exception here would propagate
-    out of run() before state+watermark persist and replay the row, re-sending the form
-    every 120s during a bridge hiccup."""
-    import requests
-    try:
-        r = requests.post(BRIDGE, json={"recipient": pn, "message": text}, timeout=10)
-        return r.ok
-    except Exception:
-        return False
-
-def _guard_reserve(jid):
-    """Atomically check-and-reserve on the shared cross-sender guard (single flock, no
-    TOCTOU). Returns True if reserved (caller should send), False if another sender already
-    has this person inside the cooldown. Fail-open if the guard binary is unavailable —
-    the engine's form_sent flag remains the primary per-person gate."""
-    try:
-        return subprocess.run(["python3", GUARD, "reserve", jid, "wa-intake"],
-                              capture_output=True, text=True).returncode == 0
-    except Exception:
-        return True
 
 # Echo detection (_is_our_echo/_FILLED_RE/_OUTBOUND_ONLY) and the landlord onboarding action
 # type list live in wa_intake_echo.py (split out 8 Sep 2026 to keep this file under the
@@ -212,30 +60,6 @@ def _guard_reserve(jid):
 # that reaches them via wa_intake_runner.<name>) keeps working unchanged.
 from wa_intake_echo import (_FILLED_RE, _OUTBOUND_ONLY, _LANDLORD_ONBOARDING_TYPES,
                             _is_our_echo)
-
-def _write_last(rowid):
-    """Atomic watermark write (tmp + os.replace) so a crash mid-write cannot brick the runner.
-    The watermark is the messages.db ROWID, not a timestamp: the bridge writes timestamps in
-    the Mac's CURRENT timezone offset (+08:00 rows and -04:00 rows coexist after travel), and
-    string-compared mixed offsets silently hid a real Bayshore enquiry on 12 Jul 2026. It also
-    backfills reconnect gaps with old-stamped rows BEHIND a timestamp watermark. Insertion
-    order (rowid) is immune to both."""
-    tmp = LASTF + ".tmp"
-    with open(tmp, "w") as f:
-        json.dump({"last_rowid": rowid}, f)
-    os.replace(tmp, LASTF)
-
-def _real_age_hours(ts):
-    """Hours since a bridge timestamp, honouring its embedded offset. Unparseable -> 0
-    (treat as fresh: better to process a weird row than silently drop a lead)."""
-    import datetime
-    try:
-        dt = datetime.datetime.fromisoformat(str(ts))
-        if dt.tzinfo is None:
-            dt = dt.replace(tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
-        return (datetime.datetime.now(datetime.timezone.utc) - dt).total_seconds() / 3600
-    except Exception:
-        return 0
 
 STALE_ROW_HOURS = 48   # backfilled history older than this is skipped (never auto-served)
 SEND_MAX_INBOUND_AGE_HOURS = 5 * 24   # never message anyone whose triggering reply is >5 days old
@@ -501,71 +325,10 @@ def run():
             if not a:
                 continue
             # the ONLY thing Winfred is pinged about: a prospect giving a date/time to view.
-            if a.get("notify"):
-                rec = state["conversations"].get(a["pn"], {})
-                nm = rec.get("profile",{}).get("name") or a["pn"]
-                lk = rec.get("listing_key") or "a listing"
-                if a.get("category2_code"):
-                    # category 2 auto reply already sent -- a human still closes the loop,
-                    # but the ping says so it never reads like a silent unanswered flag.
-                    _q = a.get("question") or a.get("reason") or ""
-                    notify_winfred(f"Auto reply sent [{a['category2_code']}].\n{nm} ({a['pn']}) for {lk} asked:\n{_q}\nBot replied: {a.get('text','')}\nClose the loop by hand if it needs more.")
-                elif a["type"] == "SEND_BUYER_FORM":
-                    _pt = a.get("property_type")
-                    _fin = "HFE" if _pt == "hdb" else "IPA" if _pt == "private" else "HFE/IPA"
-                    notify_winfred(f"Buyer enquiry — sent the buyer intake form.\n{nm} ({a['pn']}) looks like a {_pt or 'unknown-type'} buyer, so I sent the buyer form (asks {_fin}). Take over by hand if you want.")
-                elif a["type"] == "VIEWING_TIME_PROPOSED":
-                    notify_winfred(f"Viewing time from a prospect.\n{nm} ({a['pn']}) for {lk} said:\n{a.get('when','')}\nReply to them to confirm.")
-                elif a["type"] == "CONFIRM_VIEWING":
-                    # fixed slots have no capacity file entry, so nothing ever caps them —
-                    # tell Winfred how full the slot is getting (26 Jul 2026)
-                    _n = _slot_confirm_count(state, a.get("slot_id"))
-                    _crowd = f" This is confirmation #{_n} for this slot." if _n > 1 else ""
-                    _warn = " Slot is getting crowded — consider pointing new confirmations to next week." if _n >= 4 else ""
-                    notify_winfred(f"Prospect confirmed a viewing.\n{nm} ({a['pn']}) accepted the slot for {lk}.{_crowd}{_warn}")
-                elif a["type"] == "ANSWER_QUESTION":
-                    notify_winfred(f"Prospect question (reply by hand).\n{nm} ({a['pn']}) for {lk} asked:\n{a.get('question','')}")
-                elif a["type"] == "COPILOT_VERDICT":
-                    # Winfred is handling this chat by hand; the engine stays silent to the prospect
-                    # but tells HIM the screening result so a qualified tenant is never missed.
-                    v = a.get("verdict"); why = a.get("why") or []
-                    if v == "QUALIFIED":
-                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}. Full profile in, fits the landlord's criteria. Worth offering a viewing.{_hot_line(a)}")
-                    elif v == "NEEDS_INFO":
-                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) for {lk} is almost there. Still unclear: {'; '.join(why)}.{_hot_line(a)}")
-                    elif v == "DISQUALIFIED":
-                        notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) does NOT fit {lk}. Reason: {'; '.join(why)}.{_hot_line(a)}")
-                elif a["type"] == "OFFER_VIEWING" and a.get("copilot"):
-                    notify_winfred(f"Co-pilot offered a viewing (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}, so I sent them the next slot and asked them to reply YES. Step in if you want to take it from here.{_hot_line(a)}")
-                elif a["type"] == "OFFER_VIEWING" and a.get("hot_matches"):
-                    # the auto-offer itself needs no ping, but a fresh tenant who fits OTHER
-                    # live rooms too is a hot lead Winfred should hear about within a tick,
-                    # not at the next 3-hourly batch refresh
-                    notify_winfred(f"Hot prospect: {nm} ({a['pn']}) qualified for {lk} (viewing slot offered automatically).{_hot_line(a)}")
-                elif a["type"] == "SUGGEST_ALT":
-                    notify_winfred(f"Cross sell: {nm} ({a['pn']}) rejected the unit, so I suggested {a.get('listing_key')} (same district) with its post and next slot. Conversation rebound to the new listing.")
-                elif a["type"] == "CAP_REACHED":
-                    notify_winfred(f"Auto-message cap ({E.MAX_PROSPECT_MSGS}) reached for {nm} ({a['pn']}) on {lk}. The bot will stop messaging them now — take over by hand if you want to keep going.")
-                elif a["type"] == "AUTO_CLOSED":
-                    notify_winfred(f"Auto-closed a prospect.\n{nm} ({a['pn']}) for {lk} said:\n\"{a.get('quote','')}\"\nI marked them closed (found elsewhere); the bot will not message them again. Reopen by hand if that's wrong.")
-                elif a["type"] == "SEND_SUPPLY_FORM":
-                    _sk = a.get("supply", "landlord")
-                    notify_winfred(f"New {_sk} detected: {nm} ({a['pn']}). I sent them the "
-                                   f"{'landlord onboarding' if _sk == 'landlord' else 'seller intake'} form and the bot "
-                                   f"goes silent on this chat — their answers are yours to work "
-                                   f"(nightly refresh will capture landlord details).")
-                elif a["type"] == "BUYER_COMPLETE":
-                    notify_winfred(f"Buyer profile complete — take over now (nothing was sent to them).\n"
-                                   f"{nm} ({a['pn']}): {a.get('summary','')}")
-                elif a["type"] in ("SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
-                    notify_winfred(f"Landlord onboarding — {a['type']}. {nm} ({a['pn']}): {a.get('reason','')}")
-                elif a.get("notify"):
-                    # routine FLAG_HUMAN style ping (redirect/house_gate/edge case) -- coalesced
-                    # per chat (see wa_intake_notify.notify_winfred_coalesced); a dispute or
-                    # protected attribute flag inside it still goes out immediately, the
-                    # function detects that itself from the reason text.
-                    notify_winfred_coalesced(a.get("pn"),
-                        f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}")
+            # (built + sent/coalesced by notify_for_action -- split out of this loop, 9 Sep
+            # 2026 merge review, to keep this file under the repo's 500 line guideline; see
+            # wa_intake_notify.py, pure move, no behaviour change)
+            notify_for_action(a, state)
             # at first enquiry for a listing with no captured viewing slot, ask Winfred for the
             # landlord's availability (once per listing per day, so it never spams).
             if a.get("type") == "SEND_FORM" and a.get("capture_availability"):
@@ -612,51 +375,22 @@ def run():
                 # this carve-out every one of them is silently suppressed here.
                 _log("TAKEOVER_SKIP", a.get("pn"), a.get("type") + " :: manual takeover latched")
                 E.save_state(state); acted += 1; continue
-            # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day
-            # (a touch = one engine action; SEND_FORM's unit-info + form pair counts as one).
-            # CONFIRM_VIEWING, OFFER_VIEWING and ASK_ONE are always exempt -- each is a direct
-            # reply to the prospect's own message in the booking flow (the viewing-first happy
-            # path is 3 touches, and capping it at 2 dropped the offer right after a YES,
-            # adversarial-review P2-8).
+            # DAILY CAP: at most DAILY_SEND_CAP automated touches per client per SGT day --
+            # decision + full rationale lives in wa_intake_send.daily_cap_should_skip (pure
+            # function, split out 9 Sep 2026 merge review); _bound_field is kept in scope
+            # here for the once-a-day stamp after a successful send, below.
             _today_sgt = time.strftime("%Y-%m-%d",
                          time.gmtime(time.time() + 8 * 3600))
-            # REDIRECT (unit gone / policy excluded / cross sell), LEASE_NOTE and the
-            # tenant-time-proposal replies (VIEWING_TIME_PROPOSED / ASK_TENANT_TIME) are each
-            # a direct, one-shot reply to something the tenant just said -- holding them for
-            # the ordinary cap dead-ends a prospect who was mid conversation (P2 fix, 9 Sep
-            # 2026 cycle 3 attack replay; time-reply incident pn 6589824485 / 6584553538).
-            # But unlike CONFIRM_VIEWING/OFFER_VIEWING/ASK_ONE they are NOT unconditionally
-            # exempt forever -- each is bounded to ONE extra touch a client a SGT day via its
-            # own date stamp below, separate from the ordinary sends_today counter, so a
-            # second one the same day still waits for Winfred same as before this fix (9 Sep
-            # 2026 merge review: an earlier cut made REDIRECT/LEASE_NOTE fully exempt, which
-            # a stress test showed could be replayed repeatedly against the same chat).
-            _BOUNDED_ONCE_FIELD = {
-                "VIEWING_TIME_PROPOSED": "time_reply_sent_date",
-                "ASK_TENANT_TIME": "time_reply_sent_date",
-                "REDIRECT": "redirect_sent_date",
-                "LEASE_NOTE": "lease_note_reply_sent_date",
-            }
             _bound_field = _BOUNDED_ONCE_FIELD.get(a.get("type"))
-            if _bound_field:
-                if _grec.get(_bound_field) == _today_sgt:
-                    _log("DAILY_CAP_SKIP", a.get("pn"),
-                         a.get("type") + " :: already sent one today")
-                    E.save_state(state); acted += 1; continue
-            elif a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE"):
-                if (_grec.get("sends_today_date") == _today_sgt
-                        and int(_grec.get("sends_today") or 0) >= DAILY_SEND_CAP):
-                    _log("DAILY_CAP_SKIP", a.get("pn"),
-                         a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")
+            _cap_skip = daily_cap_should_skip(a, _grec, _today_sgt, _bound_field, DAILY_SEND_CAP)
+            if _cap_skip is not None:
+                _cap_log_suffix, _cap_notify_msg = _cap_skip
+                _log("DAILY_CAP_SKIP", a.get("pn"), _cap_log_suffix)
+                if _cap_notify_msg:
                     # force notify on every OTHER type the cap still holds back -- a held
                     # reply must never vanish with zero signal to Winfred.
-                    _nm_cap = _grec.get("profile", {}).get("name") or a.get("pn")
-                    _lk_cap = _grec.get("listing_key") or "a listing"
-                    notify_winfred_coalesced(a.get("pn"),
-                        f"Daily touch cap reached for {_nm_cap} ({a.get('pn')}) "
-                        f"on {_lk_cap}: held a {a.get('type')} reply, reply by "
-                        f"hand if it needs to go out today.")
-                    E.save_state(state); acted += 1; continue
+                    notify_winfred_coalesced(a.get("pn"), _cap_notify_msg)
+                E.save_state(state); acted += 1; continue
             if E.DRY_RUN:
                 for tx in texts:
                     _log("WOULD_SEND", a.get("pn"), a.get("type") + " :: " + tx.replace("\n"," / "))
@@ -740,16 +474,7 @@ def run():
             continue
 
     E.save_state(state)
-    if stale_backfill_skipped:
-        # one aggregated ping per run, never one per row -- a reconnect backfill can carry
-        # dozens of stale rows in a single tick. Name every affected chat (phone + its own
-        # skipped count), the way the STALE_BACKFILL_SKIP log line already does per row --
-        # otherwise Winfred has no way to tell which chats to review by hand (P3 fix, 9 Sep
-        # 2026 cycle 3 attack replay: a multi day outage backfill named no chat at all).
-        _chats_line = ", ".join(f"{_pn} ({_n})" for _pn, _n in stale_backfill_by_pn.items())
-        notify_winfred(f"{stale_backfill_skipped} backfilled chat message(s) were older than "
-                       f"{STALE_ROW_HOURS}h this run and were skipped (never auto-served): "
-                       f"{_chats_line}. Check these chats by hand if any were real.")
+    notify_stale_backfill(stale_backfill_skipped, stale_backfill_by_pn, STALE_ROW_HOURS)
     # owner side of the loop -- entirely separate from the tenant watermark above, and
     # wrapped so any failure here can never block the tenant pipeline's own progress.
     try:

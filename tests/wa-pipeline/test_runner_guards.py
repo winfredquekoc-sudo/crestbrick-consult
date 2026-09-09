@@ -37,6 +37,10 @@ ok("unparseable ts -> treated as fresh (never drop a live lead)", R._real_age_ho
 
 src = open(os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_runner.py")).read()
 send_block = src[src.index("HARD SEND SAFEGUARDS"):src.index("if E.DRY_RUN:")]
+# the daily cap decision itself (bounded-once fields, the ordinary ceiling, the notify
+# text) was split out to wa_intake_send.daily_cap_should_skip, 9 Sep 2026 merge review --
+# the runner's own HARD SEND SAFEGUARDS block just calls it now.
+send_module_src = open(os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_send.py")).read()
 ok("freshness guard sits before every real send path", "STALE_SKIP" in send_block and "SEND_MAX_INBOUND_AGE_HOURS" in send_block)
 ok("manual takeover guard sits before every real send path", "TAKEOVER_SKIP" in send_block and "manual_takeover" in send_block)
 ok("co-pilot actions are exempt from the takeover guard only", 'a.get("copilot")' in send_block)
@@ -44,31 +48,34 @@ ok("co-pilot actions are exempt from the takeover guard only", 'a.get("copilot")
 print("== daily cap: max 2 automated touches per client per day (29 Jul 2026) ==")
 ok("cap constant is 2", getattr(R, "DAILY_SEND_CAP", None) == 2)
 ok("cap guard sits before every real send path", "DAILY_CAP_SKIP" in send_block and "DAILY_SEND_CAP" in send_block)
-ok("cap keyed to the SGT day", "8 * 3600" in send_block and "sends_today_date" in send_block)
+ok("cap keyed to the SGT day",
+   "8 * 3600" in send_block and "sends_today_date" in send_module_src)
 ok("viewing confirmations exempt (a YES must never dead-end overnight)",
-   '"CONFIRM_VIEWING"' in send_block
-   and ('a.get("type") != "CONFIRM_VIEWING"' in send_block
-        or 'a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_block
+   '"CONFIRM_VIEWING"' in send_module_src
+   and ('a.get("type") != "CONFIRM_VIEWING"' in send_module_src
+        or 'a.get("type") in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_module_src
         or ('a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE",'
-            in send_block)))
+            in send_module_src)))
 # REDIRECT (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a direct,
 # one-shot reply to something the tenant just said -- holding them for the ordinary daily
 # cap dead-ends a prospect who was mid conversation (9 Sep 2026 cycle 3 attack replay fix).
 # Bounded to ONE touch a day via their own date stamp (merge review 9 Sep 2026 -- same
 # mechanism as the VIEWING_TIME_PROPOSED/ASK_TENANT_TIME time reply, never fully exempt;
 # see tests/wa-pipeline/test_time_reply_cap.py for the behavioural coverage).
+ok("daily cap decision delegated to wa_intake_send.daily_cap_should_skip",
+   "daily_cap_should_skip" in send_block)
 ok("REDIRECT and LEASE_NOTE also bounded (one touch a day) from the daily cap",
-   '"REDIRECT"' in send_block and '"LEASE_NOTE"' in send_block
-   and "redirect_sent_date" in send_block and "lease_note_reply_sent_date" in send_block)
+   '"REDIRECT"' in send_module_src and '"LEASE_NOTE"' in send_module_src
+   and "redirect_sent_date" in send_module_src
+   and "lease_note_reply_sent_date" in send_module_src)
 # whatever type the ORDINARY cap DOES still hold back must still reach Winfred -- a held
 # reply must never vanish with zero signal. (Not the earlier bounded-once DAILY_CAP_SKIP
 # shared by the time reply / REDIRECT / LEASE_NOTE carve out -- that one intentionally does
 # not notify, same as before this fix.)
-_ordinary_cap_marker = 'a.get("type") + f" :: already {DAILY_SEND_CAP} touches today")'
+_ordinary_cap_marker = "Daily touch cap reached for "
 ok("a daily cap skip still force notifies Winfred",
-   _ordinary_cap_marker in src
-   and "notify_winfred" in src[src.index(_ordinary_cap_marker):
-                               src.index(_ordinary_cap_marker) + 800])
+   _ordinary_cap_marker in send_module_src
+   and "notify_winfred_coalesced(" in send_block)
 after_send = src[src.index("count this touch against the per-client daily cap"):]
 ok("counter increments only on a fully delivered send", "sends_today" in after_send[:500]
    and src.index("count this touch") > src.index("_r0.pop(\"partial_sent\", None)"))
