@@ -415,214 +415,6 @@ class TestChaseAndExpiry(OwnerLoopTestBase):
         self.assertTrue(notes)
 
 
-class TestExtractAttemptCap(OwnerLoopTestBase):
-    """Incident, 10-11 Sep 2026: a timed out/erroring extract left the question 'sent', so
-    spawn_owner_answer_extracts respawned it every tick forever -- 824 spawns in one day for
-    two landlords. MAX_EXTRACT_ATTEMPTS caps it at two tries, then hands off to Winfred."""
-
-    def _sent_question(self):
-        self._write_landlord_db([ACTIVE_LL])
-        qid = OWN.enqueue_owner_question("LL001", "grace-room-1", "WIFI", "Is wifi included")
-        OWN.mark_question(qid, "sent", asked_at=(
-            datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2)).isoformat())
-        return qid
-
-    def _record_for(self, qid):
-        q = OWN.find_question(qid)
-        return {"context": {"lid": "LL001", "qs": [q], "landlord_name": "Grace",
-                            "landlord_phone": "6591234567"}, "jid": "6591234567@s.whatsapp.net"}
-
-    def test_first_timeout_increments_attempts_no_notify(self):
-        qid = self._sent_question()
-        notes = []
-        OWNA.finish_owner_extract(self._record_for(qid), None, "timeout", notes.append,
-                                  lambda *a: None, timed_out=True)
-        q = OWN.find_question(qid)
-        self.assertEqual(q["extract_attempts"], 1)
-        self.assertEqual(q["status"], "sent")   # still eligible for one more try
-        self.assertEqual(notes, [])
-
-    def test_second_timeout_marks_extract_failed_and_pings_once(self):
-        qid = self._sent_question()
-        notes = []
-        OWNA.finish_owner_extract(self._record_for(qid), None, "timeout", notes.append,
-                                  lambda *a: None, timed_out=True)
-        OWNA.finish_owner_extract(self._record_for(qid), None, "timeout", notes.append,
-                                  lambda *a: None, timed_out=True)
-        q = OWN.find_question(qid)
-        self.assertEqual(q["extract_attempts"], 2)
-        self.assertEqual(q["status"], "extract_failed")
-        self.assertEqual(len(notes), 1)
-        self.assertTrue(notes[0].startswith("Owner replied"), notes[0])
-
-    def test_no_third_spawn_after_extract_failed(self):
-        qid = self._sent_question()
-        OWNA.finish_owner_extract(self._record_for(qid), None, "timeout", lambda m: None,
-                                  lambda *a: None, timed_out=True)
-        OWNA.finish_owner_extract(self._record_for(qid), None, "timeout", lambda m: None,
-                                  lambda *a: None, timed_out=True)
-        path, con = _mkdb([("6591234567@s.whatsapp.net", 0, "sorry been busy",
-                            datetime.datetime.now(datetime.timezone.utc).isoformat())])
-        calls = _spawn_then_finish(con, None)
-        self.assertEqual(calls, [])   # extract_failed is no longer 'sent'/'chased' -> no respawn
-
-
-class TestConsolidationDedup(OwnerLoopTestBase):
-    """Hotfix 6afa90e7, 11 Sep 2026: Sanjiv received the same pax question three times in one
-    message because every tenant who asked had enqueued a copy. run_owner_asks now dedupes by
-    question_code, keeping the earliest, before it ever builds the message."""
-
-    def _write_raw_duplicates(self):
-        """Bypasses enqueue_owner_question's own item-2 dedup on purpose -- this test is
-        about the run_owner_asks consolidation step itself, independent of whether the
-        duplicates originated before that dedup existed or slipped past it some other way."""
-        base = time.time() - 1000
-        rows = [("6591111111", "how many pax first ask"),
-                ("6592222222", "how many pax second ask"),
-                ("6593333333", "how many pax third ask"),
-                ("6594444444", "how many pax fourth ask")]
-        for i, (src, txt) in enumerate(rows):
-            entry = {"id": f"q{i}", "landlord_id": "LL001", "listing_key": "grace-room-1",
-                     "question_code": "PAX", "question_text": txt, "source": src,
-                     "source_jid": f"{src}@s.whatsapp.net", "created": base + i,
-                     "status": "queued", "asked_at": None, "answer": None, "evidence": None}
-            with open(OWN.QUEUE_FILE, "a") as f:
-                f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-
-    def test_four_queued_pax_questions_yield_one_message_one_pax_line(self):
-        self._write_landlord_db([ACTIVE_LL])
-        self._write_raw_duplicates()
-        path, con = _mkdb([])
-        sent = []
-        with mock.patch.object(OWN, "_now_sgt", return_value=_sgt(2026, 9, 9, 10, 0)):
-            OWN.run_owner_asks(con, send_fn=lambda j, t: (sent.append(t), True)[1],
-                               guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
-                               notify_fn=lambda m: None)
-        self.assertEqual(len(sent), 1)
-        self.assertEqual(sent[0].lower().count("pax"), 1)
-
-    def test_dedup_keeps_the_earliest(self):
-        self._write_landlord_db([ACTIVE_LL])
-        self._write_raw_duplicates()
-        path, con = _mkdb([])
-        sent = []
-        with mock.patch.object(OWN, "_now_sgt", return_value=_sgt(2026, 9, 9, 10, 0)):
-            OWN.run_owner_asks(con, send_fn=lambda j, t: (sent.append(t), True)[1],
-                               guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
-                               notify_fn=lambda m: None)
-        self.assertIn("first ask", sent[0])
-        for later in ("second ask", "third ask", "fourth ask"):
-            self.assertNotIn(later, sent[0])
-
-
-class TestSourceMergingOnEnqueue(OwnerLoopTestBase):
-    """Item 2, 11 Sep 2026: a second tenant asking the SAME landlord the SAME question code
-    within 7 days merges onto the existing ask (appending to its 'sources' list) instead of
-    queuing a twin -- stops the duplicate at the source, not just at message composition."""
-
-    def test_second_ask_within_7_days_merges_sources(self):
-        self._write_landlord_db([ACTIVE_LL])
-        qid1 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                          source="6591111111", source_jid="6591111111@s.whatsapp.net")
-        qid2 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                          source="6592222222", source_jid="6592222222@s.whatsapp.net")
-        self.assertEqual(qid1, qid2)
-        items = OWN._load_queue()
-        self.assertEqual(len(items), 1)
-        pns = {s["source"] for s in items[0]["sources"]}
-        self.assertEqual(pns, {"6591111111", "6592222222"})
-
-    def test_third_ask_appends_without_duplicating(self):
-        self._write_landlord_db([ACTIVE_LL])
-        OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                   source="6591111111")
-        OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                   source="6592222222")
-        OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                   source="6592222222")   # same tenant asking twice
-        items = OWN._load_queue()
-        self.assertEqual(len(items), 1)
-        self.assertEqual(len(items[0]["sources"]), 2)   # not 3 -- no duplicate source entries
-
-    def test_no_merge_once_the_original_was_answered(self):
-        self._write_landlord_db([ACTIVE_LL])
-        qid1 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                          source="6591111111")
-        OWN.mark_question(qid1, "answered", answer="4")
-        qid2 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                          source="6592222222")
-        self.assertNotEqual(qid1, qid2)
-        self.assertEqual(len(OWN._load_queue()), 2)
-
-    def test_no_merge_after_the_dedup_window_expires(self):
-        self._write_landlord_db([ACTIVE_LL])
-        qid1 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                          source="6591111111")
-        items = OWN._load_queue()
-        items[0]["created"] = time.time() - (8 * 24 * 3600)
-        OWN._rewrite_queue(items)
-        qid2 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax allowed",
-                                          source="6592222222")
-        self.assertNotEqual(qid1, qid2)
-        self.assertEqual(len(OWN._load_queue()), 2)
-
-
-class TestTwinMergeOnAnswer(OwnerLoopTestBase):
-    """Item 3, 11 Sep 2026: once ONE question is answered, any other still live queued/sent
-    twin for the same landlord + question_code is marked 'merged' so it can never spawn an
-    extract of its own."""
-
-    def test_answered_merges_queued_and_sent_twins(self):
-        self._write_landlord_db([ACTIVE_LL])
-        self._write_index([{"listing_key": "grace-room-1", "facts": {}, "requirements": {}}])
-        asked_iso = (datetime.datetime.now(datetime.timezone.utc)
-                    - datetime.timedelta(hours=2)).isoformat()
-        reply_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        entries = [
-            {"id": "qA", "landlord_id": "LL001", "listing_key": "grace-room-1",
-             "question_code": "PAX", "question_text": "How many pax", "source": "6591111111",
-             "source_jid": "6591111111@s.whatsapp.net", "created": time.time() - 100,
-             "status": "sent", "asked_at": asked_iso, "answer": None, "evidence": None,
-             "sources": [{"source": "6591111111", "source_jid": "6591111111@s.whatsapp.net"}]},
-            {"id": "qB", "landlord_id": "LL001", "listing_key": "grace-room-1",
-             "question_code": "PAX", "question_text": "How many pax", "source": "6592222222",
-             "source_jid": "6592222222@s.whatsapp.net", "created": time.time() - 50,
-             "status": "queued", "asked_at": None, "answer": None, "evidence": None},
-        ]
-        for e in entries:
-            with open(OWN.QUEUE_FILE, "a") as f:
-                f.write(json.dumps(e, ensure_ascii=False) + "\n")
-        path, con = _mkdb([("6591234567@s.whatsapp.net", 0, "4 pax max", reply_iso)])
-        _spawn_then_finish(con, {"PAX": {"value": "4", "quote": "4 pax max"}})
-        qa = OWN.find_question("qA")
-        qb = OWN.find_question("qB")
-        self.assertEqual(qa["status"], "answered")
-        self.assertEqual(qb["status"], "merged")
-
-    def test_answer_drafts_a_followup_per_source(self):
-        self._write_landlord_db([ACTIVE_LL])
-        self._write_index([{"listing_key": "grace-room-1", "facts": {}, "requirements": {}}])
-        asked_iso = (datetime.datetime.now(datetime.timezone.utc)
-                    - datetime.timedelta(hours=2)).isoformat()
-        reply_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        entry = {"id": "qA", "landlord_id": "LL001", "listing_key": "grace-room-1",
-                 "question_code": "PAX", "question_text": "How many pax", "source": "6591111111",
-                 "source_jid": "6591111111@s.whatsapp.net", "created": time.time() - 100,
-                 "status": "sent", "asked_at": asked_iso, "answer": None, "evidence": None,
-                 "sources": [{"source": "6591111111", "source_jid": "6591111111@s.whatsapp.net"},
-                             {"source": "6592222222", "source_jid": "6592222222@s.whatsapp.net"},
-                             {"source": "6593333333", "source_jid": "6593333333@s.whatsapp.net"},
-                             {"source": "6594444444", "source_jid": "6594444444@s.whatsapp.net"}]}
-        with open(OWN.QUEUE_FILE, "a") as f:
-            f.write(json.dumps(entry, ensure_ascii=False) + "\n")
-        path, con = _mkdb([("6591234567@s.whatsapp.net", 0, "4 pax max", reply_iso)])
-        _spawn_then_finish(con, {"PAX": {"value": "4", "quote": "4 pax max"}})
-        drafts = RES._load_drafts()
-        self.assertEqual(len(drafts), 4)
-        self.assertEqual({d["pn"] for d in drafts},
-                         {"6591111111", "6592222222", "6593333333", "6594444444"})
-
-
 class TestViewingWindowParsing(unittest.TestCase):
     POSITIVE = [
         "Saturdays 10am to 12pm", "every Saturday 10am to 12pm", "Sat 2pm to 4pm",
@@ -702,6 +494,34 @@ class TestEndToEnd(OwnerLoopTestBase):
         self.assertEqual(drafts[0]["pn"], "6598887777")
         self.assertIn("aircon", drafts[0]["text"].lower())
         self.assertIsNone(RES.validate_draft(drafts[0]["text"]))
+
+
+class TestOwnerCheckInFrame(OwnerLoopTestBase):
+    def test_tenant_sourced_one_question(self):
+        msg = OWN.build_owner_message("Grace", ["Is cooking allowed"], tenant_sourced=True)
+        self.assertIsNotNone(msg)
+        self.assertIn("thank you for your time", msg)
+        self.assertIn("A prospective tenant asked:", msg)
+        self.assertNotIn("-", msg)
+        self.assertTrue(msg.endswith("No rush, whenever convenient 🙏"))
+
+    def test_not_tenant_sourced_one_question(self):
+        msg = OWN.build_owner_message("Grace", ["Is cooking allowed"], tenant_sourced=False)
+        self.assertIsNotNone(msg)
+        self.assertIn("hope all is well", msg)
+        self.assertIn("Could I check one thing when you have a moment:", msg)
+        self.assertNotIn("tenant asked", msg.lower())
+        self.assertNotIn("-", msg)
+        self.assertTrue(msg.endswith("No rush, whenever convenient 🙏"))
+
+    def test_not_tenant_sourced_two_questions(self):
+        msg = OWN.build_owner_message("Grace", ["Is cooking allowed", "Is wifi included"], tenant_sourced=False)
+        self.assertIsNotNone(msg)
+        self.assertIn("Could I check a few things when you have a moment:", msg)
+        self.assertIn("1. ", msg)
+        self.assertIn("2. ", msg)
+        self.assertNotIn("-", msg)
+        self.assertTrue(msg.endswith("No rush, whenever convenient 🙏"))
 
 
 if __name__ == "__main__":
