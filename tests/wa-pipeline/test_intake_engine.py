@@ -106,7 +106,7 @@ ok("3rd message is the channel pitch, sent standalone (Winfred, 18 Aug 2026)",
 ok("channel pitch is its OWN message, never appended to the form",
    a1 and E.CHANNEL not in a1["texts"][1])
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
-ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
+ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Preferred location:"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("same msg id replayed -> None (event dedup)", a1b is None)
 st["conversations"]["6591234567"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
@@ -491,12 +491,17 @@ aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_qf,"is_from_me":0,"list
 ok("known landlord under manual takeover -> NO co-pilot/auto-offer", aLr is None)
 
 print("== 17. FORM: Preferred Location captured + NO CEA signoff in any tenant-facing copy ==")
-# the form field itself was shortened to "Location" (still parsed into preferred_location by
-# extract_profile's "preferred location|preferred area|location" fallback, checked below).
-ok("INTAKE_FORM includes a Location field", "• Location:" in E.INTAKE_FORM)
+# the form field was shortened to "Location" then, 11 Sep 2026, reworded to "Preferred
+# location" (Winfred: ask tenants to state it plainly so he can recommend the right room) --
+# still parsed into preferred_location by extract_profile's "preferred location|preferred
+# area|location" fallback, checked below, and the OLD "Location:" label from a form filled
+# before this change still parses too (same fallback, no code change needed for that).
+ok("INTAKE_FORM includes a Preferred location field", "• Preferred location:" in E.INTAKE_FORM)
 ok("INTAKE_FORM still has all 10 required field labels",
    all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","No. of pax","Move in date","Lease term","Budget"]))
 ok("extract_profile captures preferred_location", E.extract_profile("Preferred Location: Tampines").get("preferred_location")=="Tampines")
+ok("extract_profile still captures the OLD bare 'Location:' label (forms filled before the reword)",
+   E.extract_profile("Location: Tampines").get("preferred_location")=="Tampines")
 ok("preferred_location is NOT a required field (does not gate qualify)", "preferred_location" not in E.REQUIRED_FIELDS)
 ok("INTAKE_FORM has no CEA signoff", "R073319H" not in E.INTAKE_FORM)
 ok("viewing text (no slot) has no CEA signoff", "R073319H" not in E._viewing_text(None))
@@ -827,12 +832,18 @@ ok("CHANNEL_PITCH classified as an engine send (outbound prefix)",
    any(E.CHANNEL_PITCH.lower().startswith(p) for p in E._ENGINE_PREFIXES))
 ok("CHANNEL_PITCH recognised by is_bot_message (inbound echo)", E.is_bot_message(E.CHANNEL_PITCH))
 ok("CHANNEL_PITCH recognised by the runner as our own echo", _RCP._is_our_echo(E.CHANNEL_PITCH) is True)
-ok("CHANNEL_PITCH yields no phantom profile fields",
-   all(v in (None,"") for v in E.extract_profile(E.CHANNEL_PITCH).values()))
+# 11 Sep 2026 reword: the pitch now deliberately ASKS for "preferred location and budget",
+# so extract_profile() run in isolation on it DOES pick up a stray preferred_location grab
+# (it has no way to tell "please tell me X" from "X: <value>") -- the real safety net is
+# upstream of that: is_engine_outbound()/_is_our_echo() above both recognise this exact text
+# as OUR OWN send, so the runner filters it out before it is ever handed to extract_profile
+# on a genuinely inbound row (wa_intake_runner.py: "if not ifm and _is_our_echo(content)").
+ok("CHANNEL_PITCH is filtered as our own echo before extract_profile ever sees an inbound row",
+   _RCP._is_our_echo(E.CHANNEL_PITCH) is True and E.is_engine_outbound(E.CHANNEL_PITCH) is True)
 ok("INTAKE_FORM itself still carries no channel link", E.CHANNEL not in E.INTAKE_FORM)
 ok("INTAKE_FORM still has all 14 field labels after the split",
    all(x in E.INTAKE_FORM for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:",
-       "Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
+       "Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Preferred location:"]))
 _sB={"version":1,"conversations":{}}
 _aB=E.handle_event(_sB,{"jid":"6591112223@s.whatsapp.net","msg_id":"cp1","text":"Hi, I am interested in a HDB for sale, budget 800k","is_from_me":0})
 ok("buyer (sale) enquiry does NOT get the rental channel pitch",
@@ -1126,7 +1137,7 @@ _blank_zwj_with_header = (
         "Email address:", "Name:", "Nationality:", "Ethnicity:", "Gender:", "Age:",
         "Pass type (SC/PR/EP/S Pass/STP etc):", "Occupation (your job/industry):",
         "Employment type (permanent / fixed term / variable):", "No. of pax:",
-        "Move in date:", "Lease term:", "Budget:", "Location:")))
+        "Move in date:", "Lease term:", "Budget:", "Preferred location:")))
 ok("blank form + ZWJ + header -> engine outbound (already matched by prefix)",
    E.is_engine_outbound(_blank_zwj_with_header) is True)
 
