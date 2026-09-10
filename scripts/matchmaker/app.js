@@ -213,6 +213,11 @@ const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);                  // device-local 
 const AREA = DATA.districts || {};
 let view = "mapview", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
 let ALL_TENANTS = [], MATCHES = [], byListing = {}, byTenant = {}, CURRENT_WORKLIST = [];
+// (item 3) roomTypeOf/genderPrefOf/racePrefOf/statusOf/cookingOf only depend on
+// the LISTING, not the tenant, but passFilter/updateFacetedCounts used to call
+// all five per pair — 363 tenants per listing per sweep for the same answer.
+// Built once per listing in rebuildMatches(), keyed by listing id.
+let LISTING_FACETS = new Map();
 let IDLE_TIMER = null;        // (20)/(49) idle lock
 const IDLE_MS = 10 * 60 * 1000;
 
@@ -1507,6 +1512,14 @@ function setCommissionHidden(on) { try { if (on) localStorage.removeItem(SHOW_CO
 // key here right after writing, so a cached read can never go stale. Cleared
 // wholesale in rebuildMatches() too, as a safety net for any bulk-write path.
 const MARK_CACHE = new Map();
+// (item 3) mutation counter for updateFacetedCounts()'s cache key. Incremented
+// at exactly the same points MARK_CACHE itself is invalidated (patchMark,
+// clearMarkV, setOverride, clearOverride, rebuildMatches, invalidateMarkCacheKey)
+// so a facet sweep only re-runs when a mark/override/dataset reload actually
+// changed something, never on a plain tab switch or filter keystroke. Declared
+// here (inside the state.test.mjs anchor span) since patchMark/clearMarkV/
+// setOverride/clearOverride below all touch it and are lifted out by that test.
+let MARK_GEN = 0;
 function markKey(lid, tid) { return MARK_PREFIX + lid + "_" + tid; }
 function readMark(lid, tid) {
   const key = markKey(lid, tid);
@@ -1531,11 +1544,12 @@ function patchMark(lid, tid, patch) {
   const key = markKey(lid, tid);
   if (!safeSet(key, JSON.stringify(next))) return cur;
   MARK_CACHE.delete(key);   // (71) next readMark(lid,tid) re-reads the value just written
+  MARK_GEN++;               // (item 3) invalidate the facet count cache too
   if (patch && patch.v) pushMarkHistory(lid, tid, patch.v);
   mirrorMatchToCRM(lid, tid);   // durable copy — see crmMatchStatusFor's comment
   return next;
 }
-function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); mirrorMatchToCRM(lid, tid); }
+function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); MARK_GEN++; mirrorMatchToCRM(lid, tid); }
 
 function overrideKey(lid, tid) { return OVERRIDE_PREFIX + lid + "_" + tid; }
 function readOverride(lid, tid) {
@@ -1551,9 +1565,10 @@ function setOverride(lid, tid, verdict, why) {
   const key = overrideKey(lid, tid);
   safeSet(key, JSON.stringify({ verdict, ts: Date.now(), why: why || null }));
   MARK_CACHE.delete(key);   // (71)
+  MARK_GEN++;               // (item 3)
   mirrorMatchToCRM(lid, tid);
 }
-function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); mirrorMatchToCRM(lid, tid); }
+function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); MARK_GEN++; mirrorMatchToCRM(lid, tid); }
 // CRM durability bridge (see the CRM store's own header comment). crm_match_status
 // has exactly one free-text `status` column per (listing_id, tenant_id) pair — no
 // separate slots for the mark's reason/snooze/note, or for the override verdict — so
@@ -1586,11 +1601,11 @@ function mirrorMatchToCRM(lid, tid) { if (typeof CRM !== "undefined") CRM.setMat
 // on their next interaction, and dropping the key restores exactly the
 // pre-cache read-through behaviour.
 function invalidateMarkCacheKey(key) {
-  if (key == null) { MARK_CACHE.clear(); return; }
+  if (key == null) { MARK_CACHE.clear(); MARK_GEN++; return; }
   // cbk_ also prefixes scratch/prefs/backup/offer keys, which never enter
   // MARK_CACHE — deleting one of those is a harmless no-op, and matching
   // broadly is the safer direction here.
-  if (key.indexOf(MARK_PREFIX) === 0 || key.indexOf(OVERRIDE_PREFIX) === 0) MARK_CACHE.delete(key);
+  if (key.indexOf(MARK_PREFIX) === 0 || key.indexOf(OVERRIDE_PREFIX) === 0) { MARK_CACHE.delete(key); MARK_GEN++; }
 }
 
 function readScratch() {
@@ -1989,10 +2004,15 @@ function nbaChipHtml(m) {
 // ===================== matching engine =====================
 function rebuildMatches() {
   MARK_CACHE.clear();   // (71) safety net for any bulk mark/override write this dataset reload follows
+  MARK_GEN++;            // (item 3) facet count cache must not survive a dataset reload
   COLD_CACHE.clear();   // (73) a scratch tenant added since the last build gets its own answer
   ALL_TENANTS = (DATA.tenants || []).concat(readScratch());
   MATCHES = [];
-  for (const l of (DATA.listings || [])) for (const t of ALL_TENANTS) MATCHES.push({ l, t, s: Scoring.score(l, t, TODAY) });
+  LISTING_FACETS = new Map();
+  for (const l of (DATA.listings || [])) {
+    LISTING_FACETS.set(l.id, { rt: roomTypeOf(l), gp: genderPrefOf(l), rp: racePrefOf(l), st: statusOf(l), ck: cookingOf(l) });
+    for (const t of ALL_TENANTS) MATCHES.push({ l, t, s: Scoring.score(l, t, TODAY) });
+  }
   byListing = {}; byTenant = {};
   for (const m of MATCHES) {
     (byListing[m.l.id] = byListing[m.l.id] || []).push(m);
@@ -2004,6 +2024,11 @@ function rebuildMatches() {
 
 // ===================== filters =====================
 const F = () => ({ q: $("#q").value.trim().toLowerCase(), d: $("#fd").value, v: $("#fv").value, r: parseInt($("#fr").value) || 0, cold: $("#fc").checked, hide: $("#fh").checked, rt: $("#ft").value, gp: $("#fg").value, rp: $("#fe").value, st: $("#fs").value, ck: $("#fk").value });
+// (item 3) fall back to the live functions if a listing is ever missing from
+// the map (defensive only — every m.l in MATCHES was set by rebuildMatches()).
+function facetsOf(l) {
+  return LISTING_FACETS.get(l.id) || { rt: roomTypeOf(l), gp: genderPrefOf(l), rp: racePrefOf(l), st: statusOf(l), ck: cookingOf(l) };
+}
 function passFilter(m) {
   const f = F();
   if (isSnoozedNow(m)) return false;
@@ -2012,11 +2037,12 @@ function passFilter(m) {
   if (f.r && m.l.rent_min && m.l.rent_min > f.r) return false;
   if (f.cold && isColdT(m.t)) return false;
   if (f.hide && getMarkV(m.l.id, m.t.id)) return false;
-  if (f.rt && roomTypeOf(m.l) !== f.rt) return false;
-  if (f.gp && genderPrefOf(m.l) !== f.gp) return false;
-  if (f.rp && racePrefOf(m.l) !== f.rp) return false;
-  if (f.st && statusOf(m.l) !== f.st) return false;
-  if (f.ck && cookingOf(m.l) !== f.ck) return false;
+  const fl = facetsOf(m.l);
+  if (f.rt && fl.rt !== f.rt) return false;
+  if (f.gp && fl.gp !== f.gp) return false;
+  if (f.rp && fl.rp !== f.rp) return false;
+  if (f.st && fl.st !== f.st) return false;
+  if (f.ck && fl.ck !== f.ck) return false;
   if (f.q) {
     const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
     if (!hay.includes(f.q)) return false;
@@ -2029,11 +2055,12 @@ function passFilterListing(m) {
   if (f.v && effective(m).verdict !== f.v) return false;
   if (f.cold && isColdT(m.t)) return false;
   if (f.hide && getMarkV(m.l.id, m.t.id)) return false;
-  if (f.rt && roomTypeOf(m.l) !== f.rt) return false;
-  if (f.gp && genderPrefOf(m.l) !== f.gp) return false;
-  if (f.rp && racePrefOf(m.l) !== f.rp) return false;
-  if (f.st && statusOf(m.l) !== f.st) return false;
-  if (f.ck && cookingOf(m.l) !== f.ck) return false;
+  const fl = facetsOf(m.l);
+  if (f.rt && fl.rt !== f.rt) return false;
+  if (f.gp && fl.gp !== f.gp) return false;
+  if (f.rp && fl.rp !== f.rp) return false;
+  if (f.st && fl.st !== f.st) return false;
+  if (f.ck && fl.ck !== f.ck) return false;
   if (f.q) { const hay = (m.t.name + " " + m.t.preferred_location + " " + m.t.district).toLowerCase(); if (!hay.includes(f.q)) return false; }
   return true;
 }
@@ -2644,8 +2671,19 @@ const VERDICT_LABELS = { "": "All verdicts", QUALIFIED: "Qualified", NEEDS_INFO:
 // facet keys enumerated by allExcept() below — d/v/cold/hide plus the 5 room
 // type/gender/race/status/cooking facets added alongside district/verdict.
 const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
+// (item 3) views that never show the filter bar's option counts don't need
+// this sweep at all — Dashboard/Stats/Landlords/AllTenants/Sales/Revival never
+// call it. FACET_VIEWS mirrors render()'s own filtersActive set.
+const FACET_VIEWS = ["work", "listing", "tenant", "whole", "pipeline"];
+let FACET_CACHE_KEY = null;
 function updateFacetedCounts() {
+  if (FACET_VIEWS.indexOf(view) === -1) return;
   const base = F();
+  // Cheap key: current filter state + the mutation counter every mark/override/
+  // rebuild write bumps. Unchanged key means unchanged answer — skip the sweep.
+  const cacheKey = JSON.stringify(base) + "|" + MARK_GEN;
+  if (cacheKey === FACET_CACHE_KEY) return;
+  FACET_CACHE_KEY = cacheKey;
   const distCounts = {}, verdCounts = {}, rtCounts = {}, gpCounts = {}, rpCounts = {}, stCounts = {}, ckCounts = {};
   let distTotal = 0, verdTotal = 0, coldCount = 0, hideCount = 0, rtTotal = 0, gpTotal = 0, rpTotal = 0, stTotal = 0, ckTotal = 0;
   for (const m of MATCHES) {
@@ -2658,7 +2696,8 @@ function updateFacetedCounts() {
     const verdict = effective(m).verdict;
     const isCold = isColdT(m.t);
     const markV = getMarkV(m.l.id, m.t.id);
-    const rt = roomTypeOf(m.l), gp = genderPrefOf(m.l), rp = racePrefOf(m.l), st = statusOf(m.l), ck = cookingOf(m.l);
+    const fl = facetsOf(m.l);
+    const rt = fl.rt, gp = fl.gp, rp = fl.rp, st = fl.st, ck = fl.ck;
     // "Ok at base" = would this match still pass if THIS dimension were left
     // at whatever the user currently has set, i.e. every dimension except the
     // one a given facet is enumerating over — mirrors facetCount's f.X checks.
