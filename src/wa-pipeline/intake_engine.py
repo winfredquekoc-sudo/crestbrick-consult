@@ -1262,11 +1262,44 @@ def buyer_form_for(ptype):
     if ptype == "private": return BUYER_FORM_PRIVATE
     return BUYER_FORM_UNKNOWN
 
+def _buyer_template(listing_key):
+    """Per-listing buyer-flow override from property-templates.json (same file and 'id'
+    lookup key listing_unit_message uses for the tenant flow). Today's only override is the
+    open house pair: skip_buyer_form + open_house_message. Returns {} for no match or no
+    listing_key, so a missing/misconfigured entry always falls back to the normal buyer
+    form. Ported from commit a6523909 (open house buyer flow)."""
+    if not listing_key:
+        return {}
+    d = _load(_templates(), {"listings": []})
+    for l in d.get("listings", []):
+        if l.get("id") == listing_key:
+            return l
+    return {}
+
+# The published asking price, quoted verbatim by the template's own message text, may be
+# read to judge a buyer's offer (design rubric 4b: "yes for the published number, no for
+# anything else"). Any other figure (a counter, a valuation, a "last price") stays Winfred's,
+# never derived here.
+_ASKING_PRICE_RE = re.compile(r"(?i)asking\s+s?\$\s*([\d,]+)")
+def _asking_price(listing_key):
+    if not listing_key:
+        return None
+    d = _load(_templates(), {"listings": []})
+    for l in d.get("listings", []):
+        if l.get("id") == listing_key:
+            m = _ASKING_PRICE_RE.search(l.get("message") or "")
+            if m:
+                return _to_int(m.group(1))
+    return None
+
 # ---------- buyer stage 2: parse the returned form, nudge once, hand off to Winfred ----------
-# Must-knows for a buyer: name, budget, financing readiness (HFE/IPA). The bot NEVER
-# advises a buyer (CEA role boundary: admin/coordination only) — a complete profile is
-# handed to Winfred and the buyer is told he will be in touch personally.
-BUYER_REQUIRED = ["name", "budget", "financing"]
+# The FIVE fields that decide a buyer verdict (Sep 2026 qualification redesign,
+# qualification-redesign.md section 1): financing status, budget, timeline, area or
+# property type, and whether they have a property to sell first. Cut down from the 11 the
+# form asks (name included) -- name is still collected and handed to Winfred, it just never
+# blocks or drives a verdict. The bot NEVER advises a buyer (CEA role boundary:
+# admin/coordination only) -- a complete profile is screened, then handed to Winfred.
+BUYER_REQUIRED = ["financing", "budget", "timeline", "area_or_type", "property_to_sell"]
 _FIN_LINE_RE  = re.compile(r"(?im)^[•\s]*(?:hfe|ipa)[^:\n]*[:：]\s*(\S.*)$")
 # free-text answer: status word must NOT be the label echo ("HFE valid?:" is a question,
 # not an answer — a partially copied form must never read as financing='valid')
@@ -1327,17 +1360,108 @@ def extract_buyer(text):
         out["financing"] = "not ready: " + neg.group(0).strip()
     for label, key in (("citizenship", "citizenship"), ("timeline", "timeline"),
                        ("area|district", "area"), ("bedrooms?", "bedrooms"),
-                       ("own stay|investment", "purpose")):
+                       ("own stay|investment", "purpose"),
+                       ("property\\s*type", "property_type"),
+                       ("any property to sell first|property to sell", "property_to_sell")):
         lm = re.search(r"(?im)^[•\s]*(?:" + label + r")[^:\n]*[:：]\s*(\S.*)$", t)
         if lm: out[key] = lm.group(1).strip()
+    # "area or property type" is one required field (design rubric): either half answers it.
+    if out.get("area") or out.get("property_type"):
+        out["area_or_type"] = out.get("area") or out.get("property_type")
     return out
 
+_TIMELINE_MONTHS_RE = re.compile(r"(\d+(?:\.\d+)?)\s*(month|mth|wk|week|day)", re.I)
+def _timeline_months(raw):
+    """Best-effort months-from-now out of a free text timeline answer. None when it cannot
+    be read at all (never guessed as 0, which would wrongly pass the <=3 month gate)."""
+    if not raw:
+        return None
+    t = str(raw).lower()
+    if any(w in t for w in ("asap", "immediate", "now", "urgent")):
+        return 0
+    m = _TIMELINE_MONTHS_RE.search(t)
+    if not m:
+        return None
+    n = float(m.group(1))
+    unit = m.group(2)
+    if unit.startswith("wk") or unit.startswith("week"):
+        return n / 4.345
+    if unit.startswith("day"):
+        return n / 30
+    return n
+
+_FIN_NOT_READY_RE = re.compile(
+    r"\b(no|not|pending|applying|expired|haven'?t|dont have|don'?t have|none)\b", re.I)
+def _financing_valid(raw):
+    """True only when the buyer's own stated HFE/IPA status reads as actually in hand. Never
+    a guess: an empty or negative-sounding answer (or the 'not ready: ...' shape extract_buyer
+    already normalises negatives into) reads as NOT valid."""
+    if not raw:
+        return False
+    t = str(raw).lower()
+    if t.startswith("not ready"):
+        return False
+    if _FIN_NOT_READY_RE.search(t):
+        return False
+    return bool(re.search(r"\b(valid|approved|done|yes|have|got|in\s*principle)\b", t))
+
+def buyer_qualify(b, listing_key=None):
+    """Buyer verdict, mirroring qualify()'s (verdict, why) shape, decided on the 5
+    BUYER_REQUIRED fields only (qualification-redesign.md section 1, Buyer table):
+      QUALIFIED   -- financing valid, budget >= 90% of the listing's published asking
+                     price (when known), timeline within 3 months.
+      NOT_YET     -- financing not yet valid (never advised to go get one -- that is advice).
+      NOT_A_FIT   -- budget or timeline hard-fails against a KNOWN asking price/window.
+      NEEDS_INFO  -- one of the 5 required fields is still missing.
+    Every branch fails toward caution: an asking price we cannot read never blocks (there is
+    nothing to check it against), it never auto-passes on a guess either -- see the budget
+    check below."""
+    miss = [k for k in BUYER_REQUIRED if not b.get(k)]
+    if miss:
+        return "NEEDS_INFO", ["missing " + ", ".join(miss)]
+    if not _financing_valid(b.get("financing")):
+        return "NOT_YET", ["financing not yet valid: " + str(b.get("financing"))]
+    budget = b.get("budget")
+    budget = budget if isinstance(budget, int) else _to_int(budget)
+    asking = _asking_price(listing_key)
+    if asking and budget and budget < asking * 0.9:
+        return "NOT_A_FIT", ["budget " + str(budget) + " is below 90% of the asking price " + str(asking)]
+    tmonths = _timeline_months(b.get("timeline"))
+    if tmonths is not None and tmonths > 3:
+        return "NOT_A_FIT", ["timeline beyond 3 months: " + str(b.get("timeline"))]
+    return "QUALIFIED", ["financing valid", "within budget and timeline"]
+
+# A buyer explicitly asking about an open house, at any point in the conversation -- not
+# only on a skip_buyer_form listing. Per rubric 4c: "an open house is a public standing
+# event, not a commitment made for the landlord", so this fires whenever the LISTING has one
+# configured, regardless of whether the form was skipped at first contact.
+_OPEN_HOUSE_ASK_RE = re.compile(r"(?i)open\s*house")
+
 def _buyer_followup(rec, ev, pn):
-    """After the buyer form went out: merge fields, nudge ONCE for must-knows, then hand
-    the complete profile to Winfred. All questions are flagged, never answered (no advice)."""
+    """After the buyer form went out: merge fields, nudge ONCE for must-knows, then screen
+    against buyer_qualify() and hand the profile to Winfred. All questions are flagged,
+    never answered (no advice); the ONLY prospect-facing text this ever sends is a nudge for
+    missing fields, the listing's own verbatim open_house_message, or a fixed slot line --
+    never a price, offer, or eligibility opinion."""
     b = rec.setdefault("buyer", {})
     for k, v in extract_buyer(ev.get("text", "")).items():
         if not b.get(k): b[k] = v
+    # OPEN HOUSE (any point in the conversation, not only skip_buyer_form listings): once
+    # sent, every later reply hands straight to Winfred instead of the buyer-form nudge
+    # machinery (ported from a6523909's _open_house_followup) -- never a re-send, never an
+    # auto-answer (open-house-message-never-used fix).
+    if rec.get("open_house_sent"):
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "buyer replied after the open house invite; reply by hand"}
+    if _OPEN_HOUSE_ASK_RE.search(ev.get("text", "") or ""):
+        _oh_tpl = _buyer_template(rec.get("listing_key"))
+        if _oh_tpl.get("open_house_message"):
+            rec["open_house_sent"] = True
+            rec["stage"] = "OPEN_HOUSE_SENT"; rec["status"] = "open_house_sent"
+            return {"type": "SEND_OPEN_HOUSE", "pn": pn, "notify": True,
+                     "text": _oh_tpl["open_house_message"], "listing_key": rec.get("listing_key"),
+                     "reason": "buyer asked about the open house; sent the listing's own "
+                               "open house invite verbatim"}
     # a buyer naming a day/time to view must reach Winfred, complete profile or not — the
     # old flow swallowed it (silent handoff still holds: no message goes to the buyer)
     if (_has_viewing_time((ev.get("text") or "").lower())
@@ -1352,13 +1476,38 @@ def _buyer_followup(rec, ev, pn):
         return None
     miss = [k for k in BUYER_REQUIRED if not b.get(k)]
     if not miss:
-        # complete -> SILENT handoff: no message to the buyer at all (Winfred's rule,
-        # 11 Jul 2026) — just the structured ping; he takes the conversation from here.
         rec["buyer_complete"] = True
         rec["stage"] = "BUYER_COMPLETE"; rec["status"] = "buyer_complete"
         summary = "; ".join(f"{k}: {v}" for k, v in b.items())
+        verdict, why = buyer_qualify(b, rec.get("listing_key"))
+        rec["buyer_qualify"] = {"verdict": verdict, "why": why}
+        if verdict == "QUALIFIED":
+            # AUTO offer the open house or a fixed slot (design rubric: a buyer with HFE/IPA
+            # valid, budget >= 90% of asking and timeline within 3 months is QUALIFIED and
+            # gets the offer) -- the old flow was silent even here (Winfred's 11 Jul 2026
+            # rule predates this redesign; superseded for the QUALIFIED case only).
+            _oh_tpl = _buyer_template(rec.get("listing_key"))
+            if _oh_tpl.get("open_house_message") and not rec.get("open_house_sent"):
+                rec["open_house_sent"] = True
+                return {"type": "BUYER_COMPLETE", "pn": pn, "notify": True, "summary": summary,
+                        "verdict": verdict, "text": _oh_tpl["open_house_message"],
+                        "reason": "buyer qualified; sent the open house invite"}
+            slot = next_slot(rec.get("listing_key")) if rec.get("listing_key") else None
+            if slot:
+                return {"type": "BUYER_COMPLETE", "pn": pn, "notify": True, "summary": summary,
+                        "verdict": verdict,
+                        "text": "Thanks, that fits what we are looking for. The next viewing "
+                                "is " + slot["label"] + ". Let me know if you would like to come by.",
+                        "reason": "buyer qualified; offered the next viewing slot"}
+            return {"type": "BUYER_COMPLETE", "pn": pn, "notify": True, "summary": summary,
+                    "verdict": verdict, "text": None,
+                    "reason": "buyer qualified; no open house or slot to offer yet, handing over"}
+        # NOT_YET / NOT_A_FIT: silent to the prospect always (never told to go get an HFE,
+        # never given a fit opinion -- both are advice) -- flag with the verdict so Winfred
+        # can draft the reply himself.
         return {"type": "BUYER_COMPLETE", "pn": pn, "notify": True, "summary": summary,
-                "text": None}
+                "verdict": verdict, "text": None,
+                "reason": "buyer profile complete, verdict " + verdict + ": " + "; ".join(why)}
     if "?" in (ev.get("text") or ""):
         return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "text": None,
                 "question": ev.get("text")}
@@ -1370,7 +1519,12 @@ def _buyer_followup(rec, ev, pn):
             return None
         if not rec.get("buyer_incomplete_flagged"):
             rec["buyer_incomplete_flagged"] = True
+            # bypass_coalesce (Sep 2026 fix): a buyer profile stalling after its one nudge
+            # is a high value signal that must reach Winfred within the tick, never wait
+            # behind an earlier routine flag on the same chat's 30 minute coalesce window
+            # (buyer-form-return-notify-coalesced-away fix).
             return {"type": "FLAG_HUMAN", "pn": pn, "text": None, "notify": True,
+                    "bypass_coalesce": True,
                     "reason": "buyer still missing " + ", ".join(miss) + " after nudge; reply by hand"}
         return None
     # GRACE: same 3 minute rule as the tenant flow — a message that arrived alongside the
@@ -1380,11 +1534,29 @@ def _buyer_followup(rec, ev, pn):
         return None
     rec["buyer_nudged"] = True
     rec["buyer_nudged_ts"] = _t.time()
-    labels = {"name": "your name", "budget": "your budget",
-              "financing": "your HFE or IPA status (valid / applying / not yet)"}
+    labels = {"budget": "your budget", "timeline": "your timeline to buy",
+              "financing": "your HFE or IPA status (valid / applying / not yet)",
+              "area_or_type": "your preferred area or property type",
+              "property_to_sell": "whether you have a property to sell first"}
     return {"type": "BUYER_NUDGE", "pn": pn, "notify": False,
             "text": "Almost there :) I still need " + ", ".join(labels[k] for k in miss)
                     + " so Winfred can prepare properly before speaking with you."}
+
+def _buyer_copilot_verdict(rec, ev, pn):
+    """Manual-takeover mirror of _copilot_verdict for BUYER records: never sends a single
+    word to the prospect (Winfred is handling the chat by hand), but every new buyer inbound
+    still screens against buyer_qualify() and pings him with where things stand -- a
+    qualifying buyer, or a fresh question, must never go invisible just because he already
+    took the chat over (buyer-silent-after-manual-takeover fix). Message-id dedup at the top
+    of _handle_event_inner already guarantees this runs at most once per distinct inbound, so
+    no extra per-verdict latch is needed here."""
+    if rec.get("terminal"):
+        return None
+    b = rec.get("buyer") or {}
+    verdict, why = buyer_qualify(b, rec.get("listing_key"))
+    rec["buyer_qualify"] = {"verdict": verdict, "why": why}
+    return {"type": "COPILOT_VERDICT", "pn": pn, "notify": True, "text": None,
+            "buyer": True, "verdict": verdict, "why": why, "listing_key": rec.get("listing_key")}
 
 # ---------- supply side (landlord renting out / seller selling): send THEIR intake form ----------
 @functools.lru_cache(maxsize=2)
@@ -3560,80 +3732,92 @@ def _handle_event_inner(state, ev):
 
     # always merge any profile data, even under manual takeover (log once).
     # track whether THIS inbound added a new required field (drives state change).
-    merged = extract_profile(ev.get("text",""))
-    _positional = {}
-    if len(merged) < 3:
-        _positional = _extract_positional_form(ev.get("text", ""))
-        if _positional:
-            merged = _positional
+    # A BUYER record uses its own field set (rec["buyer"], extract_buyer()) -- never the
+    # tenant extractor below, which regularly regex matches unrelated buyer prose into
+    # tenant shaped fields (e.g. "salary alone enough" -> no_of_pax: 1) and pollutes a
+    # purchase record with junk tenant data (buyer-text-leaks-into-tenant-profile fix, Sep
+    # 2026). Merged here, unconditionally (even under manual takeover), so the buyer copilot
+    # verdict below always sees this turn's fields.
     new_data = False
-    # provenance per field: a value grab() lifted out of ordinary prose ("...as ID, name Alex
-    # Tan, hope that helps.") is a guess, never as trustworthy as a real filled labelled form
-    # line ("Name: Alex Tan"). A later clean form is allowed to CORRECT an earlier free text
-    # guess; free text may never overwrite anything, guess or form (9 Sep 2026 replay: a real
-    # completed form was silently discarded because a stray "name" mid sentence got there
-    # first under the old never overwrite rule).
-    _form_now = _looks_like_filled_form(ev.get("text", "")) or bool(_positional)
-    _correction_now = bool(_CORRECTION_RE.search(ev.get("text", "") or ""))
-    _prov = rec.setdefault("profile_provenance", {})
-    for k,v in merged.items():
-        cur = rec["profile"].get(k)
-        if cur in (None,""):
-            rec["profile"][k] = v
-            _prov[k] = "form" if _form_now else "free_text"
-            if k in REQUIRED_FIELDS: new_data = True
-        elif _form_now and v != cur:
-            # a later CLEAN FORM resubmission always wins on the fields it explicitly states,
-            # whether the stored value came from an earlier free text guess OR an earlier
-            # form -- a prospect who sends contradictory duplicate forms is qualified on
-            # their LATEST stated values, never a stale first one (P1 fix, 9 Sep 2026 cycle 3
-            # attack replay: a 6 month/2 pax/1600 third form was discarded and the record
-            # still qualified past the 12 month gate on the first form's numbers). Never
-            # overwrite stays true only for fields THIS message does not restate -- those
-            # simply are not in merged at all.
-            rec["profile"][k] = v
-            _prov[k] = "form"
-            if k in REQUIRED_FIELDS: new_data = True
-        elif _correction_now and v != cur and _prov.get(k) != "form":
-            # an explicit correction ("sorry typo", "actually", "i mean") may overwrite a
-            # value whose only source was incidental free text (grab() lifting a number out
-            # of ordinary prose, never a labelled answer) -- but a FORM sourced value still
-            # only yields to a later form, never to free text (P0 fix, 9 Sep 2026 cycle4
-            # c4ec01 replay: "3 of us" -> "sorry typo ... 2 pax" left pax stuck at 3).
-            rec["profile"][k] = v
-            _prov[k] = "correction"
-            if k in REQUIRED_FIELDS: new_data = True
+    if rec.get("buyer_form_sent"):
+        _bmerge = rec.setdefault("buyer", {})
+        for k, v in extract_buyer(ev.get("text", "")).items():
+            if not _bmerge.get(k):
+                _bmerge[k] = v
+    else:
+        merged = extract_profile(ev.get("text",""))
+        _positional = {}
+        if len(merged) < 3:
+            _positional = _extract_positional_form(ev.get("text", ""))
+            if _positional:
+                merged = _positional
+        # provenance per field: a value grab() lifted out of ordinary prose ("...as ID, name Alex
+        # Tan, hope that helps.") is a guess, never as trustworthy as a real filled labelled form
+        # line ("Name: Alex Tan"). A later clean form is allowed to CORRECT an earlier free text
+        # guess; free text may never overwrite anything, guess or form (9 Sep 2026 replay: a real
+        # completed form was silently discarded because a stray "name" mid sentence got there
+        # first under the old never overwrite rule).
+        _form_now = _looks_like_filled_form(ev.get("text", "")) or bool(_positional)
+        _correction_now = bool(_CORRECTION_RE.search(ev.get("text", "") or ""))
+        _prov = rec.setdefault("profile_provenance", {})
+        for k,v in merged.items():
+            cur = rec["profile"].get(k)
+            if cur in (None,""):
+                rec["profile"][k] = v
+                _prov[k] = "form" if _form_now else "free_text"
+                if k in REQUIRED_FIELDS: new_data = True
+            elif _form_now and v != cur:
+                # a later CLEAN FORM resubmission always wins on the fields it explicitly states,
+                # whether the stored value came from an earlier free text guess OR an earlier
+                # form -- a prospect who sends contradictory duplicate forms is qualified on
+                # their LATEST stated values, never a stale first one (P1 fix, 9 Sep 2026 cycle 3
+                # attack replay: a 6 month/2 pax/1600 third form was discarded and the record
+                # still qualified past the 12 month gate on the first form's numbers). Never
+                # overwrite stays true only for fields THIS message does not restate -- those
+                # simply are not in merged at all.
+                rec["profile"][k] = v
+                _prov[k] = "form"
+                if k in REQUIRED_FIELDS: new_data = True
+            elif _correction_now and v != cur and _prov.get(k) != "form":
+                # an explicit correction ("sorry typo", "actually", "i mean") may overwrite a
+                # value whose only source was incidental free text (grab() lifting a number out
+                # of ordinary prose, never a labelled answer) -- but a FORM sourced value still
+                # only yields to a later form, never to free text (P0 fix, 9 Sep 2026 cycle4
+                # c4ec01 replay: "3 of us" -> "sorry typo ... 2 pax" left pax stuck at 3).
+                rec["profile"][k] = v
+                _prov[k] = "correction"
+                if k in REQUIRED_FIELDS: new_data = True
 
-    # SAFETY NET: a message carrying 5+ DISTINCT known field labels (whatever the punctuation
-    # -- colon-per-line, a numbered list, a bare space-separated caption/OCR form, a language
-    # grab() has no synonym for) that still only parsed under 3 fields is unparseable, not
-    # empty -- flag it once instead of silently treating it as if nothing was sent (replay 9
-    # Sep 2026: a fully completed Chinese label form fell through to nothing, dead silence;
-    # P1 fix, 9 Sep 2026 cycle4: a numbered/space-separated form the same way).
-    _label_word_count = len(set(w.lower() for w in re.findall(
-        r"\b(?:" + _FIELD_LABEL_ALT + r")\b", ev.get("text", "") or "", re.I)))
-    if (_label_word_count >= 5 and len(merged) < 3
-            and not rec.get("unparseable_form_flagged")):
-        rec["unparseable_form_flagged"] = True
-        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
-                "reason": "looks like a filled form (" + str(_label_word_count)
-                          + " labelled fields) but only " + str(len(merged))
-                          + " field(s) parsed; reply by hand"}
+        # SAFETY NET: a message carrying 5+ DISTINCT known field labels (whatever the punctuation
+        # -- colon-per-line, a numbered list, a bare space-separated caption/OCR form, a language
+        # grab() has no synonym for) that still only parsed under 3 fields is unparseable, not
+        # empty -- flag it once instead of silently treating it as if nothing was sent (replay 9
+        # Sep 2026: a fully completed Chinese label form fell through to nothing, dead silence;
+        # P1 fix, 9 Sep 2026 cycle4: a numbered/space-separated form the same way).
+        _label_word_count = len(set(w.lower() for w in re.findall(
+            r"\b(?:" + _FIELD_LABEL_ALT + r")\b", ev.get("text", "") or "", re.I)))
+        if (_label_word_count >= 5 and len(merged) < 3
+                and not rec.get("unparseable_form_flagged")):
+            rec["unparseable_form_flagged"] = True
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "looks like a filled form (" + str(_label_word_count)
+                              + " labelled fields) but only " + str(len(merged))
+                              + " field(s) parsed; reply by hand"}
 
-    # SAFETY NET 2: an unlabeled, delimiter separated (comma/slash/semicolon) form has no
-    # colons at all, so the label-line count above never sees it -- but a message carrying an
-    # email address plus several such values ("kevin tan,kevintan99@mail.com,singaporean,
-    # chinese,male,26,sc,retail,permanent,1,1dec,12,850") is unmistakably a filled-in form,
-    # not silence. Fail closed with the raw text in the reason rather than returning None and
-    # stranding every follow up after it too (P1 fix, 9 Sep 2026 cycle 3 attack replay).
-    _has_email = bool(re.search(r"[\w.+-]+@[\w.-]+\.\w+", ev.get("text", "")))
-    _delim_vals = [v for v in re.split(r"[,/;]", ev.get("text", "")) if v.strip()]
-    if (_has_email and len(_delim_vals) >= 6 and len(merged) < 3
-            and not rec.get("unparseable_form_flagged")):
-        rec["unparseable_form_flagged"] = True
-        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
-                "reason": "unlabeled delimiter separated form, could not auto parse: \""
-                          + (ev.get("text", "") or "")[:200] + "\"; reply by hand"}
+        # SAFETY NET 2: an unlabeled, delimiter separated (comma/slash/semicolon) form has no
+        # colons at all, so the label-line count above never sees it -- but a message carrying an
+        # email address plus several such values ("kevin tan,kevintan99@mail.com,singaporean,
+        # chinese,male,26,sc,retail,permanent,1,1dec,12,850") is unmistakably a filled-in form,
+        # not silence. Fail closed with the raw text in the reason rather than returning None and
+        # stranding every follow up after it too (P1 fix, 9 Sep 2026 cycle 3 attack replay).
+        _has_email = bool(re.search(r"[\w.+-]+@[\w.-]+\.\w+", ev.get("text", "")))
+        _delim_vals = [v for v in re.split(r"[,/;]", ev.get("text", "")) if v.strip()]
+        if (_has_email and len(_delim_vals) >= 6 and len(merged) < 3
+                and not rec.get("unparseable_form_flagged")):
+            rec["unparseable_form_flagged"] = True
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "unlabeled delimiter separated form, could not auto parse: \""
+                              + (ev.get("text", "") or "")[:200] + "\"; reply by hand"}
 
     if ev.get("listing_key") and not rec.get("listing_key"):
         # Sourced "inbound": the ONLY source is_established_prospect() trusts -- the tenant's
@@ -3659,6 +3843,15 @@ def _handle_event_inner(state, ev):
             if rec.get("human_takeover"):
                 return None
             return _landlord_onboarding_reaction(rec, ev, pn)
+        # BUYER records never go through _copilot_verdict below: that function reads
+        # rec["profile"]/qualify() (the TENANT shape), which a buyer record leaves empty, so
+        # it silently returned None on every buyer inbound after a hand takeover (real
+        # incident: a complete, qualifying buyer profile and a "let me know if can view this
+        # week" follow up both vanished with zero action and zero notify). Silent to the
+        # prospect is right under a hand takeover; silent to WINFRED is not -- a buyer must
+        # still ping him on every new inbound (buyer-silent-after-manual-takeover fix).
+        if rec.get("buyer_form_sent"):
+            return _buyer_copilot_verdict(rec, ev, pn)
         # Once the co-pilot has auto-offered a viewing, it OWNS the rest of that flow: it reacts to the
         # prospect's reply (confirm the slot / acknowledge a proposed time / flag a question) exactly
         # like the autonomous path, while still pinging Winfred. Before any auto-offer it stays silent
@@ -3681,7 +3874,12 @@ def _handle_event_inner(state, ev):
     # wins. _LANDLORD_FEE_NEG still vetoes inside excluded_reason(), so a landlord haggling
     # commission is never mislabelled an agent. db_error is left to the stage-1 path only: a
     # transient contact-DB lock must not latch takeover on a live thread.
-    if rec.get("form_sent"):
+    # buyer_form_sent included (Sep 2026 fix): this used to check rec["form_sent"] only, the
+    # TENANT flag, so a self declared co broke agent on a BUYER thread (rec["form_sent"] is
+    # always False for a buyer record) sailed straight through -- the record stayed
+    # buyer_intake:* with manual_takeover false and the engine stayed armed to keep
+    # messaging a CEA agent (cobroke-agent-not-excluded-in-buyer-flow fix).
+    if rec.get("form_sent") or rec.get("buyer_form_sent"):
         _mid_why = excluded_reason(pn, ev.get("text", ""))
         if _mid_why in ("landlord", "agent", "colleague"):
             rec["manual_takeover"] = True
@@ -3749,7 +3947,13 @@ def _handle_event_inner(state, ev):
         # flow. Fixed 31 Jul 2026: this used to swallow a later unambiguous rental enquiry as a
         # silent buyer-flow ANSWER_QUESTION.
         if rec.get("buyer_form_sent"):
-            tx_now, _ = classify_transaction(ev.get("text",""), ev.get("listing_key"))
+            # the record's OWN already bound listing decides deal_type here, never a fresh
+            # per-message keyword rebind (ev["listing_key"]) -- a buyer form's own free text
+            # ("D20", "Condo", a district name...) can coincidentally keyword match some
+            # unrelated live RENTAL room, which would flip tx_now to "rent" via that room's
+            # registry deal_type and silently route a genuine, complete buyer profile out of
+            # _buyer_followup entirely (qualified-buyer-dead-ends-no-offer fix).
+            tx_now, _ = classify_transaction(ev.get("text",""), rec.get("listing_key") or ev.get("listing_key"))
             if tx_now != "rent":
                 return _buyer_followup(rec, ev, pn)
         why = excluded_reason(pn, ev.get("text",""))
@@ -3809,7 +4013,47 @@ def _handle_event_inner(state, ev):
             # later genuine RENTAL enquiry from the same person still flows; a repeat stays silent.
             if rec.get("buyer_form_sent"):
                 return None
-            ptype = classify_property_type_ctx(ev.get("jid"), ev.get("text",""), rec.get("listing_key"))
+            lk = rec.get("listing_key")
+            if not lk:
+                # Bind or flag, never a blind guess (design rubric precondition): a buyer
+                # enquiry with no listing named must never get a form promising "to match
+                # you to the right unit" against a unit nobody named -- it silently attached
+                # a cold lead to whatever listing a later free-text keyword happened to
+                # rebind the chat to (buyer-form-sent-with-no-listing-bound fix). One flag
+                # per chat; a later message that DOES bind a listing still runs this branch
+                # fresh (lk becomes truthy) since buyer_form_sent was never latched here.
+                if rec.get("buyer_unbound_flagged"):
+                    return None
+                rec["buyer_unbound_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "buyer enquiry (" + txr + ") with no listing named; reply "
+                                  "by hand with a shortlist of open sale listings"}
+            ptype = classify_property_type_ctx(ev.get("jid"), ev.get("text",""), lk)
+            # MESSAGE 1 (new order, Sep 2026 buyer qualification redesign): the listing's own
+            # description goes out before the form, exactly like the tenant flow already
+            # leads with listing_unit_message() -- a bare form with no acknowledgement of the
+            # unit was the weakest possible first touch on a purchase enquiry (Winfred's
+            # standing rule: sale buyers get the description before the form).
+            desc = listing_unit_message(lk)
+            # OPEN HOUSE OVERRIDE (data driven per listing, ported from commit a6523909): a
+            # listing running an open house skips the buyer intake form entirely and gets the
+            # description plus the landlord's own open house invite instead -- keyed off
+            # property-templates.json's own skip_buyer_form + open_house_message pair, never
+            # hardcoded to one listing (open-house-message-never-used fix). Reuses
+            # buyer_form_sent as the one-time latch (a repeat ping never resends it) plus its
+            # own open_house_sent flag so any later reply hands straight to Winfred instead
+            # of the buyer-form nudge machinery (see _buyer_followup).
+            _oh_tpl = _buyer_template(lk)
+            if _oh_tpl.get("skip_buyer_form") and _oh_tpl.get("open_house_message"):
+                rec["buyer_form_sent"] = True
+                rec["open_house_sent"] = True
+                rec["buyer_form_sent_ts"] = __import__("time").time()
+                rec["stage"] = "OPEN_HOUSE_SENT"; rec["status"] = "open_house_sent"
+                _oh_texts = ([desc] if desc else []) + [_oh_tpl["open_house_message"]]
+                return {"type": "SEND_OPEN_HOUSE", "pn": pn, "texts": _oh_texts,
+                        "text": _oh_texts[-1], "listing_key": lk, "notify": True,
+                        "reason": "buyer enquiry on an open house listing; sent the "
+                                  "description + open house invite instead of the buyer form"}
             rec["buyer_form_sent"] = True
             rec["buyer_form_sent_ts"] = __import__("time").time()
             rec["stage"] = "BUYER_INTAKE"; rec["status"] = "buyer_intake:" + ptype
@@ -3825,26 +4069,30 @@ def _handle_event_inner(state, ev):
             # rental listing's fixed_viewing slot into a purchase intake message (backtest, 5 Aug
             # 2026). Same gate skips a hold/closed sale listing, so the bot never auto-commits a
             # buyer to a viewing for a property that is no longer available.
-            lst = reqs.get(rec.get("listing_key"), {}) or {}
+            lst = reqs.get(lk, {}) or {}
             lst_status = str(lst.get("status") or "").lower()
             slot = None
-            if (rec.get("listing_key") and lst.get("deal_type") != "rent"
-                    and not lst_status.startswith("closed") and lst_status != "hold"):
-                slot = next_slot(rec.get("listing_key"))
+            if (lst.get("deal_type") != "rent" and not lst_status.startswith("closed")
+                    and lst_status != "hold"):
+                slot = next_slot(lk)
             if slot:
                 rec["buyer_offered_slot_id"] = slot.get("slot_id")
                 rec["buyer_offered_slot_label"] = slot.get("label")
                 text = text + "\n\nViewing: " + slot["label"] + ". Let me know if you'd like to come by."
-            elif rec.get("listing_key"):
+            else:
                 # viewing-first for buyers too: no fixed slot -> ask for their window. Winfred
                 # still runs the appointment himself (11 Jul 2026 silent-handoff rule); this
                 # only collects the time, VIEWING_TIME_PROPOSED pings him with it.
                 text = (text + "\n\nWhen are you free to view? Share a day and time and I "
                         "will line it up with the owner.")
-            return {"type":"SEND_BUYER_FORM", "pn":pn, "text": text,
-                    "listing_key": rec.get("listing_key"), "property_type": ptype,
-                    "reason":"buyer enquiry (" + txr + ", " + ptype + "); sent buyer intake form"
-                             + (" + fixed viewing slot" if slot else "")}
+            # "text" stays the FORM (with the slot line already folded in) for backward
+            # compatibility with every caller that reads a["text"] directly; "texts" is the
+            # one the runner actually sends from and carries the new message-1 description.
+            texts = ([desc] if desc else []) + [text]
+            return {"type":"SEND_BUYER_FORM", "pn":pn, "text": text, "texts": texts,
+                    "listing_key": lk, "property_type": ptype,
+                    "reason":"buyer enquiry (" + txr + ", " + ptype + "); sent the description "
+                             "+ buyer intake form" + (" + fixed viewing slot" if slot else "")}
         # a message that arrived while we were deferred (contact DB locked) carries its
         # enquiry context forward: gate on the deferred text too, or "any update?" after
         # a deferral dead-ends a real prospect on a human flag.

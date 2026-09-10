@@ -316,11 +316,34 @@ ok("explicit SALE token overrides a rental listing binding", E.classify_transact
 # end to end: a SALE enquiry must NEVER get the rental TENANT intake form. July design
 # (buyer intake form concept): a sale enquiry now gets its OWN buyer form (SEND_BUYER_FORM),
 # not a silent FLAG_HUMAN and not the tenant INTAKE_FORM. Protective intent preserved: the
-# tenant form must never reach a buyer.
+# tenant form must never reach a buyer. Bound to tampines-908 (a real sale listing carrying
+# no fixed_viewing/gates in the fixture index) -- an UNBOUND sale enquiry is covered
+# separately below (buyer-form-sent-with-no-listing-bound fix, Sep 2026: it now flags
+# instead of guessing a listing to bind).
 sS={"version":1,"conversations":{}}
-aS=E.handle_event(sS,{"jid":"6590009999@s.whatsapp.net","msg_id":"S1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":None})
+aS=E.handle_event(sS,{"jid":"6590009999@s.whatsapp.net","msg_id":"S1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":"tampines-908"})
 ok("sale enquiry -> SEND_BUYER_FORM (buyer intake), not FLAG_HUMAN", aS and aS["type"]=="SEND_BUYER_FORM" and "sale" in aS.get("reason","").lower())
 ok("sale enquiry sends the BUYER form, never the tenant INTAKE_FORM", aS and aS.get("text") and E.INTAKE_FORM not in aS["text"] and "Citizenship" in aS["text"])
+ok("sale enquiry message 1 (texts[0]) is the listing description, message 2 is the form",
+   aS and len(aS.get("texts") or [])==2 and "Citizenship" not in aS["texts"][0]
+   and "Tampines Ave 4" in aS["texts"][0] and "Citizenship" in aS["texts"][1])
+
+# UNBOUND sale enquiry: never a blind guess (buyer-form-sent-with-no-listing-bound fix) --
+# bind or flag, per the qualification redesign's precondition.
+sSU={"version":1,"conversations":{}}
+aSU=E.handle_event(sSU,{"jid":"6590009991@s.whatsapp.net","msg_id":"SU1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":None})
+ok("unbound sale enquiry -> FLAG_HUMAN, never a blind buyer form",
+   aSU and aSU["type"]=="FLAG_HUMAN" and aSU.get("text") is None and aSU.get("notify") is True)
+ok("unbound sale enquiry never latches buyer_form_sent (a later bound message can still flow)",
+   sSU["conversations"]["6590009991"].get("buyer_form_sent") is not True)
+ok("unbound sale enquiry latches buyer_unbound_flagged (one flag, not re-flagged every tick "
+   "while still unbound)", sSU["conversations"]["6590009991"].get("buyer_unbound_flagged") is True)
+# a LATER message that DOES name/bind a listing must still flow normally (not stuck unbound
+# forever) -- the latch only guards repeats of the SAME still-unbound state.
+aSU3=E.handle_event(sSU,{"jid":"6590009991@s.whatsapp.net","msg_id":"SU3",
+   "text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":"tampines-908"})
+ok("a later message that DOES bind a listing -> SEND_BUYER_FORM proceeds normally",
+   aSU3 and aSU3["type"]=="SEND_BUYER_FORM")
 sR={"version":1,"conversations":{}}
 aR=E.handle_event(sR,{"jid":"6590007777@s.whatsapp.net","msg_id":"R1","text":"I am interested in: RENT - Caspian / Room / S$ 1,100 /mo","is_from_me":0,"listing_key":"caspian"})
 ok("rental enquiry still -> SEND_FORM", aR and aR["type"]=="SEND_FORM")
@@ -724,18 +747,25 @@ _smcfg = (E.listing_reqs().get("sin-ming-rd-23",{}) or {}).get("fixed_viewing") 
 ok("sin-ming-rd-23 has a fixed_viewing rule -> next Sat, matches its OWN registry start/end",
    (lambda s: s and s["date"]=="2026-08-01" and s["start"]==_smcfg.get("start") and s["end"]==_smcfg.get("end"))(
      E._fixed_viewing_slot("sin-ming-rd-23","2026-07-30")))
-# end to end: the first buyer-form message includes the fixed slot, and it is tracked under
-# its OWN state key (buyer_offered_slot_id) so it never touches the rental viewing_asked /
-# offered_slot_id machinery a later rental enquiry from the same person might rely on.
+# Kembangan Villas carries skip_buyer_form + open_house_message in Winfred's own live
+# property-templates.json (open-house-message-never-used fix, Sep 2026): it now skips the
+# buyer form entirely and sends the description + the landlord's own open house invite,
+# verbatim, instead (ported from commit a6523909). The fixed_viewing slot mechanism itself
+# (still exercised by 23 Sin Ming Road just below) is a SEPARATE feature for listings that
+# do NOT carry an open house override.
 sK={"version":1,"conversations":{}}
 aK=E.handle_event(sK,{"jid":"6590221100@s.whatsapp.net","msg_id":"K1",
    "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
    "is_from_me":0,"listing_key":"kembangan-villas"})
-ok("Kembangan Villas buyer enquiry -> SEND_BUYER_FORM with the fixed slot appended",
-   aK and aK["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK["text"] and "11 to 12noon" in aK["text"])
-ok("buyer-side slot tracked separately (buyer_offered_slot_id), rental viewing_asked untouched",
-   sK["conversations"]["6590221100"].get("buyer_offered_slot_id","").startswith("kembangan-villas-fixed-")
-   and sK["conversations"]["6590221100"].get("viewing_asked") is False)
+ok("Kembangan Villas buyer enquiry -> SEND_OPEN_HOUSE, not the buyer form",
+   aK and aK["type"]=="SEND_OPEN_HOUSE"
+   and "there's an open house" in aK["text"].lower() and "Citizenship" not in aK["text"])
+ok("Kembangan Villas open house latches buyer_form_sent + open_house_sent (one time only)",
+   sK["conversations"]["6590221100"].get("buyer_form_sent") is True
+   and sK["conversations"]["6590221100"].get("open_house_sent") is True)
+aK1b=E.handle_event(sK,{"jid":"6590221100@s.whatsapp.net","msg_id":"K1b","text":"can I come this saturday then?","is_from_me":0,"listing_key":"kembangan-villas"})
+ok("any reply after the open house invite hands straight to Winfred, never a resend",
+   aK1b and aK1b["type"]=="FLAG_HUMAN" and aK1b.get("text") is None and aK1b.get("notify") is True)
 
 sM={"version":1,"conversations":{}}
 aM=E.handle_event(sM,{"jid":"6590221101@s.whatsapp.net","msg_id":"M1",
@@ -745,10 +775,8 @@ ok("23 Sin Ming Road buyer enquiry -> SEND_BUYER_FORM with the fixed slot append
    aM and aM["type"]=="SEND_BUYER_FORM" and "Viewing:" in aM["text"]
    and _smcfg.get("time_label","\x00") in aM["text"])
 
-# regression: a sale enquiry with no listing_key match (or a listing with no fixed_viewing
-# rule) still sends the plain buyer form -- no "Viewing:" line, no crash on next_slot(None).
-ok("un-matched sale enquiry (no listing_key) -> buyer form with NO viewing line",
-   aS and "Viewing:" not in aS["text"])   # aS defined in section 11 above (Sembawang, listing_key=None)
+# (the old "un-matched sale enquiry, no listing_key" case moved to section 11 above -- it
+# now FLAG_HUMANs instead of guessing a listing, per buyer-form-sent-with-no-listing-bound.)
 
 print("== BACKTEST FIXES (5 Aug 2026): fixed_viewing must not leak across deal_type/status ==")
 # Finding 1: a RENTAL listing (ang-mo-kio-539) can still classify as tx=="sale" via an
@@ -766,26 +794,28 @@ ok("generic 'sin ming road' text does NOT bind to the sin-ming-rd-23 sale listin
    RNR.match_listing("hi is the common room along sin ming road still up? budget 900", E.listing_reqs()) is None)
 
 # Finding 4: a fixed_viewing sale listing put on hold/closed must not auto-commit a buyer to
-# a concrete viewing time for a property that is no longer available.
+# a concrete viewing time for a property that is no longer available. Uses 23 Sin Ming Road,
+# not Kembangan Villas (which now takes the open-house-skip branch above and never reaches
+# this fixed-slot code at all).
 _orig_reqs_hold = E.listing_reqs
-def _reqs_kembangan_hold():
+def _reqs_sinming_hold():
     r = {k: dict(v) for k, v in _orig_reqs_hold().items()}
-    r["kembangan-villas"]["status"] = "hold"
+    r["sin-ming-rd-23"]["status"] = "hold"
     return r
-E.listing_reqs = _reqs_kembangan_hold
+E.listing_reqs = _reqs_sinming_hold
 sH={"version":1,"conversations":{}}
 aH=E.handle_event(sH,{"jid":"6590331188@s.whatsapp.net","msg_id":"h1",
-   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
-   "is_from_me":0,"listing_key":"kembangan-villas"})
-ok("kembangan-villas on hold -> buyer form with NO viewing line (status gate)",
+   "text":"Hi Winfred Quek,\nI am interested in:\nSALE - 23 Sin Ming Road\n2 Beds /  S$ 368,000\n\nThanks",
+   "is_from_me":0,"listing_key":"sin-ming-rd-23"})
+ok("sin-ming-rd-23 on hold -> buyer form with NO viewing line (status gate)",
    aH and aH["type"]=="SEND_BUYER_FORM" and "Viewing:" not in aH["text"])
 E.listing_reqs = _orig_reqs_hold
 # regression guard: the same active listing still offers its slot normally (gate isn't over-broad)
 sK2={"version":1,"conversations":{}}
 aK2=E.handle_event(sK2,{"jid":"6590331177@s.whatsapp.net","msg_id":"k2",
-   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
-   "is_from_me":0,"listing_key":"kembangan-villas"})
-ok("kembangan-villas still active -> viewing slot still offered (gate not over-broad)",
+   "text":"Hi Winfred Quek,\nI am interested in:\nSALE - 23 Sin Ming Road\n2 Beds /  S$ 368,000\n\nThanks",
+   "is_from_me":0,"listing_key":"sin-ming-rd-23"})
+ok("sin-ming-rd-23 still active -> viewing slot still offered (gate not over-broad)",
    aK2 and aK2["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK2["text"])
 
 # Pre-existing bug (predates tonight, since commit c634271 29 Jul), fixed 5 Aug 2026:
@@ -793,11 +823,14 @@ ok("kembangan-villas still active -> viewing slot still offered (gate not over-b
 # "too far" on a PURCHASE enquiry got misrouted into the rental cross-sell/redirect path and
 # the conversation was permanently closed (terminal=True), silently swallowing every message
 # after -- including their name/budget/financing, which never reached Winfred.
+# tampines-908, not Kembangan Villas: Kembangan now takes the open-house-skip branch above
+# (buyer_form_sent latches to True there too, which would make this test indistinguishable
+# from that one -- tampines-908 is a plain sale listing, no skip_buyer_form).
 sU={"version":1,"conversations":{}}
 jidU = "6598765432@s.whatsapp.net"
-E.handle_event(sU, {"jid":jidU,"msg_id":"u1","text":"Hi is Kembangan Villas still for sale? Keen to view","is_from_me":0,"listing_key":"kembangan-villas"})
+E.handle_event(sU, {"jid":jidU,"msg_id":"u1","text":"Hi is 908 Tampines still for sale? Keen to view","is_from_me":0,"listing_key":"tampines-908"})
 pnU = E.resolve_pn(jidU); recU = sU["conversations"][pnU]
-aU2 = E.handle_event(sU, {"jid":jidU,"msg_id":"u2","text":"hmm too small for us, but my name is John, budget 2m, HFE valid, own stay","is_from_me":0,"listing_key":"kembangan-villas"})
+aU2 = E.handle_event(sU, {"jid":jidU,"msg_id":"u2","text":"hmm too small for us, but my name is John, budget 2m, HFE valid, own stay","is_from_me":0,"listing_key":"tampines-908"})
 ok("buyer 'too small for us' reply -> profile captured (name/budget/financing), NOT swallowed",
    aU2 is not None and recU.get("buyer",{}).get("budget")==2000000 and recU.get("buyer",{}).get("financing")=="valid")
 ok("buyer 'too small for us' reply -> conversation stays open (no rental terminal/redirect)",
