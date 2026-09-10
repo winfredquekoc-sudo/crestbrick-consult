@@ -213,6 +213,12 @@ const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);                  // device-local 
 const AREA = DATA.districts || {};
 let view = "mapview", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
 let ALL_TENANTS = [], MATCHES = [], byListing = {}, byTenant = {}, CURRENT_WORKLIST = [];
+// (item 2) "N rows" for whichever view is on screen — worklist prim length,
+// listing/tenant rail length, or roster length. Each render*() that has a
+// meaningful count sets it; render() resets to null first so a view that
+// never sets it (mapview/stats/pipeline/revival) hides #resultcount rather
+// than showing a stale number left over from the previous view.
+let VIEW_RESULT_COUNT = null;
 // (item 3) roomTypeOf/genderPrefOf/racePrefOf/statusOf/cookingOf only depend on
 // the LISTING, not the tenant, but passFilter/updateFacetedCounts used to call
 // all five per pair — 363 tenants per listing per sweep for the same answer.
@@ -1653,7 +1659,7 @@ const OFFER_STAGES = ["Holding deposit", "LOI", "Intake form complete", "Tenancy
 // user, the app is already behind Basic Auth, and masking was only ever
 // display-only — the numbers sat in the payload either way. The masking and
 // assistant-mode toggles were removed entirely, not just disabled.
-const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now() };
+const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now(), morefilters_open: false };
 
 function loadPrefs() {
   try {
@@ -2544,14 +2550,12 @@ function render() {
     e.style.display = "none";
     if (HEAVY_PANELS.indexOf(v) !== -1) e.innerHTML = "";
   });
-  // verdict / max rent / hide cold / hide actioned only affect work, listing, tenant, whole, pipeline — hide elsewhere (search + district stay visible everywhere)
-  const filtersActive = ["work", "listing", "tenant", "whole", "pipeline"].indexOf(view) !== -1;
-  ["fv", "fr", "fcwrap", "fhwrap"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
   document.querySelectorAll("#tabs .tab").forEach(tb => {
     const on = tb.dataset.v === view;
     tb.classList.toggle("on", on);
     tb.setAttribute("aria-selected", on ? "true" : "false");
   });
+  VIEW_RESULT_COUNT = null;   // (item 2) each render*() below sets its own row count; views with none leave #resultcount hidden
   if (view === "work") renderWork(); else renderTriageBar(null);
   if (view === "pipeline") renderPipeline();
   if (view === "listing") renderListingRail();
@@ -2570,9 +2574,117 @@ function render() {
     " PDPA: keep this file private.";
   const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + counts.snoozed + '</span>';
   const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + counts.queued + '</span>';
+  renderFilterBar();   // (item 2) chip strip, result count, More filters gating — after the view render so VIEW_RESULT_COUNT is current
   updateFacetedCounts();
   measureHeaderHeight();   // (56)/(item 4) re-measure after every header content change, not just window resize
 }
+
+// ===================== item 2: filter bar (chip strip, More filters, result count) =====================
+// The 9 controls row two hides behind the disclosure button — same set the
+// old inline gate already hid (fv/fr/fcwrap/fhwrap), extended to the 5 room
+// type/gender/race/status/cooking selects added alongside it. Search and
+// district stay on row one and are gated separately (see qdActive below).
+const MORE_FILTER_KEYS = ["v", "r", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
+function countMoreFilters(f) { return MORE_FILTER_KEYS.filter(k => f[k]).length; }
+// One label/clear pair per non-empty filter, in a fixed order, so the chip
+// strip (row one) and the item 9 sticky summary can share the exact same
+// list instead of two copies of this logic drifting apart.
+function activeFilterChips(f, filtersActive) {
+  const chips = [];
+  if (f.q) chips.push({ k: "q", label: '"' + f.q + '"', clear: () => { $("#q").value = ""; } });
+  if (f.d) chips.push({ k: "d", label: f.d, clear: () => { $("#fd").value = ""; } });
+  if (!filtersActive) return chips;
+  if (f.v) chips.push({ k: "v", label: VERDICT_LABELS[f.v] || f.v, clear: () => { $("#fv").value = ""; } });
+  if (f.r) chips.push({ k: "r", label: "≤$" + f.r, clear: () => { $("#fr").value = ""; } });
+  if (f.cold) chips.push({ k: "cold", label: "hide cold >5d", clear: () => { $("#fc").checked = false; } });
+  if (f.hide) chips.push({ k: "hide", label: "hide actioned", clear: () => { $("#fh").checked = false; } });
+  if (f.rt) chips.push({ k: "rt", label: f.rt, clear: () => { $("#ft").value = ""; } });
+  if (f.gp) chips.push({ k: "gp", label: f.gp, clear: () => { $("#fg").value = ""; } });
+  if (f.rp) chips.push({ k: "rp", label: f.rp, clear: () => { $("#fe").value = ""; } });
+  if (f.st) chips.push({ k: "st", label: f.st, clear: () => { $("#fs").value = ""; } });
+  if (f.ck) chips.push({ k: "ck", label: f.ck, clear: () => { $("#fk").value = ""; } });
+  return chips;
+}
+// Cheap half: chip strip, Filters(n) badge, Clear button visibility. None of
+// this needs a MATCHES sweep, so the debounce hook below calls it on every
+// keystroke even on views where a full render() is skipped or deferred —
+// the chip strip and the "n" badge should never lag behind what is actually
+// typed/selected, only the row count (which DOES need a sweep) waits.
+function updateChipsAndCount() {
+  const f = F();
+  const filtersActive = FACET_VIEWS.indexOf(view) !== -1;
+  const chips = activeFilterChips(f, filtersActive);
+  const strip = $("#chipstrip");
+  if (strip) {
+    strip.innerHTML = chips.map(c => '<span class="chip removable" data-chipkey="' + esc(c.k) + '">' + esc(c.label) + ' <span class="x">✕</span></span>').join("");
+    strip.querySelectorAll("[data-chipkey]").forEach(node => {
+      const c = chips.find(x => x.k === node.dataset.chipkey);
+      if (c) node.onclick = () => { c.clear(); render(); };
+    });
+  }
+  const cntEl = document.querySelector("#filterstoggle .cnt");
+  if (cntEl) cntEl.textContent = String(filtersActive ? countMoreFilters(f) : 0);
+  const clr = $("#clr"); if (clr) clr.hidden = chips.length === 0;
+  return { f, filtersActive, chips };
+}
+// Full pass: everything updateChipsAndCount() does, plus the parts that
+// depend on which view is on screen and on VIEW_RESULT_COUNT, which is only
+// trustworthy right after that view's own render*() ran (see render()).
+function renderFilterBar() {
+  const { filtersActive, chips } = updateChipsAndCount();
+  // mapview/stats consume none of q/d/the 9 (see NON_FILTER_VIEWS) — the
+  // whole bar disappears there rather than sit empty.
+  const qdActive = NON_FILTER_VIEWS.indexOf(view) === -1;
+  ["fv", "fr", "fcwrap", "fhwrap", "ft", "fg", "fe", "fs", "fk"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
+  const bar = document.querySelector(".filters");
+  if (bar) bar.style.display = qdActive ? "" : "none";
+  const rc = $("#resultcount");
+  if (rc) {
+    rc.classList.remove("pending");
+    if (qdActive && VIEW_RESULT_COUNT != null) { rc.hidden = false; rc.textContent = VIEW_RESULT_COUNT + (VIEW_RESULT_COUNT === 1 ? " row" : " rows"); }
+    else rc.hidden = true;
+  }
+  renderFilterSummary(chips, qdActive);   // (item 9)
+}
+// (item 9) compact sticky strip reusing the exact same chip labels — declared
+// here (not in render()) so it always has the freshest chips/count without a
+// second computation. A no-op until item 9 adds #filtersummary to the page.
+function renderFilterSummary(chips, qdActive) {
+  const summary = $("#filtersummary");
+  if (!summary) return;
+  if (!qdActive || !chips.length) { summary.hidden = true; return; }
+  summary.hidden = false;
+  summary.classList.remove("pending");
+  const countTxt = VIEW_RESULT_COUNT != null ? (" · " + VIEW_RESULT_COUNT + (VIEW_RESULT_COUNT === 1 ? " row" : " rows")) : "";
+  summary.innerHTML = chips.map(c => esc(c.label)).join(" · ") + countTxt + ' · <a href="#" data-clearsummary="1">clear</a>';
+  const link = summary.querySelector("[data-clearsummary]");
+  if (link) link.onclick = (e) => { e.preventDefault(); $("#clr").click(); window.scrollTo(0, 0); };
+}
+function applyMoreFiltersOpenState() {
+  const mf = $("#morefilters"); if (!mf) return;
+  mf.hidden = !PREFS.morefilters_open;
+  const btn = $("#filterstoggle"); if (btn) btn.setAttribute("aria-expanded", PREFS.morefilters_open ? "true" : "false");
+}
+function toggleMoreFilters() {
+  PREFS.morefilters_open = !PREFS.morefilters_open;
+  savePrefs();
+  applyMoreFiltersOpenState();
+  measureHeaderHeight();   // panel visibility just changed the header's own height
+}
+// (item 4) search/#fr debounce timer, module scope so a chip's clear() and
+// the keyboard Escape handler (item 10) can clear a pending render the same
+// way #clr already does, not just the code that started it.
+let filterDebounceTimer = null;
+function markResultsPending() {
+  const rc = $("#resultcount"); if (rc && !rc.hidden) { rc.textContent = "…"; rc.classList.add("pending"); }
+  const s = $("#filtersummary"); if (s && !s.hidden) s.classList.add("pending");
+}
+function scheduleFilteredRender() {
+  markResultsPending();
+  clearTimeout(filterDebounceTimer);
+  filterDebounceTimer = setTimeout(() => requestAnimationFrame(render), 250);
+}
+
 function helpStrip() {
   const wrap = el("div", "");
   wrap.innerHTML = '<div class="help"><b>How to use:</b> ① Pick the top match &nbsp; ② Read the details and any ⚑ flag &nbsp; ③ Tap <b>WhatsApp</b> to open a ready message — <b>you</b> press send. This tool never messages anyone by itself and never changes your databases.</div>' + deltaStripHtml();
@@ -2731,6 +2843,12 @@ const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
 // this sweep at all — Dashboard/Stats/Landlords/AllTenants/Sales/Revival never
 // call it. FACET_VIEWS mirrors render()'s own filtersActive set.
 const FACET_VIEWS = ["work", "listing", "tenant", "whole", "pipeline"];
+// (item 2) the only two views that consume NEITHER search nor district — see
+// renderMapView()/renderStats(), neither reads F() at all — so the whole
+// .filters bar (and the search/filter debounce hook) is skipped only there;
+// every other view keeps at least q/d live, even the rosters outside
+// FACET_VIEWS above (landlords/alltenants/sales/revival all filter by them).
+const NON_FILTER_VIEWS = ["mapview", "stats"];
 let FACET_CACHE_KEY = null;
 function updateFacetedCounts() {
   if (FACET_VIEWS.indexOf(view) === -1) return;
@@ -2846,6 +2964,7 @@ function renderWork() {
   // roughly 2*n*log(n) calls for a sort that only needs each rank once.
   const ranked = rows.map(m => [worklistRank(m), m]).sort((a, b) => b[0] - a[0]);
   const prim = []; for (const [, m] of ranked) { if (!seen.has(m.t.id)) { seen.add(m.t.id); prim.push(m); } }
+  VIEW_RESULT_COUNT = prim.length;   // (item 2) full filtered count, not the top-25 cap below
   const list = prim.slice(0, 25);
   CURRENT_WORKLIST = list;
   if (triageIndex >= list.length) triageIndex = Math.max(0, list.length - 1);
@@ -3176,6 +3295,7 @@ function renderListingRail() {
   const dupByPrimary = {};
   ls.filter(l => l.dup_of).forEach(l => (dupByPrimary[l.dup_of] = dupByPrimary[l.dup_of] || []).push(l));
   const primaries = sortListings(ls.filter(l => !l.dup_of), listingSortValue);
+  VIEW_RESULT_COUNT = primaries.length;   // (item 2)
   if (!primaries.length) rail.appendChild(el("div", "empty", "No listings loaded yet. Once export_data.py runs there will be rooms to match here."));
   primaries.forEach(l => rail.appendChild(listingCard(l, dupByPrimary[l.id] || [])));
   const otherSection = supplyOverviewSectionHtml();
@@ -3368,6 +3488,7 @@ function renderTenantRail() {
   let ts = [...ALL_TENANTS];
   if (f.q) ts = ts.filter(t => (t.name + " " + t.preferred_location + " " + t.district + " " + (t.nationality || "") + " " + (t.phone || "")).toLowerCase().includes(f.q));
   ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || (byTenant[b.id]?.[0]?.s.total || 0) - (byTenant[a.id]?.[0]?.s.total || 0));
+  VIEW_RESULT_COUNT = ts.length;   // (item 2) full filtered count, not the paginated "shown" slice below
   if (!ts.length) { rail.appendChild(el("div", "empty", "No tenants match this search. Try clearing the search box above.")); return; }
   const shown = ts.slice(0, tenantRailLimit);
   shown.forEach(t => {
@@ -3461,14 +3582,17 @@ function renderWholeUnit() {
   box.appendChild(el("div", "help", "Tenants whose budget comfortably clears a whole unit, or who explicitly asked for one, matched against whole unit and studio listings."));
   const tenants = ALL_TENANTS.filter(isWholeUnitTenant);
   const listings = (DATA.listings || []).filter(isWholeUnitListing);
-  if (!tenants.length || !listings.length) { box.appendChild(el("div", "empty", "No whole unit candidates or listings right now. This tab fills in once a tenant's budget clears a whole unit, or a landlord lists one.")); return; }
+  if (!tenants.length || !listings.length) { VIEW_RESULT_COUNT = 0; box.appendChild(el("div", "empty", "No whole unit candidates or listings right now. This tab fills in once a tenant's budget clears a whole unit, or a landlord lists one.")); return; }
   const wf = F();
+  let wholeRows = 0;
   tenants.forEach(t => {
     const matches = listings.map(l => (byTenant[t.id] || []).find(m => m.l.id === l.id)).filter(Boolean).filter(m => passFilter(m, wf));
     if (!matches.length) return;
+    wholeRows += matches.length;
     box.appendChild(el("div", "section-hd", esc(t.name)));
     matches.forEach(m => box.appendChild(matchRow(m, true)));
   });
+  VIEW_RESULT_COUNT = wholeRows;   // (item 2)
 }
 
 // ===================== landlord / all tenants / sales / revival rosters =====================
@@ -3695,6 +3819,7 @@ function renderLandlordsRoster() {
     ls = ls.filter(l => hay(l).includes(f.q));
   }
   ls.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+  VIEW_RESULT_COUNT = ls.length;   // (item 2)
   const allCount = (DATA.all_landlords || []).length;
   box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ls.length + " of " + allCount : ls.length) + " landlords"));
 
@@ -3796,6 +3921,7 @@ function renderAllTenantsRoster() {
     ts = ts.filter(t => hay(t).includes(f.q));
   }
   const allTCount = (DATA.all_tenants || []).length;
+  VIEW_RESULT_COUNT = ts.length;   // (item 2) full filtered count, not the 400-row display cap below
   box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ts.length + " of " + allTCount : ts.length) + " tenants"));
   if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
 
@@ -3829,6 +3955,7 @@ function renderSalesRoster() {
     ss = ss.filter(s => hay(s).includes(f.q));
   }
   ss.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+  VIEW_RESULT_COUNT = ss.length;   // (item 2)
   if (!ss.length) { box.appendChild(el("div", "empty", "No sale listings match the current filters.")); return; }
 
   ss.forEach(s => {
@@ -5796,22 +5923,27 @@ function renderPipeline() {
   // shorter than a normal phone typing gap (measured: a 250ms keystroke
   // cadence still produced a full render per character). #q and #fr (a
   // number input that fires per digit — typing "1500" fired four renders)
-  // now share one 250ms debounce, landed on a frame boundary via
+  // now share one 250ms debounce (scheduleFilteredRender, module scope,
+  // defined next to render() itself), landed on a frame boundary via
   // requestAnimationFrame rather than firing synchronously off the timer.
-  let filterDebounceTimer = null;
-  function scheduleFilteredRender() { clearTimeout(filterDebounceTimer); filterDebounceTimer = setTimeout(() => requestAnimationFrame(render), 250); }
-  // (item 4) Views outside FACET_VIEWS don't consume any filter (Dashboard's
-  // renderMapView() alone costs 220ms) — skip render() entirely rather than
-  // freeze the UI for a stray keystroke that changes nothing visible. No chip
-  // strip exists yet to update instead (item 2, out of scope here), so this
-  // is a plain no-op on those views for now — the hook a later chip strip
-  // would use.
-  function onFilterInput() { if (FACET_VIEWS.indexOf(view) !== -1) render(); }
-  function onDebouncedFilterInput() { if (FACET_VIEWS.indexOf(view) !== -1) scheduleFilteredRender(); }
+  // (item 2) updateChipsAndCount() runs on every keystroke regardless of
+  // view — it never sweeps MATCHES, so it costs nothing to keep the chip
+  // strip/Filters(n) badge/Clear button current even while the expensive
+  // half (the actual render) is skipped or still debouncing.
+  // (item 2 fix) NON_FILTER_VIEWS, not FACET_VIEWS, gates the render itself:
+  // mapview/stats consume neither q nor d and are the only views where a
+  // stray keystroke should do nothing at all — landlords/alltenants/sales/
+  // revival sit outside FACET_VIEWS too but DO filter by q/d (see their own
+  // render*Roster functions), so skipping them here silently broke search
+  // and district on those four tabs.
+  function onFilterInput() { updateChipsAndCount(); if (NON_FILTER_VIEWS.indexOf(view) === -1) render(); }
+  function onDebouncedFilterInput() { updateChipsAndCount(); if (NON_FILTER_VIEWS.indexOf(view) === -1) scheduleFilteredRender(); }
   $("#q").addEventListener("input", onDebouncedFilterInput);
   $("#fr").addEventListener("input", onDebouncedFilterInput);
   ["fd", "fv", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", onFilterInput));
   $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  const filterToggleBtn = $("#filterstoggle"); if (filterToggleBtn) filterToggleBtn.onclick = toggleMoreFilters;
+  applyMoreFiltersOpenState();   // (item 2) restore the panel's remembered open/closed state before first paint
   const addBtn = $("#addtenant"); if (addBtn) addBtn.onclick = openQuickAddTenant;
   const snoozeBtn = $("#snoozechip"); if (snoozeBtn) snoozeBtn.onclick = openSnoozedList;
   const dispatchBtn = $("#dispatchchip"); if (dispatchBtn) dispatchBtn.onclick = openDispatchDrawer;

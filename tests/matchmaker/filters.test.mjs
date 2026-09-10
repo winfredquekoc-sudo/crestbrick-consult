@@ -162,3 +162,57 @@ test("facetsOf: falls back to calling the live functions when the listing is mis
     rt: "Master room", gp: "Unstated", rp: "Unstated", st: "Available now", ck: "Allowed",
   });
 });
+
+// =====================================================================
+// activeFilterChips / countMoreFilters — item 2's chip strip and Filters(n)
+// badge data. Sliced separately (outside FACET_SRC's own span) since these
+// depend on VERDICT_LABELS and $, injected the same way TODAY/Scoring are
+// above rather than widening FACET_SRC into unrelated render-layer code.
+// The chip `clear` closures touch real DOM ($("#q")...) — never invoked
+// here, only their k/label are asserted, so a throwaway $ stub is enough.
+// =====================================================================
+const CHIP_SRC = slice("const MORE_FILTER_KEYS = [", "function updateChipsAndCount() {");
+
+function makeChipHelpers(verdictLabels) {
+  return new Function(
+    "VERDICT_LABELS", "$",
+    CHIP_SRC + "\nreturn { activeFilterChips, countMoreFilters, MORE_FILTER_KEYS };"
+  )(verdictLabels, () => ({}));
+}
+const CH = makeChipHelpers({ QUALIFIED: "Qualified", NEEDS_INFO: "Needs info", BLOCKED: "Has conflict" });
+
+test("countMoreFilters: counts only the 9 row-two keys, never q/d", () => {
+  assert.equal(CH.countMoreFilters({ q: "marine", d: "D15" }), 0);
+  assert.equal(CH.countMoreFilters({ v: "QUALIFIED", cold: true }), 2);
+  assert.equal(CH.countMoreFilters({ v: "", r: 0, cold: false, hide: false, rt: "", gp: "", rp: "", st: "", ck: "" }), 0);
+  assert.equal(CH.countMoreFilters({
+    v: "QUALIFIED", r: 1500, cold: true, hide: true, rt: "Master room",
+    gp: "Female only", rp: "Any race", st: "Available now", ck: "Allowed",
+  }), 9);
+});
+
+test("activeFilterChips: q and d chip regardless of filtersActive (row one controls)", () => {
+  const chips = CH.activeFilterChips({ q: "marine", d: "D15" }, false);
+  assert.deepEqual(chips.map(c => c.k), ["q", "d"]);
+  assert.equal(chips[0].label, '"marine"');
+  assert.equal(chips[1].label, "D15");
+});
+
+test("activeFilterChips: the 9 row-two filters only chip when filtersActive is true", () => {
+  const f = { rt: "Master room", v: "QUALIFIED" };
+  assert.deepEqual(CH.activeFilterChips(f, false).map(c => c.k), []);
+  assert.deepEqual(CH.activeFilterChips(f, true).map(c => c.k).sort(), ["rt", "v"]);
+});
+
+test("activeFilterChips: verdict label comes from VERDICT_LABELS, booleans get a fixed label, rent formats as <=$N", () => {
+  const chips = CH.activeFilterChips({ v: "QUALIFIED", cold: true, hide: true, r: 1500 }, true);
+  const byKey = Object.fromEntries(chips.map(c => [c.k, c.label]));
+  assert.equal(byKey.v, "Qualified");
+  assert.equal(byKey.cold, "hide cold >5d");
+  assert.equal(byKey.hide, "hide actioned");
+  assert.equal(byKey.r, "≤$1500");
+});
+
+test("activeFilterChips: no active filters returns an empty chip list", () => {
+  assert.deepEqual(CH.activeFilterChips({}, true), []);
+});
