@@ -125,7 +125,19 @@ def _sgt_minute_of_day():
     return n.hour * 60 + n.minute
 
 
+def _hold_file():
+    return os.path.join(os.path.dirname(_queue_file()), "owner-asks.hold")
+
+
+def owner_asks_held():
+    # Winfred (11 Sep 2026): "do not send yet, let me review the live landlords first".
+    # A marker file next to the queue pauses every owner ask and chase until removed.
+    return os.path.exists(_hold_file())
+
+
 def in_ask_window():
+    if owner_asks_held():
+        return False
     return ASK_WINDOW_START_MIN <= _sgt_minute_of_day() < ASK_WINDOW_END_MIN
 
 
