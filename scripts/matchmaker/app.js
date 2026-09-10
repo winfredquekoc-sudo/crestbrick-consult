@@ -308,6 +308,57 @@ function isWholeUnitTenant(t) {
 function lifecycleOf(l) { return (l && l.lifecycle) || "available"; }
 function isActiveLifecycle(l) { const c = lifecycleOf(l); return c === "available" || c === "renewal_watch" || c === "unknown"; }
 
+// ===================== filter facet normalisers (pure — tests/matchmaker/filters.test.mjs) =====================
+// property_type/rooms/req_raw are all free landlord text — bucket into a small
+// fixed set the filter select can enumerate, rather than showing raw text.
+function roomTypeOf(l) {
+  // req_raw.other only — req_raw's other keys (gender/ethnicity/...) carry
+  // tenant preference text, not property description, and folding them in
+  // here misreads e.g. a "mixed gender co-living" GENDER note as a co-living
+  // PROPERTY, double counting a listing that already has its own room text.
+  const rrOther = (l.req_raw && l.req_raw.other) || "";
+  const hay = [l.property_type, l.rooms, rrOther].filter(Boolean).join(" ").toLowerCase();
+  if (/\bstudio\b/.test(hay)) return "Studio";
+  if (/co[\s-]?living/.test(hay)) return "Co living";
+  if (/whole\s*unit|entire\s*(unit|flat|house)/.test(hay)) return "Whole unit";
+  if (/common\s*room/.test(hay)) return "Common room";
+  if (/master\s*room/.test(hay)) return "Master room";
+  return "Room";
+}
+function genderPrefOf(l) {
+  const g = ((l.reqs && l.reqs.gender) || "").trim();
+  if (!g) return "Unstated";
+  const s = g.toLowerCase();
+  if (s.startsWith("female")) return "Female only";
+  if (s.startsWith("male")) return "Male only";
+  if (s.startsWith("any") || s.startsWith("m/f") || s.startsWith("mixed")) return "Any gender";
+  return "Unstated";
+}
+// This is the landlord's stated preference, never a "quota" — CEA copy rule.
+function racePrefOf(l) {
+  const r = ((l.reqs && l.reqs.race) || "").trim();
+  if (!r) return "Unstated";
+  const s = r.toLowerCase();
+  if (s.startsWith("any") || s.includes("no blanket exclusion")) return "Any race";
+  if (s.startsWith("no ")) return "No " + r.slice(3).split(/[\s,;/]/)[0];
+  if (s.startsWith("prefers")) {
+    const first = r.replace(/^prefers\s*/i, "").split(/[\/,;\s]/)[0];
+    const norm = first.toLowerCase();
+    if (norm === "indian" || norm === "chinese" || norm === "malay") return "Prefers " + norm.charAt(0).toUpperCase() + norm.slice(1);
+    return "Prefers others";
+  }
+  if (/\bonly$/i.test(r)) return r;
+  return "Unstated";
+}
+function statusOf(l) {
+  const lc = lifecycleOf(l);
+  if (lc !== "available") return lc.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+  const free = Scoring.parseDate(l && l.available_from);
+  if (free && Scoring.atMidnight(free) > Scoring.atMidnight(TODAY)) return "Available from date";
+  return "Available now";
+}
+function cookingOf(l) { return (l && l.cooking) || "Unstated"; }
+
 function daysAgoLabel(days) {
   if (days == null) return "an unknown time";
   if (days <= 0) return "today";
@@ -1952,7 +2003,7 @@ function rebuildMatches() {
 }
 
 // ===================== filters =====================
-const F = () => ({ q: $("#q").value.trim().toLowerCase(), d: $("#fd").value, v: $("#fv").value, r: parseInt($("#fr").value) || 0, cold: $("#fc").checked, hide: $("#fh").checked });
+const F = () => ({ q: $("#q").value.trim().toLowerCase(), d: $("#fd").value, v: $("#fv").value, r: parseInt($("#fr").value) || 0, cold: $("#fc").checked, hide: $("#fh").checked, rt: $("#ft").value, gp: $("#fg").value, rp: $("#fe").value, st: $("#fs").value, ck: $("#fk").value });
 function passFilter(m) {
   const f = F();
   if (isSnoozedNow(m)) return false;
@@ -1961,6 +2012,11 @@ function passFilter(m) {
   if (f.r && m.l.rent_min && m.l.rent_min > f.r) return false;
   if (f.cold && isColdT(m.t)) return false;
   if (f.hide && getMarkV(m.l.id, m.t.id)) return false;
+  if (f.rt && roomTypeOf(m.l) !== f.rt) return false;
+  if (f.gp && genderPrefOf(m.l) !== f.gp) return false;
+  if (f.rp && racePrefOf(m.l) !== f.rp) return false;
+  if (f.st && statusOf(m.l) !== f.st) return false;
+  if (f.ck && cookingOf(m.l) !== f.ck) return false;
   if (f.q) {
     const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
     if (!hay.includes(f.q)) return false;
@@ -1973,6 +2029,11 @@ function passFilterListing(m) {
   if (f.v && effective(m).verdict !== f.v) return false;
   if (f.cold && isColdT(m.t)) return false;
   if (f.hide && getMarkV(m.l.id, m.t.id)) return false;
+  if (f.rt && roomTypeOf(m.l) !== f.rt) return false;
+  if (f.gp && genderPrefOf(m.l) !== f.gp) return false;
+  if (f.rp && racePrefOf(m.l) !== f.rp) return false;
+  if (f.st && statusOf(m.l) !== f.st) return false;
+  if (f.ck && cookingOf(m.l) !== f.ck) return false;
   if (f.q) { const hay = (m.t.name + " " + m.t.preferred_location + " " + m.t.district).toLowerCase(); if (!hay.includes(f.q)) return false; }
   return true;
 }
@@ -2558,6 +2619,11 @@ function facetCount(base, overrides) {
     if (f.r && m.l.rent_min && m.l.rent_min > f.r) continue;
     if (f.cold && isColdT(m.t)) continue;
     if (f.hide && getMarkV(m.l.id, m.t.id)) continue;
+    if (f.rt && roomTypeOf(m.l) !== f.rt) continue;
+    if (f.gp && genderPrefOf(m.l) !== f.gp) continue;
+    if (f.rp && racePrefOf(m.l) !== f.rp) continue;
+    if (f.st && statusOf(m.l) !== f.st) continue;
+    if (f.ck && cookingOf(m.l) !== f.ck) continue;
     if (f.q) {
       const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
       if (hay.indexOf(f.q) === -1) continue;
@@ -2575,10 +2641,13 @@ const VERDICT_LABELS = { "": "All verdicts", QUALIFIED: "Qualified", NEEDS_INFO:
 // Boolean at init — see the district <select> populate loop), so distTotal/
 // verdTotal (every match that clears the OTHER active filters, d/v itself
 // unconstrained) is exactly what facetCount(base, {d:""}) / {v:""} returns.
+// facet keys enumerated by allExcept() below — d/v/cold/hide plus the 5 room
+// type/gender/race/status/cooking facets added alongside district/verdict.
+const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
 function updateFacetedCounts() {
   const base = F();
-  const distCounts = {}, verdCounts = {};
-  let distTotal = 0, verdTotal = 0, coldCount = 0, hideCount = 0;
+  const distCounts = {}, verdCounts = {}, rtCounts = {}, gpCounts = {}, rpCounts = {}, stCounts = {}, ckCounts = {};
+  let distTotal = 0, verdTotal = 0, coldCount = 0, hideCount = 0, rtTotal = 0, gpTotal = 0, rpTotal = 0, stTotal = 0, ckTotal = 0;
   for (const m of MATCHES) {
     if (isSnoozedNow(m)) continue;
     if (base.r && m.l.rent_min && m.l.rent_min > base.r) continue;
@@ -2589,20 +2658,29 @@ function updateFacetedCounts() {
     const verdict = effective(m).verdict;
     const isCold = isColdT(m.t);
     const markV = getMarkV(m.l.id, m.t.id);
+    const rt = roomTypeOf(m.l), gp = genderPrefOf(m.l), rp = racePrefOf(m.l), st = statusOf(m.l), ck = cookingOf(m.l);
     // "Ok at base" = would this match still pass if THIS dimension were left
     // at whatever the user currently has set, i.e. every dimension except the
     // one a given facet is enumerating over — mirrors facetCount's f.X checks.
-    const vOkBase = !base.v || verdict === base.v;
-    const coldOkBase = !base.cold || !isCold;
-    const hideOkBase = !base.hide || !markV;
-    const dOkBase = !base.d || m.l.district === base.d;
-    if (vOkBase && coldOkBase && hideOkBase) { distCounts[m.l.district] = (distCounts[m.l.district] || 0) + 1; distTotal++; }
-    if (dOkBase && coldOkBase && hideOkBase) { verdCounts[verdict] = (verdCounts[verdict] || 0) + 1; verdTotal++; }
+    const ok = {
+      d: !base.d || m.l.district === base.d, v: !base.v || verdict === base.v,
+      cold: !base.cold || !isCold, hide: !base.hide || !markV,
+      rt: !base.rt || rt === base.rt, gp: !base.gp || gp === base.gp,
+      rp: !base.rp || rp === base.rp, st: !base.st || st === base.st, ck: !base.ck || ck === base.ck,
+    };
+    const allExcept = k => FACET_KEYS.every(x => x === k || ok[x]);
+    if (allExcept("d")) { distCounts[m.l.district] = (distCounts[m.l.district] || 0) + 1; distTotal++; }
+    if (allExcept("v")) { verdCounts[verdict] = (verdCounts[verdict] || 0) + 1; verdTotal++; }
     // cold facet mirrors facetCount(base,{cold:true}): "if (f.cold && isCold)
     // continue" excludes COLD rows once the flag is forced on, so the count
     // shown is survivors — i.e. NOT cold — not the cold ones themselves.
-    if (dOkBase && vOkBase && hideOkBase && !isCold) coldCount++;
-    if (dOkBase && vOkBase && coldOkBase && !markV) hideCount++;
+    if (allExcept("cold") && !isCold) coldCount++;
+    if (allExcept("hide") && !markV) hideCount++;
+    if (allExcept("rt")) { rtCounts[rt] = (rtCounts[rt] || 0) + 1; rtTotal++; }
+    if (allExcept("gp")) { gpCounts[gp] = (gpCounts[gp] || 0) + 1; gpTotal++; }
+    if (allExcept("rp")) { rpCounts[rp] = (rpCounts[rp] || 0) + 1; rpTotal++; }
+    if (allExcept("st")) { stCounts[st] = (stCounts[st] || 0) + 1; stTotal++; }
+    if (allExcept("ck")) { ckCounts[ck] = (ckCounts[ck] || 0) + 1; ckTotal++; }
   }
   const fd = $("#fd");
   if (fd) [...fd.options].forEach(opt => {
@@ -2615,6 +2693,15 @@ function updateFacetedCounts() {
   });
   const fc = $("#fccount"); if (fc) fc.textContent = "(" + coldCount + ")";
   const fh = $("#fhcount"); if (fh) fh.textContent = "(" + hideCount + ")";
+  [["ft", rtCounts, rtTotal, "All room types"], ["fg", gpCounts, gpTotal, "Any gender preference"],
+   ["fe", rpCounts, rpTotal, "Any race preference"], ["fs", stCounts, stTotal, "All statuses"],
+   ["fk", ckCounts, ckTotal, "Any cooking rule"]].forEach(([id, counts, total, allLabel]) => {
+    const sel = $("#" + id);
+    if (sel) [...sel.options].forEach(opt => {
+      if (!opt._label) opt._label = opt.value ? opt.textContent : allLabel;
+      opt.textContent = opt._label + " (" + (opt.value ? (counts[opt.value] || 0) : total) + ")";
+    });
+  });
 }
 
 // ===================== worklist + triage mode =====================
@@ -5564,6 +5651,16 @@ function renderPipeline() {
 (function () {
   const ds = [...new Set((DATA.listings || []).map(l => l.district).filter(Boolean))].sort();
   ds.forEach(d => { const o = el("option"); o.value = d; o.textContent = d + " " + (AREA[d] || ""); $("#fd").appendChild(o); });
+  // Room type/gender/race/status/cooking selects: populate from whatever
+  // buckets actually occur in this data, then hide the whole control when
+  // only one bucket exists — a filter that can never change the result is
+  // clutter, same rule as the district/verdict declutter pass (#94).
+  [["ft", roomTypeOf], ["fg", genderPrefOf], ["fe", racePrefOf], ["fs", statusOf], ["fk", cookingOf]].forEach(([id, fn]) => {
+    const sel = $("#" + id); if (!sel) return;
+    const vals = [...new Set((DATA.listings || []).map(fn).filter(Boolean))].sort();
+    if (vals.length < 2) { sel.style.display = "none"; return; }
+    vals.forEach(v => { const o = el("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+  });
   // (item 6) role=tab divs are not natively focusable/operable — tabindex
   // makes them reachable by Tab, and the keydown handler gives Enter/Space
   // the click-equivalent activation a real <button> gets for free.
@@ -5580,8 +5677,8 @@ function renderPipeline() {
   // after the user pauses — short enough to still feel instant.
   let qDebounceTimer = null;
   $("#q").addEventListener("input", () => { clearTimeout(qDebounceTimer); qDebounceTimer = setTimeout(render, 140); });
-  ["fd", "fv", "fr", "fc", "fh"].forEach(id => $("#" + id).addEventListener("input", render));
-  $("#clr").onclick = () => { clearTimeout(qDebounceTimer); ["q", "fr", "fd", "fv"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  ["fd", "fv", "fr", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", render));
+  $("#clr").onclick = () => { clearTimeout(qDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
   const addBtn = $("#addtenant"); if (addBtn) addBtn.onclick = openQuickAddTenant;
   const snoozeBtn = $("#snoozechip"); if (snoozeBtn) snoozeBtn.onclick = openSnoozedList;
   const dispatchBtn = $("#dispatchchip"); if (dispatchBtn) dispatchBtn.onclick = openDispatchDrawer;
