@@ -316,6 +316,9 @@ def _fact_sentence(code, value):
     return None
 
 
+MAX_EXTRACT_ATTEMPTS = 2
+
+
 def spawn_owner_answer_extracts(con, log_fn):
     """Called once per runner tick. For every landlord with a 'sent'/'chased' question who
     has replied since the ask, spawns a BACKGROUND claude-guard extract request and returns
@@ -328,7 +331,10 @@ def spawn_owner_answer_extracts(con, log_fn):
     items = OWN._load_queue()
     pending_by_landlord = {}
     for q in items:
-        if q.get("status") in ("sent", "chased") and q.get("asked_at"):
+        # attempt cap (11 Sep 2026): a timed out extract used to be respawned every tick
+        # forever (824 Haiku calls in one day for two landlords). Two tries, then hands off.
+        if q.get("status") in ("sent", "chased") and q.get("asked_at") \
+                and int(q.get("extract_attempts") or 0) < MAX_EXTRACT_ATTEMPTS:
             pending_by_landlord.setdefault(q["landlord_id"], []).append(q)
     if not pending_by_landlord:
         return
@@ -370,6 +376,13 @@ def finish_owner_extract(record, text, err, notify_fn, log_fn, timed_out=False):
     landlord_name = ctx.get("landlord_name")
     jid = record.get("jid")
     if timed_out or err:
+        for q in qs:
+            n = int(q.get("extract_attempts") or 0) + 1
+            OWN.mark_question(q["id"], q.get("status") or "sent", extract_attempts=n)
+            if n >= MAX_EXTRACT_ATTEMPTS:
+                OWN.mark_question(q["id"], "extract_failed")
+                notify_fn(f"Owner replied, {landlord_name or lid} answered in WhatsApp but I could not "
+                          f"read the answer to '{q['question_text'][:80]}'. Please record it by hand.")
         # Owner extracts are never tenant time critical the way a resume draft is -- the
         # SAME pending question is simply picked up again the next time this landlord's
         # chat is checked for a reply (spawn_owner_answer_extracts re-spawns for any

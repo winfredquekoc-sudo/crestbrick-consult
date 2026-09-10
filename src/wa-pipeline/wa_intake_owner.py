@@ -360,7 +360,14 @@ def run_owner_asks(con, send_fn, guard_reserve_fn, log_fn, notify_fn):
         if why:
             log_fn("OWNER_ASK_SKIP", lid, why)
             continue
-        pick = sorted(qs, key=lambda q: q.get("created", 0))[:MAX_QUESTIONS_PER_MESSAGE]
+        # one question per code per message (11 Sep 2026): Sanjiv got "how many pax" three
+        # times in one message because every tenant who asked had enqueued a copy
+        seen_codes, uniq = set(), []
+        for q in sorted(qs, key=lambda q: q.get("created", 0)):
+            if q.get("question_code") in seen_codes:
+                continue
+            seen_codes.add(q.get("question_code")); uniq.append(q)
+        pick = uniq[:MAX_QUESTIONS_PER_MESSAGE]
         text = build_owner_message(l.get("landlord_name"), [q["question_text"] for q in pick])
         if not text:
             log_fn("OWNER_ASK_SKIP", lid, "message failed its own safety check")
