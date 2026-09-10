@@ -734,6 +734,11 @@ EXTRA_ENQUIRY_SIGNS = (
     "any common room","any room available","room available for","available for rent",
     "is it still available","still vacant","do you have any room","do you have a room",
     "出租","看房","租房",
+    # Malay rental vocabulary (P3 fix, 11 Sep 2026 pkg B, c2mix03/c2mix08): an unambiguous
+    # Malay tenant enquiry ("mencari rumah/bilik", "boleh reserve", a stated monthly budget)
+    # was falling through to "not a clear tenant enquiry" and going silent on all 3 messages.
+    "cari rumah","cari bilik","mencari rumah","mencari bilik","rumah sewa","bilik sewa",
+    "sewa bilik","sewa rumah","bilik kosong","rumah kosong","boleh reserve","budget saya",
 )
 _SUPPLY_NEG = (
     "not looking","no longer looking","not renting","not interested",
@@ -855,6 +860,13 @@ _DEMAND_VETO = ("i am interested in", "rent -", "for rent -", "propertyguru", "9
 _LANDLORD_SUPPLY_LOW_CONTEXT = ("carousell", "carousel", "carosell", "carrousel",
                                 "got tenant already")
 _LOW_CONTEXT_VETO = ("still available", "still there", "still open", "can view", "or not")
+# a request to view the unit today/soon, or for photos/pics of the ADVERTISER's own place, is
+# demand side regardless of a bare portal-name mention riding along (P3 fix, 11 Sep 2026 pkg
+# B, c1-07: "Do u have photos of ur place? ... is it available for viewing today" read as a
+# landlord off the word "carousell" alone).
+_VIEW_OR_PHOTO_ASK_RE = re.compile(
+    r"photos?\s+of\s+(?:ur|your|the)\s+(?:place|unit|room|flat)|"
+    r"available\s+for\s+viewing|viewing\s+today|view(?:ing)?\s+today|can\s+(?:i|we)\s+view", re.I)
 
 def _supply_shaped(low):
     """True when a single piece of text (no history) itself carries any supply marker,
@@ -890,7 +902,15 @@ def supply_side_kind(chat_jid, text, with_confidence=False, rec=None):
     if rec is not None and rec.get("form_sent") and _RELATIONSHIP_CLAIM_RE.search(cur):
         return (None, False) if with_confidence else None
     kind, confident = None, False
-    if any(v in blob for v in _DEMAND_VETO):
+    # DEMAND_VETO reads the CURRENT message only, never blob (which also carries history): a
+    # cold open's portal boilerplate/"i am interested in" must not permanently shield every
+    # later message in the same thread, or a genuine mid-thread self-declared owner ("actually
+    # I'm the owner of this unit") is swallowed by the sender's own earlier tenant-shaped
+    # opener and never re-read as supply (self-declared-owner-treated-as-qualified-tenant,
+    # P3 fix, 11 Sep 2026 pkg B, c5s06). The original within-one-message CJK catch (a portal
+    # phrase and a demand question riding in the SAME text) is unaffected -- that veto phrase
+    # is always in cur too.
+    if any(v in cur for v in _DEMAND_VETO):
         pass                                # portal enquiry template -> demand side, never supply
     elif any(m in blob for m in _LANDLORD_SUPPLY): kind, confident = "landlord", True
     elif _MY_ROOM_AVAIL_RE.search(blob):           kind, confident = "landlord", True
@@ -898,7 +918,13 @@ def supply_side_kind(chat_jid, text, with_confidence=False, rec=None):
     elif any(m in blob for m in _LANDLORD_SUPPLY_LOW_CONTEXT):
         # same-message tenant availability question ("still there?", "can view or not") means
         # this is a tenant asking about OUR listing, not the owner -- veto back to no supply.
-        if not any(v in cur for v in _LOW_CONTEXT_VETO):
+        # Also veto on the broader is/are...available phrasing and an explicit ask to view or
+        # for photos of the advertiser's own unit -- "Do u have photos of ur place? ... is it
+        # available for viewing today" (carousell opener) read as a landlord on a bare mention
+        # of the portal name alone (tenant-misclassified-as-landlord, P3 fix, 11 Sep 2026 pkg
+        # B, c1-07); those are demand questions, not a supply signal.
+        if not (any(v in cur for v in _LOW_CONTEXT_VETO) or _AVAIL_ENQUIRY_RE.search(cur)
+                or _VIEW_OR_PHOTO_ASK_RE.search(cur)):
             kind, confident = "landlord", False
     elif not blob.strip():
         n_img, n_txt = recent_inbound_media(chat_jid)
@@ -912,6 +938,12 @@ def supply_side_kind(chat_jid, text, with_confidence=False, rec=None):
 _AVAIL_ENQUIRY_RE = re.compile(
     r"\bavailable\b\s*\?|\b(?:is|are)\b[^?.!\n]{0,25}\bavailable\b|"
     r"\bavailable\b[^?.!\n]{0,25}\b(?:is|are)\b|\bstill\b[^?.!\n]{0,15}\bavailable\b", re.I)
+# a portal name (99.co / PropertyGuru) plus a monthly figure is a tenant enquiry about a
+# listed unit, never a bare "not a clear tenant enquiry" (P3 fix, 11 Sep 2026 pkg B, c3rm05:
+# "Utilities included if I pay $500 per month or more? Asking for property on 99.co" went
+# not_enquiry / silent for 2 messages before a third finally reopened it).
+_PORTAL_NAME_RE = re.compile(r"\b99\.co\b|\bpropertyguru\b|\bproperty\s*guru\b", re.I)
+_PERMONTH_HINT_RE = re.compile(r"/\s*mo\b|per\s+month|\bp\.?m\.?\b|\bmonthly\b|\$\s*\d", re.I)
 
 def is_tenant_enquiry(text, listing_key=None):
     """Broader than is_enquiry: also accepts natural tenant phrasings, non-English rental
@@ -922,6 +954,8 @@ def is_tenant_enquiry(text, listing_key=None):
         return False
     if (is_enquiry(text) or any(p in low for p in EXTRA_ENQUIRY_SIGNS)
             or _AVAIL_ENQUIRY_RE.search(text or "")):
+        return True
+    if _PORTAL_NAME_RE.search(low) and _PERMONTH_HINT_RE.search(low):
         return True
     if listing_key:
         tx, _ = classify_transaction(text, listing_key)

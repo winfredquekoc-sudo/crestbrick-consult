@@ -18,6 +18,22 @@ _KW_HAS_NUM_RE = re.compile(r"\bblk\.?\s*\d+|\bblock\s*\d+|#\d+", re.I)
 
 _FALLBACK_POSTAL_RE = re.compile(r"\b(\d{6})\b")
 _FALLBACK_PAREN_RE = re.compile(r"\(([^)]*)\)")
+
+_TOK_RE_CACHE = {}
+
+def _tok_re(tok):
+    """Word bounded matcher for a tier 0 fallback token, cached per token. A tier 0 token is
+    a PARSED word (a project name, a distinctive word), never a token Winfred configured
+    himself (that is pg_url_keywords, tier 1/2) -- a raw 'tok in text' substring check lets a
+    real word swallow it whole ('pending' inside 'depending', 'ea' inside 'lease'/'area'/
+    'overseas'/'earlier' before the length filter above), silently autobinding a cold chat to
+    a real listing it never mentioned (P3 fix, 11 Sep 2026 pkg B)."""
+    p = _TOK_RE_CACHE.get(tok)
+    if p is None:
+        p = re.compile(r"\b" + re.escape(tok) + r"\b")
+        _TOK_RE_CACHE[tok] = p
+    return p
+
 # generic Singapore condo/estate suffix words -- never distinctive enough to stand alone as
 # a fallback keyword (a listing whose project name is just "X Park" must not bind off any
 # message that happens to say "park").
@@ -56,7 +72,12 @@ def _fallback_tokens(l):
     paren = _FALLBACK_PAREN_RE.search(addr) or _FALLBACK_PAREN_RE.search(name)
     if paren:
         first = paren.group(1).split(",")[0].strip().lower()
-        if first:
+        # a real project name in parens ("High Oak Condo") is always several letters long;
+        # a bare unit type marker ("EA", "MBR", "WC") is 2-3 letters and, worse, a raw
+        # substring of ordinary English words ("EA" inside lease/area/overseas/earlier) --
+        # exactly the false autobind the attack replay caught (P3 fix, 11 Sep 2026 pkg B,
+        # findings unbound-chat-autobound-to-real-listing and 3 siblings).
+        if len(first) >= 4:
             toks.append(first)
     main = _FALLBACK_PAREN_RE.sub(" ", addr)
     main = re.sub(r"#.*", "", main)
@@ -94,7 +115,7 @@ def _match_pass(pool, t):
                 tier = max(tier, 2 if _KW_HAS_NUM_RE.search(kw) else 1)
         if tier < 0:
             for kw in _fallback_tokens(l):
-                if kw and kw in t:
+                if kw and _tok_re(kw).search(t):
                     tier = 0
                     break
         if tier < 0:
@@ -115,6 +136,17 @@ def match_listing(text, reqs=None):
     tie at the same specificity tier (see _match_pass) returns None rather than guessing."""
     t = (text or "").lower()
     listings = list((reqs if reqs is not None else E.listing_reqs()).values())
+    # INTENT GATE (P3 fix, 11 Sep 2026 pkg B): a sale shaped message must never bind to a
+    # rent listing and a rent shaped one must never bind to a sale listing (attack finding
+    # buyer-enquiry-bound-to-unrelated-live-rental-listing). Only a DECISIVE signal gates --
+    # classify_transaction's own lowest tier is a bare keyword ("lease", "investment") that
+    # is too easily an offhand remark inside an otherwise ordinary enquiry; gating on that
+    # tier would wrongly exclude every listing of one type from a normal message that merely
+    # mentions the other word once.
+    txn, txn_reason = E.classify_transaction(text)
+    if txn in ("rent", "sale") and "keyword" not in txn_reason:
+        opposite = "sale" if txn == "rent" else "rent"
+        listings = [l for l in listings if (l.get("deal_type") or "") != opposite]
     r = _match_pass([l for l in listings if _listing_open(l)], t)
     if r:
         return r
