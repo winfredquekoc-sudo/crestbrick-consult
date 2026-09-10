@@ -128,6 +128,52 @@ class TestNoTelegramCallEscapesTheKillSwitch(unittest.TestCase):
                 self.N.notify_for_action(a, state)
 
 
+class TestMutedLogNeverWrittenWhenKillSwitchEnvSet(unittest.TestCase):
+    """Incident, 11 Sep 2026: a real line landed in the LIVE notify-muted.log while
+    test_attack_fixes_sep11_e.py ran, because WA_INTAKE_NO_TELEGRAM=1 alone only blocks the
+    Telegram send -- notify_winfred's _telegram_suppressed() early-return already prevents
+    this on the common path (see its own docstring), but this proves the INDEPENDENT,
+    explicit guard now sitting right at the muted-log write site: even if
+    _telegram_suppressed() itself regressed (mocked away here to simulate exactly that), the
+    write must still never happen while either kill switch env var is set."""
+
+    def setUp(self):
+        import wa_intake_notify as N
+        self.N = N
+        self._tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self._tmp.cleanup)
+        self._muted = os.path.join(self._tmp.name, "notify-muted.log")
+        self._patch(N, "MUTED_LOG", self._muted)
+        self._patch(N, "STATE_DIR", self._tmp.name)
+
+    def _patch(self, target, attr, value):
+        p = mock.patch.object(target, attr, value)
+        p.start()
+        self.addCleanup(p.stop)
+
+    def test_muted_log_skipped_even_if_suppression_check_regresses(self):
+        with mock.patch.object(self.N, "_telegram_suppressed", return_value=None), \
+                mock.patch.object(self.N, "_allowed", return_value=False):
+            self.N.notify_winfred("synthetic scenario message that must never leak")
+        self.assertFalse(os.path.exists(self._muted),
+                         "notify-muted.log was written despite WA_INTAKE_NO_TELEGRAM=1")
+
+    def test_muted_log_still_written_when_kill_switch_env_absent(self):
+        """Sanity check: the new guard is scoped to the kill switch env vars, not a blanket
+        disablement of the muted-log feature -- with neither var set (a genuine live muted
+        scenario) the append still happens."""
+        saved = {k: os.environ.pop(k, None) for k in ("WA_INTAKE_NO_TELEGRAM", "WA_INTAKE_SANDBOX")}
+        try:
+            with mock.patch.object(self.N, "_telegram_suppressed", return_value=None), \
+                    mock.patch.object(self.N, "_allowed", return_value=False):
+                self.N.notify_winfred("routine muted message")
+        finally:
+            for k, v in saved.items():
+                if v is not None:
+                    os.environ[k] = v
+        self.assertTrue(os.path.exists(self._muted))
+
+
 class TestNoBridgeCallEscapesTheKillSwitch(unittest.TestCase):
     """requests.post is the ONLY way wa_intake_send._send ever reaches the WhatsApp bridge.
     Patched here to raise if called at all -- _send must still report success (True) without

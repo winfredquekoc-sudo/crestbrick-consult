@@ -329,11 +329,14 @@ ok("sale enquiry message 1 (texts[0]) is the listing description, message 2 is t
    and "Tampines Ave 4" in aS["texts"][0] and "Citizenship" in aS["texts"][1])
 
 # UNBOUND sale enquiry: never a blind guess (buyer-form-sent-with-no-listing-bound fix) --
-# bind or flag, per the qualification redesign's precondition.
+# bind or flag, per the qualification redesign's precondition. 11 Sep 2026 (remaining gap
+# c4rm04): total silence to the prospect was itself a gap -- FLAG_HUMAN now also carries one
+# factual "which unit?" ask (never a form, never advice), so aSU.get("text") is no longer None.
 sSU={"version":1,"conversations":{}}
 aSU=E.handle_event(sSU,{"jid":"6590009991@s.whatsapp.net","msg_id":"SU1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":None})
 ok("unbound sale enquiry -> FLAG_HUMAN, never a blind buyer form",
-   aSU and aSU["type"]=="FLAG_HUMAN" and aSU.get("text") is None and aSU.get("notify") is True)
+   aSU and aSU["type"]=="FLAG_HUMAN" and aSU.get("buyer_unbound") is True
+   and aSU.get("text")==E._BUYER_UNBOUND_ASK_EN and aSU.get("notify") is True)
 ok("unbound sale enquiry never latches buyer_form_sent (a later bound message can still flow)",
    sSU["conversations"]["6590009991"].get("buyer_form_sent") is not True)
 ok("unbound sale enquiry latches buyer_unbound_flagged (one flag, not re-flagged every tick "

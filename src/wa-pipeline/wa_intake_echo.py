@@ -47,6 +47,12 @@ _OUTBOUND_ONLY = (
     "跟您分享一下，房东希望租期至少一年",
     "我的频道里有超过30间房间可供选择",
     "我的频道里有很多房间可供选择",
+    # remaining gap c2mix04 / c4rm04 (11 Sep 2026) -- same reasoning: an echoed engine send
+    # must never be misread as Winfred's own hand reply (intake_engine.py's
+    # BOT_SIGNATURES/_ENGINE_PREFIXES carry the same three phrases).
+    "我是帮房东处理这个单位的中介",
+    "which unit were you enquiring about",
+    "请问您看到的是哪个单位",
 )
 
 # Landlord onboarding action types: manual_takeover is latched the moment supply side is

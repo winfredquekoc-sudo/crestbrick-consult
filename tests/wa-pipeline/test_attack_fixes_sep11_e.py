@@ -14,14 +14,13 @@ Cited scenario/result json for each finding: scratchpad/attack/flow/cycle{1,5}/*
 
 Run: /usr/bin/python3 tests/wa-pipeline/test_attack_fixes_sep11_e.py
 """
-import sys, os, sqlite3, time, unittest
+import sys, os, sqlite3, tempfile, time, unittest
 from unittest import mock
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
 
-os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
-os.environ["WA_INTAKE_NO_SEND"] = "1"
+import wa_intake_paths as PATHS
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import intake_engine as E
@@ -30,6 +29,64 @@ import wa_intake_notify as NOTIFY
 import wa_intake_runner as R
 from test_attack_hardening_sep9_p2 import _listing, _ReqsFixtureMixin
 from test_takeover_resume import _isolated_runner, FAKE_PN, FAKE_JID, _mem_db
+
+# STEP 0 sandbox seal, same pattern as test_sandbox_seal.py's SandboxedRun / test_takeover_
+# resume.py's _isolated_runner (live-state leak incident, 11 Sep 2026: a real notify-muted.log
+# line landed under ~/.claude/state/listing-templates while this exact file ran, because
+# WA_INTAKE_NO_TELEGRAM=1 alone only blocks the Telegram send -- the STATE_ROOT itself still
+# resolved live for anything that reads/writes state_root paths directly). Every wa-pipeline
+# path resolves fresh from the CURRENT environment at call time (wa_intake_paths.resolved),
+# so setting these in setUpModule (rather than at bare import time) is enough -- and, unlike a
+# bare module-level os.environ[...] = ..., setUpModule/tearDownModule save and restore the
+# prior values, so this file's sandbox never leaks into any test file that runs after it in
+# the SAME process (python3 -m unittest discover runs every test_*.py in one process; a
+# module-level-only env mutation here previously broke over 30 unrelated tests elsewhere by
+# leaking WA_INTAKE_SANDBOX/STATE_ROOT/MSG_DB into them). WA_INTAKE_DATA_ROOT is deliberately
+# left unset/real -- see wa_intake_paths.py's own REAL_ROOTS docstring: _templates/ holds
+# checked-in, read-only reference data (landlord-db.json, cobroke-agents.json) several tests
+# here rely on excluded_reason() reading for real; it is not live per-run state, unlike
+# STATE_ROOT/MSG_DB. WA_INTAKE_MSG_DB pointing at an empty tempdir also means
+# excluded_reason()'s contact-name lookup (_contact_names, backed by the real WhatsApp bridge
+# store) would fail closed with "db_error" for any test here that does not go through
+# _isolated_runner (which already patches these the same way -- see its own docstring), so
+# the same functions are patched module-wide: these are synthetic scenario numbers, never
+# real contacts, so every lookup should behave as "not excluded".
+_SANDBOX_TMP = None
+_SAVED_ENV = {}
+_MODULE_PATCHES = []
+
+def setUpModule():
+    global _SANDBOX_TMP
+    _SANDBOX_TMP = tempfile.mkdtemp(prefix="wa-attack-e-")
+    for k in ("WA_INTAKE_SANDBOX", "WA_INTAKE_STATE_ROOT", "WA_INTAKE_MSG_DB",
+              "WA_INTAKE_NO_TELEGRAM", "WA_INTAKE_NO_SEND"):
+        _SAVED_ENV[k] = os.environ.get(k)
+    os.environ["WA_INTAKE_SANDBOX"] = "1"
+    os.environ["WA_INTAKE_STATE_ROOT"] = _SANDBOX_TMP
+    os.environ["WA_INTAKE_MSG_DB"] = _SANDBOX_TMP
+    os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+    os.environ["WA_INTAKE_NO_SEND"] = "1"
+    PATHS.sandbox_init()   # refuses to proceed if the env above somehow still resolves live
+    for target, attr, value in (
+            (E, "_contact_names", lambda pn: ([], True)),
+            (E, "_landlord_pn_set", lambda: frozenset()),
+            (E, "_landlord_form_recipients", lambda: frozenset()),
+            (E, "_cobroke_agent_pn_set", lambda: frozenset())):
+        p = mock.patch.object(target, attr, value)
+        p.start()
+        _MODULE_PATCHES.append(p)
+
+def tearDownModule():
+    for p in _MODULE_PATCHES:
+        p.stop()
+    _MODULE_PATCHES.clear()
+    for k, v in _SAVED_ENV.items():
+        if v is None:
+            os.environ.pop(k, None)
+        else:
+            os.environ[k] = v
+    _SAVED_ENV.clear()
+    _MODULE_PATCHES.clear()
 
 
 # ===========================================================================================

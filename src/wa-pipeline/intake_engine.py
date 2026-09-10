@@ -2320,7 +2320,11 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   "你好 :) 谢谢您提供的资料。在把您的资料发给房东之前",
                   "跟您分享一下，房东希望租期至少一年",
                   "我的频道里有超过30间房间可供选择",
-                  "我的频道里有很多房间可供选择")
+                  "我的频道里有很多房间可供选择",
+                  "我是帮房东处理这个单位的中介",   # own/agent disclosure, Chinese (remaining gap c2mix04)
+                  # unbound buyer enquiry ask (remaining gap c4rm04, 11 Sep 2026)
+                  "which unit were you enquiring about",
+                  "请问您看到的是哪个单位")
 def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
@@ -2373,6 +2377,10 @@ _ENGINE_PREFIXES = (
     "跟您分享一下，房东希望租期至少一年",
     "我的频道里有超过30间房间可供选择",
     "我的频道里有很多房间可供选择",
+    "我是帮房东处理这个单位的中介",   # own/agent disclosure, Chinese (remaining gap c2mix04)
+    # unbound buyer enquiry ask (remaining gap c4rm04, 11 Sep 2026)
+    "hi \U0001F642 which unit were you enquiring about",
+    "您好 \U0001F642 请问您看到的是哪个单位",
 )
 def _template_heads():
     """Cached lowercase first-80-chars of every listing unit message (message 1 sends)."""
@@ -3407,6 +3415,15 @@ _FACT_OWNER_AGENT_RE = re.compile(
     r"are\s+you\s+the\s+(?:owner|landlord|agent)\b|\bowner\s+or\s+agent\b|\bagent\s+or\s+owner\b|"
     r"you\s+(?:the\s+)?landlord\b", re.I)
 _OWNER_AGENT_DISCLOSURE = "I am the agent helping the landlord with this unit \U0001F642"
+# Chinese phrasing of the same question (11 Sep 2026 fix, remaining gap c2mix04): "你是房东
+# 还是中介" / "房东还是中介" / "你自己是房东吗" / "这房间是你的吗" -- same disclosure, in
+# Chinese, matched regardless of the record's stamped lang (a zh question always gets the
+# zh reply; an en question on a zh record still gets zh -- see _tenant_fact_answer below).
+_FACT_OWNER_AGENT_RE_ZH = re.compile(
+    r"你是(?:房东|屋主|中介)|(?:房东|屋主)(?:还是|或者?)(?:中介|agent)|"
+    r"中介(?:还是|或者?)(?:房东|屋主)|你自己是(?:房东|屋主)|"
+    r"这.{0,4}(?:房子|房间|单位|屋子).{0,3}是你的")
+_OWNER_AGENT_DISCLOSURE_ZH = "我是帮房东处理这个单位的中介 \U0001F642"
 _FACT_COOK_RE = re.compile(r"\bcook(?:ing)?\b|\bkitchen\b", re.I)
 _FACT_COOK_EXPLICIT_RE = re.compile(r"\bcook(?:ing)?\b", re.I)
 _FACT_UTIL_IN_SAME_MSG_RE = re.compile(r"\bwifi\b|\binternet\b|\baircon\b|\bair\s*con\b|\bair-con\b", re.I)
@@ -3463,11 +3480,16 @@ def _fact_pets_phrase(v):
 _RENT_PIVOT_TEXT = ("Rent is usually fixed \U0001F642 It's set by the landlord. Do come down to "
                     "view first, and shall I arrange a viewing for you?")
 
-def _tenant_fact_answer(question_text, listing):
+def _tenant_fact_answer(question_text, listing, lang="en"):
     """Return a truthful, Winfred-voice answer for a tenant's factual question, drawn ONLY from
     the listing's own data — never a fabricated or guessed answer. Returns None whenever the
     question carries any opinion/negotiation/legal edge (always flagged to Winfred instead), or
-    when the fact it maps to simply is not on file for this listing."""
+    when the fact it maps to simply is not on file for this listing.
+
+    `lang` (default "en"): the record's stamped language (_lang(rec)) -- picks the Chinese
+    variant of the owner/agent disclosure for a zh record even when the question itself is
+    typed in English; a literally Chinese-phrased question (_FACT_OWNER_AGENT_RE_ZH) always
+    gets the Chinese reply regardless of lang (11 Sep 2026, remaining gap c2mix04)."""
     t = question_text or ""
     if _FACT_VETO_RE.search(t):
         return None
@@ -3475,8 +3497,9 @@ def _tenant_fact_answer(question_text, listing):
     req = listing.get("requirements") or {}
     facts = listing.get("facts") or {}
 
-    if _FACT_OWNER_AGENT_RE.search(t):
-        return _OWNER_AGENT_DISCLOSURE
+    if _FACT_OWNER_AGENT_RE.search(t) or _FACT_OWNER_AGENT_RE_ZH.search(t):
+        return (_OWNER_AGENT_DISCLOSURE_ZH if (lang == "zh" or _FACT_OWNER_AGENT_RE_ZH.search(t))
+                else _OWNER_AGENT_DISCLOSURE)
 
     if _FACT_LEASE_RE.search(t):
         raw = req.get("lease_min_months")
@@ -3775,7 +3798,7 @@ def _viewing_reaction(rec, ev, pn):
             return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
                     "notify": True, "question": ev.get("text"), "texts": _texts,
                     "text": _texts[0]}
-        ans = (_tenant_fact_answer(ev.get("text"), listing_reqs().get(rec.get("listing_key")) or {})
+        ans = (_tenant_fact_answer(ev.get("text"), listing_reqs().get(rec.get("listing_key")) or {}, _lang(rec))
                if not rec.get("fact_answered") else None)
         if ans:
             # the generic rent pivot never consumes the one-shot budget -- only a real
@@ -3929,6 +3952,16 @@ def handle_event(state, ev):
             _rec2["_last_notified_text"] = ev.get("text") or ""
             _rec2["_last_notified_ts"] = __import__("time").time()
     return a
+
+# an unbound buyer (sale) enquiry got zero reply and only a generic silent flag (remaining
+# gap c4rm04, 11 Sep 2026): the prospect never named a unit, so no form/description can go
+# out, but leaving them in total silence is worse than one factual, no-advice question asking
+# which unit they mean. Sent at most once per prospect (the same buyer_unbound_flagged latch
+# already gates this branch to a single fire).
+_BUYER_UNBOUND_ASK_EN = ("Hi \U0001F642 Which unit were you enquiring about? Do share the link "
+                          "or the address so I can send the details.")
+_BUYER_UNBOUND_ASK_ZH = ("您好 \U0001F642 请问您看到的是哪个单位？"
+                          "发个链接或地址给我，我把详情发您。")
 
 # ---------- inner handler: returns at most ONE action ----------
 def _handle_event_inner(state, ev):
@@ -4438,7 +4471,9 @@ def _handle_event_inner(state, ev):
                 if rec.get("buyer_unbound_flagged"):
                     return None
                 rec["buyer_unbound_flagged"] = True
-                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                _ask = _BUYER_UNBOUND_ASK_ZH if _lang(rec) == "zh" else _BUYER_UNBOUND_ASK_EN
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "buyer_unbound": True,
+                        "enquiry_text": ev.get("text"), "text": _ask,
                         "reason": "buyer enquiry (" + txr + ") with no listing named; reply "
                                   "by hand with a shortlist of open sale listings"}
             ptype = classify_property_type_ctx(ev.get("jid"), ev.get("text",""), lk)
@@ -4681,7 +4716,7 @@ def _handle_event_inner(state, ev):
                 and not _has_viewing_time(_pretxt.lower())
                 and len(extract_profile(_pretxt)) < 2
                 and missing_required(rec["profile"], reqs.get(_lk_pre) if _lk_pre else None)):
-            _ans = (_tenant_fact_answer(_pretxt, reqs.get(_lk_pre) or {})
+            _ans = (_tenant_fact_answer(_pretxt, reqs.get(_lk_pre) or {}, _lang(rec))
                     if (_lk_pre and not rec.get("fact_answered")) else None)
             if _ans:
                 if _ans != _RENT_PIVOT_TEXT:

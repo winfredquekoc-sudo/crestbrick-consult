@@ -163,6 +163,14 @@ def notify_winfred(msg):
         _tg_send(msg)
         return
     if not _allowed(msg):
+        # incident, 11 Sep 2026: a live notify-muted.log line leaked a synthetic scenario
+        # number while a test ran. Defense in depth, independent of _telegram_suppressed()
+        # above (which already gates this whole branch on the common path) -- an explicit,
+        # self-contained re-check right at the write site so a future regression upstream
+        # (a changed early-return, a mocked _telegram_suppressed) can never reach this
+        # open() call while either kill switch env var is set.
+        if os.environ.get("WA_INTAKE_NO_TELEGRAM") == "1" or os.environ.get("WA_INTAKE_SANDBOX") == "1":
+            return
         try:
             with open(_muted_log(), "a") as f:
                 f.write(time.strftime("%Y-%m-%d %H:%M:%S") + " | "
@@ -496,6 +504,12 @@ def notify_for_action(a, state):
         notify_winfred(f"Buyer enquiry — sent the open house invite instead of the buyer form.\n{nm} ({a['pn']}) for {lk}: {a.get('reason','')}")
     elif a["type"] in ("SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
         notify_winfred(f"Landlord onboarding — {a['type']}. {nm} ({a['pn']}): {a.get('reason','')}")
+    elif a["type"] == "FLAG_HUMAN" and a.get("buyer_unbound"):
+        # remaining gap c4rm04 (11 Sep 2026): a fixed, distinct line -- never the generic
+        # coalesced FLAG_HUMAN wording below, which would just print "on a listing" here
+        # since lk is unbound. Uncoalesced (straight to notify_winfred): a cold buyer lead
+        # naming no unit is exactly the kind of thing Winfred should hear about promptly.
+        notify_winfred(f"Buyer enquiry, no listing bound: {a['pn']} {(a.get('enquiry_text') or '')[:120]}")
     elif a.get("notify"):
         # routine FLAG_HUMAN style ping (redirect/house_gate/edge case) -- coalesced
         # per chat (see notify_winfred_coalesced above). bypass_coalesce=True (a

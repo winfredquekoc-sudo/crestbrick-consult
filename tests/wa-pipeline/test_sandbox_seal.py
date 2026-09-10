@@ -334,7 +334,7 @@ class SandboxedRun(unittest.TestCase):
     @staticmethod
     def _live_mtimes():
         out = {}
-        for name in ("runner-last.json", "intake-state.json"):
+        for name in ("runner-last.json", "intake-state.json", "notify-muted.log"):
             p = os.path.join(_REAL_STATE_ROOT, name)
             out[p] = os.path.getmtime(p) if os.path.exists(p) else None
         return out
@@ -461,7 +461,7 @@ class TestLandlordMatcherScriptIsSealed(unittest.TestCase):
     @staticmethod
     def _live_mtimes():
         out = {}
-        for name in ("runner-last.json", "intake-state.json"):
+        for name in ("runner-last.json", "intake-state.json", "notify-muted.log"):
             p = os.path.join(_REAL_STATE_ROOT, name)
             out[p] = os.path.getmtime(p) if os.path.exists(p) else None
         return out

@@ -315,7 +315,12 @@ class TestBuyerFormNeverSentUnbound(_FixtureBase):
     """buyer-form-sent-with-no-listing-bound (c4rm04-punggol-floorplan-photos-unbound): a
     buy-shaped message with no listing reference fired the full buyer intake funnel with
     listing_key null -- nobody could tell which unit the buyer meant and qualification
-    could never run. Bind or flag, never a blind guess."""
+    could never run. Bind or flag, never a blind guess.
+
+    11 Sep 2026 (remaining gap c4rm04): total prospect silence was itself a gap on top of
+    this fix -- FLAG_HUMAN now also carries one factual "which unit?" ask (never a form,
+    never advice), so a.get("text") is no longer None; see test_attack_fixes_sep11_f.py for
+    the dedicated coverage of that ask + its Telegram line + the once-per-prospect latch."""
 
     def test_unbound_buyer_enquiry_flags_instead_of_sending_a_blind_form(self):
         s = {"version": 1, "conversations": {}}
@@ -327,7 +332,7 @@ class TestBuyerFormNeverSentUnbound(_FixtureBase):
         rec = s["conversations"].get(pn, {})
         if rec.get("transaction") == "sale":
             self.assertEqual(a["type"], "FLAG_HUMAN")
-            self.assertIsNone(a.get("text"))
+            self.assertEqual(a.get("text"), E._BUYER_UNBOUND_ASK_EN)
             self.assertTrue(a.get("notify"))
             self.assertIsNone(rec.get("listing_key"))
             self.assertFalse(rec.get("buyer_form_sent"))
