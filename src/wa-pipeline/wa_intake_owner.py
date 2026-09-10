@@ -159,11 +159,64 @@ def _rewrite_queue(items):
     os.replace(tmp, queue_file)
 
 
+# dedup window (11 Sep 2026, item 2): a second tenant asking the SAME landlord the SAME
+# question code within this many seconds of an unresolved earlier ask merges onto it instead
+# of queuing a twin -- the twin was the exact shape of the 3x pax repeat in the incident.
+DEDUP_WINDOW_SEC = 7 * 24 * 3600
+_MERGEABLE_STATUSES = ("queued", "sent", "chased")
+
+
+def _find_recent_duplicate(landlord_id, code):
+    now = time.time()
+    for q in _load_queue():
+        if (q.get("landlord_id") == landlord_id and q.get("question_code") == code
+                and q.get("status") in _MERGEABLE_STATUSES
+                and now - float(q.get("created") or 0) <= DEDUP_WINDOW_SEC):
+            return q
+    return None
+
+
+def _merge_source_into(existing, source, source_jid):
+    """Appends (source, source_jid) onto existing['sources'] (seeding it from the entry's own
+    original source/source_jid the first time) and rewrites the queue in place. Every waiting
+    tenant's phone/jid is kept so finish_owner_extract can draft a follow up to EACH of them,
+    not just whichever tenant happened to ask first."""
+    sources = existing.get("sources")
+    if not sources:
+        sources = [{"source": existing.get("source"), "source_jid": existing.get("source_jid")}]
+    if source and not any(s.get("source") == source for s in sources):
+        sources.append({"source": source, "source_jid": source_jid})
+    mark_question(existing["id"], existing.get("status") or "queued", sources=sources)
+
+
+def merge_twins(landlord_id, question_code, keep_id):
+    """Called once a question is answered (item 3): any OTHER still live (queued/sent/chased)
+    entry for the same landlord_id + question_code is marked 'merged' so it can never respawn
+    an extract of its own -- the answer already came in for keep_id."""
+    items = _load_queue()
+    changed = False
+    for q in items:
+        if (q.get("id") != keep_id and q.get("landlord_id") == landlord_id
+                and q.get("question_code") == question_code
+                and q.get("status") in _MERGEABLE_STATUSES):
+            q["status"] = "merged"
+            changed = True
+    if changed:
+        _rewrite_queue(items)
+    return changed
+
+
 def enqueue_owner_question(landlord_id, listing_key, question_code, question_text,
                             source="clarity-report", source_jid=None, log_fn=None):
     """THE hook (see module docstring). Returns the new entry's id, or None if the question
     was refused (logged via log_fn if given) -- never raises, so a caller mid tenant reply
-    never crashes because a question turned out to be unsafe."""
+    never crashes because a question turned out to be unsafe.
+
+    Dedup (11 Sep 2026, item 2): if a queued/sent/chased twin for the same landlord_id +
+    question_code was created within DEDUP_WINDOW_SEC, this call merges onto it (appending
+    `source`/`source_jid` to that entry's sources list) and returns THAT entry's id instead of
+    queuing a fresh copy -- Sanjiv style triple asking stops at the source, not just at message
+    composition time."""
     log_fn = log_fn or (lambda kind, who, msg: None)
     code = str(question_code or "").strip().upper()
     if code not in QUESTION_CODES:
@@ -176,11 +229,18 @@ def enqueue_owner_question(landlord_id, listing_key, question_code, question_tex
     if not landlord_id:
         log_fn("OWNER_Q_REJECTED", landlord_id, "no landlord_id")
         return None
+    existing = _find_recent_duplicate(landlord_id, code)
+    if existing is not None:
+        _merge_source_into(existing, source, source_jid)
+        log_fn("OWNER_Q_MERGED", landlord_id,
+               f"{existing['id']} :: {code} :: merged source {source!r} onto existing ask")
+        return existing["id"]
     qid = hashlib.sha1(f"{landlord_id}|{code}|{question_text}|{time.time()}".encode()).hexdigest()[:8]
     entry = {"id": qid, "landlord_id": landlord_id, "listing_key": listing_key,
               "question_code": code, "question_text": question_text.strip(),
               "source": source, "source_jid": source_jid, "created": time.time(),
-              "status": "queued", "asked_at": None, "answer": None, "evidence": None}
+              "status": "queued", "asked_at": None, "answer": None, "evidence": None,
+              "sources": [{"source": source, "source_jid": source_jid}]}
     queue_file = _queue_file()
     d = os.path.dirname(queue_file)
     if d and not os.path.isdir(d):

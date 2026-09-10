@@ -137,9 +137,41 @@ _ADVICE_RE = re.compile(
     r"lawyer|legal|conveyanc\w*|sue|court|tribunal|i\s*(?:would\s*)?(?:advise|recommend|suggest)|"
     r"you\s+should\s+(?:buy|sell|invest|offer|negotiate))\b", re.I)
 _CEA_RE = re.compile(r"\b(?:cea|r0?\d{5}[a-z]|l\d{7,9}[a-z])\b", re.I)
-# any money figure at all: a rent number is Winfred's to quote, never a drafted line's
-_MONEY_RE = re.compile(r"[$\uFF04]\s*\d|\bsgd\b|\bs\$|\b\d{3,5}\s*(?:/|per\s*)?"
-                       r"(?:mo|mth|month|pm|monthly)\b|\b\d{4}\b", re.I)
+# any money figure at all: a rent number is Winfred's to quote, never a drafted line's.
+#
+# Dates must never count as a money figure (11 Sep 2026, item 4) -- the old bare \b\d{4}\b
+# check flagged "16 Sep 2026" for the same reason it flagged "$1400", because a plain year is
+# a bare 3+ digit number too. _is_money_figure below only ever rejects (a) "$"/"S$" directly
+# against digits, (b) a 3-5 digit run directly against a per-month/per-mo/pm/monthly/k
+# keyword, or (c) any OTHER bare 3-5 digit run -- UNLESS that exact run is the year half of a
+# recognised "<day> <Month> <year>" / "<Month> <year>" date, which is exempted. A genuine
+# date/time/pax mention never reaches a bare 3-5 digit run in the first place ("7.30pm" splits
+# into 7 and 30, "2 pax" is one digit, "1 October" carries no digit run at all), so the
+# exemption only ever has to cover the year case.
+_DOLLAR_RE = re.compile(r"[$\uFF04]\s*\d|\bs\$\s*\d", re.I)
+_MONEY_KEYWORD_NUM_RE = re.compile(
+    r"\b\d{3,5}\s*k\b|\b\d{3,5}\s*(?:/|per\s*)?(?:mo|mth|month|pm|monthly)\b", re.I)
+_BARE_NUM_RE = re.compile(r"\b\d{3,5}\b")
+_MONTHS_RE_PART = r"jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec"
+_DATE_YEAR_RE = re.compile(
+    rf"\b(?:\d{{1,2}}\s+)?(?:{_MONTHS_RE_PART})[a-z]*\s+(\d{{3,5}})\b", re.I)
+
+
+def _is_money_figure(t):
+    if _DOLLAR_RE.search(t):
+        return True
+    if _MONEY_KEYWORD_NUM_RE.search(t):
+        return True
+    bare_nums = list(_BARE_NUM_RE.finditer(t))
+    if not bare_nums:
+        return False
+    date_year_spans = {m.span(1) for m in _DATE_YEAR_RE.finditer(t)}
+    for m in bare_nums:
+        if m.span() not in date_year_spans:
+            return True
+    return False
+
+
 _DASH_RE = re.compile(r"[-\u2010\u2011\u2012\u2013\u2014\u2015\uFF0D]")
 DRAFT_MAX_CHARS = 400
 DRAFT_MAX_SENTENCES = 3
@@ -162,7 +194,7 @@ def validate_draft(text):
         return "slang or unprofessional wording"
     if _CEA_RE.search(t):
         return "mentions a CEA/licence number"
-    if _MONEY_RE.search(t):
+    if _is_money_figure(t):
         return "quotes a figure"
     if _ADVICE_RE.search(t):
         return "strays into advice"

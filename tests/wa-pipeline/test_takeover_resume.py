@@ -571,6 +571,58 @@ class TestDraftValidator(unittest.TestCase):
                 os.remove(tmp)
 
 
+class TestDraftValidatorDatesNotMoney(unittest.TestCase):
+    """Item 4, 11 Sep 2026: the old bare \\b\\d{4}\\b money check flagged a plain year exactly
+    like it flagged a rent figure, so a draft mentioning "16 Sep 2026" was rejected for
+    "quoting a figure" it never quoted. Table test: every ALLOWED string here is a date, time,
+    or pax count that must NEVER be treated as money; every REJECTED string quotes or implies
+    an actual dollar figure."""
+
+    ALLOWED = [
+        "16 Sep 2026",
+        "1 October",
+        "7.30pm",
+        "2 pax",
+        "Available from 1 Dec 2026",
+        "We can view on 25 October 2026",
+        "See you at 7pm",
+        "The unit fits 4 pax comfortably",
+        "Move in date is 3 November",
+        "Viewing slot 8.30am works",
+        "Lease starts 1 Jan 2027",
+        "Can go anytime after 6pm",
+        "It is available 12 Sep 2026 onwards",
+        "Sure, 2 pax is fine",
+        "Let us meet 9.15am tomorrow",
+    ]
+
+    REJECTED = [
+        "The room is $1400",
+        "S$1200 monthly",
+        "The rent is 1200",
+        "Budget should be around 1500",
+        "Deposit is 1000",
+        "I can do 1350 for you",
+        "1200 per month",
+        "800/mo",
+        "Ok 1200pm works",
+        "It costs about 800k",
+        "SGD 1400 total",
+        "s$ 900 only",
+        "Monthly rate 950 flat",
+        "Rent 1300 is fixed",
+        "The deposit of 2000 is required",
+    ]
+
+    def test_dates_times_and_pax_counts_allowed(self):
+        for text in self.ALLOWED:
+            self.assertIsNone(RES.validate_draft(text), text)
+
+    def test_actual_money_figures_rejected(self):
+        for text in self.REJECTED:
+            self.assertIsNotNone(RES.validate_draft(text), text)
+
+
 class TestRecordTypeGate(unittest.TestCase):
     JID = "6598887777@lid"
 

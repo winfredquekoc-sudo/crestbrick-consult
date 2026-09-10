@@ -411,15 +411,29 @@ def finish_owner_extract(record, text, err, notify_fn, log_fn, timed_out=False):
         _write_landlord_evidence(lid, code, quote)
         _write_listing_fact(q.get("listing_key"), code, value)
         OWN.mark_question(q["id"], "answered", answer=value, evidence=quote)
+        # item 3 (11 Sep 2026): any other twin question for this landlord + code is now moot
+        # -- mark it 'merged' so it can never respawn an extract of its own.
+        OWN.merge_twins(lid, code, q["id"])
         notify_fn(f"{landlord_name or lid} answered {code}: {value} "
                   f"(\"{quote[:100]}\")")
         sentence = _fact_sentence(code, value)
-        source_pn = q.get("source")
-        if sentence and source_pn and source_pn != "clarity-report":
+        # item 2 (11 Sep 2026): every tenant who asked (enqueue_owner_question's dedup merges
+        # them onto q['sources'] instead of a separate queue entry) gets its OWN follow up
+        # draft, not just whichever tenant happened to ask first. Falls back to the single
+        # legacy source/source_jid pair for any entry queued before this field existed.
+        sources = q.get("sources") or [{"source": q.get("source"), "source_jid": q.get("source_jid")}]
+        seen_pn = set()
+        for src in sources:
+            source_pn = src.get("source")
+            if not source_pn or source_pn == "clarity-report" or source_pn in seen_pn:
+                continue
+            seen_pn.add(source_pn)
+            if not sentence:
+                continue
             tenant_text = f"Just heard back from the owner, {sentence} \U0001F642"
             bad = RES.validate_draft(tenant_text)
             if not bad:
-                tenant_jid = q.get("source_jid") or f"{source_pn}@s.whatsapp.net"
+                tenant_jid = src.get("source_jid") or f"{source_pn}@s.whatsapp.net"
                 did = RES.new_draft(source_pn, tenant_jid, q.get("listing_key"), tenant_text)
                 notify_fn(f"Tenant follow up ready for {source_pn}: /send {did}")
             else:
