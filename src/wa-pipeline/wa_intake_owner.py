@@ -357,15 +357,21 @@ def _clean_owner_name(landlord_name):
 
 
 # ---------- VIP tone template ----------
-def build_owner_message(landlord_name, questions):
+def build_owner_message(landlord_name, questions, tenant_sourced=True):
     """questions: list of question_text (already safety-checked), max 3. Returns text, or
-    None if the built message itself somehow fails the safety check (defense in depth)."""
+    None if the built message itself somehow fails the safety check (defense in depth).
+    tenant_sourced False = Winfred's own check in (clarity report items), so the frame must
+    not claim a tenant asked it (11 Sep 2026: VIP owners must never get an odd message)."""
     qs = [q.strip() for q in questions[:MAX_QUESTIONS_PER_MESSAGE] if (q or "").strip()]
     if not qs:
         return None
     name = _clean_owner_name(landlord_name)
     greeting = f"Hi {name}, thank you for your time" if name else "Hi, thank you for your time"
-    lead = "A prospective tenant asked" if len(qs) == 1 else "A prospective tenant asked a few things"
+    if tenant_sourced:
+        lead = "A prospective tenant asked" if len(qs) == 1 else "A prospective tenant asked a few things"
+    else:
+        greeting = f"Hi {name}, hope all is well" if name else "Hi, hope all is well"
+        lead = "Could I check one thing when you have a moment" if len(qs) == 1 else "Could I check a few things when you have a moment"
     if len(qs) == 1:
         body = qs[0].rstrip("?") + "?"
     else:
@@ -428,7 +434,9 @@ def run_owner_asks(con, send_fn, guard_reserve_fn, log_fn, notify_fn):
                 continue
             seen_codes.add(q.get("question_code")); uniq.append(q)
         pick = uniq[:MAX_QUESTIONS_PER_MESSAGE]
-        text = build_owner_message(l.get("landlord_name"), [q["question_text"] for q in pick])
+        tenant_sourced = any((q.get("source") or "clarity-report") != "clarity-report" for q in pick)
+        text = build_owner_message(l.get("landlord_name"), [q["question_text"] for q in pick],
+                                   tenant_sourced=tenant_sourced)
         if not text:
             log_fn("OWNER_ASK_SKIP", lid, "message failed its own safety check")
             continue
