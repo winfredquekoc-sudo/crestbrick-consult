@@ -120,6 +120,11 @@ def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
     last_hand = rec.get("last_hand_reply_ts")
     if not last_hand:
         return "no hand reply timestamp recorded yet"
+    # OPEN PROMISE (P1 fix, 9 Sep 2026 cycle1 c1-06): a resume auto-send on top of Winfred's
+    # own open commitment ("let me check with the owner and come back to you") is a second
+    # sender talking over him. Blocked until his NEXT hand reply drops the promise language.
+    if open_human_promise_pending(rec):
+        return "Winfred's last reply is an open promise to come back; staying under his takeover"
     gap = seconds_since(last_hand, inbound_ts)
     if gap is None:
         return "unparseable timestamp"
@@ -183,14 +188,38 @@ def dispute_language_recent(con, jid, limit=10):
     return any(_DISPUTE_RE.search(c or "") for (c,) in rows)
 
 
+# OPEN PROMISE (P1 fix, 9 Sep 2026 cycle1 c1-06): "let me check with the owner and come
+# back to you" is a commitment -- a resume auto-send on that chat is a second sender
+# talking over him.
+_OPEN_PROMISE_RE = re.compile(
+    r"let me (?:check|find out|confirm|verify)\b|"
+    r"check(?:ing)? with (?:the )?(?:owner|landlord)\b|"
+    r"\bcome back to you\b|\bget back to you\b|"
+    r"\bwill (?:check|confirm|update you|let you know|revert)\b", re.I)
+
+
+def open_human_promise_pending(rec):
+    """True if Winfred's OWN last hand reply (last_hand_reply_text, never overwritten by a
+    later engine/resume send) reads as an open promise to come back."""
+    return bool(_OPEN_PROMISE_RE.search((rec or {}).get("last_hand_reply_text") or ""))
+
+
 def mark_resume(a):
     """Tag an action ELIGIBLE to bypass the runner's manual_takeover send choke. This is the
     ONLY place a["resume"] is ever set True -- called by the runner exactly once, right after
     it has already confirmed (via needs_draft) that the action is an allow listed template
     carrying real text. The choke point trusts nothing else to decide this (Opus review, 9
-    Sep 2026: the choke used to ignore ev["resume"] entirely and TAKEOVER_SKIP every one)."""
+    Sep 2026: the choke used to ignore ev["resume"] entirely and TAKEOVER_SKIP every one).
+
+    ALSO forces notify=True (P1 fix, 9 Sep 2026 cycle1 c1-06): a resume send talks on a chat
+    Winfred is holding by hand, so he must hear about it every time, whatever the engine's own
+    default was (SEND_FORM/OFFER_VIEWING/LEASE_NOTE default False in the ordinary flow).
+    Exception: AUTO_CLOSED's notify=False is deliberate, tested engine-side design (closes the
+    loop on its own, latches terminal, never repeats) -- forcing it would just add noise."""
     if a is not None:
         a["resume"] = True
+        if a.get("type") != "AUTO_CLOSED":
+            a["notify"] = True
     return a
 
 

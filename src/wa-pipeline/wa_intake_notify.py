@@ -291,6 +291,41 @@ def _flush_stale_coalesce_windows():
     if changed:
         _save_coalesce(d)
 
+# ---------- silent dead end safety net (Winfred, 11 Sep 2026 attack fix package E) ----------
+# Closes the whole class in one place instead of a fix per shape: a bare voice note
+# (media_type not in the few the engine's own media gates enumerate), a photo/screenshot
+# resend request answered only by a form with no acknowledgment, a multi listing ask, a
+# utilities/area question, a move in date question mis-routed elsewhere -- every one of
+# these can leave a bound or already form_sent chat with NEITHER a prospect facing send NOR
+# a Telegram ping for that one inbound. This never auto answers any of them (no prospect
+# text, ever) -- it only makes sure Winfred hears about it.
+UNHANDLED_COOLDOWN_SEC = 6 * 3600
+
+
+def notify_unhandled_inbound(rec, pn, text):
+    """At most one ping per chat per 6 hours (a stamp on the record itself, so it survives
+    across ticks) for a bound or form_sent prospect whose inbound produced neither a send nor
+    a notify. Skipped entirely under manual_takeover/terminal -- those chats already have
+    their own dedicated silence/notify policy (the co-pilot verdict path, now itself fixed to
+    always surface a computed verdict) and must not get a second, differently worded ping on
+    top of it. Routed through notify_winfred (never the coalesced/bypass variants) so the
+    live allow list applies exactly as it does to every other direct ping -- Winfred must add
+    the "Prospect " prefix to notify-allow.json himself; this module never writes that live
+    file."""
+    if not pn or not rec:
+        return
+    if not (rec.get("listing_key") or rec.get("form_sent")):
+        return
+    if rec.get("manual_takeover") or rec.get("terminal"):
+        return
+    last = rec.get("_unhandled_notified_ts") or 0
+    if time.time() - last < UNHANDLED_COOLDOWN_SEC:
+        return
+    rec["_unhandled_notified_ts"] = time.time()
+    notify_winfred(f"Prospect {pn} wrote something the bot could not handle: "
+                   f"{(text or '')[:120]}")
+
+
 def _alert_hourly(key, msg):
     """notify_winfred, rate-limited to once per hour per key (for persistent conditions
     like a corrupt file, which would otherwise ping every 60s tick). The marker path is
@@ -317,17 +352,25 @@ def _slot_confirm_count(state, slot_id):
     return sum(1 for r in (state.get("conversations") or {}).values()
                if r.get("viewing_confirmed") and r.get("offered_slot_id") == slot_id) or 1
 
-def notify_stale_backfill(skipped, by_pn, stale_row_hours):
-    """One aggregated ping per run, never one per row -- a reconnect backfill can carry
-    dozens of stale rows in a single tick. Names every affected chat (phone + its own
-    skipped count), the way the STALE_BACKFILL_SKIP log line already does per row --
-    otherwise Winfred has no way to tell which chats to review by hand (P3 fix, 9 Sep 2026
-    cycle 3 attack replay: a multi day outage backfill named no chat at all). No-ops when
-    nothing was skipped this tick. Pure move out of wa_intake_runner.run(), 9 Sep 2026
-    merge review, to keep that file under the repo's 500 line guideline."""
+def notify_stale_backfill(skipped, by_pn, stale_row_hours, fields_by_pn=None):
+    """One ping per CHAT, never one per row or one per tick (P1 fix, 9 Sep 2026 cycle5
+    c5s08: a 21 day old 5-row backlog for the same chat pinged Winfred with the identical
+    generic line 5 times, once per stale row -- the runner now latches
+    rec['stale_backfill_notified'] so `skipped`/`by_pn`/`fields_by_pn` here only ever carry
+    chats being reported for the FIRST time). Names every affected chat (phone + its own
+    skipped count) the way the STALE_BACKFILL_SKIP log line already does per row, plus --
+    when fields_by_pn names any -- which profile fields were parsed off the stale backlog
+    (never auto-served, but no longer thrown away either, so a returning prospect is not
+    re-asked for what he already gave). No-ops when nothing new was skipped this tick. Pure
+    move out of wa_intake_runner.run(), 9 Sep 2026 merge review, to keep that file under the
+    repo's 500 line guideline."""
     if not skipped:
         return
-    chats_line = ", ".join(f"{pn} ({n})" for pn, n in by_pn.items())
+    fields_by_pn = fields_by_pn or {}
+    def _chat_line(pn, n):
+        parsed = fields_by_pn.get(pn)
+        return f"{pn} ({n}, parsed: {', '.join(parsed)})" if parsed else f"{pn} ({n})"
+    chats_line = ", ".join(_chat_line(pn, n) for pn, n in by_pn.items())
     notify_winfred(f"{skipped} backfilled chat message(s) were older than "
                    f"{stale_row_hours}h this run and were skipped (never auto-served): "
                    f"{chats_line}. Check these chats by hand if any were real.")
@@ -414,6 +457,14 @@ def notify_for_action(a, state):
             notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) for {lk} is almost there. Still unclear: {'; '.join(why)}.{_hot_line(a)}")
         elif v == "DISQUALIFIED":
             notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) does NOT fit {lk}. Reason: {'; '.join(why)}.{_hot_line(a)}")
+        else:
+            # any other verdict (SHORT_LEASE, UNBOUND, or a future one) still gets a ping --
+            # a silent elif chain here used to drop the verdict entirely (P1 fix, 9 Sep 2026
+            # cycle1 c1-06: a completed profile qualifying SHORT_LEASE under manual takeover
+            # produced a COPILOT_VERDICT action that reached this branch and then nothing,
+            # zero Telegram, because SHORT_LEASE matched none of the three names above).
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) for {lk} — verdict {v}."
+                           + ((" Reason: " + '; '.join(why) + ".") if why else "") + _hot_line(a))
     elif a["type"] == "OFFER_VIEWING" and a.get("copilot"):
         notify_winfred(f"Co-pilot offered a viewing (you are handling this chat):\n{nm} ({a['pn']}) is QUALIFIED for {lk}, so I sent them the next slot and asked them to reply YES. Step in if you want to take it from here.{_hot_line(a)}")
     elif a["type"] == "OFFER_VIEWING" and a.get("hot_matches"):
@@ -451,4 +502,10 @@ def notify_for_action(a, state):
         # returned/filled buyer or tenant form) skips the window, same as a dispute.
         notify_winfred_coalesced(a.get("pn"),
             f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}",
-            bypass=bool(a.get("bypass_coalesce")))
+            # bypass_coalesce: a stalled buyer profile after its one nudge (Sep 2026 fix).
+            # notify_bypass: the ENGINE's own explicit override for a repeat injection/
+            # owner-fishing attempt on an already latched thread (9 Sep 2026 c5s05) --
+            # never inferred from the reason text at this layer. Both are independent
+            # engine-set overrides for the same 30 minute coalescing window, so either
+            # one bypasses it (merge of package D + package E fixes, 11 Sep 2026).
+            bypass=bool(a.get("bypass_coalesce") or a.get("notify_bypass")))
