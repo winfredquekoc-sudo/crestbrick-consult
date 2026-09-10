@@ -392,6 +392,18 @@ def notify_for_action(a, state):
         notify_winfred(f"Prospect confirmed a viewing.\n{nm} ({a['pn']}) accepted the slot for {lk}.{_crowd}{_warn}")
     elif a["type"] == "ANSWER_QUESTION":
         notify_winfred(f"Prospect question (reply by hand).\n{nm} ({a['pn']}) for {lk} asked:\n{a.get('question','')}")
+    elif a["type"] == "COPILOT_VERDICT" and a.get("buyer"):
+        # Manual-takeover mirror for BUYER records (buyer-silent-after-manual-takeover fix):
+        # same silent-to-the-prospect co-pilot contract, buyer verdict vocabulary.
+        v = a.get("verdict"); why = a.get("why") or []
+        if v == "QUALIFIED":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) is a QUALIFIED buyer for {lk}. Financing valid, fits budget and timeline.")
+        elif v == "NEEDS_INFO":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) buyer for {lk} is still missing: {'; '.join(why)}.")
+        elif v == "NOT_YET":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) buyer for {lk} is NOT YET financing ready: {'; '.join(why)}.")
+        elif v == "NOT_A_FIT":
+            notify_winfred(f"Co-pilot (you are handling this chat):\n{nm} ({a['pn']}) buyer does NOT fit {lk}. Reason: {'; '.join(why)}.")
     elif a["type"] == "COPILOT_VERDICT":
         # Winfred is handling this chat by hand; the engine stays silent to the prospect
         # but tells HIM the screening result so a qualified tenant is never missed.
@@ -424,14 +436,19 @@ def notify_for_action(a, state):
                        f"goes silent on this chat — their answers are yours to work "
                        f"(nightly refresh will capture landlord details).")
     elif a["type"] == "BUYER_COMPLETE":
-        notify_winfred(f"Buyer profile complete — take over now (nothing was sent to them).\n"
-                       f"{nm} ({a['pn']}): {a.get('summary','')}")
+        # a QUALIFIED buyer now gets an AUTO offer (open house or the next slot), so this can
+        # no longer promise "nothing was sent" unconditionally -- say what actually happened
+        # (Sep 2026 buyer qualification redesign).
+        _lead = a.get("reason") or "take over now (nothing was sent to them)"
+        notify_winfred(f"Buyer profile complete — {_lead}.\n{nm} ({a['pn']}): {a.get('summary','')}")
+    elif a["type"] == "SEND_OPEN_HOUSE":
+        notify_winfred(f"Buyer enquiry — sent the open house invite instead of the buyer form.\n{nm} ({a['pn']}) for {lk}: {a.get('reason','')}")
     elif a["type"] in ("SUPPLY_INFO_NUDGE", "SUPPLY_MEDIA_ASK", "SUPPLY_MEDIA_CHASE"):
         notify_winfred(f"Landlord onboarding — {a['type']}. {nm} ({a['pn']}): {a.get('reason','')}")
     elif a.get("notify"):
         # routine FLAG_HUMAN style ping (redirect/house_gate/edge case) -- coalesced
-        # per chat (see notify_winfred_coalesced above); a dispute or protected attribute
-        # flag inside it still goes out immediately, the function detects that itself
-        # from the reason text.
+        # per chat (see notify_winfred_coalesced above). bypass_coalesce=True (a
+        # returned/filled buyer or tenant form) skips the window, same as a dispute.
         notify_winfred_coalesced(a.get("pn"),
-            f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}")
+            f"{a['type']}: {nm} ({a['pn']}) on {lk} — {a.get('reason','')}",
+            bypass=bool(a.get("bypass_coalesce")))
