@@ -528,7 +528,19 @@ body.density-compact .lc{padding:7px 9px}
 .mappin.sel circle{stroke:var(--ink);stroke-width:3}
 .mappin text{fill:var(--ink);font-size:11px;text-anchor:middle;pointer-events:none;font-weight:600}
 .mappanel{margin-top:10px}
-.maphead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+/* (item 3, cont'd) .mapleft's own min-width:0 fix (CYCLE 4 section, above)
+   only contains the panel that holds it — verified live it does not overflow
+   any more. But several Dashboard cards (Waiting by area, Waiting on reply,
+   New rooms, Where to source next, ...) build a plain <table class="maptable">
+   straight into .maphead with no wrapper and no "stack" class (unlike the
+   Landlords/All Tenants directory tables, which already stack below 860px).
+   Real multi column numeric tables do not shrink to 343px by wrapping text,
+   so at 375px this was STILL forcing body.scrollWidth past the viewport
+   after the .mapleft fix — confirmed live (588 vs the true 375 clientWidth).
+   Scope this to overflow-x:auto rather than retrofitting every one of these
+   ad hoc table builders with the stack markup: same containment the existing
+   .maptablewrap already gives its own tables, just applied one level up. */
+.maphead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto}
 .mapsec{margin:12px 0 6px;font-weight:700}
 .mapseek{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .mapgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;margin-top:8px}
