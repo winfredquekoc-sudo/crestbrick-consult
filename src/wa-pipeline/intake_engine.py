@@ -3547,15 +3547,23 @@ def _viewing_reaction(rec, ev, pn):
                                            listing_reqs(), _lk_r)}
     _raw_text = ev.get("text") or ""
     # money/human gate BEFORE any confirm-viewing branch: a deposit offer, a price haggle,
-    # or any other stays-human trigger riding alongside a YES must win -- the prospect never
-    # gets an auto confirm, and Winfred sees the money content verbatim, not just "confirmed
-    # a viewing" (P0 fix, 11 Sep 2026 cycle1 c1-08: "YES lock it in for me pls, will pay
-    # deposit now if needed" auto confirmed the slot and the deposit offer never surfaced).
+    # or any other stays-human trigger riding alongside a YES/named viewing time must win --
+    # the prospect never gets an auto confirm, and Winfred sees the money content verbatim,
+    # not just "confirmed a viewing" (P0 fix, 11 Sep 2026 cycle1 c1-08: "YES lock it in for me
+    # pls, will pay deposit now if needed" auto confirmed the slot and the deposit offer never
+    # surfaced). Scoped to an actual confirm-viewing signal (a YES or a named day/time) -- a
+    # bare fact/negotiation question with NO viewing signal at all belongs to the fact-answer
+    # path below, which already vets and vetoes it on its own merits (regression guard, 11 Sep
+    # 2026 merge: without this scope check every inbound at this stage carrying any money word
+    # short circuited here, so a standalone "is the rent negotiable?" or "can you do 200 less?"
+    # was silently flagged with zero text instead of reaching the two tier rent pivot/veto
+    # logic below).
     # Never on a filled-in profile form: its own field LABELS ("Nationality:", "Ethnicity:")
     # are real words the money/protected-attribute vocabulary matches on, so a routine form
     # submission must never be misread as a stays-human trigger.
-    if not _looks_like_filled_form(_raw_text) and (
-            MG.DEPOSIT_RE.search(_raw_text) or MG.core_stays_human(_raw_text)):
+    if (not _looks_like_filled_form(_raw_text)
+            and (_is_affirmative(_raw_text) or _has_viewing_time(_raw_text))
+            and (MG.DEPOSIT_RE.search(_raw_text) or MG.core_stays_human(_raw_text))):
         return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
                 "reason": "price/deposit/money content alongside a viewing reply (\""
                           + _raw_text[:160] + "\"); reply by hand"}
