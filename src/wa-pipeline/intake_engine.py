@@ -22,6 +22,7 @@ No hyphens or dashes in any tenant-facing copy (per Winfred's standing rule).
 """
 import json, os, re, sqlite3, functools
 import wa_intake_paths as _P
+import wa_money_gate as MG   # shared price/deposit/injection/agent vocabulary -- see its docstring
 
 DRY_RUN = False  # LIVE 2026-06-17: restored after form_sent crash fix (backlog already drained in preview)
 MAX_PROSPECT_MSGS = 10  # hard cap: at most this many prospect-facing messages per person (per qualification attempt)
@@ -1339,8 +1340,13 @@ def _buyer_followup(rec, ev, pn):
     for k, v in extract_buyer(ev.get("text", "")).items():
         if not b.get(k): b[k] = v
     # a buyer naming a day/time to view must reach Winfred, complete profile or not — the
-    # old flow swallowed it (silent handoff still holds: no message goes to the buyer)
+    # old flow swallowed it (silent handoff still holds: no message goes to the buyer).
+    # The price/negotiation veto wins first: a bare "today" inside a haggle ("can we settle
+    # a number today or not") is not a proposed viewing time, and misreading it as one tells
+    # Winfred a slot needs confirming when the buyer was actually negotiating price (P1 fix,
+    # 11 Sep 2026 cycle4 c4rm03).
     if (_has_viewing_time((ev.get("text") or "").lower())
+            and not MG.PRICE_TRIGGER_RE.search(ev.get("text") or "")
             and not rec.get("buyer_time_flagged")):
         rec["buyer_time_flagged"] = True
         return {"type": "VIEWING_TIME_PROPOSED", "pn": pn, "when": ev.get("text"),
@@ -2781,18 +2787,23 @@ _LEASE_ATLEAST_RE = re.compile(
 _LEASE_YEAR_TOKEN_RE = re.compile(
     r"\b(?:1\s*(?:year|yr)|one\s*year|12\s*(?:months?|mths?|mos?))\b|1\s*\u5e74|\u4e00\u5e74|12\s*\u4e2a\u6708", re.I)
 # a month count that is NOT a lease ask: "6 months ago" (a past date), "6 month deposit" /
-# "1 month notice" / "2 months advance" (money terms, every tenancy has them). Opus review,
-# 9 Sep 2026 -- all four fired the note wrongly in the regex table.
+# "1 month notice" / "2 months advance" (money terms, every tenancy has them), or "5 months
+# upfront" / "in one shot" / "prepay" (a prepayment offer, not a lease length ask -- P0 fix,
+# 11 Sep 2026 cycle3 c3rm08: "5 months upfront and waive agent fee" fired the lease note and
+# the fee waiver offer inside the same message went neither answered nor flagged). Opus
+# review, 9 Sep 2026 -- all four original fired the note wrongly in the regex table.
 _LEASE_EXPLICIT_MONTHS_RE = re.compile(
     r"\b([1-6])\s*[- ]?\s*(?:months?|mths?|mos?)\b"
-    r"(?!\s*(?:ago|back|deposit|dep\b|notice|advance|advanced|in\s+advance))", re.I)
-# the deposit/cap/notice wording can also sit BEFORE the month count ("is a 2 month deposit
-# legal", "my friend said HDB caps it at 1 month") -- the lookahead above only reaches
-# forward, so a trailing "at 1 month" slips through undetected. Python re has no variable
-# width lookbehind, so this is a separate forward scan (keyword ... number) exactly like
+    r"(?!\s*(?:ago|back|deposit|dep\b|notice|advance|advanced|in\s+advance|"
+    r"upfront|up\s+front|prepay(?:ment)?|in\s+one\s+shot))", re.I)
+# the deposit/cap/notice/upfront wording can also sit BEFORE the month count ("is a 2 month
+# deposit legal", "my friend said HDB caps it at 1 month", "5 months upfront") -- the
+# lookahead above only reaches forward, so a trailing "at 1 month" or a leading "5 months"
+# with upfront trailing it slips through undetected. Python re has no variable width
+# lookbehind, so this is a separate forward scan (keyword ... number) exactly like
 # _LEASE_PAST_RE below, checked before the count is trusted as a real lease-length ask.
 _LEASE_MONEYTERM_CONTEXT_RE = re.compile(
-    r"\b(?:deposit|cap(?:s|ped)?|notice)\b[^.!?\n]{0,30}?\b[1-6]\s*[- ]?\s*"
+    r"\b(?:deposit|cap(?:s|ped)?|notice|upfront|up\s+front|prepay(?:ment)?|waive)\b[^.!?\n]{0,30}?\b[1-6]\s*[- ]?\s*"
     r"(?:months?|mths?|mos?)\b", re.I)
 # an explicit legal-advice marker anywhere in the message means this is a question ABOUT the
 # law, never a request for a short lease -- even when a stray month count also rides along
@@ -2929,10 +2940,27 @@ _FACT_VETO_RE = re.compile(
     # lookup -- always Winfred's call, even when "rent" rides along as a bare verb (P2 fix,
     # 9 Sep 2026 cycle5 sc1: a quota eligibility question misfired the vague rent pivot).
     r"\bquota\b|ethnic\s+integration|\beip\b|\beligib(?:le|ility)\b|allowed\s+to\s+rent|"
-    r"hdb\s+(?:vs\.?|versus|or)\s+private",
+    r"hdb\s+(?:vs\.?|versus|or)\s+private|"
+    # lease DECAY (years remaining on a resale flat, bank loan eligibility) is financing
+    # territory, never the same thing as a rental listing's tenancy minimum -- answering it
+    # with "the owner wants a minimum lease of 1 year" is a claim about the wrong number
+    # entirely (P1 fix, 11 Sep 2026 cycle4 c4rm07: a buyer's lease-years-left/bank-loan
+    # question got the rental tenancy-term answer off a wrongly bound rental record).
+    r"lease\s+(?:left|remaining)|years?\s+left|lease\s+decay|bank\s+loan",
     re.I)
 _FACT_LEASE_RE = re.compile(r"\blease\b|how\s+long|\bminimum\b|contract\s+length", re.I)
+# a one true, always safe disclosure -- Winfred is always the agent handling the unit for
+# the landlord, never the owner. Answered plainly instead of silently flagged (P2 fix, 11
+# Sep 2026 cycle2 c2mix04: "so u own this room at Bishan or agent?" got zero reply and
+# zero flag until Winfred happened to answer by hand).
+_FACT_OWNER_AGENT_RE = re.compile(
+    r"\byou\s+(?:the\s+)?(?:own|owner)\b|\bu\s+own\b|\bown\s+this\s+(?:room|unit|place|flat|house)\b|"
+    r"are\s+you\s+the\s+(?:owner|landlord|agent)\b|\bowner\s+or\s+agent\b|\bagent\s+or\s+owner\b|"
+    r"you\s+(?:the\s+)?landlord\b", re.I)
+_OWNER_AGENT_DISCLOSURE = "I am the agent helping the landlord with this unit \U0001F642"
 _FACT_COOK_RE = re.compile(r"\bcook(?:ing)?\b|\bkitchen\b", re.I)
+_FACT_COOK_EXPLICIT_RE = re.compile(r"\bcook(?:ing)?\b", re.I)
+_FACT_UTIL_IN_SAME_MSG_RE = re.compile(r"\bwifi\b|\binternet\b|\baircon\b|\bair\s*con\b|\bair-con\b", re.I)
 _FACT_SMOKE_RE = re.compile(r"\bsmoke\b|\bsmoking\b", re.I)
 _FACT_PET_RE = re.compile(r"\bpets?\b|\bdogs?\b|\bcats?\b", re.I)
 _FACT_RENT_RE = re.compile(r"\brent\b|\bprice\b|how\s+much|\bcost\b|per\s+month|\bnego(?:tiable|tiate)?\b|\bcheaper\b|\blower\b|\bdiscount\b|flexib", re.I)
@@ -2998,6 +3026,9 @@ def _tenant_fact_answer(question_text, listing):
     req = listing.get("requirements") or {}
     facts = listing.get("facts") or {}
 
+    if _FACT_OWNER_AGENT_RE.search(t):
+        return _OWNER_AGENT_DISCLOSURE
+
     if _FACT_LEASE_RE.search(t):
         raw = req.get("lease_min_months")
         try:
@@ -3009,8 +3040,16 @@ def _tenant_fact_answer(question_text, listing):
         return f"The owner is looking for a minimum lease of {dur} \U0001F642"
 
     if _FACT_COOK_RE.search(t):
-        v = req.get("cooking")
-        return _fact_cooking_phrase(v) if _fact_known(v) else None
+        # "kitchen" bare (no explicit cook/cooking word) riding alongside an aircon/wifi ask
+        # is locational context for THAT question, never a cooking question of its own -- the
+        # more specific utilities ask must win, not get overwritten by an unrelated fact (P1
+        # fix, 11 Sep 2026 cycle2 c2mix01: "kitchen no aircon, got wifi?" was answered as a
+        # cooking-allowed FAQ while both real questions went unanswered).
+        if not _FACT_COOK_EXPLICIT_RE.search(t) and _FACT_UTIL_IN_SAME_MSG_RE.search(t):
+            pass
+        else:
+            v = req.get("cooking")
+            return _fact_cooking_phrase(v) if _fact_known(v) else None
 
     if _FACT_SMOKE_RE.search(t):
         v = req.get("smoking")
@@ -3034,6 +3073,13 @@ def _tenant_fact_answer(question_text, listing):
     if _FACT_RENT_RE.search(t):
         # a specific figure ("can you do 1400", "200 less") is a real negotiation -> Winfred handles it
         if _FACT_RENT_NUMBER_RE.search(t):
+            return None
+        # an actual negotiation cue ("can talk lower", "price so high", "do better", "meet
+        # halfway") is a haggle, never a bare price lookup -- silent and flagged like every
+        # other money question, even with no figure attached (P0 fix, 11 Sep 2026 cycle2
+        # c2mix06: "Wah price so high la! Can talk lower a bit?" got the vague pivot instead
+        # of a flag, taking a negotiating position on Winfred's and the landlord's behalf).
+        if MG.PRICE_TRIGGER_RE.search(t):
             return None
         # general price / negotiability: stay vague, never quote a figure, and pivot to a
         # viewing. No price-flexibility claim (P2 fix, 9 Sep 2026 cycle4 hg4-06): the bot has
@@ -3118,6 +3164,17 @@ def _no_slot_flag(pn):
             "reason": "prospect said yes to a viewing but no slot is bound for this listing; "
                       "reply with the landlord's next available viewing time so I can offer it"}
 
+def _confirm_viewing_opener(ev_text, on_suffix):
+    """"Ok can" reads as the agent approving whatever ELSE the inbound asked for, not just
+    the viewing time -- reserved for a bare restate-the-slot affirmative. Any inbound that
+    is itself a question (a request the engine is not answering here) gets the plain
+    confirmation instead (P0 fix, 11 Sep 2026 cycle1 c1-03: "YES can move in tomorrow
+    right?" read as the agent approving an early move in nobody had checked with the
+    owner)."""
+    if _is_question(ev_text):
+        return "Your viewing is" + on_suffix + " \U0001F642"
+    return "Ok can, your viewing is" + on_suffix + " \U0001F642"
+
 
 def _viewing_reaction(rec, ev, pn):
     """After a viewing has been offered, react to ONE prospect reply — confirm the slot, acknowledge a
@@ -3158,7 +3215,21 @@ def _viewing_reaction(rec, ev, pn):
             return {"type": "REDIRECT", "pn": pn, "notify": True, "reason": _reason_r,
                     "text": _redirect_text(_reason_r, rec.get("profile", {}),
                                            listing_reqs(), _lk_r)}
-    txt = (ev.get("text") or "").lower()
+    _raw_text = ev.get("text") or ""
+    # money/human gate BEFORE any confirm-viewing branch: a deposit offer, a price haggle,
+    # or any other stays-human trigger riding alongside a YES must win -- the prospect never
+    # gets an auto confirm, and Winfred sees the money content verbatim, not just "confirmed
+    # a viewing" (P0 fix, 11 Sep 2026 cycle1 c1-08: "YES lock it in for me pls, will pay
+    # deposit now if needed" auto confirmed the slot and the deposit offer never surfaced).
+    # Never on a filled-in profile form: its own field LABELS ("Nationality:", "Ethnicity:")
+    # are real words the money/protected-attribute vocabulary matches on, so a routine form
+    # submission must never be misread as a stays-human trigger.
+    if not _looks_like_filled_form(_raw_text) and (
+            MG.DEPOSIT_RE.search(_raw_text) or MG.core_stays_human(_raw_text)):
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "price/deposit/money content alongside a viewing reply (\""
+                          + _raw_text[:160] + "\"); reply by hand"}
+    txt = _raw_text.lower()
     # a byte identical resend of the immediately previous message (someone double pasted the
     # same filled form, or hit send twice) is never a NEW proposed viewing time either -- the
     # label-count check in _has_viewing_time() alone only catches a form with 3+ fields.
@@ -3217,13 +3288,13 @@ def _viewing_reaction(rec, ev, pn):
             if re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b", txt):
                 rec["exact_time_locked"] = True; rec["exact_time"] = ev.get("text")
                 rec["status"] = "viewing_time_locked"
-                _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+                _texts = [_confirm_viewing_opener(ev.get("text"), _on),
                           "See you then, I will send the unit number nearer the time."]
                 if _chase: _texts.append(_chase.strip())
                 return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
                         "notify": True, "texts": _texts, "text": _texts[0]}
             rec["status"] = "viewing_confirmed"
-            _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+            _texts = [_confirm_viewing_opener(ev.get("text"), _on),
                       "What time will you be coming? I will keep your slot and send the unit "
                       "number nearer the time."]
             if _chase: _texts.append(_chase.strip())
@@ -3239,7 +3310,9 @@ def _viewing_reaction(rec, ev, pn):
             # "yes, is there aircon?" — confirm the slot AND hold the question for Winfred
             rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
             _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
-            _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
+            # always the plain opener here -- this branch only ever fires ON a question, so
+            # "Ok can" would read as approving whatever the question asked, not just the time.
+            _texts = ["Your viewing is" + _on + " \U0001F642",
                       "On your question, let me check with the owner and get back to you shortly."]
             if _chase: _texts.append(_chase.strip())
             return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
@@ -3328,10 +3401,14 @@ def _dead_end_catch_all(state, ev):
         # complete sensitive-content/decline/question/ambiguous-once policy -- a None from it
         # is that policy's own considered silence, not a gap the catch-all should fill.
         return None
-    if rec.get("lease_note_unbound_flagged") and not (rec.get("form_sent") and rec.get("listing_key")):
+    if (rec.get("lease_note_unbound_flagged") and not (rec.get("form_sent") and rec.get("listing_key"))
+            and not MG.core_stays_human(_text_pre) and not _looks_like_filled_form(_text_pre)):
         # the SHORT LEASE gate already flagged this exact "unbound, mentioned a short lease"
         # situation once, on purpose, and deliberately goes silent on every repeat until the
-        # record actually binds -- not a gap either.
+        # record actually binds -- not a gap either. But a NEW money/agent fee/commission
+        # question is materially different content and must still break through, exactly
+        # like the high risk check above (P0 fix, 11 Sep 2026 cycle3 c3rm02: "Also whats
+        # your agent fee if I book directly" vanished with zero action under this latch).
         return None
     text = ev.get("text") or ""
     if _is_trivial_inbound(text):
@@ -3719,6 +3796,19 @@ def _handle_event_inner(state, ev):
         # bound at all) flags him once instead (real incident, 8-9 Sep 2026: pn 6590590183,
         # wandering across 3 different properties with no confirmed listing_key).
         if rec.get("form_sent") and rec.get("listing_key"):
+            _lease_txt_now = ev.get("text") or ""
+            # a money/human trigger riding in the SAME message as a short lease ask always
+            # wins: the lease note must never fire silently over it (P0 fix, 11 Sep 2026
+            # cycle1 c1-01: "How much is ur rent per month?" rode inside a 3 month lease ask
+            # and both the price question and the notify vanished under notify:false).
+            if not _looks_like_filled_form(_lease_txt_now) and (
+                    _FACT_RENT_RE.search(_lease_txt_now) or MG.core_stays_human(_lease_txt_now)):
+                if not rec.get("lease_note_money_flagged"):
+                    rec["lease_note_money_flagged"] = True
+                    return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                            "reason": "price/money question alongside a short lease ask (\""
+                                      + _lease_txt_now[:120] + "\"); reply by hand"}
+                return None
             rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
@@ -4048,6 +4138,18 @@ def _handle_event_inner(state, ev):
                                 "here:\n" + CHANNEL + "\nLet me know if anything catches your "
                                 "eye and I will arrange a viewing."}
             return None
+        # money gate BEFORE book intent: "take the room" and "confirm" both read as
+        # _is_affirmative even buried inside a haggle ("if I take the room ASAP... can they
+        # do better?"), so a price/deposit/agent fee question must never reach the ASK_ONE /
+        # booking shortcut below (P0 fix, 11 Sep 2026 cycle3 c3rm07: a price haggle got
+        # ASK_ONE budget with zero flag because "take the room" tripped the YES detector).
+        if not _looks_like_filled_form(ev.get("text") or "") and MG.core_stays_human(ev.get("text") or ""):
+            if not rec.get("book_intent_money_flagged"):
+                rec["book_intent_money_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "price/deposit/money question (\""
+                                  + (ev.get("text") or "")[:120] + "\"); reply by hand"}
+            return None
         # book intent PERSISTS: once they said yes and we asked for the hard fields, the
         # field reply itself books the slot — no second yes required
         if (_is_affirmative(ev.get("text"))
@@ -4327,6 +4429,12 @@ def _has_viewing_time(t):
     if len(_FORM_LABEL_COLON_RE.findall(t)) >= 3:
         return False
     t = t.lower()
+    # a request for the landlord's own contact details is never a proposed viewing time,
+    # even when a bare immediacy word ("now") rides along in the same message (P0 fix, 11
+    # Sep 2026 cycle5 c5s04: "can share the landlord's number now?" got read as a viewing
+    # time and locked a time nobody actually named).
+    if MG.CONTACT_DETAIL_ASK_RE.search(t):
+        return False
     t2 = _MEDIA_DURATION_RE.sub(" ", t)
     has_ampm = bool(re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\bnoon\b|after\s*\d"
                          r"|\bright\s+now\b|\b(?:come|view|check|see)\s+now\b"
