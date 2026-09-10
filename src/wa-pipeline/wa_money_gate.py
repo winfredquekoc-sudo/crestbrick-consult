@@ -36,7 +36,15 @@ PRICE_TRIGGER_RE = re.compile(
     r"\bnego(?:tiable|tiate)?\b|\bcheaper\b|\bdiscount\b|\blower\b|\breduce\b|flexib|"
     r"\bwaive[rd]?\b|\bwaiver\b|lowest\s+price|do\s+(?:you\s+)?better|meet\s+(?:you\s+)?halfway|"
     r"settle\s+(?:a\s+|the\s+)?(?:number|price|figure)|\bcash\b|\binstal(?:l)?ment\b|\bupfront\b|"
-    r"agent\s*fee|\bcommission\b|price\s+(?:so\s+)?high|can\s+(?:they|you|it)\s+(?:go|do)\s+\d",
+    r"agent\s*fee|\bcommission\b|price\s+(?:so\s+)?high|"
+    r"can\s+(?:the\s+\w+\s+|they\s+|you\s+|it\s+)?(?:go|do)\s+\d|"
+    # a valuation figure or a bare "will you consider" is a negotiation push (11 Sep 2026
+    # cycle4 c4rm03: "if you sell below valuation, will you consider liao?" and "how much
+    # below can we talk about" both slipped past the original word list untouched); a
+    # deposit ask ("pay now"/"transfer"/"paynow"/"lock it in") is the same money-gate
+    # territory as an explicit deposit word (c1-08: "will pay deposit now if needed").
+    r"\bvaluation\b|\bconsider\b|how\s+much\s+(?:below|lower|less|off)|"
+    r"\bpay(?:ing)?\s+now\b|\btransfer(?:red)?\b|\bpaynow\b|lock\s+it\s+in",
     re.I)
 AGENT_RE = re.compile(
     r"co[\s-]?broke|cobroke|commission\s+split|\bera\b|propnex|orangetee|huttons|propertylimbrothers|"
@@ -45,9 +53,15 @@ AGENT_RE = re.compile(
 # a request for the landlord's own contact details -- never a proposed viewing time even
 # when a bare immediacy word ("now") rides along in the same message.
 CONTACT_DETAIL_ASK_RE = re.compile(
-    r"landlord'?s?\s+(?:number|phone|handphone|mobile|contact|whatsapp|wa\b)|"
-    r"owner'?s?\s+(?:number|phone|handphone|mobile|contact|whatsapp)|"
-    r"(?:share|give|send)\s+(?:me\s+)?(?:the\s+)?(?:landlord|owner)'?s?\s+(?:number|contact)",
+    r"landlord'?s?\s+(?:number|phone|handphone|hp|mobile|contact|whatsapp|wa\b)|"
+    r"owner'?s?\s+(?:number|phone|handphone|hp|mobile|contact|whatsapp)|"
+    r"(?:share|give|send|get)\s+(?:me\s+|your\s+)?(?:the\s+)?(?:landlord|owner)'?s?\s+"
+    r"(?:number|contact|hp\s*num(?:ber)?)|"
+    # Singlish shorthand ("hp num"/"handphone number") near, not necessarily adjacent to,
+    # "landlord"/"owner" (review fix, 11 Sep 2026 cycle5 c5s04: "Hi landlord can i get your
+    # hp num pls, wanna come view tomorrow afternoon?" has no possessive "landlord's" so the
+    # patterns above missed it and the ask got read as a viewing time instead).
+    r"\b(?:landlord|owner)\b[^.?!]{0,25}\b(?:hp|handphone)\s*num(?:ber)?\b",
     re.I)
 
 

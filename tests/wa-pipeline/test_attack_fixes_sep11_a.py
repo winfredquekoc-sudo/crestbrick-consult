@@ -11,6 +11,7 @@ the pre fix engine and passes after.
 Run: /usr/bin/python3 tests/wa-pipeline/test_attack_fixes_sep11_a.py
 """
 import sys, os, unittest
+from unittest import mock
 
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
@@ -335,11 +336,24 @@ class TestAgentFeeQuestionAlwaysFlagged(_ReqsFixtureMixin, unittest.TestCase):
 # key: photo-promise-not-backed (cycle1 c1-08 idx2)
 # ---------------------------------------------------------------------------
 class TestPhotoPromiseNoTimingWord(unittest.TestCase):
-    def test_photos_reply_never_promises_shortly(self):
-        rec = {"listing_key": None}
-        out = R._reply_photos_video(rec, "any photos?")
+    def test_photos_reply_promises_only_when_listing_has_media(self):
+        # still present fix (photo-promise-not-backed, c1-07/c1-08, 11 Sep 2026 reattack):
+        # the promise may only fire when the listing actually has media backing it.
+        with mock.patch.object(E, "listing_reqs", lambda: {"rm-media": {"photos": True}}):
+            out = R._reply_photos_video({"listing_key": "rm-media"}, "any photos?")
         self.assertNotIn("shortly", out)
         self.assertIn("get some photos and a short video over to you", out)
+
+    def test_photos_reply_falls_back_when_no_media_backs_it(self):
+        with mock.patch.object(E, "listing_reqs", lambda: {"rm-nomedia": {}}):
+            out = R._reply_photos_video({"listing_key": "rm-nomedia"}, "any photos?")
+        self.assertNotIn("get some photos and a short video over to you", out)
+        self.assertIn("check with the landlord on photos", out)
+
+    def test_photos_reply_falls_back_with_no_listing_bound(self):
+        out = R._reply_photos_video({"listing_key": None}, "any photos?")
+        self.assertNotIn("get some photos and a short video over to you", out)
+        self.assertIn("check with the landlord on photos", out)
 
 
 if __name__ == "__main__":

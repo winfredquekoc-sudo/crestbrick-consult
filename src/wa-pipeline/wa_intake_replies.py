@@ -179,11 +179,17 @@ def _reply_availability(rec, text):
     return "Yes still available \U0001F642 Are you " + _free_to_view_phrase(lk) + "?"
 
 def _reply_photos_video(rec, text):
-    lk, _ = _listing_for(rec)
-    # no "shortly" (P3 fix, 11 Sep 2026): nothing in the engine actually sends media, so a
-    # timing word on a promise nobody is tracking reads as broken if the follow up is missed.
-    return ("Sure, let me get some photos and a short video over to you \U0001F642 "
-            "Meanwhile, are you " + _free_to_view_phrase(lk) + "?")
+    lk, listing = _listing_for(rec)
+    # still present fix (photo-promise-not-backed, c1-07/c1-08, 11 Sep 2026 reattack): the
+    # "let me get some photos" promise may only fire when the listing actually has media
+    # backing it (E._listing_has_media) -- otherwise it is a promise nobody is tracking and
+    # a missed follow up reads as a broken bot. No "shortly" either way (P3 fix, 11 Sep
+    # 2026): a timing word on any promise still reads as broken if it slips.
+    if lk and E._listing_has_media(lk, listing):
+        return ("Sure, let me get some photos and a short video over to you \U0001F642 "
+                "Meanwhile, are you " + _free_to_view_phrase(lk) + "?")
+    return ("I will check with the landlord on photos \U0001F642 Are you "
+            + _free_to_view_phrase(lk) + "?")
 
 _PAX_UNKNOWN_TEXT = "Let me check with the owner how many can stay and get back to you \U0001F642"
 

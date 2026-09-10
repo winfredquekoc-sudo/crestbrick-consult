@@ -24,6 +24,9 @@ _OUTBOUND_ONLY = (
     "keen to view? i can put you in", "are you free to view on", "i can arrange for viewing",
     "to confirm your viewing slot with the landlord",
     "can i just check your", "just need your profile above", "ok can, your viewing is on",
+    "your viewing is on",   # question branch variant (review fix 1, 11 Sep 2026)
+    "thanks, that fits what we are looking for",   # buyer QUALIFIED offer
+    "i am the agent helping the landlord",   # own/agent disclosure
     "what time will you be coming? i will keep", "see you then, i will send the unit number",
     "on your question, let me check with the owner", "viewing slot:",
     "no worries, which day and time would work better",

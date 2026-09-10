@@ -150,11 +150,21 @@ class TestReplyBuilders(unittest.TestCase):
     def test_photos_video_text(self):
         # no "shortly" (P3 fix, 11 Sep 2026 attack replay): nothing in the engine actually
         # sends media, so a timing word on an unbacked promise reads as broken if missed.
+        # "photos": True backs the promise (photo-promise-not-backed fix, 11 Sep 2026
+        # reattack) -- without it the reply falls back to "I will check with the landlord".
+        self._patch(E, "listing_reqs", lambda: {"lk1": {"photos": True}})
         self._patch(E, "next_future_slot", lambda lk: {"label": "Sun 14 Sep, 11am"})
         out = R._reply_photos_video(self._rec("lk1"), "any photos?")
         self.assertEqual(out, "Sure, let me get some photos and a short video over to you "
                               "\U0001F642 Meanwhile, are you free to view on Sun 14 "
                               "Sep, 11am?")
+
+    def test_photos_video_text_no_media_falls_back(self):
+        self._patch(E, "listing_reqs", lambda: {"lk1": {}})
+        self._patch(E, "next_future_slot", lambda lk: {"label": "Sun 14 Sep, 11am"})
+        out = R._reply_photos_video(self._rec("lk1"), "any photos?")
+        self.assertNotIn("get some photos", out)
+        self.assertIn("check with the landlord on photos", out)
 
     def test_pax_known_max_pax(self):
         self._patch(E, "listing_reqs", lambda: {"lk1": {"requirements": {"max_pax": 2}}})
@@ -237,7 +247,10 @@ class TestReplyBuilders(unittest.TestCase):
 class TestAugmentAction(unittest.TestCase):
     def setUp(self):
         self._patches = []
-        self._patch(E, "listing_reqs", lambda: {"lk1": {"status": "open", "requirements": {}}})
+        # "photos": True backs the photo promise fix (photo-promise-not-backed, 11 Sep 2026
+        # reattack) -- _reply_photos_video only promises photos when the listing has media.
+        self._patch(E, "listing_reqs", lambda: {"lk1": {"status": "open", "requirements": {},
+                                                          "photos": True}})
         self._patch(E, "next_future_slot", lambda lk: None)
         self._patch(E, "_listing_unavailable", lambda lk: None)
         self._patch(E, "resolve_pn", lambda jid: jid.split("@")[0])

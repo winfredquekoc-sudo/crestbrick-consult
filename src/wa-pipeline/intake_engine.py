@@ -137,10 +137,11 @@ def _detect_lang(text):
     return "zh" if _CJK_RE.search(text or "") else "en"
 
 def _lang(rec):
-    """rec["lang"] is stamped once, at first touch (see the SEND_FORM branch below), so
-    every later fixed template picks the same language for the rest of the conversation.
-    Records from before this field existed (or a supply/buyer record, which never gets one)
-    fall back to English."""
+    """rec["lang"] is stamped at first touch (see the SEND_FORM branch below) and can later
+    upgrade en -> zh (never the reverse) the first time an inbound carries 2 or more CJK
+    characters and is not just a bare acknowledgement (_is_zh_bare_signoff) -- see the
+    upgrade check in _handle_event_inner. Records from before this field existed (or a
+    supply/buyer record, which never gets one) fall back to English."""
     return rec.get("lang") or "en"
 
 # ---------- buyer (sale) intake ----------
@@ -1181,6 +1182,20 @@ def _signoff_signal(text):
     clean = re.sub(r"\s+", " ", clean).strip()
     return bool(clean) and clean in _SIGNOFF_EXACT
 
+# bare acknowledgements that must NEVER on their own upgrade a record's language to zh
+# (review fix 5, 11 Sep 2026): a couple of CJK characters riding on an otherwise English
+# thread as a polite "谢谢"/"好的"/"OK 谢谢" is not the tenant switching language, and must
+# not flip the whole 14 field form and every later template to Chinese. Separate from
+# _SIGNOFF_EXACT (that one closes a chat as WITHDRAWN; this one only blocks the language
+# upgrade -- a bare "好的" should never end a live thread).
+_ZH_BARE_SIGNOFF_EXACT = frozenset((
+    "谢谢", "谢谢你", "多谢", "拜拜", "好的", "好", "好的谢谢", "ok 谢谢", "okay 谢谢",
+))
+def _is_zh_bare_signoff(text):
+    clean = _SIGNOFF_STRIP_RE.sub(" ", (text or "").lower())
+    clean = re.sub(r"\s+", " ", clean).strip()
+    return clean in _ZH_BARE_SIGNOFF_EXACT
+
 # a bare thanks/谢谢 right after the prospect proposed a viewing time, or while our own offer
 # is still open, is a polite acknowledgement, not a withdrawal (Winfred, 11 Sep 2026 attack
 # replay: a Chinese couple proposed Saturday 2pm, then said 谢谢 on the very next turn, and
@@ -1409,14 +1424,25 @@ def _buyer_template(listing_key):
     lookup key listing_unit_message uses for the tenant flow). Today's only override is the
     open house pair: skip_buyer_form + open_house_message. Returns {} for no match or no
     listing_key, so a missing/misconfigured entry always falls back to the normal buyer
-    form. Ported from commit a6523909 (open house buyer flow)."""
+    form. Ported from commit a6523909 (open house buyer flow).
+    Falls back to the LISTING registry's own open_house_message/skip_buyer_form (still
+    present fix, c4rm05, 11 Sep 2026 reattack) when property-templates.json does not carry
+    them -- a landlord/agent may set these directly on the listing record instead of
+    duplicating them in the template file, and the open house invite must still fire."""
     if not listing_key:
         return {}
     d = _load(_templates(), {"listings": []})
+    tpl = {}
     for l in d.get("listings", []):
         if l.get("id") == listing_key:
-            return l
-    return {}
+            tpl = l
+            break
+    lst = listing_reqs().get(listing_key) or {}
+    if not tpl.get("open_house_message") and lst.get("open_house_message"):
+        tpl = dict(tpl); tpl["open_house_message"] = lst["open_house_message"]
+    if not tpl.get("skip_buyer_form") and lst.get("skip_buyer_form"):
+        tpl = dict(tpl); tpl["skip_buyer_form"] = lst["skip_buyer_form"]
+    return tpl
 
 # The published asking price, quoted verbatim by the template's own message text, may be
 # read to judge a buyer's offer (design rubric 4b: "yes for the published number, no for
@@ -1596,14 +1622,29 @@ def _buyer_followup(rec, ev, pn):
         return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
                 "reason": "buyer replied after the open house invite; reply by hand"}
     if _OPEN_HOUSE_ASK_RE.search(ev.get("text", "") or ""):
-        _oh_tpl = _buyer_template(rec.get("listing_key"))
-        if _oh_tpl.get("open_house_message"):
+        # gated on the LISTING's own deal_type/status (review fix 3, 11 Sep 2026), same
+        # shape as the SEND_BUYER_FORM slot gate at ~4360: an open house invite must never
+        # go out for a rental unit that classified as a buyer chat, or a sale listing that
+        # has since gone hold/closed.
+        _lk_oh = rec.get("listing_key")
+        _lst_oh = (listing_reqs().get(_lk_oh) or {}) if _lk_oh else {}
+        _lst_oh_status = str(_lst_oh.get("status") or "").lower()
+        _oh_ok = (bool(_lk_oh) and _lst_oh.get("deal_type") != "rent"
+                  and not _lst_oh_status.startswith("closed") and _lst_oh_status != "hold")
+        _oh_tpl = _buyer_template(_lk_oh) if _oh_ok else {}
+        if _oh_ok and _oh_tpl.get("open_house_message"):
             rec["open_house_sent"] = True
             rec["stage"] = "OPEN_HOUSE_SENT"; rec["status"] = "open_house_sent"
             return {"type": "SEND_OPEN_HOUSE", "pn": pn, "notify": True,
-                     "text": _oh_tpl["open_house_message"], "listing_key": rec.get("listing_key"),
+                     "text": _oh_tpl["open_house_message"], "listing_key": _lk_oh,
                      "reason": "buyer asked about the open house; sent the listing's own "
                                "open house invite verbatim"}
+        # sale listing with no open_house_message configured, or not a live sale listing at
+        # all -- never invent an invite, never let it fall through as a viewing time ask
+        # (still present fix, c4rm05): flag Winfred instead.
+        return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                "reason": "buyer asked about an open house but no open house message is set "
+                          "for this listing, or it is not an open sale listing; reply by hand"}
     # a buyer naming a day/time to view must reach Winfred, complete profile or not — the
     # old flow swallowed it (silent handoff still holds: no message goes to the buyer).
     # The price/negotiation veto wins first: a bare "today" inside a haggle ("can we settle
@@ -1623,6 +1664,21 @@ def _buyer_followup(rec, ev, pn):
         return None
     miss = [k for k in BUYER_REQUIRED if not b.get(k)]
     if not miss:
+        # money/negotiation content riding on the SAME message that completes the profile
+        # must win before the QUALIFIED auto offer below -- a counter offer or a timeline
+        # plus a price push must never auto send the viewing line while the negotiation
+        # content itself never reaches Winfred (review fix 4, 11 Sep 2026: "my timeline is
+        # 2 months, and can the owner do 630k?" completed the profile, qualified, and auto
+        # sent the viewing line with the counter offer never surfaced verbatim). Never on a
+        # filled form: its own field VALUES ("Paying with CPF / Cash / Loan: cash and loan")
+        # are real words the money vocabulary matches on, so a routine full form submission
+        # must never be misread as a stays-human trigger (regression guard).
+        if (not _looks_like_filled_form(ev.get("text") or "")
+                and MG.core_stays_human(ev.get("text") or "")):
+            return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                    "reason": "price/negotiation content alongside a completed buyer "
+                              "profile (\"" + (ev.get("text") or "")[:160]
+                              + "\"); reply by hand"}
         rec["buyer_complete"] = True
         rec["stage"] = "BUYER_COMPLETE"; rec["status"] = "buyer_complete"
         summary = "; ".join(f"{k}: {v}" for k, v in b.items())
@@ -1639,7 +1695,17 @@ def _buyer_followup(rec, ev, pn):
                 return {"type": "BUYER_COMPLETE", "pn": pn, "notify": True, "summary": summary,
                         "verdict": verdict, "text": _oh_tpl["open_house_message"],
                         "reason": "buyer qualified; sent the open house invite"}
-            slot = next_slot(rec.get("listing_key")) if rec.get("listing_key") else None
+            # gated on the LISTING's own deal_type/status (review fix 3, 11 Sep 2026), same
+            # shape as the SEND_BUYER_FORM slot gate at ~4360 -- a buyer record must never
+            # get a rental unit's fixed_viewing slot folded into a purchase message, and a
+            # sale listing that has since gone hold/closed must never auto book a viewing.
+            _lk_q = rec.get("listing_key")
+            _lst_q = (listing_reqs().get(_lk_q) or {}) if _lk_q else {}
+            _lst_q_status = str(_lst_q.get("status") or "").lower()
+            slot = None
+            if (_lk_q and _lst_q.get("deal_type") != "rent"
+                    and not _lst_q_status.startswith("closed") and _lst_q_status != "hold"):
+                slot = next_slot(_lk_q)
             if slot:
                 return {"type": "BUYER_COMPLETE", "pn": pn, "notify": True, "summary": summary,
                         "verdict": verdict,
@@ -1921,6 +1987,36 @@ def _phone_to_llid():
 MATCHMAKER_PHOTOS_DIR = os.path.expanduser("~/crestbrick-consult/scripts/matchmaker/deploy/photos")
 MATCHMAKER_VIDEO_STILLS_DIR = os.path.expanduser("~/crestbrick-consult/scripts/matchmaker/deploy/video-stills")
 
+def _listing_has_media(lk, listing=None):
+    """True if there is actually something to send for a tenant's "any photos?" ask (still
+    present fix, c1-07/c1-08, 11 Sep 2026 reattack): a template or listing registry field
+    declaring media directly, or curated files on disk under the listing's landlord_id
+    (the same MATCHMAKER_PHOTOS_DIR/MATCHMAKER_VIDEO_STILLS_DIR the landlord onboarding side
+    populates). Never promises photos nobody is tracking -- fails closed (False) on any
+    error or missing data."""
+    if not lk:
+        return False
+    listing = listing if listing is not None else (listing_reqs().get(lk) or {})
+    if listing.get("photos") or listing.get("media") or listing.get("photo_urls"):
+        return True
+    try:
+        tpl = _load(_templates(), {"listings": []})
+        for l in tpl.get("listings", []):
+            if l.get("id") == lk and (l.get("photos") or l.get("media") or l.get("photo_urls")):
+                return True
+    except Exception:
+        pass
+    lid = listing.get("landlord_id")
+    if lid:
+        for d in (MATCHMAKER_PHOTOS_DIR, MATCHMAKER_VIDEO_STILLS_DIR):
+            try:
+                p = os.path.join(d, str(lid))
+                if os.path.isdir(p) and any(True for _ in os.scandir(p)):
+                    return True
+            except Exception:
+                pass
+    return False
+
 def _landlord_media_status(pn, chat_jid):
     """(photos_received, video_received), best effort. PRIMARY signal: an image/video the
     landlord has actually sent in THIS WA chat -- works from message one, before any
@@ -2196,6 +2292,9 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
     "keen to view? i can put you in","are you free to view on","i can arrange for viewing",
     "to confirm your viewing slot with the landlord",
     "can i just check your","just need your profile above","ok can, your viewing is on",
+    "your viewing is on",   # question branch variant (review fix 1, 11 Sep 2026)
+    "thanks, that fits what we are looking for",   # buyer QUALIFIED offer
+    "i am the agent helping the landlord",   # own/agent disclosure
     "what time will you be coming? i will keep","on your question, let me check with the owner",
                   "your viewing is confirmed","profile does not match","the next viewing is",
                   "you fit what the landlord","when are you able to view","i will send your profile",
@@ -2234,6 +2333,11 @@ _ENGINE_PREFIXES = (
     "pls fill this in so i can send your profile to the landlord",
     "to confirm your viewing slot with the landlord i just need your profile",
     "ok can, your viewing is on",
+    "your viewing is on",   # question branch variant (review fix 1, 11 Sep 2026): without
+    # this the engine's own confirm-viewing send is never recognised as its own outbound,
+    # so it latches manual_takeover on itself and silences the chat it just booked.
+    "thanks, that fits what we are looking for",   # buyer QUALIFIED slot offer
+    "i am the agent helping the landlord",   # own/agent disclosure fact answer
     "what time will you be coming? i will keep your slot",
     "see you then, i will send the unit number nearer",
     "on your question, let me check with the owner",
@@ -3185,6 +3289,13 @@ def _lease_note_pending_resolution(rec, ev, pn):
     still empty) and lets the caller fall through to the normal flow. An ambiguous reply
     (neither) returns None with lease_note_resolved still unset -- the caller reads that as
     stay silent, one note only."""
+    # first-reply marker (residual risk 5, 11 Sep 2026 review): the YES overwrite below must
+    # only ever move lease_term_months up on the IMMEDIATE next inbound after the note went
+    # out, never a later "yes" answering something else in a chat where a genuine short term
+    # was captured (by any path) in between -- that value must never be silently clobbered
+    # back up to the floor.
+    _is_first_reply = not rec.get("lease_note_reply_seen")
+    rec["lease_note_reply_seen"] = True
     t_now = (ev.get("text") or "").lower()
     # SENSITIVE CONTENT always breaks through the one-flag-per-burst latches below: a
     # protected attribute fishing question, a dispute/complaint, or a legal threat must
@@ -3223,15 +3334,23 @@ def _lease_note_pending_resolution(rec, ev, pn):
             r"\b(1 ?(?:year|yr)|one year|12 ?(?:months?|mths?|mos?)|"
             r"(?:1[3-9]|2[0-9]) ?(?:months?|mths?)|2 ?(?:years?|yrs?))\b", t_now):
         rec["lease_note_resolved"] = True
-        # ALWAYS set to the accepted minimum, never only when empty -- a prospect who
-        # earlier gave a short lease_term_months (that is WHY the note went out) and then
-        # says YES to the landlord's 1 year minimum has just agreed to extend it. Leaving
-        # the old short value in place made qualify() re-derive SHORT_LEASE on the very next
-        # turn, the LEASE_NOTE latch then silently swallowed the repeat (one note only), and
-        # the accepted prospect vanished into a bare "no automated reply matched" flag (P1
-        # fix, 11 Sep 2026 attack replay: a bare "YES" to the note on a profile with
-        # lease_term_months 3 produced total silence instead of QUALIFIED).
-        rec["profile"]["lease_term_months"] = rec.get("lease_note_min", 12)
+        # Set to the accepted minimum when the current value is still empty or still under
+        # the floor -- a prospect who earlier gave a short lease_term_months (that is WHY
+        # the note went out) and then says YES to the landlord's 1 year minimum has just
+        # agreed to extend it. Leaving the old short value in place made qualify()
+        # re-derive SHORT_LEASE on the very next turn, the LEASE_NOTE latch then silently
+        # swallowed the repeat (one note only), and the accepted prospect vanished into a
+        # bare "no automated reply matched" flag (P1 fix, 11 Sep 2026 attack replay: a bare
+        # "YES" to the note on a profile with lease_term_months 3 produced total silence
+        # instead of QUALIFIED). Scoped to the FIRST reply after the note only (residual
+        # risk 5, review 11 Sep 2026): a bare "yes" answering something else, arriving after
+        # a LATER message already set a genuine lease_term_months in between, must never
+        # silently overwrite that value back up to the floor.
+        _cur_lt = rec["profile"].get("lease_term_months")
+        _lt_min = rec.get("lease_note_min", 12)
+        _needs_floor = _cur_lt in (None, "") or (isinstance(_cur_lt, int) and _cur_lt < _lt_min)
+        if _is_first_reply and _needs_floor:
+            rec["profile"]["lease_term_months"] = _lt_min
         return None                          # resolved; caller falls through to the normal flow
     # a completed profile form, or a media-only submission, must never be swallowed as
     # "ambiguous" -- let it fall through to the normal flow instead (9 Sep 2026 replay: a
@@ -3895,11 +4014,16 @@ def _handle_event_inner(state, ev):
     # every portal enquiry's very first inbound is the PropertyGuru/99.co auto boilerplate,
     # itself always English even for a Chinese speaking tenant -- "lang stamped once, at
     # first touch" then locked every later reply to English despite every one of the
-    # tenant's own words being Chinese. Any CJK character on ANY inbound upgrades a record
-    # that has not yet locked to Chinese; a genuinely Chinese record never reverts to
-    # English just because a later reply happens to be in English (test_lang_stamped_once_
-    # and_reused_on_later_messages already covers, and must keep covering, that direction).
-    if rec.get("lang") != "zh" and _CJK_RE.search(ev.get("text") or ""):
+    # tenant's own words being Chinese. 2 or more CJK characters on an inbound that is not
+    # just a bare acknowledgement (review fix 5, 11 Sep 2026: a single "谢谢"/"好的" signoff
+    # on an otherwise English thread must never flip the whole form and every later template
+    # to Chinese) upgrades a record that has not yet locked to Chinese; a genuinely Chinese
+    # record never reverts to English just because a later reply happens to be in English
+    # (test_lang_stamped_once_and_reused_on_later_messages already covers, and must keep
+    # covering, that direction).
+    if (rec.get("lang") != "zh"
+            and len(_CJK_RE.findall(ev.get("text") or "")) >= 2
+            and not _is_zh_bare_signoff(ev.get("text") or "")):
         rec["lang"] = "zh"
     if rec.get("source") is None:
         # first-touch only: never re-classify once stamped, even if a later message
@@ -4198,6 +4322,7 @@ def _handle_event_inner(state, ev):
                 return None
             rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
+            rec["lease_note_reply_seen"] = False   # fresh note -> fresh first-reply window
             if rec.get("lease_fact_told"):
                 # the minimum lease was already stated once, as a direct fact answer to an
                 # earlier question on THIS chat -- restating it now as a fresh "would that
@@ -4539,6 +4664,19 @@ def _handle_event_inner(state, ev):
         # fact-answer lookup below genuinely needs a listing (it quotes the listing's own
         # data), so that alone stays gated on _lk_pre -- with no listing it falls straight to
         # FLAG_HUMAN, no tenant text.
+        # a request for the landlord's own contact details gets its OWN distinct reason,
+        # never the generic "question asked before profile complete" flag -- Winfred needs
+        # to know at a glance this is a phone/contact ask, not just an unanswered question
+        # (still present fix, 11 Sep 2026 cycle5 c5s04: "Hi landlord can i get your hp num
+        # pls, wanna come view tomorrow afternoon?" has a day/time word riding along, so it
+        # must never book, and must never read as a generic unmatched flag either).
+        if MG.CONTACT_DETAIL_ASK_RE.search(_pretxt):
+            if not rec.get("contact_detail_flagged"):
+                rec["contact_detail_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "contact detail request (\"" + _pretxt[:120]
+                                  + "\"); reply by hand"}
+            return None
         if (_is_engaged(_pretxt) and not _is_affirmative(_pretxt)
                 and not _has_viewing_time(_pretxt.lower())
                 and len(extract_profile(_pretxt)) < 2
@@ -4619,6 +4757,20 @@ def _handle_event_inner(state, ev):
                         "reason": "price/deposit/money question (\""
                                   + (ev.get("text") or "")[:120] + "\"); reply by hand"}
             return None
+        # a request for the landlord's own contact details must never be read as a proposed
+        # viewing time or a book-intent yes, even when a day/time word rides along in the
+        # SAME message (review fix, 11 Sep 2026 cycle5 c5s04: "Hi landlord can i get your hp
+        # num pls, wanna come view tomorrow afternoon?" has both "tomorrow afternoon" and the
+        # contact ask -- _has_viewing_time already excludes the contact ask so this branch
+        # never books, but it must still surface as its OWN distinct reason, not a generic
+        # ASK_ONE/no-match flag).
+        if MG.CONTACT_DETAIL_ASK_RE.search(t_book):
+            if not rec.get("contact_detail_flagged"):
+                rec["contact_detail_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "contact detail request (\""
+                                  + (ev.get("text") or "")[:120] + "\"); reply by hand"}
+            return None
         # book intent PERSISTS: once they said yes and we asked for the hard fields, the
         # field reply itself books the slot — no second yes required
         if (_is_affirmative(ev.get("text"))
@@ -4667,8 +4819,7 @@ def _handle_event_inner(state, ev):
                     if _attr_b:
                         return _house_gate_redirect(pn, rec, listing_b, reqs, lk_b, _attr_b, why_b)
                     rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
-                    return {"type":"REDIRECT", "pn":pn, "reason":why_b,
-                            "text":_redirect_text(why_b, rec["profile"], reqs, lk_b)}
+                    return _plain_disqualified_redirect(pn, why_b, rec["profile"], reqs, lk_b)
                 if v_b == "NEEDS_INFO":
                     # split the gaps: things the PROSPECT can answer vs listing-side unknowns
                     # ("listing rent not confirmed") they cannot — 4 of 6 live listings have no
@@ -4812,8 +4963,7 @@ def _handle_event_inner(state, ev):
                                   "field is only sourced from incidental free text; verify by "
                                   "hand: " + _profile_summary(rec["profile"])}
             rec["terminal"] = True; rec["stage"] = "DISQUALIFIED"; rec["status"] = "disqualified"
-            return {"type":"REDIRECT", "pn":pn, "reason":why,
-                    "text":_redirect_text(why, rec["profile"], reqs, lk)}
+            return _plain_disqualified_redirect(pn, why, rec["profile"], reqs, lk)
         if verdict == "SHORT_LEASE":
             if rec.get("lease_note_sent"):
                 # one note only to the PROSPECT, but a newly completed profile confirming
@@ -4832,6 +4982,7 @@ def _handle_event_inner(state, ev):
                                   + _profile_summary(rec["profile"])}
             rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
+            rec["lease_note_reply_seen"] = False   # fresh note -> fresh first-reply window
             if rec.get("lease_fact_told"):
                 # already stated the minimum once as a direct fact answer on this chat --
                 # never restate it (lease-line-repeated-twice); the profile is now complete
@@ -4841,6 +4992,17 @@ def _handle_event_inner(state, ev):
                 return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
                         "reason": "profile confirms a lease under the minimum (already told "
                                   "once); reply by hand"}
+            # still present fix (c1-01, 11 Sep 2026 reattack): an earlier money/price question
+            # in THIS thread that already tripped lease_note_money_flagged (the price-alongside
+            # -short-lease gate above) was never actually answered -- the profile completing
+            # afterward must not still slip out a SILENT lease note; Winfred needs to know a
+            # money question is still open on a chat that just qualified SHORT_LEASE.
+            if rec.get("lease_note_money_flagged"):
+                rec["lease_note_resolved"] = True
+                rec["status"] = "short_lease_note"
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "profile confirms a short lease after an earlier unanswered "
+                                  "money question in this chat; reply by hand"}
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
             return {"type": "LEASE_NOTE", "pn": pn, "notify": False, "reason": (why or [""])[0],
                     "text": _lease_note_text(_lang(rec))}
@@ -5112,12 +5274,20 @@ def _protected_disclosure_question(text):
     t = text or ""
     return bool(_PROTECTED_SELF_DISCLOSE_RE.search(t) and _ACCEPTABLE_CHECK_RE.search(t))
 
-def suggest_alternative(profile, exclude_key):
+def suggest_alternative(profile, exclude_key, want_gap=False):
     """Cross sell: the best OTHER active listing in the same district as the rejected or
     disqualified listing (or matching the tenant's stated preferred location), that the
     profile is not disqualified for and that has a unit post to send.
-    Returns (listing_key, text) or None. The text carries the unit brief, the next viewing
-    slot line (via listing_unit_message) and the portal listing link when one exists."""
+    Returns (listing_key, text) or None; with want_gap=True returns (listing_key, text, gap)
+    where gap is the list of protected attribute fields (gender/ethnicity/nationality) still
+    unknown for the CHOSEN candidate, or [] when none. Used by the plain (unprotected)
+    DISQUALIFIED redirect to flag Winfred instead of silently suggesting a unit the landlord
+    might decline once gender/ethnicity is actually known (residual risk 4, 11 Sep 2026
+    review: missing_required drops those fields from the nudge whenever the ORIGINAL
+    listing's own gates are all "any", so a rescreen against a GATED alternative here is
+    routinely NEEDS_INFO on exactly those fields -- that must never be a silent stall).
+    The text carries the unit brief, the next viewing slot line (via listing_unit_message)
+    and the portal listing link when one exists."""
     if _landlord_by_id() is None:
         return None       # master DB unreadable -> suggest nothing (fail closed on new exposure)
     reqs = listing_reqs()
@@ -5149,25 +5319,52 @@ def suggest_alternative(profile, exclude_key):
             continue
         score = ((0 if v == "QUALIFIED" else 1), (0 if _has_open_future_slot(k) else 1))
         if best is None or score < best[0]:
-            best = (score, k, unit, l)
+            best = (score, k, unit, l, v, _why)
     if not best:
         return None
-    _score, k, unit, l = best
+    _score, k, unit, l, v, why = best
     url = l.get("portal_url")
-    return k, unit + (("\n\nFull listing: " + url) if url else "")
+    text = unit + (("\n\nFull listing: " + url) if url else "")
+    if want_gap:
+        gap = [w for w in (why or [])
+               if str(w).lower().startswith(("gender", "ethnicity", "nationality"))] \
+              if v == "NEEDS_INFO" else []
+        return k, text, gap
+    return k, text
 
-def _redirect_text(why, profile, reqs, exclude_key=None):
+def _redirect_text(why, profile, reqs, exclude_key=None, want_gap=False):
     # never reveal the reason or any protected attribute. kind note + channel referral,
     # upgraded with a concrete same-district alternative (unit post + next slot) when one fits.
-    alt = suggest_alternative(profile or {}, exclude_key) if exclude_key else None
+    alt = suggest_alternative(profile or {}, exclude_key, want_gap=want_gap) if exclude_key else None
     if alt:
-        _k, alt_text = alt
-        return ("Thanks for sending this :) So sorry, your profile is not a fit for this unit 🙏\n"
+        if want_gap:
+            _k, alt_text, gap = alt
+        else:
+            _k, alt_text = alt
+            gap = None
+        text = ("Thanks for sending this :) So sorry, your profile is not a fit for this unit 🙏\n"
                 "But I have another room nearby that may suit you:\n\n" + alt_text + "\n\n"
                 "Keen to take a look? More options here too: " + CHANNEL)
-    return ("Thanks for sending this :) So sorry, your profile is not a fit for this unit 🙏\n"
+        return (text, gap) if want_gap else text
+    text = ("Thanks for sending this :) So sorry, your profile is not a fit for this unit 🙏\n"
             "You can take a look at my other available room rentals here:\n" + CHANNEL + "\n"
             "Did anything catch your eye? Let me know and I'll arrange a viewing for you 🙂")
+    return (text, None) if want_gap else text
+
+def _plain_disqualified_redirect(pn, why, profile, reqs, lk):
+    """The unprotected (no protected attribute involved) DISQUALIFIED REDIRECT, with the
+    alternative-listing gap surfaced to Winfred instead of a silent stall (residual risk 4,
+    11 Sep 2026 review): when suggest_alternative's pick is only NEEDS_INFO on gender/
+    ethnicity/nationality (exactly the fields missing_required legitimately dropped because
+    the ORIGINAL listing's own gates are all "any"), the tenant still gets the alternative
+    text, but Winfred is notified that it needs confirming -- never silence on both sides."""
+    text, gap = _redirect_text(why, profile, reqs, lk, want_gap=True)
+    act = {"type": "REDIRECT", "pn": pn, "reason": why, "text": text}
+    if gap:
+        act["notify"] = True
+        act["reason"] = ("alternative suggested but landlord gate on " + ", ".join(gap)
+                          + " unknown for the tenant; confirm: " + _profile_summary(profile))
+    return act
 
 
 # a viewing slot on every open listing (11 Sep 2026): 96.6% of prospects confirm a named day
