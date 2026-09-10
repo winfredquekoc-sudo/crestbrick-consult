@@ -29,6 +29,10 @@ h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 .tabs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .tab{padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink)}
 .tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+/* (item 1) icon moved out of the tab's own text node into a ::before reading
+   data-icon, so the mobile media query below can shrink/reflow the label
+   without the emoji's own (inconsistent, font dependent) width fighting it. */
+.tab::before{content:attr(data-icon);margin-right:6px}
 .filters{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
 input,select{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
 input#q{min-width:230px;flex:1}
@@ -487,4 +491,33 @@ body.density-compact .lc{padding:7px 9px}
 .xrow>td{background:var(--panel2);padding:10px}
 .xslot .maphead{margin-top:6px}
 .mfil th{padding:3px 6px}
+
+/* ===================== UX spec item 1: mobile header collapse ===================== */
+/* Below 700px the header was measured at 1053px on an 812px phone screen —
+   11 tabs wrapped onto 5 rows, 6 header buttons onto 2, and 11 filter
+   controls onto 6 (see ux-spec.md item 1). Tabs and the header button row
+   each become a single horizontally scrolling strip instead of wrapping —
+   min-height stays whatever the base .tab/.hbtn rules already floor it at
+   (44px), only padding/font/gap shrink, so tap targets never drop below the
+   accessibility floor those rules already enforce (see PASS 2's own
+   comment). The filter bar's own mobile collapse is item 2's job (it
+   restructures the DOM into row one + a disclosure panel); nothing here
+   assumes that shape yet. */
+@media (max-width:700px){
+  .tabs{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:4px;margin-top:8px}
+  .tabs .tab{scroll-snap-align:start;flex:0 0 auto;padding:6px 10px;font-size:12px;white-space:nowrap}
+  .hbtnrow{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px}
+  .hbtnrow .hbtn{flex:0 0 auto;padding:5px 9px;font-size:11px;white-space:nowrap}
+  /* the top .hrow (title/sub, KPI chips, sync pill) is the one piece item 1's
+     own spec text doesn't mention by name, but it still has to shrink for
+     the whole header to clear the <=300px acceptance bar — KPI chips are
+     read-only counters, not controls, so scrolling them in one line loses
+     nothing a tap would have used. */
+  header .hrow:first-child{gap:6px}
+  header h1{font-size:15px}
+  .kpis{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-left:0;gap:6px;max-width:100%}
+  .kpi{padding:3px 8px;font-size:11px;white-space:nowrap}
+  .kpi b{font-size:13px}
+  #syncPill{display:none}
+}
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}

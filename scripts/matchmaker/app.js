@@ -2491,7 +2491,16 @@ function dataAgeBannerHtml() {
 // render() is already the app's single per-change checkpoint.
 function measureHeaderHeight() {
   const h = document.querySelector("header");
-  if (h) document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px");
+  if (!h) return;
+  // (item 1) on a phone the header itself can still be taller than the
+  // acceptance floor for a moment (a long viewing note wrapping a chip, a
+  // slow font swap) even after the item 1 CSS collapse — clamping what gets
+  // PUBLISHED to 45% of the viewport keeps --header-h (and therefore
+  // scroll-margin-top and .sticky-ctx's offset, see styles.css) from ever
+  // parking a focused row or sticky strip more than half a screen down, no
+  // matter what the header's own real height does.
+  const clamped = Math.min(h.offsetHeight, Math.round(innerHeight * 0.45));
+  document.documentElement.style.setProperty("--header-h", clamped + "px");
 }
 // (item 6) panels heavy enough to be worth releasing on exit — each one
 // rebuilds fully from box.innerHTML = "" on entry (see render() below).
