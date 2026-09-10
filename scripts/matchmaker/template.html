@@ -76,6 +76,11 @@
   </div>
 </header>
 <main>
+  <!-- (item 9) compact sticky filter summary — populated by renderFilterSummary()
+       in app.js (see render() -> renderFilterBar()), reusing item 2's chip data.
+       Sits right below the sticky header so scrolling a long roster never
+       loses the active filters or the row count. -->
+  <div id="filtersummary" class="sticky-ctx" hidden></div>
   <div id="work" role="tabpanel" aria-labelledby="tab-work"></div>
   <div id="pipeline" style="display:none" role="tabpanel" aria-labelledby="tab-pipeline"></div>
   <div id="listing" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-listing">

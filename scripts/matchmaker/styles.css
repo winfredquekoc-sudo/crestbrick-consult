@@ -45,6 +45,19 @@ h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 .chip.removable .x{margin-left:3px;opacity:.7}
 .chip.removable:hover .x{opacity:1}
 #resultcount.pending,#filtersummary.pending{opacity:.5}
+
+/* ===================== UX spec item 9: sticky sub headers ===================== */
+/* Needs its own background (not just whatever sits behind it in the flow)
+   since a sticky element keeps painting over rows scrolling underneath it —
+   .maptable's own cells are otherwise transparent, showing .maptablewrap's
+   panel background only until the header actually detaches to stick. */
+.maptable thead th{position:sticky;top:var(--header-h,140px);z-index:5;background:var(--panel)}
+/* District group headings in the two long rosters that group by district —
+   the mapview "Bird's-eye" landlord directory (.dirhead) and the All
+   Tenants roster (.section-hd, scoped to #alltenants only: the same class
+   is reused elsewhere — pipeline's "Due now", the worklist's help strip —
+   as an ordinary one-off section title that was never meant to stick). */
+#mapview .dirhead,#alltenants .section-hd{position:sticky;top:var(--header-h,140px);z-index:6;background:var(--bg)}
 input,select{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
 input#q{min-width:230px;flex:1}
 #ft,#fg,#fe,#fs,#fk{max-width:170px}

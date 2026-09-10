@@ -2646,9 +2646,13 @@ function renderFilterBar() {
   }
   renderFilterSummary(chips, qdActive);   // (item 9)
 }
-// (item 9) compact sticky strip reusing the exact same chip labels — declared
-// here (not in render()) so it always has the freshest chips/count without a
-// second computation. A no-op until item 9 adds #filtersummary to the page.
+// (item 9) compact sticky strip under the header (#filtersummary in
+// template.html, position:sticky; top:var(--header-h) via .sticky-ctx),
+// reusing the exact same chip labels as row one's strip — declared here
+// (not in render()) so it always has the freshest chips/count without a
+// second computation. Once --header-h is clamped (item 1) this is the one
+// line that survives scrolling past row 200 of a long roster, explaining
+// why a tenant/listing is not showing up without scrolling back to the top.
 function renderFilterSummary(chips, qdActive) {
   const summary = $("#filtersummary");
   if (!summary) return;
@@ -2658,6 +2662,9 @@ function renderFilterSummary(chips, qdActive) {
   const countTxt = VIEW_RESULT_COUNT != null ? (" · " + VIEW_RESULT_COUNT + (VIEW_RESULT_COUNT === 1 ? " row" : " rows")) : "";
   summary.innerHTML = chips.map(c => esc(c.label)).join(" · ") + countTxt + ' · <a href="#" data-clearsummary="1">clear</a>';
   const link = summary.querySelector("[data-clearsummary]");
+  // "clear" both resets the filters (#clr's own handler) and scrolls back to
+  // the top — the acceptance criterion is explicit that it does both, since
+  // resetting the filters alone would still leave him scrolled to row 200.
   if (link) link.onclick = (e) => { e.preventDefault(); $("#clr").click(); window.scrollTo(0, 0); };
 }
 function applyMoreFiltersOpenState() {
