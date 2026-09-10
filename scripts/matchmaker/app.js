@@ -2325,7 +2325,7 @@ function openViewingPack(l, t, dateStr, timeStr) {
 function oneTapMarkButtonsHtml() {
   return '<button class="btn" data-mk1="Contacted">✓ Contacted</button>' +
     '<button class="btn" data-mk1="Viewing booked">📅 Viewing</button>' +
-    '<button class="btn" data-mkmore="1" aria-haspopup="true" aria-label="More mark options">⋯</button>';
+    '<button class="btn" data-mkmore="1" aria-label="More">⋯</button>';
 }
 // `cold` drops "Queued": queueing is an outbound send action (it feeds the
 // morning dispatch export), so the dead lead rule applies to it the same way
@@ -2456,19 +2456,26 @@ function matchRow(m, showListing, opts) {
   const pillHtml = pillLabel ? ('<span class="statuspill' + (st === "Not interested" ? " r" : " g") + '">' + esc(pillLabel) + '</span>') : '';
 
   // ---- line 1 (item 8): name, big score, verdict chip, promoted blocker chip ----
-  const nameHtml = '<span class="nm big">' + esc(t.name) + '</span>' + (showListing ? (' <span class="mut">→ ' + esc(l.name) + '</span>') : '');
-  const line1 = '<div class="rtop line1">' + checkboxHtml + pillHtml + nameHtml + ' ' +
-    scoreBar(m.s.parts, displayScore) + '<span class="sc big">' + displayScore + '</span> ' +
+  // Literally nothing else — the "→ ListingName" arrow used to sit here too,
+  // but at 375px that alone was enough to wrap line 1 onto two lines before a
+  // single chip was added. It reads fine one line down instead: line 2 says
+  // WHICH room this is about before it says budget/move in/area. scoreBar's
+  // 5 segment breakdown is demoted into +more (below) — it is supplementary
+  // detail on top of the numeral, not one of the three facts line 1 owns,
+  // and its own markup (~350 bytes of <i> segments plus an aria-label/title)
+  // was most of what pushed the row past the byte budget on its own.
+  const line1 = '<div class="rtop line1">' + checkboxHtml + pillHtml +
+    '<span class="nm big">' + esc(t.name) + '</span> <span class="sc big">' + displayScore + '</span> ' +
     vchip(eff.verdict) + blockerChipHtml(eff, m) + '</div>';
 
   // ---- line 2 (item 8): budget, move in, area — plain muted text, not pills ----
-  const facts = rowFacts(t, l, showListing).slice();
+  const facts = (showListing ? ["→ " + l.name] : []).concat(rowFacts(t, l, showListing));
   if (showListing && l.available_from) facts.push("vacant from " + shortDate(Scoring.parseDate(l.available_from))); // (24)
   if (l.availability === "Offer pending") facts.push("offer pending, hold");
   const line2 = '<div class="rtop line2 mut">' + esc(facts.join(' · ')) + '</div>';
 
   // ---- line 3 (item 8): everything else, collapsed behind "+N more" ----
-  const extraChips = [];
+  const extraChips = [scoreBar(m.s.parts, displayScore)];
   badges.forEach(b => extraChips.push(b));
   if (nba) extraChips.push(nba);
   const bsc = budgetStretchChip(t); if (bsc) extraChips.push(bsc);
