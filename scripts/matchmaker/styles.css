@@ -12,10 +12,16 @@
      the hex that was previously hardcoded into each selector, so dark mode
      is pixel-identical to before this change. */
   --grn-ink:#37c07f; --amb-ink:#e39a1c; --red-ink:#ff6b78; --purple-ink:#9b8cff; --amb-toast-ink:#d98a10;
+  /* (item 8) --mut2 is --mut raised for the row's own line 2 facts — the
+     readability complaint on the old row was 11px grey text at ~3.2:1 in
+     dark mode; --gold is the map's own existing accent (.mmtownlbl below),
+     reused here as the brand navy/gold alternative to WhatsApp green rather
+     than inventing a new colour. */
+  --mut2:#aebccf; --gold:#c8a24a;
 }
 @media (prefers-color-scheme:light){
   :root{--bg:#f4f6fb;--panel:#ffffff;--panel2:#f0f3fa;--line:#dde3ef;--ink:#16203a;--mut:#5a6a88;--acc:#2f6bff;--chip:#eaf0ff;
-    --grn-ink:#206f4a; --amb-ink:#8a5e11; --red-ink:#a3444d; --purple-ink:#685eab; --amb-toast-ink:#915c0b;}
+    --grn-ink:#206f4a; --amb-ink:#8a5e11; --red-ink:#a3444d; --purple-ink:#685eab; --amb-toast-ink:#915c0b; --mut2:#425374; --gold:#8a6a26;}
 }
 *{box-sizing:border-box}
 body{margin:0;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -29,9 +35,46 @@ h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 .tabs{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
 .tab{padding:7px 13px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:600;font-size:13px;color:var(--ink)}
 .tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
+/* (item 1) icon moved out of the tab's own text node into a ::before reading
+   data-icon, so the mobile media query below can shrink/reflow the label
+   without the emoji's own (inconsistent, font dependent) width fighting it.
+   (fix 13) scoped to [data-icon] — #clr also carries class="tab" but has no
+   icon, and an unscoped rule still reserves the 6px margin for an empty
+   ::before there. */
+.tab[data-icon]::before{content:attr(data-icon);margin-right:6px}
 .filters{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
+/* ===================== UX spec item 2: filter bar restructure ===================== */
+/* Row two (#morefilters) only gets display:flex when the [hidden] attribute
+   is absent — the :not([hidden]) guard is needed because an ID selector
+   author rule otherwise outranks the UA stylesheet's own [hidden]{display:
+   none}, which would show the panel even while hidden is set. */
+#morefilters:not([hidden]){display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%;margin-top:8px}
+/* #clr carries class="tab", and .tab sets its own display:inline-flex (PASS 2
+   accessibility floor) — same specificity as the UA's [hidden]{display:none},
+   so author beats UA and the hidden attribute alone does nothing. The ID
+   selector here outranks .tab and restores the hide. */
+#clr[hidden]{display:none}
+.chipstrip{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.chip.removable{cursor:pointer}
+.chip.removable .x{margin-left:3px;opacity:.7}
+.chip.removable:hover .x{opacity:1}
+#resultcount.pending,#filtersummary.pending{opacity:.5}
+
+/* ===================== UX spec item 9: sticky sub headers ===================== */
+/* Needs its own background (not just whatever sits behind it in the flow)
+   since a sticky element keeps painting over rows scrolling underneath it —
+   .maptable's own cells are otherwise transparent, showing .maptablewrap's
+   panel background only until the header actually detaches to stick. */
+.maptable thead th{position:sticky;top:var(--header-h,140px);z-index:5;background:var(--panel)}
+/* District group headings in the two long rosters that group by district —
+   the mapview "Bird's-eye" landlord directory (.dirhead) and the All
+   Tenants roster (.section-hd, scoped to #alltenants only: the same class
+   is reused elsewhere — pipeline's "Due now", the worklist's help strip —
+   as an ordinary one-off section title that was never meant to stick). */
+#mapview .dirhead,#alltenants .section-hd{position:sticky;top:var(--header-h,140px);z-index:6;background:var(--bg)}
 input,select{background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 10px;font-size:13px;outline:none}
 input#q{min-width:230px;flex:1}
+#ft,#fg,#fe,#fs,#fk{max-width:170px}
 .tog{display:flex;align-items:center;gap:6px;color:var(--mut);font-size:12px;cursor:pointer;user-select:none}
 main{padding:14px 16px 60px}
 .split{display:grid;grid-template-columns:320px 1fr;gap:14px}
@@ -45,7 +88,7 @@ main{padding:14px 16px 60px}
 .phead{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
 .phead .big{font-size:16px;font-weight:800}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--ink);white-space:nowrap}
+.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:12px;color:var(--ink);white-space:nowrap}
 .chip.g{background:rgba(46,204,113,.16);color:var(--grn-ink)}
 .chip.a{background:rgba(245,166,35,.16);color:var(--amb-ink)}
 .chip.r{background:rgba(255,92,108,.16);color:var(--red-ink)}
@@ -60,12 +103,15 @@ main{padding:14px 16px 60px}
 .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;gap:5px;align-items:center;font-weight:600}
 .btn.p{background:var(--grn);color:#062012;border-color:var(--grn)}
-.btn.w{background:#25d366;color:#03210f;border-color:#25d366}
+/* (item 8) was WhatsApp's own #25d366 green — green is reserved for status
+   (good fit / progressing mark) everywhere else on the row, so the one
+   button that is neither would read as a third, meaningless green. Brand
+   gold instead; anchor/target/rel/cold-block logic untouched, style only. */
+.btn.w{background:var(--gold);color:#1c1400;border-color:var(--gold)}
 .mut{color:var(--mut)}
 .empty{color:var(--mut);text-align:center;padding:40px 10px}
 .legend{font-size:11px;color:var(--mut);margin-top:12px;line-height:1.6}
 .mk{font-size:11px;color:var(--mut)}
-select.mk{padding:3px 6px}
 .wm{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.4);color:var(--amb-toast-ink);border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:10px}
 .help{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;margin-bottom:10px;line-height:1.6}
 .row.blk{opacity:.8;background:repeating-linear-gradient(45deg,transparent,transparent 9px,rgba(255,92,108,.06) 9px,rgba(255,92,108,.06) 18px)}
@@ -77,6 +123,39 @@ select.mk{padding:3px 6px}
 .btn.lg{min-height:44px;padding:10px 14px;font-size:13px}
 .btn.disabled{opacity:.4;cursor:not-allowed;background:var(--panel2)}
 .btn.full{width:100%;justify-content:center}
+/* (item 8) the one destructive button in an otherwise neutral bar/popover —
+   outline tint only, never a solid fill, so it does not read as a second
+   "primary" action next to Contacted/Viewing. */
+.btn.danger{border-color:var(--red);color:var(--red-ink)}
+
+/* ===================== UX spec items 7/8: one tap row actions + hierarchy ===================== */
+/* Line 1: name + big score + verdict chip. Line 2: muted plain facts. Line 3:
+   the "+N more" toggle. Everything below .line3 is the always visible action
+   row — see matchRow()/wireRowEvents() in app.js. */
+.rtop.line1{gap:8px}
+.nm.big{font-size:16px;font-weight:800}
+.sc.big{font-size:21px;min-width:36px}
+.rtop.line2{font-size:13px;color:var(--mut2);gap:0}
+.rtop.line3{margin-top:4px}
+.btn.more{background:transparent;border-style:dashed;color:var(--mut2);font-size:11px;padding:3px 8px;min-height:26px}
+.rowextras{margin-top:5px}
+.rowextras .gap{margin-top:6px}
+/* One tap mark buttons + status pill (item 7). The pill is the one thing
+   allowed ahead of the tenant's name on line 1 — it is the row's whole
+   reason for having a coloured left border, so it has to be visible without
+   opening anything. */
+.statuspill{border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700;background:var(--chip);color:var(--mut2)}
+.statuspill.g{background:rgba(46,204,113,.16);color:var(--grn-ink)}
+.statuspill.r{background:rgba(255,92,108,.16);color:var(--red-ink)}
+/* Marked state has to read "from across the room" without opening anything —
+   a 3px left border in the same three status colours as the pill/verdict
+   chip. Green = progressing (Contacted/Viewing booked/Queued), red = dead
+   (Not interested). No amber border: amber stays reserved for the verdict
+   chip's own "needs a question answered" state. */
+.row[data-mark]{border-left:3px solid var(--line)}
+.row.mark-pos{border-left-color:var(--grn)}
+.row.mark-neg{border-left-color:var(--red)}
+.markpop{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
 
 /* badges — scratch / co-broke / overridden / declined-similar / reconfirm etc */
 .badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;background:var(--chip);color:var(--mut)}
@@ -97,6 +176,14 @@ select.mk{padding:3px 6px}
 
 /* triage mode: focused card, key legend, sticky bottom action bar */
 .row.focus{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+/* (item 7) .row.focus's border-color shorthand touches all four sides,
+   including the left one .mark-pos/.mark-neg colour — same specificity
+   (two classes each), so whichever rule is LATER in the file wins and the
+   status colour silently disappears on the one row that is also focused.
+   Three classes beats two regardless of source order, so this survives any
+   future reshuffle of the file instead of relying on staying below focus. */
+.row.focus.mark-pos{border-left-color:var(--grn)}
+.row.focus.mark-neg{border-left-color:var(--red)}
 .triage-legend{font-size:11px;color:var(--mut);margin:8px 0;line-height:1.8}
 .key{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;margin:0 2px}
 /* (79) this used to be a flat 86px, which is enough on a device with no home
@@ -186,9 +273,9 @@ body.density-compact .lc{padding:7px 9px}
    choice has been made in prefs.theme. High contrast light palette (not a
    washed out pastel): dark ink on a genuinely white/near white surface. */
 :root[data-theme="dark"]{--bg:#0f1420;--panel:#161d2e;--panel2:#1d2740;--line:#2a3550;--ink:#e8edf7;--mut:#93a1c0;--acc:#5b8cff;--chip:#223052;
-  --grn-ink:#37c07f;--amb-ink:#e39a1c;--red-ink:#ff6b78;--purple-ink:#9b8cff;--amb-toast-ink:#d98a10}
+  --grn-ink:#37c07f;--amb-ink:#e39a1c;--red-ink:#ff6b78;--purple-ink:#9b8cff;--amb-toast-ink:#d98a10;--mut2:#aebccf;--gold:#c8a24a}
 :root[data-theme="light"]{--bg:#f4f6fb;--panel:#ffffff;--panel2:#eef1f8;--line:#c7cfe0;--ink:#10182c;--mut:#3d4a68;--acc:#2f5fe0;--chip:#e3eaff;
-  --grn-ink:#206f4a;--amb-ink:#8a5e11;--red-ink:#a3444d;--purple-ink:#685eab;--amb-toast-ink:#915c0b}
+  --grn-ink:#206f4a;--amb-ink:#8a5e11;--red-ink:#a3444d;--purple-ink:#685eab;--amb-toast-ink:#915c0b;--mut2:#425374;--gold:#8a6a26}
 
 /* (12)/(31) grouped duplicate list (tenant dup_group, listing dup_of) — one
    expandable panel, never one badge/row per member (real data: 12+ in a group) */
@@ -276,6 +363,14 @@ body.density-compact .lc{padding:7px 9px}
    the whole page wider. */
 .rail, .panel, .phead > div{min-width:0}
 .chip{white-space:normal;overflow-wrap:anywhere;display:inline-block;max-width:100%}
+
+/* (item 3) same (71) trap, Dashboard/mapview specifically: .mapleft is a
+   grid child of .mapgrid, which itself already uses minmax(0,...) tracks —
+   but that only bounds the TRACK, not the ITEM inside it, which still
+   defaults to min-width:auto. Confirmed live: at 375px the roster table
+   inside .mapleft (long district/tenant text, nowrap cells) forced the whole
+   page to scrollWidth ~601 even with the grid single columned below 900px. */
+.mapgrid>div{min-width:0}
 
 /* (72) undo toast (undoToast() in app.js, shown after every mark/bulk
    action) inherited only the plain .wm block style — no positioning — so it
@@ -435,7 +530,19 @@ body.density-compact .lc{padding:7px 9px}
 .mappin.sel circle{stroke:var(--ink);stroke-width:3}
 .mappin text{fill:var(--ink);font-size:11px;text-anchor:middle;pointer-events:none;font-weight:600}
 .mappanel{margin-top:10px}
-.maphead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+/* (item 3, cont'd) .mapleft's own min-width:0 fix (CYCLE 4 section, above)
+   only contains the panel that holds it — verified live it does not overflow
+   any more. But several Dashboard cards (Waiting by area, Waiting on reply,
+   New rooms, Where to source next, ...) build a plain <table class="maptable">
+   straight into .maphead with no wrapper and no "stack" class (unlike the
+   Landlords/All Tenants directory tables, which already stack below 860px).
+   Real multi column numeric tables do not shrink to 343px by wrapping text,
+   so at 375px this was STILL forcing body.scrollWidth past the viewport
+   after the .mapleft fix — confirmed live (588 vs the true 375 clientWidth).
+   Scope this to overflow-x:auto rather than retrofitting every one of these
+   ad hoc table builders with the stack markup: same containment the existing
+   .maptablewrap already gives its own tables, just applied one level up. */
+.maphead{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;overflow-x:auto}
 .mapsec{margin:12px 0 6px;font-weight:700}
 .mapseek{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:6px 10px;margin:4px 0;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .mapgrid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:10px;margin-top:8px}
@@ -486,4 +593,76 @@ body.density-compact .lc{padding:7px 9px}
 .xrow>td{background:var(--panel2);padding:10px}
 .xslot .maphead{margin-top:6px}
 .mfil th{padding:3px 6px}
+
+/* ===================== UX spec item 1: mobile header collapse ===================== */
+/* Below 700px the header was measured at 1053px on an 812px phone screen —
+   11 tabs wrapped onto 5 rows, 6 header buttons onto 2, and 11 filter
+   controls onto 6 (see ux-spec.md item 1). Tabs and the header button row
+   each become a single horizontally scrolling strip instead of wrapping —
+   min-height stays whatever the base .tab/.hbtn rules already floor it at
+   (44px), only padding/font/gap shrink, so tap targets never drop below the
+   accessibility floor those rules already enforce (see PASS 2's own
+   comment). */
+@media (max-width:700px){
+  .tabs{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:4px;margin-top:8px}
+  .tabs .tab{scroll-snap-align:start;flex:0 0 auto;padding:6px 10px;font-size:12px;white-space:nowrap}
+  .hbtnrow{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;gap:4px}
+  .hbtnrow .hbtn{flex:0 0 auto;padding:5px 9px;font-size:11px;white-space:nowrap}
+  /* the top .hrow (title/sub, KPI chips, sync pill) is the one piece item 1's
+     own spec text doesn't mention by name, but it still has to shrink for
+     the whole header to clear the <=300px acceptance bar — KPI chips are
+     read-only counters, not controls, so scrolling them in one line loses
+     nothing a tap would have used. The sub line (data freshness sentence) is
+     long enough to wrap 2-3 lines on its own at 375px; truncating it to one
+     line with an ellipsis is the single biggest saving in this block — the
+     full sentence is one tap away (the tab itself) so nothing is lost. */
+  header .hrow:first-child{gap:6px}
+  header h1{font-size:15px}
+  /* flex items default to min-width:auto (their min-content width), not 0 —
+     the same trap CYCLE 4's (71) fix already documents elsewhere in this
+     file. Truncating .sub to one nowrap line makes ITS min-content width
+     the full unwrapped sentence, and without min-width:0 on the flex item
+     wrapping h1+.sub, that dragged .hrow (and header, and the whole page)
+     out to 680px+ wide on a 375px viewport — confirmed live via scrollWidth. */
+  header .hrow:first-child>div:first-child{min-width:0}
+  header .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+  .kpis{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-left:0;gap:6px;max-width:100%}
+  .kpi{padding:3px 8px;font-size:11px;white-space:nowrap}
+  .kpi b{font-size:13px}
+  #syncPill{display:none}
+  /* (item 10) the j/k/d/c/v/n/s/q legend describes keys that do not exist
+     on a phone — it just costs a row of vertical space here for nothing. */
+  .triage-legend{display:none}
+  /* Shrinking the header alone did not fix the problem item 1 names first
+     ("nearly two full screens of scrolling before any content") — the
+     static onboarding reminder and the "5 minutes of asking" nudge sit
+     between the (now much shorter) header and the first real row and were
+     never part of the header's own height. Both are re-shown any time by
+     switching tabs and back; nothing here removes actionable content — the
+     scoped selector only reaches the "① Pick the top match..." reminder,
+     never the verdict-collection/offer/review-request sections that share
+     the same wrapper, and never another tab's own .help box. */
+  #work>div:first-child>.help{display:none}
+  #work .askstrip{display:none}
+  /* (item 2, folded back into item 1's clamp) row one's own controls each
+     carry the 44px tap-target floor, so at three wrapped lines (search /
+     district+Filters+chips / result+clear+bulk) that alone was 132px+gaps —
+     the single largest remaining piece once tabs/buttons/hrow were trimmed.
+     Two lines instead of three: search takes its own full-width line, then
+     district shrinks enough for district+Filters(n)+result count to share
+     the next one. Bulk action is a power-user action on an already-filtered
+     set, not one of the row one/row two controls item 2 defines, and it
+     does not fit a third control onto line two at this width — dropped from
+     the phone layout only, still on desktop and in the command palette. */
+  .filters{margin-top:6px}
+  input#q{min-width:0;flex:1 1 100%}
+  #fd{max-width:130px;font-size:12px;padding:6px 8px}
+  #filterstoggle{padding:5px 9px;font-size:11px}
+  #resultcount{font-size:11px}
+  #clr{padding:5px 9px;font-size:11px}
+  #bulkbtn{display:none}
+  /* (fix 13) 26px is fine with a mouse; below the 44px tap floor on a phone
+     is not — same breakpoint every other tap target on this page uses. */
+  .btn.more{min-height:44px}
+}
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}

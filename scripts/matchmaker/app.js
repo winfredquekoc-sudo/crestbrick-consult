@@ -213,6 +213,17 @@ const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);                  // device-local 
 const AREA = DATA.districts || {};
 let view = "mapview", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
 let ALL_TENANTS = [], MATCHES = [], byListing = {}, byTenant = {}, CURRENT_WORKLIST = [];
+// (item 2) "N rows" for whichever view is on screen — worklist prim length,
+// listing/tenant rail length, or roster length. Each render*() that has a
+// meaningful count sets it; render() resets to null first so a view that
+// never sets it (mapview/stats/pipeline/revival) hides #resultcount rather
+// than showing a stale number left over from the previous view.
+let VIEW_RESULT_COUNT = null;
+// (item 3) roomTypeOf/genderPrefOf/racePrefOf/statusOf/cookingOf only depend on
+// the LISTING, not the tenant, but passFilter/updateFacetedCounts used to call
+// all five per pair — 363 tenants per listing per sweep for the same answer.
+// Built once per listing in rebuildMatches(), keyed by listing id.
+let LISTING_FACETS = new Map();
 let IDLE_TIMER = null;        // (20)/(49) idle lock
 const IDLE_MS = 10 * 60 * 1000;
 
@@ -308,6 +319,57 @@ function isWholeUnitTenant(t) {
 function lifecycleOf(l) { return (l && l.lifecycle) || "available"; }
 function isActiveLifecycle(l) { const c = lifecycleOf(l); return c === "available" || c === "renewal_watch" || c === "unknown"; }
 
+// ===================== filter facet normalisers (pure — tests/matchmaker/filters.test.mjs) =====================
+// property_type/rooms/req_raw are all free landlord text — bucket into a small
+// fixed set the filter select can enumerate, rather than showing raw text.
+function roomTypeOf(l) {
+  // req_raw.other only — req_raw's other keys (gender/ethnicity/...) carry
+  // tenant preference text, not property description, and folding them in
+  // here misreads e.g. a "mixed gender co-living" GENDER note as a co-living
+  // PROPERTY, double counting a listing that already has its own room text.
+  const rrOther = (l.req_raw && l.req_raw.other) || "";
+  const hay = [l.property_type, l.rooms, rrOther].filter(Boolean).join(" ").toLowerCase();
+  if (/\bstudio\b/.test(hay)) return "Studio";
+  if (/co[\s-]?living/.test(hay)) return "Co living";
+  if (/whole\s*unit|entire\s*(unit|flat|house)/.test(hay)) return "Whole unit";
+  if (/common\s*room/.test(hay)) return "Common room";
+  if (/master\s*room/.test(hay)) return "Master room";
+  return "Room";
+}
+function genderPrefOf(l) {
+  const g = ((l.reqs && l.reqs.gender) || "").trim();
+  if (!g) return "Unstated";
+  const s = g.toLowerCase();
+  if (s.startsWith("female")) return "Female only";
+  if (s.startsWith("male")) return "Male only";
+  if (s.startsWith("any") || s.startsWith("m/f") || s.startsWith("mixed")) return "Any gender";
+  return "Unstated";
+}
+// This is the landlord's stated preference, never a "quota" — CEA copy rule.
+function racePrefOf(l) {
+  const r = ((l.reqs && l.reqs.race) || "").trim();
+  if (!r) return "Unstated";
+  const s = r.toLowerCase();
+  if (s.startsWith("any") || s.includes("no blanket exclusion")) return "Any race";
+  if (s.startsWith("no ")) return "No " + r.slice(3).split(/[\s,;/]/)[0];
+  if (s.startsWith("prefers")) {
+    const first = r.replace(/^prefers\s*/i, "").split(/[\/,;\s]/)[0];
+    const norm = first.toLowerCase();
+    if (norm === "indian" || norm === "chinese" || norm === "malay") return "Prefers " + norm.charAt(0).toUpperCase() + norm.slice(1);
+    return "Prefers others";
+  }
+  if (/\bonly$/i.test(r)) return r;
+  return "Unstated";
+}
+function statusOf(l) {
+  const lc = lifecycleOf(l);
+  if (lc !== "available") return lc.replace(/_/g, " ").replace(/^./, c => c.toUpperCase());
+  const free = Scoring.parseDate(l && l.available_from);
+  if (free && Scoring.atMidnight(free) > Scoring.atMidnight(TODAY)) return "Available from date";
+  return "Available now";
+}
+function cookingOf(l) { return (l && l.cooking) || "Unstated"; }
+
 function daysAgoLabel(days) {
   if (days == null) return "an unknown time";
   if (days <= 0) return "today";
@@ -324,6 +386,42 @@ function lastContactLine(t) {
   }
   if (t.last_contact) return "last contact " + daysAgoLabel(Scoring.daysAgo(t.last_contact, TODAY));
   return "no contact date on file";
+}
+
+// ===================== row status pill + line 2 facts (item 7/8 — pure, tests/matchmaker/rows.test.mjs) =====================
+const PILL_MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// The one tap mark buttons (item 7) show state on the row's surface instead
+// of inside a collapsed select. `now` is a real epoch ms, injectable in tests
+// (call sites pass Date.now()) — mk.ts is a REAL timestamp (patchMark stamps
+// it with Date.now()), never TODAY (the frozen dataset day), so "days ago"
+// has to be measured against the real clock the same way waitingOnReply()
+// already does a few thousand lines down, not the scoring snapshot day.
+function markPillLabel(mk, now) {
+  const st = mk && mk.v;
+  if (!st) return "";
+  if (st === "Viewing booked" && mk.viewing_date) {
+    const d = Scoring.parseDate(mk.viewing_date);
+    if (d) return "Viewing " + d.getDate() + " " + PILL_MONTH_SHORT[d.getMonth()];
+  }
+  if (mk.ts) {
+    const days = Math.floor(((now != null ? now : Date.now()) - mk.ts) / 864e5);
+    if (days >= 0) return st + " · " + days + "d ago";
+  }
+  return st;
+}
+// Line 2 of the row (item 8): the three facts he actually decides on, as
+// plain muted text rather than pills — budget, move in date, area. showListing
+// rows (worklist, tenant rail, near miss) also need the target listing's own
+// district/rent to say WHICH room this row is about; the tenant's own area
+// preference keeps the same slot either way so the shape never changes.
+function rowFacts(t, l, showListing) {
+  const out = ["budget " + (t.budget || t.budget_max || "?"), "move " + (t.move_in || "?")];
+  // (fix 12) two unlabelled districts on a showListing row read as one thing
+  // repeated — "wants"/"room" says which is the tenant's preference and
+  // which is the actual room being matched against.
+  out.push("wants " + (t.district || "?") + (t.preferred_location ? (" · " + String(t.preferred_location).slice(0, 28)) : ""));
+  if (showListing && l) out.push("room " + l.district + " · " + rentTxt(l));
+  return out;
 }
 
 // ===================== draft text (spec: no hyphens, no sign off) =====================
@@ -1456,6 +1554,14 @@ function setCommissionHidden(on) { try { if (on) localStorage.removeItem(SHOW_CO
 // key here right after writing, so a cached read can never go stale. Cleared
 // wholesale in rebuildMatches() too, as a safety net for any bulk-write path.
 const MARK_CACHE = new Map();
+// (item 3) mutation counter for updateFacetedCounts()'s cache key. Incremented
+// at exactly the same points MARK_CACHE itself is invalidated (patchMark,
+// clearMarkV, setOverride, clearOverride, rebuildMatches, invalidateMarkCacheKey)
+// so a facet sweep only re-runs when a mark/override/dataset reload actually
+// changed something, never on a plain tab switch or filter keystroke. Declared
+// here (inside the state.test.mjs anchor span) since patchMark/clearMarkV/
+// setOverride/clearOverride below all touch it and are lifted out by that test.
+let MARK_GEN = 0;
 function markKey(lid, tid) { return MARK_PREFIX + lid + "_" + tid; }
 function readMark(lid, tid) {
   const key = markKey(lid, tid);
@@ -1480,11 +1586,12 @@ function patchMark(lid, tid, patch) {
   const key = markKey(lid, tid);
   if (!safeSet(key, JSON.stringify(next))) return cur;
   MARK_CACHE.delete(key);   // (71) next readMark(lid,tid) re-reads the value just written
+  MARK_GEN++;               // (item 3) invalidate the facet count cache too
   if (patch && patch.v) pushMarkHistory(lid, tid, patch.v);
   mirrorMatchToCRM(lid, tid);   // durable copy — see crmMatchStatusFor's comment
   return next;
 }
-function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); mirrorMatchToCRM(lid, tid); }
+function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); MARK_GEN++; mirrorMatchToCRM(lid, tid); }
 
 function overrideKey(lid, tid) { return OVERRIDE_PREFIX + lid + "_" + tid; }
 function readOverride(lid, tid) {
@@ -1500,9 +1607,10 @@ function setOverride(lid, tid, verdict, why) {
   const key = overrideKey(lid, tid);
   safeSet(key, JSON.stringify({ verdict, ts: Date.now(), why: why || null }));
   MARK_CACHE.delete(key);   // (71)
+  MARK_GEN++;               // (item 3)
   mirrorMatchToCRM(lid, tid);
 }
-function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); mirrorMatchToCRM(lid, tid); }
+function clearOverride(lid, tid) { const key = overrideKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); MARK_GEN++; mirrorMatchToCRM(lid, tid); }
 // CRM durability bridge (see the CRM store's own header comment). crm_match_status
 // has exactly one free-text `status` column per (listing_id, tenant_id) pair — no
 // separate slots for the mark's reason/snooze/note, or for the override verdict — so
@@ -1535,11 +1643,11 @@ function mirrorMatchToCRM(lid, tid) { if (typeof CRM !== "undefined") CRM.setMat
 // on their next interaction, and dropping the key restores exactly the
 // pre-cache read-through behaviour.
 function invalidateMarkCacheKey(key) {
-  if (key == null) { MARK_CACHE.clear(); return; }
+  if (key == null) { MARK_CACHE.clear(); MARK_GEN++; return; }
   // cbk_ also prefixes scratch/prefs/backup/offer keys, which never enter
   // MARK_CACHE — deleting one of those is a harmless no-op, and matching
   // broadly is the safer direction here.
-  if (key.indexOf(MARK_PREFIX) === 0 || key.indexOf(OVERRIDE_PREFIX) === 0) MARK_CACHE.delete(key);
+  if (key.indexOf(MARK_PREFIX) === 0 || key.indexOf(OVERRIDE_PREFIX) === 0) { MARK_CACHE.delete(key); MARK_GEN++; }
 }
 
 function readScratch() {
@@ -1587,7 +1695,7 @@ const OFFER_STAGES = ["Holding deposit", "LOI", "Intake form complete", "Tenancy
 // user, the app is already behind Basic Auth, and masking was only ever
 // display-only — the numbers sat in the payload either way. The masking and
 // assistant-mode toggles were removed entirely, not just disabled.
-const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now() };
+const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now(), morefilters_open: false };
 
 function loadPrefs() {
   try {
@@ -1755,6 +1863,7 @@ function importBlob(blob) {
     if (k.indexOf(OVERRIDE_PREFIX) !== 0) continue;
     if (tsOfRaw(overrides[k]) >= tsOfRaw(localStorage.getItem(k))) { if (safeSet(k, overrides[k])) { result.overrides++; MARK_CACHE.delete(k); } }
   }
+  MARK_GEN++;   // (fix 2) an import can write marks/overrides straight to localStorage — the facet count cache must not survive it
   const offers = blob.offers || {};
   for (const k in offers) {
     if (!isOfferKey(k)) continue;
@@ -1850,7 +1959,7 @@ function restoreBackup(key) {
 function restoreMarks(priors) {
   priors.forEach(p => {
     const key = markKey(p.lid, p.tid);
-    if (p.prior) { localStorage.setItem(key, JSON.stringify(p.prior)); MARK_CACHE.delete(key); }
+    if (p.prior) { localStorage.setItem(key, JSON.stringify(p.prior)); MARK_CACHE.delete(key); MARK_GEN++; }
     else clearMarkV(p.lid, p.tid);
   });
   render();
@@ -1938,10 +2047,25 @@ function nbaChipHtml(m) {
 // ===================== matching engine =====================
 function rebuildMatches() {
   MARK_CACHE.clear();   // (71) safety net for any bulk mark/override write this dataset reload follows
+  MARK_GEN++;            // (item 3) facet count cache must not survive a dataset reload
   COLD_CACHE.clear();   // (73) a scratch tenant added since the last build gets its own answer
   ALL_TENANTS = (DATA.tenants || []).concat(readScratch());
   MATCHES = [];
-  for (const l of (DATA.listings || [])) for (const t of ALL_TENANTS) MATCHES.push({ l, t, s: Scoring.score(l, t, TODAY) });
+  LISTING_FACETS = new Map();
+  for (const l of (DATA.listings || [])) {
+    LISTING_FACETS.set(l.id, { rt: roomTypeOf(l), gp: genderPrefOf(l), rp: racePrefOf(l), st: statusOf(l), ck: cookingOf(l) });
+    for (const t of ALL_TENANTS) {
+      // (runner up) search haystacks, precomputed once per pair instead of on
+      // every passFilter/passFilterListing/updateFacetedCounts call — hay is
+      // the listing-view text (search box on work/whole/pipeline), hayT is
+      // the tenant-only text passFilterListing uses (listing rail's search).
+      // Same concatenation as before, undefined fields included as-is where
+      // the original did — this only moves the cost, it does not change it.
+      const hay = (t.name + " " + l.name + " " + l.district + " " + (AREA[l.district] || "") + " " + l.address + " " + (t.preferred_location || "") + " " + (t.phone || "")).toLowerCase();
+      const hayT = (t.name + " " + t.preferred_location + " " + t.district).toLowerCase();
+      MATCHES.push({ l, t, s: Scoring.score(l, t, TODAY), hay, hayT });
+    }
+  }
   byListing = {}; byTenant = {};
   for (const m of MATCHES) {
     (byListing[m.l.id] = byListing[m.l.id] || []).push(m);
@@ -1952,28 +2076,47 @@ function rebuildMatches() {
 }
 
 // ===================== filters =====================
-const F = () => ({ q: $("#q").value.trim().toLowerCase(), d: $("#fd").value, v: $("#fv").value, r: parseInt($("#fr").value) || 0, cold: $("#fc").checked, hide: $("#fh").checked });
-function passFilter(m) {
-  const f = F();
+const F = () => ({ q: $("#q").value.trim().toLowerCase(), d: $("#fd").value, v: $("#fv").value, r: parseInt($("#fr").value) || 0, cold: $("#fc").checked, hide: $("#fh").checked, rt: $("#ft").value, gp: $("#fg").value, rp: $("#fe").value, st: $("#fs").value, ck: $("#fk").value });
+// (item 3) fall back to the live functions if a listing is ever missing from
+// the map (defensive only — every m.l in MATCHES was set by rebuildMatches()).
+function facetsOf(l) {
+  return LISTING_FACETS.get(l.id) || { rt: roomTypeOf(l), gp: genderPrefOf(l), rp: racePrefOf(l), st: statusOf(l), ck: cookingOf(l) };
+}
+// (runner up) f is hoisted out to an argument so a caller sweeping many pairs
+// (renderWork, currentFilteredWorklistSet, ...) reads #q/#fd/... and the DOM
+// checkbox states ONCE per sweep instead of once per pair — each F() call was
+// 11 live DOM reads, x11,616 pairs. Default keeps every existing call site
+// that still calls passFilter(m) with no second argument working unchanged.
+function passFilter(m, f) {
+  f = f || F();
   if (isSnoozedNow(m)) return false;
   if (f.d && m.l.district !== f.d) return false;
   if (f.v && effective(m).verdict !== f.v) return false;
   if (f.r && m.l.rent_min && m.l.rent_min > f.r) return false;
   if (f.cold && isColdT(m.t)) return false;
   if (f.hide && getMarkV(m.l.id, m.t.id)) return false;
-  if (f.q) {
-    const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
-    if (!hay.includes(f.q)) return false;
-  }
+  const fl = facetsOf(m.l);
+  if (f.rt && fl.rt !== f.rt) return false;
+  if (f.gp && fl.gp !== f.gp) return false;
+  if (f.rp && fl.rp !== f.rp) return false;
+  if (f.st && fl.st !== f.st) return false;
+  if (f.ck && fl.ck !== f.ck) return false;
+  if (f.q && !m.hay.includes(f.q)) return false;
   return true;
 }
-function passFilterListing(m) {
-  const f = F();
+function passFilterListing(m, f) {
+  f = f || F();
   if (isSnoozedNow(m)) return false;
   if (f.v && effective(m).verdict !== f.v) return false;
   if (f.cold && isColdT(m.t)) return false;
   if (f.hide && getMarkV(m.l.id, m.t.id)) return false;
-  if (f.q) { const hay = (m.t.name + " " + m.t.preferred_location + " " + m.t.district).toLowerCase(); if (!hay.includes(f.q)) return false; }
+  const fl = facetsOf(m.l);
+  if (f.rt && fl.rt !== f.rt) return false;
+  if (f.gp && fl.gp !== f.gp) return false;
+  if (f.rp && fl.rp !== f.rp) return false;
+  if (f.st && fl.st !== f.st) return false;
+  if (f.ck && fl.ck !== f.ck) return false;
+  if (f.q && !m.hayT.includes(f.q)) return false;
   return true;
 }
 
@@ -2176,18 +2319,38 @@ function openViewingPack(l, t, dateStr, timeStr) {
   wrap.querySelector("[data-cancel]").onclick = () => wrap.remove();
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
-// `cold` drops "Queued" from the options: queueing is an outbound send action
-// (it feeds the morning dispatch export), so the dead lead rule applies to it the
-// same way it applies to WhatsApp, Call and Draft.
-function markSelectHtml(st, cold, tname) {
-  const opts = ["Contacted", "Viewing booked", "Not interested"].concat(cold ? [] : ["Queued"]);
-  // aria-label, not a wrapping <label> — this select sits inline in a compact
-  // action row with no room for visible label text, and its options already
-  // say what they do; the label just names WHO the mark is for.
-  let html = '<select class="btn mk" data-mk="1" aria-label="Mark status for ' + esc(tname || "tenant") + '"><option value="">Mark…</option>';
-  opts.forEach(o => { html += '<option' + (st === o ? ' selected' : '') + '>' + esc(o) + '</option>'; });
-  html += '<option value="__clr">Clear</option></select>';
-  return html;
+// (item 7) Mark…, one tap. Two always visible buttons cover the two actions
+// Winfred takes on almost every row; the rest (Not interested, Queued, Clear)
+// move into a small "⋯" popover instead of a native select he had to open,
+// scroll and pick inside. Every option here still routes through the exact
+// same writeMarkUndoable / openDeclineModal / openViewingBookedFlow /
+// writeMarkClearUndoable calls the old select used — the undo toast and the
+// CRM mirror (patchMark's own job) never see a difference.
+function oneTapMarkButtonsHtml() {
+  return '<button class="btn" data-mk1="Contacted">✓ Contacted</button>' +
+    '<button class="btn" data-mk1="Viewing booked">📅 Viewing</button>' +
+    '<button class="btn" data-mkmore="1" aria-label="More">⋯</button>';
+}
+// `cold` drops "Queued": queueing is an outbound send action (it feeds the
+// morning dispatch export), so the dead lead rule applies to it the same way
+// it applies to WhatsApp, Call and Draft. `st` adds "Clear" only once a mark
+// exists — matches the old select's behaviour exactly.
+function markPopoverOptionsHtml(st, cold) {
+  const opts = ["Not interested"].concat(cold ? [] : ["Queued"]).concat(st ? ["Clear"] : []);
+  return opts.map(o => '<button class="btn" data-mk2="' + (o === "Clear" ? "__clr" : esc(o)) + '">' + esc(o) + '</button>').join('');
+}
+function toggleMarkPopover(row, l, t, cold, st) {
+  const existing = row.querySelector('.markpop');
+  if (existing) { existing.remove(); return; }
+  const box = el("div", "markpop", markPopoverOptionsHtml(st, cold));
+  row.appendChild(box);
+  box.querySelectorAll('[data-mk2]').forEach(b => b.onclick = () => {
+    const v = b.dataset.mk2;
+    box.remove();
+    if (v === "__clr") { writeMarkClearUndoable(l.id, t.id, fname(t.name) + " mark cleared"); return; }
+    if (v === "Not interested") { openDeclineModal(l, t); return; }
+    writeMarkUndoable(l.id, t.id, { v }, fname(t.name) + " marked " + v);
+  });
 }
 function rowActionsHtml(l, t, cold) {
   const cobroke = isCobroke(l);
@@ -2215,15 +2378,14 @@ function rowActionsHtml(l, t, cold) {
   }
   return waBtn + draftBtn + callBtn + '<a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>';
 }
-function wireRowEvents(row, l, t, m, eff) {
-  const mkSel = row.querySelector('[data-mk]');
-  if (mkSel) mkSel.onchange = (e) => {
-    const v = e.target.value;
-    if (v === "__clr") { writeMarkClearUndoable(l.id, t.id, fname(t.name) + " mark cleared"); return; }
-    if (v === "Not interested") { openDeclineModal(l, t); return; }
+function wireRowEvents(row, l, t, m, eff, cold, st) {
+  row.querySelectorAll('[data-mk1]').forEach(b => b.onclick = () => {
+    const v = b.dataset.mk1;
     if (v === "Viewing booked") { openViewingBookedFlow(l, t); return; }
     writeMarkUndoable(l.id, t.id, { v }, fname(t.name) + " marked " + v);
-  };
+  });
+  const moreMk = row.querySelector('[data-mkmore]');
+  if (moreMk) moreMk.onclick = (e) => { e.stopPropagation(); toggleMarkPopover(row, l, t, cold, st); };
   const draftBtn = row.querySelector('[data-draft]');
   if (draftBtn) draftBtn.onclick = () => toggleDraftPreview(row, l, t);
   const cb = row.querySelector('[data-batch]');
@@ -2233,7 +2395,23 @@ function wireRowEvents(row, l, t, m, eff) {
   const dupTrigger = row.querySelector('[data-dupgroup]');
   if (dupTrigger) dupTrigger.onclick = (e) => { e.stopPropagation(); toggleDupGroupList(row, t.dup_group); };
 }
-
+// (item 8) Line 1's verdict chip stays the plain QUALIFIED/NEEDS_INFO/BLOCKED
+// read; this is the one extra chip promoted alongside it with the SPECIFIC
+// reason, so the one thing he must not miss on a blocked or needs-info pair
+// is on the surface instead of buried in the +N more toggle or a click away
+// in the explain panel.
+function blockerChipHtml(eff, m) {
+  if (eff.verdict === "BLOCKED") {
+    const reason = m.s.flags[0] || "landlord requirement conflict";
+    // (fix 11) no ⛔ here — the "⛔ Not a fit" verdict chip already sits right
+    // next to this one on line 1, and the same glyph twice reads as a typo.
+    return ' <span class="chip r">' + esc(reason) + '</span>';
+  }
+  if (eff.verdict === "NEEDS_INFO" && (m.s.needsInfoReasons || []).length) {
+    return ' <span class="chip a">❓ ' + esc(m.s.needsInfoReasons.join(" & ")) + ' missing</span>';
+  }
+  return "";
+}
 function matchRow(m, showListing, opts) {
   opts = opts || {};
   const l = m.l, t = m.t;
@@ -2244,9 +2422,14 @@ function matchRow(m, showListing, opts) {
   const cold = coldBlocked(l, t);
   const declinedSimilar = st !== "Not interested" && declinedSimilarPenalty(t, l);
   const displayScore = declinedSimilar ? Math.max(0, m.s.total - Scoring.LOOKALIKE_PENALTY) : m.s.total;
+  // (item 7) green/red only — amber is reserved for verdict/status chips
+  // elsewhere (vchip, coldChip); a mark is either progressing (green) or dead
+  // (red), never "needs you" on its own.
+  const markTone = !st ? "" : (st === "Not interested" ? " mark-neg" : " mark-pos");
 
-  const row = el("div", "row" + (st === "Not interested" || st === "Contacted" ? " done" : "") + (blocked ? " blk" : "") + (opts.focused ? " focus" : ""));
+  const row = el("div", "row" + markTone + (st === "Not interested" || st === "Contacted" ? " done" : "") + (blocked ? " blk" : "") + (opts.focused ? " focus" : ""));
   row.dataset.l = l.id; row.dataset.t = t.id;
+  if (st) row.dataset.mark = st;   // (item 7) CSS hook for the 3px status border
 
   const badges = [];
   // (76) URGENT = gave us >=10/14 profile fields AND told us they will pay the agent fee.
@@ -2267,11 +2450,6 @@ function matchRow(m, showListing, opts) {
   // "work this first", not decoration. (Winfred 26 Aug 2026.)
   if (!blocked && closeLikely(m)) badges.push('<span class="badge urgent">🔥 likely close</span>');
 
-  const availFromNote = (showListing && l.available_from) ? (' · vacant from ' + esc(shortDate(Scoring.parseDate(l.available_from)))) : ''; // (24)
-  const head = showListing
-    ? '<span class="nm">' + esc(t.name) + '</span> <span class="mut">→ ' + esc(l.name) + ' · ' + esc(l.district) + ' · ' + esc(rentTxt(l)) + availFromNote + '</span>' + (l.availability === "Offer pending" ? ' <span class="chip a">offer pending, hold</span>' : '')
-    : '<span class="nm">' + esc(t.name) + '</span> <span class="mut">' + esc(t.pass_type || '') + ' ' + esc(t.nationality || '') + '</span>';
-
   // (75) label wrap gives the checkbox a real >=44px tap target (the glyph
   // itself stays a normal-looking 18px so a chain of them doesn't look
   // oversized next to the row's chips) without touching hit areas for any
@@ -2280,32 +2458,79 @@ function matchRow(m, showListing, opts) {
   // exclude every other trigger already living in the same row).
   const checkboxHtml = opts.checkbox ? ('<label class="cbwrap"><input type="checkbox" class="rowcheck" data-batch="1" aria-label="Select ' + esc(t.name) + ' for batch viewing"' + (batchSelection.has(t.id) ? ' checked' : '') + '></label>') : '';
   const nba = nbaChipHtml(m); // (60)
+  const pillLabel = markPillLabel(mk, Date.now());
+  const pillHtml = pillLabel ? ('<span class="statuspill' + (st === "Not interested" ? " r" : " g") + '">' + esc(pillLabel) + '</span>') : '';
 
-  row.innerHTML =
-    '<div class="rtop">' + checkboxHtml + head + ' ' + vchip(eff.verdict) + scoreBar(m.s.parts, displayScore) + '<span class="sc">' + displayScore + '</span></div>' +
-    (badges.length || nba ? ('<div class="rtop" style="margin-top:4px">' + badges.join(' ') + (nba ? (' ' + nba) : '') + '</div>') : '') +
-    '<div class="rtop" style="margin-top:5px">' +
-      '<span class="chip">budget ' + esc(t.budget || t.budget_max || '?') + '</span>' +
-      budgetStretchChip(t) +
-      flexibilityChip(t) +
-      (showListing ? houseRulesHtml(l) : "") +
-      genderChip(t) +
-      '<span class="chip">pax ' + esc(t.pax || '?') + '</span>' +
-      '<span class="chip">lease ' + esc(t.lease_months || '?') + 'mo</span>' +
-      '<span class="chip">move ' + esc(t.move_in || '?') + '</span>' +
-      timingGapFlag(l, t) +
-      '<span class="chip">' + esc(t.district || '?') + (t.preferred_location ? (' · ' + esc(String(t.preferred_location).slice(0, 28))) : '') + '</span>' +
-      coldChip(m.s.dc) + (st ? ('<span class="chip a">' + esc(st) + '</span>') : '') +
-    '</div>' +
-    (m.s.near_miss && blocked ? ('<div class="gap" style="color:#e39a1c;font-style:normal">Negotiable gap — $' + esc(m.s.near_miss_gap) + ' short of landlord\'s min</div>') : '') +
-    (blocked
-      ? ('<div class="gap" style="color:#ff6b78;font-style:normal">⛔ Do not offer this room to ' + esc(fname(t.name)) + ' — ' + esc(m.s.flags[0] || 'landlord requirement conflict') + '</div>'
-        + '<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + markSelectHtml(st, cold, t.name) + crmBtn("tenant", t) + '</div>')
-      : ((m.s.flags.length ? ('<div class="gap">⚑ ' + esc(m.s.flags.join(' · ')) + '</div>') : '')
-        + (t.phone ? ('<div class="mk" style="margin-top:6px">→ you will message <b>' + esc(t.name) + '</b> · ' + phoneSpanHtml("tenant", t.id, t.phone) + '</div>') : '')
-        + '<div class="acts">' + rowActionsHtml(l, t, cold) + markSelectHtml(st, cold, t.name) + crmBtn("tenant", t) + '</div>'));
+  // ---- line 1 (item 8): name, big score, verdict chip, promoted blocker chip ----
+  // Literally nothing else — the "→ ListingName" arrow used to sit here too,
+  // but at 375px that alone was enough to wrap line 1 onto two lines before a
+  // single chip was added. It reads fine one line down instead: line 2 says
+  // WHICH room this is about before it says budget/move in/area. scoreBar's
+  // 5 segment breakdown is demoted into +more (below) — it is supplementary
+  // detail on top of the numeral, not one of the three facts line 1 owns,
+  // and its own markup (~350 bytes of <i> segments plus an aria-label/title)
+  // was most of what pushed the row past the byte budget on its own.
+  const line1 = '<div class="rtop line1">' + checkboxHtml + pillHtml +
+    '<span class="nm big">' + esc(t.name) + '</span> <span class="sc big">' + displayScore + '</span> ' +
+    vchip(eff.verdict) + blockerChipHtml(eff, m) + '</div>';
 
-  wireRowEvents(row, l, t, m, eff);
+  // ---- line 2 (item 8): budget, move in, area — plain muted text, not pills ----
+  const facts = (showListing ? ["→ " + l.name] : []).concat(rowFacts(t, l, showListing));
+  if (showListing && l.available_from) facts.push("vacant from " + shortDate(Scoring.parseDate(l.available_from))); // (24)
+  if (l.availability === "Offer pending") facts.push("offer pending, hold");
+  const line2 = '<div class="rtop line2 mut">' + esc(facts.join(' · ')) + '</div>';
+
+  // ---- line 3 (item 8): everything else, collapsed behind "+N more" ----
+  const extraChips = [scoreBar(m.s.parts, displayScore)];
+  badges.forEach(b => extraChips.push(b));
+  if (nba) extraChips.push(nba);
+  const bsc = budgetStretchChip(t); if (bsc) extraChips.push(bsc);
+  const flex = flexibilityChip(t); if (flex) extraChips.push(flex);
+  if (showListing) { const hr = houseRulesHtml(l); if (hr) extraChips.push(hr); }
+  const gc = genderChip(t); if (gc) extraChips.push(gc);
+  extraChips.push('<span class="chip">pax ' + esc(t.pax || '?') + '</span>');
+  extraChips.push('<span class="chip">lease ' + esc(t.lease_months || '?') + 'mo</span>');
+  const tgap = timingGapFlag(l, t); if (tgap) extraChips.push(tgap);
+  extraChips.push(coldChip(m.s.dc));
+  const extraLines = [];
+  if (t.phone) extraLines.push('<div class="mk">→ you will message <b>' + esc(t.name) + '</b> · ' + phoneSpanHtml("tenant", t.id, t.phone) + '</div>');
+  if (m.s.flags.length) extraLines.push('<div class="gap">⚑ ' + esc(m.s.flags.join(' · ')) + '</div>');
+  if (m.s.near_miss && blocked) extraLines.push('<div class="gap" style="color:var(--amb-ink);font-style:normal">Negotiable gap — $' + esc(m.s.near_miss_gap) + ' short of landlord\'s min.</div>');
+  // (fix 5) restored — dropped when line 1 picked up the promoted blocker
+  // chip (item 8). The chip alone only names the reason; this sentence is
+  // the actual instruction (do not offer this room to this tenant), so it
+  // still belongs behind +N more for a BLOCKED row.
+  if (blocked) extraLines.push('<div class="gap" style="color:#ff6b78;font-style:normal">⛔ Do not offer this room to ' + esc(fname(t.name)) + ': ' + esc(m.s.flags[0] || 'landlord requirement conflict') + '</div>');
+  const extrasCount = extraChips.length + extraLines.length;
+  // Extras are NOT written into the row's initial HTML — only a byte-cheap
+  // toggle button is. toggleRowExtras() builds this string from the SAME
+  // closure variables the first time it is actually clicked, so a row nobody
+  // expands never pays for the badges/chips/flags text it never shows.
+  const buildExtrasHtml = () => (extraChips.length ? ('<div class="rtop" style="margin-top:5px">' + extraChips.join(' ') + '</div>') : '') + extraLines.join('');
+  const moreToggle = extrasCount ? ('<div class="rtop line3"><button class="btn more" data-more="1">+' + extrasCount + ' more</button></div>') : '';
+
+  // ---- actions (item 7): one tap Contacted/Viewing, ⋯ for the rest ----
+  const oneTap = oneTapMarkButtonsHtml();
+  const actsHtml = blocked
+    ? ('<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + oneTap + crmBtn("tenant", t) + '</div>')
+    : ('<div class="acts">' + rowActionsHtml(l, t, cold) + oneTap + crmBtn("tenant", t) + '</div>');
+
+  row.innerHTML = line1 + line2 + moreToggle + actsHtml;
+
+  const moreBtn = row.querySelector('[data-more]');
+  if (moreBtn) moreBtn.onclick = () => {
+    const existing = row.querySelector('.rowextras');
+    if (existing) { existing.remove(); return; }
+    const box = el("div", "rowextras", buildExtrasHtml());
+    moreBtn.closest('.line3').after(box);
+    // The nba chip and the dup group badge only exist once extras are actually
+    // in the DOM — wire them here rather than at row build time.
+    wireNbaChip(row, l, t);
+    const dupTrigger = box.querySelector('[data-dupgroup]');
+    if (dupTrigger) dupTrigger.onclick = (e) => { e.stopPropagation(); toggleDupGroupList(row, t.dup_group); };
+  };
+
+  wireRowEvents(row, l, t, m, eff, cold, st);
   wireNbaChip(row, l, t);
   return row;
 }
@@ -2391,23 +2616,66 @@ function dataAgeBannerHtml() {
 // render() is already the app's single per-change checkpoint.
 function measureHeaderHeight() {
   const h = document.querySelector("header");
-  if (h) document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px");
+  if (!h) return;
+  // (fix 3) the header is sticky — --header-h must be its TRUE height, or a
+  // focused row (scroll-margin-top) and .sticky-ctx park underneath the real
+  // header instead of below it. An arbitrary viewport fraction (45%) used to
+  // be published here instead of the real height whenever the header grew
+  // past that fraction — with More filters open the header is genuinely
+  // taller than that on a phone, so the clamp itself was hiding rows behind
+  // the header it was meant to clear. The only ceiling that makes sense is
+  // the viewport itself (never publish an offset taller than the screen).
+  const clamped = Math.min(h.offsetHeight, innerHeight);
+  document.documentElement.style.setProperty("--header-h", clamped + "px");
+}
+// (item 6) panels heavy enough to be worth releasing on exit — each one
+// rebuilds fully from box.innerHTML = "" on entry (see render() below).
+const HEAVY_PANELS = ["alltenants", "landlords", "stats", "sales", "revival", "whole"];
+// (runner up) render() used to sweep MATCHES three separate times for three
+// independent counts (KPI qualified, snoozedActive().length, queuedMatches()
+// .length) on every single render — every tab switch, mark write and filter
+// keystroke. One pass computes all three; snoozedActive()/queuedMatches()
+// themselves are unchanged, since the drawers they back need the actual
+// filtered arrays, not just a count.
+function renderCountsSweep() {
+  let qualified = 0, snoozed = 0, queued = 0;
+  for (const m of MATCHES) {
+    if (effective(m).verdict === "QUALIFIED") qualified++;
+    if (isSnoozedNow(m)) snoozed++;
+    const mk = readMark(m.l.id, m.t.id);
+    if (mk && mk.v === "Queued") queued++;
+  }
+  return { qualified, snoozed, queued };
 }
 function render() {
   $("#sub").innerHTML = "Priority: availability → location → price → landlord requirements   ·   data " + esc(DATA.generated) + " " + dataAgeBannerHtml();
+  const counts = renderCountsSweep();
   $("#kpis").innerHTML =
     '<div class="kpi"><b>' + (DATA.listings || []).length + '</b> available listings</div>' +
     '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
-    '<div class="kpi"><b>' + MATCHES.filter(m => effective(m).verdict === "QUALIFIED").length + '</b> qualified matches</div>';
-  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
-  // verdict / max rent / hide cold / hide actioned only affect work, listing, tenant, whole, pipeline — hide elsewhere (search + district stay visible everywhere)
-  const filtersActive = ["work", "listing", "tenant", "whole", "pipeline"].indexOf(view) !== -1;
-  ["fv", "fr", "fcwrap", "fhwrap"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
+    '<div class="kpi"><b>' + counts.qualified + '</b> qualified matches</div>';
+  // (item 6) alltenants/landlords/stats/sales/revival/whole are each fully
+  // rebuilt from box.innerHTML = "" on entry (renderAllTenantsRoster etc.),
+  // so releasing their DOM on exit changes nothing observable but stops
+  // 21,000+ nodes from accumulating permanently across a session — every
+  // later render(), every measureHeaderHeight() layout, every style
+  // recalculation was being charged against all of them at once. mapview is
+  // deliberately left alone: the Leaflet instance (_mmMap) is attached to
+  // live DOM inside it, and renderMapView()/initMatchmakerMap() already
+  // manage that instance's lifecycle themselves.
+  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => {
+    const e = $("#" + v);
+    if (!e) return;
+    if (v === view) { e.style.display = (v === "listing" || v === "tenant") ? "grid" : "block"; return; }
+    e.style.display = "none";
+    if (HEAVY_PANELS.indexOf(v) !== -1) e.innerHTML = "";
+  });
   document.querySelectorAll("#tabs .tab").forEach(tb => {
     const on = tb.dataset.v === view;
     tb.classList.toggle("on", on);
     tb.setAttribute("aria-selected", on ? "true" : "false");
   });
+  VIEW_RESULT_COUNT = null;   // (item 2) each render*() below sets its own row count; views with none leave #resultcount hidden
   if (view === "work") renderWork(); else renderTriageBar(null);
   if (view === "pipeline") renderPipeline();
   if (view === "listing") renderListingRail();
@@ -2424,11 +2692,133 @@ function render() {
     "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
     (CRM.mode === "local" ? "The 🗂 CRM drawer and Pipeline tab are saved on this device only — no cloud backend is configured." : "The 🗂 CRM drawer and Pipeline tab sync to your private CRM database and survive a rebuild.") +
     " PDPA: keep this file private.";
-  const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + snoozedActive().length + '</span>';
-  const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + queuedMatches().length + '</span>';
+  const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + counts.snoozed + '</span>';
+  const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + counts.queued + '</span>';
+  renderFilterBar();   // (item 2) chip strip, result count, More filters gating — after the view render so VIEW_RESULT_COUNT is current
   updateFacetedCounts();
   measureHeaderHeight();   // (56)/(item 4) re-measure after every header content change, not just window resize
 }
+
+// ===================== item 2: filter bar (chip strip, More filters, result count) =====================
+// The 9 controls row two hides behind the disclosure button — same set the
+// old inline gate already hid (fv/fr/fcwrap/fhwrap), extended to the 5 room
+// type/gender/race/status/cooking selects added alongside it. Search and
+// district stay on row one and are gated separately (see qdActive below).
+const MORE_FILTER_KEYS = ["v", "r", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
+function countMoreFilters(f) { return MORE_FILTER_KEYS.filter(k => f[k]).length; }
+// One label/clear pair per non-empty filter, in a fixed order, so the chip
+// strip (row one) and the item 9 sticky summary can share the exact same
+// list instead of two copies of this logic drifting apart.
+function activeFilterChips(f, filtersActive) {
+  const chips = [];
+  if (f.q) chips.push({ k: "q", label: '"' + f.q + '"', clear: () => { $("#q").value = ""; } });
+  if (f.d) chips.push({ k: "d", label: f.d, clear: () => { $("#fd").value = ""; } });
+  if (!filtersActive) return chips;
+  if (f.v) chips.push({ k: "v", label: VERDICT_LABELS[f.v] || f.v, clear: () => { $("#fv").value = ""; } });
+  if (f.r) chips.push({ k: "r", label: "≤$" + f.r, clear: () => { $("#fr").value = ""; } });
+  if (f.cold) chips.push({ k: "cold", label: "hide cold >5d", clear: () => { $("#fc").checked = false; } });
+  if (f.hide) chips.push({ k: "hide", label: "hide actioned", clear: () => { $("#fh").checked = false; } });
+  if (f.rt) chips.push({ k: "rt", label: f.rt, clear: () => { $("#ft").value = ""; } });
+  if (f.gp) chips.push({ k: "gp", label: f.gp, clear: () => { $("#fg").value = ""; } });
+  if (f.rp) chips.push({ k: "rp", label: f.rp, clear: () => { $("#fe").value = ""; } });
+  if (f.st) chips.push({ k: "st", label: f.st, clear: () => { $("#fs").value = ""; } });
+  if (f.ck) chips.push({ k: "ck", label: f.ck, clear: () => { $("#fk").value = ""; } });
+  return chips;
+}
+// Cheap half: chip strip, Filters(n) badge, Clear button visibility. None of
+// this needs a MATCHES sweep, so the debounce hook below calls it on every
+// keystroke even on views where a full render() is skipped or deferred —
+// the chip strip and the "n" badge should never lag behind what is actually
+// typed/selected, only the row count (which DOES need a sweep) waits.
+function updateChipsAndCount() {
+  const f = F();
+  const filtersActive = FACET_VIEWS.indexOf(view) !== -1;
+  const chips = activeFilterChips(f, filtersActive);
+  const strip = $("#chipstrip");
+  if (strip) {
+    strip.innerHTML = chips.map(c => '<span class="chip removable" data-chipkey="' + esc(c.k) + '">' + esc(c.label) + ' <span class="x">✕</span></span>').join("");
+    strip.querySelectorAll("[data-chipkey]").forEach(node => {
+      const c = chips.find(x => x.k === node.dataset.chipkey);
+      // (fix 14) a chip clear must cancel any pending debounced render the
+      // same way #clr's own click handler already does — otherwise the
+      // immediate render() below can be followed a moment later by the
+      // stale timeout's render() from before the chip was cleared.
+      if (c) node.onclick = () => { clearTimeout(filterDebounceTimer); c.clear(); render(); };
+    });
+  }
+  const toggleBtn = $("#filterstoggle");
+  if (toggleBtn) {
+    const n = filtersActive ? countMoreFilters(f) : 0;
+    toggleBtn.textContent = n ? ("Filters (" + n + ")") : "Filters";
+  }
+  const clr = $("#clr"); if (clr) clr.hidden = chips.length === 0;
+  return { f, filtersActive, chips };
+}
+// Full pass: everything updateChipsAndCount() does, plus the parts that
+// depend on which view is on screen and on VIEW_RESULT_COUNT, which is only
+// trustworthy right after that view's own render*() ran (see render()).
+function renderFilterBar() {
+  const { filtersActive, chips } = updateChipsAndCount();
+  // mapview/stats consume none of q/d/the 9 (see NON_FILTER_VIEWS) — the
+  // whole bar disappears there rather than sit empty.
+  const qdActive = NON_FILTER_VIEWS.indexOf(view) === -1;
+  ["filterstoggle", "fv", "fr", "fcwrap", "fhwrap", "ft", "fg", "fe", "fs", "fk"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
+  const bar = document.querySelector(".filters");
+  if (bar) bar.style.display = qdActive ? "" : "none";
+  const rc = $("#resultcount");
+  if (rc) {
+    rc.classList.remove("pending");
+    if (qdActive && VIEW_RESULT_COUNT != null) { rc.hidden = false; rc.textContent = VIEW_RESULT_COUNT + (VIEW_RESULT_COUNT === 1 ? " row" : " rows"); }
+    else rc.hidden = true;
+  }
+  renderFilterSummary(chips, qdActive);   // (item 9)
+}
+// (item 9) compact sticky strip under the header (#filtersummary in
+// template.html, position:sticky; top:var(--header-h) via .sticky-ctx),
+// reusing the exact same chip labels as row one's strip — declared here
+// (not in render()) so it always has the freshest chips/count without a
+// second computation. Once --header-h is clamped (item 1) this is the one
+// line that survives scrolling past row 200 of a long roster, explaining
+// why a tenant/listing is not showing up without scrolling back to the top.
+function renderFilterSummary(chips, qdActive) {
+  const summary = $("#filtersummary");
+  if (!summary) return;
+  if (!qdActive || !chips.length) { summary.hidden = true; return; }
+  summary.hidden = false;
+  summary.classList.remove("pending");
+  const countTxt = VIEW_RESULT_COUNT != null ? (" · " + VIEW_RESULT_COUNT + (VIEW_RESULT_COUNT === 1 ? " row" : " rows")) : "";
+  summary.innerHTML = chips.map(c => esc(c.label)).join(" · ") + countTxt + ' · <a href="#" data-clearsummary="1">clear</a>';
+  const link = summary.querySelector("[data-clearsummary]");
+  // "clear" both resets the filters (#clr's own handler) and scrolls back to
+  // the top — the acceptance criterion is explicit that it does both, since
+  // resetting the filters alone would still leave him scrolled to row 200.
+  if (link) link.onclick = (e) => { e.preventDefault(); $("#clr").click(); window.scrollTo(0, 0); };
+}
+function applyMoreFiltersOpenState() {
+  const mf = $("#morefilters"); if (!mf) return;
+  mf.hidden = !PREFS.morefilters_open;
+  const btn = $("#filterstoggle"); if (btn) btn.setAttribute("aria-expanded", PREFS.morefilters_open ? "true" : "false");
+}
+function toggleMoreFilters() {
+  PREFS.morefilters_open = !PREFS.morefilters_open;
+  savePrefs();
+  applyMoreFiltersOpenState();
+  measureHeaderHeight();   // panel visibility just changed the header's own height
+}
+// (item 4) search/#fr debounce timer, module scope so a chip's clear() and
+// the keyboard Escape handler (item 10) can clear a pending render the same
+// way #clr already does, not just the code that started it.
+let filterDebounceTimer = null;
+function markResultsPending() {
+  const rc = $("#resultcount"); if (rc && !rc.hidden) { rc.textContent = "…"; rc.classList.add("pending"); }
+  const s = $("#filtersummary"); if (s && !s.hidden) s.classList.add("pending");
+}
+function scheduleFilteredRender() {
+  markResultsPending();
+  clearTimeout(filterDebounceTimer);
+  filterDebounceTimer = setTimeout(() => requestAnimationFrame(render), 250);
+}
+
 function helpStrip() {
   const wrap = el("div", "");
   wrap.innerHTML = '<div class="help"><b>How to use:</b> ① Pick the top match &nbsp; ② Read the details and any ⚑ flag &nbsp; ③ Tap <b>WhatsApp</b> to open a ready message — <b>you</b> press send. This tool never messages anyone by itself and never changes your databases.</div>' + deltaStripHtml();
@@ -2551,6 +2941,9 @@ function renderReviewRequests(container) {
 function facetCount(base, overrides) {
   const f = Object.assign({}, base, overrides);
   let n = 0;
+  // (fix 15) same checks as passFilter() above — facetsOf(m.l) and m.hay are
+  // the one copy of "what bucket is this pair in", not a second hand rolled
+  // one re-deriving the five normalisers and rebuilding the search string.
   for (const m of MATCHES) {
     if (isSnoozedNow(m)) continue;
     if (f.d && m.l.district !== f.d) continue;
@@ -2558,63 +2951,99 @@ function facetCount(base, overrides) {
     if (f.r && m.l.rent_min && m.l.rent_min > f.r) continue;
     if (f.cold && isColdT(m.t)) continue;
     if (f.hide && getMarkV(m.l.id, m.t.id)) continue;
-    if (f.q) {
-      const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
-      if (hay.indexOf(f.q) === -1) continue;
-    }
+    const fl = facetsOf(m.l);
+    if (f.rt && fl.rt !== f.rt) continue;
+    if (f.gp && fl.gp !== f.gp) continue;
+    if (f.rp && fl.rp !== f.rp) continue;
+    if (f.st && fl.st !== f.st) continue;
+    if (f.ck && fl.ck !== f.ck) continue;
+    if (f.q && !m.hay.includes(f.q)) continue;
     n++;
   }
   return n;
 }
 const VERDICT_LABELS = { "": "All verdicts", QUALIFIED: "Qualified", NEEDS_INFO: "Needs info", BLOCKED: "Has conflict" };
 // (72) single pass over MATCHES computing every bucket facetCount() would —
-// each district option's count, each verdict option's count, the cold count
-// and the hide count — together in one sweep instead of ~20 separate sweeps.
-// district/verdict select options never carry value="" except the hardcoded
-// "All districts"/"All verdicts" entries (dynamic options are filtered
-// Boolean at init — see the district <select> populate loop), so distTotal/
-// verdTotal (every match that clears the OTHER active filters, d/v itself
-// unconstrained) is exactly what facetCount(base, {d:""}) / {v:""} returns.
+// each verdict option's count, the cold count, the hide count and the 5 room
+// type/gender/race/status/cooking counts — together in one sweep instead of
+// ~20 separate sweeps. (fix 8) district ("d") stays in FACET_KEYS/ok below
+// because the OTHER facets still need to know whether a match clears the
+// district filter — #fd itself just never renders a count (see below).
+// facet keys enumerated by allExcept() below — d/v/cold/hide plus the 5 room
+// type/gender/race/status/cooking facets added alongside district/verdict.
+const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
+// (item 3) views that never show the filter bar's option counts don't need
+// this sweep at all — Dashboard/Stats/Landlords/AllTenants/Sales/Revival never
+// call it. FACET_VIEWS mirrors render()'s own filtersActive set.
+const FACET_VIEWS = ["work", "listing", "tenant", "whole", "pipeline"];
+// (item 2) the only two views that consume NEITHER search nor district — see
+// renderMapView()/renderStats(), neither reads F() at all — so the whole
+// .filters bar (and the search/filter debounce hook) is skipped only there;
+// every other view keeps at least q/d live, even the rosters outside
+// FACET_VIEWS above (landlords/alltenants/sales/revival all filter by them).
+const NON_FILTER_VIEWS = ["mapview", "stats"];
+let FACET_CACHE_KEY = null;
 function updateFacetedCounts() {
+  if (FACET_VIEWS.indexOf(view) === -1) return;
   const base = F();
-  const distCounts = {}, verdCounts = {};
-  let distTotal = 0, verdTotal = 0, coldCount = 0, hideCount = 0;
+  // Cheap key: current filter state + the mutation counter every mark/override/
+  // rebuild write bumps. Unchanged key means unchanged answer — skip the sweep.
+  const cacheKey = JSON.stringify(base) + "|" + MARK_GEN;
+  if (cacheKey === FACET_CACHE_KEY) return;
+  FACET_CACHE_KEY = cacheKey;
+  const verdCounts = {}, rtCounts = {}, gpCounts = {}, rpCounts = {}, stCounts = {}, ckCounts = {};
+  let coldCount = 0, hideCount = 0;
   for (const m of MATCHES) {
     if (isSnoozedNow(m)) continue;
     if (base.r && m.l.rent_min && m.l.rent_min > base.r) continue;
-    if (base.q) {
-      const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
-      if (hay.indexOf(base.q) === -1) continue;
-    }
+    if (base.q && m.hay.indexOf(base.q) === -1) continue;
     const verdict = effective(m).verdict;
     const isCold = isColdT(m.t);
     const markV = getMarkV(m.l.id, m.t.id);
+    const fl = facetsOf(m.l);
+    const rt = fl.rt, gp = fl.gp, rp = fl.rp, st = fl.st, ck = fl.ck;
     // "Ok at base" = would this match still pass if THIS dimension were left
     // at whatever the user currently has set, i.e. every dimension except the
     // one a given facet is enumerating over — mirrors facetCount's f.X checks.
-    const vOkBase = !base.v || verdict === base.v;
-    const coldOkBase = !base.cold || !isCold;
-    const hideOkBase = !base.hide || !markV;
-    const dOkBase = !base.d || m.l.district === base.d;
-    if (vOkBase && coldOkBase && hideOkBase) { distCounts[m.l.district] = (distCounts[m.l.district] || 0) + 1; distTotal++; }
-    if (dOkBase && coldOkBase && hideOkBase) { verdCounts[verdict] = (verdCounts[verdict] || 0) + 1; verdTotal++; }
+    const ok = {
+      d: !base.d || m.l.district === base.d, v: !base.v || verdict === base.v,
+      cold: !base.cold || !isCold, hide: !base.hide || !markV,
+      rt: !base.rt || rt === base.rt, gp: !base.gp || gp === base.gp,
+      rp: !base.rp || rp === base.rp, st: !base.st || st === base.st, ck: !base.ck || ck === base.ck,
+    };
+    const allExcept = k => FACET_KEYS.every(x => x === k || ok[x]);
+    if (allExcept("v")) verdCounts[verdict] = (verdCounts[verdict] || 0) + 1;
     // cold facet mirrors facetCount(base,{cold:true}): "if (f.cold && isCold)
     // continue" excludes COLD rows once the flag is forced on, so the count
     // shown is survivors — i.e. NOT cold — not the cold ones themselves.
-    if (dOkBase && vOkBase && hideOkBase && !isCold) coldCount++;
-    if (dOkBase && vOkBase && coldOkBase && !markV) hideCount++;
+    if (allExcept("cold") && !isCold) coldCount++;
+    if (allExcept("hide") && !markV) hideCount++;
+    if (allExcept("rt")) rtCounts[rt] = (rtCounts[rt] || 0) + 1;
+    if (allExcept("gp")) gpCounts[gp] = (gpCounts[gp] || 0) + 1;
+    if (allExcept("rp")) rpCounts[rp] = (rpCounts[rp] || 0) + 1;
+    if (allExcept("st")) stCounts[st] = (stCounts[st] || 0) + 1;
+    if (allExcept("ck")) ckCounts[ck] = (ckCounts[ck] || 0) + 1;
   }
-  const fd = $("#fd");
-  if (fd) [...fd.options].forEach(opt => {
-    if (!opt._label) opt._label = opt.value ? opt.textContent : "All districts";
-    opt.textContent = opt._label + " (" + (opt.value ? (distCounts[opt.value] || 0) : distTotal) + ")";
-  });
+  // (fix 8) #fd sits on row one, not behind More filters — a "(11616)" pair
+  // count truncated its label on a phone and told the user nothing useful,
+  // so it never gets one; its options are set once at init (see the district
+  // populate loop) and never touched here. Every other select's DEFAULT
+  // option ("All verdicts", "All room types", ...) stays count free for the
+  // same reason — only the specific options inside More filters keep counts.
   const fv = $("#fv");
   if (fv) [...fv.options].forEach(opt => {
-    opt.textContent = (VERDICT_LABELS[opt.value] || opt.textContent) + " (" + (opt.value ? (verdCounts[opt.value] || 0) : verdTotal) + ")";
+    const label = VERDICT_LABELS[opt.value] || opt.textContent;
+    opt.textContent = opt.value ? (label + " (" + (verdCounts[opt.value] || 0) + ")") : label;
   });
   const fc = $("#fccount"); if (fc) fc.textContent = "(" + coldCount + ")";
   const fh = $("#fhcount"); if (fh) fh.textContent = "(" + hideCount + ")";
+  [["ft", rtCounts], ["fg", gpCounts], ["fe", rpCounts], ["fs", stCounts], ["fk", ckCounts]].forEach(([id, counts]) => {
+    const sel = $("#" + id);
+    if (sel) [...sel.options].forEach(opt => {
+      if (!opt._label) opt._label = opt.textContent;
+      opt.textContent = opt.value ? (opt._label + " (" + (counts[opt.value] || 0) + ")") : opt._label;
+    });
+  });
 }
 
 // ===================== worklist + triage mode =====================
@@ -2659,10 +3088,15 @@ function renderWork() {
   box.appendChild(helpStrip());
   box.appendChild(askStrip());
   const seen = new Set();
+  const f = F();
   const rows = MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending")
-    .filter(m => !isSnoozedNow(m)).filter(passFilter)
-    .sort((a, b) => worklistRank(b) - worklistRank(a));
-  const prim = []; for (const m of rows) { if (!seen.has(m.t.id)) { seen.add(m.t.id); prim.push(m); } }
+    .filter(m => !isSnoozedNow(m)).filter(m => passFilter(m, f));
+  // (runner up) decorate-sort-undecorate: worklistRank(m) calls
+  // Scoring.urgencyMult, which used to run inside the comparator itself —
+  // roughly 2*n*log(n) calls for a sort that only needs each rank once.
+  const ranked = rows.map(m => [worklistRank(m), m]).sort((a, b) => b[0] - a[0]);
+  const prim = []; for (const [, m] of ranked) { if (!seen.has(m.t.id)) { seen.add(m.t.id); prim.push(m); } }
+  VIEW_RESULT_COUNT = prim.length;   // (item 2) full filtered count, not the top-25 cap below
   const list = prim.slice(0, 25);
   CURRENT_WORKLIST = list;
   if (triageIndex >= list.length) triageIndex = Math.max(0, list.length - 1);
@@ -2689,10 +3123,13 @@ function renderTriageBar(m) {
   // fine in context. See .triagebar .btn in styles.css for the matching
   // padding trim that gets all five on screen without a horizontal scroll.
   bar.innerHTML =
+    // (item 8) triage bar stays neutral — only Decline (the one destructive
+    // action here) is tinted. Viewing/Draft used to borrow --grn/WhatsApp
+    // green, which is reserved for status now.
     '<button class="btn lg" data-tc="c">Contacted</button>' +
-    '<button class="btn lg p" data-tc="v">Viewing</button>' +
-    '<button class="btn lg w" data-tc="d">Draft</button>' +
-    '<button class="btn lg" data-tc="n">Decline</button>' +
+    '<button class="btn lg" data-tc="v">Viewing</button>' +
+    '<button class="btn lg" data-tc="d">Draft</button>' +
+    '<button class="btn lg danger" data-tc="n">Decline</button>' +
     '<button class="btn lg" data-tc="s">Snooze</button>';
   bar.querySelectorAll("[data-tc]").forEach(b => b.onclick = () => triageAction(b.dataset.tc, m));
 }
@@ -2771,19 +3208,99 @@ function ensureFocusVisible(el) {
   if (r.top < headerBottom) window.scrollBy(0, r.top - headerBottom - 8);
   else if (r.bottom > triagebarTop) window.scrollBy(0, r.bottom - triagebarTop + 8);
 }
+// (item 5) j/k/swipe move the triage cursor but never change WHICH rows are
+// shown, so there is nothing here that needs renderWork()'s full destroy and
+// rebuild of all 25 rows plus rewiring 50 handlers. Toggle the .focus class
+// on the two affected rows (already in the DOM, found by their own data-l/
+// data-t), update triageIndex, and refresh only the triage bar and scroll
+// position. Full renderWork() stays on every path that actually changes the
+// list — mark writes, filter changes.
+function rowFor(m) {
+  return m && document.querySelector('#work .row[data-l="' + CSS.escape(String(m.l.id)) + '"][data-t="' + CSS.escape(String(m.t.id)) + '"]');
+}
+function moveTriage(nextIndex) {
+  const list = CURRENT_WORKLIST || [];
+  if (!list.length) return;
+  const prev = rowFor(list[triageIndex]);
+  if (prev) prev.classList.remove("focus");
+  triageIndex = Math.max(0, Math.min(list.length - 1, nextIndex));
+  const next = rowFor(list[triageIndex]);
+  if (next) next.classList.add("focus");
+  renderTriageBar(list[triageIndex]);
+  scrollFocusedRowIntoView();
+}
+// (item 10) 1-9/0 switch tabs "in order" — read straight off the tab strip's
+// own DOM order (set once at init, see the bottom of this file) rather than
+// a hardcoded list, so it can never silently drift from the actual tabs.
+let TAB_ORDER = [];
+function selectTabByIndex(i) {
+  if (i < 0 || i >= TAB_ORDER.length) return;
+  view = TAB_ORDER[i];
+  render();
+}
+function shortcutsSheetHtml() {
+  return '<div class="triage-legend">' +
+    '<div><span class="key">1</span>-<span class="key">9</span>/<span class="key">0</span> switch tabs, in the order they appear</div>' +
+    '<div><span class="key">/</span> focus search</div>' +
+    '<div><span class="key">Esc</span> blur search, then (search already empty) clear all filters</div>' +
+    '<div><span class="key">f</span> toggle More filters</div>' +
+    '<div><span class="key">?</span> this list</div>' +
+    '<div><span class="key">⌘K</span>/<span class="key">ctrl+K</span> command palette</div>' +
+    '<div style="margin-top:6px">Worklist tab only: <span class="key">j</span>/<span class="key">k</span> move cursor · ' +
+    '<span class="key">c</span> contacted · <span class="key">v</span> viewing · <span class="key">d</span> draft · ' +
+    '<span class="key">n</span> not interested · <span class="key">s</span> snooze · <span class="key">q</span> queue</div>' +
+    '</div>';
+}
+function openShortcutsSheet() {
+  const wrap = el("div", "modal-wrap");
+  wrap.innerHTML = '<div class="modal"><h3>Keyboard shortcuts</h3>' + shortcutsSheetHtml() +
+    '<div class="foot"><button class="btn" data-cancel="1">Close</button></div></div>';
+  mountOverlay(wrap, { label: "Keyboard shortcuts" });
+  wrap.querySelector("[data-cancel]").onclick = () => wrap.remove();
+  wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
+}
 function onKeydown(e) {
   // While any modal/drawer is open, its own focus-trapped controls should be
   // the only thing keys act on — without this, typing "n"/"c"/"v"/etc while a
   // dialog button happened to have focus fell through to document and fired
   // a background triage action on a totally different row.
   if (OPEN_OVERLAY_COUNT > 0) return;
-  if (view !== "work") return;
   const tag = ((e.target && e.target.tagName) || "").toLowerCase();
-  if (tag === "input" || tag === "select" || tag === "textarea") return;
+  const typing = tag === "input" || tag === "select" || tag === "textarea";
+  const q = $("#q");
+  // (item 10) global shortcuts, checked before the worklist-only guard below
+  // so tab switching / search focus / More filters / the shortcuts sheet
+  // work from every view, not just the worklist. Escape is the one key that
+  // must still fire while #q itself has focus (that is the whole point — to
+  // blur it), so it is handled ahead of the typing guard; every other global
+  // key defers to the SAME input/select/textarea guard the worklist keys
+  // below already rely on, so normal typing anywhere is never intercepted.
+  if (e.key === "Escape") {
+    if (q && document.activeElement === q) { q.blur(); return; }
+    // Only clears when the box was ALREADY empty (not just blurred by the
+    // line above) — typing something then hitting Escape must not silently
+    // wipe filters the user has not asked to clear. This is why the
+    // acceptance case is "Escape twice": the first blurs, the second (now
+    // that #q is no longer focused) checks emptiness and clears.
+    if (q && q.value.trim() === "") $("#clr").click();
+    return;
+  }
+  // (fix 4) never intercept a browser/OS chord — Cmd+F must still reach the
+  // browser's own find, Ctrl+3 must not switch tabs — only bare key presses
+  // are these app shortcuts.
+  const noMod = !e.metaKey && !e.ctrlKey && !e.altKey;
+  if (!typing && noMod) {
+    if (e.key >= "1" && e.key <= "9") { selectTabByIndex(Number(e.key) - 1); return; }
+    if (e.key === "0") { selectTabByIndex(9); return; }
+    if (e.key === "/") { e.preventDefault(); if (q) q.focus(); return; }
+    if (e.key === "f") { toggleMoreFilters(); return; }
+    if (e.key === "?") { openShortcutsSheet(); return; }
+  }
+  if (view !== "work" || typing) return;
   const list = CURRENT_WORKLIST || [];
   if (!list.length) return;
-  if (e.key === "j") { triageIndex = Math.min(list.length - 1, triageIndex + 1); renderWork(); scrollFocusedRowIntoView(); }
-  else if (e.key === "k") { triageIndex = Math.max(0, triageIndex - 1); renderWork(); scrollFocusedRowIntoView(); }
+  if (e.key === "j") moveTriage(triageIndex + 1);
+  else if (e.key === "k") moveTriage(triageIndex - 1);
   else if (["d", "c", "v", "n", "s", "q"].includes(e.key)) triageAction(e.key, list[triageIndex]);
 }
 function wireSwipe(container) {
@@ -2801,7 +3318,7 @@ function wireSwipe(container) {
     if (Math.abs(dx) < 60 || Math.abs(dy) > 50) return;
     const m = (CURRENT_WORKLIST || []).find(x => x.l.id === lid && x.t.id === tid);
     if (!m) return;
-    if (dx < 0) { const i = CURRENT_WORKLIST.indexOf(m); triageIndex = Math.min(CURRENT_WORKLIST.length - 1, i + 1); renderWork(); scrollFocusedRowIntoView(); }
+    if (dx < 0) moveTriage(CURRENT_WORKLIST.indexOf(m) + 1);
     else triageAction("d", m);
   }, { passive: true });
 }
@@ -2972,6 +3489,7 @@ function renderListingRail() {
   const dupByPrimary = {};
   ls.filter(l => l.dup_of).forEach(l => (dupByPrimary[l.dup_of] = dupByPrimary[l.dup_of] || []).push(l));
   const primaries = sortListings(ls.filter(l => !l.dup_of), listingSortValue);
+  VIEW_RESULT_COUNT = primaries.length;   // (item 2)
   if (!primaries.length) rail.appendChild(el("div", "empty", "No listings loaded yet. Once export_data.py runs there will be rooms to match here."));
   primaries.forEach(l => rail.appendChild(listingCard(l, dupByPrimary[l.id] || [])));
   const otherSection = supplyOverviewSectionHtml();
@@ -3023,7 +3541,8 @@ function renderListingPanel(l) {
   const reconfirmBtn = p.querySelector('[data-reconfirm]'); if (reconfirmBtn) reconfirmBtn.onclick = () => showReconfirmDraft(l);
 
   const allForListing = byListing[l.id] || [];
-  const q = allForListing.filter(passFilterListing);
+  const lf = F();
+  const q = allForListing.filter(m => passFilterListing(m, lf));
   const qualified = q.filter(m => effective(m).verdict === "QUALIFIED");
 
   // Spec item 5 reads "top <=3 qualified tenants" — a cap on how many go into
@@ -3163,6 +3682,7 @@ function renderTenantRail() {
   let ts = [...ALL_TENANTS];
   if (f.q) ts = ts.filter(t => (t.name + " " + t.preferred_location + " " + t.district + " " + (t.nationality || "") + " " + (t.phone || "")).toLowerCase().includes(f.q));
   ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || (byTenant[b.id]?.[0]?.s.total || 0) - (byTenant[a.id]?.[0]?.s.total || 0));
+  VIEW_RESULT_COUNT = ts.length;   // (item 2) full filtered count, not the paginated "shown" slice below
   if (!ts.length) { rail.appendChild(el("div", "empty", "No tenants match this search. Try clearing the search box above.")); return; }
   const shown = ts.slice(0, tenantRailLimit);
   shown.forEach(t => {
@@ -3256,13 +3776,17 @@ function renderWholeUnit() {
   box.appendChild(el("div", "help", "Tenants whose budget comfortably clears a whole unit, or who explicitly asked for one, matched against whole unit and studio listings."));
   const tenants = ALL_TENANTS.filter(isWholeUnitTenant);
   const listings = (DATA.listings || []).filter(isWholeUnitListing);
-  if (!tenants.length || !listings.length) { box.appendChild(el("div", "empty", "No whole unit candidates or listings right now. This tab fills in once a tenant's budget clears a whole unit, or a landlord lists one.")); return; }
+  if (!tenants.length || !listings.length) { VIEW_RESULT_COUNT = 0; box.appendChild(el("div", "empty", "No whole unit candidates or listings right now. This tab fills in once a tenant's budget clears a whole unit, or a landlord lists one.")); return; }
+  const wf = F();
+  let wholeRows = 0;
   tenants.forEach(t => {
-    const matches = listings.map(l => (byTenant[t.id] || []).find(m => m.l.id === l.id)).filter(Boolean).filter(passFilter);
+    const matches = listings.map(l => (byTenant[t.id] || []).find(m => m.l.id === l.id)).filter(Boolean).filter(m => passFilter(m, wf));
     if (!matches.length) return;
+    wholeRows += matches.length;
     box.appendChild(el("div", "section-hd", esc(t.name)));
     matches.forEach(m => box.appendChild(matchRow(m, true)));
   });
+  VIEW_RESULT_COUNT = wholeRows;   // (item 2)
 }
 
 // ===================== landlord / all tenants / sales / revival rosters =====================
@@ -3489,6 +4013,7 @@ function renderLandlordsRoster() {
     ls = ls.filter(l => hay(l).includes(f.q));
   }
   ls.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+  VIEW_RESULT_COUNT = ls.length;   // (item 2)
   const allCount = (DATA.all_landlords || []).length;
   box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ls.length + " of " + allCount : ls.length) + " landlords"));
 
@@ -3590,6 +4115,7 @@ function renderAllTenantsRoster() {
     ts = ts.filter(t => hay(t).includes(f.q));
   }
   const allTCount = (DATA.all_tenants || []).length;
+  VIEW_RESULT_COUNT = ts.length;   // (item 2) full filtered count, not the 400-row display cap below
   box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ts.length + " of " + allTCount : ts.length) + " tenants"));
   if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
 
@@ -3623,6 +4149,7 @@ function renderSalesRoster() {
     ss = ss.filter(s => hay(s).includes(f.q));
   }
   ss.sort((a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99));
+  VIEW_RESULT_COUNT = ss.length;   // (item 2)
   if (!ss.length) { box.appendChild(el("div", "empty", "No sale listings match the current filters.")); return; }
 
   ss.forEach(s => {
@@ -3928,7 +4455,9 @@ function paletteActions() {
     { label: "Bulk action on filtered set", run: () => openBulkActionModal() },
     { label: "Export state", run: () => downloadJSON(exportBlob(), "matchmaker-state-" + DATA.generated + ".json") },
     { label: "Toggle day/night", run: () => toggleTheme() },
-    { label: "Toggle density", run: () => toggleDensity() }
+    { label: "Toggle density", run: () => toggleDensity() },
+    { label: "Toggle More filters", run: () => toggleMoreFilters() },
+    { label: "Keyboard shortcuts", run: () => openShortcutsSheet() }
   ];
 }
 function paletteResults(query) {
@@ -4079,7 +4608,8 @@ function showIdleLock() {
 
 // ===================== bulk action (59) =====================
 function currentFilteredWorklistSet() {
-  return MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending").filter(m => !isSnoozedNow(m)).filter(passFilter);
+  const f = F();
+  return MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending").filter(m => !isSnoozedNow(m)).filter(m => passFilter(m, f));
 }
 function openBulkActionModal() {
   const set = currentFilteredWorklistSet();
@@ -5564,6 +6094,16 @@ function renderPipeline() {
 (function () {
   const ds = [...new Set((DATA.listings || []).map(l => l.district).filter(Boolean))].sort();
   ds.forEach(d => { const o = el("option"); o.value = d; o.textContent = d + " " + (AREA[d] || ""); $("#fd").appendChild(o); });
+  // Room type/gender/race/status/cooking selects: populate from whatever
+  // buckets actually occur in this data, then hide the whole control when
+  // only one bucket exists — a filter that can never change the result is
+  // clutter, same rule as the district/verdict declutter pass (#94).
+  [["ft", roomTypeOf], ["fg", genderPrefOf], ["fe", racePrefOf], ["fs", statusOf], ["fk", cookingOf]].forEach(([id, fn]) => {
+    const sel = $("#" + id); if (!sel) return;
+    const vals = [...new Set((DATA.listings || []).map(fn).filter(Boolean))].sort();
+    if (vals.length < 2) { sel.style.display = "none"; return; }
+    vals.forEach(v => { const o = el("option"); o.value = v; o.textContent = v; sel.appendChild(o); });
+  });
   // (item 6) role=tab divs are not natively focusable/operable — tabindex
   // makes them reachable by Tab, and the keydown handler gives Enter/Space
   // the click-equivalent activation a real <button> gets for free.
@@ -5572,16 +6112,38 @@ function renderPipeline() {
     t.onclick = activate;
     t.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
   });
-  // #q fires on every keystroke, unlike the select/checkbox/number filters
-  // (one event per discrete choice) — a render() here also recomputes
-  // faceted counts across every match plus rebuilds up to 120+ tenant/listing
-  // cards, so fast typing on a real phone paid that cost per character.
-  // Debounced so a burst of keystrokes collapses into one render ~140ms
-  // after the user pauses — short enough to still feel instant.
-  let qDebounceTimer = null;
-  $("#q").addEventListener("input", () => { clearTimeout(qDebounceTimer); qDebounceTimer = setTimeout(render, 140); });
-  ["fd", "fv", "fr", "fc", "fh"].forEach(id => $("#" + id).addEventListener("input", render));
-  $("#clr").onclick = () => { clearTimeout(qDebounceTimer); ["q", "fr", "fd", "fv"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  // (item 10) 1-9/0 select tabs "in order" — the tab strip's own DOM order,
+  // read once here rather than hardcoded, so it can never drift from what
+  // is actually on screen if a tab is ever added/reordered/removed.
+  TAB_ORDER = [...document.querySelectorAll("#tabs .tab")].map(t => t.dataset.v);
+  // #q fires on every keystroke, unlike the select/checkbox filters (one
+  // event per discrete choice) — a render() here also recomputes faceted
+  // counts across every match plus rebuilds up to 120+ tenant/listing cards,
+  // so fast typing on a real phone paid that cost per character. 140ms was
+  // shorter than a normal phone typing gap (measured: a 250ms keystroke
+  // cadence still produced a full render per character). #q and #fr (a
+  // number input that fires per digit — typing "1500" fired four renders)
+  // now share one 250ms debounce (scheduleFilteredRender, module scope,
+  // defined next to render() itself), landed on a frame boundary via
+  // requestAnimationFrame rather than firing synchronously off the timer.
+  // (item 2) updateChipsAndCount() runs on every keystroke regardless of
+  // view — it never sweeps MATCHES, so it costs nothing to keep the chip
+  // strip/Filters(n) badge/Clear button current even while the expensive
+  // half (the actual render) is skipped or still debouncing.
+  // (item 2 fix) NON_FILTER_VIEWS, not FACET_VIEWS, gates the render itself:
+  // mapview/stats consume neither q nor d and are the only views where a
+  // stray keystroke should do nothing at all — landlords/alltenants/sales/
+  // revival sit outside FACET_VIEWS too but DO filter by q/d (see their own
+  // render*Roster functions), so skipping them here silently broke search
+  // and district on those four tabs.
+  function onFilterInput() { updateChipsAndCount(); if (NON_FILTER_VIEWS.indexOf(view) === -1) render(); }
+  function onDebouncedFilterInput() { updateChipsAndCount(); if (NON_FILTER_VIEWS.indexOf(view) === -1) scheduleFilteredRender(); }
+  $("#q").addEventListener("input", onDebouncedFilterInput);
+  $("#fr").addEventListener("input", onDebouncedFilterInput);
+  ["fd", "fv", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", onFilterInput));
+  $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  const filterToggleBtn = $("#filterstoggle"); if (filterToggleBtn) filterToggleBtn.onclick = toggleMoreFilters;
+  applyMoreFiltersOpenState();   // (item 2) restore the panel's remembered open/closed state before first paint
   const addBtn = $("#addtenant"); if (addBtn) addBtn.onclick = openQuickAddTenant;
   const snoozeBtn = $("#snoozechip"); if (snoozeBtn) snoozeBtn.onclick = openSnoozedList;
   const dispatchBtn = $("#dispatchchip"); if (dispatchBtn) dispatchBtn.onclick = openDispatchDrawer;
