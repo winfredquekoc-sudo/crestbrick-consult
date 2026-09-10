@@ -2927,6 +2927,27 @@ function ensureFocusVisible(el) {
   if (r.top < headerBottom) window.scrollBy(0, r.top - headerBottom - 8);
   else if (r.bottom > triagebarTop) window.scrollBy(0, r.bottom - triagebarTop + 8);
 }
+// (item 5) j/k/swipe move the triage cursor but never change WHICH rows are
+// shown, so there is nothing here that needs renderWork()'s full destroy and
+// rebuild of all 25 rows plus rewiring 50 handlers. Toggle the .focus class
+// on the two affected rows (already in the DOM, found by their own data-l/
+// data-t), update triageIndex, and refresh only the triage bar and scroll
+// position. Full renderWork() stays on every path that actually changes the
+// list — mark writes, filter changes.
+function rowFor(m) {
+  return m && document.querySelector('#work .row[data-l="' + CSS.escape(String(m.l.id)) + '"][data-t="' + CSS.escape(String(m.t.id)) + '"]');
+}
+function moveTriage(nextIndex) {
+  const list = CURRENT_WORKLIST || [];
+  if (!list.length) return;
+  const prev = rowFor(list[triageIndex]);
+  if (prev) prev.classList.remove("focus");
+  triageIndex = Math.max(0, Math.min(list.length - 1, nextIndex));
+  const next = rowFor(list[triageIndex]);
+  if (next) next.classList.add("focus");
+  renderTriageBar(list[triageIndex]);
+  scrollFocusedRowIntoView();
+}
 function onKeydown(e) {
   // While any modal/drawer is open, its own focus-trapped controls should be
   // the only thing keys act on — without this, typing "n"/"c"/"v"/etc while a
@@ -2938,8 +2959,8 @@ function onKeydown(e) {
   if (tag === "input" || tag === "select" || tag === "textarea") return;
   const list = CURRENT_WORKLIST || [];
   if (!list.length) return;
-  if (e.key === "j") { triageIndex = Math.min(list.length - 1, triageIndex + 1); renderWork(); scrollFocusedRowIntoView(); }
-  else if (e.key === "k") { triageIndex = Math.max(0, triageIndex - 1); renderWork(); scrollFocusedRowIntoView(); }
+  if (e.key === "j") moveTriage(triageIndex + 1);
+  else if (e.key === "k") moveTriage(triageIndex - 1);
   else if (["d", "c", "v", "n", "s", "q"].includes(e.key)) triageAction(e.key, list[triageIndex]);
 }
 function wireSwipe(container) {
@@ -2957,7 +2978,7 @@ function wireSwipe(container) {
     if (Math.abs(dx) < 60 || Math.abs(dy) > 50) return;
     const m = (CURRENT_WORKLIST || []).find(x => x.l.id === lid && x.t.id === tid);
     if (!m) return;
-    if (dx < 0) { const i = CURRENT_WORKLIST.indexOf(m); triageIndex = Math.min(CURRENT_WORKLIST.length - 1, i + 1); renderWork(); scrollFocusedRowIntoView(); }
+    if (dx < 0) moveTriage(CURRENT_WORKLIST.indexOf(m) + 1);
     else triageAction("d", m);
   }, { passive: true });
 }
