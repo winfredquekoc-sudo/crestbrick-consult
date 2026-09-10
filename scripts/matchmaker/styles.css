@@ -543,5 +543,8 @@ body.density-compact .lc{padding:7px 9px}
   .kpi{padding:3px 8px;font-size:11px;white-space:nowrap}
   .kpi b{font-size:13px}
   #syncPill{display:none}
+  /* (item 10) the j/k/d/c/v/n/s/q legend describes keys that do not exist
+     on a phone — it just costs a row of vertical space here for nothing. */
+  .triage-legend{display:none}
 }
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}

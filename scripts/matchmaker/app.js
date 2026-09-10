@@ -3101,15 +3101,70 @@ function moveTriage(nextIndex) {
   renderTriageBar(list[triageIndex]);
   scrollFocusedRowIntoView();
 }
+// (item 10) 1-9/0 switch tabs "in order" — read straight off the tab strip's
+// own DOM order (set once at init, see the bottom of this file) rather than
+// a hardcoded list, so it can never silently drift from the actual tabs.
+let TAB_ORDER = [];
+function selectTabByIndex(i) {
+  if (i < 0 || i >= TAB_ORDER.length) return;
+  view = TAB_ORDER[i];
+  render();
+}
+function shortcutsSheetHtml() {
+  return '<div class="triage-legend">' +
+    '<div><span class="key">1</span>-<span class="key">9</span>/<span class="key">0</span> switch tabs, in the order they appear</div>' +
+    '<div><span class="key">/</span> focus search</div>' +
+    '<div><span class="key">Esc</span> blur search, then (search already empty) clear all filters</div>' +
+    '<div><span class="key">f</span> toggle More filters</div>' +
+    '<div><span class="key">?</span> this list</div>' +
+    '<div><span class="key">⌘K</span>/<span class="key">ctrl+K</span> command palette</div>' +
+    '<div style="margin-top:6px">Worklist tab only: <span class="key">j</span>/<span class="key">k</span> move cursor · ' +
+    '<span class="key">c</span> contacted · <span class="key">v</span> viewing · <span class="key">d</span> draft · ' +
+    '<span class="key">n</span> not interested · <span class="key">s</span> snooze · <span class="key">q</span> queue</div>' +
+    '</div>';
+}
+function openShortcutsSheet() {
+  const wrap = el("div", "modal-wrap");
+  wrap.innerHTML = '<div class="modal"><h3>Keyboard shortcuts</h3>' + shortcutsSheetHtml() +
+    '<div class="foot"><button class="btn" data-cancel="1">Close</button></div></div>';
+  mountOverlay(wrap, { label: "Keyboard shortcuts" });
+  wrap.querySelector("[data-cancel]").onclick = () => wrap.remove();
+  wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
+}
 function onKeydown(e) {
   // While any modal/drawer is open, its own focus-trapped controls should be
   // the only thing keys act on — without this, typing "n"/"c"/"v"/etc while a
   // dialog button happened to have focus fell through to document and fired
   // a background triage action on a totally different row.
   if (OPEN_OVERLAY_COUNT > 0) return;
-  if (view !== "work") return;
   const tag = ((e.target && e.target.tagName) || "").toLowerCase();
-  if (tag === "input" || tag === "select" || tag === "textarea") return;
+  const typing = tag === "input" || tag === "select" || tag === "textarea";
+  const q = $("#q");
+  // (item 10) global shortcuts, checked before the worklist-only guard below
+  // so tab switching / search focus / More filters / the shortcuts sheet
+  // work from every view, not just the worklist. Escape is the one key that
+  // must still fire while #q itself has focus (that is the whole point — to
+  // blur it), so it is handled ahead of the typing guard; every other global
+  // key defers to the SAME input/select/textarea guard the worklist keys
+  // below already rely on, so normal typing anywhere is never intercepted.
+  if (e.key === "Escape") {
+    if (q && document.activeElement === q) { q.blur(); return; }
+    // Only clears when the box was ALREADY empty (not just blurred by the
+    // line above) — typing something then hitting Escape must not silently
+    // wipe filters the user has not asked to clear. This is why the
+    // acceptance case is "Escape twice": the first blurs, the second (now
+    // that #q is no longer focused) checks emptiness and clears.
+    if (q && q.value.trim() === "") $("#clr").click();
+    return;
+  }
+  if (!typing) {
+    if (e.key >= "1" && e.key <= "9") { selectTabByIndex(Number(e.key) - 1); return; }
+    if (e.key === "0") { selectTabByIndex(9); return; }
+    if (e.key === "/") { e.preventDefault(); if (q) q.focus(); return; }
+    if (e.key === "f") { toggleMoreFilters(); return; }
+    if (e.key === "?") { openShortcutsSheet(); return; }
+  }
+  if (view !== "work" || typing) return;
   const list = CURRENT_WORKLIST || [];
   if (!list.length) return;
   if (e.key === "j") moveTriage(triageIndex + 1);
@@ -4268,7 +4323,9 @@ function paletteActions() {
     { label: "Bulk action on filtered set", run: () => openBulkActionModal() },
     { label: "Export state", run: () => downloadJSON(exportBlob(), "matchmaker-state-" + DATA.generated + ".json") },
     { label: "Toggle day/night", run: () => toggleTheme() },
-    { label: "Toggle density", run: () => toggleDensity() }
+    { label: "Toggle density", run: () => toggleDensity() },
+    { label: "Toggle More filters", run: () => toggleMoreFilters() },
+    { label: "Keyboard shortcuts", run: () => openShortcutsSheet() }
   ];
 }
 function paletteResults(query) {
@@ -5923,6 +5980,10 @@ function renderPipeline() {
     t.onclick = activate;
     t.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
   });
+  // (item 10) 1-9/0 select tabs "in order" — the tab strip's own DOM order,
+  // read once here rather than hardcoded, so it can never drift from what
+  // is actually on screen if a tab is ever added/reordered/removed.
+  TAB_ORDER = [...document.querySelectorAll("#tabs .tab")].map(t => t.dataset.v);
   // #q fires on every keystroke, unlike the select/checkbox filters (one
   // event per discrete choice) — a render() here also recomputes faceted
   // counts across every match plus rebuilds up to 120+ tenant/listing cards,
