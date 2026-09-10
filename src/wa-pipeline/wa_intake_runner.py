@@ -31,7 +31,8 @@ import wa_intake_draft_worker as WORKER
 from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _tg_send,
                               _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly,
                               notify_winfred_coalesced, _flush_stale_coalesce_windows,
-                              notify_for_action, _slot_confirm_count, notify_stale_backfill)
+                              notify_for_action, _slot_confirm_count, notify_stale_backfill,
+                              notify_viewing_slot_needed)
 # STEP 0 sandbox seal (9 Sep 2026 merge redo): kept for backward compat with existing
 # mock.patch.object(wa_intake_runner, "NAME", ...) tests; _msg_db()/_lockf() resolve them at
 # call time (see wa_intake_paths.resolved's docstring).
@@ -374,6 +375,10 @@ def run():
                     notify_winfred("New tenant enquiry for " + lk2 + ", but no upcoming viewing "
                         "slot is captured for it. Reply with the landlord's next available viewing "
                         "time so I can offer it to qualified prospects.")
+            # a QUALIFIED prospect got the hold line (VIEWING_HOLD_TEXT) instead of a named
+            # slot -- ping Winfred once per listing per day (see notify_viewing_slot_needed's
+            # own docstring, wa_intake_notify.py).
+            notify_viewing_slot_needed(a, state)
             # an action may carry 1 or 2 messages (SEND_FORM = unit info + form, sent once).
             texts = a.get("texts") or ([a["text"]] if a.get("text") else [])
             if not texts:

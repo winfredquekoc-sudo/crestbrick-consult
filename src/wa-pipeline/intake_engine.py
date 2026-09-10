@@ -240,6 +240,43 @@ def book_slot(listing_key, slot_id, path=None):
     finally:
         fcntl.flock(f, fcntl.LOCK_UN); f.close()
 
+def apply_fixed_viewing(updates, path=None):
+    """Atomic, flock guarded write of one or more `fixed_viewing` entries into the listing
+    index (the SAME field _fixed_viewing_slot/next_future_slot already read -- viewing slot
+    confirmation, extract_viewing_windows.py / apply_viewing_windows.py, and the self chat
+    /slot command all funnel through this one choke point). `updates` is
+    {listing_key: fixed_viewing_dict}; a listing_key not present in the index is reported in
+    "missing", never silently dropped. A .bak copy of the index is written once, before the
+    first mutation, whenever at least one update actually lands. Returns
+    {"written": [...], "missing": [...]} (plus "error" if the index could not be read)."""
+    import fcntl, shutil
+    idx_path = path or _idx()
+    written, missing = [], []
+    try:
+        f = open(idx_path, "r+")
+    except OSError:
+        return {"written": [], "missing": list(updates.keys()), "error": "index file not found"}
+    try:
+        fcntl.flock(f, fcntl.LOCK_EX)
+        try:
+            data = json.load(f)
+        except (ValueError, OSError):
+            return {"written": [], "missing": list(updates.keys()), "error": "index unreadable"}
+        by_key = {l.get("listing_key"): l for l in data.get("listings", [])}
+        for lk, fv in updates.items():
+            entry = by_key.get(lk)
+            if entry is None:
+                missing.append(lk)
+                continue
+            entry["fixed_viewing"] = fv
+            written.append(lk)
+        if written:
+            shutil.copy2(idx_path, idx_path + ".bak")
+            f.seek(0); json.dump(data, f, indent=2, ensure_ascii=False); f.truncate()
+        return {"written": written, "missing": missing}
+    finally:
+        fcntl.flock(f, fcntl.LOCK_UN); f.close()
+
 # ---------- profile extraction ----------
 # a non SGD currency marker on the number (RM800, USD500, ₹15000...) must never be read as
 # a bare SGD figure -- no trailing \b so a glued prefix like "RM800" still matches (P2 fix,
@@ -3954,7 +3991,7 @@ def _handle_event_inner(state, ev):
                         rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
                         return act_q
                     return act_q or \
-                           {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b,
+                           {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b, "listing_key":lk_b,
                             "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
                 if v_b == "DISQUALIFIED":
                     # never book a profile the landlord would reject — kind referral as usual
@@ -3984,7 +4021,7 @@ def _handle_event_inner(state, ev):
                             rec["offered_slot_id"] = None; rec["offered_slot_label"] = None
                             return act_b
                         act_b = act_b or \
-                               {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b,
+                               {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b, "listing_key":lk_b,
                                 "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
                         act_b["notify"] = True
                         act_b["reason"] = ((act_b.get("reason") or "") +
@@ -4154,7 +4191,7 @@ def _handle_event_inner(state, ev):
         slot = next_slot(lk)
         rec["offered_slot_id"] = slot.get("slot_id") if slot else None
         rec["offered_slot_label"] = slot.get("label") if slot else None
-        act = {"type":"OFFER_VIEWING", "pn":pn, "slot":slot,
+        act = {"type":"OFFER_VIEWING", "pn":pn, "slot":slot, "listing_key":lk,
                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot),
                "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
         if _listing_gap:
@@ -4393,12 +4430,19 @@ def _redirect_text(why, profile, reqs, exclude_key=None):
             "You can take a look at my other available room rentals here:\n" + CHANNEL + "\n"
             "Did anything catch your eye? Let me know and I'll arrange a viewing for you 🙂")
 
+
+# a viewing slot on every open listing (11 Sep 2026): 96.6% of prospects confirm a named day
+# and time vs 30.7% for an open ask (Winfred's data), so a listing with no captured slot must
+# never fall back to the weak "When are you able to view?" ask -- it holds the prospect and
+# lets Winfred (or a landlord-side /slot) supply the real time instead of the bot guessing one.
+VIEWING_HOLD_TEXT = ("Thanks, you fit what the landlord is looking for. I will send your "
+                     "profile over now and confirm a viewing time with the owner shortly \U0001F642")
+
 def _viewing_text(slot):
     if slot:
         return "Thanks, you fit what the landlord is looking for. I will send your profile over now. " \
                "The next viewing is " + slot["label"] + ". Reply YES to take this slot."
-    return "Thanks, you fit what the landlord is looking for. I will send your profile over now. " \
-           "When are you able to view?"
+    return VIEWING_HOLD_TEXT
 
 # ========== LANDLORD FOLLOW-UP SEQUENCES ==========
 # Extension: automatic follow-ups for landlords who have received the supply form.

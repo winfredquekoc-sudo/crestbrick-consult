@@ -332,6 +332,38 @@ def notify_stale_backfill(skipped, by_pn, stale_row_hours):
                    f"{stale_row_hours}h this run and were skipped (never auto-served): "
                    f"{chats_line}. Check these chats by hand if any were real.")
 
+def notify_viewing_slot_needed(a, state):
+    """A viewing slot on every open listing (11 Sep 2026): a QUALIFIED prospect who hit
+    OFFER_VIEWING with no slot captured gets the hold line (intake_engine.VIEWING_HOLD_TEXT)
+    instead of the weak "When are you able to view?" ask. Winfred is pinged ONCE PER LISTING
+    PER DAY (never once per prospect -- a slot starved listing could otherwise spam him on
+    every qualifying tenant), mirroring the existing "availability_pinged" per-listing-per-day
+    latch in wa_intake_runner.py. Uncoalesced (goes straight to notify_winfred, not the 30
+    minute per-chat window) -- a fresh listing hitting this for the first time today is exactly
+    as time sensitive as the existing availability ping.
+
+    The message starts with "Viewing slot needed" -- deliberately NOT "Viewing time from a
+    prospect" (that existing prefix is for a TENANT's own proposed time, VIEWING_TIME_PROPOSED,
+    a different situation). Winfred needs to add "Viewing slot needed" to the prefixes list in
+    his own live notify-allow.json himself -- this module never writes that live file.
+
+    Requires a real listing_key on the action (every genuine engine-produced OFFER_VIEWING
+    carries one) -- a bare test double / stand-in action missing it is never treated as a
+    real hold-line offer, so this never fires on an unrelated synthetic action."""
+    if (a.get("type") != "OFFER_VIEWING" or a.get("slot") or a.get("copilot")
+            or not a.get("listing_key")):
+        return
+    lk = a["listing_key"]
+    today = time.strftime("%Y-%m-%d")
+    sp = state.setdefault("viewing_slot_pinged", {})
+    if sp.get(lk) == today:
+        return
+    sp[lk] = today
+    notify_winfred(f"Viewing slot needed for {lk}: a qualified prospect is waiting on a "
+                   f"viewing time and no slot is captured for this listing. Reply with the "
+                   f"slot in the file, or type /slot {lk} Sat 11am (weekday + time) in your "
+                   f"own WhatsApp chat.")
+
 def notify_for_action(a, state):
     """Builds and sends (or coalesces) the ONE Telegram ping for an engine action that
     asked for one (a.get('notify')). No-ops for anything that did not ask."""

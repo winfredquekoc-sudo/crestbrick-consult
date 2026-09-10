@@ -16,6 +16,102 @@ import wa_intake_resume as RES
 
 _SEND_RE = re.compile(r"^/send\s+([0-9a-f]{6,10})\s*$", re.I)
 _DROP_RE = re.compile(r"^/drop\s+([0-9a-f]{6,10})\s*$", re.I)
+_SLOT_RE = re.compile(r"^/slot\s+(.*)$", re.I)
+
+# ---------- /slot <listing_key> <weekday> <time>[ to <time>] (Winfred's own self chat only --
+# any other chat never reaches this function, see wa_intake_runner.py's OWN_JID gate) ----------
+# a viewing slot on every open listing (11 Sep 2026): the fastest way for Winfred to fill a
+# listing's fixed_viewing without opening the slot file by hand. Writes under the SAME flock
+# as extract_viewing_windows.py / apply_viewing_windows.py (intake_engine.apply_fixed_viewing).
+_WD_ALIASES = {
+    "mon": "mon", "monday": "mon", "tue": "tue", "tues": "tue", "tuesday": "tue",
+    "wed": "wed", "weds": "wed", "wednesday": "wed", "thu": "thu", "thur": "thu",
+    "thurs": "thu", "thursday": "thu", "fri": "fri", "friday": "fri",
+    "sat": "sat", "saturday": "sat", "sun": "sun", "sunday": "sun",
+}
+_SLOT_TIME_TOK = r"\d{1,2}(?:[.:]\d{2})?\s*(?:am|pm)"
+_SLOT_BODY_RE = re.compile(
+    rf"^\s*([a-z]+)\s+({_SLOT_TIME_TOK})(?:\s*(?:to|-|–)\s*({_SLOT_TIME_TOK}))?\s*$", re.I)
+
+
+def _slot_clock(tok):
+    m = re.match(r"^(\d{1,2})(?:[.:](\d{2}))?\s*(am|pm)$", tok.strip(), re.I)
+    if not m:
+        return None
+    h, mm, ap = int(m.group(1)), int(m.group(2) or 0), m.group(3).lower()
+    if h == 12 and ap == "am":
+        h = 0
+    elif ap == "pm" and h != 12:
+        h += 12
+    if not (0 <= h <= 23 and 0 <= mm <= 59):
+        return None
+    return h, mm
+
+
+def _slot_hm(clock):
+    return f"{clock[0]:02d}:{clock[1]:02d}"
+
+
+def _slot_label(clock):
+    h, m = clock
+    h12 = h % 12 or 12
+    frac = f".{m:02d}" if m else ""
+    if h == 12 and m == 0:
+        return f"{h12}{frac}noon"
+    return f"{h12}{frac}" + ("am" if h < 12 else "pm")
+
+
+def parse_slot_command(rest):
+    """'<listing_key> <weekday> <time>[ to <time>]' -> (listing_key, fixed_viewing_dict, None)
+    on success, or (None, None, error_message) on anything unparseable -- an invalid /slot is
+    always rejected with a reason, never guessed into a slot."""
+    parts = (rest or "").strip().split(None, 1)
+    if len(parts) < 2:
+        return None, None, ("usage: /slot <listing_key> <weekday> <time>, "
+                             "e.g. /slot cherryhill Sat 11am")
+    listing_key, body = parts[0], parts[1]
+    m = _SLOT_BODY_RE.match(body)
+    if not m:
+        return None, None, (f"could not read a weekday and time from '{body}'; "
+                             f"try /slot {listing_key} Sat 11am")
+    day_word, start_tok, end_tok = m.group(1).lower(), m.group(2), m.group(3)
+    wd = _WD_ALIASES.get(day_word)
+    if not wd:
+        return None, None, f"'{day_word}' is not a weekday (mon/tue/wed/thu/fri/sat/sun)"
+    start_c = _slot_clock(start_tok)
+    if start_c is None:
+        return None, None, f"could not read the time '{start_tok}'"
+    end_c = None
+    if end_tok:
+        end_c = _slot_clock(end_tok)
+        if end_c is None:
+            return None, None, f"could not read the time '{end_tok}'"
+    label = _slot_label(start_c) + (" to " + _slot_label(end_c) if end_c else "")
+    fv = {"weekday": wd, "start": _slot_hm(start_c),
+          "end": _slot_hm(end_c) if end_c else None, "time_label": label}
+    return listing_key, fv, None
+
+
+def _handle_slot_command(rest, log_fn, notify_fn):
+    listing_key, fv, err = parse_slot_command(rest)
+    if err:
+        log_fn("SLOT_CMD_REJECTED", "self", (rest or "")[:80] + " :: " + err)
+        notify_fn(f"/slot rejected: {err}")
+        return True
+    result = E.apply_fixed_viewing({listing_key: fv})
+    if listing_key in (result.get("missing") or []):
+        log_fn("SLOT_CMD_UNKNOWN_LISTING", "self", listing_key)
+        notify_fn(f"/slot rejected: no listing '{listing_key}' found in the index.")
+        return True
+    if result.get("error"):
+        log_fn("SLOT_CMD_ERROR", "self", str(result["error"]))
+        notify_fn(f"/slot for {listing_key} failed: {result['error']}.")
+        return True
+    log_fn("SLOT_CMD_SET", "self", f"{listing_key} :: {fv}")
+    notify_fn(f"Got it, {listing_key} viewing slot set to "
+              f"{fv['weekday'].title()} {fv['time_label']}. The next qualified prospect will "
+              f"be offered this time.")
+    return True
 SEND_MAX_INBOUND_AGE_HOURS = 5 * 24   # mirrors wa_intake_runner.SEND_MAX_INBOUND_AGE_HOURS --
                                        # duplicated (not imported) to avoid a circular import
 DAILY_SEND_CAP = 2                    # mirrors wa_intake_runner.DAILY_SEND_CAP, same reason
@@ -165,6 +261,9 @@ def handle_self_chat_command(jid, text, send_fn, guard_reserve_fn, log_fn,
     notify_fn = notify_fn or (lambda *a, **k: None)
     quiet_hours_fn = quiet_hours_fn or (lambda: False)
     t = (text or "").strip()
+    m_slot = _SLOT_RE.match(t)
+    if m_slot:
+        return _handle_slot_command(m_slot.group(1), log_fn, notify_fn)
     m_send, m_drop = _SEND_RE.match(t), _DROP_RE.match(t)
     if not (m_send or m_drop):
         return False
