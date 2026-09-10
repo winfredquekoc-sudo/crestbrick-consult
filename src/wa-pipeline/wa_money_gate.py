@@ -43,8 +43,18 @@ PRICE_TRIGGER_RE = re.compile(
     # below can we talk about" both slipped past the original word list untouched); a
     # deposit ask ("pay now"/"transfer"/"paynow"/"lock it in") is the same money-gate
     # territory as an explicit deposit word (c1-08: "will pay deposit now if needed").
-    r"\bvaluation\b|\bconsider\b|how\s+much\s+(?:below|lower|less|off)|"
-    r"\bpay(?:ing)?\s+now\b|\btransfer(?:red)?\b|\bpaynow\b|lock\s+it\s+in",
+    # 11 Sep 2026 review fix: the bare tokens \bconsider\b and \btransfer(?:red)?\b
+    # swallowed ordinary tenant messages ("consider me for the room", "need to transfer
+    # line" re MRT) that carry no money content at all. Scoped to actual negotiation
+    # ("will you consider", "consider my offer/price/$n") and actual payment ("transfer
+    # the deposit/money/payment", "bank transfer", or a same day payment promise --
+    # "transfer today/tomorrow/now/tonight").
+    r"\bvaluation\b|how\s+much\s+(?:below|lower|less|off)|"
+    r"(?:will|would|can|could)\s+(?:you|they|the\s+\w+)\s+consider|"
+    r"consider\s+(?:my\s+)?(?:offer|price|\$?\d)|"
+    r"\btransfer\s+(?:the\s+)?(?:deposit|money|payment|today|tomorrow|now|tonight|\$?\d)|"
+    r"bank\s+transfer|"
+    r"\bpay(?:ing)?\s+now\b|\bpaynow\b|lock\s+it\s+in",
     re.I)
 AGENT_RE = re.compile(
     r"co[\s-]?broke|cobroke|commission\s+split|\bera\b|propnex|orangetee|huttons|propertylimbrothers|"

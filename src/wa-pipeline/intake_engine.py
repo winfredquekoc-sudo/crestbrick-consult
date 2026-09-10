@@ -2324,7 +2324,12 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   "我是帮房东处理这个单位的中介",   # own/agent disclosure, Chinese (remaining gap c2mix04)
                   # unbound buyer enquiry ask (remaining gap c4rm04, 11 Sep 2026)
                   "which unit were you enquiring about",
-                  "请问您看到的是哪个单位")
+                  "请问您看到的是哪个单位",
+                  # category2 photo/availability replies (wa_intake_replies.py) -- an echoed
+                  # copy of these must never be read as a manual reply by Winfred (Fix 2,
+                  # 11 Sep 2026 review round).
+                  "yes still available", "sure, let me get some photos",
+                  "i will check with the landlord on photos")
 def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
@@ -2381,6 +2386,10 @@ _ENGINE_PREFIXES = (
     # unbound buyer enquiry ask (remaining gap c4rm04, 11 Sep 2026)
     "hi \U0001F642 which unit were you enquiring about",
     "您好 \U0001F642 请问您看到的是哪个单位",
+    # category2 photo/availability replies (wa_intake_replies.py) -- exact starts, Fix 2,
+    # 11 Sep 2026 review round.
+    "yes still available", "sure, let me get some photos",
+    "i will check with the landlord on photos",
 )
 def _template_heads():
     """Cached lowercase first-80-chars of every listing unit message (message 1 sends)."""

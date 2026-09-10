@@ -53,6 +53,11 @@ _OUTBOUND_ONLY = (
     "我是帮房东处理这个单位的中介",
     "which unit were you enquiring about",
     "请问您看到的是哪个单位",
+    # category2 photo/availability replies (wa_intake_replies.py) -- an echoed copy must
+    # never be read as a prospect inbound or a manual reply by Winfred (Fix 2, 11 Sep 2026
+    # review round; mirrors intake_engine.py's _ENGINE_PREFIXES/BOT_SIGNATURES).
+    "yes still available", "sure, let me get some photos",
+    "i will check with the landlord on photos",
 )
 
 # Landlord onboarding action types: manual_takeover is latched the moment supply side is

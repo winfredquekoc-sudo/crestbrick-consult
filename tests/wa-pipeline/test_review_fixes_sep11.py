@@ -19,6 +19,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import intake_engine as E
 import wa_intake_echo as ECHO
 import wa_money_gate as MG
+import wa_intake_replies as REPLIES
 
 
 def _listing(lk, status="open", deal_type="rent", budget_floor=700, lease_min_months=12,
@@ -376,6 +377,110 @@ class TestNegotiationPushNeverAViewingTime(unittest.TestCase):
 
     def test_can_the_owner_do_a_number_is_money_gate_territory(self):
         self.assertTrue(MG.core_stays_human("can the owner do 630k"))
+
+
+# ---------------------------------------------------------------------------
+# Fix 1 (11 Sep 2026 review round): the bare tokens \bconsider\b and
+# \btransfer(?:red)?\b in PRICE_TRIGGER_RE swallowed ordinary tenant messages that carry
+# no money content at all. Scoped to actual negotiation ("will/would/can/could you/they/
+# the X consider", "consider my offer/price/$n") and actual payment ("transfer the
+# deposit/money/payment/$n", "bank transfer", or a same day payment promise -- "transfer
+# today/tomorrow/now/tonight"). The table below is every string the reviewer listed.
+# ---------------------------------------------------------------------------
+class TestConsiderAndTransferScopedToMoneyContext(unittest.TestCase):
+    # (text, expected core_stays_human, note)
+    CASES = (
+        ("consider me for the room", False,
+         "plain ask to be considered as a tenant -- no money content"),
+        ("please consider my application, I am a quiet tenant", False,
+         "tenant application ask -- no money content"),
+        ("can i take the room, i will transfer today", True,
+         # judgement call: "will transfer today" is a payment promise (moving money the
+         # same day), not a bare mention of transferring -- kept HUMAN via the
+         # today/tomorrow/now/tonight payment-promise branch of the transfer pattern.
+         "transfer today is a payment promise, not a bare mention -- stays HUMAN"),
+        ("is it near the MRT interchange, need to transfer line?", False,
+         "MRT line transfer -- transit sense, no money content"),
+        ("will you consider 1400", True,
+         "will you consider <figure> -- negotiation push"),
+        ("can the owner consider my offer", True,
+         "can the owner consider my offer -- negotiation push"),
+        ("bank transfer ok?", True,
+         "bank transfer -- explicit payment method"),
+        # additional review-list coverage: the same money context patterns from the other
+        # angle (bare word alone, no context, must stay False) and existing money-gate
+        # territory (deposit/paynow/lock it in, unaffected by this fix) must be unchanged.
+        ("just considering my options for now", False,
+         "bare 'considering', no money context -- stays False"),
+        ("we transferred schools last year", False,
+         "'transferred' with no money context -- stays False"),
+        ("can you consider a longer lease instead", True,
+         "can you consider <clause> -- still matches the negotiation-push pattern"),
+        ("would the owner consider a shorter stay", True,
+         "would ... consider -- negotiation push pattern (not necessarily a price ask, but "
+         "matches the scoped pattern by design; reviewer listed this shape explicitly)"),
+        ("I can transfer the money once confirmed", True,
+         "transfer the money -- explicit payment content"),
+        ("thinking to transfer to another unit nearby", False,
+         "transfer with no money/deposit/payment object -- stays False"),
+        ("ok i will transfer now", True,
+         "transfer now -- payment-promise branch"),
+    )
+
+    def test_all_review_listed_strings(self):
+        rows = []
+        failures = []
+        for text, expected, note in self.CASES:
+            got = MG.core_stays_human(text)
+            rows.append((text, expected, got, note))
+            if got != expected:
+                failures.append((text, expected, got, note))
+        header = "{:<55} {:<9} {:<9} {}".format("text", "expected", "got", "note")
+        print("\n" + header)
+        print("-" * len(header))
+        for text, expected, got, note in rows:
+            print("{:<55} {:<9} {:<9} {}".format(text[:55], str(expected), str(got), note))
+        self.assertEqual(failures, [], "mismatches: {}".format(failures))
+
+
+# ---------------------------------------------------------------------------
+# Fix 2 (11 Sep 2026 review round): the category 2 photo/availability replies
+# (wa_intake_replies.py's _reply_availability / _reply_photos_video) must be registered
+# with BOTH the takeover latch matcher (intake_engine.is_engine_outbound, plus
+# is_bot_message via BOT_SIGNATURES) and the bridge echo matcher
+# (wa_intake_echo._is_our_echo via _OUTBOUND_ONLY) -- otherwise a bridge echoed copy of
+# the engine's own "still available"/"photos" reply is misread as a manual reply by
+# Winfred, latching manual_takeover on a chat the engine just answered.
+# ---------------------------------------------------------------------------
+class TestPhotoAvailabilityRepliesRecognisedAsOwnOutbound(unittest.TestCase):
+    def _assert_recognised(self, text):
+        self.assertTrue(E.is_engine_outbound(text), "is_engine_outbound False for: " + text)
+        self.assertTrue(E.is_bot_message(text), "is_bot_message False for: " + text)
+        self.assertTrue(ECHO._is_our_echo(text), "_is_our_echo False for: " + text)
+
+    def test_yes_still_available_reply(self):
+        with mock.patch.object(E, "listing_reqs", lambda: {}), \
+             mock.patch.object(E, "_listing_unavailable", lambda lk, reqs=None: None), \
+             mock.patch.object(E, "next_future_slot", lambda lk: None):
+            text = REPLIES._reply_availability({"listing_key": "lk1"}, "still available?")
+        self.assertTrue(text.lower().startswith("yes still available"))
+        self._assert_recognised(text)
+
+    def test_sure_let_me_get_some_photos_reply_when_media_backed(self):
+        with mock.patch.object(E, "listing_reqs", lambda: {}), \
+             mock.patch.object(E, "_listing_has_media", lambda lk, listing=None: True), \
+             mock.patch.object(E, "next_future_slot", lambda lk: None):
+            text = REPLIES._reply_photos_video({"listing_key": "lk2"}, "any photos?")
+        self.assertTrue(text.lower().startswith("sure, let me get some photos"))
+        self._assert_recognised(text)
+
+    def test_i_will_check_with_the_landlord_on_photos_reply_when_no_media(self):
+        with mock.patch.object(E, "listing_reqs", lambda: {}), \
+             mock.patch.object(E, "_listing_has_media", lambda lk, listing=None: False), \
+             mock.patch.object(E, "next_future_slot", lambda lk: None):
+            text = REPLIES._reply_photos_video({"listing_key": "lk3"}, "any photos?")
+        self.assertTrue(text.lower().startswith("i will check with the landlord on photos"))
+        self._assert_recognised(text)
 
 
 if __name__ == "__main__":
