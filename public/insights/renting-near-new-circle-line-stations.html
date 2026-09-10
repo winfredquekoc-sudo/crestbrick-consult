@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renting Near the New Circle Line Loop Stations</title>
+    <meta name="description" content="Circle Line 6 closed the loop in July 2026 at Keppel, Cantonment and Prince Edward Road. What that changes for commutes, demand and room rents nearby.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Renting Near the New Circle Line Stations: Keppel, Cantonment and Prince Edward Road">
+    <meta property="og:description" content="Circle Line 6 closed the loop in July 2026 at Keppel, Cantonment and Prince Edward Road. What that changes for commutes, demand and room rents nearby.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Renting Near the New Circle Line Stations: Keppel, Cantonment and Prince Edward Road</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+        The Circle Line closed its loop on 12 July 2026. Three new stations, Keppel, Cantonment and Prince Edward Road, connect HarbourFront back into the rest of the line, so a trip that used to mean changing trains at HarbourFront or Tanjong Pagar can now run straight through. For anyone renting or letting a room in the Keppel, Tanjong Pagar, Telok Blangah or Bukit Merah pocket, that is a change worth understanding properly rather than reacting to.
+        </p>
+
+        <h2>Timing: What the Closed Loop Actually Changes</h2>
+        <p>
+        Before Stage 6 opened, HarbourFront sat at the end of one Circle Line branch. Getting from Telok Blangah to Bishan or Serangoon meant a change at HarbourFront or a longer ride via the Downtown or North East lines. With the loop closed, Keppel and Cantonment slot in as through stations, and Prince Edward Road gives a stop to an area that previously had no MRT within comfortable walking distance at all.
+        </p>
+        <p>
+        The practical effect for tenants is a shorter, more direct commute north and east without a transfer. For landlords, a pocket of flats and condos once described as a taxi ride or a long walk from the nearest station can now be marketed as a short walk to an MRT stop. That is a real change in how a unit shows on a portal listing, even before it shows up in any rent figure.
+        </p>
+
+        <h2>Which Estates and Condos Sit Closest</h2>
+        <p>
+        Keppel station sits closest to the Keppel Bay and HarbourFront waterfront cluster, including condos around Keppel Bay and the older private estates off Telok Blangah Road. Cantonment station lands in the Tanjong Pagar and Duxton Plain area, close to Spottiswoode Park, Everton Park and the newer developments near Duxton Hill. Prince Edward Road station serves the stretch between Bukit Merah and Tanjong Pagar that had relied mainly on buses or a longer walk to Tanjong Pagar or Outram Park.
+        </p>
+        <p>
+        None of these estates were transport deserts before. But going from a 10 or 15 minute walk, or a bus leg, to a station on your own doorstep is the sort of change that shows up first in enquiry volume, not in headline rent. If you are a landlord in one of these pockets, expect more views on your listing and possibly faster viewings booked, before you expect a materially higher asking rent.
+        </p>
+
+        <div class="callout callout-info">
+        <strong>What to watch first:</strong> a jump in enquiries and viewing requests usually arrives months before any rent increase, so treat faster viewings as the early signal, not proof you should reprice immediately.
+        </div>
+
+        <h2>Money: What New MRT Access Tends To Do To Rents</h2>
+        <p>
+        It is tempting to assume a new station adds an automatic rent premium overnight. In practice the effect is smaller and slower than that, and it plays out against whatever the broader market is doing. Singapore's private residential rental index is only edging up, and vacancy across private homes ticked up to 6.4 percent from 6.2 percent in the second quarter of 2026, with rents in the outside central region, where mass market condos and many HDB estates sit, still on the soft side. That is a modest backdrop for any single pocket to push against.
+        </p>
+        <p>
+        URA's own release for the second quarter of 2026 shows the overall private rental index rising a modest 0.7 percent quarter on quarter, with landed rents up a sharper 2.7 percent and non landed rents up just 0.4 percent. A new MRT stop can lift demand for a specific building or street, but it is competing with a rental market that is recovering slowly rather than one that is short of supply.
+        </p>
+        <p>
+        For HDB flats in the wider area, the direction has been more encouraging this year. HDB rents rose 1.7 percent month on month in July 2026, with non mature estates up 2.2 percent. Parts of Bukit Merah and Telok Blangah sit closer to the non mature end of that spread, so a room or a whole HDB flat within walking distance of Cantonment or Keppel station is renting into a market that was already firming before the new stations opened, not a flat one.
+        </p>
+        <p>
+        Put together, a reasonable read is that landlords near the three new stations should expect a gradual pickup in interest and a modestly stronger negotiating position over the next year, rather than a step change in asking rent from day one. Tenants weighing a move into the area can still expect to negotiate, especially on units that had already been sitting a while before the loop opened.
+        </p>
+
+        <h2>Safety: Do Not Skip the Basic Checks</h2>
+        <p>
+        New MRT access does not change the paperwork. Landlords letting out a room still need to check a prospective tenant's documents, agree clear house rules on shared spaces, and put the arrangement in writing. Tenants should still view the actual room or unit, confirm what is included in the rent such as utilities, wifi and aircon servicing, and read the lease terms before paying a deposit. A closer MRT station is a genuine upside. It is not a reason to skip the checks you would run on any other rental.
+        </p>
+
+        <h2>Timing: A Longer View for Tenants Choosing Where to Live</h2>
+        <p>
+        For tenants, the calculation is different from a landlord's. A new station does not just change your commute today, it changes how easy the area will be to leave or move within later, since a wider pool of future tenants will now consider these addresses too. That tends to support resale and re rental demand for whichever unit you choose, which matters if you expect to move again within the lease term or renew more than once. It is also worth remembering that Thomson East Coast Line Stage 5 and the Downtown Line Stage 3 extension are due to open in the second half of 2026 as well, adding stations further east including Sungei Bedok, Bedok South and Xilin. Singapore's rail network is expanding on several fronts this year, not only along the Circle Line, so it is worth checking whether any other planned station affects an area you are already considering.
+        </p>
+        <p>
+        None of this means you should pay a premium purely for proximity to a station that only just opened. Viewing several units, checking actual walking time rather than a map estimate, and comparing the asking rent against similar units that already had MRT access before July 2026 will tell you whether a specific listing is fairly priced or riding the announcement.
+        </p>
+
+        <h2>What This Means for Your Next Move</h2>
+        <p>
+        If you are a landlord near Keppel, Cantonment or Prince Edward Road, the sensible sequence is to watch enquiry volume for a full lease cycle, compare against the URA rental index and nearby listings, then decide whether a renewal or a new listing should move. If you are a tenant, the new stations widen your options in areas that used to feel cut off, which is worth factoring into where you look next even if the rent has not moved much yet.
+        </p>
+        <p>
+        Related reading: see how rental yield compares by property type in <a href="/insights/rental-yield-by-property-type-singapore.html">Rental Yield by Property Type in Singapore</a>, check the wider landlord picture in <a href="/insights/singapore-rental-market-landlord-2026.html">Singapore's Rental Market for Landlords</a>, or scan current benchmarks on the <a href="/tools/rental-yield-heatmap.html">rental yield heatmap</a> before you decide.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>Did the Circle Line actually become a full loop in 2026?</h3>
+        <p>Yes. Circle Line Stage 6 opened on 12 July 2026 with three new stations, Keppel, Cantonment and Prince Edward Road, connecting the existing line back into HarbourFront and completing the loop.</p>
+
+        <h3>Will rents near the new stations jump right away?</h3>
+        <p>Not on the evidence so far. URA's second quarter 2026 data shows the overall private rental index up 0.7 percent quarter on quarter, after 0.3 percent in the first quarter, with non landed rents up only 0.4 percent and the outside central region softer still. A new station tends to lift enquiry volume before it lifts asking rent.</p>
+
+        <h3>Should I raise my room rent now that a station opened nearby?</h3>
+        <p>Treat it as one factor, not the whole decision. Compare your current rent against similar rooms actually listed nearby, watch how quickly your own listing attracts viewings over a full cycle, and weigh that against HDB rents rising 1.7 percent month on month in July 2026 before deciding to reprice.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Working Out What This Means For Your Own Numbers</h3>
+            <p>If you are deciding whether to hold, raise or relist a room or unit near the new Circle Line stations, run your numbers against real listings before you commit either way.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H), Crestbrick Pte Ltd, not a financial advisor or lawyer. Before making any property decision, consult HDB directly, a qualified banker for a loan assessment, and a lawyer for contract terms. Rules, ceilings and rates are subject to change without notice and figures here reflect conditions as at September 2026.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>Circle Line Stage 6 opening, 12 July 2026:</strong> <a href="https://thesmartlocal.com/read/circle-line-6-extension/" target="_blank" rel="noopener noreferrer">https://thesmartlocal.com/read/circle-line-6-extension/</a></li>
+                <li><strong>URA release of 2nd Quarter 2026 real estate statistics:</strong> <a href="https://www.ura.gov.sg/news/media/pr26-57/" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/news/media/pr26-57/</a></li>
+                <li><strong>URA private residential property data:</strong> <a href="https://www.ura.gov.sg/Corporate/Property/Property-Data" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/Corporate/Property/Property-Data</a></li>
+                <li><strong>2026 outlook for public transport (TEL5 and DTL3 extension):</strong> <a href="https://landtransportguru.net/2026-outlook-for-public-transport/" target="_blank" rel="noopener noreferrer">https://landtransportguru.net/2026-outlook-for-public-transport/</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Renting Near the New Circle Line Stations: Keppel, Cantonment and Prince Edward Road",
+    "description": "Circle Line 6 closed the loop in July 2026 at Keppel, Cantonment and Prince Edward Road. What that changes for commutes, demand and room rents nearby.",
+    "image": "https://winfredquek.com/og-renting-near-new-circle-line-stations.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "Circle Line 6 closed the loop in July 2026 at Keppel, Cantonment and Prince Edward Road. What that changes for commutes, demand and room rents nearby."
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Did the Circle Line actually become a full loop in 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Circle Line Stage 6 opened on 12 July 2026 with three new stations, Keppel, Cantonment and Prince Edward Road, connecting the existing line back into HarbourFront and completing the loop."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Will rents near the new stations jump right away?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not on the evidence so far. URA's second quarter 2026 data shows the overall private rental index up 0.7 percent quarter on quarter, after 0.3 percent in the first quarter, with non landed rents up only 0.4 percent and the outside central region softer still. A new station tends to lift enquiry volume before it lifts asking rent."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should I raise my room rent now that a station opened nearby?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Treat it as one factor, not the whole decision. Compare your current rent against similar rooms actually listed nearby, watch how quickly your own listing attracts viewings over a full cycle, and weigh that against HDB rents rising 1.7 percent month on month in July 2026 before deciding to reprice."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

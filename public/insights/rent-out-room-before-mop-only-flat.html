@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Can You Rent Out a Room Before MOP on Your Flat</title>
+    <meta name="description" content="HDB lets owners of 3 room and bigger flats rent out spare bedrooms before MOP if they keep living in the flat. Here is what HDB actually allows and requires.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Can You Rent Out a Room Before MOP if It Is Your Only Flat">
+    <meta property="og:description" content="HDB lets owners of 3 room and bigger flats rent out spare bedrooms before MOP if they keep living in the flat. Here is what HDB actually allows and requires.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Can You Rent Out a Room Before MOP if It Is Your Only Flat</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+        You have just moved into your only flat and the Minimum Occupation Period is still years away, but the extra income from a spare room would help. HDB does allow this in many cases, with clear conditions attached. Here is what HDB's own rules actually say, checked against HDB's published eligibility pages for renting out bedrooms and renting out a whole flat.
+        </p>
+
+        <h2>Safety: The Short Answer</h2>
+        <p>
+        If your flat is a 3 room flat or bigger, you can apply to rent out spare bedrooms before MOP, provided you keep living in the flat throughout the rental period and get HDB's approval before the tenancy starts. Owners of a 1 or 2 room flat cannot rent out any bedroom, at any stage, MOP or not. Owners of a 3Gen flat cannot rent out bedrooms within MOP either. Renting out the whole flat is a separate, later step that only becomes possible once MOP is met, covered further down.
+        </p>
+
+        <h2>Money: How Many Bedrooms and Tenants You Are Allowed</h2>
+        <p>
+        HDB caps both how many bedrooms you can rent out and how many people can live in the flat in total, counting owners, authorised occupiers and tenants together. A 3 room flat can rent out 1 bedroom, with a maximum of 6 occupants in the whole flat. A 4 room flat or bigger can rent out 2 bedrooms, with a maximum of 8 occupants, though that higher cap is a temporary relaxation that reverts to 6 occupants for rental periods running beyond 31 December 2028, so check the end date on any lease you sign close to that cutoff. Only bedrooms originally built by HDB count, a partitioned room does not qualify.
+        </p>
+        <p>
+        You apply online through HDB before the tenancy begins, with an administrative fee of 9 dollars per bedroom, and HDB gives its decision immediately. You must also tell HDB within 7 days if a tenant's details change or a tenant moves out, and get fresh approval before any new tenant moves in.
+        </p>
+
+        <h2>Safety: Who Can Actually Rent the Room From You</h2>
+        <p>
+        Your tenant needs to be a Singapore Citizen, a Singapore Permanent Resident, or a non citizen legally in Singapore holding an Employment Pass, S Pass, Work Permit, Student Pass, Dependant Pass or Long Term Social Visit Pass with at least 6 months of validity left at the time of application. Work Permit holders in the construction, marine or process sectors must specifically be Malaysian. Tourists cannot rent a bedroom, or a flat, under any circumstance.
+        </p>
+        <p>
+        One point worth being precise about, since it is easy to mix up: the non citizen quota that caps how many non Malaysian non citizen tenants a block or neighbourhood can take does not apply to bedroom rentals at all. HDB states that rule applies only when renting out a whole flat. Your bedroom tenant still has to meet the citizenship and pass conditions above, but the quota itself is not one of the checks for a room.
+        </p>
+
+        <div class="callout callout-warning">
+        <strong>Common mix up:</strong> the non citizen quota is a whole flat rule, not a bedroom rule, so do not turn away an otherwise eligible bedroom tenant because you think a neighbourhood cap applies to them.
+        </div>
+
+        <h2>Timing: Whole Flat Rental Is a Later, Different Step</h2>
+        <p>
+        Renting out the entire flat is only allowed once you have completed the 5 year MOP, or 3 years if your flat is non subsidised, meaning bought from the open market without a housing grant, and purchased before 30 August 2010. Owners of Prime and Plus flats cannot rent out the whole flat even after fulfilling their own MOP. Only Singapore Citizen owners can rent out a whole flat, Singapore Permanent Resident owners cannot do so at all.
+        </p>
+        <p>
+        Whole flat rentals are also where the non citizen quota actually applies, set at 8 percent at the neighbourhood level and 11 percent at the block level for non Malaysian non citizen tenants, whether Permanent Resident or foreigner. Malaysians are exempt from this quota. If the quota is reached where your flat sits, you can only rent the whole flat to Singaporeans and Malaysians until it clears, and HDB provides an online checker so you can confirm this before committing to a foreign tenant.
+        </p>
+        <h2>Money: The Application Checklist Before You Apply</h2>
+        <p>
+        Before you submit anything to HDB, confirm your flat type and count how many bedrooms were originally built as bedrooms, since only those qualify. Check your MOP start date against your purchase or transfer date, not the date you moved in, since HDB computes MOP from ownership, not occupation. Have your prospective tenant's documents ready, their pass type and its expiry, since the application will ask for these, and HDB lets you verify a pass or an NRIC online before you commit to a tenancy. Budget for the 9 dollar per bedroom administrative fee, and plan your lease end date around the 31 December 2028 cutoff if you are renting out a second bedroom in a 4 room or bigger flat under the temporary higher occupant cap.
+        </p>
+        <p>
+        Keep a simple record of who lives in the flat and when each tenancy started and ended. HDB requires you to report a change in a tenant's particulars, or a tenant moving out, within 7 days, and having your own paperwork in order makes that a quick update rather than a scramble.
+        </p>
+
+        <h2>Timing: Weighing Room Income Now Against Whole Flat Income Later</h2>
+        <p>
+        A spare room typically brings in less than a whole flat would once MOP is met, but it starts earning immediately rather than years from now. For an owner who genuinely needs income sooner rather than later, renting a room while continuing to live in the flat, within HDB's occupant caps, is often the only legal option available before MOP. Once MOP is fulfilled, and assuming the flat is not a Prime or Plus flat, the owner can then compare that ongoing room income against the larger, but less flexible, option of renting out the whole flat and moving elsewhere, factoring in the non citizen quota check at that later point.
+        </p>
+        <p>
+        For the fuller comparison between the two paths, see <a href="/answers/can-i-rent-out-my-hdb-flat-or-a-room-in-it.html">Can I Rent Out My HDB Flat or a Room in It</a> and <a href="/answers/can-i-rent-out-my-whole-flat-during-mop.html">Can I Rent Out My Whole Flat During MOP</a>. If you are also weighing a condo or a different flat type down the line, <a href="/insights/subletting-rooms-vs-whole-unit-condo-singapore.html">Subletting Rooms Versus a Whole Unit</a> and <a href="/insights/hdb-mop-upgrade-timeline.html">the HDB MOP and Upgrade Timeline</a> walk through the sequencing in more detail.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>Can I rent out a bedroom in my HDB flat before MOP?</h3>
+        <p>Yes, if your flat is a 3 room or bigger flat, you continue living in it, and you get HDB's approval before the tenancy starts. Owners of 1 or 2 room flats cannot rent out any bedroom, and 3Gen flat owners cannot rent out bedrooms within MOP, according to HDB's published eligibility rules.</p>
+
+        <h3>How many bedrooms and tenants am I allowed?</h3>
+        <p>A 3 room flat can rent out 1 bedroom with a maximum of 6 occupants in total. A 4 room flat or bigger can rent out 2 bedrooms with a maximum of 8 occupants until 31 December 2028, after which the cap reverts to 6, per HDB's published occupancy limits.</p>
+
+        <h3>Does the non citizen quota apply to renting out a spare bedroom?</h3>
+        <p>No. HDB states the non citizen quota, set at 8 percent at the neighbourhood level and 11 percent at the block level, applies only to renting out a whole flat, not to bedroom rentals. Bedroom tenants still need to meet HDB's own citizenship and pass conditions, but the quota itself does not apply.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Working Out What This Means For Your Own Numbers</h3>
+            <p>If you are weighing whether to rent out a room now or wait for MOP to rent out the whole flat, work through your specific numbers before you submit any application to HDB.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H), Crestbrick Pte Ltd, not a financial advisor or lawyer. Before making any property decision, consult HDB directly, a qualified banker for a loan assessment, and a lawyer for contract terms. Rules, ceilings and rates are subject to change without notice and figures here reflect conditions as at September 2026.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>HDB, eligibility for renting out bedrooms:</strong> <a href="https://www.hdb.gov.sg/managing-my-home/home-ownership/renting-out-a-flat-or-bedrooms/renting-out-bedrooms/eligibility" target="_blank" rel="noopener noreferrer">https://www.hdb.gov.sg/managing-my-home/home-ownership/renting-out-a-flat-or-bedrooms/renting-out-bedrooms/eligibility</a></li>
+                <li><strong>HDB, eligibility for renting out a flat:</strong> <a href="https://www.hdb.gov.sg/managing-my-home/home-ownership/renting-out-a-flat-or-bedrooms/renting-out-a-flat/eligibility" target="_blank" rel="noopener noreferrer">https://www.hdb.gov.sg/managing-my-home/home-ownership/renting-out-a-flat-or-bedrooms/renting-out-a-flat/eligibility</a></li>
+                <li><strong>HDB, extension of temporary relaxation of occupancy cap:</strong> <a href="https://www.hdb.gov.sg/about-us/news-and-publications/press-releases/extension-of-temporary-relaxation-of-occupancy-cap-for-rental-of-hdb-flats-and-private-residential" target="_blank" rel="noopener noreferrer">https://www.hdb.gov.sg/about-us/news-and-publications/press-releases/extension-of-temporary-relaxation-of-occupancy-cap-for-rental-of-hdb-flats-and-private-residential</a></li>
+                <li><strong>HDB, non citizen quota checker:</strong> <a href="https://services2.hdb.gov.sg/webapp/BR12AWNCQuota/" target="_blank" rel="noopener noreferrer">https://services2.hdb.gov.sg/webapp/BR12AWNCQuota/</a></li>
+                <li><strong>HDB, main site:</strong> <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">https://www.hdb.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Can You Rent Out a Room Before MOP if It Is Your Only Flat",
+    "description": "HDB lets owners of 3 room and bigger flats rent out spare bedrooms before MOP if they keep living in the flat. Here is what HDB actually allows and requires.",
+    "image": "https://winfredquek.com/og-rent-out-room-before-mop-only-flat.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "HDB lets owners of 3 room and bigger flats rent out spare bedrooms before MOP if they keep living in the flat. Here is what HDB actually allows and requires."
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Can I rent out a bedroom in my HDB flat before MOP?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes, if your flat is a 3 room or bigger flat, you continue living in it, and you get HDB's approval before the tenancy starts. Owners of 1 or 2 room flats cannot rent out any bedroom, and 3Gen flat owners cannot rent out bedrooms within MOP, according to HDB's published eligibility rules."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How many bedrooms and tenants am I allowed?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A 3 room flat can rent out 1 bedroom with a maximum of 6 occupants in total. A 4 room flat or bigger can rent out 2 bedrooms with a maximum of 8 occupants until 31 December 2028, after which the cap reverts to 6, per HDB's published occupancy limits."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does the non citizen quota apply to renting out a spare bedroom?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. HDB states the non citizen quota, set at 8 percent at the neighbourhood level and 11 percent at the block level, applies only to renting out a whole flat, not to bedroom rentals. Bedroom tenants still need to meet HDB's own citizenship and pass conditions, but the quota itself does not apply."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

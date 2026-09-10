@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Landed Rents Rising While Condo Rents Barely Move</title>
+    <meta name="description" content="URA data shows landed rents up 2.7 percent and condo rents up just 0.4 percent in a single quarter. What the widening gap means for landlords and investors.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Landed Rents Rising While Condo Rents Barely Move">
+    <meta property="og:description" content="URA data shows landed rents up 2.7 percent and condo rents up just 0.4 percent in a single quarter. What the widening gap means for landlords and investors.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Landed Rents Rising While Condo Rents Barely Move</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+        The latest URA release shows a real split opening up in Singapore's rental market. Rentals of landed properties rose 2.7 percent quarter on quarter in the second quarter of 2026, up sharply from just 0.1 percent the quarter before. Rentals of non landed properties, the category that includes condos, rose only 0.4 percent, the same modest pace as the prior quarter. If you hold, or are thinking about buying, either type of rental property, that gap is worth understanding, both for what it says about pricing a lease this year and for what it says about the two segments more broadly.
+        </p>
+
+        <h2>Money: The Gap in the Latest Numbers</h2>
+        <p>
+        The overall private residential rental index rose 0.7 percent quarter on quarter in the second quarter of 2026, according to URA. Split that headline apart and the picture changes. Landed rents accelerated hard, from 0.1 percent to 2.7 percent in one quarter. Non landed rents, the much larger part of the private rental market, barely moved at all, holding at 0.4 percent. Whichever headline figure you read gets diluted by the fact that landed and condo are moving in very different directions right now.
+        </p>
+        <p>
+        This is not a one off single number lifted from a summary table. URA publishes the rental index by property type every quarter, and the second quarter 2026 release is the one that shows this particular split. Anyone quoting a single blended rental figure for Singapore this quarter, without separating landed from non landed, is giving you a number that hides more than it tells you.
+        </p>
+
+        <h2>Timing: Why Landed and Condo Rents Are Moving Differently</h2>
+        <p>
+        Landed housing supply is close to fixed. There is very little new landed stock being built anywhere in Singapore, since land for terrace houses, semi detached houses and bungalows is scarce and mostly locked into existing estates. When demand for landed rentals ticks up even modestly, there is almost no spare supply to absorb it, so the rent moves quickly.
+        </p>
+        <p>
+        Condos are a different story. The market has absorbed several years of new completions, and non landed rents rose just 0.4 percent in the second quarter of 2026 while vacancy across private homes ticked up to 6.4 percent from 6.2 percent, according to URA. Against that backdrop, condo rents have far less room to move in the short term, even where individual buildings or districts are doing better than the average.
+        </p>
+
+        <div class="callout callout-info">
+        <strong>Scale matters:</strong> landed rental transaction volumes are much smaller than condo volumes, so a single quarter's percentage swing can look dramatic without changing the underlying picture much.
+        </div>
+
+        <h2>Safety: What This Means if You Are a Landed Landlord or Investor</h2>
+        <p>
+        A jump from 0.1 percent to 2.7 percent in one quarter is a genuinely strong reading, but it comes from a market with far fewer transactions than the condo segment, which makes the percentage more volatile quarter to quarter. Treat this as one strong data point rather than a guaranteed trend, and check URA's release over two or three quarters before assuming landed rents will keep climbing at this pace. Nobody can promise a repeat performance next quarter, and pricing a renewal or a new listing on that assumption alone is a risk worth naming honestly to any tenant or investor you are advising.
+        </p>
+
+        <h2>Money: What Condo Landlords Should Take From This</h2>
+        <p>
+        If you are holding a condo for rental yield, a 0.4 percent quarterly move is not a sign to push for a big increase at your next renewal. It is closer to a signal to price realistically against actual comparables and lean on retaining a good tenant rather than chasing a higher figure that the data does not support. Check <a href="/insights/rental-yield-by-property-type-singapore.html">Rental Yield by Property Type in Singapore</a> and the <a href="/tools/rental-yield-heatmap.html">rental yield heatmap</a> for benchmarks specific to your district before you set a renewal figure either way.
+        </p>
+        <p>
+        For landlords weighing whether the scarcity premium on landed rentals changes the case for holding versus selling, <a href="/insights/rental-yield-vs-appreciation.html">Rental Yield Versus Appreciation</a> and <a href="/insights/singapore-rental-market-landlord-2026.html">Singapore's Rental Market for Landlords</a> cover the wider decision in more depth than a single quarter's numbers can.
+        </p>
+
+        <h2>Timing: The Overall Price Picture Sits Alongside This</h2>
+        <p>
+        The rental split lines up with a similar pattern on the price side. URA's overall private residential price index rose 0.5 percent quarter on quarter in the second quarter of 2026, following a 0.9 percent rise in the first quarter, and landed prices have been a larger part of that overall move than non landed prices in recent quarters too. Rents and prices do not always move together in the short term, but when both point the same way for landed property, it strengthens the case that the scarcity story is a real, structural one rather than a one off blip in a single data release.
+        </p>
+        <p>
+        None of this changes the basic economics of landed ownership. Land tax, maintenance and the sheer capital required to buy a landed home in the first place mean the segment has always served a smaller, wealthier pool of tenants and buyers than condos or HDB flats. A widening rental gap does not turn landed property into an easy asset class, it simply reflects that a genuinely scarce, fixed supply responds faster to a small shift in demand than a segment with years of new completions still working through the system.
+        </p>
+
+        <h2>Safety: Do Not Overreach on One Quarter of Data</h2>
+        <p>
+        Resist the temptation to reprice an existing landed tenancy sharply based on a single quarter's headline number, or to promise a seller or an investor that landed rents will keep compounding at 2.7 percent every quarter. Neither claim holds up if the next release shows a smaller move, and treating one strong quarter as a guaranteed pattern is the kind of overreach that erodes trust with a tenant or a client when the following quarter looks more ordinary. The honest position is that landed rents are currently outperforming condo rents by a wide margin, the reasons for that are structural rather than temporary, but the pace of any single quarter is not something anyone can promise will repeat.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>How much did landed and condo rents move in the second quarter of 2026?</h3>
+        <p>According to URA's official release, rentals of landed properties rose 2.7 percent quarter on quarter in the second quarter of 2026, up from just 0.1 percent the previous quarter, while rentals of non landed properties, which includes condos, rose only 0.4 percent, the same pace as the prior quarter.</p>
+
+        <h3>Why are landed rents moving so much more than condo rents?</h3>
+        <p>Landed housing supply is essentially fixed, with very little new landed stock being built, so even a small increase in demand shows up quickly in rent. Condos have absorbed several years of new completions, and non landed rents rose only 0.4 percent in the same quarter, so condo rents have less room to move in the short term.</p>
+
+        <h3>Should a landed landlord expect rents to keep rising at this pace?</h3>
+        <p>Not necessarily. Landed rental transaction volumes are much smaller than condo volumes, so a single quarter's percentage change can swing more than it would in a bigger market. Treat one strong quarter as a data point, check the trend over two or three quarters on URA's own release, and avoid assuming the increase will repeat every quarter.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Working Out What This Means For Your Own Numbers</h3>
+            <p>If you are deciding whether to reprice a landed rental or hold a condo rent steady, look at the actual URA numbers for your property type before you move.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H), Crestbrick Pte Ltd, not a financial advisor or lawyer. Before making any property decision, consult HDB directly, a qualified banker for a loan assessment, and a lawyer for contract terms. Rules, ceilings and rates are subject to change without notice and figures here reflect conditions as at September 2026.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>URA release of 2nd Quarter 2026 real estate statistics:</strong> <a href="https://www.ura.gov.sg/news/media/pr26-57/" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/news/media/pr26-57/</a></li>
+                <li><strong>URA release of 1st Quarter 2026 real estate statistics:</strong> <a href="https://www.ura.gov.sg/news/media/pr26-31/" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/news/media/pr26-31/</a></li>
+                <li><strong>URA release of Q2 2026 price index commentary:</strong> <a href="https://www.ura.gov.sg/news/media/pr26-51/" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/news/media/pr26-51/</a></li>
+                <li><strong>URA private residential property data:</strong> <a href="https://www.ura.gov.sg/Corporate/Property/Property-Data" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/Corporate/Property/Property-Data</a></li>
+                <li><strong>Commentary on the Q2 2026 landed versus non landed split:</strong> <a href="https://tribesg.com/insights/landed-carried-q2-2026-headline" target="_blank" rel="noopener noreferrer">https://tribesg.com/insights/landed-carried-q2-2026-headline</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Landed Rents Rising While Condo Rents Barely Move",
+    "description": "URA data shows landed rents up 2.7 percent and condo rents up just 0.4 percent in a single quarter. What the widening gap means for landlords and investors.",
+    "image": "https://winfredquek.com/og-landed-rents-vs-condo-rents-gap.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "URA data shows landed rents up 2.7 percent and condo rents up just 0.4 percent in a single quarter. What the widening gap means for landlords and investors."
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How much did landed and condo rents move in the second quarter of 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "According to URA's official release, rentals of landed properties rose 2.7 percent quarter on quarter in the second quarter of 2026, up from just 0.1 percent the previous quarter, while rentals of non landed properties, which includes condos, rose only 0.4 percent, the same pace as the prior quarter."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Why are landed rents moving so much more than condo rents?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Landed housing supply is essentially fixed, with very little new landed stock being built, so even a small increase in demand shows up quickly in rent. Condos have absorbed several years of new completions, and non landed rents rose only 0.4 percent in the same quarter, so condo rents have less room to move in the short term."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should a landed landlord expect rents to keep rising at this pace?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not necessarily. Landed rental transaction volumes are much smaller than condo volumes, so a single quarter's percentage change can swing more than it would in a bigger market. Treat one strong quarter as a data point, check the trend over two or three quarters on URA's own release, and avoid assuming the increase will repeat every quarter."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

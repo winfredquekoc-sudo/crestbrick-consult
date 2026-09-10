@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDB Rents Rose in July: Renew or Relist the Room</title>
+    <meta name="description" content="HDB rents rose 1.7 percent in July 2026, non mature estates up 2.2 percent. How to weigh renewing a room tenant against relisting at the new market rate.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="HDB Rents Rose in July: Renew Your Tenant or Re List the Room">
+    <meta property="og:description" content="HDB rents rose 1.7 percent in July 2026, non mature estates up 2.2 percent. How to weigh renewing a room tenant against relisting at the new market rate.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>HDB Rents Rose in July: Renew Your Tenant or Re List the Room</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+        HDB rents rose 1.7 percent month on month in July 2026, with non mature estates up a sharper 2.2 percent, based on market data drawing on the same rental transactions HDB itself publishes. If you are a room landlord facing a renewal this month, that number is the backdrop to a decision that comes up every lease cycle: keep the current tenant at a small increase, or let the room go and relist at what the market will now bear.
+        </p>
+
+        <h2>Money: The Real Cost of a Vacant Month</h2>
+        <p>
+        A rent increase looks simple on paper, but the comparison only works if you price in what relisting actually costs. A vacant month means zero rent collected for that period. If you relist through an agent, the standard rental commission is one month of rent per year of the lease, payable once the new tenant signs. Add in the time spent on viewings, a possible touch up clean, and the risk that the room sits empty for longer than one month if your price is off, and the true cost of turnover is usually more than it first looks.
+        </p>
+        <p>
+        A simple example: a room renting at 800 dollars a month. A 1.7 percent increase in line with the July HDB figure adds roughly 14 dollars a month, or about 160 dollars over a year. One vacant month alone wipes out more than five years of that increase. This is not an argument against ever relisting, it is a reminder to compare the actual numbers rather than assume a bigger asking rent automatically wins.
+        </p>
+
+        <div class="callout callout-warning">
+        <strong>Do the maths first:</strong> multiply the monthly increase by the months remaining on the lease, then compare that total against one month of lost rent plus any agent commission before you decide to relist.
+        </div>
+
+        <h2>Timing: When Renewing Beats Relisting</h2>
+        <p>
+        Renewing tends to win when the current tenant pays on time, keeps the room and shared spaces in reasonable condition, and your current rent is not far behind what similar rooms are actually asking nearby. In that situation, a modest increase that tracks the broader market, rather than a guess pulled from a headline number, keeps a known quantity in place without risking a vacant month.
+        </p>
+        <p>
+        Relisting tends to win when your current rent is meaningfully behind comparable rooms nearby, when there are ongoing issues with the tenancy unrelated to rent, or when you are confident the room will find a new tenant within a few weeks given current demand. If none of those apply, the cost of a vacant month usually outweighs the gain from starting fresh.
+        </p>
+        <p>
+        Before deciding either way, it helps to see what comparable rooms in your area are actually asking right now rather than relying on a headline percentage alone. Winfred keeps a running, redacted view of current room rental listings on his <a href="https://singapore-room-rental.vercel.app" target="_blank" rel="noopener noreferrer">public room rental site</a>, which is a useful sanity check before you send a renewal notice or a listing either way.
+        </p>
+
+        <h2>Safety: Raising Rent Fairly</h2>
+        <p>
+        If you do raise the rent, keep the increase in line with what the data actually shows rather than a round number pulled out of thin air. Give your tenant reasonable notice as set out in the tenancy agreement, put any change in writing as a signed addendum, and be transparent about why the rent is moving. Any preference you have about who you rent to should be described honestly as your own preference, not framed as a rule or a quota, and should never be based on race or nationality.
+        </p>
+        <p>
+        Remember too that rental income is taxable. If you are weighing whether a small increase is worth the paperwork, factor in that the extra income is assessable under IRAS rules on rental income, the same as your existing rent.
+        </p>
+
+        <h2>Timing: Reading the Wider Market Before You Decide</h2>
+        <p>
+        The 1.7 percent month on month rise in July 2026, and the sharper 2.2 percent for non mature estates, points to a market that is firming rather than flat. That favours landlords at renewal, but it is still a monthly figure, not a promise that every future month repeats it. Check the trend over two or three months before treating one strong reading as the new normal, and compare it against your specific town, since non mature and mature estates have not moved by the same amount.
+        </p>
+        <p>
+        This also matters if you own rooms in more than one town. A landlord with a room in a non mature estate is sitting in a segment that moved 2.2 percent in July alone, while a room in a mature estate is part of a smaller overall move. Treat the headline 1.7 percent as a general direction, then check your own town's actual recent transactions before setting a specific number for your renewal letter or your new listing.
+        </p>
+
+        <h2>Money: A Worked Comparison Over a Full Year</h2>
+        <p>
+        Extend the earlier example over a full 12 month lease. Renewing at 800 dollars with a 1.7 percent increase brings the room to about 814 dollars a month, adding roughly 160 dollars in extra rent across the year, with zero turnover cost and no gap in income. Relisting instead, even successfully, typically means one month at zero rent while the room is vacant, plus an agent commission equal to one month's rent if you use an agent, before the new tenant's first payment arrives. Unless the new tenant is willing to pay meaningfully more than 814 dollars, purely on the numbers, renewal is usually the stronger financial outcome. The exception is a room that was already underpriced well before July, where the gap to the current market is large enough to absorb the turnover cost and still come out ahead within a few months.
+        </p>
+
+        <h2>Safety: Keep the Paper Trail Clean</h2>
+        <p>
+        Whichever way you decide, put it in writing. A renewal should be a signed addendum stating the new rent and the new term, not a verbal agreement over a phone call. A decision to relist should come with proper notice under the existing tenancy agreement, not an abrupt request to move out. Clean documentation protects you if a dispute ever comes up, and it is the same standard HDB and any co broke agent will expect to see if a disagreement needs to be resolved later.
+        </p>
+        <p>
+        For a fuller framework on this exact decision, see <a href="/insights/renew-vs-relist-rental-unit-singapore.html">Renew or Relist a Rental Unit in Singapore</a>, and for the cost side of relisting through an agent, see <a href="/insights/rental-agent-commissions-landlord-tenant.html">Rental Agent Commissions for Landlords and Tenants</a>. If you manage several rooms across different towns, <a href="/insights/hdb-rental-yield-ranking-by-town-2026.html">HDB Rental Yield Ranking by Town</a> is worth checking before you set a new asking price.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3>How much did HDB rents rise in July 2026?</h3>
+        <p>HDB rents rose 1.7 percent month on month in July 2026, with non mature estates up a sharper 2.2 percent, based on market data that draws on the same rental transactions HDB itself publishes.</p>
+
+        <h3>Is a small rent increase worth the risk of losing a good tenant?</h3>
+        <p>It depends on the numbers. A modest increase in line with the actual market, communicated with reasonable notice, rarely pushes a reasonable tenant out on its own. The bigger risk is usually an increase that ignores what similar rooms are actually renting for nearby.</p>
+
+        <h3>When does relisting the room make more sense than renewing?</h3>
+        <p>Relisting tends to win when your current rent is meaningfully behind nearby comparables, when the existing arrangement has ongoing issues unrelated to rent, or when you are confident the room will re let within a few weeks. If none of those is true, the cost of a vacant month usually outweighs the gain from a new tenant.</p>
+
+        <div class="cta-box article-cta">
+            <h3>Working Out What This Means For Your Own Numbers</h3>
+            <p>If you are weighing a renewal against relisting a room this month, compare your numbers against real nearby rents before you send the notice either way.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general information only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H), Crestbrick Pte Ltd, not a financial advisor or lawyer. Before making any property decision, consult HDB directly, a qualified banker for a loan assessment, and a lawyer for contract terms. Rules, ceilings and rates are subject to change without notice and figures here reflect conditions as at September 2026.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>Property market commentary, August 2026 (July HDB rent data):</strong> <a href="https://edwardmeow.com/property-monthly/2026-08" target="_blank" rel="noopener noreferrer">https://edwardmeow.com/property-monthly/2026-08</a></li>
+                <li><strong>Singapore rental market outlook 2026:</strong> <a href="https://lovelyhomes.com.sg/singapore-rental-market-outlook-2026/" target="_blank" rel="noopener noreferrer">https://lovelyhomes.com.sg/singapore-rental-market-outlook-2026/</a></li>
+                <li><strong>URA private residential property data:</strong> <a href="https://www.ura.gov.sg/Corporate/Property/Property-Data" target="_blank" rel="noopener noreferrer">https://www.ura.gov.sg/Corporate/Property/Property-Data</a></li>
+                <li><strong>HDB, renting out a flat or bedrooms:</strong> <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">https://www.hdb.gov.sg</a></li>
+                <li><strong>IRAS, rental income tax:</strong> <a href="https://www.iras.gov.sg" target="_blank" rel="noopener noreferrer">https://www.iras.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "HDB Rents Rose in July: Renew Your Tenant or Re List the Room",
+    "description": "HDB rents rose 1.7 percent in July 2026, non mature estates up 2.2 percent. How to weigh renewing a room tenant against relisting at the new market rate.",
+    "image": "https://winfredquek.com/og-hdb-rents-july-renew-or-relist-room.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "HDB rents rose 1.7 percent in July 2026, non mature estates up 2.2 percent. How to weigh renewing a room tenant against relisting at the new market rate."
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How much did HDB rents rise in July 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "HDB rents rose 1.7 percent month on month in July 2026, with non mature estates up a sharper 2.2 percent, based on market data that draws on the same rental transactions HDB itself publishes."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Is a small rent increase worth the risk of losing a good tenant?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It depends on the numbers. A modest increase in line with the actual market, communicated with reasonable notice, rarely pushes a reasonable tenant out on its own. The bigger risk is usually an increase that ignores what similar rooms are actually renting for nearby."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "When does relisting the room make more sense than renewing?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Relisting tends to win when your current rent is meaningfully behind nearby comparables, when the existing arrangement has ongoing issues unrelated to rent, or when you are confident the room will re let within a few weeks. If none of those is true, the cost of a vacant month usually outweighs the gain from a new tenant."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>
