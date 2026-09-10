@@ -174,6 +174,14 @@ select.mk{padding:3px 6px}
 
 /* triage mode: focused card, key legend, sticky bottom action bar */
 .row.focus{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+/* (item 7) .row.focus's border-color shorthand touches all four sides,
+   including the left one .mark-pos/.mark-neg colour — same specificity
+   (two classes each), so whichever rule is LATER in the file wins and the
+   status colour silently disappears on the one row that is also focused.
+   Three classes beats two regardless of source order, so this survives any
+   future reshuffle of the file instead of relying on staying below focus. */
+.row.focus.mark-pos{border-left-color:var(--grn)}
+.row.focus.mark-neg{border-left-color:var(--red)}
 .triage-legend{font-size:11px;color:var(--mut);margin:8px 0;line-height:1.8}
 .key{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;margin:0 2px}
 /* (79) this used to be a flat 86px, which is enough on a device with no home
