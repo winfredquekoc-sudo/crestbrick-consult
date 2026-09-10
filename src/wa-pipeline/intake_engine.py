@@ -404,6 +404,50 @@ _LABEL_ONLY_RE = re.compile(
     r"பெயர்|தேசியம்|இனம்|பாலினம்|வீசா\s*வகை|வீசா|தொழில்|வீடு\s*மாறும்\s*தேதி)\b",
     re.I)
 
+# a Lease term / 租期 value can arrive as a bare fraction (0.5), a half phrasing (half a
+# year, 半年), a week count (2 weeks), or a CJK month suffix (12个月, 3个月) -- _to_int's own
+# \b right after the digit run never matches when the very next character is itself a CJK
+# word character (Python's \w treats every CJK ideograph as a word char, so "2" then "个" is
+# NOT a boundary), and its int() truncation turns 0.5 into a falsy 0 that the caller then
+# drops entirely (P1 fix, 11 Sep 2026 cycle attack replay: "Lease term: 0.5" on a genuine 2
+# week request vanished with no verdict at all). This owns every unit conversion so a real
+# sub floor duration always reaches qualify() as a real (possibly 0) number of months, never
+# a missing key.
+_LEASE_HALF_RE = re.compile(r"\bhalf\b|半", re.I)
+_LEASE_NUM_RE = re.compile(r"(\d+(?:\.\d+)?)")
+_LEASE_YEAR_UNIT_RE = re.compile(r"year|yr|年", re.I)
+_LEASE_WEEK_UNIT_RE = re.compile(r"week|周|星期", re.I)
+def _parse_lease_term_months(raw):
+    if raw is None:
+        return None
+    s = str(raw).strip().lower()
+    if not s:
+        return None
+    is_half = bool(_LEASE_HALF_RE.search(s))
+    m = _LEASE_NUM_RE.search(s)
+    num = float(m.group(1)) if m else None
+    if _LEASE_YEAR_UNIT_RE.search(s):
+        if num is None:
+            return 6 if is_half else 12
+        return int(round((num / 2 if is_half else num) * 12))
+    if _LEASE_WEEK_UNIT_RE.search(s):
+        if num is None:
+            return 0 if is_half else None
+        weeks = num / 2 if is_half else num
+        return int(weeks * 7 // 30)
+    if num is None:
+        return 0 if is_half else None
+    months = num / 2 if is_half else num
+    if months > 36:
+        return None
+    return int(months)
+
+_MOVE_IN_PLAUSIBLE_RE = re.compile(
+    r"\d|asap|immediate|now\b|tbc|tba|flexible|anytime|soon|"
+    r"jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec|"
+    r"today|tomorrow|tmr|next\s+(?:week|month)|"
+    r"今|明|下|月|日|号|周|星期", re.I)
+
 # a "Name:" field value that is itself a prompt injection attempt, never a real human name.
 _NAME_INJECTION_RE = re.compile(
     r"ignore\s+(?:all\s+)?(?:previous|prior)\s+instructions|"
@@ -462,6 +506,7 @@ def extract_profile(text):
         # the PASS label hijack a different field just because the word "Pass" sits inside
         # someone ELSE's answer).
         m = re.search(r"(?:^|\n|[,，])\s*[•\-]?\s*" + lab_re, t, re.I | re.M)
+        is_fallback = False
         if not m:
             # FALLBACK: a casual, unstructured sentence ("my name is Ruth") never anchors --
             # read the label anywhere, but only where it is NOT already sitting inside some
@@ -472,6 +517,7 @@ def extract_profile(text):
                 line_start = t.rfind("\n", 0, cand.start()) + 1
                 if not re.search(r"[" + _SEP_CHARS + r"]", t[line_start:cand.start()]):
                     m = cand
+                    is_fallback = True
                     break
         if not m:
             return None
@@ -486,15 +532,23 @@ def extract_profile(text):
             # -- the value is the NEXT line, never the leftover continuation word.
             nl2 = t.find("\n", nl + 1)
             same_line = t[nl + 1: nl2 if nl2 != -1 else len(t)]
-        elif (not had_sep and not re.match(r"(?i)^(?:is|was|'s)\b", same_line.strip())
-              and not re.search(r"[:：]", same_line) and _is_question(t)):
-            # no explicit separator, no natural declaration ("name is Ruth"), no colon hint
-            # further along the line, AND the message itself is a question: a stray label
-            # word caught inside that question ("nationality and sexe please?", "...given my
-            # pass situation") is rejected outright rather than captured as a garbled value.
-            # Scoped to interrogative messages only -- a genuine unlabeled slash/space form
-            # ("name jason wong / email ...") is a plain declarative statement and must still
-            # parse (P2 fix, 9 Sep 2026 cycle 3 attack replay).
+        elif (not had_sep and not re.search(r"[:：]", same_line) and _is_question(t)
+              and (is_fallback or not re.match(r"(?i)^(?:is|was|'s)\b", same_line.strip()))):
+            # no explicit separator, no colon hint further along the line, AND the message
+            # itself is a question: a stray label word caught inside that question
+            # ("nationality and sexe please?", "...given my pass situation") is rejected
+            # outright rather than captured as a garbled value. A genuine declaration
+            # ("name is Ruth") still parses -- but ONLY when the label sat at a real field
+            # start (PRIMARY), never when it was only found by the loose FALLBACK scan: a
+            # fallback match inside a question whose leftover happens to start with "is"
+            # ("...if Dec move in is ok?") is exactly the same class of stray-word hijack as
+            # the nationality/pass examples above, not a genuine field declaration, and must
+            # never mutate the record qualify() reads (P1 fix, 11 Sep 2026 attack replay:
+            # "actually nvm just want to know in general if Dec move in is ok" stored
+            # move_in_date "ok"). Scoped to interrogative messages only -- a genuine
+            # unlabeled slash/space form ("name jason wong / email ...") is a plain
+            # declarative statement and must still parse (P2 fix, 9 Sep 2026 cycle 3 attack
+            # replay).
             return None
         # stop the value at the next recognised field label on the SAME line -- a comma or
         # newline joined form ("Nationality: Singaporean, Ethnicity: Chinese, Gender: Male")
@@ -549,14 +603,14 @@ def extract_profile(text):
         has_m = bool(re.search(r"\bm(?:ale)?\b", gl))
         if "couple" in gl or "married" in gl or (has_f and has_m):
             p["gender"] = g.strip()
-        elif gl.startswith("f"): p["gender"] = "Female"
-        elif gl.startswith("m"): p["gender"] = "Male"
+        elif gl.startswith("f") or "女" in g: p["gender"] = "Female"
+        elif gl.startswith("m") or "男" in g: p["gender"] = "Male"
         else: p["gender"] = g
     age = grab(r"age")
     if age and _to_int(age) and _to_int(age) < 120: p["age"]=_to_int(age)
     ps  = grab(r"work\s*pass\s*type|work\s*pass|pass\s*type|pass|visa|证件类型|வீசா\s*வகை|வீசா")
     if ps: p["pass_type"]=ps.strip()
-    pax = grab(r"no\.?\s*of\s*(?:pax|people|persons)|pax|persons?|occupant|人数")
+    pax = grab(r"no\.?\s*of\s*(?:pax|people|persons)|入住人数|pax|persons?|occupant|人数")
     if pax and _to_int(pax) and _to_int(pax) < 12: p["no_of_pax"]=_to_int(pax)
     # free-text solo signals: "just me", "staying alone", "myself", "only me", "me only",
     # "1 pax" inline. A real prospect answered the pax nudge with "just me staying alone"
@@ -574,14 +628,18 @@ def extract_profile(text):
                        r"alone|solo|single occupant|1 (?:pax|person|pp))\b", tl):
             p["no_of_pax"] = 1
     mv  = grab(r"move.?in(?:\s*date)?|intended\s*move(?:\s*in)?(?:\s*date)?|入住日期|வீடு\s*மாறும்\s*தேதி")
-    if mv: p["move_in_date"]=mv.strip()
+    # a labelled field can still capture pure conversational leftover ("...move in is ok"
+    # -> "ok") when the message never actually names a date -- require the value to look
+    # date-ish (a digit, a month/day word, or a known immediacy phrase) before it is ever
+    # allowed to mutate the record qualify() reads (P1 fix, 11 Sep 2026 attack replay:
+    # "actually nvm just want to know in general if Dec move in is ok" stored move_in_date
+    # "ok", a bare word with zero date content).
+    if mv and len(mv) <= 60 and _MOVE_IN_PLAUSIBLE_RE.search(mv):
+        p["move_in_date"]=mv.strip()
     ls  = grab(r"lease(?:\s*term)?|租期")
     if ls:
-        lsl=ls.lower()
-        if "year" in lsl or "yr" in lsl: p["lease_term_months"]=12*(_to_int(lsl) or 1)
-        else:
-            n=_to_int(lsl)
-            if n and n<=36: p["lease_term_months"]=n
+        n = _parse_lease_term_months(ls)
+        if n is not None: p["lease_term_months"]=n
     bud = grab(r"budget|rent|afford|预算")
     if bud:
         b=_to_int(bud)
@@ -665,7 +723,24 @@ def missing_required(profile, listing=None):
         if np.get("mode") in ("exclude", "only") and np.get("list"):
             req.append("nationality")
         return [f for f in req if profile.get(f) in (None, "")]
-    return [f for f in REQUIRED_FIELDS if profile.get(f) in (None,"")]
+    req = list(REQUIRED_FIELDS)
+    if listing is not None:
+        # gate driven asks (rubric: "ask only what the bound listing's gates consume, plus
+        # name, pax, budget, lease term"). The full 14 field form is still sent as is --
+        # Winfred wants that regardless -- this only decides what the NUDGE and the
+        # qualified verdict hold out for. Scoped to the case every one of the three
+        # protected gates is "any" -- a listing that still gates on even one of them (e.g.
+        # caspian: gender male_pref, ethnicity excludes Indian) keeps asking all three,
+        # since a partial profile there could still turn out DISQUALIFIED (P1 fix, 11 Sep
+        # 2026 attack replay: 6 fixtures with gender/ethnicity_rule/nationality_pref ALL
+        # "any" still got nudged for ethnicity, gender and age -- a conversion tax and an
+        # unnecessary PDPA surface for data nobody was ever going to gate on).
+        all_any = (r.get("gender", "any") == "any"
+                   and (r.get("ethnicity_rule") or {}).get("mode", "any") == "any"
+                   and (r.get("nationality_pref") or {}).get("mode", "any") == "any")
+        if all_any:
+            req = [f for f in req if f not in ("gender", "ethnicity", "nationality")]
+    return [f for f in req if profile.get(f) in (None,"")]
 
 def _viewing_cta(slot, lang="en"):
     """The message 1 viewing CTA line, in the prospect's own language (Winfred, 11 Sep
@@ -1105,6 +1180,25 @@ def _signoff_signal(text):
     clean = _SIGNOFF_STRIP_RE.sub(" ", (text or "").lower())
     clean = re.sub(r"\s+", " ", clean).strip()
     return bool(clean) and clean in _SIGNOFF_EXACT
+
+# a bare thanks/谢谢 right after the prospect proposed a viewing time, or while our own offer
+# is still open, is a polite acknowledgement, not a withdrawal (Winfred, 11 Sep 2026 attack
+# replay: a Chinese couple proposed Saturday 2pm, then said 谢谢 on the very next turn, and
+# the record was auto closed WITHDRAWN with notify=False -- a live, about to be booked lead
+# silently killed). _has_viewing_time() only reads English day/time words, so this carries
+# its own broader check (Chinese weekday/clock phrasing included) rather than widening that
+# shared detector's behaviour everywhere else it is used.
+_PROPOSED_TIME_OR_OFFER_RE = re.compile(
+    r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b|"
+    r"\b(?:mon|tue|wed|thu|fri|sat|sun)\w*\b|\btoday\b|\btomorrow\b|\btmr\b|\bweekends?\b|"
+    r"星期[一二三四五六日天]|周[一二三四五六日天]|礼拜[一二三四五六日天]|"
+    r"\d{1,2}\s*点|[一二三四五六七八九十]+\s*点|今晚|明天|周末|下午|上午|晚上", re.I)
+def _has_open_offer_or_proposed_time(rec, ev):
+    if rec.get("viewing_asked") and not rec.get("viewing_confirmed"):
+        return True
+    cur = ev.get("text") or ""
+    prev = rec.get("prev_inbound") or ""
+    return bool(_PROPOSED_TIME_OR_OFFER_RE.search(cur) or _PROPOSED_TIME_OR_OFFER_RE.search(prev))
 
 # ---------- terminal record re-notify ----------
 # A terminal (closed) conversation must never send the prospect anything again -- but Winfred
@@ -2852,11 +2946,19 @@ _LEASE_LEGAL_MARKER_RE = re.compile(
 # history statement, never a request for a short lease.
 _LEASE_PAST_RE = re.compile(
     r"\b(?:stayed|staying\s+at\s+my\s+last|lived|rented|was|were|been|previously|"
-    r"last\s+place|previous\s+place)\b[^.!?\n]{0,40}?\b[1-6]\s*(?:months?|mths?|mos?)\b", re.I)
+    r"last\s+place|previous\s+place)\b[^.!?\n]{0,40}?\b[1-6]\s*(?:months?|mths?|mos?|weeks?)\b", re.I)
 _LEASE_HALFYEAR_RE = re.compile(r"\bhalf\s*(?:an?\s*)?year\b", re.I)
 _LEASE_KEYWORD_RE = re.compile(r"\bshort\s*(?:term|lease)\b|\bfew\s*months?\b|\btemporary\b|\u77ed\u79df", re.I)
 # Chinese: "\u79df6\u4e2a\u6708" / "6\u4e2a\u6708" -- the same ask, typed the way half the pool types it.
 _LEASE_CJK_MONTHS_RE = re.compile(r"[1-6]\s*\u4e2a\u6708")
+# a week/day count ("2 weeks max", "a fortnight", "just a few days") is just as clear a short
+# lease ask as an explicit month count, but the month-only detector above never covered it
+# (P1 fix, 11 Sep 2026 attack replay: "just need it while my reno is ongoing, 2 weeks max"
+# produced no lease note at all, only a generic unmatched flag). Same deposit/notice-term
+# veto reused so "2 weeks notice" is never misread as a lease length ask.
+_LEASE_EXPLICIT_WEEKS_RE = re.compile(
+    r"\b([1-9]|1[0-9])\s*[- ]?\s*weeks?\b(?!\s*(?:ago|back|notice|deposit))|"
+    r"\bfortnight\b|\ba\s+few\s+days\b|\bcouple\s+of\s+days\b|\bfew\s+weeks?\b", re.I)
 
 def _short_lease_requested(text):
     """True when TEXT is a plain ask for a lease of 6 months or less (explicit month count 1
@@ -2884,6 +2986,8 @@ def _short_lease_requested(text):
     if _LEASE_HALFYEAR_RE.search(t) or _LEASE_KEYWORD_RE.search(t):
         return True
     if _LEASE_CJK_MONTHS_RE.search(text or ""):
+        return True
+    if _LEASE_EXPLICIT_WEEKS_RE.search(t):
         return True
     if _LEASE_MONEYTERM_CONTEXT_RE.search(t):
         return False
@@ -2934,8 +3038,15 @@ def _lease_note_pending_resolution(rec, ev, pn):
             r"\b(1 ?(?:year|yr)|one year|12 ?(?:months?|mths?|mos?)|"
             r"(?:1[3-9]|2[0-9]) ?(?:months?|mths?)|2 ?(?:years?|yrs?))\b", t_now):
         rec["lease_note_resolved"] = True
-        if not rec["profile"].get("lease_term_months"):
-            rec["profile"]["lease_term_months"] = rec.get("lease_note_min", 12)
+        # ALWAYS set to the accepted minimum, never only when empty -- a prospect who
+        # earlier gave a short lease_term_months (that is WHY the note went out) and then
+        # says YES to the landlord's 1 year minimum has just agreed to extend it. Leaving
+        # the old short value in place made qualify() re-derive SHORT_LEASE on the very next
+        # turn, the LEASE_NOTE latch then silently swallowed the repeat (one note only), and
+        # the accepted prospect vanished into a bare "no automated reply matched" flag (P1
+        # fix, 11 Sep 2026 attack replay: a bare "YES" to the note on a profile with
+        # lease_term_months 3 produced total silence instead of QUALIFIED).
+        rec["profile"]["lease_term_months"] = rec.get("lease_note_min", 12)
         return None                          # resolved; caller falls through to the normal flow
     # a completed profile form, or a media-only submission, must never be swallowed as
     # "ambiguous" -- let it fall through to the normal flow instead (9 Sep 2026 replay: a
@@ -3359,6 +3470,8 @@ def _viewing_reaction(rec, ev, pn):
             # facts sheet / listing attribute answer does (P2 fix, 9 Sep 2026 cycle5 sc1).
             if ans != _RENT_PIVOT_TEXT:
                 rec["fact_answered"] = True
+            if _FACT_LEASE_RE.search(ev.get("text") or ""):
+                rec["lease_fact_told"] = True
             return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": ans}
         return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True, "question": ev.get("text"), "text": None}
     if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
@@ -3577,6 +3690,16 @@ def _handle_event_inner(state, ev):
         # and the outbound-before-first-inbound flag are both anchored to THIS one message.
         rec["first_inbound_text"] = ev.get("text") or ""
         rec["outbound_before_first_inbound"] = bool(rec.get("_any_outbound_seen"))
+    # language upgrade, one direction only (Winfred, 11 Sep 2026 attack replay): almost
+    # every portal enquiry's very first inbound is the PropertyGuru/99.co auto boilerplate,
+    # itself always English even for a Chinese speaking tenant -- "lang stamped once, at
+    # first touch" then locked every later reply to English despite every one of the
+    # tenant's own words being Chinese. Any CJK character on ANY inbound upgrades a record
+    # that has not yet locked to Chinese; a genuinely Chinese record never reverts to
+    # English just because a later reply happens to be in English (test_lang_stamped_once_
+    # and_reused_on_later_messages already covers, and must keep covering, that direction).
+    if rec.get("lang") != "zh" and _CJK_RE.search(ev.get("text") or ""):
+        rec["lang"] = "zh"
     if rec.get("source") is None:
         # first-touch only: never re-classify once stamped, even if a later message
         # happens to match a CTA phrase (e.g. copy-pasted from an article by hand).
@@ -3611,7 +3734,10 @@ def _handle_event_inner(state, ev):
                         "reason": "new message on a closed conversation (" + rec.get("status", "")
                                   + "): \"" + _text_now[:120] + "\""}
         return None                      # closed / terminal conversation -> engine never acts again
-    if withdrawal_signal(ev.get("text")) or _signoff_signal(ev.get("text")):
+    _signoff = _signoff_signal(ev.get("text"))
+    if _signoff and _has_open_offer_or_proposed_time(rec, ev):
+        _signoff = False   # a bare thanks right after a proposed/open viewing time is not a withdrawal
+    if withdrawal_signal(ev.get("text")) or _signoff:
         # a bare thanks/goodbye is a POLITE close, never a withdrawal (Winfred, 9 Sep 2026
         # merge redo): same fixed reply + terminal state, but framed and logged as such, and
         # a new place is never implied for it.
@@ -3845,10 +3971,19 @@ def _handle_event_inner(state, ev):
                 return None
             rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
-            rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
-            return {"type": "LEASE_NOTE", "pn": pn, "notify": False,
-                    "reason": "asked for a lease of 6 months or less",
-                    "text": _lease_note_text(_lang(rec))}
+            if rec.get("lease_fact_told"):
+                # the minimum lease was already stated once, as a direct fact answer to an
+                # earlier question on THIS chat -- restating it now as a fresh "would that
+                # work for you" reads as the bot repeating itself (Winfred, 11 Sep 2026
+                # attack replay: "The owner is looking for a minimum lease of 1 year" then,
+                # two messages later, "Just to share, the landlord prefers a minimum 1 year
+                # lease" in the same short thread). Move straight on to the verdict instead.
+                rec["lease_note_resolved"] = True
+            else:
+                rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
+                return {"type": "LEASE_NOTE", "pn": pn, "notify": False,
+                        "reason": "asked for a lease of 6 months or less",
+                        "text": _lease_note_text(_lang(rec))}
         # a genuine FIRST TOUCH enquiry that also names the listing (bound already, or this
         # very inbound names it) must still get its welcome + form -- never dead end silently
         # on a brand new prospect (P2 fix, 9 Sep 2026 cycle5 sc5). The short lease ask itself
@@ -4039,7 +4174,14 @@ def _handle_event_inner(state, ev):
                 form = (VIEWING_TICKET_PREFIX_ZH + CHINESE_INTAKE_FORM) if (unit and _slotted) else CHINESE_INTAKE_FORM
             else:
                 form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
-            texts = ([unit, form] if unit else [form]) + [channel_pitch(lg)]
+            # the channel pitch rides the TAIL of the form send, never a standalone 3rd
+            # message (Winfred, 11 Sep 2026 attack replay: first contact fired 3 auto sends
+            # back to back -- unit info, form, then the channel plug -- before the prospect
+            # had said anything beyond the portal enquiry; rubric caps first contact at 2).
+            # Winfred still wants the "more than 30 rooms" line, so it is kept, just folded
+            # into one send instead of its own message.
+            form = form + "\n\n" + channel_pitch(lg)
+            texts = [unit, form] if unit else [form]
             _act = {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
                     "listing_key":lk, "capture_availability":need_avail}
             _pending_lease = rec.pop("pending_short_lease_notify", None)
@@ -4115,6 +4257,8 @@ def _handle_event_inner(state, ev):
             if _ans:
                 if _ans != _RENT_PIVOT_TEXT:
                     rec["fact_answered"] = True
+                if _FACT_LEASE_RE.search(_pretxt or ""):
+                    rec["lease_fact_told"] = True
                 return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True,
                         "question": _pretxt, "text": _ans}
             # remember what this flagged question was ABOUT, so a re-ask for the same field
@@ -4383,6 +4527,15 @@ def _handle_event_inner(state, ev):
             if rec.get("lease_note_sent"): return None      # one note only
             rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
+            if rec.get("lease_fact_told"):
+                # already stated the minimum once as a direct fact answer on this chat --
+                # never restate it (lease-line-repeated-twice); the profile is now complete
+                # and still under the floor, so flag it for a human decision instead.
+                rec["lease_note_resolved"] = True
+                rec["status"] = "short_lease_note"
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "profile confirms a lease under the minimum (already told "
+                                  "once); reply by hand"}
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
             return {"type": "LEASE_NOTE", "pn": pn, "notify": False, "reason": (why or [""])[0],
                     "text": _lease_note_text(_lang(rec))}
