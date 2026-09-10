@@ -12,10 +12,16 @@
      the hex that was previously hardcoded into each selector, so dark mode
      is pixel-identical to before this change. */
   --grn-ink:#37c07f; --amb-ink:#e39a1c; --red-ink:#ff6b78; --purple-ink:#9b8cff; --amb-toast-ink:#d98a10;
+  /* (item 8) --mut2 is --mut raised for the row's own line 2 facts — the
+     readability complaint on the old row was 11px grey text at ~3.2:1 in
+     dark mode; --gold is the map's own existing accent (.mmtownlbl below),
+     reused here as the brand navy/gold alternative to WhatsApp green rather
+     than inventing a new colour. */
+  --mut2:#aebccf; --gold:#c8a24a;
 }
 @media (prefers-color-scheme:light){
   :root{--bg:#f4f6fb;--panel:#ffffff;--panel2:#f0f3fa;--line:#dde3ef;--ink:#16203a;--mut:#5a6a88;--acc:#2f6bff;--chip:#eaf0ff;
-    --grn-ink:#206f4a; --amb-ink:#8a5e11; --red-ink:#a3444d; --purple-ink:#685eab; --amb-toast-ink:#915c0b;}
+    --grn-ink:#206f4a; --amb-ink:#8a5e11; --red-ink:#a3444d; --purple-ink:#685eab; --amb-toast-ink:#915c0b; --mut2:#425374; --gold:#8a6a26;}
 }
 *{box-sizing:border-box}
 body{margin:0;font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:var(--bg);color:var(--ink)}
@@ -79,7 +85,7 @@ main{padding:14px 16px 60px}
 .phead{display:flex;gap:10px;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
 .phead .big{font-size:16px;font-weight:800}
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
-.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:11px;color:var(--ink);white-space:nowrap}
+.chip{background:var(--chip);border-radius:20px;padding:2px 9px;font-size:12px;color:var(--ink);white-space:nowrap}
 .chip.g{background:rgba(46,204,113,.16);color:var(--grn-ink)}
 .chip.a{background:rgba(245,166,35,.16);color:var(--amb-ink)}
 .chip.r{background:rgba(255,92,108,.16);color:var(--red-ink)}
@@ -94,7 +100,11 @@ main{padding:14px 16px 60px}
 .acts{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
 .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:6px 10px;font-size:12px;cursor:pointer;text-decoration:none;display:inline-flex;gap:5px;align-items:center;font-weight:600}
 .btn.p{background:var(--grn);color:#062012;border-color:var(--grn)}
-.btn.w{background:#25d366;color:#03210f;border-color:#25d366}
+/* (item 8) was WhatsApp's own #25d366 green — green is reserved for status
+   (good fit / progressing mark) everywhere else on the row, so the one
+   button that is neither would read as a third, meaningless green. Brand
+   gold instead; anchor/target/rel/cold-block logic untouched, style only. */
+.btn.w{background:var(--gold);color:#1c1400;border-color:var(--gold)}
 .mut{color:var(--mut)}
 .empty{color:var(--mut);text-align:center;padding:40px 10px}
 .legend{font-size:11px;color:var(--mut);margin-top:12px;line-height:1.6}
@@ -111,6 +121,39 @@ select.mk{padding:3px 6px}
 .btn.lg{min-height:44px;padding:10px 14px;font-size:13px}
 .btn.disabled{opacity:.4;cursor:not-allowed;background:var(--panel2)}
 .btn.full{width:100%;justify-content:center}
+/* (item 8) the one destructive button in an otherwise neutral bar/popover —
+   outline tint only, never a solid fill, so it does not read as a second
+   "primary" action next to Contacted/Viewing. */
+.btn.danger{border-color:var(--red);color:var(--red-ink)}
+
+/* ===================== UX spec items 7/8: one tap row actions + hierarchy ===================== */
+/* Line 1: name + big score + verdict chip. Line 2: muted plain facts. Line 3:
+   the "+N more" toggle. Everything below .line3 is the always visible action
+   row — see matchRow()/wireRowEvents() in app.js. */
+.rtop.line1{gap:8px}
+.nm.big{font-size:16px;font-weight:800}
+.sc.big{font-size:21px;min-width:36px}
+.rtop.line2{font-size:13px;color:var(--mut2);gap:0}
+.rtop.line3{margin-top:4px}
+.btn.more{background:transparent;border-style:dashed;color:var(--mut2);font-size:11px;padding:3px 8px;min-height:26px}
+.rowextras{margin-top:5px}
+.rowextras .gap{margin-top:6px}
+/* One tap mark buttons + status pill (item 7). The pill is the one thing
+   allowed ahead of the tenant's name on line 1 — it is the row's whole
+   reason for having a coloured left border, so it has to be visible without
+   opening anything. */
+.statuspill{border-radius:20px;padding:2px 9px;font-size:12px;font-weight:700;background:var(--chip);color:var(--mut2)}
+.statuspill.g{background:rgba(46,204,113,.16);color:var(--grn-ink)}
+.statuspill.r{background:rgba(255,92,108,.16);color:var(--red-ink)}
+/* Marked state has to read "from across the room" without opening anything —
+   a 3px left border in the same three status colours as the pill/verdict
+   chip. Green = progressing (Contacted/Viewing booked/Queued), red = dead
+   (Not interested). No amber border: amber stays reserved for the verdict
+   chip's own "needs a question answered" state. */
+.row[data-mark]{border-left:3px solid var(--line)}
+.row.mark-pos{border-left-color:var(--grn)}
+.row.mark-neg{border-left-color:var(--red)}
+.markpop{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;padding-top:6px;border-top:1px dashed var(--line)}
 
 /* badges — scratch / co-broke / overridden / declined-similar / reconfirm etc */
 .badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:2px 9px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.3px;white-space:nowrap;background:var(--chip);color:var(--mut)}
@@ -220,9 +263,9 @@ body.density-compact .lc{padding:7px 9px}
    choice has been made in prefs.theme. High contrast light palette (not a
    washed out pastel): dark ink on a genuinely white/near white surface. */
 :root[data-theme="dark"]{--bg:#0f1420;--panel:#161d2e;--panel2:#1d2740;--line:#2a3550;--ink:#e8edf7;--mut:#93a1c0;--acc:#5b8cff;--chip:#223052;
-  --grn-ink:#37c07f;--amb-ink:#e39a1c;--red-ink:#ff6b78;--purple-ink:#9b8cff;--amb-toast-ink:#d98a10}
+  --grn-ink:#37c07f;--amb-ink:#e39a1c;--red-ink:#ff6b78;--purple-ink:#9b8cff;--amb-toast-ink:#d98a10;--mut2:#aebccf;--gold:#c8a24a}
 :root[data-theme="light"]{--bg:#f4f6fb;--panel:#ffffff;--panel2:#eef1f8;--line:#c7cfe0;--ink:#10182c;--mut:#3d4a68;--acc:#2f5fe0;--chip:#e3eaff;
-  --grn-ink:#206f4a;--amb-ink:#8a5e11;--red-ink:#a3444d;--purple-ink:#685eab;--amb-toast-ink:#915c0b}
+  --grn-ink:#206f4a;--amb-ink:#8a5e11;--red-ink:#a3444d;--purple-ink:#685eab;--amb-toast-ink:#915c0b;--mut2:#425374;--gold:#8a6a26}
 
 /* (12)/(31) grouped duplicate list (tenant dup_group, listing dup_of) — one
    expandable panel, never one badge/row per member (real data: 12+ in a group) */

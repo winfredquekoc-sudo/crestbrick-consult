@@ -388,6 +388,39 @@ function lastContactLine(t) {
   return "no contact date on file";
 }
 
+// ===================== row status pill + line 2 facts (item 7/8 — pure, tests/matchmaker/rows.test.mjs) =====================
+const PILL_MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+// The one tap mark buttons (item 7) show state on the row's surface instead
+// of inside a collapsed select. `now` is a real epoch ms, injectable in tests
+// (call sites pass Date.now()) — mk.ts is a REAL timestamp (patchMark stamps
+// it with Date.now()), never TODAY (the frozen dataset day), so "days ago"
+// has to be measured against the real clock the same way waitingOnReply()
+// already does a few thousand lines down, not the scoring snapshot day.
+function markPillLabel(mk, now) {
+  const st = mk && mk.v;
+  if (!st) return "";
+  if (st === "Viewing booked" && mk.viewing_date) {
+    const d = Scoring.parseDate(mk.viewing_date);
+    if (d) return "Viewing " + d.getDate() + " " + PILL_MONTH_SHORT[d.getMonth()];
+  }
+  if (mk.ts) {
+    const days = Math.floor(((now != null ? now : Date.now()) - mk.ts) / 864e5);
+    if (days >= 0) return st + " · " + days + "d ago";
+  }
+  return st;
+}
+// Line 2 of the row (item 8): the three facts he actually decides on, as
+// plain muted text rather than pills — budget, move in date, area. showListing
+// rows (worklist, tenant rail, near miss) also need the target listing's own
+// district/rent to say WHICH room this row is about; the tenant's own area
+// preference keeps the same slot either way so the shape never changes.
+function rowFacts(t, l, showListing) {
+  const out = ["budget " + (t.budget || t.budget_max || "?"), "move " + (t.move_in || "?")];
+  out.push((t.district || "?") + (t.preferred_location ? (" · " + String(t.preferred_location).slice(0, 28)) : ""));
+  if (showListing && l) out.push(l.district + " · " + rentTxt(l));
+  return out;
+}
+
 // ===================== draft text (spec: no hyphens, no sign off) =====================
 // NOW_REAL_SGT, not TODAY. A viewing slot is a real world appointment a human
 // is about to propose to a tenant, so it has to be a real FUTURE date, in
@@ -2282,18 +2315,38 @@ function openViewingPack(l, t, dateStr, timeStr) {
   wrap.querySelector("[data-cancel]").onclick = () => wrap.remove();
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
-// `cold` drops "Queued" from the options: queueing is an outbound send action
-// (it feeds the morning dispatch export), so the dead lead rule applies to it the
-// same way it applies to WhatsApp, Call and Draft.
-function markSelectHtml(st, cold, tname) {
-  const opts = ["Contacted", "Viewing booked", "Not interested"].concat(cold ? [] : ["Queued"]);
-  // aria-label, not a wrapping <label> — this select sits inline in a compact
-  // action row with no room for visible label text, and its options already
-  // say what they do; the label just names WHO the mark is for.
-  let html = '<select class="btn mk" data-mk="1" aria-label="Mark status for ' + esc(tname || "tenant") + '"><option value="">Mark…</option>';
-  opts.forEach(o => { html += '<option' + (st === o ? ' selected' : '') + '>' + esc(o) + '</option>'; });
-  html += '<option value="__clr">Clear</option></select>';
-  return html;
+// (item 7) Mark…, one tap. Two always visible buttons cover the two actions
+// Winfred takes on almost every row; the rest (Not interested, Queued, Clear)
+// move into a small "⋯" popover instead of a native select he had to open,
+// scroll and pick inside. Every option here still routes through the exact
+// same writeMarkUndoable / openDeclineModal / openViewingBookedFlow /
+// writeMarkClearUndoable calls the old select used — the undo toast and the
+// CRM mirror (patchMark's own job) never see a difference.
+function oneTapMarkButtonsHtml() {
+  return '<button class="btn" data-mk1="Contacted">✓ Contacted</button>' +
+    '<button class="btn" data-mk1="Viewing booked">📅 Viewing</button>' +
+    '<button class="btn" data-mkmore="1" aria-haspopup="true" aria-label="More mark options">⋯</button>';
+}
+// `cold` drops "Queued": queueing is an outbound send action (it feeds the
+// morning dispatch export), so the dead lead rule applies to it the same way
+// it applies to WhatsApp, Call and Draft. `st` adds "Clear" only once a mark
+// exists — matches the old select's behaviour exactly.
+function markPopoverOptionsHtml(st, cold) {
+  const opts = ["Not interested"].concat(cold ? [] : ["Queued"]).concat(st ? ["Clear"] : []);
+  return opts.map(o => '<button class="btn" data-mk2="' + (o === "Clear" ? "__clr" : esc(o)) + '">' + esc(o) + '</button>').join('');
+}
+function toggleMarkPopover(row, l, t, cold, st) {
+  const existing = row.querySelector('.markpop');
+  if (existing) { existing.remove(); return; }
+  const box = el("div", "markpop", markPopoverOptionsHtml(st, cold));
+  row.appendChild(box);
+  box.querySelectorAll('[data-mk2]').forEach(b => b.onclick = () => {
+    const v = b.dataset.mk2;
+    box.remove();
+    if (v === "__clr") { writeMarkClearUndoable(l.id, t.id, fname(t.name) + " mark cleared"); return; }
+    if (v === "Not interested") { openDeclineModal(l, t); return; }
+    writeMarkUndoable(l.id, t.id, { v }, fname(t.name) + " marked " + v);
+  });
 }
 function rowActionsHtml(l, t, cold) {
   const cobroke = isCobroke(l);
@@ -2321,15 +2374,14 @@ function rowActionsHtml(l, t, cold) {
   }
   return waBtn + draftBtn + callBtn + '<a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>';
 }
-function wireRowEvents(row, l, t, m, eff) {
-  const mkSel = row.querySelector('[data-mk]');
-  if (mkSel) mkSel.onchange = (e) => {
-    const v = e.target.value;
-    if (v === "__clr") { writeMarkClearUndoable(l.id, t.id, fname(t.name) + " mark cleared"); return; }
-    if (v === "Not interested") { openDeclineModal(l, t); return; }
+function wireRowEvents(row, l, t, m, eff, cold, st) {
+  row.querySelectorAll('[data-mk1]').forEach(b => b.onclick = () => {
+    const v = b.dataset.mk1;
     if (v === "Viewing booked") { openViewingBookedFlow(l, t); return; }
     writeMarkUndoable(l.id, t.id, { v }, fname(t.name) + " marked " + v);
-  };
+  });
+  const moreMk = row.querySelector('[data-mkmore]');
+  if (moreMk) moreMk.onclick = (e) => { e.stopPropagation(); toggleMarkPopover(row, l, t, cold, st); };
   const draftBtn = row.querySelector('[data-draft]');
   if (draftBtn) draftBtn.onclick = () => toggleDraftPreview(row, l, t);
   const cb = row.querySelector('[data-batch]');
@@ -2339,7 +2391,21 @@ function wireRowEvents(row, l, t, m, eff) {
   const dupTrigger = row.querySelector('[data-dupgroup]');
   if (dupTrigger) dupTrigger.onclick = (e) => { e.stopPropagation(); toggleDupGroupList(row, t.dup_group); };
 }
-
+// (item 8) Line 1's verdict chip stays the plain QUALIFIED/NEEDS_INFO/BLOCKED
+// read; this is the one extra chip promoted alongside it with the SPECIFIC
+// reason, so the one thing he must not miss on a blocked or needs-info pair
+// is on the surface instead of buried in the +N more toggle or a click away
+// in the explain panel.
+function blockerChipHtml(eff, m) {
+  if (eff.verdict === "BLOCKED") {
+    const reason = m.s.flags[0] || "landlord requirement conflict";
+    return ' <span class="chip r">⛔ ' + esc(reason) + '</span>';
+  }
+  if (eff.verdict === "NEEDS_INFO" && (m.s.needsInfoReasons || []).length) {
+    return ' <span class="chip a">❓ ' + esc(m.s.needsInfoReasons.join(" & ")) + ' missing</span>';
+  }
+  return "";
+}
 function matchRow(m, showListing, opts) {
   opts = opts || {};
   const l = m.l, t = m.t;
@@ -2350,9 +2416,14 @@ function matchRow(m, showListing, opts) {
   const cold = coldBlocked(l, t);
   const declinedSimilar = st !== "Not interested" && declinedSimilarPenalty(t, l);
   const displayScore = declinedSimilar ? Math.max(0, m.s.total - Scoring.LOOKALIKE_PENALTY) : m.s.total;
+  // (item 7) green/red only — amber is reserved for verdict/status chips
+  // elsewhere (vchip, coldChip); a mark is either progressing (green) or dead
+  // (red), never "needs you" on its own.
+  const markTone = !st ? "" : (st === "Not interested" ? " mark-neg" : " mark-pos");
 
-  const row = el("div", "row" + (st === "Not interested" || st === "Contacted" ? " done" : "") + (blocked ? " blk" : "") + (opts.focused ? " focus" : ""));
+  const row = el("div", "row" + markTone + (st === "Not interested" || st === "Contacted" ? " done" : "") + (blocked ? " blk" : "") + (opts.focused ? " focus" : ""));
   row.dataset.l = l.id; row.dataset.t = t.id;
+  if (st) row.dataset.mark = st;   // (item 7) CSS hook for the 3px status border
 
   const badges = [];
   // (76) URGENT = gave us >=10/14 profile fields AND told us they will pay the agent fee.
@@ -2373,11 +2444,6 @@ function matchRow(m, showListing, opts) {
   // "work this first", not decoration. (Winfred 26 Aug 2026.)
   if (!blocked && closeLikely(m)) badges.push('<span class="badge urgent">🔥 likely close</span>');
 
-  const availFromNote = (showListing && l.available_from) ? (' · vacant from ' + esc(shortDate(Scoring.parseDate(l.available_from)))) : ''; // (24)
-  const head = showListing
-    ? '<span class="nm">' + esc(t.name) + '</span> <span class="mut">→ ' + esc(l.name) + ' · ' + esc(l.district) + ' · ' + esc(rentTxt(l)) + availFromNote + '</span>' + (l.availability === "Offer pending" ? ' <span class="chip a">offer pending, hold</span>' : '')
-    : '<span class="nm">' + esc(t.name) + '</span> <span class="mut">' + esc(t.pass_type || '') + ' ' + esc(t.nationality || '') + '</span>';
-
   // (75) label wrap gives the checkbox a real >=44px tap target (the glyph
   // itself stays a normal-looking 18px so a chain of them doesn't look
   // oversized next to the row's chips) without touching hit areas for any
@@ -2386,32 +2452,67 @@ function matchRow(m, showListing, opts) {
   // exclude every other trigger already living in the same row).
   const checkboxHtml = opts.checkbox ? ('<label class="cbwrap"><input type="checkbox" class="rowcheck" data-batch="1" aria-label="Select ' + esc(t.name) + ' for batch viewing"' + (batchSelection.has(t.id) ? ' checked' : '') + '></label>') : '';
   const nba = nbaChipHtml(m); // (60)
+  const pillLabel = markPillLabel(mk, Date.now());
+  const pillHtml = pillLabel ? ('<span class="statuspill' + (st === "Not interested" ? " r" : " g") + '">' + esc(pillLabel) + '</span>') : '';
 
-  row.innerHTML =
-    '<div class="rtop">' + checkboxHtml + head + ' ' + vchip(eff.verdict) + scoreBar(m.s.parts, displayScore) + '<span class="sc">' + displayScore + '</span></div>' +
-    (badges.length || nba ? ('<div class="rtop" style="margin-top:4px">' + badges.join(' ') + (nba ? (' ' + nba) : '') + '</div>') : '') +
-    '<div class="rtop" style="margin-top:5px">' +
-      '<span class="chip">budget ' + esc(t.budget || t.budget_max || '?') + '</span>' +
-      budgetStretchChip(t) +
-      flexibilityChip(t) +
-      (showListing ? houseRulesHtml(l) : "") +
-      genderChip(t) +
-      '<span class="chip">pax ' + esc(t.pax || '?') + '</span>' +
-      '<span class="chip">lease ' + esc(t.lease_months || '?') + 'mo</span>' +
-      '<span class="chip">move ' + esc(t.move_in || '?') + '</span>' +
-      timingGapFlag(l, t) +
-      '<span class="chip">' + esc(t.district || '?') + (t.preferred_location ? (' · ' + esc(String(t.preferred_location).slice(0, 28))) : '') + '</span>' +
-      coldChip(m.s.dc) + (st ? ('<span class="chip a">' + esc(st) + '</span>') : '') +
-    '</div>' +
-    (m.s.near_miss && blocked ? ('<div class="gap" style="color:#e39a1c;font-style:normal">Negotiable gap — $' + esc(m.s.near_miss_gap) + ' short of landlord\'s min</div>') : '') +
-    (blocked
-      ? ('<div class="gap" style="color:#ff6b78;font-style:normal">⛔ Do not offer this room to ' + esc(fname(t.name)) + ' — ' + esc(m.s.flags[0] || 'landlord requirement conflict') + '</div>'
-        + '<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + markSelectHtml(st, cold, t.name) + crmBtn("tenant", t) + '</div>')
-      : ((m.s.flags.length ? ('<div class="gap">⚑ ' + esc(m.s.flags.join(' · ')) + '</div>') : '')
-        + (t.phone ? ('<div class="mk" style="margin-top:6px">→ you will message <b>' + esc(t.name) + '</b> · ' + phoneSpanHtml("tenant", t.id, t.phone) + '</div>') : '')
-        + '<div class="acts">' + rowActionsHtml(l, t, cold) + markSelectHtml(st, cold, t.name) + crmBtn("tenant", t) + '</div>'));
+  // ---- line 1 (item 8): name, big score, verdict chip, promoted blocker chip ----
+  const nameHtml = '<span class="nm big">' + esc(t.name) + '</span>' + (showListing ? (' <span class="mut">→ ' + esc(l.name) + '</span>') : '');
+  const line1 = '<div class="rtop line1">' + checkboxHtml + pillHtml + nameHtml + ' ' +
+    scoreBar(m.s.parts, displayScore) + '<span class="sc big">' + displayScore + '</span> ' +
+    vchip(eff.verdict) + blockerChipHtml(eff, m) + '</div>';
 
-  wireRowEvents(row, l, t, m, eff);
+  // ---- line 2 (item 8): budget, move in, area — plain muted text, not pills ----
+  const facts = rowFacts(t, l, showListing).slice();
+  if (showListing && l.available_from) facts.push("vacant from " + shortDate(Scoring.parseDate(l.available_from))); // (24)
+  if (l.availability === "Offer pending") facts.push("offer pending, hold");
+  const line2 = '<div class="rtop line2 mut">' + esc(facts.join(' · ')) + '</div>';
+
+  // ---- line 3 (item 8): everything else, collapsed behind "+N more" ----
+  const extraChips = [];
+  badges.forEach(b => extraChips.push(b));
+  if (nba) extraChips.push(nba);
+  const bsc = budgetStretchChip(t); if (bsc) extraChips.push(bsc);
+  const flex = flexibilityChip(t); if (flex) extraChips.push(flex);
+  if (showListing) { const hr = houseRulesHtml(l); if (hr) extraChips.push(hr); }
+  const gc = genderChip(t); if (gc) extraChips.push(gc);
+  extraChips.push('<span class="chip">pax ' + esc(t.pax || '?') + '</span>');
+  extraChips.push('<span class="chip">lease ' + esc(t.lease_months || '?') + 'mo</span>');
+  const tgap = timingGapFlag(l, t); if (tgap) extraChips.push(tgap);
+  extraChips.push(coldChip(m.s.dc));
+  const extraLines = [];
+  if (t.phone) extraLines.push('<div class="mk">→ you will message <b>' + esc(t.name) + '</b> · ' + phoneSpanHtml("tenant", t.id, t.phone) + '</div>');
+  if (m.s.flags.length) extraLines.push('<div class="gap">⚑ ' + esc(m.s.flags.join(' · ')) + '</div>');
+  if (m.s.near_miss && blocked) extraLines.push('<div class="gap" style="color:var(--amb-ink);font-style:normal">Negotiable gap — $' + esc(m.s.near_miss_gap) + ' short of landlord\'s min.</div>');
+  const extrasCount = extraChips.length + extraLines.length;
+  // Extras are NOT written into the row's initial HTML — only a byte-cheap
+  // toggle button is. toggleRowExtras() builds this string from the SAME
+  // closure variables the first time it is actually clicked, so a row nobody
+  // expands never pays for the badges/chips/flags text it never shows.
+  const buildExtrasHtml = () => (extraChips.length ? ('<div class="rtop" style="margin-top:5px">' + extraChips.join(' ') + '</div>') : '') + extraLines.join('');
+  const moreToggle = extrasCount ? ('<div class="rtop line3"><button class="btn more" data-more="1">+' + extrasCount + ' more</button></div>') : '';
+
+  // ---- actions (item 7): one tap Contacted/Viewing, ⋯ for the rest ----
+  const oneTap = oneTapMarkButtonsHtml();
+  const actsHtml = blocked
+    ? ('<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + oneTap + crmBtn("tenant", t) + '</div>')
+    : ('<div class="acts">' + rowActionsHtml(l, t, cold) + oneTap + crmBtn("tenant", t) + '</div>');
+
+  row.innerHTML = line1 + line2 + moreToggle + actsHtml;
+
+  const moreBtn = row.querySelector('[data-more]');
+  if (moreBtn) moreBtn.onclick = () => {
+    const existing = row.querySelector('.rowextras');
+    if (existing) { existing.remove(); return; }
+    const box = el("div", "rowextras", buildExtrasHtml());
+    moreBtn.closest('.line3').after(box);
+    // The nba chip and the dup group badge only exist once extras are actually
+    // in the DOM — wire them here rather than at row build time.
+    wireNbaChip(row, l, t);
+    const dupTrigger = box.querySelector('[data-dupgroup]');
+    if (dupTrigger) dupTrigger.onclick = (e) => { e.stopPropagation(); toggleDupGroupList(row, t.dup_group); };
+  };
+
+  wireRowEvents(row, l, t, m, eff, cold, st);
   wireNbaChip(row, l, t);
   return row;
 }
@@ -2998,10 +3099,13 @@ function renderTriageBar(m) {
   // fine in context. See .triagebar .btn in styles.css for the matching
   // padding trim that gets all five on screen without a horizontal scroll.
   bar.innerHTML =
+    // (item 8) triage bar stays neutral — only Decline (the one destructive
+    // action here) is tinted. Viewing/Draft used to borrow --grn/WhatsApp
+    // green, which is reserved for status now.
     '<button class="btn lg" data-tc="c">Contacted</button>' +
-    '<button class="btn lg p" data-tc="v">Viewing</button>' +
-    '<button class="btn lg w" data-tc="d">Draft</button>' +
-    '<button class="btn lg" data-tc="n">Decline</button>' +
+    '<button class="btn lg" data-tc="v">Viewing</button>' +
+    '<button class="btn lg" data-tc="d">Draft</button>' +
+    '<button class="btn lg danger" data-tc="n">Decline</button>' +
     '<button class="btn lg" data-tc="s">Snooze</button>';
   bar.querySelectorAll("[data-tc]").forEach(b => b.onclick = () => triageAction(b.dataset.tc, m));
 }
