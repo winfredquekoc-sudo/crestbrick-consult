@@ -2493,6 +2493,9 @@ function measureHeaderHeight() {
   const h = document.querySelector("header");
   if (h) document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px");
 }
+// (item 6) panels heavy enough to be worth releasing on exit — each one
+// rebuilds fully from box.innerHTML = "" on entry (see render() below).
+const HEAVY_PANELS = ["alltenants", "landlords", "stats", "sales", "revival", "whole"];
 // (runner up) render() used to sweep MATCHES three separate times for three
 // independent counts (KPI qualified, snoozedActive().length, queuedMatches()
 // .length) on every single render — every tab switch, mark write and filter
@@ -2516,7 +2519,22 @@ function render() {
     '<div class="kpi"><b>' + (DATA.listings || []).length + '</b> available listings</div>' +
     '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
     '<div class="kpi"><b>' + counts.qualified + '</b> qualified matches</div>';
-  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
+  // (item 6) alltenants/landlords/stats/sales/revival/whole are each fully
+  // rebuilt from box.innerHTML = "" on entry (renderAllTenantsRoster etc.),
+  // so releasing their DOM on exit changes nothing observable but stops
+  // 21,000+ nodes from accumulating permanently across a session — every
+  // later render(), every measureHeaderHeight() layout, every style
+  // recalculation was being charged against all of them at once. mapview is
+  // deliberately left alone: the Leaflet instance (_mmMap) is attached to
+  // live DOM inside it, and renderMapView()/initMatchmakerMap() already
+  // manage that instance's lifecycle themselves.
+  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => {
+    const e = $("#" + v);
+    if (!e) return;
+    if (v === view) { e.style.display = (v === "listing" || v === "tenant") ? "grid" : "block"; return; }
+    e.style.display = "none";
+    if (HEAVY_PANELS.indexOf(v) !== -1) e.innerHTML = "";
+  });
   // verdict / max rent / hide cold / hide actioned only affect work, listing, tenant, whole, pipeline — hide elsewhere (search + district stay visible everywhere)
   const filtersActive = ["work", "listing", "tenant", "whole", "pipeline"].indexOf(view) !== -1;
   ["fv", "fr", "fcwrap", "fhwrap"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
