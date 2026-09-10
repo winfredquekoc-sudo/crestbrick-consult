@@ -211,7 +211,7 @@ class TestNoBlankFormWhenProfileComplete(_ReqsFixtureMixin, unittest.TestCase):
     def setUp(self):
         super().setUp()
         self._orig_unit_msg = E.listing_unit_message
-        E.listing_unit_message = lambda lk: (
+        E.listing_unit_message = lambda lk, lang="en": (
             "Hi! The " + lk + " is still open for a look :)" if lk else None)
 
     def tearDown(self):

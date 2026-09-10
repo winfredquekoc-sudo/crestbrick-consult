@@ -83,6 +83,7 @@ REQUIRED_FIELDS = ["name","nationality","ethnicity","gender",
 # _ENGINE_PREFIXES so the echoed send never latches manual takeover.
 VIEWING_TICKET_PREFIX = ("To confirm your viewing slot with the landlord I just need your "
                          "profile \U0001F447\n\n")
+VIEWING_TICKET_PREFIX_ZH = ("为了跟房东确认您的看房时间，我需要您的资料 \U0001F447\n\n")
 INTAKE_FORM = (
     "Pls fill this in so I can send your profile to the landlord :)\n"
     "• Email address:\n"
@@ -98,8 +99,48 @@ INTAKE_FORM = (
     "• Move in date:\n"
     "• Lease term:\n"
     "• Budget:\n"
-    "• Location:"
+    "• Preferred location:"
 )
+
+# Chinese variant (Winfred, 11 Sep 2026): sent instead of INTAKE_FORM the moment the
+# prospect's first inbound (rec["first_inbound_text"]) carries any CJK character -- see
+# _detect_lang() below. Same 14 fields, same order, bilingual labels in the style Maddie
+# already pastes by hand (the Chinese word rides directly in front of the English label with
+# no separator -- extract_profile()'s grab() already falls back to matching the English half
+# of a bilingual line, and _FIELD_LABEL_ALT/_CN_FIELD_MARKERS already carry most of these
+# Chinese words from the 9 Sep hand paste hardening), so no parser change was needed beyond
+# a few missing markers (email/age/employment type/lease term -- see _CN_FIELD_MARKERS below).
+CHINESE_INTAKE_FORM = (
+    "请填写以下资料，方便我把您的资料发给房东 :)\n"
+    "• 邮箱 Email address:\n"
+    "• 姓名 Name:\n"
+    "• 国籍 Nationality:\n"
+    "• 种族 Ethnicity:\n"
+    "• 性别 Gender:\n"
+    "• 年龄 Age:\n"
+    "• 准证类型 Pass type (SC/PR/EP/S Pass/STP etc):\n"
+    "• 职业 Occupation:\n"
+    "• 雇佣类型 Employment type (permanent / fixed term / variable):\n"
+    "• 入住人数 No. of pax:\n"
+    "• 入住日期 Move in date:\n"
+    "• 租期 Lease term:\n"
+    "• 预算 Budget:\n"
+    "• 首选地点 Preferred location:"
+)
+
+# any Han character anywhere in the prospect's first inbound (or portal boilerplate riding
+# with it -- boilerplate text is itself CJK when the source is Chinese, so one check covers
+# both cases Winfred asked for) means the whole first touch goes out in Chinese.
+_CJK_RE = re.compile(r"[一-鿿㐀-䶿]")
+def _detect_lang(text):
+    return "zh" if _CJK_RE.search(text or "") else "en"
+
+def _lang(rec):
+    """rec["lang"] is stamped once, at first touch (see the SEND_FORM branch below), so
+    every later fixed template picks the same language for the rest of the conversation.
+    Records from before this field existed (or a supply/buyer record, which never gets one)
+    fall back to English."""
+    return rec.get("lang") or "en"
 
 # ---------- buyer (sale) intake ----------
 # A buyer (sale) enquiry must NEVER get the tenant form above. It gets this buyer form,
@@ -588,7 +629,23 @@ def missing_required(profile, listing=None):
         return [f for f in req if profile.get(f) in (None, "")]
     return [f for f in REQUIRED_FIELDS if profile.get(f) in (None,"")]
 
-def listing_unit_message(listing_key):
+def _viewing_cta(slot, lang="en"):
+    """The message 1 viewing CTA line, in the prospect's own language (Winfred, 11 Sep
+    2026). The slot label itself (a date/time) is never translated. Chinese wording puts
+    the fixed, distinctive lead words FIRST and the variable slot LAST, on purpose -- every
+    engine-send matcher (_ENGINE_PREFIXES/BOT_SIGNATURES/_OUTBOUND_ONLY) matches on a fixed
+    PREFIX, which only works if the variable part trails it."""
+    if slot and slot.get("label"):
+        if lang == "zh":
+            return ("\n\n方便过来看房吗？我可以帮您安排，时间是 " + slot["label"] + " \U0001F642")
+        return ("\n\nAre you free to view on " + slot["label"]
+                 + "? I can arrange for viewing \U0001F642")
+    if lang == "zh":
+        return "\n\n本周都有安排看房。您方便哪天和几点？我会帮您跟房东安排。"
+    return ("\n\nViewings are running this week. What day and time suit you? "
+            "I will arrange it with the owner.")
+
+def listing_unit_message(listing_key, lang="en"):
     """MESSAGE 1: unit info from the template + the landlord's available viewing slot.
     No intake form. The form is sent as a separate second message (see handle_event)."""
     d = _load(_templates(), {"listings":[]})
@@ -605,20 +662,13 @@ def listing_unit_message(listing_key):
             # VIEWING-FIRST (Winfred, 11 Aug 2026): message 1 always carries an ACTIVE viewing
             # CTA — his own 60-day data has a specific slot converting 96.6% vs 30.7% for an
             # open ask. The form is the ticket to the slot, not a gate in front of it.
-            if slot and slot.get("label"):
-                avail = ("\n\nAre you free to view on " + slot["label"]
-                         + "? I can arrange for viewing \U0001F642")
-            else:
-                avail = ("\n\nViewings are running this week. What day and time suit you? "
-                         "I will arrange it with the owner.")
-            return head + avail
+            return head + _viewing_cta(slot, lang)
     # no unit template for this listing: still lead with the slot CTA when one exists —
     # ang-mo-kio-539 (the push listing) had NO template and its first touch went out as a
     # bare form with no CTA at all (cycle-27 catch, 11 Aug 2026)
     slot = next_future_slot(listing_key)
     if slot and slot.get("label"):
-        return ("Are you free to view on " + slot["label"]
-                + "? I can arrange for viewing \U0001F642")
+        return _viewing_cta(slot, lang).lstrip("\n")
     return None
 
 def listing_message(listing_key):
@@ -962,6 +1012,8 @@ def _closing_implies_new_place(text):
 
 CLOSING_TEXT_NEW_PLACE = "No worries, all the best with the new place \U0001F642 Reach out anytime if you need a room again."
 CLOSING_TEXT_GENERIC = "No worries \U0001F642 Reach out anytime if you need a room again."
+CLOSING_TEXT_NEW_PLACE_ZH = "没关系，祝您在新住处一切顺利 \U0001F642 以后需要房间可以随时联系我。"
+CLOSING_TEXT_GENERIC_ZH = "没关系 \U0001F642 以后需要房间可以随时联系我。"
 
 # Bare thanks/goodbye -- deliberately a WHOLE MESSAGE match, never a substring: "thanks, can
 # you also tell me about parking?" must never be mistaken for a close. Punctuation/emoji are
@@ -1797,11 +1849,23 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   "almost there :) to send your profile","almost there :) i still need",
                   "could you confirm this so i can send your profile",
                   "by sharing these details you agree",
-                  "more rooms available on my rental channel",
+                  "more rooms available on my rental channel",   # pre 11 Sep 2026 wording, kept for old rows
+                  "i have more than 30 rooms available on my channel",
+                  "i have many rooms available on my channel",
                   # landlord onboarding extension (never mistake our own send for a landlord reply)
                   "almost there, i just need",
                   "thanks, that is everything i need for now",
-                  "just checking in, still keen to send a few photos")
+                  "just checking in, still keen to send a few photos",
+                  # Chinese first touch (Winfred, 11 Sep 2026) -- mirrors every English
+                  # signature above so an echoed Chinese send is never read as a manual reply.
+                  "请填写以下资料，方便我把您的资料发给房东",
+                  "为了跟房东确认您的看房时间，我需要您的资料",
+                  "方便过来看房吗？我可以帮您安排，时间是",
+                  "谢谢，您的条件符合房东的要求。我现在就把您的资料发给房东。",
+                  "你好 :) 谢谢您提供的资料。在把您的资料发给房东之前",
+                  "跟您分享一下，房东希望租期至少一年",
+                  "我的频道里有超过30间房间可供选择",
+                  "我的频道里有很多房间可供选择")
 def is_bot_message(text):
     """True if an outbound message was sent by THIS engine (so it is not a manual reply by Winfred)."""
     return any(b in (text or "").lower() for b in BOT_SIGNATURES)
@@ -1832,11 +1896,23 @@ _ENGINE_PREFIXES = (
     "no problem 🙂 i have another room nearby",
     "no worries 🙂 you can see my other available rooms",
     "thanks, you fit what the landlord is looking for",
-    "more rooms available on my rental channel",
+    "more rooms available on my rental channel",   # pre 11 Sep 2026 wording, kept for old rows
+    "i have more than 30 rooms available on my channel",
+    "i have many rooms available on my channel",
     # landlord onboarding extension
     "almost there, i just need",
     "thanks, that is everything i need for now",
     "just checking in, still keen to send a few photos",
+    # Chinese first touch (Winfred, 11 Sep 2026) -- exact starts of every Chinese send,
+    # same reasoning as the English entries above.
+    "请填写以下资料，方便我把您的资料发给房东",
+    "为了跟房东确认您的看房时间，我需要您的资料",
+    "方便过来看房吗？我可以帮您安排，时间是",
+    "谢谢，您的条件符合房东的要求。我现在就把您的资料发给房东。",
+    "你好 :) 谢谢您提供的资料。在把您的资料发给房东之前",
+    "跟您分享一下，房东希望租期至少一年",
+    "我的频道里有超过30间房间可供选择",
+    "我的频道里有很多房间可供选择",
 )
 def _template_heads():
     """Cached lowercase first-80-chars of every listing unit message (message 1 sends)."""
@@ -1889,11 +1965,15 @@ def _normalize_outbound(text):
 # pasted back BLANK — a copy/paste re send of the form, not a filled profile.
 _INTAKE_FIELD_LABELS = ("email address", "name", "nationality", "ethnicity", "gender", "age",
                         "pass type", "occupation", "employment type", "no. of pax", "no of pax",
-                        "move in date", "lease term", "budget", "location")
+                        "move in date", "lease term", "budget", "preferred location", "location")
 # The Chinese variant Maddie pastes puts the Chinese label directly before the English one
-# with no separator ("姓名Name:", "国籍 Nationality :") — same field, bilingual.
+# with no separator ("姓名Name:", "国籍 Nationality :") — same field, bilingual. Also the
+# markers for CHINESE_INTAKE_FORM itself (11 Sep 2026): 邮箱 email, 年龄 age, 雇佣类型
+# employment type, 租期 lease term — the rest were already covered by the 9 Sep hand paste
+# hardening.
 _CN_FIELD_MARKERS = ("姓名", "入住人数", "性别", "国籍", "种族", "职业", "工作准证类型",
-                     "准证", "批准通过", "入住日期", "租赁期", "预算", "首选地点")
+                     "准证", "批准通过", "入住日期", "租赁期", "租期", "预算", "首选地点",
+                     "邮箱", "年龄", "雇佣类型")
 
 def _blank_form_lines(text):
     s = _strip_invisible(text or "").replace("：", ":")  # CJK full width colon -> ascii
@@ -2306,7 +2386,7 @@ def _rec(state, pn):
         "source":None, "fact_answered":False,
         # B established (review fix): listing_key provenance + first-touch direction, feeding
         # wa_intake_resume.is_established_prospect().
-        "listing_key_source":None, "first_inbound_text":None,
+        "listing_key_source":None, "first_inbound_text":None, "lang":None,
         "outbound_before_first_inbound":False, "_any_outbound_seen":False,
         # landlord onboarding extension (never touched by the tenant/buyer flows)
         "supply_kind":None, "supply_profile":{}, "human_takeover":False,
@@ -2531,7 +2611,7 @@ def _copilot_verdict(rec):
             rec["offered_slot_id"] = slot.get("slot_id")
             rec["offered_slot_label"] = slot.get("label")
             return {"type": "OFFER_VIEWING", "pn": rec.get("pn"), "slot": slot,
-                    "slot_id": rec["offered_slot_id"], "text": _viewing_text(slot),
+                    "slot_id": rec["offered_slot_id"], "text": _viewing_text(slot, _lang(rec)),
                     "notify": True, "copilot": True, "listing_key": lk, "verdict": verdict,
                     "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
     # NEEDS_INFO / DISQUALIFIED, or QUALIFIED with no open slot -> notify Winfred only (he handles).
@@ -2648,6 +2728,9 @@ def _is_affirmative(t):
 # number below the floor). Both share the SAME lease_note_sent latch so only one note ever
 # goes to a given prospect.
 _LEASE_NOTE_TEXT = "Just to share, the landlord prefers a minimum 1 year lease \U0001F64F Would that work for you?"
+_LEASE_NOTE_TEXT_ZH = "跟您分享一下，房东希望租期至少一年 \U0001F64F 请问这样可以吗？"
+def _lease_note_text(lang="en"):
+    return _LEASE_NOTE_TEXT_ZH if lang == "zh" else _LEASE_NOTE_TEXT
 
 # a range or an "at least"/"minimum" phrasing states (or allows) a longer upper bound -- never
 # a firm ask for 6 months or less, even when a small number sits right next to the unit word
@@ -3392,8 +3475,13 @@ def _handle_event_inner(state, ev):
                                  "auto: prospect signalled not keen / said thanks / signed off")
         # notify=False: the fixed reply below closes the loop on its own -- no Telegram ping,
         # no draft (never route a closing pleasantry through the drafting flow).
+        _closing_zh = _lang(rec) == "zh"
+        if _closing_zh:
+            _closing_text = CLOSING_TEXT_NEW_PLACE_ZH if _new_place else CLOSING_TEXT_GENERIC_ZH
+        else:
+            _closing_text = CLOSING_TEXT_NEW_PLACE if _new_place else CLOSING_TEXT_GENERIC
         return {"type": "AUTO_CLOSED", "pn": pn, "notify": False,
-                "text": CLOSING_TEXT_NEW_PLACE if _new_place else CLOSING_TEXT_GENERIC,
+                "text": _closing_text,
                 "listing_key": rec.get("listing_key"),
                 "reason": rec["closed_reason"],
                 "quote": (ev.get("text") or "")[:160]}
@@ -3599,7 +3687,7 @@ def _handle_event_inner(state, ev):
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
             return {"type": "LEASE_NOTE", "pn": pn, "notify": False,
                     "reason": "asked for a lease of 6 months or less",
-                    "text": _LEASE_NOTE_TEXT}
+                    "text": _lease_note_text(_lang(rec))}
         # a genuine FIRST TOUCH enquiry that also names the listing (bound already, or this
         # very inbound names it) must still get its welcome + form -- never dead end silently
         # on a brand new prospect (P2 fix, 9 Sep 2026 cycle5 sc5). The short lease ask itself
@@ -3770,8 +3858,14 @@ def _handle_event_inner(state, ev):
         rec["form_sent"] = True
         rec["form_sent_ts"] = __import__("time").time()
         rec["stage"] = "FORM_SENT"; rec["status"] = "form_sent"
+        # language pick, once, at first touch (Winfred, 11 Sep 2026): any CJK character in the
+        # very first inbound (portal boilerplate riding along counts too, since it is itself
+        # CJK when the source is Chinese) sends the Chinese form for the rest of this record.
+        if rec.get("lang") is None:
+            rec["lang"] = _detect_lang(rec.get("first_inbound_text"))
+        lg = rec["lang"]
         lk = rec.get("listing_key")
-        unit = listing_unit_message(lk)
+        unit = listing_unit_message(lk, lg)
         # capture landlord availability at first enquiry: flag if this listing has no
         # upcoming viewing slot yet, so Winfred can grab the landlord's next slot.
         need_avail = bool(lk) and not _has_open_future_slot(lk)
@@ -3780,8 +3874,11 @@ def _handle_event_inner(state, ev):
             # form (Winfred, 13 Jul 2026): the short open-intake form caused form-after-form
             # sequences and violated the standing full-form rule.
             _slotted = bool(lk) and _has_open_future_slot(lk)
-            form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
-            texts = ([unit, form] if unit else [form]) + [CHANNEL_PITCH]
+            if lg == "zh":
+                form = (VIEWING_TICKET_PREFIX_ZH + CHINESE_INTAKE_FORM) if (unit and _slotted) else CHINESE_INTAKE_FORM
+            else:
+                form = (VIEWING_TICKET_PREFIX + INTAKE_FORM) if (unit and _slotted) else INTAKE_FORM
+            texts = ([unit, form] if unit else [form]) + [channel_pitch(lg)]
             _act = {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
                     "listing_key":lk, "capture_availability":need_avail}
             _pending_lease = rec.pop("pending_short_lease_notify", None)
@@ -3798,7 +3895,7 @@ def _handle_event_inner(state, ev):
         # -> stay silent here, the unbound-profile flag fires on their next message instead.
         if not unit:
             return None
-        _act = {"type":"SEND_FORM", "pn":pn, "texts":[unit, CHANNEL_PITCH], "text":unit,
+        _act = {"type":"SEND_FORM", "pn":pn, "texts":[unit, channel_pitch(lg)], "text":unit,
                 "listing_key":lk, "capture_availability":need_avail}
         _pending_lease = rec.pop("pending_short_lease_notify", None)
         if _pending_lease:
@@ -3955,7 +4052,7 @@ def _handle_event_inner(state, ev):
                         return act_q
                     return act_q or \
                            {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b,
-                            "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
+                            "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b, _lang(rec))}
                 if v_b == "DISQUALIFIED":
                     # never book a profile the landlord would reject — kind referral as usual
                     _attr_b = _protected_attr_from_why(why_b, listing_b)
@@ -3985,7 +4082,7 @@ def _handle_event_inner(state, ev):
                             return act_b
                         act_b = act_b or \
                                {"type":"OFFER_VIEWING", "pn":pn, "slot":slot_b,
-                                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b)}
+                                "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot_b, _lang(rec))}
                         act_b["notify"] = True
                         act_b["reason"] = ((act_b.get("reason") or "") +
                                            " [listing gap: " + "; ".join(map(str, why_b))
@@ -4032,7 +4129,7 @@ def _handle_event_inner(state, ev):
             rec["stage"] = "PROFILE_PENDING"; rec["status"] = "incomplete"
             return {"type":"NUDGE_INCOMPLETE", "pn":pn,
                     "reason":"incomplete profile, missing " + ", ".join(miss),
-                    "text":_nudge_text(miss)}
+                    "text":_nudge_text(miss, _lang(rec))}
         # profile complete
         # service policy: never match a profile the landlords will not take. Kind referral, once.
         pol = policy_excluded(rec["profile"], rec.get("last_inbound",""), open_intake=_open_intake(reqs.get(rec.get("listing_key"))))
@@ -4115,7 +4212,7 @@ def _handle_event_inner(state, ev):
             rec["lease_note_sent"] = True
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"
             return {"type": "LEASE_NOTE", "pn": pn, "notify": False, "reason": (why or [""])[0],
-                    "text": _LEASE_NOTE_TEXT}
+                    "text": _lease_note_text(_lang(rec))}
         _listing_gap = None
         if verdict == "NEEDS_INFO":
             if rec.get("needs_info_unknowns") == why:
@@ -4155,7 +4252,7 @@ def _handle_event_inner(state, ev):
         rec["offered_slot_id"] = slot.get("slot_id") if slot else None
         rec["offered_slot_label"] = slot.get("label") if slot else None
         act = {"type":"OFFER_VIEWING", "pn":pn, "slot":slot,
-               "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot),
+               "slot_id":rec["offered_slot_id"], "text":_viewing_text(slot, _lang(rec)),
                "hot_matches": hot_matches(rec["profile"], exclude_key=lk)}
         if _listing_gap:
             act["notify"] = True
@@ -4247,6 +4344,10 @@ _NUDGE_LABELS = {"name":"name","nationality":"nationality","ethnicity":"ethnicit
                  "no_of_pax":"number of people staying","move_in_date":"move in date",
                  "lease_term_months":"preferred lease term","budget":"monthly budget (S$)",
                  "preferred_location":"preferred location"}
+_NUDGE_LABELS_ZH = {"name":"姓名","nationality":"国籍","ethnicity":"种族","gender":"性别",
+                    "age":"年龄","pass_type":"准证类型（PR/EP/S Pass/SC等）",
+                    "no_of_pax":"入住人数","move_in_date":"入住日期",
+                    "lease_term_months":"租期","budget":"预算","preferred_location":"首选地点"}
 def _join_and(items):
     """Natural list join ('a', 'a and b', 'a, b and c') so the nudge reads like a person
     wrote it rather than a form validator."""
@@ -4255,7 +4356,15 @@ def _join_and(items):
         return items[0] if items else ""
     return items[0] if len(items) == 1 else " and ".join([", ".join(items[:-1]), items[-1]])
 
-def _nudge_text(miss):
+# fixed leading clause of the Chinese nudge, registered verbatim in _ENGINE_PREFIXES /
+# BOT_SIGNATURES / _OUTBOUND_ONLY -- the missing fields list trails it, never sits inside it,
+# so the prefix match still works no matter which fields are missing.
+_NUDGE_ZH_PREFIX = "你好 :) 谢谢您提供的资料。在把您的资料发给房东之前，可以请您告诉我以下资料："
+
+def _nudge_text(miss, lang="en"):
+    if lang == "zh":
+        fields = "、".join(_NUDGE_LABELS_ZH.get(f, f) for f in miss)
+        return _NUDGE_ZH_PREFIX + fields + "。我拿到后会马上帮您跟房东确认。"
     fields = _join_and([_NUDGE_LABELS.get(f, f) for f in miss])
     return ("Hi :) thanks for the details so far. Before I can send your profile over to the "
             "landlord, could you also share your " + fields +
@@ -4266,11 +4375,41 @@ def _needs_info_text(why):
 
 CHANNEL = "https://whatsapp.com/channel/0029VbCoWRs4inomDhoAAv0G"
 
-# Sent as its OWN message right after the tenant intake form (Winfred, 18 Aug 2026) —
-# separate so the link keeps its WhatsApp preview instead of being buried under 14 fields.
-# Its opening words are registered in _ENGINE_PREFIXES / BOT_SIGNATURES / the runner's
-# _OUTBOUND_ONLY, or the echoed send would read as a manual reply and mute the engine.
-CHANNEL_PITCH = "More rooms available on my rental channel: " + CHANNEL
+# Sent as its OWN message right after the tenant intake form (Winfred, 18 Aug 2026, reworded
+# 11 Sep 2026 to name the room count and ask for location + budget up front) — separate so
+# the link keeps its WhatsApp preview instead of being buried under 14 fields. Its opening
+# words are registered in _ENGINE_PREFIXES / BOT_SIGNATURES / the runner's _OUTBOUND_ONLY, or
+# the echoed send would read as a manual reply and mute the engine.
+CHANNEL_PITCH_EN_30 = ("I have more than 30 rooms available on my channel \U0001F642 Do let "
+                       "me know your preferred location and budget as much as possible so I "
+                       "can recommend the right room for you. " + CHANNEL)
+CHANNEL_PITCH_EN_MANY = ("I have many rooms available on my channel \U0001F642 Do let me "
+                         "know your preferred location and budget as much as possible so I "
+                         "can recommend the right room for you. " + CHANNEL)
+CHANNEL_PITCH_ZH_30 = ("我的频道里有超过30间房间可供选择 \U0001F642 请尽量告诉我您的首选地点"
+                       "和预算，方便我为您推荐合适的房间。" + CHANNEL)
+CHANNEL_PITCH_ZH_MANY = ("我的频道里有很多房间可供选择 \U0001F642 请尽量告诉我您的首选地点"
+                         "和预算，方便我为您推荐合适的房间。" + CHANNEL)
+# kept as the default constant (also what every pre existing test/import references) -- the
+# >=30 open listing count is the normal case, so this stays the "more than 30" wording.
+CHANNEL_PITCH = CHANNEL_PITCH_EN_30
+
+def _open_listing_count():
+    """Rooms currently open (not closed/hold) across the whole listing index -- the guard
+    for the 30 rooms claim (Winfred, 11 Sep 2026): never say "more than 30" when it is not
+    actually true right now."""
+    n = 0
+    for l in (listing_reqs() or {}).values():
+        st = str(l.get("status") or "").lower()
+        if not st.startswith("closed") and st != "hold":
+            n += 1
+    return n
+
+def channel_pitch(lang="en"):
+    thirty_plus = _open_listing_count() >= 30
+    if lang == "zh":
+        return CHANNEL_PITCH_ZH_30 if thirty_plus else CHANNEL_PITCH_ZH_MANY
+    return CHANNEL_PITCH_EN_30 if thirty_plus else CHANNEL_PITCH_EN_MANY
 
 _UNIT_REJECT = ("don't like","dont like","didn't like","didnt like","not suitable","too small",
                 "too far","too old","not keen on this","not for me","give it a miss","give this a miss",
@@ -4393,7 +4532,14 @@ def _redirect_text(why, profile, reqs, exclude_key=None):
             "You can take a look at my other available room rentals here:\n" + CHANNEL + "\n"
             "Did anything catch your eye? Let me know and I'll arrange a viewing for you 🙂")
 
-def _viewing_text(slot):
+def _viewing_text(slot, lang="en"):
+    if lang == "zh":
+        # fixed lead clause first, slot (if any) trails it -- same prefix matching reason as
+        # _viewing_cta() above. Registered in _ENGINE_PREFIXES / BOT_SIGNATURES / _OUTBOUND_ONLY.
+        lead = "谢谢，您的条件符合房东的要求。我现在就把您的资料发给房东。"
+        if slot:
+            return lead + "下一场看房时间是 " + slot["label"] + "。回复YES确认这个时间。"
+        return lead + "您方便什么时候看房？"
     if slot:
         return "Thanks, you fit what the landlord is looking for. I will send your profile over now. " \
                "The next viewing is " + slot["label"] + ". Reply YES to take this slot."

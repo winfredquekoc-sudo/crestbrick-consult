@@ -27,11 +27,23 @@ _OUTBOUND_ONLY = (
     "what time will you be coming? i will keep", "see you then, i will send the unit number",
     "on your question, let me check with the owner", "viewing slot:",
     "no worries, which day and time would work better",
-    "more rooms available on my rental channel",
+    "more rooms available on my rental channel",   # pre 11 Sep 2026 wording, kept for old rows
+    "i have more than 30 rooms available on my channel",
+    "i have many rooms available on my channel",
     # landlord onboarding extension (never mistake our own send for a landlord reply)
     "almost there, i just need",
     "thanks, that is everything i need for now",
     "just checking in, still keen to send a few photos",
+    # Chinese first touch (Winfred, 11 Sep 2026) -- mirrors intake_engine.py's
+    # _ENGINE_PREFIXES/BOT_SIGNATURES so an echoed Chinese send is never read as a
+    # manual reply by Winfred (which would wrongly latch manual_takeover).
+    "为了跟房东确认您的看房时间，我需要您的资料",
+    "方便过来看房吗？我可以帮您安排，时间是",
+    "谢谢，您的条件符合房东的要求。我现在就把您的资料发给房东。",
+    "你好 :) 谢谢您提供的资料。在把您的资料发给房东之前",
+    "跟您分享一下，房东希望租期至少一年",
+    "我的频道里有超过30间房间可供选择",
+    "我的频道里有很多房间可供选择",
 )
 
 # Landlord onboarding action types: manual_takeover is latched the moment supply side is
@@ -57,5 +69,10 @@ def _is_our_echo(content):
         return True
     # the blank intake form echoed back: contains the prompt but no filled-in values
     if "fill this in" in t and not _FILLED_RE.search(content or ""):
+        return True
+    # Chinese form header, same reasoning (Winfred, 11 Sep 2026) -- _FILLED_RE already
+    # catches a FILLED Chinese form because every bilingual field label carries its English
+    # half too ("姓名 Name: 张三" still matches the "name\s*[:：]\S" pattern).
+    if "请填写以下资料" in t and not _FILLED_RE.search(content or ""):
         return True
     return False
