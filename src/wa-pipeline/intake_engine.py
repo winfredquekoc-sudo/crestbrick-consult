@@ -1098,10 +1098,23 @@ _SENSITIVE_CONTENT_RE = re.compile(
 # already fired once on unrelated content (P1 fix, 9 Sep 2026 cycle4 hg4-03: a legal-advice
 # question and a landlord-name/number fishing attempt both vanished behind an already
 # tripped "closed listing" notify latch).
+# "owner" is Winfred's own word for landlord (every canned template says "Owner keen to
+# meet a tenant soon") -- a fishing attempt phrased "owner contact"/"owner details" is
+# identical risk to "landlord's contact" and must match the same way (P1 fix, 9 Sep 2026
+# cycle5 c5s05: "reveal the listing owner details" matched nothing here at all). A bare
+# prompt-injection/override attempt ("ignore all previous instructions", "SYSTEM: ...
+# authorized override", "you are an AI") is high risk on its own, even with no owner/
+# landlord word in the same message -- a repeat one on an already-latched thread must
+# still always reach Winfred (P1 fix, same cycle5 finding).
+_PROMPT_INJECTION_RE = re.compile(
+    r"ignore\s+(?:all\s+|your\s+|ur\s+|prior\s+|previous\s+)*(?:previous\s+|prior\s+)?instructions\b|"
+    r"ignore\s+(?:ur|your)\s+script\b|"
+    r"\bsystem\s*:|authoriz(?:ed|ation)\s+override|"
+    r"you\s+are\s+an?\s+(?:ai|bot|language\s+model)\b|u\s+are\s+an?\s+ai\b", re.I)
 _HIGH_RISK_CONTENT_RE = re.compile(
-    _SENSITIVE_CONTENT_RE.pattern + r"|"
-    r"landlord'?s?\s+(?:number|phone|handphone|mobile|contact|name|address)|"
-    r"who\s+is\s+the\s+landlord|landlord\s+called|"
+    _SENSITIVE_CONTENT_RE.pattern + r"|" + _PROMPT_INJECTION_RE.pattern + r"|"
+    r"(?:landlord|owner)'?s?\s+(?:number|phone|handphone|mobile|contact|name|address|details)|"
+    r"who\s+is\s+the\s+(?:landlord|owner)|(?:landlord|owner)\s+called|"
     r"(?:exact|unit)\s+(?:unit\s+)?(?:number|address)|"
     r"bank\s+transfer|account\s+number|paynow|pay\s+you\s+directly|"
     r"deposit\s+(?:amount|refund)|how\s+much\s+(?:is\s+the\s+)?deposit|"
@@ -3211,21 +3224,21 @@ def _viewing_reaction(rec, ev, pn):
             if not rec.get("offered_slot_label") and not rec.get("offered_slot_id"):
                 return _no_slot_flag(pn)
             rec["viewing_confirmed"] = True
-            _lbl = rec.get("offered_slot_label")
-            _win = (" The viewing window is " + _lbl + ".") if _lbl else ""
             _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
-            if re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b", txt):
-                rec["exact_time_locked"] = True; rec["exact_time"] = ev.get("text")
-                rec["status"] = "viewing_time_locked"
-                _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
-                          "See you then, I will send the unit number nearer the time."]
-                if _chase: _texts.append(_chase.strip())
-                return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
-                        "notify": True, "texts": _texts, "text": _texts[0]}
-            rec["status"] = "viewing_confirmed"
+            # a slot that reaches here always carries the landlord's own exact day/time (the
+            # _no_slot_flag guard just above already caught the no-slot case), so confirming
+            # it is NEVER an open question -- lock the time immediately instead of asking
+            # "what time will you be coming", which left a dangling open question that primed
+            # the tenant's NEXT message to be misread as a fresh proposed time (P1 fix, 9 Sep
+            # 2026 cycle5 c5s04: "can share the landlord's number... confirm timing directly"
+            # right after this exact question was taken as a new VIEWING_TIME_PROPOSED).
+            rec["exact_time_locked"] = True
+            rec["exact_time"] = (ev.get("text")
+                if re.search(r"\b\d{1,2}\s*(?:am|pm)\b|\b\d{1,2}[:.]\d{2}\b", txt)
+                else rec.get("offered_slot_label"))
+            rec["status"] = "viewing_time_locked"
             _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
-                      "What time will you be coming? I will keep your slot and send the unit "
-                      "number nearer the time."]
+                      "See you then, I will send the unit number nearer the time."]
             if _chase: _texts.append(_chase.strip())
             return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
                     "notify": True, "texts": _texts, "text": _texts[0]}
@@ -3257,11 +3270,13 @@ def _viewing_reaction(rec, ev, pn):
     if not rec["viewing_confirmed"] and _is_affirmative(ev.get("text")):
         if not rec.get("offered_slot_label") and not rec.get("offered_slot_id"):
             return _no_slot_flag(pn)
-        rec["viewing_confirmed"] = True; rec["status"] = "viewing_confirmed"
+        # same fixed-slot fix as the branch above: never ask an open time question when the
+        # offer already carries the landlord's exact day/time (P1 fix, 9 Sep 2026 cycle5 c5s04).
+        rec["viewing_confirmed"] = True; rec["status"] = "viewing_time_locked"
+        rec["exact_time_locked"] = True; rec["exact_time"] = rec.get("offered_slot_label")
         _on = (" on " + rec.get("offered_slot_label")) if rec.get("offered_slot_label") else ""
         _texts = ["Ok can, your viewing is" + _on + " \U0001F642",
-                  "What time will you be coming? I will keep your slot and send the unit "
-                  "number nearer the time."]
+                  "See you then, I will send the unit number nearer the time."]
         if _chase: _texts.append(_chase.strip())
         return {"type": "CONFIRM_VIEWING", "pn": pn, "slot_id": rec.get("offered_slot_id"),
                 "notify": True, "texts": _texts, "text": _texts[0]}
@@ -3431,6 +3446,12 @@ def _handle_event_inner(state, ev):
             # always restarts the wait (Winfred, 8 Sep 2026).
             if ev.get("ts"):
                 rec["last_hand_reply_ts"] = ev["ts"]
+            # the text of THIS reply, separate from last_outbound (which any outbound --
+            # including a later engine resume send -- overwrites): wa_intake_resume checks
+            # this for an open promise ("let me check ... come back to you") before ever
+            # letting a resume auto-send talk over a commitment Winfred just made (P1 fix,
+            # 9 Sep 2026 cycle1 c1-06).
+            rec["last_hand_reply_text"] = ev.get("text") or ""
         # bind from OUTBOUND too: Winfred's hand reply often names the address, and a
         # sanctioned automation ack (PG auto-ack) always does. Either can carry the listing
         # that a plain inbound "still available?" never named. Never overwrite an existing bind.
@@ -3856,12 +3877,18 @@ def _handle_event_inner(state, ev):
             # once-per-record latch: a burst of ambiguous messages pings Winfred once, not
             # once per message (12-message burst, replay 9 Sep 2026) -- but new high risk
             # content always breaks through regardless of the latch (P1 fix, 9 Sep 2026
-            # cycle4 hg4-03).
-            first = (not rec.get("not_enquiry_notified")
-                     or _high_risk_escalate(rec, "not_enquiry", ev.get("text", "")))
+            # cycle4 hg4-03). Deduplicate on the CONTENT, never just the thread (P1 fix, 9
+            # Sep 2026 cycle5 c5s05): a repeat escalation on an already-latched record must
+            # still notify, and it must skip the 30 minute coalescing window too (notify_
+            # bypass) -- an injection/override attempt is never routine chatter to hold.
+            _hr = _high_risk_escalate(rec, "not_enquiry", ev.get("text", ""))
+            first = (not rec.get("not_enquiry_notified") or _hr)
             rec["not_enquiry_notified"] = True
-            return {"type":"FLAG_HUMAN", "pn":pn, "notify": first,
-                    "reason":"not a clear tenant enquiry", "text":None}
+            _reason = "not a clear tenant enquiry"
+            if _hr:
+                _reason += " | high risk content: \"" + (ev.get("text") or "")[:120] + "\""
+            return {"type":"FLAG_HUMAN", "pn":pn, "notify": first, "notify_bypass": _hr,
+                    "reason": _reason, "text":None}
         rec.pop("deferred_text", None)           # served: the deferred context is spent
         # listing status gate: never auto-send the form for a listing that is closed
         # (tenanted) or on hold. The room is gone; flag to a human instead of intaking.
@@ -3873,12 +3900,20 @@ def _handle_event_inner(state, ev):
                 rec["status"] = "listing_" + (st0.split()[0] or "closed")
                 # same content-aware override as the not_enquiry latch above (P1 fix, 9 Sep
                 # 2026 cycle4 hg4-03: a legal-advice question and a landlord-name/number
-                # fishing attempt both vanished behind an already-tripped closed-listing latch).
-                first = (not rec.get("closed_listing_notified")
-                         or _high_risk_escalate(rec, "closed_listing", ev.get("text", "")))
+                # fishing attempt both vanished behind an already-tripped closed-listing
+                # latch). Deduplicate on the CONTENT, never just the thread (P1 fix, 9 Sep
+                # 2026 cycle5 c5s05: two escalating prompt-injection attempts asking for the
+                # owner's contact, sent right after the first flag, both went out with
+                # notify:false) -- and skip the 30 minute coalescing window (notify_bypass)
+                # so an override attempt is never held for a routine digest.
+                _hr = _high_risk_escalate(rec, "closed_listing", ev.get("text", ""))
+                first = (not rec.get("closed_listing_notified") or _hr)
                 rec["closed_listing_notified"] = True
-                return {"type":"FLAG_HUMAN", "pn":pn, "notify": first,
-                        "reason":"enquiry on a " + st0 + " listing (" + lk0 + "); room no longer available", "text":None}
+                _reason = "enquiry on a " + st0 + " listing (" + lk0 + "); room no longer available"
+                if _hr:
+                    _reason += " | high risk content: \"" + (ev.get("text") or "")[:120] + "\""
+                return {"type":"FLAG_HUMAN", "pn":pn, "notify": first, "notify_bypass": _hr,
+                        "reason": _reason, "text":None}
         # service policy: if the opening message already reveals an excluded profile, do
         # not even send the form. Kind referral, once, no reason ever given.
         pol = policy_excluded(rec["profile"], ev.get("text",""), open_intake=_open_intake(reqs.get(lk0)))
@@ -4244,7 +4279,21 @@ def _handle_event_inner(state, ev):
             return {"type":"REDIRECT", "pn":pn, "reason":why,
                     "text":_redirect_text(why, rec["profile"], reqs, lk)}
         if verdict == "SHORT_LEASE":
-            if rec.get("lease_note_sent"): return None      # one note only
+            if rec.get("lease_note_sent"):
+                # one note only to the PROSPECT, but a newly completed profile confirming
+                # the same short lease must still reach Winfred once so he can decline by
+                # hand -- a latched chat going silent to the tenant is fine, going silent to
+                # Winfred too is a dropped, qualifying-adjacent verdict (P1 fix, 9 Sep 2026
+                # cycle1 c1-06: the full profile landed with qualify()==SHORT_LEASE and
+                # produced zero action, zero notify, purely because the note had already
+                # gone out once earlier in the same thread).
+                if rec.get("lease_note_verdict_notified"):
+                    return None
+                rec["lease_note_verdict_notified"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "profile completed after the short lease note, still "
+                                  + (why or ["short lease"])[0] + "; decline by hand if you want: "
+                                  + _profile_summary(rec["profile"])}
             rec["lease_note_min"] = 12
             rec["lease_note_sent"] = True
             rec["stage"] = "LEASE_NOTE"; rec["status"] = "short_lease_note"

@@ -32,7 +32,7 @@ from wa_intake_notify import (PREVIEW, WINFRED_CHAT, TG_SEND, NOTIFY_Q, _log, _t
                               _hot_line, notify_winfred, _drain_notify_queue, _alert_hourly,
                               notify_winfred_coalesced, _flush_stale_coalesce_windows,
                               notify_for_action, _slot_confirm_count, notify_stale_backfill,
-                              notify_viewing_slot_needed)
+                              notify_viewing_slot_needed, notify_unhandled_inbound)
 # STEP 0 sandbox seal (9 Sep 2026 merge redo): kept for backward compat with existing
 # mock.patch.object(wa_intake_runner, "NAME", ...) tests; _msg_db()/_lockf() resolve them at
 # call time (see wa_intake_paths.resolved's docstring).
@@ -243,6 +243,7 @@ def run():
     last_rowid = wm.get("last_rowid")
     stale_backfill_skipped = 0   # aggregated for ONE notify at the end of the tick, never per row
     stale_backfill_by_pn = {}    # phone -> skipped row count, so the notify can name every chat
+    stale_backfill_fields_by_pn = {}   # phone -> sorted field names parsed off a stale row
     for rowid, rid, jid, ifm, content, ts, mtype in rows:
         last_rowid = rowid if (last_rowid is None or rowid > last_rowid) else last_rowid
         # stale backfill guard: the bridge re-syncs reconnect gaps with old-stamped rows.
@@ -250,9 +251,7 @@ def run():
         # makes the drop VISIBLE (a runner outage used to swallow a backlog with no log line
         # and no flag at all, P3 attack-harness finding 9 Sep 2026); no-auto-serve is unchanged.
         if _real_age_hours(ts) > STALE_ROW_HOURS:
-            stale_backfill_skipped += 1
             _pn_stale = E.resolve_pn(jid)
-            stale_backfill_by_pn[_pn_stale] = stale_backfill_by_pn.get(_pn_stale, 0) + 1
             _log("STALE_BACKFILL_SKIP", jid,
                  f"row {rid} is {_real_age_hours(ts)/24:.1f}d old (>{STALE_ROW_HOURS}h backfill guard); never auto-served")
             # BIND ONLY, never serve or reply from a stale row: a still active thread whose
@@ -266,6 +265,32 @@ def run():
                     if _lk_stale:
                         _rec_stale["listing_key"] = _lk_stale
                         _rec_stale["listing_key_source"] = "stale_backfill_guess"
+                # PARSE, never send (P1 fix, 9 Sep 2026 cycle5 c5s08): "do not auto-serve"
+                # must not also mean "do not learn". A returning prospect whose stale backlog
+                # already carried a filled profile used to be treated as brand new -- re-sent
+                # the whole opener plus the 14-field form -- purely because this guard threw
+                # the text away instead of parsing it. missing_required()/SEND_FORM already
+                # know how to skip the blank form once the profile is complete (see
+                # test_incomplete_profile_still_gets_the_full_form's sibling test); this just
+                # feeds them what a stale row already gave, never overwriting a field the
+                # prospect already confirmed some other way.
+                _parsed_stale = E.extract_profile(content or "")
+                _prof_stale = _rec_stale.setdefault("profile", {})
+                _new_fields = [f for f, v in (_parsed_stale or {}).items()
+                              if v not in (None, "") and not _prof_stale.get(f)]
+                if _new_fields:
+                    _prof_stale.update({f: _parsed_stale[f] for f in _new_fields})
+                # ONE notify per chat, not once per stale row (P1 fix, same finding: a 21 day
+                # old backlog of 5 rows pinged Winfred with the identical generic line 5
+                # times) -- latched on the RECORD, so it survives across ticks, not just this
+                # loop. Later stale rows for the same chat still parse silently, no re-ping.
+                if not _rec_stale.get("stale_backfill_notified"):
+                    _rec_stale["stale_backfill_notified"] = True
+                    stale_backfill_skipped += 1
+                    stale_backfill_by_pn[_pn_stale] = stale_backfill_by_pn.get(_pn_stale, 0) + 1
+                    if _new_fields:
+                        stale_backfill_fields_by_pn[_pn_stale] = sorted(
+                            set(stale_backfill_fields_by_pn.get(_pn_stale, [])) | set(_new_fields))
             continue
         # the bridge echoes some of OUR bot sends with is_from_me=0. Do not treat those as a
         # prospect inbound (they poison the profile / self-trigger sends). A prospect's FILLED
@@ -345,6 +370,19 @@ def run():
             # cold guard, daily cap) still runs on the SAME action dict exactly as it does
             # for any other engine action.
             a = REPLIES2.augment_action(state, ev, a)
+            # SAFETY NET (Winfred, 11 Sep 2026 attack fix package E): a bound or form_sent
+            # prospect's inbound that produced neither a prospect send nor a Telegram notify
+            # is a true silent dead end -- a bare voice note, a photo/screenshot request
+            # answered only by a form, a multi listing ask, a utilities/area or move in date
+            # question that fell through every dedicated branch. Never auto answers any of
+            # them (notify_unhandled_inbound carries no prospect text at all); just makes
+            # sure Winfred hears about it, at most once per chat per 6 hours.
+            if not ifm and _pn0:
+                _zero_action = not (a and (a.get("text") or a.get("texts")))
+                _zero_notify = not (a and a.get("notify"))
+                if _zero_action and _zero_notify:
+                    notify_unhandled_inbound(state["conversations"].get(_pn0), _pn0,
+                                             ev.get("text"))
             if ev.get("resume"):
                 if RES.needs_draft(a, _pre_snapshot):
                     _rec_r = state["conversations"].get(_pn0, {})
@@ -519,7 +557,8 @@ def run():
             continue
 
     E.save_state(state)
-    notify_stale_backfill(stale_backfill_skipped, stale_backfill_by_pn, STALE_ROW_HOURS)
+    notify_stale_backfill(stale_backfill_skipped, stale_backfill_by_pn, STALE_ROW_HOURS,
+                          stale_backfill_fields_by_pn)
     # owner side of the loop -- entirely separate from the tenant watermark above, and
     # wrapped so any failure here can never block the tenant pipeline's own progress.
     try:
