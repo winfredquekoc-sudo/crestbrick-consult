@@ -2011,7 +2011,17 @@ function rebuildMatches() {
   LISTING_FACETS = new Map();
   for (const l of (DATA.listings || [])) {
     LISTING_FACETS.set(l.id, { rt: roomTypeOf(l), gp: genderPrefOf(l), rp: racePrefOf(l), st: statusOf(l), ck: cookingOf(l) });
-    for (const t of ALL_TENANTS) MATCHES.push({ l, t, s: Scoring.score(l, t, TODAY) });
+    for (const t of ALL_TENANTS) {
+      // (runner up) search haystacks, precomputed once per pair instead of on
+      // every passFilter/passFilterListing/updateFacetedCounts call — hay is
+      // the listing-view text (search box on work/whole/pipeline), hayT is
+      // the tenant-only text passFilterListing uses (listing rail's search).
+      // Same concatenation as before, undefined fields included as-is where
+      // the original did — this only moves the cost, it does not change it.
+      const hay = (t.name + " " + l.name + " " + l.district + " " + (AREA[l.district] || "") + " " + l.address + " " + (t.preferred_location || "") + " " + (t.phone || "")).toLowerCase();
+      const hayT = (t.name + " " + t.preferred_location + " " + t.district).toLowerCase();
+      MATCHES.push({ l, t, s: Scoring.score(l, t, TODAY), hay, hayT });
+    }
   }
   byListing = {}; byTenant = {};
   for (const m of MATCHES) {
@@ -2029,8 +2039,13 @@ const F = () => ({ q: $("#q").value.trim().toLowerCase(), d: $("#fd").value, v: 
 function facetsOf(l) {
   return LISTING_FACETS.get(l.id) || { rt: roomTypeOf(l), gp: genderPrefOf(l), rp: racePrefOf(l), st: statusOf(l), ck: cookingOf(l) };
 }
-function passFilter(m) {
-  const f = F();
+// (runner up) f is hoisted out to an argument so a caller sweeping many pairs
+// (renderWork, currentFilteredWorklistSet, ...) reads #q/#fd/... and the DOM
+// checkbox states ONCE per sweep instead of once per pair — each F() call was
+// 11 live DOM reads, x11,616 pairs. Default keeps every existing call site
+// that still calls passFilter(m) with no second argument working unchanged.
+function passFilter(m, f) {
+  f = f || F();
   if (isSnoozedNow(m)) return false;
   if (f.d && m.l.district !== f.d) return false;
   if (f.v && effective(m).verdict !== f.v) return false;
@@ -2043,14 +2058,11 @@ function passFilter(m) {
   if (f.rp && fl.rp !== f.rp) return false;
   if (f.st && fl.st !== f.st) return false;
   if (f.ck && fl.ck !== f.ck) return false;
-  if (f.q) {
-    const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
-    if (!hay.includes(f.q)) return false;
-  }
+  if (f.q && !m.hay.includes(f.q)) return false;
   return true;
 }
-function passFilterListing(m) {
-  const f = F();
+function passFilterListing(m, f) {
+  f = f || F();
   if (isSnoozedNow(m)) return false;
   if (f.v && effective(m).verdict !== f.v) return false;
   if (f.cold && isColdT(m.t)) return false;
@@ -2061,7 +2073,7 @@ function passFilterListing(m) {
   if (f.rp && fl.rp !== f.rp) return false;
   if (f.st && fl.st !== f.st) return false;
   if (f.ck && fl.ck !== f.ck) return false;
-  if (f.q) { const hay = (m.t.name + " " + m.t.preferred_location + " " + m.t.district).toLowerCase(); if (!hay.includes(f.q)) return false; }
+  if (f.q && !m.hayT.includes(f.q)) return false;
   return true;
 }
 
@@ -2481,12 +2493,29 @@ function measureHeaderHeight() {
   const h = document.querySelector("header");
   if (h) document.documentElement.style.setProperty("--header-h", h.offsetHeight + "px");
 }
+// (runner up) render() used to sweep MATCHES three separate times for three
+// independent counts (KPI qualified, snoozedActive().length, queuedMatches()
+// .length) on every single render — every tab switch, mark write and filter
+// keystroke. One pass computes all three; snoozedActive()/queuedMatches()
+// themselves are unchanged, since the drawers they back need the actual
+// filtered arrays, not just a count.
+function renderCountsSweep() {
+  let qualified = 0, snoozed = 0, queued = 0;
+  for (const m of MATCHES) {
+    if (effective(m).verdict === "QUALIFIED") qualified++;
+    if (isSnoozedNow(m)) snoozed++;
+    const mk = readMark(m.l.id, m.t.id);
+    if (mk && mk.v === "Queued") queued++;
+  }
+  return { qualified, snoozed, queued };
+}
 function render() {
   $("#sub").innerHTML = "Priority: availability → location → price → landlord requirements   ·   data " + esc(DATA.generated) + " " + dataAgeBannerHtml();
+  const counts = renderCountsSweep();
   $("#kpis").innerHTML =
     '<div class="kpi"><b>' + (DATA.listings || []).length + '</b> available listings</div>' +
     '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
-    '<div class="kpi"><b>' + MATCHES.filter(m => effective(m).verdict === "QUALIFIED").length + '</b> qualified matches</div>';
+    '<div class="kpi"><b>' + counts.qualified + '</b> qualified matches</div>';
   ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => { const e = $("#" + v); if (e) e.style.display = v === view ? ((v === "listing" || v === "tenant") ? "grid" : "block") : "none"; });
   // verdict / max rent / hide cold / hide actioned only affect work, listing, tenant, whole, pipeline — hide elsewhere (search + district stay visible everywhere)
   const filtersActive = ["work", "listing", "tenant", "whole", "pipeline"].indexOf(view) !== -1;
@@ -2512,8 +2541,8 @@ function render() {
     "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
     (CRM.mode === "local" ? "The 🗂 CRM drawer and Pipeline tab are saved on this device only — no cloud backend is configured." : "The 🗂 CRM drawer and Pipeline tab sync to your private CRM database and survive a rebuild.") +
     " PDPA: keep this file private.";
-  const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + snoozedActive().length + '</span>';
-  const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + queuedMatches().length + '</span>';
+  const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + counts.snoozed + '</span>';
+  const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + counts.queued + '</span>';
   updateFacetedCounts();
   measureHeaderHeight();   // (56)/(item 4) re-measure after every header content change, not just window resize
 }
@@ -2689,10 +2718,7 @@ function updateFacetedCounts() {
   for (const m of MATCHES) {
     if (isSnoozedNow(m)) continue;
     if (base.r && m.l.rent_min && m.l.rent_min > base.r) continue;
-    if (base.q) {
-      const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
-      if (hay.indexOf(base.q) === -1) continue;
-    }
+    if (base.q && m.hay.indexOf(base.q) === -1) continue;
     const verdict = effective(m).verdict;
     const isCold = isColdT(m.t);
     const markV = getMarkV(m.l.id, m.t.id);
@@ -2785,10 +2811,14 @@ function renderWork() {
   box.appendChild(helpStrip());
   box.appendChild(askStrip());
   const seen = new Set();
+  const f = F();
   const rows = MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending")
-    .filter(m => !isSnoozedNow(m)).filter(passFilter)
-    .sort((a, b) => worklistRank(b) - worklistRank(a));
-  const prim = []; for (const m of rows) { if (!seen.has(m.t.id)) { seen.add(m.t.id); prim.push(m); } }
+    .filter(m => !isSnoozedNow(m)).filter(m => passFilter(m, f));
+  // (runner up) decorate-sort-undecorate: worklistRank(m) calls
+  // Scoring.urgencyMult, which used to run inside the comparator itself —
+  // roughly 2*n*log(n) calls for a sort that only needs each rank once.
+  const ranked = rows.map(m => [worklistRank(m), m]).sort((a, b) => b[0] - a[0]);
+  const prim = []; for (const [, m] of ranked) { if (!seen.has(m.t.id)) { seen.add(m.t.id); prim.push(m); } }
   const list = prim.slice(0, 25);
   CURRENT_WORKLIST = list;
   if (triageIndex >= list.length) triageIndex = Math.max(0, list.length - 1);
@@ -3149,7 +3179,8 @@ function renderListingPanel(l) {
   const reconfirmBtn = p.querySelector('[data-reconfirm]'); if (reconfirmBtn) reconfirmBtn.onclick = () => showReconfirmDraft(l);
 
   const allForListing = byListing[l.id] || [];
-  const q = allForListing.filter(passFilterListing);
+  const lf = F();
+  const q = allForListing.filter(m => passFilterListing(m, lf));
   const qualified = q.filter(m => effective(m).verdict === "QUALIFIED");
 
   // Spec item 5 reads "top <=3 qualified tenants" — a cap on how many go into
@@ -3383,8 +3414,9 @@ function renderWholeUnit() {
   const tenants = ALL_TENANTS.filter(isWholeUnitTenant);
   const listings = (DATA.listings || []).filter(isWholeUnitListing);
   if (!tenants.length || !listings.length) { box.appendChild(el("div", "empty", "No whole unit candidates or listings right now. This tab fills in once a tenant's budget clears a whole unit, or a landlord lists one.")); return; }
+  const wf = F();
   tenants.forEach(t => {
-    const matches = listings.map(l => (byTenant[t.id] || []).find(m => m.l.id === l.id)).filter(Boolean).filter(passFilter);
+    const matches = listings.map(l => (byTenant[t.id] || []).find(m => m.l.id === l.id)).filter(Boolean).filter(m => passFilter(m, wf));
     if (!matches.length) return;
     box.appendChild(el("div", "section-hd", esc(t.name)));
     matches.forEach(m => box.appendChild(matchRow(m, true)));
@@ -4205,7 +4237,8 @@ function showIdleLock() {
 
 // ===================== bulk action (59) =====================
 function currentFilteredWorklistSet() {
-  return MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending").filter(m => !isSnoozedNow(m)).filter(passFilter);
+  const f = F();
+  return MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending").filter(m => !isSnoozedNow(m)).filter(m => passFilter(m, f));
 }
 function openBulkActionModal() {
   const set = currentFilteredWorklistSet();
