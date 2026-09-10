@@ -311,6 +311,14 @@ body.density-compact .lc{padding:7px 9px}
 .rail, .panel, .phead > div{min-width:0}
 .chip{white-space:normal;overflow-wrap:anywhere;display:inline-block;max-width:100%}
 
+/* (item 3) same (71) trap, Dashboard/mapview specifically: .mapleft is a
+   grid child of .mapgrid, which itself already uses minmax(0,...) tracks —
+   but that only bounds the TRACK, not the ITEM inside it, which still
+   defaults to min-width:auto. Confirmed live: at 375px the roster table
+   inside .mapleft (long district/tenant text, nowrap cells) forced the whole
+   page to scrollWidth ~601 even with the grid single columned below 900px. */
+.mapgrid>div{min-width:0}
+
 /* (72) undo toast (undoToast() in app.js, shown after every mark/bulk
    action) inherited only the plain .wm block style — no positioning — so it
    was appended as the last child of <body> and rendered below the fold on
