@@ -37,8 +37,11 @@ h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
 .tab.on{background:var(--acc);color:#fff;border-color:var(--acc)}
 /* (item 1) icon moved out of the tab's own text node into a ::before reading
    data-icon, so the mobile media query below can shrink/reflow the label
-   without the emoji's own (inconsistent, font dependent) width fighting it. */
-.tab::before{content:attr(data-icon);margin-right:6px}
+   without the emoji's own (inconsistent, font dependent) width fighting it.
+   (fix 13) scoped to [data-icon] — #clr also carries class="tab" but has no
+   icon, and an unscoped rule still reserves the 6px margin for an empty
+   ::before there. */
+.tab[data-icon]::before{content:attr(data-icon);margin-right:6px}
 .filters{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;align-items:center}
 /* ===================== UX spec item 2: filter bar restructure ===================== */
 /* Row two (#morefilters) only gets display:flex when the [hidden] attribute
@@ -109,7 +112,6 @@ main{padding:14px 16px 60px}
 .empty{color:var(--mut);text-align:center;padding:40px 10px}
 .legend{font-size:11px;color:var(--mut);margin-top:12px;line-height:1.6}
 .mk{font-size:11px;color:var(--mut)}
-select.mk{padding:3px 6px}
 .wm{background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.4);color:var(--amb-toast-ink);border-radius:8px;padding:6px 10px;font-size:12px;margin-bottom:10px}
 .help{background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:13px;margin-bottom:10px;line-height:1.6}
 .row.blk{opacity:.8;background:repeating-linear-gradient(45deg,transparent,transparent 9px,rgba(255,92,108,.06) 9px,rgba(255,92,108,.06) 18px)}
@@ -659,5 +661,8 @@ body.density-compact .lc{padding:7px 9px}
   #resultcount{font-size:11px}
   #clr{padding:5px 9px;font-size:11px}
   #bulkbtn{display:none}
+  /* (fix 13) 26px is fine with a mouse; below the 44px tap floor on a phone
+     is not — same breakpoint every other tap target on this page uses. */
+  .btn.more{min-height:44px}
 }
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}

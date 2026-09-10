@@ -21,6 +21,7 @@ APPJS = os.path.join(HERE, "app.js")
 SCORING_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/scoring.test.mjs")
 STATE_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/state.test.mjs")
 FILTERS_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/filters.test.mjs")
+ROWS_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/rows.test.mjs")
 EXPORT_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/test_export.py")
 STATE_PY_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/test_state.py")
 STATS_PATH = os.path.expanduser("~/.claude/state/matchmaker-stats.json")
@@ -97,12 +98,12 @@ def check_config_consistency():
 
 
 def run_tests():
-    missing = [p for p in (SCORING_TEST, STATE_TEST, FILTERS_TEST, EXPORT_TEST, STATE_PY_TEST) if not os.path.exists(p)]
+    missing = [p for p in (SCORING_TEST, STATE_TEST, FILTERS_TEST, ROWS_TEST, EXPORT_TEST, STATE_PY_TEST) if not os.path.exists(p)]
     if missing:
         fail("required test file(s) missing, cannot verify before build:\n  " + "\n  ".join(missing))
     if not shutil.which("node"):
         fail("node not found on PATH — needed for the .mjs test suites")
-    for path in (SCORING_TEST, STATE_TEST, FILTERS_TEST):
+    for path in (SCORING_TEST, STATE_TEST, FILTERS_TEST, ROWS_TEST):
         if subprocess.run(["node", "--test", path]).returncode != 0:
             fail(f"tests/matchmaker/{os.path.basename(path)} failed — aborting, nothing written")
     for pt in (EXPORT_TEST, STATE_PY_TEST):

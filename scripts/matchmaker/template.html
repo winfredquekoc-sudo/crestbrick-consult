@@ -48,15 +48,17 @@
     <button class="hbtn" id="palettebtn" type="button" title="Command palette">⌘K Find</button>
     <button class="hbtn" id="themebtn" type="button" title="Toggle day/night">🌙</button>
     <button class="hbtn" id="densitybtn" type="button" title="Toggle density">☰ Density</button>
+    <!-- (fix 9) lives here, not in .filters, so it stays reachable on
+         mapview/stats where .filters is display:none. -->
+    <button class="hbtn" id="bulkbtn" type="button">☑ Bulk action</button>
   </div>
   <div class="filters">
     <input id="q" placeholder="Search tenant, landlord, district, area, postal…" aria-label="Search tenant, landlord, district, area, or postal code">
     <select id="fd" aria-label="Filter by district"><option value="">All districts</option></select>
-    <button id="filterstoggle" class="hbtn" type="button" aria-expanded="false" aria-controls="morefilters">Filters <span class="cnt">0</span></button>
+    <button id="filterstoggle" class="hbtn" type="button" aria-expanded="false" aria-controls="morefilters">Filters</button>
     <div class="chipstrip" id="chipstrip" aria-live="polite"></div>
     <span class="mut" id="resultcount" hidden></span>
     <button id="clr" class="tab" type="button" hidden>↺ Clear filters</button>
-    <button id="bulkbtn" class="tab" type="button">☑ Bulk action</button>
     <div id="morefilters" hidden>
       <select id="fv" aria-label="Filter by verdict">
         <option value="">All verdicts</option>

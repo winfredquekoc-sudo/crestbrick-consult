@@ -416,8 +416,11 @@ function markPillLabel(mk, now) {
 // preference keeps the same slot either way so the shape never changes.
 function rowFacts(t, l, showListing) {
   const out = ["budget " + (t.budget || t.budget_max || "?"), "move " + (t.move_in || "?")];
-  out.push((t.district || "?") + (t.preferred_location ? (" · " + String(t.preferred_location).slice(0, 28)) : ""));
-  if (showListing && l) out.push(l.district + " · " + rentTxt(l));
+  // (fix 12) two unlabelled districts on a showListing row read as one thing
+  // repeated — "wants"/"room" says which is the tenant's preference and
+  // which is the actual room being matched against.
+  out.push("wants " + (t.district || "?") + (t.preferred_location ? (" · " + String(t.preferred_location).slice(0, 28)) : ""));
+  if (showListing && l) out.push("room " + l.district + " · " + rentTxt(l));
   return out;
 }
 
@@ -1860,6 +1863,7 @@ function importBlob(blob) {
     if (k.indexOf(OVERRIDE_PREFIX) !== 0) continue;
     if (tsOfRaw(overrides[k]) >= tsOfRaw(localStorage.getItem(k))) { if (safeSet(k, overrides[k])) { result.overrides++; MARK_CACHE.delete(k); } }
   }
+  MARK_GEN++;   // (fix 2) an import can write marks/overrides straight to localStorage — the facet count cache must not survive it
   const offers = blob.offers || {};
   for (const k in offers) {
     if (!isOfferKey(k)) continue;
@@ -1955,7 +1959,7 @@ function restoreBackup(key) {
 function restoreMarks(priors) {
   priors.forEach(p => {
     const key = markKey(p.lid, p.tid);
-    if (p.prior) { localStorage.setItem(key, JSON.stringify(p.prior)); MARK_CACHE.delete(key); }
+    if (p.prior) { localStorage.setItem(key, JSON.stringify(p.prior)); MARK_CACHE.delete(key); MARK_GEN++; }
     else clearMarkV(p.lid, p.tid);
   });
   render();
@@ -2399,7 +2403,9 @@ function wireRowEvents(row, l, t, m, eff, cold, st) {
 function blockerChipHtml(eff, m) {
   if (eff.verdict === "BLOCKED") {
     const reason = m.s.flags[0] || "landlord requirement conflict";
-    return ' <span class="chip r">⛔ ' + esc(reason) + '</span>';
+    // (fix 11) no ⛔ here — the "⛔ Not a fit" verdict chip already sits right
+    // next to this one on line 1, and the same glyph twice reads as a typo.
+    return ' <span class="chip r">' + esc(reason) + '</span>';
   }
   if (eff.verdict === "NEEDS_INFO" && (m.s.needsInfoReasons || []).length) {
     return ' <span class="chip a">❓ ' + esc(m.s.needsInfoReasons.join(" & ")) + ' missing</span>';
@@ -2490,6 +2496,11 @@ function matchRow(m, showListing, opts) {
   if (t.phone) extraLines.push('<div class="mk">→ you will message <b>' + esc(t.name) + '</b> · ' + phoneSpanHtml("tenant", t.id, t.phone) + '</div>');
   if (m.s.flags.length) extraLines.push('<div class="gap">⚑ ' + esc(m.s.flags.join(' · ')) + '</div>');
   if (m.s.near_miss && blocked) extraLines.push('<div class="gap" style="color:var(--amb-ink);font-style:normal">Negotiable gap — $' + esc(m.s.near_miss_gap) + ' short of landlord\'s min.</div>');
+  // (fix 5) restored — dropped when line 1 picked up the promoted blocker
+  // chip (item 8). The chip alone only names the reason; this sentence is
+  // the actual instruction (do not offer this room to this tenant), so it
+  // still belongs behind +N more for a BLOCKED row.
+  if (blocked) extraLines.push('<div class="gap" style="color:#ff6b78;font-style:normal">⛔ Do not offer this room to ' + esc(fname(t.name)) + ': ' + esc(m.s.flags[0] || 'landlord requirement conflict') + '</div>');
   const extrasCount = extraChips.length + extraLines.length;
   // Extras are NOT written into the row's initial HTML — only a byte-cheap
   // toggle button is. toggleRowExtras() builds this string from the SAME
@@ -2606,14 +2617,15 @@ function dataAgeBannerHtml() {
 function measureHeaderHeight() {
   const h = document.querySelector("header");
   if (!h) return;
-  // (item 1) on a phone the header itself can still be taller than the
-  // acceptance floor for a moment (a long viewing note wrapping a chip, a
-  // slow font swap) even after the item 1 CSS collapse — clamping what gets
-  // PUBLISHED to 45% of the viewport keeps --header-h (and therefore
-  // scroll-margin-top and .sticky-ctx's offset, see styles.css) from ever
-  // parking a focused row or sticky strip more than half a screen down, no
-  // matter what the header's own real height does.
-  const clamped = Math.min(h.offsetHeight, Math.round(innerHeight * 0.45));
+  // (fix 3) the header is sticky — --header-h must be its TRUE height, or a
+  // focused row (scroll-margin-top) and .sticky-ctx park underneath the real
+  // header instead of below it. An arbitrary viewport fraction (45%) used to
+  // be published here instead of the real height whenever the header grew
+  // past that fraction — with More filters open the header is genuinely
+  // taller than that on a phone, so the clamp itself was hiding rows behind
+  // the header it was meant to clear. The only ceiling that makes sense is
+  // the viewport itself (never publish an offset taller than the screen).
+  const clamped = Math.min(h.offsetHeight, innerHeight);
   document.documentElement.style.setProperty("--header-h", clamped + "px");
 }
 // (item 6) panels heavy enough to be worth releasing on exit — each one
@@ -2727,11 +2739,18 @@ function updateChipsAndCount() {
     strip.innerHTML = chips.map(c => '<span class="chip removable" data-chipkey="' + esc(c.k) + '">' + esc(c.label) + ' <span class="x">✕</span></span>').join("");
     strip.querySelectorAll("[data-chipkey]").forEach(node => {
       const c = chips.find(x => x.k === node.dataset.chipkey);
-      if (c) node.onclick = () => { c.clear(); render(); };
+      // (fix 14) a chip clear must cancel any pending debounced render the
+      // same way #clr's own click handler already does — otherwise the
+      // immediate render() below can be followed a moment later by the
+      // stale timeout's render() from before the chip was cleared.
+      if (c) node.onclick = () => { clearTimeout(filterDebounceTimer); c.clear(); render(); };
     });
   }
-  const cntEl = document.querySelector("#filterstoggle .cnt");
-  if (cntEl) cntEl.textContent = String(filtersActive ? countMoreFilters(f) : 0);
+  const toggleBtn = $("#filterstoggle");
+  if (toggleBtn) {
+    const n = filtersActive ? countMoreFilters(f) : 0;
+    toggleBtn.textContent = n ? ("Filters (" + n + ")") : "Filters";
+  }
   const clr = $("#clr"); if (clr) clr.hidden = chips.length === 0;
   return { f, filtersActive, chips };
 }
@@ -2743,7 +2762,7 @@ function renderFilterBar() {
   // mapview/stats consume none of q/d/the 9 (see NON_FILTER_VIEWS) — the
   // whole bar disappears there rather than sit empty.
   const qdActive = NON_FILTER_VIEWS.indexOf(view) === -1;
-  ["fv", "fr", "fcwrap", "fhwrap", "ft", "fg", "fe", "fs", "fk"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
+  ["filterstoggle", "fv", "fr", "fcwrap", "fhwrap", "ft", "fg", "fe", "fs", "fk"].forEach(id => { const e = $("#" + id); if (e) e.style.display = filtersActive ? "" : "none"; });
   const bar = document.querySelector(".filters");
   if (bar) bar.style.display = qdActive ? "" : "none";
   const rc = $("#resultcount");
@@ -2922,6 +2941,9 @@ function renderReviewRequests(container) {
 function facetCount(base, overrides) {
   const f = Object.assign({}, base, overrides);
   let n = 0;
+  // (fix 15) same checks as passFilter() above — facetsOf(m.l) and m.hay are
+  // the one copy of "what bucket is this pair in", not a second hand rolled
+  // one re-deriving the five normalisers and rebuilding the search string.
   for (const m of MATCHES) {
     if (isSnoozedNow(m)) continue;
     if (f.d && m.l.district !== f.d) continue;
@@ -2929,28 +2951,24 @@ function facetCount(base, overrides) {
     if (f.r && m.l.rent_min && m.l.rent_min > f.r) continue;
     if (f.cold && isColdT(m.t)) continue;
     if (f.hide && getMarkV(m.l.id, m.t.id)) continue;
-    if (f.rt && roomTypeOf(m.l) !== f.rt) continue;
-    if (f.gp && genderPrefOf(m.l) !== f.gp) continue;
-    if (f.rp && racePrefOf(m.l) !== f.rp) continue;
-    if (f.st && statusOf(m.l) !== f.st) continue;
-    if (f.ck && cookingOf(m.l) !== f.ck) continue;
-    if (f.q) {
-      const hay = (m.t.name + " " + m.l.name + " " + m.l.district + " " + (AREA[m.l.district] || "") + " " + m.l.address + " " + (m.t.preferred_location || "") + " " + (m.t.phone || "")).toLowerCase();
-      if (hay.indexOf(f.q) === -1) continue;
-    }
+    const fl = facetsOf(m.l);
+    if (f.rt && fl.rt !== f.rt) continue;
+    if (f.gp && fl.gp !== f.gp) continue;
+    if (f.rp && fl.rp !== f.rp) continue;
+    if (f.st && fl.st !== f.st) continue;
+    if (f.ck && fl.ck !== f.ck) continue;
+    if (f.q && !m.hay.includes(f.q)) continue;
     n++;
   }
   return n;
 }
 const VERDICT_LABELS = { "": "All verdicts", QUALIFIED: "Qualified", NEEDS_INFO: "Needs info", BLOCKED: "Has conflict" };
 // (72) single pass over MATCHES computing every bucket facetCount() would —
-// each district option's count, each verdict option's count, the cold count
-// and the hide count — together in one sweep instead of ~20 separate sweeps.
-// district/verdict select options never carry value="" except the hardcoded
-// "All districts"/"All verdicts" entries (dynamic options are filtered
-// Boolean at init — see the district <select> populate loop), so distTotal/
-// verdTotal (every match that clears the OTHER active filters, d/v itself
-// unconstrained) is exactly what facetCount(base, {d:""}) / {v:""} returns.
+// each verdict option's count, the cold count, the hide count and the 5 room
+// type/gender/race/status/cooking counts — together in one sweep instead of
+// ~20 separate sweeps. (fix 8) district ("d") stays in FACET_KEYS/ok below
+// because the OTHER facets still need to know whether a match clears the
+// district filter — #fd itself just never renders a count (see below).
 // facet keys enumerated by allExcept() below — d/v/cold/hide plus the 5 room
 // type/gender/race/status/cooking facets added alongside district/verdict.
 const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
@@ -2973,8 +2991,8 @@ function updateFacetedCounts() {
   const cacheKey = JSON.stringify(base) + "|" + MARK_GEN;
   if (cacheKey === FACET_CACHE_KEY) return;
   FACET_CACHE_KEY = cacheKey;
-  const distCounts = {}, verdCounts = {}, rtCounts = {}, gpCounts = {}, rpCounts = {}, stCounts = {}, ckCounts = {};
-  let distTotal = 0, verdTotal = 0, coldCount = 0, hideCount = 0, rtTotal = 0, gpTotal = 0, rpTotal = 0, stTotal = 0, ckTotal = 0;
+  const verdCounts = {}, rtCounts = {}, gpCounts = {}, rpCounts = {}, stCounts = {}, ckCounts = {};
+  let coldCount = 0, hideCount = 0;
   for (const m of MATCHES) {
     if (isSnoozedNow(m)) continue;
     if (base.r && m.l.rent_min && m.l.rent_min > base.r) continue;
@@ -2994,37 +3012,36 @@ function updateFacetedCounts() {
       rp: !base.rp || rp === base.rp, st: !base.st || st === base.st, ck: !base.ck || ck === base.ck,
     };
     const allExcept = k => FACET_KEYS.every(x => x === k || ok[x]);
-    if (allExcept("d")) { distCounts[m.l.district] = (distCounts[m.l.district] || 0) + 1; distTotal++; }
-    if (allExcept("v")) { verdCounts[verdict] = (verdCounts[verdict] || 0) + 1; verdTotal++; }
+    if (allExcept("v")) verdCounts[verdict] = (verdCounts[verdict] || 0) + 1;
     // cold facet mirrors facetCount(base,{cold:true}): "if (f.cold && isCold)
     // continue" excludes COLD rows once the flag is forced on, so the count
     // shown is survivors — i.e. NOT cold — not the cold ones themselves.
     if (allExcept("cold") && !isCold) coldCount++;
     if (allExcept("hide") && !markV) hideCount++;
-    if (allExcept("rt")) { rtCounts[rt] = (rtCounts[rt] || 0) + 1; rtTotal++; }
-    if (allExcept("gp")) { gpCounts[gp] = (gpCounts[gp] || 0) + 1; gpTotal++; }
-    if (allExcept("rp")) { rpCounts[rp] = (rpCounts[rp] || 0) + 1; rpTotal++; }
-    if (allExcept("st")) { stCounts[st] = (stCounts[st] || 0) + 1; stTotal++; }
-    if (allExcept("ck")) { ckCounts[ck] = (ckCounts[ck] || 0) + 1; ckTotal++; }
+    if (allExcept("rt")) rtCounts[rt] = (rtCounts[rt] || 0) + 1;
+    if (allExcept("gp")) gpCounts[gp] = (gpCounts[gp] || 0) + 1;
+    if (allExcept("rp")) rpCounts[rp] = (rpCounts[rp] || 0) + 1;
+    if (allExcept("st")) stCounts[st] = (stCounts[st] || 0) + 1;
+    if (allExcept("ck")) ckCounts[ck] = (ckCounts[ck] || 0) + 1;
   }
-  const fd = $("#fd");
-  if (fd) [...fd.options].forEach(opt => {
-    if (!opt._label) opt._label = opt.value ? opt.textContent : "All districts";
-    opt.textContent = opt._label + " (" + (opt.value ? (distCounts[opt.value] || 0) : distTotal) + ")";
-  });
+  // (fix 8) #fd sits on row one, not behind More filters — a "(11616)" pair
+  // count truncated its label on a phone and told the user nothing useful,
+  // so it never gets one; its options are set once at init (see the district
+  // populate loop) and never touched here. Every other select's DEFAULT
+  // option ("All verdicts", "All room types", ...) stays count free for the
+  // same reason — only the specific options inside More filters keep counts.
   const fv = $("#fv");
   if (fv) [...fv.options].forEach(opt => {
-    opt.textContent = (VERDICT_LABELS[opt.value] || opt.textContent) + " (" + (opt.value ? (verdCounts[opt.value] || 0) : verdTotal) + ")";
+    const label = VERDICT_LABELS[opt.value] || opt.textContent;
+    opt.textContent = opt.value ? (label + " (" + (verdCounts[opt.value] || 0) + ")") : label;
   });
   const fc = $("#fccount"); if (fc) fc.textContent = "(" + coldCount + ")";
   const fh = $("#fhcount"); if (fh) fh.textContent = "(" + hideCount + ")";
-  [["ft", rtCounts, rtTotal, "All room types"], ["fg", gpCounts, gpTotal, "Any gender preference"],
-   ["fe", rpCounts, rpTotal, "Any race preference"], ["fs", stCounts, stTotal, "All statuses"],
-   ["fk", ckCounts, ckTotal, "Any cooking rule"]].forEach(([id, counts, total, allLabel]) => {
+  [["ft", rtCounts], ["fg", gpCounts], ["fe", rpCounts], ["fs", stCounts], ["fk", ckCounts]].forEach(([id, counts]) => {
     const sel = $("#" + id);
     if (sel) [...sel.options].forEach(opt => {
-      if (!opt._label) opt._label = opt.value ? opt.textContent : allLabel;
-      opt.textContent = opt._label + " (" + (opt.value ? (counts[opt.value] || 0) : total) + ")";
+      if (!opt._label) opt._label = opt.textContent;
+      opt.textContent = opt.value ? (opt._label + " (" + (counts[opt.value] || 0) + ")") : opt._label;
     });
   });
 }
@@ -3268,7 +3285,11 @@ function onKeydown(e) {
     if (q && q.value.trim() === "") $("#clr").click();
     return;
   }
-  if (!typing) {
+  // (fix 4) never intercept a browser/OS chord — Cmd+F must still reach the
+  // browser's own find, Ctrl+3 must not switch tabs — only bare key presses
+  // are these app shortcuts.
+  const noMod = !e.metaKey && !e.ctrlKey && !e.altKey;
+  if (!typing && noMod) {
     if (e.key >= "1" && e.key <= "9") { selectTabByIndex(Number(e.key) - 1); return; }
     if (e.key === "0") { selectTabByIndex(9); return; }
     if (e.key === "/") { e.preventDefault(); if (q) q.focus(); return; }

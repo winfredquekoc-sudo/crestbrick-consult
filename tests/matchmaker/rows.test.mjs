@@ -32,11 +32,14 @@ function slice(startAnchor, endAnchor) {
 // facts section, right before the draft text block begins.
 const ROW_SRC = slice("function rentTxt(x)", "// ===================== draft text");
 
-function makeRowHelpers() {
+// statusOf (pulled in by the same anchors) reads module scope TODAY, which
+// lives outside ROW_SRC's slice — inject it so the slice stays self
+// contained even once a test here calls something that reaches statusOf.
+function makeRowHelpers(today) {
   return new Function(
-    "Scoring",
+    "TODAY", "Scoring",
     ROW_SRC + "\nreturn { markPillLabel, rowFacts };"
-  )(Scoring);
+  )(today || new Date(2026, 8, 11), Scoring);
 }
 const R = makeRowHelpers();
 
@@ -85,23 +88,23 @@ test("rowFacts: worklist row (no showListing) carries budget, move in and the te
   assert.deepEqual(R.rowFacts(t, null, false), [
     "budget 1200",
     "move 2026-10-01",
-    "D15 · near Marine Parade MRT, quie",
+    "wants D15 · near Marine Parade MRT, quie",
   ]);
 });
 
 test("rowFacts: missing budget/move in/district renders the same '?' placeholders as before", () => {
   const t = {};
-  assert.deepEqual(R.rowFacts(t, null, false), ["budget ?", "move ?", "?"]);
+  assert.deepEqual(R.rowFacts(t, null, false), ["budget ?", "move ?", "wants ?"]);
 });
 
 test("rowFacts: showListing rows append the target listing's district and rent", () => {
   const t = { budget: 900, move_in: "2026-09-20", district: "D19" };
   const l = { district: "D19", rent_min: 850, rent_max: 950 };
-  assert.deepEqual(R.rowFacts(t, l, true), ["budget 900", "move 2026-09-20", "D19", "D19 · $850 to $950"]);
+  assert.deepEqual(R.rowFacts(t, l, true), ["budget 900", "move 2026-09-20", "wants D19", "room D19 · $850 to $950"]);
 });
 
 test("rowFacts: preferred_location longer than 28 chars is truncated the same way the old chip was", () => {
   const t = { district: "D9", preferred_location: "somewhere very very very far away from everything" };
   const facts = R.rowFacts(t, null, false);
-  assert.equal(facts[2], "D9 · " + "somewhere very very very far".slice(0, 28));
+  assert.equal(facts[2], "wants D9 · " + "somewhere very very very far".slice(0, 28));
 });
