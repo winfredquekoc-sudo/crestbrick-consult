@@ -130,3 +130,35 @@ test("cookingOf: passes the export's fixed cooking labels through verbatim, empt
   assert.equal(F.cookingOf({ cooking: "" }), "Unstated");
   assert.equal(F.cookingOf({}), "Unstated");
 });
+
+// =====================================================================
+// facetsOf — item 3's per-listing memoisation of the five facets above.
+// Sliced separately since it lives well outside this file's protected
+// anchor span (declared next to passFilter, not lifecycleOf..daysAgoLabel),
+// and it is a tiny three-line function, so this pins it down with its own
+// narrow start/end anchor rather than widening FACET_SRC.
+// =====================================================================
+const FACETS_OF_SRC = slice("function facetsOf(l) {", "// (runner up) f is hoisted out");
+
+function makeFacetsOf(listingFacetsMap) {
+  return new Function(
+    "LISTING_FACETS", "roomTypeOf", "genderPrefOf", "racePrefOf", "statusOf", "cookingOf",
+    FACETS_OF_SRC + "\nreturn facetsOf;"
+  )(listingFacetsMap, F.roomTypeOf, F.genderPrefOf, F.racePrefOf, F.statusOf, F.cookingOf);
+}
+
+test("facetsOf: reads the precomputed entry when the listing is in the map", () => {
+  const precomputed = { rt: "Master room", gp: "Any gender", rp: "Any race", st: "Available now", ck: "Allowed" };
+  const facetsOf = makeFacetsOf(new Map([["L1", precomputed]]));
+  assert.equal(facetsOf({ id: "L1" }), precomputed);
+});
+
+test("facetsOf: falls back to calling the live functions when the listing is missing from the map", () => {
+  // rebuildMatches() always populates every listing it scores, so this path
+  // is defensive only — but it must still match what the map would have held.
+  const facetsOf = makeFacetsOf(new Map());
+  const l = { id: "L2", property_type: "HDB (master room)", reqs: {}, lifecycle: "available", cooking: "Allowed" };
+  assert.deepEqual(facetsOf(l), {
+    rt: "Master room", gp: "Unstated", rp: "Unstated", st: "Available now", ck: "Allowed",
+  });
+});
