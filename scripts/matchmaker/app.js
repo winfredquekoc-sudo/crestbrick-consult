@@ -5741,16 +5741,29 @@ function renderPipeline() {
     t.onclick = activate;
     t.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
   });
-  // #q fires on every keystroke, unlike the select/checkbox/number filters
-  // (one event per discrete choice) — a render() here also recomputes
-  // faceted counts across every match plus rebuilds up to 120+ tenant/listing
-  // cards, so fast typing on a real phone paid that cost per character.
-  // Debounced so a burst of keystrokes collapses into one render ~140ms
-  // after the user pauses — short enough to still feel instant.
-  let qDebounceTimer = null;
-  $("#q").addEventListener("input", () => { clearTimeout(qDebounceTimer); qDebounceTimer = setTimeout(render, 140); });
-  ["fd", "fv", "fr", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", render));
-  $("#clr").onclick = () => { clearTimeout(qDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  // #q fires on every keystroke, unlike the select/checkbox filters (one
+  // event per discrete choice) — a render() here also recomputes faceted
+  // counts across every match plus rebuilds up to 120+ tenant/listing cards,
+  // so fast typing on a real phone paid that cost per character. 140ms was
+  // shorter than a normal phone typing gap (measured: a 250ms keystroke
+  // cadence still produced a full render per character). #q and #fr (a
+  // number input that fires per digit — typing "1500" fired four renders)
+  // now share one 250ms debounce, landed on a frame boundary via
+  // requestAnimationFrame rather than firing synchronously off the timer.
+  let filterDebounceTimer = null;
+  function scheduleFilteredRender() { clearTimeout(filterDebounceTimer); filterDebounceTimer = setTimeout(() => requestAnimationFrame(render), 250); }
+  // (item 4) Views outside FACET_VIEWS don't consume any filter (Dashboard's
+  // renderMapView() alone costs 220ms) — skip render() entirely rather than
+  // freeze the UI for a stray keystroke that changes nothing visible. No chip
+  // strip exists yet to update instead (item 2, out of scope here), so this
+  // is a plain no-op on those views for now — the hook a later chip strip
+  // would use.
+  function onFilterInput() { if (FACET_VIEWS.indexOf(view) !== -1) render(); }
+  function onDebouncedFilterInput() { if (FACET_VIEWS.indexOf(view) !== -1) scheduleFilteredRender(); }
+  $("#q").addEventListener("input", onDebouncedFilterInput);
+  $("#fr").addEventListener("input", onDebouncedFilterInput);
+  ["fd", "fv", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", onFilterInput));
+  $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
   const addBtn = $("#addtenant"); if (addBtn) addBtn.onclick = openQuickAddTenant;
   const snoozeBtn = $("#snoozechip"); if (snoozeBtn) snoozeBtn.onclick = openSnoozedList;
   const dispatchBtn = $("#dispatchchip"); if (dispatchBtn) dispatchBtn.onclick = openDispatchDrawer;
