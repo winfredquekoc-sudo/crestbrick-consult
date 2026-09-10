@@ -148,10 +148,12 @@ class TestReplyBuilders(unittest.TestCase):
                               "address and I will check for you \U0001F642")
 
     def test_photos_video_text(self):
+        # no "shortly" (P3 fix, 11 Sep 2026 attack replay): nothing in the engine actually
+        # sends media, so a timing word on an unbacked promise reads as broken if missed.
         self._patch(E, "next_future_slot", lambda lk: {"label": "Sun 14 Sep, 11am"})
         out = R._reply_photos_video(self._rec("lk1"), "any photos?")
         self.assertEqual(out, "Sure, let me get some photos and a short video over to you "
-                              "shortly \U0001F642 Meanwhile, are you free to view on Sun 14 "
+                              "\U0001F642 Meanwhile, are you free to view on Sun 14 "
                               "Sep, 11am?")
 
     def test_pax_known_max_pax(self):

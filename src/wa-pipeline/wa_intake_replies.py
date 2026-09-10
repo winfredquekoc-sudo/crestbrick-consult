@@ -26,6 +26,7 @@ No hyphens or dashes in any tenant facing copy (same standing rule as intake_eng
 import re
 import intake_engine as E
 import wa_intake_owner as OWN   # owner side of the loop -- see _enqueue_owner_question below
+import wa_money_gate as MG      # shared price/deposit/injection/agent vocabulary -- see its docstring
 
 # ---------- gate: only a genuine tenant prospect, never landlord/agent/colleague/supply/buyer ----------
 def _is_non_tenant(rec):
@@ -43,42 +44,28 @@ def _is_non_tenant(rec):
     )
 
 # ---------- stays human: classified but never auto answered ----------
-_INJECTION_RE = re.compile(
-    r"ignore\s+(?:all\s+|your\s+|previous\s+|prior\s+)*instructions|"
-    r"disregard\s+(?:all\s+|your\s+)*instructions|system\s*prompt|forget\s+(?:all\s+|your\s+|previous\s+)*instructions|"
-    r"you\s+are\s+now\b|reveal\s+your\s+(?:prompt|instructions)|jailbreak|"
-    r"pretend\s+(?:you\s+are|to\s+be)|act\s+as\s+(?:a|an)?\s*(?:dan|unfiltered|different)",
-    re.I)
-_BOT_CHECK_RE = re.compile(
-    r"are\s+you\s+a\s+bot|is\s+this\s+(?:an?\s+)?(?:auto|bot)|real\s+person|chatbot|"
-    r"am\s+i\s+(?:talking|chatting)\s+to\s+a\s+bot|is\s+this\s+automated", re.I)
-_PROTECTED_ATTR_RE = re.compile(
-    r"\bethnicity\b|\brace\b|\bnationality\b|\breligion\b|\breligious\b|\bmuslim\b|\bchristian\b|"
-    r"\bhindu\b|\bbuddhist\b|chinese\s+only|malay\s+only|indian\s+only|any\s+race|any\s+nationality",
-    re.I)
-_ADVICE_LEGAL_RE = re.compile(r"\blegal\b|should\s+i\b|allowed\s+to\s+(?:kick|evict)", re.I)
-_DEPOSIT_RE = re.compile(r"\bdeposit\b|\brefund\b", re.I)
-_PRICE_TRIGGER_RE = re.compile(r"\bnego(?:tiable|tiate)?\b|\bcheaper\b|\bdiscount\b|\blower\b|\breduce\b|flexib", re.I)
-_AGENT_RE = re.compile(
-    r"co[\s-]?broke|cobroke|commission\s+split|\bera\b|propnex|orangetee|huttons|propertylimbrothers|"
-    r"i'?m\s+an?\s+agent|from\s+era\b|co[\s-]?list(?:ing)?|my\s+client\s+(?:is|wants|would)|i\s+have\s+a\s+client",
-    re.I)
+# The module agnostic vocabulary (injection, bot check, protected attribute, advice/
+# legal, deposit, price/negotiation, agent) lives in wa_money_gate.py, shared with
+# intake_engine.py's own category 1 branches so neither drifts out of sync. Kept as
+# module level aliases here so the rest of this file (and any external caller) reads
+# unchanged.
+_INJECTION_RE = MG.INJECTION_RE
+_BOT_CHECK_RE = MG.BOT_CHECK_RE
+_PROTECTED_ATTR_RE = MG.PROTECTED_ATTR_RE
+_ADVICE_LEGAL_RE = MG.ADVICE_LEGAL_RE
+_DEPOSIT_RE = MG.DEPOSIT_RE
+_PRICE_TRIGGER_RE = MG.PRICE_TRIGGER_RE
+_AGENT_RE = MG.AGENT_RE
 
 def _is_stays_human(t):
     """Any hit here means: classify only, never answer. Checked BEFORE every category 2
     branch so an overlapping keyword (e.g. 'cheaper' inside an otherwise pax like message)
     always wins toward the human, never toward an auto reply."""
-    if _INJECTION_RE.search(t) or _BOT_CHECK_RE.search(t) or _PROTECTED_ATTR_RE.search(t):
+    if MG.core_stays_human(t):
         return True
-    if E._FACT_VETO_RE.search(t) or _ADVICE_LEGAL_RE.search(t):
-        return True
-    if _DEPOSIT_RE.search(t):
-        return True
-    if _PRICE_TRIGGER_RE.search(t):
+    if E._FACT_VETO_RE.search(t):
         return True
     if E._FACT_RENT_RE.search(t) and E._FACT_RENT_NUMBER_RE.search(t):
-        return True
-    if _AGENT_RE.search(t):
         return True
     return False
 
@@ -144,14 +131,27 @@ _ROOM_GONE_TEXT = ("So sorry, that room was just taken \U0001F64F You can see my
                    "available rooms here:\n" + E.CHANNEL +
                    "\nLet me know if anything catches your eye and I will arrange a viewing.")
 
-_UNIT_RE = re.compile(r"#\s*[\w]{1,4}\s*-\s*[\w]{1,4}")
+_UNIT_RE = re.compile(
+    r"#\s*[\w]{1,4}\s*-\s*[\w]{1,4}|"
+    r"\bunit\s*#?\s*[\w]{1,4}\s*-\s*[\w]{1,4}\b", re.I)
 _POSTAL_RE = re.compile(r"\bsingapore\s+\d{6}\b|\b\d{6}\b", re.I)
+# a speculative or unconfirmed placeholder ("address not stated in chat", "(context
+# suggests X; to confirm)") must never pass through as if it were a stated fact -- these
+# only ever show up when the listing's own address field is itself a guess (P0 fix, 11
+# Sep 2026 cycle5 c5s05: an injection attempt on an unrelated closed listing got back a
+# real unit number plus a speculative building name presented as fact).
+_SPECULATIVE_PAREN_RE = re.compile(
+    r"\(\s*(?:context\s+suggests|to\s+confirm|not\s+(?:stated|confirmed)|unconfirmed)[^)]*\)", re.I)
+_SPECULATIVE_CLAUSE_RE = re.compile(r",?\s*address\s+not\s+stated[^,;.]*", re.I)
 
 def _address_no_unit(block_address):
-    """block/street only -- strip any '#xx-xx' unit token and any 6 digit postal code.
-    Never reveal a unit number before a confirmed viewing (standing rule)."""
+    """block/street only -- strip any '#xx-xx' / 'Unit xx-xx' unit token, any speculative
+    or unconfirmed placeholder text, and any 6 digit postal code. Never reveal a unit
+    number or a guessed building name before a confirmed viewing (standing rule)."""
     s = block_address or ""
     s = _UNIT_RE.sub("", s)
+    s = _SPECULATIVE_PAREN_RE.sub("", s)
+    s = _SPECULATIVE_CLAUSE_RE.sub("", s)
     s = _POSTAL_RE.sub("", s)
     s = re.sub(r"\s{2,}", " ", s).strip(" ,")
     return s
@@ -180,7 +180,9 @@ def _reply_availability(rec, text):
 
 def _reply_photos_video(rec, text):
     lk, _ = _listing_for(rec)
-    return ("Sure, let me get some photos and a short video over to you shortly \U0001F642 "
+    # no "shortly" (P3 fix, 11 Sep 2026): nothing in the engine actually sends media, so a
+    # timing word on a promise nobody is tracking reads as broken if the follow up is missed.
+    return ("Sure, let me get some photos and a short video over to you \U0001F642 "
             "Meanwhile, are you " + _free_to_view_phrase(lk) + "?")
 
 _PAX_UNKNOWN_TEXT = "Let me check with the owner how many can stay and get back to you \U0001F642"
@@ -197,8 +199,9 @@ def _reply_address_or_unit(rec, text):
     lk, listing = _listing_for(rec)
     addr = (listing.get("block_address") or "").strip()
     restricted = bool(listing.get("marketing_restrictions"))
-    if lk and addr and not restricted:
-        return ("It is at " + _address_no_unit(addr) + " \U0001F642 I will send the exact "
+    cleaned = _address_no_unit(addr) if addr else ""
+    if lk and cleaned and not restricted:
+        return ("It is at " + cleaned + " \U0001F642 I will send the exact "
                 "unit once your viewing is confirmed.")
     return ("I will share the exact address once your viewing is confirmed \U0001F642 Are "
             "you " + _free_to_view_phrase(lk) + "?")
@@ -336,6 +339,24 @@ def augment_action(state, ev, action):
 
     if not _is_bare_flag(action):
         return action
+
+    # rec["status"] is stamped "listing_closed"/"listing_hold" by intake_engine's own
+    # Stage-1 gate (never re-derived here from the master landlord DB -- that lookup is
+    # keyed on real landlord ids and has no place running inside a category 2 reply
+    # builder). A closed/on hold listing must never get an address, unit, photo, or pax
+    # answer manufactured from stale listing data -- one neutral "taken" line, once, never
+    # a unit number or a guessed building name (P0 fix, 11 Sep 2026 cycle5 c5s05: an
+    # injection attempt landed on a closed listing and still got back a real unit).
+    if str(rec.get("status") or "").startswith("listing_"):
+        if not _fire_once(rec, "closed_listing_reply", "CLOSED_LISTING"):
+            return action
+        out = dict(action)
+        out["text"] = _ROOM_GONE_TEXT
+        out["notify"] = True
+        out["category2_code"] = "CLOSED_LISTING"
+        out["reason"] = (out.get("reason") or "")
+        out["reason"] = (out["reason"] + " " if out["reason"] else "") + "[category2:CLOSED_LISTING]"
+        return out
 
     rtype = classify(text)
     if rtype is None or rtype not in _BUILDERS:
