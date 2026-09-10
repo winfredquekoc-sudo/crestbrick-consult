@@ -100,11 +100,11 @@ st = {"version":1,"conversations":{}}
 jid = "6591234567@s.whatsapp.net"
 a1 = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("first enquiry -> SEND_FORM", a1 and a1["type"]=="SEND_FORM")
-ok("SEND_FORM is THREE messages (unit info, form, channel pitch)", a1 and len(a1.get("texts",[]))==3)
-ok("3rd message is the channel pitch, sent standalone (Winfred, 18 Aug 2026)",
-   a1 and a1["texts"][2]==E.CHANNEL_PITCH and E.CHANNEL in a1["texts"][2])
-ok("channel pitch is its OWN message, never appended to the form",
-   a1 and E.CHANNEL not in a1["texts"][1])
+ok("SEND_FORM is TWO messages (unit info, form + channel pitch folded into its tail)",
+   a1 and len(a1.get("texts",[]))==2)
+ok("channel pitch rides the tail of the form message, never a standalone 3rd send "
+   "(Winfred, 11 Sep 2026: first contact capped at 2 auto messages)",
+   a1 and E.CHANNEL in a1["texts"][1])
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
 ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Preferred location:"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
@@ -266,7 +266,7 @@ ok("capture_availability mirrors real slot state (bedok)", aA.get("capture_avail
 print("== 9. AVAILABLE VIEWING SLOT + the two-message split ==")
 sV={"version":1,"conversations":{}}
 aV=E.handle_event(sV,{"jid":"6590005555@s.whatsapp.net","msg_id":"v1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
-ok("SEND_FORM carries three messages", aV and aV["type"]=="SEND_FORM" and len(aV.get("texts",[]))==3)
+ok("SEND_FORM carries two messages", aV and aV["type"]=="SEND_FORM" and len(aV.get("texts",[]))==2)
 ok("msg1 is unit info, no form fields", aV and ("Caspian" in aV["texts"][0] or "Lakeside" in aV["texts"][0]) and "• Name:" not in aV["texts"][0])
 ok("viewing line in msg1 iff listing has a real future slot",
    aV and (("Available viewing:" in aV["texts"][0]) == (E.next_future_slot("caspian") is not None)))
