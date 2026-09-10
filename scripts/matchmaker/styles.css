@@ -40,6 +40,11 @@ h1{font-size:17px;margin:0;font-weight:700;letter-spacing:.2px}
    author rule otherwise outranks the UA stylesheet's own [hidden]{display:
    none}, which would show the panel even while hidden is set. */
 #morefilters:not([hidden]){display:flex;gap:8px;flex-wrap:wrap;align-items:center;width:100%;margin-top:8px}
+/* #clr carries class="tab", and .tab sets its own display:inline-flex (PASS 2
+   accessibility floor) — same specificity as the UA's [hidden]{display:none},
+   so author beats UA and the hidden attribute alone does nothing. The ID
+   selector here outranks .tab and restores the hide. */
+#clr[hidden]{display:none}
 .chipstrip{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
 .chip.removable{cursor:pointer}
 .chip.removable .x{margin-left:3px;opacity:.7}
@@ -524,9 +529,7 @@ body.density-compact .lc{padding:7px 9px}
    min-height stays whatever the base .tab/.hbtn rules already floor it at
    (44px), only padding/font/gap shrink, so tap targets never drop below the
    accessibility floor those rules already enforce (see PASS 2's own
-   comment). The filter bar's own mobile collapse is item 2's job (it
-   restructures the DOM into row one + a disclosure panel); nothing here
-   assumes that shape yet. */
+   comment). */
 @media (max-width:700px){
   .tabs{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;gap:4px;margin-top:8px}
   .tabs .tab{scroll-snap-align:start;flex:0 0 auto;padding:6px 10px;font-size:12px;white-space:nowrap}
@@ -536,9 +539,20 @@ body.density-compact .lc{padding:7px 9px}
      own spec text doesn't mention by name, but it still has to shrink for
      the whole header to clear the <=300px acceptance bar — KPI chips are
      read-only counters, not controls, so scrolling them in one line loses
-     nothing a tap would have used. */
+     nothing a tap would have used. The sub line (data freshness sentence) is
+     long enough to wrap 2-3 lines on its own at 375px; truncating it to one
+     line with an ellipsis is the single biggest saving in this block — the
+     full sentence is one tap away (the tab itself) so nothing is lost. */
   header .hrow:first-child{gap:6px}
   header h1{font-size:15px}
+  /* flex items default to min-width:auto (their min-content width), not 0 —
+     the same trap CYCLE 4's (71) fix already documents elsewhere in this
+     file. Truncating .sub to one nowrap line makes ITS min-content width
+     the full unwrapped sentence, and without min-width:0 on the flex item
+     wrapping h1+.sub, that dragged .hrow (and header, and the whole page)
+     out to 680px+ wide on a 375px viewport — confirmed live via scrollWidth. */
+  header .hrow:first-child>div:first-child{min-width:0}
+  header .sub{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
   .kpis{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;margin-left:0;gap:6px;max-width:100%}
   .kpi{padding:3px 8px;font-size:11px;white-space:nowrap}
   .kpi b{font-size:13px}
@@ -546,5 +560,33 @@ body.density-compact .lc{padding:7px 9px}
   /* (item 10) the j/k/d/c/v/n/s/q legend describes keys that do not exist
      on a phone — it just costs a row of vertical space here for nothing. */
   .triage-legend{display:none}
+  /* Shrinking the header alone did not fix the problem item 1 names first
+     ("nearly two full screens of scrolling before any content") — the
+     static onboarding reminder and the "5 minutes of asking" nudge sit
+     between the (now much shorter) header and the first real row and were
+     never part of the header's own height. Both are re-shown any time by
+     switching tabs and back; nothing here removes actionable content — the
+     scoped selector only reaches the "① Pick the top match..." reminder,
+     never the verdict-collection/offer/review-request sections that share
+     the same wrapper, and never another tab's own .help box. */
+  #work>div:first-child>.help{display:none}
+  #work .askstrip{display:none}
+  /* (item 2, folded back into item 1's clamp) row one's own controls each
+     carry the 44px tap-target floor, so at three wrapped lines (search /
+     district+Filters+chips / result+clear+bulk) that alone was 132px+gaps —
+     the single largest remaining piece once tabs/buttons/hrow were trimmed.
+     Two lines instead of three: search takes its own full-width line, then
+     district shrinks enough for district+Filters(n)+result count to share
+     the next one. Bulk action is a power-user action on an already-filtered
+     set, not one of the row one/row two controls item 2 defines, and it
+     does not fit a third control onto line two at this width — dropped from
+     the phone layout only, still on desktop and in the command palette. */
+  .filters{margin-top:6px}
+  input#q{min-width:0;flex:1 1 100%}
+  #fd{max-width:130px;font-size:12px;padding:6px 8px}
+  #filterstoggle{padding:5px 9px;font-size:11px}
+  #resultcount{font-size:11px}
+  #clr{padding:5px 9px;font-size:11px}
+  #bulkbtn{display:none}
 }
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}
