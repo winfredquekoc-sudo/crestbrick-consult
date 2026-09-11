@@ -2322,6 +2322,9 @@ BOT_SIGNATURES = ("pls fill this in","fill this in","still available","✅ suits
                   "我的频道里有超过30间房间可供选择",
                   "我的频道里有很多房间可供选择",
                   "我是帮房东处理这个单位的中介",   # own/agent disclosure, Chinese (remaining gap c2mix04)
+                  # rental agent fee fact (Winfred, 11 Sep 2026)
+                  "just to share, the agent fee for rental is one month commission",
+                  "跟您分享一下，租房的中介费是每一年租期收一个月佣金",
                   # unbound buyer enquiry ask (remaining gap c4rm04, 11 Sep 2026)
                   "which unit were you enquiring about",
                   "请问您看到的是哪个单位",
@@ -2383,6 +2386,9 @@ _ENGINE_PREFIXES = (
     "我的频道里有超过30间房间可供选择",
     "我的频道里有很多房间可供选择",
     "我是帮房东处理这个单位的中介",   # own/agent disclosure, Chinese (remaining gap c2mix04)
+    # rental agent fee fact (Winfred, 11 Sep 2026)
+    "just to share, the agent fee for rental is one month commission",
+    "跟您分享一下，租房的中介费是每一年租期收一个月佣金",
     # unbound buyer enquiry ask (remaining gap c4rm04, 11 Sep 2026)
     "hi \U0001F642 which unit were you enquiring about",
     "您好 \U0001F642 请问您看到的是哪个单位",
@@ -3489,6 +3495,14 @@ def _fact_pets_phrase(v):
 _RENT_PIVOT_TEXT = ("Rent is usually fixed \U0001F642 It's set by the landlord. Do come down to "
                     "view first, and shall I arrange a viewing for you?")
 
+# Winfred's rule, 11 Sep 2026: a RENTAL tenant's plain agent fee question is one true, boring
+# fact -- one month commission for every year of lease -- and may be stated. A haggle on the
+# same fee, or any fee question on a BUYER (sale) record, never gets this text; see
+# MG.fee_question_kind() and the RENTAL AGENT FEE AUTO REPLY gate in _handle_event_inner.
+_AGENT_FEE_FACT_EN = ("Just to share, the agent fee for rental is one month commission for "
+                      "every year of lease \U0001F642")
+_AGENT_FEE_FACT_ZH = "跟您分享一下，租房的中介费是每一年租期收一个月佣金 \U0001F642"
+
 def _tenant_fact_answer(question_text, listing, lang="en"):
     """Return a truthful, Winfred-voice answer for a tenant's factual question, drawn ONLY from
     the listing's own data — never a fabricated or guessed answer. Returns None whenever the
@@ -4393,6 +4407,36 @@ def _handle_event_inner(state, ev):
                     "reason": "asked about a short lease, not yet a bound form sent prospect"}
         rec["pending_short_lease_notify"] = ev.get("text")
 
+    # RENTAL AGENT FEE AUTO REPLY (Winfred, 11 Sep 2026): fires on ANY tenant inbound, bound or
+    # not, form sent or not -- same shape as the short-lease gate above -- BEFORE every
+    # downstream money gate that would otherwise silently swallow a plain fee ask with a generic
+    # reason. Never for a buyer (sale) or a supply side (landlord/seller) record: those keep the
+    # existing silent-flag behaviour via MG.core_stays_human/PRICE_TRIGGER_RE untouched. A haggle
+    # on the fee (waive/discount/directly bypass/etc) is never answered, only flagged.
+    if not rec.get("buyer_form_sent") and not rec.get("supply_flagged"):
+        _fee_kind = MG.fee_question_kind(ev.get("text") or "")
+        if _fee_kind == "haggle":
+            if not rec.get("fee_haggle_flagged"):
+                rec["fee_haggle_flagged"] = True
+                return {"type": "FLAG_HUMAN", "pn": pn, "notify": True, "text": None,
+                        "reason": "rental agent fee haggle (\"" + (ev.get("text") or "")[:120]
+                                  + "\"); reply by hand"}
+            return None
+        if _fee_kind == "plain" and not rec.get("fee_answered"):
+            rec["fee_answered"] = True
+            _fee_text = _AGENT_FEE_FACT_ZH if _lang(rec) == "zh" else _AGENT_FEE_FACT_EN
+            if not rec.get("form_sent"):
+                # a form is still due this turn -- stash it so STAGE 1 below sends it as the
+                # FIRST message in the same send batch, ahead of the unit info/form, instead of
+                # firing a standalone message of its own.
+                rec["pending_fee_reply_text"] = _fee_text
+            else:
+                # mid conversation: answer immediately, notify Winfred, then the normal flow
+                # (next inbound onward) continues untouched.
+                return {"type": "ANSWER_QUESTION", "pn": pn, "notify": True,
+                        "question": ev.get("text"), "text": _fee_text,
+                        "reason": "rental agent fee stated"}
+
     # STAGE 1: first contact -> send the listing message (unit info + form) ONCE, with safety gates
     if not rec["form_sent"]:
         # a buyer who already has the buyer form is in the BUYER flow — parse/nudge/hand off.
@@ -4642,8 +4686,16 @@ def _handle_event_inner(state, ev):
             # into one send instead of its own message.
             form = form + "\n\n" + channel_pitch(lg)
             texts = [unit, form] if unit else [form]
+            # the fee line, if this exact inbound asked it, goes FIRST in the same send batch
+            # (Winfred, 11 Sep 2026) -- never a standalone 3rd message.
+            _pending_fee = rec.pop("pending_fee_reply_text", None)
+            if _pending_fee:
+                texts = [_pending_fee] + texts
             _act = {"type":"SEND_FORM", "pn":pn, "texts":texts, "text":texts[0],
                     "listing_key":lk, "capture_availability":need_avail}
+            if _pending_fee:
+                _act["notify"] = True
+                _act["reason"] = "rental agent fee stated"
             _pending_lease = rec.pop("pending_short_lease_notify", None)
             if _pending_lease:
                 _act["notify"] = True
@@ -4658,8 +4710,15 @@ def _handle_event_inner(state, ev):
         # -> stay silent here, the unbound-profile flag fires on their next message instead.
         if not unit:
             return None
-        _act = {"type":"SEND_FORM", "pn":pn, "texts":[unit, channel_pitch(lg)], "text":unit,
+        _texts = [unit, channel_pitch(lg)]
+        _pending_fee = rec.pop("pending_fee_reply_text", None)
+        if _pending_fee:
+            _texts = [_pending_fee] + _texts
+        _act = {"type":"SEND_FORM", "pn":pn, "texts":_texts, "text":_texts[0],
                 "listing_key":lk, "capture_availability":need_avail}
+        if _pending_fee:
+            _act["notify"] = True
+            _act["reason"] = "rental agent fee stated"
         _pending_lease = rec.pop("pending_short_lease_notify", None)
         if _pending_lease:
             _act["notify"] = True

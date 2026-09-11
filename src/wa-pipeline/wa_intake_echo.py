@@ -53,6 +53,10 @@ _OUTBOUND_ONLY = (
     "我是帮房东处理这个单位的中介",
     "which unit were you enquiring about",
     "请问您看到的是哪个单位",
+    # rental agent fee fact (Winfred, 11 Sep 2026) -- mirrors intake_engine.py's
+    # _ENGINE_PREFIXES/BOT_SIGNATURES so an echoed copy is never read as a manual reply.
+    "just to share, the agent fee for rental is one month commission",
+    "跟您分享一下，租房的中介费是每一年租期收一个月佣金",
     # category2 photo/availability replies (wa_intake_replies.py) -- an echoed copy must
     # never be read as a prospect inbound or a manual reply by Winfred (Fix 2, 11 Sep 2026
     # review round; mirrors intake_engine.py's _ENGINE_PREFIXES/BOT_SIGNATURES).

@@ -60,6 +60,37 @@ AGENT_RE = re.compile(
     r"co[\s-]?broke|cobroke|commission\s+split|\bera\b|propnex|orangetee|huttons|propertylimbrothers|"
     r"i'?m\s+an?\s+agent|from\s+era\b|co[\s-]?list(?:ing)?|my\s+client\s+(?:is|wants|would)|i\s+have\s+a\s+client",
     re.I)
+
+# Winfred's rule, 11 Sep 2026: a RENTAL tenant's plain agent fee question has one true, boring
+# answer (one month commission per year of lease) and may be stated as fact. A HAGGLE on that
+# same fee (waive/discount/directly bypass/etc) never gets an answer -- silent and flagged, same
+# as every other money question. fee_question_kind() below is the single place both
+# intake_engine.py callers use to tell the two apart; PRICE_TRIGGER_RE above is untouched and
+# keeps flagging agent fee/commission for every non rental-tenant caller (buyer, landlord, the
+# generic money gate itself).
+AGENT_FEE_ASK_RE = re.compile(
+    r"agent\s*fee|agency\s*fee|\bcommission\b|how\s+much\s+is\s+your\s+fee|\bany\s+fee\b|"
+    r"need\s+to\s+pay\s+you|got\s+charge", re.I)
+_FEE_WORD = r"(?:agent\s*fee|agency\s*fee|commission)"
+_HAGGLE_WORD = (r"(?:waive[rd]?|less|discount|lower|nego(?:tiable|tiate)?|free|cheaper|split|half|"
+                r"directly|bypass|no\s+need\s+to\s+pay)")
+AGENT_FEE_HAGGLE_RE = re.compile(
+    _HAGGLE_WORD + r"[^.?!]{0,40}" + _FEE_WORD + r"|" + _FEE_WORD + r"[^.?!]{0,40}" + _HAGGLE_WORD,
+    re.I)
+
+
+def fee_question_kind(text):
+    """"plain" for a bare agent fee/commission question ("how much is your fee"), "haggle" for
+    one that also tries to waive/discount/bypass it ("can you waive the agent fee", "agent fee
+    if I book directly"), None otherwise. Haggle always wins over plain when both match."""
+    t = text or ""
+    if not t.strip():
+        return None
+    if AGENT_FEE_HAGGLE_RE.search(t):
+        return "haggle"
+    if AGENT_FEE_ASK_RE.search(t):
+        return "plain"
+    return None
 # a request for the landlord's own contact details -- never a proposed viewing time even
 # when a bare immediacy word ("now") rides along in the same message.
 CONTACT_DETAIL_ASK_RE = re.compile(
