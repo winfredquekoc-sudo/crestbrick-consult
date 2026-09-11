@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-11T00:30:01+08:00",
-  "count": 32,
+  "synced_at": "2026-09-12T00:30:02+08:00",
+  "count": 29,
   "listings": [
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
@@ -50,34 +50,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way."
-    },
-    {
-      "id": "common-room-16-bedok-north-drive-ll122",
-      "title": "Common Room, 16 Bedok North Drive",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1350,
-      "price_label": "S$1,350 / mo",
-      "address": "16 Bedok North Drive",
-      "district": "D16",
-      "highlights": [
-        "Near MRT",
-        "Available now"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2016%20Bedok%20North%20Drive."
-    },
-    {
-      "id": "common-room-blk-125-bedok-reservoir-road-ll104",
-      "title": "Common Room, Blk 125 Bedok Reservoir Road",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1300,
-      "price_label": "S$1,300 / mo",
-      "address": "Blk 125 Bedok Reservoir Road",
-      "district": "D16",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20125%20Bedok%20Reservoir%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20125%20Bedok%20Reservoir%20Road."
     },
     {
       "id": "master-room-66-bayshore-rd-ll173",
@@ -323,21 +295,6 @@
       "district": "D22",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road."
-    },
-    {
-      "id": "common-room-blk-703-jurong-west-ll117",
-      "title": "Common Room, Blk 703 Jurong West",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 800,
-      "price_label": "From S$800 / mo",
-      "address": "Blk 703 Jurong West",
-      "district": "D22",
-      "highlights": [
-        "Available now"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20703%20Jurong%20West.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20703%20Jurong%20West."
     },
     {
       "id": "common-room-blk-830a-jurong-west-street-81-ll161",
