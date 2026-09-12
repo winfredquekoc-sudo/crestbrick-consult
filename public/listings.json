@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-12T00:30:02+08:00",
-  "count": 29,
+  "synced_at": "2026-09-13T00:30:01+08:00",
+  "count": 27,
   "listings": [
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
@@ -285,18 +285,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2021%20Teban%20Gardens%20Road."
     },
     {
-      "id": "common-room-blk-282-toh-guan-road-ll146",
-      "title": "Common Room, Blk 282 Toh Guan Road (Jurong)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 600,
-      "price_label": "From S$600 / mo",
-      "address": "Blk 282 Toh Guan Road",
-      "district": "D22",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20282%20Toh%20Guan%20Road."
-    },
-    {
       "id": "common-room-blk-830a-jurong-west-street-81-ll161",
       "title": "Common Room, Blk 830A Jurong West Street 81",
       "type": "HDB",
@@ -413,21 +401,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights."
-    },
-    {
-      "id": "common-room-oxley-edge-ll188",
-      "title": "Common Room, Oxley Edge (Orchard)",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1300,
-      "price_label": "From S$1,300 / mo",
-      "address": "Oxley Edge",
-      "district": "D9",
-      "highlights": [
-        "Utilities included"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Oxley%20Edge.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Oxley%20Edge."
     }
   ]
 }
