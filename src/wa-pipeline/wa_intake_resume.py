@@ -1,0 +1,500 @@
+"""
+wa_intake_resume.py -- takeover resume support for wa_intake_runner.py (Winfred, 8 Sep 2026).
+
+Winfred's rule: after he replies to a prospect by hand, he usually stops typing. If the
+prospect answers and he has NOT replied again within 5 minutes, the runner may help by
+drafting a reply for him to review -- never sending anything to the prospect on its own
+initiative. A small, fixed set of engine actions (the same canned templates the autonomous
+flow already sends) ARE allowed straight through; everything else becomes a draft.
+
+Kept as a sibling module, not folded into wa_intake_runner.py, purely to stay under the
+repo's 500 line file guideline. It is imported and driven entirely by the runner; nothing
+here runs standalone against live state, and nothing here sends a WhatsApp message itself
+(the runner passes in its own _send/_guard_reserve so there is still only one send path).
+"""
+import os, re, json, time, hashlib, subprocess, datetime
+import intake_engine as E
+import wa_intake_paths as _P
+import wa_intake_draft_worker as WORKER
+from wa_intake_notify import notify_winfred_coalesced
+
+RESUME_WAIT_SEC = 5 * 60                 # Winfred's own stated wait: 5 minutes of silence
+DRAFT_EXPIRY_SEC = 24 * 3600             # a draft older than this can no longer be /send
+# STEP 0 sandbox seal (9 Sep 2026 merge redo): kept for backward compat with existing
+# mock.patch.object(wa_intake_resume, "DRAFTS_FILE", ...) tests; _drafts_file() resolves it
+# at call time (see wa_intake_paths.resolved's docstring).
+DRAFTS_FILE = _P.paths()["drafts"]
+_default_DRAFTS_FILE = DRAFTS_FILE
+
+
+def _drafts_file():
+    return _P.resolved(globals(), "DRAFTS_FILE", "drafts")
+# Winfred's own connected WA number (self chat) -- confirmed against the bridge's device
+# table (whatsmeow_device.jid = 6581618149:52@s.whatsapp.net); a chat with himself always
+# carries this bare jid, never a device suffix or an @lid handle.
+OWN_JID = "6581618149@s.whatsapp.net"
+
+# Draft generation (fetch_transcript, build_prompt, call_haiku, HAIKU_*) and the hard
+# validator every drafted line goes through (validate_draft, DRAFT_MAX_*) live in
+# wa_intake_draft.py (split out 9 Sep 2026 merge review to keep this file under the repo's
+# 500 line guideline); re-imported here so every existing call site (incl. tests that reach
+# them via wa_intake_resume.<name>) keeps working unchanged.
+from wa_intake_draft import (HAIKU_BIN, HAIKU_MODEL, HAIKU_MCP_CONFIG, HAIKU_TIMEOUT_SEC,
+                             fetch_transcript, STYLE_EXAMPLES, build_prompt, call_haiku,
+                             validate_draft, DRAFT_MAX_CHARS, DRAFT_MAX_SENTENCES)
+
+# Action types the engine may return while resuming that are safe to send exactly as the
+# autonomous flow already would -- fixed template copy, never free text. ANSWER_QUESTION is
+# handled separately (allowed only when it actually carries an answer, i.e. a category 1
+# fact); everything else (REDIRECT, SUGGEST_ALT, SEND_BUYER_FORM, an unanswerable
+# ANSWER_QUESTION, or no action at all) needs a drafted suggestion instead.
+# AUTO_CLOSED (Winfred, 9 Sep 2026 merge redo): the closing pleasantry is a single fixed
+# line (CLOSING_TEXT_NEW_PLACE / CLOSING_TEXT_GENERIC), always carries notify=False, and
+# latches rec['terminal']=True on the way out -- the engine itself refuses to ever return a
+# second one for the same chat, so allowing it straight through here cannot repeat and never
+# needs a human's judgement the way a free-text draft would. It still goes through every
+# other resume gate unchanged (cold guard, daily cap, circuit breaker) -- this only skips
+# the drafting step, never the send safeguards.
+ALLOWED_RESUME_TYPES = frozenset({
+    "SEND_FORM", "NUDGE_INCOMPLETE", "ASK_ONE", "OFFER_VIEWING", "CONFIRM_VIEWING",
+    "ASK_TENANT_TIME", "LEASE_NOTE", "AUTO_CLOSED",
+})
+# Notify-only outcomes: safe to let through ONLY while they carry no prospect facing text.
+# FLAG_HUMAN and VIEWING_TIME_PROPOSED each have one branch that DOES carry a canned line
+# (the declined-CTA channel closer, the "which day works better" reschedule question) --
+# neither is on Winfred's approved resume list, so a textful one drafts instead of sending
+# (Opus review, 9 Sep 2026: 37 of 41 replay "auto sends" were exactly this).
+NOTIFY_ONLY_RESUME_TYPES = frozenset({"FLAG_HUMAN", "COPILOT_VERDICT", "VIEWING_TIME_PROPOSED"})
+
+
+def _parse_ts(ts):
+    try:
+        dt = datetime.datetime.fromisoformat(str(ts))
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
+        return dt
+    except Exception:
+        return None
+
+
+def seconds_since(ts_earlier, ts_later):
+    """Seconds from ts_earlier to ts_later, honouring each timestamp's own offset (the
+    bridge writes mixed +08:00/-04:00 rows after travel). None on an unparseable pair --
+    callers must treat that as 'not yet eligible', never as 'eligible'."""
+    a, b = _parse_ts(ts_earlier), _parse_ts(ts_later)
+    if a is None or b is None:
+        return None
+    return (b - a).total_seconds()
+
+
+def pn_for(rec, jid):
+    """The phone number this record belongs to (records are keyed by it; jid is the fallback
+    for a record shape that predates the key being stored)."""
+    return rec.get("pn") or E.resolve_pn(jid)
+
+
+def resume_reason_blocked(con, idc, jid, rec, inbound_rowid, inbound_ts):
+    """None if this inbound should run in resume mode; otherwise a short reason string for
+    the RESUME_SKIP log line. Split from a boolean so the runner can log WHY without
+    re-deriving the same checks."""
+    if not rec:
+        return "no record"
+    if not (rec.get("manual_takeover") or rec.get("human_takeover")):
+        return "not under a hand takeover"
+    if rec.get("supply_kind") or rec.get("supply_flagged") or rec.get("supply_form_sent"):
+        return "landlord/seller onboarding, not a tenant resume"
+    if rec.get("buyer_form_sent") or rec.get("buyer_flagged"):
+        return "buyer record, not a tenant resume"
+    if str(rec.get("status") or "").startswith("excluded:"):
+        return "excluded contact (" + str(rec.get("status")) + ")"
+    # authoritative re-check on EVERY resume, not just at stage 1: a chat Winfred hand
+    # replied to before the engine ever classified it has no supply/excluded latch at all,
+    # so without this a landlord, a co-broke agent or a colleague could be resumed as if
+    # they were a tenant prospect. Fails CLOSED on an unreadable DB (Opus review, 9 Sep 2026).
+    try:
+        why = E.excluded_reason(pn_for(rec, jid), "")
+    except Exception:
+        why = "db_error"
+    if why:
+        return "excluded contact: " + str(why)
+    last_hand = rec.get("last_hand_reply_ts")
+    if not last_hand:
+        return "no hand reply timestamp recorded yet"
+    # OPEN PROMISE (P1 fix, 9 Sep 2026 cycle1 c1-06): a resume auto-send on top of Winfred's
+    # own open commitment ("let me check with the owner and come back to you") is a second
+    # sender talking over him. Blocked until his NEXT hand reply drops the promise language.
+    if open_human_promise_pending(rec):
+        return "Winfred's last reply is an open promise to come back; staying under his takeover"
+    gap = seconds_since(last_hand, inbound_ts)
+    if gap is None:
+        return "unparseable timestamp"
+    if gap < RESUME_WAIT_SEC:
+        return f"only {gap:.0f}s since the hand reply (< {RESUME_WAIT_SEC}s)"
+    # ORDER/COMPARE ON rowid, NEVER idc: the bridge's "id" column is TEXT holding a hex
+    # WhatsApp message id ("0662D94529A30EDEB2"), so "id > 219811" is a STRING compare against
+    # the decimal rowid -- true for roughly 4 in 5 unrelated rows and false for the rest. That
+    # made this guard fire at random in both directions. rowid is the insertion order the rest
+    # of the runner already trusts. (Opus review, 9 Sep 2026; idc kept in the signature so
+    # existing callers are unchanged.)
+    answered = con.execute(
+        "SELECT 1 FROM messages WHERE chat_jid=? AND is_from_me=1 AND rowid > ? LIMIT 1",
+        (jid, inbound_rowid)).fetchone()
+    if answered is not None:
+        return "Winfred already answered this inbound"
+    return None
+
+
+# B2 (Sep 2026): a chat carrying dispute/legal escalation language is never a resume/draft
+# candidate -- Winfred handles it entirely by hand. Word boundary matched, case insensitive.
+# Review fix: the bare-word list missed inflected forms ("disputed", "scammed", "reimbursed",
+# "complaining") and 2 new phrases ("small claims", "report you", "CEA" in complaint context).
+DISPUTE_KEYWORDS = ("dispute", "disputed", "disputes",
+                    "complain", "complaining", "complaint", "complaints",
+                    "scam", "scammer", "scammed",
+                    "reimburse", "reimbursement", "reimbursed",
+                    "refund", "refunded", "refunds",
+                    "lawyer", "lawyers",
+                    "tribunal",
+                    "terminate", "terminated", "termination",
+                    "police",
+                    "deposit back",
+                    "small claims",
+                    # NOT a bare "cea": Winfred signs his own messages "Winfred Quek |
+                    # CEA R073319H", so a bare word match blocked the chat off HIS OWN
+                    # signature. Measured over the 260 hand-takeover chats of the last 7
+                    # days: bare "cea" hit 5 chats and ALL 5 were his own outbound
+                    # signature/notes -- zero real detections. The one genuine escalation
+                    # in that corpus ("They will complaint to CEA") is already caught by
+                    # "complaint". Only the explicit threat phrasing stays. (Opus review,
+                    # 9 Sep 2026.)
+                    "report to cea", "reported to cea", "reporting to cea",
+                    "report you")
+_DISPUTE_RE = re.compile(
+    r"\b(?:" + "|".join(k.replace(" ", r"\s+") for k in DISPUTE_KEYWORDS) + r")\b", re.I)
+
+
+def dispute_language_recent(con, jid, limit=10):
+    """True if any of the last LIMIT messages in this chat (either direction) contain
+    dispute/legal escalation language. Read only. FAILS CLOSED (review fix): a query error
+    (locked/corrupt store, bad connection) means dispute PRESENT, not 'no dispute seen' -- a
+    DB hiccup must never silently let a disputed chat through /send or resume auto-send. The
+    /send path must re-run this at send time regardless of manual_takeover state."""
+    try:
+        rows = con.execute(
+            "SELECT content FROM messages WHERE chat_jid=? AND content IS NOT NULL "
+            "ORDER BY rowid DESC LIMIT ?", (jid, limit)).fetchall()
+    except Exception:
+        return True
+    return any(_DISPUTE_RE.search(c or "") for (c,) in rows)
+
+
+# OPEN PROMISE (P1 fix, 9 Sep 2026 cycle1 c1-06): "let me check with the owner and come
+# back to you" is a commitment -- a resume auto-send on that chat is a second sender
+# talking over him.
+_OPEN_PROMISE_RE = re.compile(
+    r"let me (?:check|find out|confirm|verify)\b|"
+    r"check(?:ing)? with (?:the )?(?:owner|landlord)\b|"
+    r"\bcome back to you\b|\bget back to you\b|"
+    r"\bwill (?:check|confirm|update you|let you know|revert)\b", re.I)
+
+
+def open_human_promise_pending(rec):
+    """True if Winfred's OWN last hand reply (last_hand_reply_text, never overwritten by a
+    later engine/resume send) reads as an open promise to come back."""
+    return bool(_OPEN_PROMISE_RE.search((rec or {}).get("last_hand_reply_text") or ""))
+
+
+def mark_resume(a):
+    """Tag an action ELIGIBLE to bypass the runner's manual_takeover send choke. This is the
+    ONLY place a["resume"] is ever set True -- called by the runner exactly once, right after
+    it has already confirmed (via needs_draft) that the action is an allow listed template
+    carrying real text. The choke point trusts nothing else to decide this (Opus review, 9
+    Sep 2026: the choke used to ignore ev["resume"] entirely and TAKEOVER_SKIP every one).
+
+    ALSO forces notify=True (P1 fix, 9 Sep 2026 cycle1 c1-06): a resume send talks on a chat
+    Winfred is holding by hand, so he must hear about it every time, whatever the engine's own
+    default was (SEND_FORM/OFFER_VIEWING/LEASE_NOTE default False in the ordinary flow).
+    Exception: AUTO_CLOSED's notify=False is deliberate, tested engine-side design (closes the
+    loop on its own, latches terminal, never repeats) -- forcing it would just add noise."""
+    if a is not None:
+        a["resume"] = True
+        if a.get("type") != "AUTO_CLOSED":
+            a["notify"] = True
+    return a
+
+
+def resume_gate_blocked(pn, landlords_unreadable):
+    """Defense-in-depth re-check run at the runner's send choke, the instant before a resume
+    action is allowed to bypass manual_takeover -- after quiet hours (whole-tick gate) and
+    the 5 day cold guard / daily cap (the choke's own existing checks, which already apply
+    to every action including a resume one). resume_reason_blocked already vetted
+    excluded_reason and the landlord DB once, earlier in the same tick, before the engine
+    ever ran; this repeats both checks at the actual moment of send so a same-tick DB flip
+    (or a future refactor that stops calling resume_reason_blocked first) can never slip a
+    landlord or an excluded contact through. None -> ok to send; otherwise a short
+    RESUME_SKIP reason. Fails CLOSED on an unreadable contact DB, same as excluded_reason."""
+    try:
+        why = E.excluded_reason(pn, "")
+    except Exception:
+        why = "db_error"
+    if why:
+        return "excluded contact: " + str(why)
+    if landlords_unreadable:
+        return "landlord-db unreadable, failing closed"
+    return None
+
+
+def resume_send_gate(a, grec, landlords_unreadable):
+    """The whole resume-bypass decision for the runner's send choke, in one call. Returns
+    (attempted, blocked_reason). attempted=False means A was not a resume action under a
+    manual_takeover record at all -- the normal TAKEOVER_SKIP choke runs completely
+    unmodified. attempted=True with blocked_reason=None means every resume gate passed and
+    this ONE action may bypass TAKEOVER_SKIP (the runner's own 5 day cold guard and daily
+    cap, checked earlier/later in its choke, still apply exactly like any other action)."""
+    if not (a.get("resume") and grec.get("manual_takeover")):
+        return False, None
+    return True, resume_gate_blocked(a.get("pn"), landlords_unreadable)
+
+
+# B established (review fix): form_sent + listing_key alone is not evidence of a real lead
+# -- listing_key can get bound off WINFRED'S OWN outbound text (a friend's chat, pn
+# 6581894357, "Where ah bro", bound purely because Winfred once mentioned Eastpoint Green)
+# or the engine's own hot_matches() guess, neither proving the tenant enquired about it.
+PORTAL_BOILERPLATE_RE = re.compile(
+    r"propertyguru\.com\.sg/l/|99\.co/e/|i am interested in|learn more about this listing",
+    re.I)
+
+
+def is_established_prospect(rec):
+    """Multi factor established-tenant-prospect check. ALL must hold, or this is False:
+      (a) rec['listing_key_source'] == 'inbound' -- bound off the TENANT'S OWN text, never
+          an 'outbound' (Winfred/automation named it) or 'hotmatch' (engine guessed it) bind.
+      (b) rec['profile'] (only ever populated from inbound text) has >= 2 REQUIRED_FIELDS,
+          OR the FIRST inbound itself carried portal boilerplate -- real signal, not chatter.
+      (c) rec['form_sent'] is True.
+      (d) not excluded (E.excluded_reason(pn, '') is None); fails CLOSED on a DB error.
+      (e) no outbound before the first inbound in this chat -- an outbound-first chat is
+          Winfred's own contact who happened to reply, not a lead who found him."""
+    if not rec:
+        return False
+    if rec.get("listing_key_source") != "inbound":
+        return False
+    profile = rec.get("profile") or {}
+    n_fields = sum(1 for f in E.REQUIRED_FIELDS if profile.get(f) not in (None, ""))
+    portal = bool(PORTAL_BOILERPLATE_RE.search(rec.get("first_inbound_text") or ""))
+    if n_fields < 2 and not portal:
+        return False
+    if not rec.get("form_sent"):
+        return False
+    if rec.get("outbound_before_first_inbound"):
+        return False
+    try:
+        why = E.excluded_reason(rec.get("pn"), "")
+    except Exception:
+        why = "db_error"
+    if why:
+        return False
+    return True
+
+
+def needs_draft(a, rec_before=None):
+    """True when the engine's action for a resumed inbound must NOT reach a real send and
+    instead needs a drafted suggestion for Winfred to review.
+
+    rec_before (optional): a snapshot of the conversation record taken BEFORE this inbound
+    was run through handle_event (read only -- never the live object AFTER the event, which
+    handle_event may have just mutated as a side effect of producing the very action).
+
+    B established (review fix): the multi factor is_established_prospect() gate now runs
+    FIRST, ahead of every other early return -- it used to run only for allow listed action
+    types, AFTER the ANSWER_QUESTION shortcut had already returned True/False on its own,
+    letting a category 1 fact answer auto-send landlord copy into a chat with listing_key
+    still None. An ANSWER_QUESTION fact now also always requires a bound listing on top of
+    the established gate. rec_before omitted -> old type only behaviour (existing tests)."""
+    if not a:
+        return True
+    if rec_before is not None and not is_established_prospect(rec_before):
+        return True
+    t = a.get("type")
+    if t == "ANSWER_QUESTION":
+        return not (a.get("text") and (rec_before is None or rec_before.get("listing_key")))
+    if t in NOTIFY_ONLY_RESUME_TYPES:
+        return bool(a.get("text") or a.get("texts"))
+    if t not in ALLOWED_RESUME_TYPES:
+        return True
+    return False
+
+
+def revert_unsent_form(a, rec, rec_before):
+    """B1 (Sep 2026): handle_event stamps rec['form_sent']=True as soon as it DECIDES to send
+    the form, regardless of whether the real send happens -- a drafted (never delivered)
+    SEND_FORM otherwise leaves the record masquerading as an already form sent prospect on
+    the NEXT inbound, letting something like LEASE_NOTE through on a chat where the tenant
+    never actually saw the form (real incident, pn 6590590183: an earlier SEND_FORM in this
+    same wandering chat drafted, not sent, but form_sent stuck True anyway). Call this AFTER
+    needs_draft() confirms the action is becoming a draft, BEFORE process_draft_needed."""
+    if (a or {}).get("type") == "SEND_FORM" and not (rec_before or {}).get("form_sent"):
+        rec["form_sent"] = False
+        rec.pop("form_sent_ts", None)
+
+
+
+
+# ---------- draft persistence: id, pn, jid, listing, text, created, status ----------
+def _load_drafts():
+    if not os.path.exists(_drafts_file()):
+        return []
+    out = []
+    with open(_drafts_file()) as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                out.append(json.loads(line))
+            except Exception:
+                continue          # one corrupt line must not lose every other draft
+    return out
+
+
+def _rewrite_drafts(items):
+    drafts_file = _drafts_file()
+    tmp = drafts_file + ".tmp"
+    with open(tmp, "w") as f:
+        for it in items:
+            f.write(json.dumps(it, ensure_ascii=False) + "\n")
+    os.replace(tmp, drafts_file)
+
+
+def new_draft(pn, jid, listing_key, text):
+    did = hashlib.sha1(f"{pn}|{listing_key}|{time.time()}".encode()).hexdigest()[:8]
+    rec = {"id": did, "pn": pn, "jid": jid, "listing": listing_key, "text": text,
+           "created": time.time(), "status": "pending"}
+    with open(_drafts_file(), "a") as f:      # append only: a brand new draft never needs the
+        f.write(json.dumps(rec, ensure_ascii=False) + "\n")   # read modify write below
+    return did
+
+
+def refresh_or_new_draft(pn, jid, listing_key, text):
+    """ONE pending resume draft per conversation: a later inbound while a draft is still
+    pending REFRESHES it in place (same /send code, new text) instead of minting a fresh
+    one, so an out of date middle draft can never be /send'd by mistake (P3 fix, 9 Sep 2026
+    cycle 3 attack replay). No-auto-send under takeover is unchanged."""
+    items = _load_drafts()
+    for d in items:
+        if d.get("pn") == pn and d.get("status") == "pending":
+            d["jid"] = jid; d["listing"] = listing_key
+            d["text"] = text; d["created"] = time.time()
+            _rewrite_drafts(items)
+            return d["id"]
+    return new_draft(pn, jid, listing_key, text)
+
+
+def find_draft(did):
+    for d in _load_drafts():
+        if d.get("id") == did:
+            return d
+    return None
+
+
+def mark_draft(did, status):
+    items = _load_drafts()
+    changed = False
+    for d in items:
+        if d.get("id") == did:
+            d["status"] = status
+            changed = True
+    if changed:
+        _rewrite_drafts(items)
+    return changed
+
+
+def process_draft_needed(con, idc, jid, pn, rec, listing, notify_fn, log_fn):
+    """Spawns a BACKGROUND claude-guard draft request and returns immediately -- never
+    blocks the runner's tick (9 Sep 2026 merge redo, item 3: drafts off the critical path;
+    the old cut of this function called call_haiku() synchronously, holding up every other
+    prospect in the same tick for up to 25 seconds). The actual draft persistence / Winfred
+    notify happens later: finish_resume_draft(), called from wa_intake_draft_worker.sweep()
+    on a LATER tick once the background job finishes (or times out). Never raises."""
+    name = (rec.get("profile") or {}).get("name") or pn
+    listing_key = rec.get("listing_key")
+    transcript = fetch_transcript(con, idc, jid, limit=80)
+    last_inbound = rec.get("last_inbound") or ""
+    prompt = build_prompt(name, pn, listing_key, listing, rec.get("profile") or {},
+                          transcript, last_inbound)
+    context = {"name": name, "listing_key": listing_key, "last_inbound": last_inbound,
+              "transcript_tail": transcript[-3:]}
+    status = WORKER.spawn_request("resume_draft", pn, jid, prompt, context)
+    if status == "spawned":
+        log_fn("RESUME_DRAFT_SPAWNED", pn, f"background draft requested for {listing_key or 'no listing'}")
+    elif status == "in_flight":
+        log_fn("RESUME_DRAFT_IN_FLIGHT", pn, "already has an unresolved draft request")
+    elif status == "cap_reached":
+        log_fn("RESUME_DRAFT_CAP", pn, "tick spawn cap reached, will retry next tick")
+    elif status == "spawn_error":
+        log_fn("RESUME_DRAFT_SPAWN_ERROR", pn, "failed to start the background draft worker")
+    # "sandboxed" -- silent and expected under WA_INTAKE_SANDBOX=1 (see spawn_request).
+
+
+def _needs_a_human_when_undrafted(last_inbound):
+    """A background draft request that produced nothing usable (timed out, empty result,
+    claude-guard errored) stays SILENT unless the message it would have answered itself
+    demanded a reply -- a real question, a viewing time proposal, or dispute language. Item
+    3: pinging Winfred for every trivial undrafted message ('ok', a thumbs up, a sticker)
+    would be noisier than the timeout itself; a question or a dispute must never wait
+    silently for him to notice on his own."""
+    t = last_inbound or ""
+    return bool(E._is_question(t) or E._has_viewing_time(t.lower()) or _DISPUTE_RE.search(t))
+
+
+def finish_resume_draft(record, text, err, notify_fn, log_fn, timed_out=False):
+    """The on_result/on_timeout handler wa_intake_runner.run() wires into
+    wa_intake_draft_worker.sweep() for kind='resume_draft'. Same decision tree
+    process_draft_needed used to run inline right after call_haiku returned, plus the new
+    silent-unless-needed-an-answer rule for a request that produced nothing at all. Never
+    raises."""
+    ctx = record.get("context") or {}
+    pn = record.get("pn"); jid = record.get("jid")
+    name = ctx.get("name") or pn
+    listing_key = ctx.get("listing_key")
+    last_inbound = ctx.get("last_inbound") or ""
+    if timed_out or err:
+        # one shared log tag for both shapes of "no draft came back" -- a real 60s wall
+        # budget kill and a claude-guard run that finished but produced nothing usable are
+        # the same event from Winfred's point of view.
+        log_fn("DRAFT_TIMEOUT", pn, "wall budget exceeded" if timed_out else str(err))
+        if _needs_a_human_when_undrafted(last_inbound):
+            tail = ctx.get("transcript_tail") or []
+            quote = " | ".join(f"{m['who']}: {m['text']}" for m in tail) or "(no recent text)"
+            notify_winfred_coalesced(pn,
+                f"Could not draft a reply for {name} ({pn}), {listing_key or 'no listing'} "
+                f"in time. They said: \"{last_inbound[:200]}\"\nLast messages:\n{quote}\n"
+                f"Reply by hand.")
+        return
+    if text.startswith("NEEDS_WINFRED"):
+        why = text[len("NEEDS_WINFRED"):].strip(" :\n") or "needs your own judgement call"
+        log_fn("RESUME_DRAFT_NEEDS_WINFRED", pn, why)
+        notify_fn(f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply: {why}\n"
+                  f"They said: \"{last_inbound[:200]}\"")
+        return
+    bad = validate_draft(text)
+    if bad:
+        log_fn("RESUME_DRAFT_REJECTED", pn, f"{bad} :: {text.replace(chr(10), ' / ')[:160]}")
+        tail = ctx.get("transcript_tail") or []
+        notify_winfred_reason = (
+            f"{name} ({pn}), {listing_key or 'no listing'} needs your own reply "
+            f"(drafted line rejected: {bad}). Last messages:\n"
+            + (" | ".join(f"{m['who']}: {m['text']}" for m in tail) or "(no recent text)"))
+        notify_fn(notify_winfred_reason)
+        return
+    did = refresh_or_new_draft(pn, jid, listing_key, text)
+    log_fn("RESUME_DRAFT", pn, f"{did} :: {text.replace(chr(10), ' / ')}")
+    # the drafted reply itself does not always differ message to message (a canned/templated
+    # draft can repeat), so a deposit scam claim and an urgent unit number demand must still
+    # be distinguishable to Winfred -- always carry the tenant's own verbatim inbound (P1 fix,
+    # 9 Sep 2026 cycle5 c5rm07).
+    notify_fn(f"Draft reply for {name} ({pn}), {listing_key or 'no listing'}:\n"
+              f"They said: \"{last_inbound[:200]}\"\n\n{text}\n\n"
+              f"To send it, WhatsApp yourself: /send {did}. Or reply to them directly.")
+
+

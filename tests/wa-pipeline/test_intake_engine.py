@@ -5,8 +5,15 @@ import sys, json, sqlite3, os
 # intake-state.json) stay absolute inside intake_engine.py itself -- LIVE REPLAY below still
 # reads real data regardless of which worktree's code is under test.
 _REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_SRC = os.path.join(_REPO_ROOT, "src", "wa-pipeline")
-sys.path.insert(0, _SRC)
+sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
+
+# Telegram/bridge kill switch (incident, 9 Sep 2026 merge redo -- a sandbox harness run
+# reached Winfred's real phone). Set BEFORE importing any wa-pipeline module: belt and
+# suspenders alongside the per-test mock.patch calls, on top of the physical choke-point
+# checks _tg_send/_send now do on their own. See wa_intake_notify.py's docstring.
+os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+os.environ["WA_INTAKE_NO_SEND"] = "1"
+
 import intake_engine as E
 
 # The fixtures predate several listings closing (caspian tenanted 9 Jul 2026, others on
@@ -14,6 +21,20 @@ import intake_engine as E
 # exercising the full enquiry flow instead of dead-ending on "room no longer available".
 _FIXTURE_LISTINGS = ("caspian", "hougang-703", "bedok-north-522", "tampines-855",
                      "sunshine-terrace", "rivervale-185c", "bayshore", "eastpoint-green")
+# Point E.IDX at a STATIC local fixture, not the live index (Winfred's landlord database
+# and listing sync run nightly and can change any morning -- a suite that reads the live
+# file breaks with no code change, exactly what happened 9 Sep 2026 when a routine sync
+# flipped caspian's ethnicity gate and bedok-north-522 / tampines-855's gender gate to
+# gate_unverified and silently broke this suite on every branch). tests/wa-pipeline/
+# fixtures/listing-index.json is a one time snapshot (PII stripped) frozen for this suite.
+# Reassigning the PATH constant (not listing_reqs itself) keeps this test process safe for
+# _isolated_runner style tests elsewhere in the suite that scope their OWN mock.patch.object
+# of E.IDX to a tmp file per test -- those still take priority and are correctly restored
+# back to this fixture path afterward (discover-mode cross file regression, 9 Sep 2026 merge
+# review: an earlier cut replaced E.listing_reqs itself wholesale and broke that nesting).
+_FIXTURE_IDX_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                 "fixtures", "listing-index.json")
+E.IDX = _FIXTURE_IDX_PATH
 _orig_listing_reqs = E.listing_reqs
 def _reqs_fixtures_open():
     r = dict(_orig_listing_reqs())
@@ -63,8 +84,8 @@ ok("female on bedok-north-522 -> not disqualified",
 # tampines-855 = female_only + min_age 30
 ok("male on tampines-855 -> DISQUALIFIED",
    E.qualify(reqs["tampines-855"], {"gender":"Male","no_of_pax":1,"age":35,"lease_term_months":12,"budget":1000})[0]=="DISQUALIFIED")
-ok("female age 23 on tampines-855 -> DISQUALIFIED (age)",
-   E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":23,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="DISQUALIFIED")
+ok("female age 23 on tampines-855 -> QUALIFIED (age gate removed 8 Sep 2026)",
+   E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":23,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="QUALIFIED")
 ok("female age 32 on tampines-855 -> QUALIFIED",
    E.qualify(reqs["tampines-855"], {"gender":"Female","no_of_pax":1,"age":32,"ethnicity":"Chinese","nationality":"SG","pass_type":"SC","lease_term_months":12,"budget":1000})[0]=="QUALIFIED")
 # sunshine-terrace = budget unknown -> never auto-pass
@@ -79,13 +100,13 @@ st = {"version":1,"conversations":{}}
 jid = "6591234567@s.whatsapp.net"
 a1 = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("first enquiry -> SEND_FORM", a1 and a1["type"]=="SEND_FORM")
-ok("SEND_FORM is THREE messages (unit info, form, channel pitch)", a1 and len(a1.get("texts",[]))==3)
-ok("3rd message is the channel pitch, sent standalone (Winfred, 18 Aug 2026)",
-   a1 and a1["texts"][2]==E.CHANNEL_PITCH and E.CHANNEL in a1["texts"][2])
-ok("channel pitch is its OWN message, never appended to the form",
-   a1 and E.CHANNEL not in a1["texts"][1])
+ok("SEND_FORM is TWO messages (unit info, form + channel pitch folded into its tail)",
+   a1 and len(a1.get("texts",[]))==2)
+ok("channel pitch rides the tail of the form message, never a standalone 3rd send "
+   "(Winfred, 11 Sep 2026: first contact capped at 2 auto messages)",
+   a1 and E.CHANNEL in a1["texts"][1])
 ok("message 1 is unit info, NOT the form", a1 and "• Name:" not in a1["texts"][0])
-ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
+ok("message 2 is the full 14 field form", all(x in a1["texts"][1] for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Preferred location:"]))
 a1b = E.handle_event(st, {"jid":jid,"msg_id":"m1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
 ok("same msg id replayed -> None (event dedup)", a1b is None)
 st["conversations"]["6591234567"]["form_sent_ts"] -= 300   # skip the 3 min anti-spam grace period
@@ -245,7 +266,7 @@ ok("capture_availability mirrors real slot state (bedok)", aA.get("capture_avail
 print("== 9. AVAILABLE VIEWING SLOT + the two-message split ==")
 sV={"version":1,"conversations":{}}
 aV=E.handle_event(sV,{"jid":"6590005555@s.whatsapp.net","msg_id":"v1","text":"Hi is Caspian still available?","is_from_me":0,"listing_key":"caspian"})
-ok("SEND_FORM carries three messages", aV and aV["type"]=="SEND_FORM" and len(aV.get("texts",[]))==3)
+ok("SEND_FORM carries two messages", aV and aV["type"]=="SEND_FORM" and len(aV.get("texts",[]))==2)
 ok("msg1 is unit info, no form fields", aV and ("Caspian" in aV["texts"][0] or "Lakeside" in aV["texts"][0]) and "• Name:" not in aV["texts"][0])
 ok("viewing line in msg1 iff listing has a real future slot",
    aV and (("Available viewing:" in aV["texts"][0]) == (E.next_future_slot("caspian") is not None)))
@@ -274,7 +295,12 @@ aP=E.handle_event(sP,{"jid":jp,"msg_id":"p2","text":"Name: Raj\nNationality: Ind
 # "does not match" wording. Same protective intent: a kind, reason free redirect.
 ok("India profile -> REDIRECT channel referral", aP and aP["type"]=="REDIRECT" and "not a fit" in aP["text"].lower())
 ok("redirect reveals NO reason", aP and "india" not in aP["text"].lower() and "nationality" not in aP["text"].lower())
-ok("excluded via service policy path", sP["conversations"]["6590008888"].get("status","").startswith("policy_excluded"))
+# A3 (Sep 2026): a protected attribute decline (nationality) is neutral in state -- status
+# is house_gate:N1, never the old "policy_excluded:nationality" (attribute word in state).
+ok("excluded via service policy path -> neutral house_gate status, not the attribute word",
+   sP["conversations"]["6590008888"].get("status","") == "house_gate:N1")
+ok("Winfred IS notified on a protected attribute decline (CEA visibility, A3)",
+   aP and aP.get("notify") is True and aP.get("reason") == "house_gate:N1")
 aP2=E.handle_event(sP,{"jid":jp,"msg_id":"p3","text":"hello? you there?","is_from_me":0})
 ok("excluded prospect NOT messaged again (terminal, no spam)", aP2 is None or aP2.get("text") is None)
 
@@ -290,11 +316,37 @@ ok("explicit SALE token overrides a rental listing binding", E.classify_transact
 # end to end: a SALE enquiry must NEVER get the rental TENANT intake form. July design
 # (buyer intake form concept): a sale enquiry now gets its OWN buyer form (SEND_BUYER_FORM),
 # not a silent FLAG_HUMAN and not the tenant INTAKE_FORM. Protective intent preserved: the
-# tenant form must never reach a buyer.
+# tenant form must never reach a buyer. Bound to tampines-908 (a real sale listing carrying
+# no fixed_viewing/gates in the fixture index) -- an UNBOUND sale enquiry is covered
+# separately below (buyer-form-sent-with-no-listing-bound fix, Sep 2026: it now flags
+# instead of guessing a listing to bind).
 sS={"version":1,"conversations":{}}
-aS=E.handle_event(sS,{"jid":"6590009999@s.whatsapp.net","msg_id":"S1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":None})
+aS=E.handle_event(sS,{"jid":"6590009999@s.whatsapp.net","msg_id":"S1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":"tampines-908"})
 ok("sale enquiry -> SEND_BUYER_FORM (buyer intake), not FLAG_HUMAN", aS and aS["type"]=="SEND_BUYER_FORM" and "sale" in aS.get("reason","").lower())
 ok("sale enquiry sends the BUYER form, never the tenant INTAKE_FORM", aS and aS.get("text") and E.INTAKE_FORM not in aS["text"] and "Citizenship" in aS["text"])
+ok("sale enquiry message 1 (texts[0]) is the listing description, message 2 is the form",
+   aS and len(aS.get("texts") or [])==2 and "Citizenship" not in aS["texts"][0]
+   and "Tampines Ave 4" in aS["texts"][0] and "Citizenship" in aS["texts"][1])
+
+# UNBOUND sale enquiry: never a blind guess (buyer-form-sent-with-no-listing-bound fix) --
+# bind or flag, per the qualification redesign's precondition. 11 Sep 2026 (remaining gap
+# c4rm04): total silence to the prospect was itself a gap -- FLAG_HUMAN now also carries one
+# factual "which unit?" ask (never a form, never advice), so aSU.get("text") is no longer None.
+sSU={"version":1,"conversations":{}}
+aSU=E.handle_event(sSU,{"jid":"6590009991@s.whatsapp.net","msg_id":"SU1","text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":None})
+ok("unbound sale enquiry -> FLAG_HUMAN, never a blind buyer form",
+   aSU and aSU["type"]=="FLAG_HUMAN" and aSU.get("buyer_unbound") is True
+   and aSU.get("text")==E._BUYER_UNBOUND_ASK_EN and aSU.get("notify") is True)
+ok("unbound sale enquiry never latches buyer_form_sent (a later bound message can still flow)",
+   sSU["conversations"]["6590009991"].get("buyer_form_sent") is not True)
+ok("unbound sale enquiry latches buyer_unbound_flagged (one flag, not re-flagged every tick "
+   "while still unbound)", sSU["conversations"]["6590009991"].get("buyer_unbound_flagged") is True)
+# a LATER message that DOES name/bind a listing must still flow normally (not stuck unbound
+# forever) -- the latch only guards repeats of the SAME still-unbound state.
+aSU3=E.handle_event(sSU,{"jid":"6590009991@s.whatsapp.net","msg_id":"SU3",
+   "text":"I am interested in: SALE - 339A Sembawang Close / 4 Beds / S$ 629,999","is_from_me":0,"listing_key":"tampines-908"})
+ok("a later message that DOES bind a listing -> SEND_BUYER_FORM proceeds normally",
+   aSU3 and aSU3["type"]=="SEND_BUYER_FORM")
 sR={"version":1,"conversations":{}}
 aR=E.handle_event(sR,{"jid":"6590007777@s.whatsapp.net","msg_id":"R1","text":"I am interested in: RENT - Caspian / Room / S$ 1,100 /mo","is_from_me":0,"listing_key":"caspian"})
 ok("rental enquiry still -> SEND_FORM", aR and aR["type"]=="SEND_FORM")
@@ -343,7 +395,11 @@ ok("backfill opening recognised as bot message", E.is_bot_message("Hi! Following
 
 print("== 13. CYCLE-2 HARDENING regressions ==")
 import importlib.util as _ilu
-_rs = _ilu.spec_from_file_location("rnr", os.path.join(_SRC, "wa_intake_runner.py"))
+# same reason as the sys.path line at the top: this was still loading the LIVE repo's
+# runner, so every _is_our_echo assertion below silently validated deployed code instead of
+# the branch under test. Resolve it out of THIS file's own checkout/worktree.
+_rs = _ilu.spec_from_file_location("rnr", os.path.join(_REPO_ROOT, "src", "wa-pipeline",
+                                                       "wa_intake_runner.py"))
 RNR = _ilu.module_from_spec(_rs); _rs.loader.exec_module(RNR)
 # bot-echo detection (the bridge echoes our own sends as is_from_me=0)
 ok("blank intake form echo -> recognised as our echo (would poison if processed)", RNR._is_our_echo(E.INTAKE_FORM) is True)
@@ -390,7 +446,27 @@ ok("fixed slot matches the configured time, marked fixed", _fx and _fx["start"]=
 ok("fixed slot lands on the configured weekday (Fri)", _fx and __import__("datetime").date(*map(int,_fx["date"].split("-"))).weekday()==4)
 ok("from a Wed -> offers the COMING Friday (06-19)", _fx and _fx["date"]=="2026-06-19")
 ok("rolls to next week once that Friday passes", E._fixed_viewing_slot("bayshore","2026-06-22")["date"]=="2026-06-26")
-ok("on the day itself it still offers that day", E._fixed_viewing_slot("bayshore","2026-06-19")["date"]=="2026-06-19")
+def _fixed_slot_on_the_day():
+    # _fixed_viewing_slot's "already started today -> roll to next week" check compares the
+    # REAL wall clock (datetime.datetime.utcnow(), by design -- see its own docstring: this
+    # only ever runs against production's actual today) against the listing's start time,
+    # not anything derived from the today_str argument. That is correct in production
+    # (today_str always IS the real today there) but makes this one assertion wall-clock
+    # dependent as a fixed historical test date (2026-06-19) ages -- freeze utcnow to a time
+    # before bayshore's 15:00 SGT start on that date so the test keeps proving what it always
+    # meant to prove, independent of when the suite happens to run.
+    import datetime as _dt
+    from unittest import mock as _mock
+
+    class _Frozen(_dt.datetime):
+        @classmethod
+        def utcnow(cls):
+            return _dt.datetime(2026, 6, 19, 3, 0, 0)   # 11:00 SGT, before the 15:00 start
+
+    with _mock.patch("datetime.datetime", _Frozen):
+        return E._fixed_viewing_slot("bayshore", "2026-06-19")
+
+ok("on the day itself it still offers that day", _fixed_slot_on_the_day()["date"]=="2026-06-19")
 ok("next_future_slot returns the fixed slot (overrides the availability file)", (E.next_future_slot("bayshore") or {}).get("fixed") is True)
 ok("a listing with NO fixed rule is unaffected", E._fixed_viewing_slot("caspian","2026-06-17") is None)
 
@@ -441,12 +517,17 @@ aLr=E.handle_event(slr,{"jid":jlr,"msg_id":"lr3","text":_qf,"is_from_me":0,"list
 ok("known landlord under manual takeover -> NO co-pilot/auto-offer", aLr is None)
 
 print("== 17. FORM: Preferred Location captured + NO CEA signoff in any tenant-facing copy ==")
-# the form field itself was shortened to "Location" (still parsed into preferred_location by
-# extract_profile's "preferred location|preferred area|location" fallback, checked below).
-ok("INTAKE_FORM includes a Location field", "• Location:" in E.INTAKE_FORM)
+# the form field was shortened to "Location" then, 11 Sep 2026, reworded to "Preferred
+# location" (Winfred: ask tenants to state it plainly so he can recommend the right room) --
+# still parsed into preferred_location by extract_profile's "preferred location|preferred
+# area|location" fallback, checked below, and the OLD "Location:" label from a form filled
+# before this change still parses too (same fallback, no code change needed for that).
+ok("INTAKE_FORM includes a Preferred location field", "• Preferred location:" in E.INTAKE_FORM)
 ok("INTAKE_FORM still has all 10 required field labels",
    all(x in E.INTAKE_FORM for x in ["Name:","Nationality:","Ethnicity:","Gender:","Age:","Pass type","No. of pax","Move in date","Lease term","Budget"]))
 ok("extract_profile captures preferred_location", E.extract_profile("Preferred Location: Tampines").get("preferred_location")=="Tampines")
+ok("extract_profile still captures the OLD bare 'Location:' label (forms filled before the reword)",
+   E.extract_profile("Location: Tampines").get("preferred_location")=="Tampines")
 ok("preferred_location is NOT a required field (does not gate qualify)", "preferred_location" not in E.REQUIRED_FIELDS)
 ok("INTAKE_FORM has no CEA signoff", "R073319H" not in E.INTAKE_FORM)
 ok("viewing text (no slot) has no CEA signoff", "R073319H" not in E._viewing_text(None))
@@ -504,10 +585,12 @@ print("== 21. WITHDRAWAL auto-close (found another place / no longer renting) ==
 def _wstate(pn, manual=False):
     return {"version":1,"conversations":{pn:{"pn":pn,"listing_key":"caspian","stage":"NEEDS_INFO","profile":{"name":"W"},"processed_ids":[],"form_sent":True,"asked_fields":[],"viewing_asked":False,"viewing_confirmed":False,"manual_takeover":manual,"status":("manual" if manual else "needs_info"),"sent_count":1}}}
 s1=_wstate("6590010001"); a1=E.handle_event(s1,{"jid":"6590010001@s.whatsapp.net","msg_id":"w1","text":"Hi, I found another place already. Thank you!","is_from_me":0})
-ok("'found another place' -> AUTO_CLOSED, no prospect text", a1 and a1.get("type")=="AUTO_CLOSED" and a1.get("text") is None)
+ok("'found another place' -> AUTO_CLOSED, fixed 'new place' closing text, no Telegram ping",
+   a1 and a1.get("type")=="AUTO_CLOSED" and a1.get("text")==E.CLOSING_TEXT_NEW_PLACE and a1.get("notify") is False)
 ok("'found another place' -> terminal set", s1["conversations"]["6590010001"].get("terminal") is True)
 s2=_wstate("6590010002"); a2=E.handle_event(s2,{"jid":"6590010002@s.whatsapp.net","msg_id":"w2","text":"sorry, i do not wish to rent anymore","is_from_me":0})
-ok("'do not wish to rent anymore' -> AUTO_CLOSED", a2 and a2.get("type")=="AUTO_CLOSED")
+ok("'do not wish to rent anymore' -> AUTO_CLOSED, generic closing text (no place implied)",
+   a2 and a2.get("type")=="AUTO_CLOSED" and a2.get("text")==E.CLOSING_TEXT_GENERIC)
 s3=_wstate("6590010003"); a3=E.handle_event(s3,{"jid":"6590010003@s.whatsapp.net","msg_id":"w3","text":"no longer looking, thanks anyway","is_from_me":0})
 ok("'no longer looking' -> AUTO_CLOSED", a3 and a3.get("type")=="AUTO_CLOSED")
 s4=_wstate("6590010004",manual=True); a4=E.handle_event(s4,{"jid":"6590010004@s.whatsapp.net","msg_id":"w4","text":"we went with another unit in the end","is_from_me":0})
@@ -518,6 +601,19 @@ s6=_wstate("6590010006"); a6=E.handle_event(s6,{"jid":"6590010006@s.whatsapp.net
 ok("unit feedback 'found the place small' does NOT auto-close", not (a6 and a6.get("type")=="AUTO_CLOSED") and s6["conversations"]["6590010006"].get("terminal") is not True)
 a4b=E.handle_event(s4,{"jid":"6590010004@s.whatsapp.net","msg_id":"w4b","text":"yes 3pm works","is_from_me":0})
 ok("after withdrawal-close, later 'yes 3pm' stays silent", a4b is None)
+
+print("== 21b. BARE SIGN-OFF (thanks/bye) also closes, generic text, never a substring match ==")
+s7=_wstate("6590010007"); a7=E.handle_event(s7,{"jid":"6590010007@s.whatsapp.net","msg_id":"w7","text":"Thanks!","is_from_me":0})
+ok("bare 'Thanks!' -> AUTO_CLOSED, generic closing text, no Telegram ping",
+   a7 and a7.get("type")=="AUTO_CLOSED" and a7.get("text")==E.CLOSING_TEXT_GENERIC and a7.get("notify") is False)
+s8=_wstate("6590010008"); a8=E.handle_event(s8,{"jid":"6590010008@s.whatsapp.net","msg_id":"w8","text":"ok bye","is_from_me":0})
+ok("bare 'ok bye' -> AUTO_CLOSED", a8 and a8.get("type")=="AUTO_CLOSED" and a8.get("text")==E.CLOSING_TEXT_GENERIC)
+s9=_wstate("6590010009"); a9=E.handle_event(s9,{"jid":"6590010009@s.whatsapp.net","msg_id":"w9","text":"thanks, can you also tell me about parking?","is_from_me":0})
+ok("'thanks' followed by a real question does NOT auto-close (whole-message match only)",
+   not (a9 and a9.get("type")=="AUTO_CLOSED") and s9["conversations"]["6590010009"].get("terminal") is not True)
+s10=_wstate("6590010010"); a10=E.handle_event(s10,{"jid":"6590010010@s.whatsapp.net","msg_id":"w10","text":"my budget is 1200, thanks","is_from_me":0})
+ok("a field answer that happens to end in 'thanks' does NOT auto-close",
+   not (a10 and a10.get("type")=="AUTO_CLOSED") and s10["conversations"]["6590010010"].get("terminal") is not True)
 ok("withdrawal_signal direct: positive", E.withdrawal_signal("i already rented somewhere else") is True)
 ok("withdrawal_signal direct: negative (plain enquiry)", E.withdrawal_signal("hi is the room still available to rent?") is False)
 ok("withdrawal_signal direct: landlord availability question is NOT a withdrawal", E.withdrawal_signal("so the landlord still not going to rent?") is False)
@@ -654,18 +750,25 @@ _smcfg = (E.listing_reqs().get("sin-ming-rd-23",{}) or {}).get("fixed_viewing") 
 ok("sin-ming-rd-23 has a fixed_viewing rule -> next Sat, matches its OWN registry start/end",
    (lambda s: s and s["date"]=="2026-08-01" and s["start"]==_smcfg.get("start") and s["end"]==_smcfg.get("end"))(
      E._fixed_viewing_slot("sin-ming-rd-23","2026-07-30")))
-# end to end: the first buyer-form message includes the fixed slot, and it is tracked under
-# its OWN state key (buyer_offered_slot_id) so it never touches the rental viewing_asked /
-# offered_slot_id machinery a later rental enquiry from the same person might rely on.
+# Kembangan Villas carries skip_buyer_form + open_house_message in Winfred's own live
+# property-templates.json (open-house-message-never-used fix, Sep 2026): it now skips the
+# buyer form entirely and sends the description + the landlord's own open house invite,
+# verbatim, instead (ported from commit a6523909). The fixed_viewing slot mechanism itself
+# (still exercised by 23 Sin Ming Road just below) is a SEPARATE feature for listings that
+# do NOT carry an open house override.
 sK={"version":1,"conversations":{}}
 aK=E.handle_event(sK,{"jid":"6590221100@s.whatsapp.net","msg_id":"K1",
    "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
    "is_from_me":0,"listing_key":"kembangan-villas"})
-ok("Kembangan Villas buyer enquiry -> SEND_BUYER_FORM with the fixed slot appended",
-   aK and aK["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK["text"] and "11 to 12noon" in aK["text"])
-ok("buyer-side slot tracked separately (buyer_offered_slot_id), rental viewing_asked untouched",
-   sK["conversations"]["6590221100"].get("buyer_offered_slot_id","").startswith("kembangan-villas-fixed-")
-   and sK["conversations"]["6590221100"].get("viewing_asked") is False)
+ok("Kembangan Villas buyer enquiry -> SEND_OPEN_HOUSE, not the buyer form",
+   aK and aK["type"]=="SEND_OPEN_HOUSE"
+   and "there's an open house" in aK["text"].lower() and "Citizenship" not in aK["text"])
+ok("Kembangan Villas open house latches buyer_form_sent + open_house_sent (one time only)",
+   sK["conversations"]["6590221100"].get("buyer_form_sent") is True
+   and sK["conversations"]["6590221100"].get("open_house_sent") is True)
+aK1b=E.handle_event(sK,{"jid":"6590221100@s.whatsapp.net","msg_id":"K1b","text":"can I come this saturday then?","is_from_me":0,"listing_key":"kembangan-villas"})
+ok("any reply after the open house invite hands straight to Winfred, never a resend",
+   aK1b and aK1b["type"]=="FLAG_HUMAN" and aK1b.get("text") is None and aK1b.get("notify") is True)
 
 sM={"version":1,"conversations":{}}
 aM=E.handle_event(sM,{"jid":"6590221101@s.whatsapp.net","msg_id":"M1",
@@ -675,10 +778,8 @@ ok("23 Sin Ming Road buyer enquiry -> SEND_BUYER_FORM with the fixed slot append
    aM and aM["type"]=="SEND_BUYER_FORM" and "Viewing:" in aM["text"]
    and _smcfg.get("time_label","\x00") in aM["text"])
 
-# regression: a sale enquiry with no listing_key match (or a listing with no fixed_viewing
-# rule) still sends the plain buyer form -- no "Viewing:" line, no crash on next_slot(None).
-ok("un-matched sale enquiry (no listing_key) -> buyer form with NO viewing line",
-   aS and "Viewing:" not in aS["text"])   # aS defined in section 11 above (Sembawang, listing_key=None)
+# (the old "un-matched sale enquiry, no listing_key" case moved to section 11 above -- it
+# now FLAG_HUMANs instead of guessing a listing, per buyer-form-sent-with-no-listing-bound.)
 
 print("== BACKTEST FIXES (5 Aug 2026): fixed_viewing must not leak across deal_type/status ==")
 # Finding 1: a RENTAL listing (ang-mo-kio-539) can still classify as tx=="sale" via an
@@ -696,26 +797,28 @@ ok("generic 'sin ming road' text does NOT bind to the sin-ming-rd-23 sale listin
    RNR.match_listing("hi is the common room along sin ming road still up? budget 900", E.listing_reqs()) is None)
 
 # Finding 4: a fixed_viewing sale listing put on hold/closed must not auto-commit a buyer to
-# a concrete viewing time for a property that is no longer available.
+# a concrete viewing time for a property that is no longer available. Uses 23 Sin Ming Road,
+# not Kembangan Villas (which now takes the open-house-skip branch above and never reaches
+# this fixed-slot code at all).
 _orig_reqs_hold = E.listing_reqs
-def _reqs_kembangan_hold():
+def _reqs_sinming_hold():
     r = {k: dict(v) for k, v in _orig_reqs_hold().items()}
-    r["kembangan-villas"]["status"] = "hold"
+    r["sin-ming-rd-23"]["status"] = "hold"
     return r
-E.listing_reqs = _reqs_kembangan_hold
+E.listing_reqs = _reqs_sinming_hold
 sH={"version":1,"conversations":{}}
 aH=E.handle_event(sH,{"jid":"6590331188@s.whatsapp.net","msg_id":"h1",
-   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
-   "is_from_me":0,"listing_key":"kembangan-villas"})
-ok("kembangan-villas on hold -> buyer form with NO viewing line (status gate)",
+   "text":"Hi Winfred Quek,\nI am interested in:\nSALE - 23 Sin Ming Road\n2 Beds /  S$ 368,000\n\nThanks",
+   "is_from_me":0,"listing_key":"sin-ming-rd-23"})
+ok("sin-ming-rd-23 on hold -> buyer form with NO viewing line (status gate)",
    aH and aH["type"]=="SEND_BUYER_FORM" and "Viewing:" not in aH["text"])
 E.listing_reqs = _orig_reqs_hold
 # regression guard: the same active listing still offers its slot normally (gate isn't over-broad)
 sK2={"version":1,"conversations":{}}
 aK2=E.handle_event(sK2,{"jid":"6590331177@s.whatsapp.net","msg_id":"k2",
-   "text":"Hi Winfred Quek, I am interested in your Sale property Kembangan Villas, 6 bedroom, listed for S$ 7,299,999.",
-   "is_from_me":0,"listing_key":"kembangan-villas"})
-ok("kembangan-villas still active -> viewing slot still offered (gate not over-broad)",
+   "text":"Hi Winfred Quek,\nI am interested in:\nSALE - 23 Sin Ming Road\n2 Beds /  S$ 368,000\n\nThanks",
+   "is_from_me":0,"listing_key":"sin-ming-rd-23"})
+ok("sin-ming-rd-23 still active -> viewing slot still offered (gate not over-broad)",
    aK2 and aK2["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK2["text"])
 
 # Pre-existing bug (predates tonight, since commit c634271 29 Jul), fixed 5 Aug 2026:
@@ -723,11 +826,14 @@ ok("kembangan-villas still active -> viewing slot still offered (gate not over-b
 # "too far" on a PURCHASE enquiry got misrouted into the rental cross-sell/redirect path and
 # the conversation was permanently closed (terminal=True), silently swallowing every message
 # after -- including their name/budget/financing, which never reached Winfred.
+# tampines-908, not Kembangan Villas: Kembangan now takes the open-house-skip branch above
+# (buyer_form_sent latches to True there too, which would make this test indistinguishable
+# from that one -- tampines-908 is a plain sale listing, no skip_buyer_form).
 sU={"version":1,"conversations":{}}
 jidU = "6598765432@s.whatsapp.net"
-E.handle_event(sU, {"jid":jidU,"msg_id":"u1","text":"Hi is Kembangan Villas still for sale? Keen to view","is_from_me":0,"listing_key":"kembangan-villas"})
+E.handle_event(sU, {"jid":jidU,"msg_id":"u1","text":"Hi is 908 Tampines still for sale? Keen to view","is_from_me":0,"listing_key":"tampines-908"})
 pnU = E.resolve_pn(jidU); recU = sU["conversations"][pnU]
-aU2 = E.handle_event(sU, {"jid":jidU,"msg_id":"u2","text":"hmm too small for us, but my name is John, budget 2m, HFE valid, own stay","is_from_me":0,"listing_key":"kembangan-villas"})
+aU2 = E.handle_event(sU, {"jid":jidU,"msg_id":"u2","text":"hmm too small for us, but my name is John, budget 2m, HFE valid, own stay","is_from_me":0,"listing_key":"tampines-908"})
 ok("buyer 'too small for us' reply -> profile captured (name/budget/financing), NOT swallowed",
    aU2 is not None and recU.get("buyer",{}).get("budget")==2000000 and recU.get("buyer",{}).get("financing")=="valid")
 ok("buyer 'too small for us' reply -> conversation stays open (no rental terminal/redirect)",
@@ -762,12 +868,18 @@ ok("CHANNEL_PITCH classified as an engine send (outbound prefix)",
    any(E.CHANNEL_PITCH.lower().startswith(p) for p in E._ENGINE_PREFIXES))
 ok("CHANNEL_PITCH recognised by is_bot_message (inbound echo)", E.is_bot_message(E.CHANNEL_PITCH))
 ok("CHANNEL_PITCH recognised by the runner as our own echo", _RCP._is_our_echo(E.CHANNEL_PITCH) is True)
-ok("CHANNEL_PITCH yields no phantom profile fields",
-   all(v in (None,"") for v in E.extract_profile(E.CHANNEL_PITCH).values()))
+# 11 Sep 2026 reword: the pitch now deliberately ASKS for "preferred location and budget",
+# so extract_profile() run in isolation on it DOES pick up a stray preferred_location grab
+# (it has no way to tell "please tell me X" from "X: <value>") -- the real safety net is
+# upstream of that: is_engine_outbound()/_is_our_echo() above both recognise this exact text
+# as OUR OWN send, so the runner filters it out before it is ever handed to extract_profile
+# on a genuinely inbound row (wa_intake_runner.py: "if not ifm and _is_our_echo(content)").
+ok("CHANNEL_PITCH is filtered as our own echo before extract_profile ever sees an inbound row",
+   _RCP._is_our_echo(E.CHANNEL_PITCH) is True and E.is_engine_outbound(E.CHANNEL_PITCH) is True)
 ok("INTAKE_FORM itself still carries no channel link", E.CHANNEL not in E.INTAKE_FORM)
 ok("INTAKE_FORM still has all 14 field labels after the split",
    all(x in E.INTAKE_FORM for x in ["Email address:","Name:","Nationality:","Ethnicity:","Gender:","Age:",
-       "Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Location:"]))
+       "Pass type","Occupation","Employment type","No. of pax","Move in date","Lease term","Budget:","Preferred location:"]))
 _sB={"version":1,"conversations":{}}
 _aB=E.handle_event(_sB,{"jid":"6591112223@s.whatsapp.net","msg_id":"cp1","text":"Hi, I am interested in a HDB for sale, budget 800k","is_from_me":0})
 ok("buyer (sale) enquiry does NOT get the rental channel pitch",
@@ -797,110 +909,6 @@ E.listing_reqs, E._listing_unavailable, E.qualify = _hold_reqs, _hold_unavail, _
 ok("runner formats the hot line", _RCP._hot_line({"hot_matches": ["a", "b"]}) == "\n🔥 Also fits: a, b")
 ok("runner hot line is empty without matches", _RCP._hot_line({}) == "")
 
-print("== OPEN HOUSE (skip_buyer_form): buyer flow override, per listing template (Sep 2026) ==")
-# Data driven: a listing's property-templates.json entry can carry skip_buyer_form +
-# open_house_message to replace the buyer intake form with a landlord open house invite.
-# Tested against a FAKE listing key (never touches the real property-templates.json file,
-# and never touches the real kembangan-villas fixture the FIXED VIEWING SLOT section above
-# already exercises for the plain buyer-form + fixed-slot path).
-_orig_buyer_template = E._buyer_template
-_OH_KEY = "open-house-test-listing"
-_OH_MSG = ("Hi, thanks for your interest in Test Open House Villas. There's an open house "
-           "this Saturday, 11am to 12noon, do drop by to view the unit. Let me know if "
-           "you're planning to come and I'll look out for you.")
-def _fake_buyer_template(listing_key):
-    if listing_key == _OH_KEY:
-        return {"id": _OH_KEY, "skip_buyer_form": True, "open_house_message": _OH_MSG}
-    return _orig_buyer_template(listing_key)
-E._buyer_template = _fake_buyer_template
-
-# (a) buyer enquiry on a skip_buyer_form listing -> the open house invite, NOT the buyer form
-sO = {"version":1,"conversations":{}}
-jidO = "6590009911@s.whatsapp.net"
-aO1 = E.handle_event(sO, {"jid":jidO,"msg_id":"oh1",
-    "text":"Hi Winfred Quek, I am interested in your Sale property Test Open House Villas, 6 bedroom, listed for S$ 3,000,000.",
-    "is_from_me":0,"listing_key":_OH_KEY})
-ok("open house listing buyer enquiry -> SEND_OPEN_HOUSE with the exact invite text",
-   aO1 and aO1["type"]=="SEND_OPEN_HOUSE" and aO1["text"]==_OH_MSG)
-ok("open house send carries NO buyer form fields (not the form + invite glued together)",
-   aO1 and "Citizenship" not in aO1["text"] and "HFE valid?" not in aO1["text"]
-   and "IPA valid?" not in aO1["text"])
-pnO = E.resolve_pn(jidO); recO = sO["conversations"][pnO]
-ok("open house send latches buyer_form_sent + open_house_sent (one time gate)",
-   recO.get("buyer_form_sent") is True and recO.get("open_house_sent") is True)
-ok("open house action flows through the runner's GENERIC single-text send path "
-   "(no 'texts' list, no bespoke send key that could dodge DRY_RUN/guard/cap)",
-   "text" in aO1 and "texts" not in aO1 and aO1.get("pn") == pnO)
-
-# (b) sent at most ONCE; a repeat ping does not re-send it, and hands off to Winfred instead
-aO2 = E.handle_event(sO, {"jid":jidO,"msg_id":"oh2","text":"hi still there? just checking","is_from_me":0})
-ok("repeat ping after the open house invite -> never re-sent (no SEND_OPEN_HOUSE/SEND_BUYER_FORM)",
-   aO2 is not None and aO2["type"] not in ("SEND_OPEN_HOUSE","SEND_BUYER_FORM"))
-ok("repeat ping after the open house invite -> hands off to Winfred (FLAG_HUMAN, no prospect text)",
-   aO2["type"]=="FLAG_HUMAN" and aO2.get("notify") is True and aO2.get("text") is None)
-
-# (c) a buyer QUESTION after the open house invite flags to Winfred, never auto answered
-sQ = {"version":1,"conversations":{}}
-jidQ = "6590009933@s.whatsapp.net"
-E.handle_event(sQ, {"jid":jidQ,"msg_id":"q1",
-    "text":"Hi, interested in Test Open House Villas, is it still for sale?",
-    "is_from_me":0,"listing_key":_OH_KEY})
-aQ2 = E.handle_event(sQ, {"jid":jidQ,"msg_id":"q2",
-    "text":"Can I bring my parents along on Saturday? Also is the price negotiable?",
-    "is_from_me":0})
-ok("buyer QUESTION after the open house invite -> FLAG_HUMAN, never auto answered "
-   "(no price/negotiation advice from the engine -- CEA role boundary)",
-   aQ2 is not None and aQ2["type"]=="FLAG_HUMAN" and aQ2.get("text") is None
-   and aQ2.get("notify") is True)
-
-# (d) a normal sale listing with NO skip_buyer_form entry still gets the buyer form unchanged
-sD = {"version":1,"conversations":{}}
-aD = E.handle_event(sD, {"jid":"6590009922@s.whatsapp.net","msg_id":"d1",
-    "text":"Hi Winfred Quek, I am interested in your Sale property Test HDB Flat, 4 bedroom, listed for S$ 500,000.",
-    "is_from_me":0, "listing_key":"no-template-entry-xyz"})
-ok("sale listing with no skip_buyer_form template -> normal buyer form, no regression",
-   aD and aD["type"]=="SEND_BUYER_FORM" and "Citizenship" in aD["text"])
-ok("kembangan-villas (real listing, no skip_buyer_form in the LIVE file today) is unaffected "
-   "-> still the fixed-slot buyer form path from the FIXED VIEWING SLOT section above",
-   aK and aK["type"]=="SEND_BUYER_FORM" and "Viewing:" in aK["text"])
-
-# (e) DRY_RUN: the open house send goes through the exact same generic gate as every other
-# action type in the runner (reproduced verbatim from wa_intake_runner.run(), which is not
-# unit-testable end to end without a live bridge/messages.db -- no other action type in this
-# suite is either). No new send path was added for SEND_OPEN_HOUSE, so DRY_RUN gates it too.
-_oh_send_calls = []
-_orig_rcp_send = _RCP._send
-_RCP._send = lambda pn, text: _oh_send_calls.append((pn, text))
-_orig_dry_run = E.DRY_RUN
-E.DRY_RUN = True
-_texts = aO1.get("texts") or ([aO1["text"]] if aO1.get("text") else [])
-if E.DRY_RUN:
-    pass  # runner only logs WOULD_SEND, never calls _send
-else:
-    for _tx in _texts:
-        _RCP._send(aO1["pn"], _tx)
-ok("DRY_RUN=True -> open house invite sends nothing (same gate as every other action type)",
-   _oh_send_calls == [])
-E.DRY_RUN = _orig_dry_run
-_RCP._send = _orig_rcp_send
-ok("DRY_RUN restored to its prior value after the test (never left flipped)",
-   E.DRY_RUN == _orig_dry_run)
-
-# echo / manual-takeover safety: the invite must be recognised as OUR send everywhere the
-# codebase checks for one, or an echoed outbound row would falsely latch manual_takeover
-# (wa_intake_runner's PRE-PASS: "if _ifm and not E.is_engine_outbound(_content): ... latch
-# manual_takeover") or poison recent_inbound_text/classify_intent as a fake prospect reply.
-ok("open house invite recognised by is_engine_outbound (PRE-PASS must not latch manual_takeover)",
-   E.is_engine_outbound(_OH_MSG) is True)
-ok("open house invite recognised by is_bot_message (chat-history echo guard)",
-   E.is_bot_message(_OH_MSG) is True)
-ok("open house invite recognised by the runner's _is_our_echo (_OUTBOUND_ONLY)",
-   _RCP._is_our_echo(_OH_MSG) is True)
-ok("SEND_OPEN_HOUSE is not exempted from the manual_takeover skip carve out "
-   "(only the landlord onboarding sequence gets that exemption)",
-   "SEND_OPEN_HOUSE" not in _RCP._LANDLORD_ONBOARDING_TYPES)
-
-E._buyer_template = _orig_buyer_template
 print("== LANDLORD ONBOARDING EXTENSION ==")
 
 # ---- deterministic parsers: never depend on the form's own field labels ----
@@ -1112,6 +1120,247 @@ finally:
                 os.remove(os.path.join(os.path.dirname(_scratch_db), f))
     except OSError:
         pass
+
+print("== 20. LISTING-SIDE NEEDS_INFO gap never reaches prospect copy (Opus review blocker #3) ==")
+# sunshine-terrace has budget_floor None + budget_unknown True -- a complete profile with no
+# hard gender/ethnicity gate tripped (both are *_pref, soft) NEEDS_INFOs on "listing rent not
+# confirmed" ALONE. That is an internal gap, not something the prospect can answer -- it must
+# never surface as "Almost there. listing rent not confirmed." (judge catch, 11 Aug 2026).
+sst = {"version": 1, "conversations": {}}; jst = "6590333100@s.whatsapp.net"
+E.handle_event(sst, {"jid": jst, "msg_id": "st1", "text": "Hi is the Sunshine Terrace room still available?",
+                     "is_from_me": 0, "listing_key": "sunshine-terrace"})
+sst["conversations"]["6590333100"]["form_sent_ts"] -= 300
+_stf = ("Name: Priya\nNationality: Singaporean\nEthnicity: Chinese\nGender: Female\nAge: 28\n"
+        "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12 months\n"
+        "Budget: 1500")
+aSt = E.handle_event(sst, {"jid": jst, "msg_id": "st2", "text": _stf, "is_from_me": 0})
+ok("qualify() itself still reports the listing-side gap (verdict unchanged)",
+   E.qualify(reqs["sunshine-terrace"], sst["conversations"]["6590333100"]["profile"])[0] == "NEEDS_INFO")
+ok("listing-only NEEDS_INFO gap -> booked anyway (OFFER_VIEWING), never a dead-end ASK_ONE",
+   aSt and aSt["type"] == "OFFER_VIEWING")
+ok("no prospect-facing text ever contains the internal 'listing rent' gap wording",
+   aSt and "listing rent" not in (aSt.get("text") or "").lower())
+ok("Winfred IS notified with the gap, so he can confirm rent with the landlord",
+   aSt and aSt.get("notify") is True and "listing rent not confirmed" in (aSt.get("reason") or ""))
+# contrast: a gap the prospect CAN answer (gender) still asks, and never leaks a listing-side
+# reason into that same ASK_ONE text. bedok-north-522 is female_only -- "gender" satisfies
+# missing_required() (a non-empty string) but qualify()'s own male/female regex can't read
+# it, so this trips qualify()'s NEEDS_INFO gender-unknown branch, not the earlier form gate.
+sgd = {"version": 1, "conversations": {}}; jgd = "6590333200@s.whatsapp.net"
+E.handle_event(sgd, {"jid": jgd, "msg_id": "gd1", "text": "Hi is Bedok North still available?",
+                     "is_from_me": 0, "listing_key": "bedok-north-522"})
+sgd["conversations"]["6590333200"]["form_sent_ts"] -= 300
+_gdf = ("Name: Wei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Prefer not to say\nAge: 32\n"
+        "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12 months\n"
+        "Budget: 1300")
+aGd = E.handle_event(sgd, {"jid": jgd, "msg_id": "gd2", "text": _gdf, "is_from_me": 0})
+ok("askable gender gap -> ASK_ONE naming gender, not a listing-side reason",
+   aGd and aGd["type"] == "ASK_ONE" and "gender" in (aGd.get("text") or "").lower())
+
+print("== 21. A1 PASTED FORM MUST NOT MUTE THE BOT (real byte patterns, messages.db 8 Sep 2026) ==")
+# 47 of 66 outbound form-like rows in a 7 day replay carried word joiners (U+2060) around
+# every bullet; some carried a leading U+200E (LTR mark) the client silently prepends. Both
+# defeated the old exact-prefix / label match and latched manual_takeover on the bot.
+_ZWJ = "⁠"  # word joiner WhatsApp threads around a pasted bullet
+_LRM = "‎"  # left to right mark some clients prepend to the whole message
+
+def _bullet(label):
+    return "•" + _ZWJ + "  " + _ZWJ + label
+
+_blank_zwj_with_header = (
+    "Pls fill this in so I can send your profile to the landlord :)\n"
+    + "\n".join(_bullet(x) for x in (
+        "Email address:", "Name:", "Nationality:", "Ethnicity:", "Gender:", "Age:",
+        "Pass type (SC/PR/EP/S Pass/STP etc):", "Occupation (your job/industry):",
+        "Employment type (permanent / fixed term / variable):", "No. of pax:",
+        "Move in date:", "Lease term:", "Budget:", "Preferred location:")))
+ok("blank form + ZWJ + header -> engine outbound (already matched by prefix)",
+   E.is_engine_outbound(_blank_zwj_with_header) is True)
+
+_filled_zwj_no_header = (
+    _bullet("Name: chris") + "\n" + _bullet("Nationality: malaysia") + "\n"
+    + _bullet("Ethnicity: chinese") + "\n" + _bullet("Gender:female") + "\n"
+    + _bullet("Age:50") + "\n" + _bullet("Pass type (SC/PR/EP/S Pass/STP etc):pr"))
+ok("FILLED profile + ZWJ, no header -> still human (forwarded to landlord, real row 327078)",
+   E.is_engine_outbound(_filled_zwj_no_header) is False
+   and E.is_pasted_blank_intake_form(_filled_zwj_no_header) is False)
+
+_blank_zwj_custom_note = (
+    "Hi can help fill in so I can send tenant and possibility of scheduling a viewing\n\n"
+    + "\n".join(_bullet(x) for x in (
+        "Email address:", "Name:", "Nationality:", "Ethnicity:", "Gender:", "Age:")))
+ok("blank form + ZWJ, custom note in front, NO header -> engine equivalent (real row 326110)",
+   E.is_engine_outbound(_blank_zwj_custom_note) is True
+   and E.is_pasted_blank_intake_form(_blank_zwj_custom_note) is True)
+
+_blank_lrm_prefixed = (
+    _LRM + "Pls fill this in so I can send your profile to the landlord :)\n"
+    "• Email address:\n• Name:\n• Nationality:\n• Ethnicity:\n• Gender:\n• Age:\n"
+    "• Pass type (SC/PR/EP/S Pass/STP etc):\n• Occupation (your job/industry):\n"
+    "• Employment type (permanent / fixed term / variable):\n• No. of pax:\n"
+    "• Move in date:\n• Lease term:\n• Budget:\n• Location:")
+ok("leading U+200E (LRM) + exact header -> engine outbound (real row 326006, was human before fix)",
+   E.is_engine_outbound(_blank_lrm_prefixed) is True)
+
+_blank_possible_prefix = "Possible " + _blank_zwj_with_header
+ok("'Possible ' + blank form + ZWJ + header -> engine equivalent (real row 325189)",
+   E.is_engine_outbound(_blank_possible_prefix) is True
+   and E.is_pasted_blank_intake_form(_blank_possible_prefix) is True)
+
+_cn_blank = ("请帮我填好这个表格，这样我就能把个人资料发给房东\n"
+             "姓名Name: \n入住人数 No. of pax :\n性别 Gender :\n国籍 Nationality : \n"
+             "种族 Race : \n职业 Occupation : \n工作准证类型 Type of Pass：\n"
+             "批准通过 Workpass approved : \n入住日期 Move In Date :\n"
+             "租赁期 Lease duration: \n预算 Budget: \n首选地点 Preferred Location:")
+ok("Chinese variant, blank -> engine equivalent (real row 316008)",
+   E.is_engine_outbound(_cn_blank) is True and E.is_pasted_blank_intake_form(_cn_blank) is True)
+
+_cn_filled = ("姓名Name: Chenyanxia\n入住人数 No. 1-2pax :1-2人 多数时间一个人\n"
+              "性别 Gender :giirl \n国籍 Nationality : china\n种族 Race : china\n"
+              "职业 Occupation : \n工作准证类型 Type of Pass：EP /Dp\n"
+              "批准通过 Workpass approved : \n入住日期 Move In Date :10 月 15 日左右 \n"
+              "租赁期 Lease  : 1 year \n预算 Budget: \n首选地点 Preferred Location:marine parade center")
+ok("Chinese variant, FILLED -> still human (forwarded to landlord, real row 316104)",
+   E.is_engine_outbound(_cn_filled) is False and E.is_pasted_blank_intake_form(_cn_filled) is False)
+
+ok("plain human chat text is never mistaken for a pasted form",
+   E.is_pasted_blank_intake_form("ok can, see you saturday then") is False)
+
+print("== 22. A3 PROTECTED ATTRIBUTE DECLINES ARE VISIBLE + NEUTRAL IN STATE ==")
+# caspian excludes Indian ethnicity -- a real qualify() DISQUALIFIED on a protected attribute.
+sE = {"version": 1, "conversations": {}}; jE = "6590334400@s.whatsapp.net"
+E.handle_event(sE, {"jid": jE, "msg_id": "e1", "text": "Hi is caspian still available?",
+                    "is_from_me": 0, "listing_key": "caspian"})
+_ef = ("Name: Ravi\nNationality: Singaporean\nEthnicity: Indian\nGender: Male\nAge: 28\n"
+       "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12\n"
+       "Budget: 1200")
+aE = E.handle_event(sE, {"jid": jE, "msg_id": "e2", "text": _ef, "is_from_me": 0})
+ok("ethnicity DISQUALIFIED -> still REDIRECT (verified gate, not blocked)",
+   aE and aE["type"] == "REDIRECT")
+ok("status is house_gate:E1, never the word 'ethnicity'",
+   sE["conversations"]["6590334400"]["status"] == "house_gate:E1")
+ok("Winfred notified, Telegram reason carries the code only (no attribute word)",
+   aE.get("notify") is True and aE.get("reason") == "house_gate:E1")
+ok("prospect-facing redirect text still reveals nothing",
+   "indian" not in (aE.get("text") or "").lower() and "ethnicity" not in (aE.get("text") or "").lower())
+ok("the persisted qualify.why in state carries the code, not the attribute word",
+   " ".join(sE["conversations"]["6590334400"].get("qualify", {}).get("why", [])) == "house_gate:E1")
+
+# bedok-north-522 is female_only + couple_ok(no single males) -- gender DISQUALIFIED.
+sG = {"version": 1, "conversations": {}}; jG = "6590334500@s.whatsapp.net"
+E.handle_event(sG, {"jid": jG, "msg_id": "g1", "text": "Hi is Bedok North still available?",
+                    "is_from_me": 0, "listing_key": "bedok-north-522"})
+_gf = ("Name: Sam\nNationality: Singaporean\nEthnicity: Chinese\nGender: Male\nAge: 30\n"
+       "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12\n"
+       "Budget: 1300")
+aG = E.handle_event(sG, {"jid": jG, "msg_id": "g2", "text": _gf, "is_from_me": 0})
+ok("gender DISQUALIFIED -> house_gate:G1, notify=True",
+   aG and aG["type"] == "REDIRECT" and sG["conversations"]["6590334500"]["status"] == "house_gate:G1"
+   and aG.get("notify") is True and aG.get("reason") == "house_gate:G1")
+
+# a non protected disqualify (budget too low) is UNCHANGED -- still "disqualified", no code.
+sB = {"version": 1, "conversations": {}}; jB = "6590334600@s.whatsapp.net"
+E.handle_event(sB, {"jid": jB, "msg_id": "b1", "text": "Hi is caspian still available?",
+                    "is_from_me": 0, "listing_key": "caspian"})
+_bf = ("Name: Wei\nNationality: Singaporean\nEthnicity: Chinese\nGender: Male\nAge: 28\n"
+       "Type of Pass: SC\nNo. of Pax: 1\nIntended Move in Date: 1 Oct\nPreferred Lease Term: 12\n"
+       "Budget: 500")
+aB = E.handle_event(sB, {"jid": jB, "msg_id": "b2", "text": _bf, "is_from_me": 0})
+ok("a non protected disqualify (budget) is untouched -- plain 'disqualified' status",
+   aB and aB["type"] == "REDIRECT" and sB["conversations"]["6590334600"]["status"] == "disqualified")
+
+# 9 Sep 2026 review: an "only" mode gate names the accepted GROUP, not the attribute
+# ("landlord accepts only Chinese"), so the substring test missed it entirely -- the decline
+# fell through to plain "disqualified", notify absent, and the group name went out on the
+# Telegram flag. Resolve the attribute from the listing's own rules instead.
+_only_eth = {"listing_key": "only-eth", "status": "active", "requirements": {
+    "gender": "any", "ethnicity_rule": {"mode": "only", "list": ["Chinese"]},
+    "nationality_pref": {"mode": "any", "list": []}, "max_pax": 4,
+    "lease_min_months": 12, "budget_floor": 1000, "gate_unverified": []}}
+_only_nat = {"listing_key": "only-nat", "status": "active", "requirements": {
+    "open_intake": True, "gender": "any", "ethnicity_rule": {"mode": "any", "list": []},
+    "nationality_pref": {"mode": "only", "list": ["Singaporean"]},
+    "lease_min_months": 12, "budget_floor": 1000, "gate_unverified": []}}
+_pI = {"name": "Ravi", "nationality": "Singaporean", "ethnicity": "Indian", "gender": "Male",
+       "no_of_pax": 1, "lease_term_months": 12, "budget": 1500}
+_pM = {"name": "Lee", "nationality": "Malaysian", "ethnicity": "Chinese", "gender": "Male",
+       "no_of_pax": 1, "lease_term_months": 12, "budget": 1500}
+_vO, _whyO = E.qualify(_only_eth, _pI)
+ok("ethnicity ONLY mode still DISQUALIFIED (qualify unchanged)", _vO == "DISQUALIFIED")
+ok("the raw reason really does name the group (this is what used to leak)",
+   "chinese" in " ".join(_whyO).lower())
+ok("'landlord accepts only <group>' resolves to the ETHNICITY house gate",
+   E._protected_attr_from_why(_whyO, _only_eth) == "ethnicity")
+_vN, _whyN = E.qualify(_only_nat, _pM)
+ok("nationality ONLY mode resolves to the NATIONALITY house gate",
+   _vN == "DISQUALIFIED" and E._protected_attr_from_why(_whyN, _only_nat) == "nationality")
+ok("no listing to resolve against -> generic house_gate:U1, still never the group name",
+   E._protected_attr_from_why(["landlord accepts only Chinese"]) == "protected"
+   and E._house_gate_status("protected") == "house_gate:U1")
+_actO = E._house_gate_redirect("6590334700", {"profile": _pI}, _only_eth,
+                               {"only-eth": _only_eth}, "only-eth", "ethnicity", _whyO)
+ok("an ONLY mode decline now REDIRECTs with notify=True and a code-only reason",
+   _actO["type"] == "REDIRECT" and _actO.get("notify") is True
+   and _actO["reason"] == "house_gate:E1"
+   and "chinese" not in (_actO.get("text") or "").lower())
+
+# the co-pilot DISQUALIFIED ping is rendered verbatim into the Telegram line
+# ("... does NOT fit X. Reason: {why}") -- it must carry the code, never the attribute word.
+_saved_reqs, _saved_excl = E.listing_reqs, E.excluded_reason
+E.listing_reqs = lambda: {"only-eth": _only_eth, "cop-eth": {
+    "listing_key": "cop-eth", "status": "active", "requirements": {
+        "gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]},
+        "nationality_pref": {"mode": "any", "list": []}, "max_pax": 4,
+        "lease_min_months": 12, "budget_floor": 1000, "gate_unverified": []}}}
+E.excluded_reason = lambda pn: None
+try:
+    _full = dict(_pI); _full.update({"age": 28, "occupation": "eng", "pass_type": "EP",
+                                     "email": "r@x.com", "employment_type": "permanent",
+                                     "move_in_date": "1 Oct", "location": "Bedok"})
+    for _lk_c in ("cop-eth", "only-eth"):
+        _recC = {"pn": "6590334800", "listing_key": _lk_c, "profile": _full}
+        _aC = E._copilot_verdict(_recC)
+        _blob = " ".join(str(x) for x in (_aC.get("why") or [])).lower()
+        ok(f"co-pilot DISQUALIFIED ping on {_lk_c} carries a house_gate code only",
+           _aC and _aC["type"] == "COPILOT_VERDICT" and _aC["verdict"] == "DISQUALIFIED"
+           and _blob.startswith("house_gate:")
+           and not any(w in _blob for w in ("ethnic", "indian", "chinese", "nationalit", "gender")))
+        ok(f"state's persisted qualify.why on {_lk_c} is neutral too",
+           not any(w in " ".join(_recC["qualify"]["why"]).lower()
+                   for w in ("ethnic", "indian", "chinese")))
+    # a NON protected co-pilot decline still reports the real reason (Winfred needs it)
+    _recB2 = {"pn": "6590334900", "listing_key": "cop-eth",
+              "profile": dict(_full, ethnicity="Chinese", budget=200)}
+    _aB2 = E._copilot_verdict(_recB2)
+    ok("a non protected co-pilot decline still names the real reason (budget)",
+       _aB2 and _aB2["verdict"] == "DISQUALIFIED" and "budget" in " ".join(_aB2["why"]).lower())
+finally:
+    E.listing_reqs, E.excluded_reason = _saved_reqs, _saved_excl
+
+print("== 23. A2 A SAFETY NET: gate_unverified never reaches a prospect send ==")
+_unverified_listing = {
+    "listing_key": "unverified-fixture", "status": "active",
+    "requirements": {"gender": "any", "ethnicity_rule": {"mode": "exclude", "list": ["Indian"]},
+                     "nationality_pref": {"mode": "any", "list": []},
+                     "max_pax": 2, "lease_min_months": 12, "budget_floor": 1000,
+                     "gate_unverified": ["ethnicity"]}}
+_v_u, _why_u = E.qualify(_unverified_listing, {"ethnicity": "Indian", "gender": "Male",
+                                               "no_of_pax": 1, "lease_term_months": 12, "budget": 1200})
+ok("qualify() itself is unchanged (still DISQUALIFIED -- the block is the caller's job)",
+   _v_u == "DISQUALIFIED")
+_act_u = E._house_gate_redirect("659", {"profile": {}}, _unverified_listing,
+                                {"unverified-fixture": _unverified_listing},
+                                "unverified-fixture", "ethnicity", _why_u)
+ok("an unverified ethnicity gate -> FLAG_HUMAN, no prospect text, notify=True",
+   _act_u["type"] == "FLAG_HUMAN" and _act_u.get("text") is None and _act_u.get("notify") is True
+   and _act_u["reason"] == "house_gate:E1")
+_offer_u = E._gate_unverified_offer_block("659", {"profile": {}}, _unverified_listing)
+ok("a QUALIFIED prospect on a listing with ANY unverified gate never auto OFFER_VIEWINGs",
+   _offer_u is not None and _offer_u["type"] == "FLAG_HUMAN" and _offer_u["reason"] == "house_gate:E1")
+_clean_listing = dict(_unverified_listing)
+_clean_listing["requirements"] = dict(_unverified_listing["requirements"]); _clean_listing["requirements"]["gate_unverified"] = []
+ok("a verified (or gateless) listing never gets blocked",
+   E._gate_unverified_offer_block("659", {"profile": {}}, _clean_listing) is None)
 
 print(f"\nRESULT: {P} passed, {F} failed")
 sys.exit(1 if F else 0)

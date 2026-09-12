@@ -7,6 +7,14 @@ so the script exits non-zero if any NEGATIVE is flagged. Recall (missed withdraw
 but not a hard fail — some misses (voice notes, pure ghosting) are out of a text matcher's reach."""
 import sys, os
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "wa-pipeline"))
+
+# Telegram/bridge kill switch (incident, 9 Sep 2026 merge redo -- a sandbox harness run
+# reached Winfred's real phone). Set BEFORE importing any wa-pipeline module: belt and
+# suspenders alongside the per-test mock.patch calls, on top of the physical choke-point
+# checks _tg_send/_send now do on their own. See wa_intake_notify.py's docstring.
+os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+os.environ["WA_INTAKE_NO_SEND"] = "1"
+
 import intake_engine as E
 
 # --- POSITIVES: a real withdrawal, the bot SHOULD close (expect True) ---
