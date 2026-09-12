@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cash Over Valuation Is Back: How Much Should You Pay</title>
+    <meta name="description" content="COV has returned in pockets like Queenstown, Toa Payoh and the Central Area. Here is a decision framework for sizing it, not a number to copy or guess.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Cash Over Valuation Is Back: How Much Should You Pay">
+    <meta property="og:description" content="COV has returned in pockets like Queenstown, Toa Payoh and the Central Area. Here is a decision framework for sizing it, not a number to copy or guess.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+    <style>
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Cash Over Valuation Is Back: How Much Should You Pay</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 2026-09-07 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Cash over valuation, or COV, is the gap between what a seller wants and the bank valuation. CPF and your loan only cover the valuation, so COV is paid in cash. There is no fixed rate to pay. Size it from recent matching transactions and your own cash reserve, not a headline number.
+        </p>
+
+        <h2>Money: why COV is back in specific estates</h2>
+
+        <p>
+            On 28 July 2026, HDB removed the 15 month wait out period that used to apply to private property owners buying a non subsidised HDB resale flat without an HDB loan. That rule was introduced in 2022 to slow demand from downgraders. With it gone, private owners who sell can move into a resale flat right away, and a fresh pool of cash rich buyers is now competing for the same well located flats as everyone else.
+        </p>
+
+        <p>
+            At the same time, HDB's own Resale Price Index actually fell for two quarters running, down 0.1 percent in Q1 2026 and 0.3 percent in Q2 2026, the first back to back quarterly decline in roughly seven years. That sounds like a cooling market, and broadly it is. But an island wide index can fall while specific pockets stay tight. Good units in Queenstown, Toa Payoh and the Central Area, close to town, near a good school or a completed MRT line, are scarce enough that demand from the newly unlocked buyer pool is outrunning what a handful of recent comparable sales support. Bank valuations are built from the last transacted prices, so when demand jumps ahead of the paperwork, valuations lag and a cash gap opens up.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Cash only:</strong> COV cannot be paid from CPF and no bank will lend against it. It comes out of liquid cash on top of everything else you are already paying.
+        </div>
+
+        <h2>Timing: get the valuation request right</h2>
+
+        <p>
+            The valuation is requested after both parties agree on a price and sign the Option to Purchase. That order matters. You are effectively agreeing to a number before an independent party checks it, so do your own homework first. Pull recent resale transactions for the same block, street or at minimum the same town and flat type on the data.gov.sg resale flat prices dataset before you counter offer, not after. If the last three comparable transactions sit meaningfully below what the seller is asking, treat that as your working valuation estimate and size any COV against it, not against the asking price.
+        </p>
+
+        <p>
+            Ask your agent to walk you through which transactions the valuer is likely to weigh most heavily, usually the most recent and most similar in floor level, orientation and remaining lease. A flat on a high floor with an unusually long lease can justify a real premium. A flat that simply asks for more because the seller has heard about other COV cases nearby does not.
+        </p>
+
+        <h2>Money: a worked example of sizing the gap</h2>
+
+        <p>
+            Say you find a 4 room flat in Toa Payoh you like, and the seller is asking $780,000. Before you counter, you pull the last five comparable transactions for the same block and nearby blocks on data.gov.sg and find they cleared between $735,000 and $755,000 over the past four months. That range is a rough proxy for where the bank valuation is likely to land, since valuers weigh recent transacted prices heavily. If the valuation comes back at $745,000, an asking price of $780,000 implies a cash gap of roughly $35,000, on top of your other cash costs. That is the number to weigh against your own cash reserve, not the $780,000 headline price, and not a stranger's story about what COV they paid on a completely different flat.
+        </p>
+
+        <p>
+            This is also where a good agent earns their fee. Someone who tracks that specific street or block daily can tell you whether $780,000 reflects a genuinely scarce unit, such as a corner stack with an unusually long lease, or whether it is simply a seller testing the market after hearing about a neighbour's COV. Those two situations call for very different responses, and guessing wrong in either direction either costs you unnecessary cash or loses you a flat you could reasonably have secured.
+        </p>
+
+        <h2>Safety: set your walk away number before you view</h2>
+
+        <p>
+            Decide your maximum total cash outlay before you fall for a unit, not during negotiation. Total cash outlay means COV plus your buyer stamp duty if applicable, agent fee, and a renovation and moving buffer. Size that total against your actual liquid savings after CPF, not against how much the bank says you can borrow. If a seller's ask would push your cash outlay past that number, walk away and watch the next listing. In a market where the headline index is falling, patience usually gets rewarded within a few months as more matching transactions catch up and close the valuation gap.
+        </p>
+
+        <p>
+            For the mechanics of how a bank arrives at its number, see <a href="/insights/panel-valuer-bank-valuation-process-singapore.html">how the panel valuer process works</a> and what to do <a href="/insights/bank-valuation-lower-than-purchase-price.html">when the bank valuation comes in lower than your offer</a>. For a plain explanation of who actually pays, see <a href="/answers/what-is-cash-over-valuation-and-who-pays-it.html">what cash over valuation is and who pays it</a>. If you are watching the supply pipeline in one of the affected estates, the <a href="/insights/queenstown-mop-2026.html">Queenstown MOP timeline</a> is a useful companion read.
+        </p>
+        <h2 id="frequently-asked-questions">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <p class="faq-q">What is cash over valuation and why did it come back in 2026?</p>
+            <p class="faq-answer">Cash over valuation is the amount a buyer pays above a flat's bank valuation, on top of the agreed price, because CPF and loans only cover the valuation itself. It resurfaced in tight pockets like Queenstown, Toa Payoh and the Central Area after HDB removed the 15 month wait out period for private property owners on 28 July 2026, which added a new pool of buyers competing for scarce well located flats faster than valuations could catch up.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Can I use CPF or a bank loan to pay cash over valuation?</p>
+            <p class="faq-answer">No. CPF savings and your housing loan are both capped at the bank's valuation figure, not the agreed price. Any amount above that valuation must be paid in cash at completion, which is why it is called cash over valuation and why you should only offer what your liquid savings can actually cover.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">How do I know if a COV amount being asked is reasonable?</p>
+            <p class="faq-answer">Check recent resale transactions for the same block, street or at least the same town and flat type on the data.gov.sg resale flat prices dataset before you make an offer. If comparable transactions sit close to the asking price, a small COV may reflect genuine scarcity. If the ask is far above every recent comparable, treat it as a starting position to negotiate down, and set a walk away cash limit before you view the unit again.</p>
+        </div>
+        <div class="cta-box article-cta">
+            <h3>Talk It Through Before You Commit</h3>
+            <p>Before you agree to pay a cent over valuation, run the actual comparable transactions and your walk away number with someone who checks this every week.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H), not a licensed financial advisor or lawyer. Consult a licensed professional such as your banker, accountant or lawyer before making any property decision. Figures cited are drawn from the sources listed below and are accurate as of the date shown; rules, rates and market conditions change over time and you should verify current figures before relying on them.
+        </div>
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li>HDB, <a href="https://www.hdb.gov.sg/hdb-pulse/news/2026/removal-of-the-15-month-wait-out-period-for-private-residential-property-owners" target="_blank" rel="noopener noreferrer">Removal of the 15 month wait out period for private residential property owners</a></li>
+                <li>99.co, <a href="https://www.99.co/singapore/insider/hdb-resale-prices-fell-in-q2-2026-as-market-continues-to-stabilise/" target="_blank" rel="noopener noreferrer">HDB resale prices fell 0.3 percent in Q2 2026 as market continues to stabilise</a></li>
+                <li>Data.gov.sg, <a href="https://data.gov.sg/datasets?query=resale+flat+prices" target="_blank" rel="noopener noreferrer">HDB resale flat prices dataset</a></li>
+                <li>CPF Board, <a href="https://www.cpf.gov.sg" target="_blank" rel="noopener noreferrer">CPF housing usage rules</a></li>
+                <li>Propseller, <a href="https://propseller.com/blog/housing-news/15-month-hdb-wait-out-period-removed/" target="_blank" rel="noopener noreferrer">15 month HDB wait out period removed</a></li>
+            </ul>
+        </div>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Cash Over Valuation Is Back: How Much Should You Pay",
+    "description": "COV has returned in pockets like Queenstown, Toa Payoh and the Central Area. Here is a decision framework for sizing it, not a number to copy or guess.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What is cash over valuation and why did it come back in 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Cash over valuation is the amount a buyer pays above a flat's bank valuation, on top of the agreed price, because CPF and loans only cover the valuation itself. It resurfaced in tight pockets like Queenstown, Toa Payoh and the Central Area after HDB removed the 15 month wait out period for private property owners on 28 July 2026, which added a new pool of buyers competing for scarce well located flats faster than valuations could catch up."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Can I use CPF or a bank loan to pay cash over valuation?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. CPF savings and your housing loan are both capped at the bank's valuation figure, not the agreed price. Any amount above that valuation must be paid in cash at completion, which is why it is called cash over valuation and why you should only offer what your liquid savings can actually cover."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How do I know if a COV amount being asked is reasonable?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Check recent resale transactions for the same block, street or at least the same town and flat type on the data.gov.sg resale flat prices dataset before you make an offer. If comparable transactions sit close to the asking price, a small COV may reflect genuine scarcity. If the ask is far above every recent comparable, treat it as a starting position to negotiate down, and set a walk away cash limit before you view the unit again."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

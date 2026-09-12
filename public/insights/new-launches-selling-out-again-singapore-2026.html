@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Launches Are Selling Out Again</title>
+    <meta name="description" content="Tengah Garden Residences sold 98.8 percent of 863 units in April 2026. With only 17 to 18 launches for the year, that is scarce supply, not a hot market.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="New Launches Are Selling Out Again">
+    <meta property="og:description" content="Tengah Garden Residences sold 98.8 percent of 863 units in April 2026. With only 17 to 18 launches for the year, that is scarce supply, not a hot market.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+    <style>
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>New Launches Are Selling Out Again</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 2026-09-07 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Tengah Garden Residences sold 98.8 percent of its 863 units on launch weekend in April 2026, the best selling launch of the year by unit count. That looks like a rush of buyers. The real reason is only about 17 to 18 new private launches are expected across all of 2026, so a handful of well placed projects absorb demand while others sell far more slowly.
+        </p>
+
+        <h2>Timing: why a thin launch calendar changes the story</h2>
+
+        <p>
+            When only around 17 to 18 new projects launch across an entire year, depending on which research house is counting, buyers who have been waiting on the sidelines for the right unit have fewer chances to act. A strong sell through on one of those few launches can look like a buying frenzy when it is really a queue forming around scarce new supply. That distinction matters if you are an upgrader watching from outside: a fast sell out does not automatically mean prices across the whole market are about to run away from you, since it reflects the calendar for new launches specifically, not resale or the broader index.
+        </p>
+
+        <p>
+            Tengah Garden Residences' own numbers support this reading. It cleared 853 of its 863 units by 3pm on the Sunday of launch weekend at an average of $2,120 per square foot, as Singapore's first private condo in Tengah New Town, developed by Hong Leong Holdings, GuocoLand and CSC Land Group. A first mover in a new town with genuinely limited nearby competition selling quickly is not the same signal as broad based demand pushing every launch to sell out regardless of location or price. Lentor Gardens Residences, launched three months later in the already established Lentor Hills estate, moved just 54 percent of its 499 units over its first weekend, and Narra Residences at Dairy Farm Walk sold only about 25 percent of its 540 units in late January. Same thin calendar, three very different results.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Scarcity, not a signal to chase:</strong> A thin launch calendar concentrating demand into a few projects is a supply story first. Treat a fast sell out as information about that specific site, not proof the whole market has turned.
+        </div>
+
+        <h2>Money: compare launch psf against nearby resale before you act</h2>
+
+        <p>
+            Meanwhile, URA's private residential price index rose 0.5 percent quarter on quarter in Q2 2026, following a 0.9 percent rise in Q1, a moderate pace rather than a sharp acceleration. Before treating any launch's sell through rate as a reason to act quickly, pull recent resale transactions for comparable projects nearby and compare psf directly. If a new launch is pricing meaningfully above nearby resale for a similar size and age adjusted unit, that premium needs to be justified by something specific to the launch, such as warranty coverage, progressive payment cash flow, or a location advantage you can point to, not simply the fact that other buyers moved fast.
+        </p>
+
+        <p>
+            An upgrader afraid of missing the bottom should separate two different questions. The first is whether your own household finances and timeline support a purchase now. The second is whether this particular project, at this particular price, is a sound decision compared to the resale alternatives available to you today. A fast sell out elsewhere answers neither question, and treating it as pressure to skip your own comparison is how buyers end up overpaying for a launch premium that a slower, resale led search would have avoided.
+        </p>
+
+        <h2>Timing: what a thin calendar means for the rest of 2026</h2>
+
+        <p>
+            A launch calendar of only around 17 to 18 projects for the entire year means the remaining launches for the rest of 2026 carry outsized attention, since buyers have fewer chances left to act within the year. That can create pockets of genuine urgency around specific well located or first mover sites, similar to what played out with Tengah Garden Residences. It does not mean every remaining launch deserves the same urgency, as Narra Residences and Lentor Gardens Residences show. Location, connectivity and unit mix still decide whether a project attracts real demand or simply limps to a soft launch, so use the thin calendar as a reason to research each remaining project on its own merits rather than as a blanket reason to act on all of them.
+        </p>
+
+        <h2>Safety: what to actually check before you commit</h2>
+
+        <p>
+            Check the remaining new launch calendar for your target district over the coming months, so you know whether more genuine alternatives are coming or whether the current thin pipeline really does leave few near term choices. Compare the launch psf against at least three recent resale transactions for a similar unit type nearby. And confirm your own affordability against current interest rates and TDSR, not against a fear of missing a specific launch, since the property that fits your finances calmly will usually serve you better than the one you rushed into during a sell out weekend.
+        </p>
+
+        <p>
+            For a side by side view of the trade offs, see <a href="/insights/new-launch-vs-resale.html">new launch versus resale</a> and <a href="/insights/hdb-resale-vs-new-launch-condo-2026.html">HDB resale versus new launch condo for 2026</a>. If you want the underlying return data before comparing any specific project, <a href="/insights/new-launch-investment-returns-data.html">new launch investment returns data</a> is a useful starting point.
+        </p>
+        <h2 id="frequently-asked-questions">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <p class="faq-q">Why did Tengah Garden Residences sell out so quickly in 2026?</p>
+            <p class="faq-answer">Tengah Garden Residences cleared 98.8 percent of its 863 units on launch weekend in April 2026, the best selling launch of the year by unit count, helped by being the first private condo in Tengah New Town. Part of the fast sell through also reflects a thin 2026 launch calendar of only about 17 to 18 new private residential projects, which concentrated buyer demand into fewer available launches. That same thin calendar did not produce the same result everywhere: Narra Residences sold about 25 percent of its units in January and Lentor Gardens Residences sold 54 percent in July, so a scarce calendar is not a guarantee every project sells out.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Does a launch selling out mean prices are about to rise sharply?</p>
+            <p class="faq-answer">Not on its own. URA's private residential price index rose a moderate 0.5 percent quarter on quarter in Q2 2026, after 0.9 percent in Q1, which is a steady pace rather than a sharp acceleration. A fast sell out at one project is mainly a signal about that specific site's supply and location, and should be checked against recent resale transactions for comparable units before drawing conclusions about the wider market.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Should I rush to buy a new launch because I am afraid of missing the bottom?</p>
+            <p class="faq-answer">Rushing into a purchase because another launch sold out quickly is not a sound basis for a decision. Compare the launch price per square foot against at least a few recent resale transactions for similar units nearby, confirm the purchase fits your own affordability and TDSR headroom, and treat a fast sell out elsewhere as information about that project's scarcity, not pressure to skip your own comparison.</p>
+        </div>
+        <div class="cta-box article-cta">
+            <h3>Get a Second Set of Eyes on the Numbers</h3>
+            <p>Before you chase the next launch, run its psf against nearby resale comparables and your own affordability with someone who does this daily.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H), not a licensed financial advisor or lawyer. Consult a licensed professional such as your banker, accountant or lawyer before making any property decision. Figures cited are drawn from the sources listed below and are accurate as of the date shown; rules, rates and market conditions change over time and you should verify current figures before relying on them.
+        </div>
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li>Mothership, citing The Straits Times, <a href="https://mothership.sg/2026/04/tengah-garden-residences-almost-sold-out-launch/" target="_blank" rel="noopener noreferrer">Tengah Garden Residences sells 853 of 863 units at launch weekend</a></li>
+                <li>Stacked Homes, <a href="https://stackedhomes.com/lentor-gardens-residences-sold-54-at-launch/" target="_blank" rel="noopener noreferrer">Lentor Gardens Residences sold 54 percent at launch</a></li>
+                <li>EdgeProp Singapore, <a href="https://www.edgeprop.sg/property-news/narra-residences-sells-nearly-25-units-2180-psf-launch-weekend" target="_blank" rel="noopener noreferrer">Narra Residences sells nearly 25 percent of units on launch weekend</a></li>
+                <li>Stacked Homes, <a href="https://stackedhomes.com/new-launch-condos-2026-singapore-complete-guide/" target="_blank" rel="noopener noreferrer">17 upcoming new launch condos in 2026</a></li>
+                <li>ERA Singapore, <a href="https://www.era.com.sg/blogs/new-condo-launches-in-2026" target="_blank" rel="noopener noreferrer">New home launches in 2026, 18 private residential and 5 EC projects</a></li>
+                <li>URA, <a href="https://www.ura.gov.sg/news/media/pr26-51/" target="_blank" rel="noopener noreferrer">Release of 2nd Quarter 2026 real estate statistics, price index</a></li>
+            </ul>
+        </div>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "New Launches Are Selling Out Again",
+    "description": "Tengah Garden Residences sold 98.8 percent of 863 units in April 2026. With only 17 to 18 launches for the year, that is scarce supply, not a hot market.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Why did Tengah Garden Residences sell out so quickly in 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Tengah Garden Residences cleared 98.8 percent of its 863 units on launch weekend in April 2026, the best selling launch of the year by unit count, helped by being the first private condo in Tengah New Town. Part of the fast sell through also reflects a thin 2026 launch calendar of only about 17 to 18 new private residential projects, which concentrated buyer demand into fewer available launches. That same thin calendar did not produce the same result everywhere: Narra Residences sold about 25 percent of its units in January and Lentor Gardens Residences sold 54 percent in July, so a scarce calendar is not a guarantee every project sells out."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does a launch selling out mean prices are about to rise sharply?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not on its own. URA's private residential price index rose a moderate 0.5 percent quarter on quarter in Q2 2026, after 0.9 percent in Q1, which is a steady pace rather than a sharp acceleration. A fast sell out at one project is mainly a signal about that specific site's supply and location, and should be checked against recent resale transactions for comparable units before drawing conclusions about the wider market."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should I rush to buy a new launch because I am afraid of missing the bottom?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Rushing into a purchase because another launch sold out quickly is not a sound basis for a decision. Compare the launch price per square foot against at least a few recent resale transactions for similar units nearby, confirm the purchase fits your own affordability and TDSR headroom, and treat a fast sell out elsewhere as information about that project's scarcity, not pressure to skip your own comparison."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDB Flats Reaching MOP: The Supply Wave</title>
+    <meta name="description" content="About 13,484 HDB flats hit MOP in 2026, almost double 2025. Here is what the wave means for owners, upgraders and resale buyers watching supply.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="HDB Flats Reaching MOP: The Supply Wave">
+    <meta property="og:description" content="About 13,484 HDB flats hit MOP in 2026, almost double 2025. Here is what the wave means for owners, upgraders and resale buyers watching supply.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+    <style>
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>HDB Flats Reaching MOP: The Supply Wave</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 2026-09-07 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Roughly 13,484 HDB flats reach their five year minimum occupation period in 2026, almost double 2025's number. That frees far more owners to sell, rent out the whole flat or buy their next home. It arrives alongside the first back to back quarterly fall in the Resale Price Index in about seven years, pointing to normalisation, not a shortage.
+        </p>
+
+        <h2>Timing: a bigger wave than usual</h2>
+
+        <p>
+            HDB flats reach MOP five years after key collection, and 2026's cohort was mostly built during the construction boom of 2018 and 2019. That is why this year's number is nearly double last year's cohort. The flats are concentrated in a handful of newer estates, including Punggol, Tampines, Queenstown and Toa Payoh, where entire clusters of Build To Order projects completed around the same time and are now crossing the line together rather than trickling out one block at a time.
+        </p>
+
+        <p>
+            For an owner sitting just before MOP, this wave changes the competitive picture. When your flat clears MOP, you will not be the only seller in your estate doing the same thing that quarter. For a buyer, it means more genuine choice is coming into resale listings in these towns over the coming months, rather than a handful of scarce units driving up asking prices.
+        </p>
+
+        <h2>Money: what the price data actually shows</h2>
+
+        <p>
+            The HDB Resale Price Index slipped 0.1 percent in Q1 2026 and a further 0.3 percent in Q2 2026, the first two quarter decline in roughly seven years. At the same time, transaction volume held up, with 6,396 resale flats changing hands in Q2, up slightly from 6,285 in Q1. Read together, this is a market absorbing more supply at a steadier pace, not a market in retreat. Million dollar flat transactions kept climbing too, with 201 recorded in August 2026 alone, so a bigger MOP wave has not stopped premium flats from commanding strong prices where location and condition justify it.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Normalising, not crashing:</strong> A softer index alongside steady transaction volume points to more balanced bargaining power, not a downturn owners need to fear.
+        </div>
+
+        <h2>Money: why buyers should not assume a discount is coming</h2>
+
+        <p>
+            It is tempting to assume that nearly doubling the number of flats hitting MOP in a single year must push prices down across the board. The Q1 and Q2 declines show some softening at the index level, but a 0.1 percent and then a 0.3 percent quarterly move is a gentle drift, not a collapse, and it followed a run of stronger gains in prior years. Owners who need to sell around their MOP date are not typically forced sellers, since most have no urgent reason to accept a low offer just because the wave is large. Treat the extra supply as more genuine choice for buyers to compare, not as pressure that guarantees a specific discount on any one flat.
+        </p>
+
+        <h2>Safety: what this means if your flat is close to MOP</h2>
+
+        <p>
+            If you plan to sell around your MOP date, price against actual recent transactions in your own project and cluster rather than last year's headline gains, since more of your direct neighbours will be listing around the same window. If you plan to rent out your whole flat instead, remember that landlord ethnic and citizenship preferences are the landlord's own choice under HDB's rules, never a fixed quota, so build your marketing around the flat's genuine strengths. And if you are weighing an upgrade once your flat clears MOP, run your own numbers against a specific target property rather than the general market narrative, since a normalising index changes the assumptions behind any cash flow plan.
+        </p>
+
+        <h2>Timing: how the wave plays out month by month</h2>
+
+        <p>
+            Flats do not all reach MOP on the same day even within one project, since MOP is tied to each flat's own key collection date, and a single Build To Order project can hand over units in stages over several months. That means the 13,484 figure for 2026 is not one single moment of supply hitting the market at once, but a rolling release spread across the year, with certain months carrying a heavier concentration than others depending on when the underlying projects were completed. If you are tracking a specific block, check its own key collection date rather than assuming the whole estate clears MOP together, since your actual competition in any given month depends on which neighbouring blocks reach the same milestone at the same time as you.
+        </p>
+
+        <p>
+            For a walk through of the MOP to sale process, see the <a href="/insights/hdb-mop-upgrade-timeline.html">HDB MOP upgrade timeline</a> and check your own countdown on the <a href="/tools/hdb-mop-countdown.html">MOP countdown tool</a>. If your flat sits in one of the towns carrying the biggest share of this year's wave, the <a href="/insights/queenstown-mop-2026.html">Queenstown MOP guide</a> and <a href="/insights/tampines-mop-2026.html">Tampines MOP guide</a> cover what is coming to market near you.
+        </p>
+        <h2 id="frequently-asked-questions">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <p class="faq-q">How many HDB flats reach MOP in 2026?</p>
+            <p class="faq-answer">About 13,484 HDB flats reach their five year minimum occupation period in 2026, almost double the roughly 6,973 flats that cleared MOP in 2025. The jump reflects the large cohort of Build To Order projects completed in 2018 and 2019, which are now crossing the five year mark together, concentrated in estates including Punggol, Tampines, Queenstown and Toa Payoh.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Does more MOP supply mean HDB resale prices will fall?</p>
+            <p class="faq-answer">Not necessarily. The Resale Price Index did fall for two quarters running in 2026, down 0.1 percent in Q1 and 0.3 percent in Q2, the first back to back decline in about seven years. But transaction volume rose slightly over the same period and million dollar flat sales kept climbing, which points to a market normalising and absorbing supply steadily rather than one in outright decline.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Should I wait for the MOP wave to sell my own flat?</p>
+            <p class="faq-answer">There is no single right answer, since it depends on your own project, cluster and timing needs. If several similar units in your block or estate are due to list around the same window as yours, price against the most recent comparable transactions rather than last year's figures, and speak to an agent who tracks your specific cluster rather than relying on the island wide index alone.</p>
+        </div>
+        <div class="cta-box article-cta">
+            <h3>Get a Second Set of Eyes on the Numbers</h3>
+            <p>If your flat is approaching MOP or you are watching this wave as a buyer, book a short call to map your specific timing against the actual data for your estate.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H), not a licensed financial advisor or lawyer. Consult a licensed professional such as your banker, accountant or lawyer before making any property decision. Figures cited are drawn from the sources listed below and are accurate as of the date shown; rules, rates and market conditions change over time and you should verify current figures before relying on them.
+        </div>
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li>PropNex, <a href="https://www.propnex.com/picks-details/1190/over-13-000-hdb-flats-will-hit-mop-in-2026-what-will-happen-next" target="_blank" rel="noopener noreferrer">Over 13,000 HDB flats will hit MOP in 2026, what will happen next</a></li>
+                <li>EdgeProp, <a href="https://www.edgeprop.sg/property-news/hdb-resale-prices-fall-second-consecutive-quarter-down-03-2q2026" target="_blank" rel="noopener noreferrer">HDB resale prices fall for second consecutive quarter, down 0.3 percent in 2Q2026</a></li>
+                <li>99.co, <a href="https://www.99.co/singapore/insider/million-dollar-hdb-sales-record-august-2026/" target="_blank" rel="noopener noreferrer">Million dollar HDB sales record, August 2026</a></li>
+                <li>HDB, <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">HDB eligibility and resale information</a></li>
+                <li>Data.gov.sg, <a href="https://data.gov.sg/datasets?query=resale+flat+prices" target="_blank" rel="noopener noreferrer">HDB resale flat prices dataset</a></li>
+            </ul>
+        </div>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "HDB Flats Reaching MOP: The Supply Wave",
+    "description": "About 13,484 HDB flats hit MOP in 2026, almost double 2025. Here is what the wave means for owners, upgraders and resale buyers watching supply.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How many HDB flats reach MOP in 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "About 13,484 HDB flats reach their five year minimum occupation period in 2026, almost double the roughly 6,973 flats that cleared MOP in 2025. The jump reflects the large cohort of Build To Order projects completed in 2018 and 2019, which are now crossing the five year mark together, concentrated in estates including Punggol, Tampines, Queenstown and Toa Payoh."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does more MOP supply mean HDB resale prices will fall?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not necessarily. The Resale Price Index did fall for two quarters running in 2026, down 0.1 percent in Q1 and 0.3 percent in Q2, the first back to back decline in about seven years. But transaction volume rose slightly over the same period and million dollar flat sales kept climbing, which points to a market normalising and absorbing supply steadily rather than one in outright decline."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should I wait for the MOP wave to sell my own flat?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "There is no single right answer, since it depends on your own project, cluster and timing needs. If several similar units in your block or estate are due to list around the same window as yours, price against the most recent comparable transactions rather than last year's figures, and speak to an agent who tracks your specific cluster rather than relying on the island wide index alone."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

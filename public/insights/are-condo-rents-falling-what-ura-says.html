@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Are Condo Rents Falling? What the URA Numbers Say</title>
+    <meta name="description" content="URA's Q2 2026 data shows overall private rents edging up, but OCR non landed rents fell and vacancy rose to 6.4 percent. Here is what it means for you.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Are Condo Rents Falling? What the URA Numbers Say">
+    <meta property="og:description" content="URA's Q2 2026 data shows overall private rents edging up, but OCR non landed rents fell and vacancy rose to 6.4 percent. Here is what it means for you.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .formula {
+            font-family: 'Monaco', 'Courier New', monospace;
+            background-color: var(--bg-tertiary);
+            padding: 16px;
+            margin: 16px 0;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 0.9rem;
+            color: var(--accent-light);
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .stress-test-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin: 24px 0;
+        }
+
+        @media (max-width: 640px) {
+            .stress-test-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+
+        .stat-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            color: var(--accent-gold);
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+    </style>
+    <style>
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Are Condo Rents Falling? What the URA Numbers Say</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 2026-09-07 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            No, not overall. URA's Q2 2026 data shows the private residential rental index rose 0.7 percent quarter on quarter, after a 0.3 percent rise in Q1. But the picture is mixed: rents for non landed homes outside the city centre actually fell 0.3 percent, and vacancy rose to 6.4 percent from 6.2 percent. The honest answer is rents are edging up overall while one segment softens.
+        </p>
+
+        <h2>Money: what URA actually reported for Q2 2026</h2>
+
+        <p>
+            URA's release of 2nd quarter 2026 real estate statistics, published 24 July 2026, is the primary source here, and it does not describe a market in decline. Rentals of private residential properties rose 0.7 percent in Q2 2026, faster than the 0.3 percent rise in Q1. Landed property rents climbed 2.7 percent, up from 0.1 percent the previous quarter. Non landed rents rose 0.4 percent, the same pace as Q1.
+        </p>
+
+        <p>
+            The regional split is where the mixed picture shows up. Non landed rents in the Core Central Region rose 1.2 percent, faster than the 0.5 percent rise in Q1. Rest of Central Region rents were unchanged, against a 0.2 percent fall the previous quarter. Outside Central Region, the mass market suburbs where most tenants and most landlords sit, non landed rents fell 0.3 percent, a reversal from the 1.0 percent rise in Q1.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Mixed, not falling:</strong> Overall private rents rose 0.7 percent in Q2 2026. The softness sits specifically in OCR non landed rents, which fell 0.3 percent, and in rising vacancy.
+        </div>
+
+        <h2>Money: vacancy is the number worth watching</h2>
+
+        <p>
+            The private residential vacancy rate rose to 6.4 percent as at the end of Q2 2026, up from 6.2 percent in Q1, according to URA. By region, vacancy in the Core Central Region was 8.3 percent, up from 8.2 percent. Rest of Central Region vacancy actually fell slightly to 6.1 percent from 6.3 percent. Outside Central Region vacancy rose to 5.6 percent from 5.2 percent, the largest move of the three regions.
+        </p>
+
+        <p>
+            Read together with the OCR rent decline, the vacancy uptick in the Outside Central Region points to the same underlying pressure: a steady flow of newly completed units in the suburbs is giving tenants more choice, and landlords in that segment are the ones absorbing softer pricing and slightly longer gaps between tenancies. Core Central Region carries the highest vacancy in absolute terms, but its rents and vacancy both moved up only slightly, not down.
+        </p>
+
+        <h2>Timing: how Q2 compares with the trend into it</h2>
+
+        <p>
+            The direction of travel matters as much as the single quarter reading. Private residential rents accelerated from 0.3 percent in Q1 2026 to 0.7 percent in Q2, while private residential prices decelerated from 0.9 percent in Q1 to 0.5 percent in Q2. Rents and prices are not moving in lockstep right now, which is a useful reminder that a headline price story and a headline rent story can point in slightly different directions in the same quarter.
+        </p>
+
+        <p>
+            Landed rents show the clearest acceleration, up 2.7 percent in Q2 against 0.1 percent in Q1, a segment that is small in unit count but often the first to move when demand shifts. Non landed rents held a steady 0.4 percent both quarters, so the more relevant story for most condo owners and buyers is the regional split rather than the overall non landed figure. Core Central Region rents sped up from 0.5 percent to 1.2 percent, Rest of Central Region flattened from a 0.2 percent fall to unchanged, and Outside Central Region flipped from a 1.0 percent rise to a 0.3 percent fall. Three regions, three different trajectories, all inside the same "rents rose 0.7 percent" headline.
+        </p>
+
+        <h2>Timing: what this means if you are pricing a lease renewal</h2>
+
+        <p>
+            If you are a landlord with a renewal coming up, do not anchor on a single citywide headline in either direction. A tenant renewing in a Core Central Region project has some room to ask for a modest increase given rents there actually rose. A landlord in an Outside Central Region project should expect a flatter or slightly softer negotiation, since OCR non landed rents fell in the same quarter. Pull the actual rental transactions for your specific project rather than relying on the regional average, since a single building's vacancy can run well above or below its region's figure depending on how much new supply just completed nearby.
+        </p>
+
+        <p>
+            Vacancy at 6.4 percent citywide, up from 6.2 percent, also means a longer than usual gap is more likely if your unit does not get relet immediately. Building a slightly longer vacancy buffer into your cash flow plan for the next lease is a reasonable adjustment, not an overreaction.
+        </p>
+
+        <h2>Safety: what it means if you are buying purely for yield</h2>
+
+        <p>
+            Buying purely for rental yield right now means underwriting to the segment you are actually buying into, not to the citywide headline. A Core Central Region purchase should be checked against CCR rental comparables and the 8.3 percent CCR vacancy rate. An Outside Central Region purchase should be checked against the fact that OCR non landed rents fell 0.3 percent in Q2 and OCR vacancy rose to 5.6 percent. Neither number is alarming on its own, but a yield case that only works if the OCR segment reverses its recent softening is a weaker basis for a purchase than one that already clears an acceptable return using Q2 2026 numbers as they stand.
+        </p>
+
+        <h2>Safety: three questions to run before you sign anything</h2>
+
+        <p>
+            First, which region and segment is the property actually in. A landed home or a Core Central Region condo sits in a segment where rents rose faster in Q2 than Q1. An Outside Central Region non landed condo sits in the one segment that turned negative. The same purchase decision looks different depending on which of those you are underwriting.
+        </p>
+
+        <p>
+            Second, what vacancy allowance the deal can absorb. With citywide vacancy at 6.4 percent and Outside Central Region vacancy up to 5.6 percent from 5.2 percent, a yield case that assumes near zero vacancy between tenants is not realistic. Build in a vacancy allowance that reflects your region's actual rate, not an optimistic assumption.
+        </p>
+
+        <p>
+            Third, whether the number you were quoted is a real transaction or an asking price. Asking rents on portal listings can run ahead of what actually gets signed, especially in a softening segment. Ask for recent closed transactions in the specific project, not just what is currently listed, before you commit to a purchase or agree to a renewal figure.
+        </p>
+
+        <p>
+            For the mechanics of the calculation itself, see <a href="/insights/how-rental-yield-is-actually-computed.html">how rental yield is actually computed</a> and the honest read in <a href="/insights/four-percent-yield-lie-net-rental-income.html">the four percent yield lie</a>. To compare districts before you commit, check <a href="/insights/singapore-rental-yield-district-2026.html">rental yield by district for 2026</a>.
+        </p>
+        <h2 id="frequently-asked-questions">Frequently Asked Questions</h2>
+        <div class="faq-item">
+            <p class="faq-q">Are condo rents in Singapore falling in 2026?</p>
+            <p class="faq-answer">Not overall. URA's Q2 2026 data shows the private residential rental index rose 0.7 percent quarter on quarter, after a 0.3 percent rise in Q1. Landed rents rose 2.7 percent and non landed rents rose 0.4 percent. The one segment that fell was non landed rents in the Outside Central Region, down 0.3 percent, reversing a 1.0 percent rise the previous quarter.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">What is the current private residential vacancy rate in Singapore?</p>
+            <p class="faq-answer">Private residential vacancy rose to 6.4 percent as at the end of Q2 2026, up from 6.2 percent in Q1, according to URA. By region, Core Central Region vacancy was 8.3 percent, Rest of Central Region was 6.1 percent, and Outside Central Region was 5.6 percent, up from 5.2 percent the previous quarter.</p>
+        </div>
+        <div class="faq-item">
+            <p class="faq-q">Should I still buy a condo for rental yield given these numbers?</p>
+            <p class="faq-answer">It depends on the segment. Overall rents are edging up, but Outside Central Region non landed rents fell 0.3 percent in Q2 2026 and vacancy rose across all three regions. Underwrite the purchase using rental comparables and vacancy figures for the specific region and project you are buying into, not the citywide average, and treat any yield case that depends on the OCR segment reversing course as weaker than one that already works today.</p>
+        </div>
+        <div class="cta-box article-cta">
+            <h3>Get a Second Set of Eyes on the Numbers</h3>
+            <p>Whether you are pricing a renewal or underwriting a purchase for yield, run it against the actual URA figures for your region and project before you commit.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H), not a licensed financial advisor or lawyer. Consult a licensed professional such as your banker, accountant or lawyer before making any property decision. Figures cited are drawn from the sources listed below and are accurate as of the date shown; rules, rates and market conditions change over time and you should verify current figures before relying on them.
+        </div>
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li>URA, <a href="https://www.ura.gov.sg/news/media/pr26-57/" target="_blank" rel="noopener noreferrer">Release of 2nd Quarter 2026 real estate statistics</a></li>
+                <li>URA, <a href="https://www.ura.gov.sg/Corporate/Property/Property-Data" target="_blank" rel="noopener noreferrer">URA property market data</a></li>
+                <li>MAS, <a href="https://www.mas.gov.sg" target="_blank" rel="noopener noreferrer">Monetary Authority of Singapore</a></li>
+                <li>IRAS, <a href="https://www.iras.gov.sg" target="_blank" rel="noopener noreferrer">Inland Revenue Authority of Singapore, stamp duty</a></li>
+            </ul>
+        </div>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Are Condo Rents Falling? What the URA Numbers Say",
+    "description": "URA's Q2 2026 data shows overall private rents edging up, but OCR non landed rents fell and vacancy rose to 6.4 percent. Here is what it means for you.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Are condo rents in Singapore falling in 2026?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not overall. URA's Q2 2026 data shows the private residential rental index rose 0.7 percent quarter on quarter, after a 0.3 percent rise in Q1. Landed rents rose 2.7 percent and non landed rents rose 0.4 percent. The one segment that fell was non landed rents in the Outside Central Region, down 0.3 percent, reversing a 1.0 percent rise the previous quarter."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What is the current private residential vacancy rate in Singapore?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Private residential vacancy rose to 6.4 percent as at the end of Q2 2026, up from 6.2 percent in Q1, according to URA. By region, Core Central Region vacancy was 8.3 percent, Rest of Central Region was 6.1 percent, and Outside Central Region was 5.6 percent, up from 5.2 percent the previous quarter."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should I still buy a condo for rental yield given these numbers?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "It depends on the segment. Overall rents are edging up, but Outside Central Region non landed rents fell 0.3 percent in Q2 2026 and vacancy rose across all three regions. Underwrite the purchase using rental comparables and vacancy figures for the specific region and project you are buying into, not the citywide average, and treat any yield case that depends on the OCR segment reversing course as weaker than one that already works today."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>
