@@ -149,12 +149,20 @@ _CEA_RE = re.compile(r"\b(?:cea|r0?\d{5}[a-z]|l\d{7,9}[a-z])\b", re.I)
 # into 7 and 30, "2 pax" is one digit, "1 October" carries no digit run at all), so the
 # exemption only ever has to cover the year case.
 _DOLLAR_RE = re.compile(r"[$\uFF04]\s*\d|\bs\$\s*\d", re.I)
+# "\d+(?:\.\d+)?\s*k\b" (11 Sep 2026 HOLD, item 4): the old "\d{3,5}\s*k\b" alternative only
+# ever matched a 3-5 DIGIT RUN directly before the k, so a decimal shorthand like "1.4k" (the
+# actual digit run before "k" is just "4") slipped straight past it -- "SGD 1.4k" validated as
+# clean. Any digit run, with or without a decimal fraction, immediately before a bare "k" is
+# money.
 _MONEY_KEYWORD_NUM_RE = re.compile(
-    r"\b\d{3,5}\s*k\b|\b\d{3,5}\s*(?:/|per\s*)?(?:mo|mth|month|pm|monthly)\b", re.I)
+    r"\b\d+(?:\.\d+)?\s*k\b|\b\d{3,5}\s*(?:/|per\s*)?(?:mo|mth|month|pm|monthly)\b", re.I)
 _BARE_NUM_RE = re.compile(r"\b\d{3,5}\b")
 _MONTHS_RE_PART = r"jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec"
+# ",?\s+" between the month word and the year (not just "\s+"): a natural written date like
+# "15 October, 2026" carries a comma before the year, which used to break the exemption below
+# and get the year flagged as a bare money figure.
 _DATE_YEAR_RE = re.compile(
-    rf"\b(?:\d{{1,2}}\s+)?(?:{_MONTHS_RE_PART})[a-z]*\s+(\d{{3,5}})\b", re.I)
+    rf"\b(?:\d{{1,2}}\s+)?(?:{_MONTHS_RE_PART})[a-z]*,?\s+(\d{{3,5}})\b", re.I)
 
 
 def _is_money_figure(t):

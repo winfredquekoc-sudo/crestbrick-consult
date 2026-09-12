@@ -278,6 +278,69 @@ class TestDailyCap(OwnerLoopTestBase):
         self.assertEqual(len(remaining_queued), 1)   # 4 asked, cap 3 -> 1 left for tomorrow
 
 
+class TestTwinSupersede(OwnerLoopTestBase):
+    def test_skipped_twin_never_resends_next_day(self):
+        # item 1, 11 Sep 2026 HOLD: a twin with the same landlord + code that loses the
+        # dedup race (only the earliest queued entry per code is ever picked to send) must
+        # be superseded the moment its sibling sends, or it sits in "queued" forever and
+        # gets sent as a duplicate the next time this landlord has anything new to ask.
+        self._write_landlord_db([ACTIVE_LL])
+        qid1 = OWN.enqueue_owner_question("LL001", "grace-room-1", "PAX", "How many pax max",
+                                           source="6598887777")
+        # a pre existing twin that slipped past enqueue's own dedup (e.g. queued before the
+        # 11 Sep merge, or imported directly) -- same landlord + code, still queued
+        twin = dict(OWN.find_question(qid1))
+        twin["id"] = "twin0001"
+        twin["source"] = "6591112222"
+        twin["created"] = twin["created"] + 1
+        with open(OWN.QUEUE_FILE, "a") as f:
+            f.write(json.dumps(twin) + "\n")
+        path, con = _mkdb([])
+        sent = []
+        with mock.patch.object(OWN, "_now_sgt", return_value=_sgt(2026, 9, 9, 10, 0)):
+            OWN.run_owner_asks(con, send_fn=lambda j, t: (sent.append((j, t)), True)[1],
+                               guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
+                               notify_fn=lambda m: None)
+        self.assertEqual(len(sent), 1)
+        self.assertEqual(OWN.find_question(qid1)["status"], "sent")
+        self.assertEqual(OWN.find_question("twin0001")["status"], "superseded")
+
+        # NEXT day: a brand new (different code) question comes in for this landlord -- the
+        # superseded twin must never resend alongside it.
+        OWN.enqueue_owner_question("LL001", "grace-room-1", "WIFI", "Is wifi included")
+        sent2 = []
+        with mock.patch.object(OWN, "_now_sgt", return_value=_sgt(2026, 9, 10, 10, 0)):
+            OWN.run_owner_asks(con, send_fn=lambda j, t: (sent2.append((j, t)), True)[1],
+                               guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
+                               notify_fn=lambda m: None)
+        self.assertEqual(len(sent2), 1)
+        self.assertNotIn("pax", sent2[0][1].lower())
+        self.assertEqual(OWN.find_question("twin0001")["status"], "superseded")
+
+
+class TestMixedSourceFrame(OwnerLoopTestBase):
+    def test_mixed_sources_use_neutral_frame(self):
+        # item 5, 11 Sep 2026 HOLD: any() called a batch tenant sourced off a single tenant
+        # question even when another question in the same message was Winfred's own check
+        # in -- must be all(), so a mixed batch gets the neutral frame instead of
+        # misattributing the check in question to "a prospective tenant asked".
+        self._write_landlord_db([ACTIVE_LL])
+        OWN.enqueue_owner_question("LL001", "grace-room-1", "WIFI", "Is wifi included",
+                                    source="6598887777")           # tenant sourced
+        OWN.enqueue_owner_question("LL001", "grace-room-1", "AIRCON", "Is aircon serviced")
+        # default source="clarity-report" -- Winfred's own check in
+        path, con = _mkdb([])
+        sent = []
+        with mock.patch.object(OWN, "_now_sgt", return_value=_sgt(2026, 9, 9, 10, 0)):
+            OWN.run_owner_asks(con, send_fn=lambda j, t: (sent.append((j, t)), True)[1],
+                               guard_reserve_fn=lambda j: True, log_fn=lambda *a: None,
+                               notify_fn=lambda m: None)
+        self.assertEqual(len(sent), 1)
+        text = sent[0][1]
+        self.assertNotIn("A prospective tenant asked", text)
+        self.assertIn("Could I check", text)
+
+
 class TestImporterSkip(unittest.TestCase):
     def test_classify_banned_topics(self):
         for bullet in ("What commission would you like",
@@ -365,6 +428,72 @@ class TestAnswerExtraction(OwnerLoopTestBase):
         self.assertEqual(calls, [])   # no reply yet -- nothing spawned at all
         q = OWN.find_question(qid)
         self.assertEqual(q["status"], "sent")
+
+
+class TestExtractFailureHandling(OwnerLoopTestBase):
+    def test_timeout_never_resurrects_a_merged_twin(self):
+        # item 2, 11 Sep 2026 HOLD: a stale context snapshot (captured when the background
+        # extract was spawned) must never overwrite a twin's CURRENT status -- e.g. 'merged',
+        # set in the meantime by a different extract that already answered this same
+        # landlord + code -- with what its status used to be. Doing so resurrects the twin.
+        self._write_landlord_db([ACTIVE_LL])
+        qid_a = OWN.enqueue_owner_question("LL001", "grace-room-1", "WIFI", "Is wifi included")
+        twin_b = {"id": "twinB001", "landlord_id": "LL001", "listing_key": "grace-room-1",
+                  "question_code": "WIFI", "question_text": "Is wifi ok too",
+                  "source": "6591112222", "source_jid": None, "created": time.time(),
+                  "status": "queued", "asked_at": None, "answer": None, "evidence": None,
+                  "sources": [{"source": "6591112222", "source_jid": None}]}
+        with open(OWN.QUEUE_FILE, "a") as f:
+            f.write(json.dumps(twin_b) + "\n")
+        asked = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=1)).isoformat()
+        OWN.mark_question(qid_a, "sent", asked_at=asked)
+        OWN.mark_question("twinB001", "sent", asked_at=asked)
+
+        # a's extract answers WIFI, merging b
+        OWN.mark_question(qid_a, "answered", answer="included")
+        OWN.merge_twins("LL001", "WIFI", qid_a)
+        self.assertEqual(OWN.find_question("twinB001")["status"], "merged")
+
+        # b's OWN extract (spawned before the merge, so its context snapshot still says
+        # 'sent') now times out
+        stale_b_snapshot = {"id": "twinB001", "question_code": "WIFI",
+                             "question_text": "Is wifi ok too"}
+        record = {"context": {"lid": "LL001", "qs": [stale_b_snapshot], "landlord_name": "Grace"},
+                  "jid": "6591234567@s.whatsapp.net"}
+        OWNA.finish_owner_extract(record, None, None, lambda m: None, lambda *a: None, timed_out=True)
+        q = OWN.find_question("twinB001")
+        self.assertEqual(q["status"], "merged")           # never resurrected to 'sent'
+        self.assertNotIn("extract_attempts", q)            # not touched -- it was not pending
+
+    def test_parse_failure_counts_toward_cap(self):
+        # item 3, 11 Sep 2026 HOLD: a JSON parse failure used to just log and return, never
+        # counting against MAX_EXTRACT_ATTEMPTS -- a landlord whose reply Haiku could never
+        # parse would get re-spawned forever. Must count exactly like a timeout, and hit
+        # extract_failed + one ping at the cap.
+        self._write_landlord_db([ACTIVE_LL])
+        qid = OWN.enqueue_owner_question("LL001", "grace-room-1", "WIFI", "Is wifi included")
+        asked = (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=1)).isoformat()
+        OWN.mark_question(qid, "sent", asked_at=asked)
+        q_ctx = OWN.find_question(qid)
+        record = {"context": {"lid": "LL001", "qs": [q_ctx], "landlord_name": "Grace"},
+                  "jid": "6591234567@s.whatsapp.net"}
+        notes = []
+
+        # first parse failure: attempt 1 of 2, still under the cap
+        OWNA.finish_owner_extract(record, "not json at all", None, lambda m: notes.append(m),
+                                  lambda *a: None)
+        q = OWN.find_question(qid)
+        self.assertEqual(q["status"], "sent")
+        self.assertEqual(q["extract_attempts"], 1)
+        self.assertEqual(notes, [])
+
+        # second parse failure hits the cap: extract_failed + exactly one ping
+        OWNA.finish_owner_extract(record, "still not json", None, lambda m: notes.append(m),
+                                  lambda *a: None)
+        q = OWN.find_question(qid)
+        self.assertEqual(q["status"], "extract_failed")
+        self.assertEqual(q["extract_attempts"], 2)
+        self.assertEqual(len(notes), 1)
 
 
 class TestChaseAndExpiry(OwnerLoopTestBase):

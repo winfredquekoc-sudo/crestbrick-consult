@@ -365,6 +365,30 @@ def spawn_owner_answer_extracts(con, log_fn):
         # "sandboxed" -- silent and expected under WA_INTAKE_SANDBOX=1 (see spawn_request).
 
 
+def _record_extract_failure(qs, landlord_name, lid, notify_fn):
+    """Shared by the timeout/err path and the parse failure path below (11 Sep 2026 HOLD,
+    items 2 and 3): bumps extract_attempts and, past the cap, marks extract_failed and pings
+    Winfred once -- exactly the same for a subprocess timeout, a subprocess error, or a
+    Haiku reply that came back but was not valid JSON.
+
+    Reads each question's CURRENT status from disk rather than trusting the `qs` snapshot
+    captured back when the extract was spawned (item 2): if another attempt already resolved
+    this same landlord+code pair in the meantime (answered -> merge_twins marked this one
+    'merged', or it was superseded/expired/drafted by something else), current status is no
+    longer 'sent'/'chased' and this call must leave it alone -- writing the STALE snapshot
+    status back would resurrect a merged twin, undoing the merge and letting it respawn."""
+    for q in qs:
+        current = OWN.find_question(q["id"])
+        if not current or current.get("status") not in ("sent", "chased"):
+            continue
+        n = int(current.get("extract_attempts") or 0) + 1
+        OWN.mark_question(q["id"], current["status"], extract_attempts=n)
+        if n >= MAX_EXTRACT_ATTEMPTS:
+            OWN.mark_question(q["id"], "extract_failed")
+            notify_fn(f"Owner replied, {landlord_name or lid} answered in WhatsApp but I could not "
+                      f"read the answer to '{q['question_text'][:80]}'. Please record it by hand.")
+
+
 def finish_owner_extract(record, text, err, notify_fn, log_fn, timed_out=False):
     """The on_result/on_timeout handler wa_intake_runner.run() wires into
     wa_intake_draft_worker.sweep() for kind='owner_extract'. Same per-code processing
@@ -376,13 +400,7 @@ def finish_owner_extract(record, text, err, notify_fn, log_fn, timed_out=False):
     landlord_name = ctx.get("landlord_name")
     jid = record.get("jid")
     if timed_out or err:
-        for q in qs:
-            n = int(q.get("extract_attempts") or 0) + 1
-            OWN.mark_question(q["id"], q.get("status") or "sent", extract_attempts=n)
-            if n >= MAX_EXTRACT_ATTEMPTS:
-                OWN.mark_question(q["id"], "extract_failed")
-                notify_fn(f"Owner replied, {landlord_name or lid} answered in WhatsApp but I could not "
-                          f"read the answer to '{q['question_text'][:80]}'. Please record it by hand.")
+        _record_extract_failure(qs, landlord_name, lid, notify_fn)
         # Owner extracts are never tenant time critical the way a resume draft is -- the
         # SAME pending question is simply picked up again the next time this landlord's
         # chat is checked for a reply (spawn_owner_answer_extracts re-spawns for any
@@ -394,6 +412,10 @@ def finish_owner_extract(record, text, err, notify_fn, log_fn, timed_out=False):
         return
     parsed, perr = _extract_json_object(text)
     if perr:
+        # item 3 (11 Sep 2026 HOLD): a parse failure used to just log and return, never
+        # counting against MAX_EXTRACT_ATTEMPTS -- a landlord whose reply Haiku could never
+        # parse would get re-spawned forever. Count it as an attempt, exactly like a timeout.
+        _record_extract_failure(qs, landlord_name, lid, notify_fn)
         log_fn("OWNER_ANSWER_EXTRACT_FAIL", lid, perr)
         return
     for q in qs:
