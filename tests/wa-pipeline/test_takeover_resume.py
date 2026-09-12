@@ -594,6 +594,12 @@ class TestDraftValidatorDatesNotMoney(unittest.TestCase):
         "It is available 12 Sep 2026 onwards",
         "Sure, 2 pax is fine",
         "Let us meet 9.15am tomorrow",
+        # item 4, 11 Sep 2026 HOLD: comma before the year, and bare time formats
+        "15 October, 2026",
+        "We can view on 15 October, 2026",
+        "3pm",
+        "14:00",
+        "See you at 14:00",
     ]
 
     REJECTED = [
@@ -612,6 +618,15 @@ class TestDraftValidatorDatesNotMoney(unittest.TestCase):
         "Monthly rate 950 flat",
         "Rent 1300 is fixed",
         "The deposit of 2000 is required",
+        # item 4, 11 Sep 2026 HOLD: decimal "k" shorthand slipped past the old regex
+        "SGD 1.4k",
+        "sgd 1.4k",
+        "It is 1.4k a month",
+        "Rent is around 2.5k",
+        "1,400",
+        "The rent is 1,400",
+        "1400/mth",
+        "1400 per month",
     ]
 
     def test_dates_times_and_pax_counts_allowed(self):

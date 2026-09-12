@@ -446,7 +446,11 @@ def run_owner_asks(con, send_fn, guard_reserve_fn, log_fn, notify_fn):
                 continue
             seen_codes.add(q.get("question_code")); uniq.append(q)
         pick = uniq[:MAX_QUESTIONS_PER_MESSAGE]
-        tenant_sourced = any((q.get("source") or "clarity-report") != "clarity-report" for q in pick)
+        # all(), not any() (11 Sep 2026 HOLD, item 5): a mixed batch (one tenant sourced
+        # question plus one of Winfred's own check in items) must use the neutral frame --
+        # any() called it tenant sourced off a single tenant question and mislabelled the
+        # check in ones too.
+        tenant_sourced = all((q.get("source") or "clarity-report") != "clarity-report" for q in pick)
         text = build_owner_message(l.get("landlord_name"), [q["question_text"] for q in pick],
                                    tenant_sourced=tenant_sourced)
         if not text:
@@ -459,8 +463,18 @@ def run_owner_asks(con, send_fn, guard_reserve_fn, log_fn, notify_fn):
         log_fn("OWNER_ASK" if ok else "OWNER_ASK_FAIL", lid, text.replace("\n", " / "))
         if ok:
             now_iso = _now_sgt().isoformat()
+            picked_ids = {q["id"] for q in pick}
+            picked_codes = {q.get("question_code") for q in pick}
             for q in pick:
                 mark_question(q["id"], "sent", asked_at=now_iso)
+            # item 1 (11 Sep 2026 HOLD): every OTHER still queued twin for a code that was
+            # JUST SENT must be superseded now, or it respawns as a duplicate ask on a later
+            # day once this landlord has new questions to send. Codes bumped past the 3 per
+            # message cap (still in seen_codes but not in pick) are untouched -- they were
+            # never asked, so they correctly stay queued for tomorrow.
+            for q in qs:
+                if q["id"] not in picked_ids and q.get("question_code") in picked_codes:
+                    mark_question(q["id"], "superseded")
             notify_fn(f"Asked owner {l.get('landlord_name') or lid} ({len(pick)} question"
                       f"{'s' if len(pick) != 1 else ''}), no rush framing, will chase in 48h "
                       f"if quiet.")
