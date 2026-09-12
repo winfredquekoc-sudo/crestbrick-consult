@@ -663,8 +663,8 @@ def fill_missing(idx, db, msg_db=None, pub_listings_path=None, portal_ids_path=N
     (listing_key, address, keyword_count, status, gates_found, gates_unknown); backfilled
     rows are (existing_listing_key, old_landlord_id, new_landlord_id) for a landlord that
     already has an index entry under a DIFFERENT id, matched by phone (the same physical
-    room re-entered under a new DB id -- e.g. LL088/Bayshore Park vs the long-standing
-    manual "bayshore" entry filed under LL_JOHNNY_BP62, both +6593368817)."""
+    room re-entered under a new DB id under a long-standing manual entry, same phone
+    number on both records)."""
     existing_lids = {e.get("landlord_id") for e in idx["listings"] if e.get("landlord_id")}
     existing_by_phone = {}
     for e in idx["listings"]:

@@ -231,7 +231,7 @@ class TestPortalIdsForOnlyReadsPortalIdsField(unittest.TestCase):
         self.assertEqual(ids, set())
 
     def test_raw_lid_never_becomes_a_keyword(self):
-        portal_map = {"LL227": {"landlord_name": "228397905117356", "full_address": "",
+        portal_map = {"LL227": {"landlord_name": "100000000000001", "full_address": "",
                                  "portal_ids": [], "rent_by_room": ""}}
         ids = BLI.portal_ids_for("LL227", "ll227-ll227", portal_map)
         self.assertEqual(ids, set())
@@ -262,7 +262,7 @@ class TestPortalIdsForOnlyReadsPortalIdsField(unittest.TestCase):
         portal-ids map shaped like the real landlord-portal-ids.json (bare landlord names, a
         raw @lid, note paragraphs) and assert none of it survives into any keyword."""
         BAD = {"Dan", "Liu", "Grace", "Nicole", "Jeremy", "Relycia", "Behhhh", "Olivia",
-               "228397905117356"}
+               "100000000000001"}
         portal_map = {
             "LL125": {"landlord_name": "Grace", "portal_ids": []},
             "LL146": {"landlord_name": "Nicole", "portal_ids": []},
@@ -271,7 +271,7 @@ class TestPortalIdsForOnlyReadsPortalIdsField(unittest.TestCase):
             "LL218": {"landlord_name": "Dan", "portal_ids": []},
             "LL219": {"landlord_name": "Liu", "portal_ids": []},
             "LL226": {"landlord_name": "Behhhh", "portal_ids": []},
-            "LL227": {"landlord_name": "228397905117356", "portal_ids": []},
+            "LL227": {"landlord_name": "100000000000001", "portal_ids": []},
         }
         db = {"landlords": [
             _landlord(lid, "active", f"{i+1} Some Road") for i, lid in enumerate(portal_map)
@@ -336,7 +336,7 @@ class TestValidKeywordFilterAppliedInFillMissingEntry(unittest.TestCase):
 
     def test_bare_person_name_address_and_portal_map_raw_lid_absent_from_keywords(self):
         l = _landlord("LL801", "active", "Amy")   # placeholder address, no real street yet
-        portal_map = {"LL801": {"landlord_name": "228397905117356", "portal_ids": []}}
+        portal_map = {"LL801": {"landlord_name": "100000000000001", "portal_ids": []}}
         entry, _, _ = BLI.fill_missing_entry(l, {}, {}, portal_map)
         self.assertEqual(entry["pg_url_keywords"], [])
 
@@ -347,16 +347,16 @@ class TestValidKeywordFilterAppliedInFillMissingEntry(unittest.TestCase):
 
 
 class TestBayshoreDuplicateDedupe(unittest.TestCase):
-    """Opus-review blocker #4: LL088 (Blk 62 Bayshore Park, +6593368817) is the SAME room as
-    the pre-existing manual entry "bayshore" (landlord_id LL_JOHNNY_BP62, same phone) --
+    """Opus-review blocker #4: LL088 (Blk 62 Bayshore Park, +6590000001) is the SAME room as
+    the pre-existing manual entry "bayshore" (landlord_id LL_LEGACY_BP62, same phone) --
     dedupe by phone as well as landlord_id, backfill LL088 onto the existing entry, and prune
     the legacy entry's bare "bayshore"/"the bayshore" keywords once a real "66 Bayshore Rd"
     listing (different landlord, different phone) exists so they stop cross-matching it."""
 
     def _bayshore_idx(self):
         return {"listings": [{
-            "listing_key": "bayshore", "landlord_id": "LL_JOHNNY_BP62",
-            "landlord_phone": "+6593368817", "status": "open",
+            "listing_key": "bayshore", "landlord_id": "LL_LEGACY_BP62",
+            "landlord_phone": "+6590000001", "status": "open",
             "block_address": "Blk 62 Bayshore Park #15-07",
             "pg_url_keywords": ["bayshore park", "bayshore", "the bayshore",
                                  "blk 62 bayshore", "500170240"],
@@ -365,7 +365,7 @@ class TestBayshoreDuplicateDedupe(unittest.TestCase):
     def test_same_phone_different_id_is_backfilled_not_duplicated(self):
         idx = self._bayshore_idx()
         db = {"landlords": [_landlord("LL088", "active", "Blk 62 Bayshore Park #15-07")]}
-        db["landlords"][0]["phone"] = "+6593368817"
+        db["landlords"][0]["phone"] = "+6590000001"
         new_entries, _, backfilled = BLI.fill_missing(idx, db)
         self.assertEqual(new_entries, [])
         self.assertEqual(len(backfilled), 1)
@@ -374,7 +374,7 @@ class TestBayshoreDuplicateDedupe(unittest.TestCase):
     def test_legacy_bare_keywords_pruned_once_a_real_bayshore_rd_listing_exists(self):
         idx = self._bayshore_idx()
         db = {"landlords": [_landlord("LL173", "active", "66 Bayshore Rd #22-03")]}
-        db["landlords"][0]["phone"] = "+6589772111"   # different landlord, different phone
+        db["landlords"][0]["phone"] = "+6590000003"   # different landlord, different phone
         new_entries, _, backfilled = BLI.fill_missing(idx, db)
         self.assertEqual(backfilled, [])
         self.assertEqual(len(new_entries), 1)
@@ -400,8 +400,8 @@ class TestApplyPathWritesTheMutatedIndex(unittest.TestCase):
 
     def setUp(self):
         self.idx = {"listings": [{
-            "listing_key": "bayshore", "landlord_id": "LL_JOHNNY_BP62",
-            "landlord_phone": "+6593368817", "status": "open",
+            "listing_key": "bayshore", "landlord_id": "LL_LEGACY_BP62",
+            "landlord_phone": "+6590000001", "status": "open",
             "block_address": "Blk 62 Bayshore Park #15-07",
             "pg_url_keywords": ["bayshore park", "bayshore", "the bayshore",
                                  "blk 62 bayshore", "500170240"],
@@ -409,11 +409,11 @@ class TestApplyPathWritesTheMutatedIndex(unittest.TestCase):
         self.db = {"landlords": [
             # same phone as the legacy "bayshore" entry -> backfill, no new entry
             dict(_landlord("LL088", "active", "Blk 62 Bayshore Park #15-07"),
-                 phone="+6593368817"),
+                 phone="+6590000001"),
             # different landlord/phone, real "66 Bayshore Rd" listing -> new entry, and
             # forces the legacy entry's bare "bayshore"/"the bayshore" keywords to be pruned
             dict(_landlord("LL173", "active", "66 Bayshore Rd #22-03"),
-                 phone="+6589772111"),
+                 phone="+6590000003"),
         ]}
         self.db_path = tempfile.mktemp(suffix=".json")
         self.idx_path = tempfile.mktemp(suffix=".json")
