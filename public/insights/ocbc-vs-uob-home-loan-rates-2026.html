@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCBC vs UOB Home Loans: How the Packages Differ</title>
+    <meta name="description" content="Fixed versus SORA, lock in length, prepayment caps, and free conversion. A structural comparison of OCBC and UOB home loans, and how to compare total cost.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="OCBC vs UOB Home Loans: How the Packages Differ">
+    <meta property="og:description" content="Fixed versus SORA, lock in length, prepayment caps, and free conversion. A structural comparison of OCBC and UOB home loans, and how to compare total cost.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>OCBC vs UOB Home Loans: How the Packages Differ</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            OCBC and UOB both offer fixed rate and SORA linked packages with roughly one to two year lock in periods, a free switch or conversion once the lock in ends, and prepayment allowances that are capped in the early years. Published rates move monthly, so this compares structure, the part that stays stable, rather than a headline number that will already be out of date by the time you read it.
+        </p>
+
+        <p>
+            If you have quotes from both banks sitting in your inbox, the instinct is to compare the interest rate line and stop there. That is how buyers end up locked into a package that looks cheap on day one and expensive by year three. Here is what to actually read.
+        </p>
+
+        <h2>Money: Package Structures Side by Side</h2>
+
+        <p>
+            On its own site, OCBC lists a 3 month compounded SORA package alongside a 2 year fixed rate package for completed properties. The SORA package allows a free switch to another OCBC pricing package after the first year for new loans, and permits prepaying up to half the loan amount within the first two years without a penalty under that structure. The fixed package protects your instalment amount for the fixed period, after which it typically reverts to a floating reference rate unless you reprice.
+        </p>
+
+        <p>
+            On its own site, UOB advertises a SORA linked package where the spread over the 3 month compounded SORA rate is described as stepping up in later years rather than staying flat, plus a separately quoted fixed rate package available on enquiry. UOB's promotional SORA package carries a 2 year lock in, and its structure is explicit about what happens if you exit early, which is the part most buyers skip reading.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Read the years, not just year one:</strong> a SORA package that steps up its spread in year three or four can end up costing more over a long hold than a package with a flatter, slightly higher starting spread.
+        </div>
+
+        <h2>Money: Lock In, Prepayment, and Early Exit</h2>
+
+        <p>
+            This is where the two banks genuinely differ, and it is the section a headline rate comparison will never show you.
+        </p>
+
+        <p>
+            UOB's SORA package terms state that no prepayment penalty applies to the first prepayment request made each year during the lock in period, capped at 20 percent of the original loan amount. If you sell the property during the lock in, the redemption fee is reduced by half once you provide sale documentation, and you may qualify for a full refund of that fee if you take a new UOB loan of an equal or greater amount within six months. That is a meaningfully softer landing for someone who thinks they might sell or refinance within the lock in window.
+        </p>
+
+        <p>
+            OCBC's SORA package allows prepayment of up to 50 percent of the loan within the first two years without penalty under its structure, which is a larger allowance in percentage terms, but its published terms reference a separate prepayment fee tied to a different rate structure in the first year. Compare your own most likely scenario, a partial windfall repayment versus a full sale within the lock in, against each bank's actual wording rather than a general reputation for being flexible.
+        </p>
+
+        <h2>Money: Legal Subsidy and Clawback</h2>
+
+        <p>
+            Legal and valuation subsidies are advertised more consistently for refinancing than for a new purchase. On its property loans page, UOB names legal and valuation subsidies for refinancing a private home loan alongside cash and voucher incentives for new purchases and refinancing. OCBC's new purchase page for HDB and private property did not headline a legal subsidy in the same way at the time this was checked, though incentives can change and should be confirmed for your specific application.
+        </p>
+
+        <p>
+            Whichever bank offers a subsidy, ask one direct question before you sign: what happens to that subsidy if you redeem the loan early. A legal or valuation subsidy is very often clawed back, meaning you repay it, if you exit the loan within a set window, commonly the first two to three years. That clawback is a real cost that a rate table will never show you, and it can wipe out the benefit of a subsidy if you refinance again sooner than planned.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Ask this before signing:</strong> if I redeem or refinance this loan in year two, exactly what do I owe back, and to whom.
+        </div>
+
+        <h2>Money: Repricing and Free Conversion</h2>
+
+        <p>
+            OCBC's SORA package allows a free switch to another OCBC pricing package after the first year for new loans, and the bank runs a separate repricing service for existing customers approaching the end of their lock in. UOB's SORA package includes one free conversion after 24 months from the date of first disbursement, letting you change packages without a fresh valuation or legal process in most cases.
+        </p>
+
+        <p>
+            Neither free conversion guarantees you a better rate at that point, only the option to move within that bank's shelf without penalty. If both banks' shelves have moved higher by then, a free conversion still leaves you paying more, just without an exit fee attached.
+        </p>
+
+        <h2>Timing: A Worked Way To Compare Total Cost</h2>
+
+        <p>
+            Do not compare the first year instalment. Instead, add up four things over your expected holding period, whether that is 3 years, 5 years, or the full loan tenure.
+        </p>
+
+        <ol>
+            <li><strong>Total interest cost</strong> across your expected hold, using the published reference rate plus each package's spread for every year of that structure, not just year one.</li>
+            <li><strong>Cash, voucher, or subsidy value</strong> received at drawdown, added back as a credit against total cost.</li>
+            <li><strong>Clawback exposure</strong> if you expect to sell or refinance before any subsidy's protected window closes, subtracted as a cost.</li>
+            <li><strong>Flexibility value</strong> if you expect a lump sum, a bonus, sale proceeds, or an inheritance, during the lock in period, since a package with a generous penalty free prepayment allowance is worth more to you than one without, even at an identical headline rate.</li>
+        </ol>
+
+        <p>
+            Whichever total is lower over your actual holding period, not the marketing period, is the better package for you. That number will differ between two buyers with identical loan amounts if their holding periods or windfall expectations differ.
+        </p>
+
+        <h2>Safety: Confirm the Number on the Bank's Own Page</h2>
+
+        <p>
+            Home loan rates reprice monthly and sometimes more often. A comparison site, a broker's slide, or last month's screenshot can all be stale by the time you sit down to sign. Before you commit, open ocbc.com or uob.com.sg directly, or ask your mortgage specialist to confirm the exact current spread in writing, and read the full terms and conditions document, not just the summary page.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3 class="faq-question">Is OCBC or UOB cheaper for a home loan?</h3>
+            <p class="faq-answer">Neither is consistently cheaper. Both reprice their packages regularly, and the better deal depends on your loan amount, your expected holding period, and which structural terms, lock in length, prepayment allowance, and clawback rules, matter most to your situation. Compare current published packages on each bank's own page rather than relying on a fixed answer.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 class="faq-question">What is a lock in period on a home loan?</h3>
+            <p class="faq-answer">A lock in period is the window, typically one to two years for the packages reviewed here, during which redeeming or refinancing your loan triggers a penalty fee. Both OCBC and UOB allow some penalty free prepayment within the lock in, but full early redemption or a sale of the property usually still triggers a fee unless specific conditions, like taking a new loan with the same bank, are met.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 class="faq-question">What is a legal subsidy clawback?</h3>
+            <p class="faq-answer">A legal subsidy clawback means that if a bank pays your legal or valuation fees as an incentive and you redeem the loan within a set period afterward, commonly two to three years, you have to repay that subsidy. It is a common condition attached to refinancing incentives and should always be confirmed before you rely on the subsidy in your cost comparison.</p>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Comparing quotes side by side</h3>
+            <p>Bring both bank quotes to a short call and work out the real total cost over your actual holding period, not just the first year rate.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H), not a licensed financial advisor. Before choosing a home loan package, consult your mortgage banker or a licensed financial advisor and read the bank's current terms and conditions in full. Rates, subsidies and terms change frequently and are current as of the stated publish date only.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li>OCBC: Home loan for new purchase of HDB and private property: <a href="https://www.ocbc.com/personal-banking/loans/new-purchase-of-hdb-private-property" target="_blank" rel="noopener noreferrer">ocbc.com</a></li>
+                <li>OCBC: Home loans overview: <a href="https://www.ocbc.com/personal-banking/loans/home-loans.page" target="_blank" rel="noopener noreferrer">ocbc.com</a></li>
+                <li>UOB: Property loans overview: <a href="https://www.uob.com.sg/personal/borrow/property-loans/index.page" target="_blank" rel="noopener noreferrer">uob.com.sg</a></li>
+                <li>UOB: Private home loan: <a href="https://www.uob.com.sg/personal/borrow/property-loans/private-home-loan.page" target="_blank" rel="noopener noreferrer">uob.com.sg</a></li>
+                <li>MAS: SORA rate information: <a href="https://www.mas.gov.sg/monetary-policy/sora" target="_blank" rel="noopener noreferrer">mas.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <p>
+            Related reading: <a href="/insights/partial-loan-prepayment-penalty-singapore.html">how prepayment penalties work</a>, <a href="/insights/combination-loan-part-fixed-part-floating-singapore.html">combining fixed and floating loan packages</a>, <a href="/insights/home-loan-singapore.html">home loans in Singapore explained</a>, and <a href="/insights/25-vs-30-year-home-loan-singapore.html">25 versus 30 year loan tenure</a>.
+        </p>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@graph": [
+    {
+    "@type": "Article",
+    "headline": "OCBC vs UOB Home Loans: How the Packages Differ",
+    "description": "Fixed versus SORA, lock in length, prepayment caps, and free conversion. A structural comparison of OCBC and UOB home loans, and how to compare total cost.",
+    "image": "https://winfredquek.com/og-ocbc-uob-home-loans.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+    },
+    {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Is OCBC or UOB cheaper for a home loan?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Neither is consistently cheaper. Both reprice their packages regularly, and the better deal depends on your loan amount, your expected holding period, and which structural terms, lock in length, prepayment allowance, and clawback rules, matter most to your situation. Compare current published packages on each bank's own page rather than relying on a fixed answer."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is a lock in period on a home loan?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A lock in period is the window, typically one to two years for the packages reviewed here, during which redeeming or refinancing your loan triggers a penalty fee. Both OCBC and UOB allow some penalty free prepayment within the lock in, but full early redemption or a sale of the property usually still triggers a fee unless specific conditions, like taking a new loan with the same bank, are met."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What is a legal subsidy clawback?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A legal subsidy clawback means that if a bank pays your legal or valuation fees as an incentive and you redeem the loan within a set period afterward, commonly two to three years, you have to repay that subsidy. It is a common condition attached to refinancing incentives and should always be confirmed before you rely on the subsidy in your cost comparison."
+                }
+            }
+        ]
+    }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>
