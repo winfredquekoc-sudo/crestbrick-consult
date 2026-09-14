@@ -1,9 +1,119 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-14T00:30:01+08:00",
-  "count": 27,
+  "synced_at": "2026-09-15T00:30:05+08:00",
+  "count": 37,
   "listings": [
+    {
+      "id": "room-to-confirm-ll237",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 626,
+      "price_label": "S$626 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll240",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 400,
+      "price_label": "S$400 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll241",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 4628,
+      "price_label": "S$4,628 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll242",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 520,
+      "price_label": "S$520 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll243",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 5798,
+      "price_label": "S$5,798 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll244",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 900,
+      "price_label": "S$900 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll245",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 498,
+      "price_label": "S$498 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll246",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 830,
+      "price_label": "S$830 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll247",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 639,
+      "price_label": "S$639 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
+    {
+      "id": "room-to-confirm-ll248",
+      "title": "Room, To confirm",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 528,
+      "price_label": "S$528 / mo",
+      "address": "To confirm",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
+    },
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
       "title": "Whole Unit, 1 Hillcrest Road (Newton)",
