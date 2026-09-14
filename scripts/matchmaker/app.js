@@ -4581,11 +4581,15 @@ function renderMapView() {
   }
   renderMapDirectory(box);
 }
-// Real interactive map (Leaflet + OpenStreetMap, same as the public room-rental
-// site — Winfred 31 Aug 2026). One pin per geocoded listing: green = has a
-// qualified tenant, amber = live but none yet, grey = position approximate. Click
-// a pin to open that listing (same as the old SVG pins). Falls back gracefully if
-// Leaflet fails to load (the div just stays empty with a note).
+// Real interactive map (Leaflet + OneMap tiles, same style as the public room
+// rental site — Winfred 31 Aug 2026). Switched from OpenStreetMap to OneMap
+// 14 Sep 2026: the app's Referrer Policy no referrer header made OSM's tile
+// servers 403 block every tile; OneMap is the Singapore government basemap,
+// serves fine with no referrer, and only needs the attribution line below.
+// One pin per geocoded listing: green = has a qualified tenant, amber = live
+// but none yet, grey = position approximate. Click a pin to open that listing
+// (same as the old SVG pins). Falls back gracefully if Leaflet fails to load
+// (the div just stays empty with a note).
 let _mmMap = null;
 function initMatchmakerMap(mapId, tenTop) {
   const host = document.getElementById(mapId);
@@ -4597,10 +4601,20 @@ function initMatchmakerMap(mapId, tenTop) {
     if (!document.body.contains(host)) return;
     try { if (_mmMap) { _mmMap.remove(); _mmMap = null; } } catch (e) { /* previous map already gone */ }
     let map;
-    try { map = L.map(mapId, { scrollWheelZoom: false, attributionControl: false }); } catch (e) { return; }
+    try {
+      map = L.map(mapId, {
+        scrollWheelZoom: false,
+        maxBounds: [[1.144, 103.535], [1.494, 104.502]],
+        maxBoundsViscosity: 1.0,
+      });
+    } catch (e) { return; }
     _mmMap = map;
     map.setView([1.3521, 103.8198], 11);
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19 }).addTo(map);
+    L.tileLayer("https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png", {
+      maxZoom: 19,
+      minZoom: 11,
+      attribution: '<img src="https://www.onemap.gov.sg/web-assets/images/logo/om_logo.png" style="height:20px;width:20px;"/>&nbsp;<a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener noreferrer">OneMap</a>&nbsp;&copy;&nbsp;contributors&nbsp;&#124;&nbsp;<a href="https://www.sla.gov.sg/" target="_blank" rel="noopener noreferrer">Singapore Land Authority</a>',
+    }).addTo(map);
     const pts = [];
     listings.forEach(l => {
       const q = qualifiedCount(l);
