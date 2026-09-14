@@ -4604,9 +4604,13 @@ function initMatchmakerMap(mapId, tenTop) {
     try {
       map = L.map(mapId, {
         scrollWheelZoom: false,
+        attributionControl: false,
         maxBounds: [[1.144, 103.535], [1.494, 104.502]],
         maxBoundsViscosity: 1.0,
       });
+      // prefix false: Leaflet's own credit carries a flag svg that the app's global
+      // svg sizing blows up to fill the map; only the OneMap credit is required.
+      L.control.attribution({ prefix: false }).addTo(map);
     } catch (e) { return; }
     _mmMap = map;
     map.setView([1.3521, 103.8198], 11);

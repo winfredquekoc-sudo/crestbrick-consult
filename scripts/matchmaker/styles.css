@@ -366,6 +366,8 @@ body.density-compact .lc{padding:7px 9px}
 .mmpin svg{filter:drop-shadow(0 2px 2px rgba(0,0,0,.45))}
 /* OneMap attribution readable on the dark tile pane, reset to Leaflet default in light mode */
 .mmmap .leaflet-control-attribution{background:rgba(11,23,48,.85);color:#93a1c0}
+.mmmap .leaflet-control-attribution svg{width:12px;height:8px}
+.mmmap .leaflet-control-attribution img{width:20px;height:20px;vertical-align:middle}
 .mmmap .leaflet-control-attribution a{color:#5b8cff}
 /* township cluster labels — dark navy pill, gold count, non-interactive */
 .mmtown{background:none;border:none}
