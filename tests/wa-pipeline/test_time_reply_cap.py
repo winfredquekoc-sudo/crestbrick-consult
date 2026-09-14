@@ -3,8 +3,8 @@ test_time_reply_cap.py -- FIX 1 (9 Sep 2026): the daily send cap (DAILY_SEND_CAP
 dead ending a tenant who proposed a viewing time right after the happy path form (2
 touches). VIEWING_TIME_PROPOSED / ASK_TENANT_TIME are now exempt, but bounded separately to
 ONE extra touch a client a SGT day (rec["time_reply_sent_date"]) -- never the ordinary
-cap, and never a second reply the same day. Real incidents: pn 6589824485 ("Would tmr night
-work?") and pn 6584553538 ("this weekend Saturday can?") both got DAILY_CAP_SKIP and heard
+cap, and never a second reply the same day. Real incidents: pn 6590000485 ("Would tmr night
+work?") and pn 6590000538 ("this weekend Saturday can?") both got DAILY_CAP_SKIP and heard
 nothing until Winfred replied by hand.
 
 Merge review (9 Sep 2026, four-branch intake merge): REDIRECT and LEASE_NOTE get the SAME

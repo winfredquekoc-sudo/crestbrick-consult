@@ -756,7 +756,7 @@ class TestExistingEntryGateProvenanceFailClosed(unittest.TestCase):
         since LL097 already has an index entry) -- reverting enforce_gate_provenance's
         wiring into fill_missing_main makes this fail."""
         idx = {"listings": [{
-            "listing_key": "cherryhill", "landlord_id": "LL097", "landlord_phone": "+6598280170",
+            "listing_key": "cherryhill", "landlord_id": "LL097", "landlord_phone": "+6590000170",
             "status": "open", "block_address": "21 Lorong Lew Lian #01-05",
             "pg_url_keywords": ["cherryhill", "cherry hill", "lorong lew lian"],
             "requirements": {
@@ -768,7 +768,7 @@ class TestExistingEntryGateProvenanceFailClosed(unittest.TestCase):
             _landlord("LL097", "active", "21 Lorong Lew Lian", {
                 "ethnicity": "No Indian, No Bangladesh (landlord preference)",
                 "nationality": "Exclude Indian and Bangladesh (landlord preference)"}),
-            phone="+6598280170")]}
+            phone="+6590000170")]}
         db_path = tempfile.mktemp(suffix=".json")
         idx_path = tempfile.mktemp(suffix=".json")
         out_path = tempfile.mktemp(suffix=".json")

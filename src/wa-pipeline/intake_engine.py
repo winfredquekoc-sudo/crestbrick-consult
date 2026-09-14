@@ -4360,7 +4360,7 @@ def _handle_event_inner(state, ev):
         # must never fire until we actually KNOW which landlord that is -- a genuine tenant
         # prospect with the form already sent AND a listing bound. A casual "short term ok"
         # in a chat that only just got bound off Winfred's own outbound text (or never got
-        # bound at all) flags him once instead (real incident, 8-9 Sep 2026: pn 6590590183,
+        # bound at all) flags him once instead (real incident, 8-9 Sep 2026: pn 6590000183,
         # wandering across 3 different properties with no confirmed listing_key).
         if rec.get("form_sent") and rec.get("listing_key"):
             _lease_txt_now = ev.get("text") or ""
@@ -4397,7 +4397,7 @@ def _handle_event_inner(state, ev):
         # on a brand new prospect (P2 fix, 9 Sep 2026 cycle5 sc5). The short lease ask itself
         # is never auto answered; it rides as a notify on the SEND_FORM action once Stage 1
         # actually sends it (fall through, no return, past this whole gate). Genuinely
-        # UNBOUND wandering (the real incident this gate was built for, pn 6590590183 across
+        # UNBOUND wandering (the real incident this gate was built for, pn 6590000183 across
         # 3 properties) keeps the original silent flag.
         if not (rec.get("listing_key") or ev.get("listing_key")):
             if rec.get("lease_note_unbound_flagged"):
@@ -5166,7 +5166,7 @@ _MEDIA_DURATION_RE = re.compile(
     r"\[\s*(?:voice\s*(?:message|note)|video|audio)\s*,?\s*\d{1,2}[:.]\d{2}\s*\]", re.I)
 
 # words that turn a day/time token into an unrelated activity, not a viewing proposal
-# ("sat exam", "weekend job") -- the near miss that sent chat 6580900266's "can I view it
+# ("sat exam", "weekend job") -- the near miss that sent chat 6590000266's "can I view it
 # tonight?" to a text-less ANSWER_QUESTION was the same class of gap in reverse (a real
 # time word the old regex just did not know), so this list is checked from both directions.
 _NOT_A_VIEWING_TIME = r"(?!\s+(?:job|exam|shift|duty|class|meeting|interview|test|practice))"

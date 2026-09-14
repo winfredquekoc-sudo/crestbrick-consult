@@ -132,7 +132,7 @@ def _write_last(rowid):
 # proposal replies (VIEWING_TIME_PROPOSED / ASK_TENANT_TIME) are each a direct, one-shot
 # reply to something the tenant just said -- holding them for the ordinary cap dead-ends a
 # prospect who was mid conversation (P2 fix, 9 Sep 2026 cycle 3 attack replay; time-reply
-# incident pn 6589824485 / 6584553538). But unlike CONFIRM_VIEWING/OFFER_VIEWING/ASK_ONE
+# incident pn 6590000485 / 6590000538). But unlike CONFIRM_VIEWING/OFFER_VIEWING/ASK_ONE
 # they are NOT unconditionally exempt forever -- each is bounded to ONE extra touch a
 # client a SGT day via its own date stamp (rec[<field>]), separate from the ordinary
 # sends_today counter, so a second one the same day still waits for Winfred same as before

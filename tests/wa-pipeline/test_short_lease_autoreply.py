@@ -82,7 +82,7 @@ class TestUnifiedWording(unittest.TestCase):
         self.assertTrue(rec.get("lease_note_sent"))
 
     def test_free_text_trigger_never_fires_before_form_sent_or_unbound(self):
-        # real incident, 8-9 Sep 2026: pn 6590590183, wandering across 3 properties with no
+        # real incident, 8-9 Sep 2026: pn 6590000183, wandering across 3 properties with no
         # confirmed listing_key, auto-sent a LEASE_NOTE naming a landlord that was never
         # actually confirmed. Must flag Winfred instead, once, and never auto-send.
         st = _state()

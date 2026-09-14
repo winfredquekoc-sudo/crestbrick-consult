@@ -1313,7 +1313,7 @@ class TestB1EstablishedProspectGate(unittest.TestCase):
     bound. Real incidents this fixes: a SEND_FORM auto-sent into a personal friend chat
     (pn 6581894357, "Where ah bro", bound off Winfred's own casual outbound mention of
     Eastpoint Green) and a LEASE_NOTE auto-sent into a chat with no confirmed listing_key
-    (pn 6590590183, wandering across 3 different properties)."""
+    (pn 6590000183, wandering across 3 different properties)."""
 
     def test_needs_draft_blocks_send_form_with_no_prior_form_sent_or_listing(self):
         # mirrors the real "Where ah bro" record: manual_takeover latched from ordinary
@@ -1324,7 +1324,7 @@ class TestB1EstablishedProspectGate(unittest.TestCase):
         self.assertTrue(RES.needs_draft(a, rec_before))
 
     def test_needs_draft_blocks_lease_note_when_unbound(self):
-        # mirrors the real pn 6590590183 record: form WAS sent at some point (to a DIFFERENT
+        # mirrors the real pn 6590000183 record: form WAS sent at some point (to a DIFFERENT
         # property earlier in a wandering chat) but listing_key is not currently bound.
         rec_before = {"form_sent": True, "listing_key": None}
         a = {"type": "LEASE_NOTE", "text": "Just to share, the landlord prefers..."}
@@ -1350,7 +1350,7 @@ class TestB1EstablishedProspectGate(unittest.TestCase):
             self.assertFalse(RES.needs_draft(a, rec_before))
 
     def test_revert_unsent_form_undoes_the_optimistic_mutation_when_drafted(self):
-        # real incident, pn 6590590183: handle_event stamps form_sent=True the instant it
+        # real incident, pn 6590000183: handle_event stamps form_sent=True the instant it
         # DECIDES to send the form, even when that send never actually reaches the runner's
         # own choke (drafted instead) -- the next inbound must not see a false form_sent.
         rec_before = {"form_sent": False, "listing_key": None}

@@ -2,7 +2,7 @@
 test_viewing_time_recognition.py -- FIX 2 (9 Sep 2026): _has_viewing_time did not know
 "tonight" (and friends), so a tenant asking "can I view it tonight ?" fell through to the
 '?' branch as a plain question, then ANSWER_QUESTION with no matching fact -> FLAG_HUMAN
-with no text sent (real chat 6580900266, evidence in the task brief). Adds a 20 positive /
+with no text sent (real chat 6590000266, evidence in the task brief). Adds a 20 positive /
 20 negative regex table over _has_viewing_time, plus one end to end routing check through
 _viewing_reaction proving "tonight" now reaches VIEWING_TIME_PROPOSED, not ANSWER_QUESTION.
 
@@ -75,7 +75,7 @@ for n in NEGATIVES:
     ok("does NOT treat %r as a viewing time proposal" % n, not E._has_viewing_time(n))
 
 print("== end to end: 'tonight' routes to VIEWING_TIME_PROPOSED, not ANSWER_QUESTION ==")
-# mirrors real chat 6580900266: form filled, viewing offered, then "can I view it tonight ?"
+# mirrors real chat 6590000266: form filled, viewing offered, then "can I view it tonight ?"
 _PROFILE = {"gender": "Female", "ethnicity": "Chinese", "nationality": "SG",
             "pass_type": "SC", "no_of_pax": 1, "age": 28,
             "move_in_date": "1 Oct", "lease_term_months": 12, "budget": 1500}
@@ -88,7 +88,7 @@ def _offered_rec(pn):
         "offered_slot_id": "sunshine-terrace-test-slot",
         "offered_slot_label": "Sat 12 Sep, after 7.30pm", "last_inbound": None}}}
 
-pn_tonight = "6580900266"
+pn_tonight = "6590000266"
 st = _offered_rec(pn_tonight)
 a = E.handle_event(st, {"jid": pn_tonight + "@s.whatsapp.net", "msg_id": "t1",
                         "text": "can I view it tonight ?", "is_from_me": 0})

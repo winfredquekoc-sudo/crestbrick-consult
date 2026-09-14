@@ -330,7 +330,7 @@ def revert_unsent_form(a, rec, rec_before):
     the form, regardless of whether the real send happens -- a drafted (never delivered)
     SEND_FORM otherwise leaves the record masquerading as an already form sent prospect on
     the NEXT inbound, letting something like LEASE_NOTE through on a chat where the tenant
-    never actually saw the form (real incident, pn 6590590183: an earlier SEND_FORM in this
+    never actually saw the form (real incident, pn 6590000183: an earlier SEND_FORM in this
     same wandering chat drafted, not sent, but form_sent stuck True anyway). Call this AFTER
     needs_draft() confirms the action is becoming a draft, BEFORE process_draft_needed."""
     if (a or {}).get("type") == "SEND_FORM" and not (rec_before or {}).get("form_sent"):
