@@ -1,119 +1,9 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-15T01:33:16+08:00",
-  "count": 34,
+  "synced_at": "2026-09-15T01:39:19+08:00",
+  "count": 27,
   "listings": [
-    {
-      "id": "room-to-confirm-ll237",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 626,
-      "price_label": "S$626 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll240",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 400,
-      "price_label": "S$400 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll241",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 4628,
-      "price_label": "S$4,628 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll242",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 520,
-      "price_label": "S$520 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll243",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 5798,
-      "price_label": "S$5,798 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll244",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 900,
-      "price_label": "S$900 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll245",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 498,
-      "price_label": "S$498 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll246",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 830,
-      "price_label": "S$830 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll247",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 639,
-      "price_label": "S$639 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
-    {
-      "id": "room-to-confirm-ll248",
-      "title": "Room, To confirm",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 528,
-      "price_label": "S$528 / mo",
-      "address": "To confirm",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20To%20confirm."
-    },
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
       "title": "Whole Unit, 1 Hillcrest Road (Newton)",
@@ -160,6 +50,23 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way."
+    },
+    {
+      "id": "common-room-blk-69-ll245",
+      "title": "Common Room, Blk 69 (Bedok)",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "S$1,100 / mo",
+      "address": "Blk 69",
+      "district": "D16",
+      "highlights": [
+        "Furnished",
+        "Aircon",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2069.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2069."
     },
     {
       "id": "master-room-66-bayshore-rd-ll173",
@@ -280,6 +187,24 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20992B%20Buangkok%20Link."
     },
     {
+      "id": "common-room-blk-241-hougang-street-22-ll238",
+      "title": "Common Room, Blk 241 Hougang Street 22",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1350,
+      "price_label": "From S$1,350 / mo",
+      "address": "Blk 241 Hougang Street 22",
+      "district": "D19",
+      "highlights": [
+        "Utilities included",
+        "Furnished",
+        "Aircon",
+        "Available now"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20241%20Hougang%20Street%2022.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20241%20Hougang%20Street%2022."
+    },
+    {
       "id": "common-room-156a-bishan-street-11-ll142",
       "title": "Common Room, 156A Bishan Street 11",
       "type": "HDB",
@@ -381,6 +306,18 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road."
+    },
+    {
+      "id": "common-room-blk-626-jurong-west-street-65-ll237",
+      "title": "Common Room, Blk 626 Jurong West Street 65",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "Blk 626 Jurong West Street 65",
+      "district": "D22",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20626%20Jurong%20West%20Street%2065.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20626%20Jurong%20West%20Street%2065."
     },
     {
       "id": "common-room-blk-830a-jurong-west-street-81-ll161",
