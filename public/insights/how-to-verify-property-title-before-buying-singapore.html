@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Verify a Property Title Before You Buy</title>
+    <meta name="description" content="How a cautious first timer checks a Singapore property title: SLA INLIS search, matching the seller's name, caveats, encumbrances and lawyer checks.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="How to Verify a Property Title Before You Buy">
+    <meta property="og:description" content="How a cautious first timer checks a Singapore property title: SLA INLIS search, matching the seller's name, caveats, encumbrances and lawyer checks.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>How to Verify a Property Title Before You Buy</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Run a title search on SLA's INLIS system, the official register for Singapore land and property titles. It shows the registered owner's name, any mortgage, and any caveat or encumbrance lodged against the property. Match the owner's name exactly against the seller in front of you, and let your conveyancing lawyer confirm the rest before you commit.
+        </p>
+
+        <h2>Safety: what a title search actually shows</h2>
+
+        <p>
+            The Singapore Land Authority runs the Integrated Land Information Service, known as INLIS, the official one stop portal for property and land information in Singapore. A title search purchased through INLIS returns the registered proprietor's name, the type of title, any mortgage registered against the property, and any caveat lodged by a third party claiming an interest in it. This is the single most direct way to confirm that the person offering to sell you a property is actually the person the land register recognises as the legal owner.
+        </p>
+
+        <p>
+            SLA also runs a specific encumbrances information service within INLIS, built exactly for the question a cautious buyer asks first: is there a caveat lodged against this property. A caveat can signal an existing sale in progress to someone else, a dispute, a court order, or a lender's interest, so seeing a caveat you were not told about is a reason to stop and ask questions before going further, not a reason to panic outright.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Do this early, not at the last minute.</strong> A title search is inexpensive and takes minutes online. Running it before you commit to an option is far cheaper than discovering a problem after money has changed hands.
+        </div>
+
+        <h2>Safety: matching the seller's name, exactly</h2>
+
+        <p>
+            The name on the title search must match the identity of the person signing the sale documents, down to the exact spelling and identification number where shown. A mismatch, an old name, a company that has since changed its registered name, or a title still showing a deceased former owner, are all signs that something in the ownership chain needs to be sorted out before you proceed, often through a grant of probate, a deed of assent, or a formal name change record. Your lawyer is the one who chases this down properly, but the title search is what first tells you to ask the question.
+        </p>
+
+        <p>
+            For a flat or condo unit bought from a couple, check whether the title is held as joint tenants or tenants in common, since this affects whether both owners must jointly sign every document and how consent is structured if the relationship has changed since the title was registered.
+        </p>
+
+        <h2>Timing: caveats and encumbrances, what they mean for your purchase</h2>
+
+        <p>
+            A caveat is a formal notice lodged against a title to protect someone's claimed interest in the property, commonly lodged by a buyer once an option has been exercised, protecting their position until completion. If your title search reveals an existing caveat from another party when you are the one about to make an offer, that is a serious flag, since it may mean the seller has already committed the property to someone else, whether or not that earlier deal has been disclosed to you.
+        </p>
+
+        <p>
+            Encumbrances more broadly cover mortgages, liens, and other registered charges against the property. A mortgage showing on the title is completely normal, since most sellers have an outstanding home loan, and your lawyer's job during completion is to ensure that loan is discharged from the sale proceeds so the property transfers to you free of it. What you are checking for is any encumbrance beyond the expected mortgage that has not been explained to you.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Red flag:</strong> a title search comes back with a caveat, name mismatch, or unexplained charge that the seller or their agent brushes off as nothing to worry about. Get your lawyer's view in writing before proceeding, never take a verbal reassurance as the final answer.
+        </div>
+
+        <h2>Safety: what your conveyancing lawyer checks, and when</h2>
+
+        <p>
+            A title search tells you what is on the public record today, but your conveyancing lawyer goes further during the legal process. Once you exercise the option to purchase, your lawyer conducts a formal requisition, a set of standard queries sent to relevant authorities and the seller's lawyer, covering outstanding property tax, town council or MCST arrears, outstanding renovation permits, and any subsisting notices or orders against the property that a basic title search alone would not surface. This requisition process, run in parallel with the title check, is what actually clears the property for a safe completion.
+        </p>
+
+        <p>
+            Engage your lawyer as early as when you are deciding whether to make an offer, not only after the option is signed, particularly for a property where something in the title search looks even slightly unusual. A short paid consultation before you commit is far cheaper than untangling a title problem after your deposit is already down.
+        </p>
+
+        <p>
+            Legal fees for a straightforward purchase are modest compared to the price of the property itself, and most conveyancing firms in Singapore are used to fielding a quick question from a cautious buyer before an option is even signed. Treat that early call as part of your due diligence budget, not an optional extra, especially for a resale unit with an older title history or more than one previous owner.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Where exactly do I run a title search in Singapore?</div>
+            <div class="faq-answer">Through SLA's Integrated Land Information Service, INLIS, which is the official portal for property ownership, title, and encumbrance information in Singapore. It is a paid service per search, and results are typically available quickly online.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">What does it mean if there is a caveat on the property I want to buy?</div>
+            <div class="faq-answer">A caveat means someone has formally registered a claimed interest in the property, which could be an earlier buyer, a court matter, or a lender. It does not automatically mean the property cannot be sold to you, but it means you need a clear explanation and your lawyer's confirmation before proceeding.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is a title search enough, or do I still need a lawyer?</div>
+            <div class="faq-answer">A title search is a starting check, not a complete legal clearance. Your conveyancing lawyer runs a fuller requisition process covering tax arrears, MCST or town council debts, and other notices that a basic title search will not show, so both steps matter, not one instead of the other.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Not sure how to read a title search result</h3>
+            <p>If something on a title search or caveat listing looks unclear, get a second pair of eyes before you commit to an offer.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a lawyer. Title verification and requisition should always be carried out by a qualified conveyancing lawyer for your specific transaction.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Singapore Land Authority:</strong> Integrated Land Information Service, INLIS, <a href="https://www.sla.gov.sg/regulatory/property-ownership/land-titles-search/">sla.gov.sg</a> and the search portal at <a href="https://app.sla.gov.sg/inlis/">app.sla.gov.sg/inlis</a></li>
+                <li><strong>Singapore Land Authority:</strong> checking for a caveat via INLIS encumbrances information, <a href="https://ask.gov.sg/sla">ask.gov.sg/sla</a></li>
+                <li><strong>Council for Estate Agencies:</strong> role of conveyancing lawyers and agent responsibilities in a property transaction, <a href="https://www.cea.gov.sg">cea.gov.sg</a></li>
+                <li><strong>Related reading on this site:</strong> <a href="/insights/what-is-a-caveat-property-singapore.html">what a caveat is and how it works</a>, <a href="/insights/requisition-title-search-explained-singapore.html">the requisition and title search process</a> and <a href="/insights/conveyancing-singapore-property-lawyer.html">choosing a conveyancing lawyer</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to Verify a Property Title Before You Buy",
+    "description": "How a cautious first timer checks a Singapore property title: SLA INLIS search, matching the seller's name, caveats, encumbrances and lawyer checks.",
+    "image": "https://winfredquek.com/og-verify-property-title.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Where exactly do I run a title search in Singapore?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Through SLA's Integrated Land Information Service, INLIS, which is the official portal for property ownership, title, and encumbrance information in Singapore. It is a paid service per search, and results are typically available quickly online."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What does it mean if there is a caveat on the property I want to buy?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A caveat means someone has formally registered a claimed interest in the property, which could be an earlier buyer, a court matter, or a lender. It does not automatically mean the property cannot be sold to you, but it means you need a clear explanation and your lawyer's confirmation before proceeding."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is a title search enough, or do I still need a lawyer?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A title search is a starting check, not a complete legal clearance. Your conveyancing lawyer runs a fuller requisition process covering tax arrears, MCST or town council debts, and other notices that a basic title search will not show, so both steps matter, not one instead of the other."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>

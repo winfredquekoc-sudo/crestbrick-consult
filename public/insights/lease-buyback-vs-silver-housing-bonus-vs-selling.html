@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lease Buyback vs Silver Housing Bonus vs Selling</title>
+    <meta name="description" content="Three ways elderly HDB owners monetise a flat compared side by side, with real HDB figures, to help you decide if staying put actually matters.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Lease Buyback vs Silver Housing Bonus vs Selling">
+    <meta property="og:description" content="Three ways elderly HDB owners monetise a flat compared side by side, with real HDB figures, to help you decide if staying put actually matters.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .example-scenario {
+            background-color: var(--bg-secondary);
+            border-left: 4px solid var(--accent-light);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Lease Buyback vs Silver Housing Bonus vs Selling</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Lease Buyback lets parents sell part of their flat's tail end lease to HDB and stay put, with a cash bonus of up to $30,000. The Silver Housing Bonus rewards moving to a smaller flat, up to $40,000 combined. Selling outright and downsizing gives the most cash but means leaving the home. The real decider is whether staying put matters to them.
+        </p>
+
+        <h2>Money: Lease Buyback, sell the tail, keep the home</h2>
+
+        <p>
+            Under the Lease Buyback Scheme, eligible households sell the tail end of their flat's lease back to HDB while keeping enough lease to live in the flat for as long as they choose, typically to age 95 or beyond depending on the option chosen. The proceeds from the tail end lease go partly into the owners' CPF Retirement Accounts to start or boost a CPF LIFE monthly payout, and partly as cash in hand.
+        </p>
+
+        <p>
+            On top of the retirement sum top up, HDB pays a cash bonus of up to $30,000 for a three room or smaller flat, up to $15,000 for a four room flat, and up to $7,500 for a five room or bigger flat, scaled to how much the household commits to the CPF top up. The household continues to own and live in the remaining lease, continues to pay service and conservancy charges, and can still leave the flat and the remaining lease to their children.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Who this suits:</strong> parents who are attached to the flat, the neighbourhood, and nearby friends, and want a monthly income stream rather than one lump sum.
+        </div>
+
+        <h2>Money: Silver Housing Bonus, move smaller, get cash now</h2>
+
+        <p>
+            The Silver Housing Bonus rewards seniors who sell their current home and right size to a three room or smaller HDB flat, using part of the proceeds to top up their CPF Retirement Account for a higher CPF LIFE payout. Following an enhancement effective 1 December 2025, an eligible household can receive a cash bonus of up to $30,000 when right sizing to a three room flat, and up to $40,000 combined when the move is to a two room or smaller flat, on top of whatever sale proceeds they keep in hand.
+        </p>
+
+        <p>
+            Unlike Lease Buyback, the Silver Housing Bonus requires an actual move to a smaller flat, so it suits parents who are open to less space in exchange for a fresh, often newer or single level unit, plus a meaningful cash bonus and a stronger CPF LIFE payout.
+        </p>
+
+        <h2>Money: selling outright with no scheme attached</h2>
+
+        <p>
+            The third path is simply selling the current flat on the open resale market and either buying a smaller flat outright, renting, or moving in with family, without going through either scheme. This usually delivers the largest single lump sum, since the full resale value is realised rather than a partial tail end lease, but it comes with the CPF refund obligation, including accrued interest on any CPF used to buy the flat originally, agent commission on the sale, and no scheme bonus. It is the most flexible option and the one with the least ongoing tie to HDB's rules, but also the one that most disrupts daily routine for elderly parents who have lived in the same block for decades.
+        </p>
+
+        <table class="comparison-table">
+            <tr>
+                <th>Path</th>
+                <th>Stay in current flat</th>
+                <th>Cash bonus</th>
+                <th>What happens to the lease</th>
+            </tr>
+            <tr>
+                <td>Lease Buyback</td>
+                <td>Yes</td>
+                <td>Up to $30,000</td>
+                <td>Tail end sold to HDB, remaining lease kept to live in</td>
+            </tr>
+            <tr>
+                <td>Silver Housing Bonus</td>
+                <td>No, must right size</td>
+                <td>Up to $40,000 combined</td>
+                <td>Current flat sold, new smaller flat lease begins</td>
+            </tr>
+            <tr>
+                <td>Sell outright</td>
+                <td>No</td>
+                <td>None</td>
+                <td>Full flat sold on the open market</td>
+            </tr>
+        </table>
+
+        <h2>Safety: the question that actually decides it</h2>
+
+        <p>
+            Every comparison chart collapses to one question for an adult child helping a parent decide: does staying in this specific flat matter to them, more than the extra cash a sale or a smaller unit would bring. If your parents' entire social circle, their regular clinic, their favourite hawker stall, and forty years of memory are tied to that block, Lease Buyback usually wins even though it produces a smaller headline cash figure than selling outright. If they have already been talking about a quieter, smaller, easier to clean unit, Silver Housing Bonus often fits better and pays a real cash bonus for a move they already want to make.
+        </p>
+
+        <p>
+            Selling outright makes the most sense when the flat itself has become genuinely unsuitable, too many stairs, too far from family, or too large and expensive to maintain, and when the family has a clear plan for where the parents will live next. Do not let the size of the bonus alone drive the decision, since a few thousand dollars of difference in scheme payout rarely outweighs an elderly parent's wellbeing in a home and neighbourhood they know.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Before deciding anything:</strong> check your parents' actual eligibility with HDB directly, since age, flat type, ownership history and existing CPF usage all affect which schemes they qualify for and the exact bonus amount.
+        </div>
+
+        <h2>Timing: eligibility and next steps</h2>
+
+        <p>
+            Both schemes have age and flat type conditions, and households must not have disposed of a private property within a set period before applying. HDB's own eligibility check tools and appointment booking are the fastest way to get an exact, personalised figure rather than relying on a general guide like this one, since the bonus scales with how much of the CPF Retirement Account gets topped up and varies by household composition.
+        </p>
+
+        <h2>Frequently asked questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Can my parents do Lease Buyback and later still sell the flat?</div>
+            <div class="faq-answer">Once the tail end lease is sold under Lease Buyback, only the remaining shortened lease belongs to the household, so any later sale would be of that remaining lease only, at a correspondingly lower value. This is different from selling outright now while the full lease is intact, so it is worth discussing this permanence with HDB before committing.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is the Silver Housing Bonus only for HDB to HDB moves?</div>
+            <div class="faq-answer">The scheme is designed around right sizing to a smaller HDB flat, and eligibility conditions specify the flat type being sold and the flat type being bought into. Check the current conditions on HDB's own page, since eligibility for owners of private property moving into a smaller HDB flat has been adjusted over time.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Which option gives the most monthly income in retirement?</div>
+            <div class="faq-answer">Both Lease Buyback and the Silver Housing Bonus are built around topping up the CPF Retirement Account to raise a CPF LIFE monthly payout, so either can improve monthly income more than a straight sale, where proceeds are a lump sum unless the family separately arranges an annuity or CPF top up themselves.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Helping parents decide on their flat</h3>
+            <p>Every household's numbers and priorities differ. Talk through your parents' specific situation before choosing a path.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a financial advisor. Scheme eligibility, bonus amounts and conditions are set by HDB and can change. Confirm current figures and your parents' specific eligibility directly with HDB before making any decision.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>HDB:</strong> Lease Buyback Scheme conditions and bonus amounts, <a href="https://www.hdb.gov.sg/managing-my-home/retirement-planning/monetising-flat-for-retirement/lease-buyback-scheme-lbs">hdb.gov.sg</a></li>
+                <li><strong>HDB:</strong> Silver Housing Bonus conditions and enhanced bonus amounts, <a href="https://www.hdb.gov.sg/managing-my-home/retirement-planning/monetising-flat-for-retirement/silver-housing-bonus">hdb.gov.sg</a></li>
+                <li><strong>Ministry of National Development:</strong> announcement of the Silver Housing Bonus enhancement, <a href="https://www.mnd.gov.sg/newsroom/press-releases/view/enhancements-to-silver-housing-bonus-to-boost-retirement-income-for-seniors-right-sizing-their-homes">mnd.gov.sg</a></li>
+                <li><strong>CPF Board:</strong> CPF LIFE and Retirement Account top ups, <a href="https://www.cpf.gov.sg">cpf.gov.sg</a></li>
+                <li><strong>Related reading on this site:</strong> <a href="/insights/hdb-lease-buyback-scheme-2026.html">Lease Buyback Scheme explained</a> and <a href="/insights/right-sizing-retirement-singapore.html">right sizing for retirement</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Lease Buyback vs Silver Housing Bonus vs Selling",
+    "description": "Three ways elderly HDB owners monetise a flat compared side by side, with real HDB figures, to help you decide if staying put actually matters.",
+    "image": "https://winfredquek.com/og-lease-buyback-vs-silver-housing-bonus.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Can my parents do Lease Buyback and later still sell the flat?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Once the tail end lease is sold under Lease Buyback, only the remaining shortened lease belongs to the household, so any later sale would be of that remaining lease only, at a correspondingly lower value. This is different from selling outright now while the full lease is intact, so it is worth discussing this permanence with HDB before committing."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is the Silver Housing Bonus only for HDB to HDB moves?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The scheme is designed around right sizing to a smaller HDB flat, and eligibility conditions specify the flat type being sold and the flat type being bought into. Check the current conditions on HDB's own page, since eligibility for owners of private property moving into a smaller HDB flat has been adjusted over time."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which option gives the most monthly income in retirement?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Both Lease Buyback and the Silver Housing Bonus are built around topping up the CPF Retirement Account to raise a CPF LIFE monthly payout, so either can improve monthly income more than a straight sale, where proceeds are a lump sum unless the family separately arranges an annuity or CPF top up themselves."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>
