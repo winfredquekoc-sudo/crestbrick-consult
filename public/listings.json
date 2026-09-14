@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-15T00:30:05+08:00",
-  "count": 37,
+  "synced_at": "2026-09-15T01:33:16+08:00",
+  "count": 34,
   "listings": [
     {
       "id": "room-to-confirm-ll237",
@@ -383,18 +383,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20138A%20Yuan%20Ching%20Road."
     },
     {
-      "id": "common-room-21-teban-gardens-road-ll162",
-      "title": "Common Room, 21 Teban Gardens Road (Jurong)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 900,
-      "price_label": "From S$900 / mo",
-      "address": "21 Teban Gardens Road",
-      "district": "D22",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2021%20Teban%20Gardens%20Road.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2021%20Teban%20Gardens%20Road."
-    },
-    {
       "id": "common-room-blk-830a-jurong-west-street-81-ll161",
       "title": "Common Room, Blk 830A Jurong West Street 81",
       "type": "HDB",
@@ -440,18 +428,6 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
     },
     {
-      "id": "room-parc-oasis-ll174",
-      "title": "Room, Parc Oasis (Jurong)",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 950,
-      "price_label": "From S$950 / mo",
-      "address": "Parc Oasis",
-      "district": "D22",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Parc%20Oasis.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20Parc%20Oasis."
-    },
-    {
       "id": "master-room-687c-choa-chu-kang-drive-xx-xxx-ll217",
       "title": "Master Room, 687C Choa Chu Kang Drive #xx-xxx",
       "type": "HDB",
@@ -486,31 +462,16 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd."
     },
     {
-      "id": "master-room-54-sunrise-terrace-ll028",
-      "title": "Master Room, 54 Sunrise Terrace",
-      "type": "Landed",
-      "transaction": "rent",
-      "price": 1300,
-      "price_label": "S$1,300 / mo",
-      "address": "54 Sunrise Terrace",
-      "district": "D28",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2054%20Sunrise%20Terrace.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2054%20Sunrise%20Terrace."
-    },
-    {
-      "id": "common-room-88-telok-blangah-heights-ll112",
-      "title": "Common Room, 88 Telok Blangah Heights",
+      "id": "whole-unit-82-tiong-poh-road-ll220",
+      "title": "Whole Unit, 82 Tiong Poh Road (Tiong Bahru)",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1200,
-      "price_label": "S$1,200 / mo",
-      "address": "88 Telok Blangah Heights",
-      "district": "D4",
-      "highlights": [
-        "Available now"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2088%20Telok%20Blangah%20Heights."
+      "price": 5500,
+      "price_label": "S$5,500 / mo",
+      "address": "82 Tiong Poh Road",
+      "district": "D3",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%2082%20Tiong%20Poh%20Road.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%2082%20Tiong%20Poh%20Road."
     }
   ]
 }
