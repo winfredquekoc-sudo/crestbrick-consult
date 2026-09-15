@@ -52,7 +52,8 @@ async function snapshot(client) {
     client.query(`select id, key, deal_type, property, price, commission_gross, commission_net,
                          cobroke_agent, cobroke_split_pct, stage,
                          to_char(otp_date,'YYYY-MM-DD') as otp_date,
-                         to_char(completion_date,'YYYY-MM-DD') as completion_date, notes,
+                         to_char(completion_date,'YYYY-MM-DD') as completion_date,
+                         to_char(deal_date,'YYYY-MM-DD') as deal_date, notes,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at
                   from crm_deal order by created_at desc limit 2000`),
   ]);
@@ -152,9 +153,13 @@ async function applyOp(client, o) {
       }
       const title = str(o.title, 300);
       if (!title) return 0;
+      // done must ride along on the INSERT itself, not just the UPDATE branch above — a
+      // task can be marked done (via CRM.completeTask/snoozeTask mutating the still
+      // queued add op, see app.js) before it has ever reached the server, and without
+      // this the very first snapshot after that sync would show it undone again.
       const r = await client.query(
-        `insert into crm_task (key, title, due) values ($1,$2,$3) returning id`,
-        [key, title, date(o.due)]
+        `insert into crm_task (key, title, due, done) values ($1,$2,$3,$4) returning id`,
+        [key, title, date(o.due), bool(o.done)]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,'task',$2)`,
         [key, title.slice(0, 120)]);
@@ -192,17 +197,18 @@ async function applyOp(client, o) {
       await client.query(
         `insert into crm_deal (id, key, deal_type, property, price, commission_gross,
                                 commission_net, cobroke_agent, cobroke_split_pct, stage,
-                                otp_date, completion_date, notes, updated_at)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13, now())
+                                otp_date, completion_date, deal_date, notes, updated_at)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14, now())
          on conflict (id) do update set
            key = excluded.key, deal_type = excluded.deal_type, property = excluded.property,
            price = excluded.price, commission_gross = excluded.commission_gross,
            commission_net = excluded.commission_net, cobroke_agent = excluded.cobroke_agent,
            cobroke_split_pct = excluded.cobroke_split_pct, stage = excluded.stage,
            otp_date = excluded.otp_date, completion_date = excluded.completion_date,
-           notes = excluded.notes, updated_at = now()`,
+           deal_date = excluded.deal_date, notes = excluded.notes, updated_at = now()`,
         [d.id, key, d.deal_type, d.property, d.price, d.commission_gross, d.commission_net,
-         d.cobroke_agent, d.cobroke_split_pct, d.stage, d.otp_date, d.completion_date, d.notes]
+         d.cobroke_agent, d.cobroke_split_pct, d.stage, d.otp_date, d.completion_date,
+         d.deal_date, d.notes]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
         [key, "deal:" + d.stage, (d.property || "deal").slice(0, 120)]);

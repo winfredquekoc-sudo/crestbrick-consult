@@ -114,6 +114,15 @@ create table if not exists crm_deal (
 );
 create index if not exists crm_deal_key_idx   on crm_deal(key);
 create index if not exists crm_deal_stage_idx on crm_deal(stage);
+
+-- Added after crm_deal's first ship — "add column if not exists" (not baked into the
+-- create table above) so a deployment that already has crm_deal without this column
+-- picks it up idempotently instead of needing a one off migration step. This is the
+-- date month/year to date totals bucket by (see dealTotals() in app.js) — deliberately
+-- separate from completion_date/otp_date, which track the property transaction itself,
+-- not when Winfred wants the deal counted.
+alter table crm_deal add column if not exists deal_date date;
+create index if not exists crm_deal_date_idx on crm_deal(deal_date);
 `;
 
 // Idempotent, and run at most once per lambda instance rather than per request.

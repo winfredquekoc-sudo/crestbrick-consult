@@ -57,10 +57,14 @@ test("normPhone: strips punctuation, empty/garbage input returns empty string", 
 // dealExportRow / crmComputeNet, sliced together (they share the same span).
 // =====================================================================
 const CRM_SRC = slice("function addDaysISO(iso, days) {", "function crmContactNameByKey(key) {");
-function makeCrmHelpers() {
+// CRM_UI's own top level initialiser calls crmBlankDealDraft() immediately, which
+// calls todayISO() — defined outside this slice's span (near crmBtn/openCRM above it)
+// — so it has to be injected the same way TODAY/Scoring are injected elsewhere.
+function makeCrmHelpers(todayISOFn) {
   return new Function(
-    CRM_SRC + "\nreturn { addDaysISO, followUpQueueItems, dealDateOf, dealTotals, crmComputeNet, dealExportRow };"
-  )();
+    "todayISO",
+    CRM_SRC + "\nreturn { addDaysISO, followUpQueueItems, dealDateOf, dealTotals, crmComputeNet, dealExportRow, crmMergedContacts };"
+  )(todayISOFn || (() => "2026-09-16"));
 }
 const C = makeCrmHelpers();
 
@@ -111,14 +115,14 @@ test("followUpQueueItems: entity next_due plans due today or overdue are include
   assert.deepEqual(plans.map(p => p.key), ["phone:1", "phone:2"]);
 });
 
-// ---- dealTotals ----
+// ---- dealTotals — buckets by deal_date only, never completion_date/otp_date/created_at ----
 
-test("dealTotals: sums gross/net for the current month and separately for the year to date", () => {
+test("dealTotals: sums gross/net for the current month and separately for the year to date, by deal_date", () => {
   const deals = [
-    { commission_gross: 1000, commission_net: 900, completion_date: "2026-09-10", stage: "completed" },
-    { commission_gross: 500, commission_net: 450, completion_date: "2026-09-16", stage: "completed" },
-    { commission_gross: 2000, commission_net: 1800, completion_date: "2026-03-05", stage: "completed" }, // this year, not this month
-    { commission_gross: 9999, commission_net: 9999, completion_date: "2025-12-01", stage: "completed" }, // last year — excluded from both
+    { commission_gross: 1000, commission_net: 900, deal_date: "2026-09-10", stage: "completed" },
+    { commission_gross: 500, commission_net: 450, deal_date: "2026-09-16", stage: "completed" },
+    { commission_gross: 2000, commission_net: 1800, deal_date: "2026-03-05", stage: "completed" }, // this year, not this month
+    { commission_gross: 9999, commission_net: 9999, deal_date: "2025-12-01", stage: "completed" }, // last year — excluded from both
   ];
   const t = C.dealTotals(deals, "2026-09-16");
   assert.equal(t.monthGross, 1500);
@@ -129,28 +133,46 @@ test("dealTotals: sums gross/net for the current month and separately for the ye
 
 test("dealTotals: a deal that fell through earned no commission and is excluded entirely", () => {
   const deals = [
-    { commission_gross: 5000, commission_net: 4500, completion_date: "2026-09-10", stage: "fell_through" },
-    { commission_gross: 1000, commission_net: 900, completion_date: "2026-09-10", stage: "completed" },
+    { commission_gross: 5000, commission_net: 4500, deal_date: "2026-09-10", stage: "fell_through" },
+    { commission_gross: 1000, commission_net: 900, deal_date: "2026-09-10", stage: "completed" },
   ];
   const t = C.dealTotals(deals, "2026-09-16");
   assert.equal(t.monthGross, 1000);
   assert.equal(t.ytdGross, 1000);
 });
 
-test("dealTotals: falls back to otp_date then created_at when completion_date is not set yet", () => {
+test("dealTotals: a deal date matching completion_date/otp_date/created_at is ignored — deal_date only counts", () => {
   const deals = [
-    { commission_gross: 100, commission_net: 100, otp_date: "2026-09-05", stage: "otp" },
-    { commission_gross: 200, commission_net: 200, created_at: "2026-09-01T00:00:00Z", stage: "agreed" },
+    // completion_date is this month, but deal_date says last year — deal_date wins.
+    { commission_gross: 100, commission_net: 100, completion_date: "2026-09-10", deal_date: "2025-01-01", stage: "completed" },
+    // no deal_date at all — excluded even though otp_date/created_at would place it this month.
+    { commission_gross: 200, commission_net: 200, otp_date: "2026-09-05", created_at: "2026-09-01T00:00:00Z", stage: "otp" },
   ];
   const t = C.dealTotals(deals, "2026-09-16");
-  assert.equal(t.monthGross, 300);
+  assert.equal(t.monthGross, 0);
+  assert.equal(t.ytdGross, 0);
 });
 
-test("crmComputeNet: applies the co broke split percentage to gross, no split means net equals gross", () => {
-  assert.equal(C.crmComputeNet(1000, 40), 600);
-  assert.equal(C.crmComputeNet(1000, null), 1000);
-  assert.equal(C.crmComputeNet(1000, 0), 1000);
-  assert.equal(C.crmComputeNet(null, 40), null);
+// ---- crmComputeNet — mirrors v_commission_attribution's COALESCE(split_pct, 50) rule ----
+
+test("crmComputeNet: a named agent with no split recorded defaults to 50 percent, not 0", () => {
+  assert.equal(C.crmComputeNet(1000, null, "Jane Tan"), 500);
+  assert.equal(C.crmComputeNet(1000, "", "Jane Tan"), 500);
+});
+
+test("crmComputeNet: an explicit split percentage always wins over the 50 percent default", () => {
+  assert.equal(C.crmComputeNet(1000, 40, "Jane Tan"), 600);
+  assert.equal(C.crmComputeNet(1000, 0, "Jane Tan"), 1000);
+});
+
+test("crmComputeNet: no agent named means no split at all, regardless of a stray split value", () => {
+  assert.equal(C.crmComputeNet(1000, null, null), 1000);
+  assert.equal(C.crmComputeNet(1000, 40, null), 1000);
+  assert.equal(C.crmComputeNet(1000, 40, ""), 1000);
+});
+
+test("crmComputeNet: no gross means no net, regardless of agent or split", () => {
+  assert.equal(C.crmComputeNet(null, 40, "Jane Tan"), null);
 });
 
 // ---- dealExportRow ----
@@ -180,4 +202,70 @@ test("dealExportRow: a linked contact's name is folded into notes as a reconcili
 test("dealExportRow: no notes and no linked contact still returns null, not an empty string", () => {
   const row = C.dealExportRow({ id: "d1" }, null);
   assert.equal(row.notes, null);
+});
+
+// =====================================================================
+// crmMergedContacts — shared phone numbers (item 11): a landlord and a tenant on the
+// same number is normal in this business and must render as two separate rows, never
+// silently collapse into one. Fixture phone below is invented, not a real number.
+// =====================================================================
+
+function fakeKeyOf(s) {
+  if (!s) return null;
+  const p = (s.phone || "").replace(/[^0-9]/g, "");
+  return p ? ("phone:" + p) : (s.id != null ? ((s.kind || "person") + ":" + s.id) : null);
+}
+
+test("crmMergedContacts: a landlord and a tenant sharing one phone number both get their own row", () => {
+  const landlords = [{ id: "L1", name: "Placeholder Landlord", phone: "91110000", address: "1 Placeholder Rd" }];
+  const tenants = [{ id: "T1", name: "Placeholder Tenant", phone: "91110000", preferred_location: "somewhere" }];
+  const rows = C.crmMergedContacts([], tenants, landlords, [], fakeKeyOf);
+  assert.equal(rows.length, 2);
+  const kinds = rows.map(r => r.kind).sort();
+  assert.deepEqual(kinds, ["landlord", "tenant"]);
+  const names = rows.map(r => r.name).sort();
+  assert.deepEqual(names, ["Placeholder Landlord", "Placeholder Tenant"]);
+  // Both rows resolve to the same underlying CRM entity key — that part is unchanged
+  // and out of scope for this fix, only the row itself must not be dropped.
+  assert.equal(rows[0].key, rows[1].key);
+});
+
+test("crmMergedContacts: the same person appearing in DATA and as a touched CRM entity still merges to one row", () => {
+  const entities = [{ key: "phone:91110001", kind: "tenant", ref_id: "T2", name: "Placeholder Person", phone: "91110001", stage: "contacted" }];
+  const tenants = [{ id: "T2", name: "Placeholder Person", phone: "91110001", preferred_location: "somewhere else" }];
+  const rows = C.crmMergedContacts(entities, tenants, [], [], fakeKeyOf);
+  assert.equal(rows.length, 1);
+  assert.equal(rows[0].stage, "contacted");
+});
+
+// =====================================================================
+// adopt() — a snapshot with no "deals" key at all (item 3: an older backend, or a
+// deploy.sh rollback) must keep local deals rather than wipe them.
+// =====================================================================
+const ADOPT_SRC = slice("function adopt(d) {", "// (item 3) Every op type");
+function makeAdopt(initialS) {
+  return new Function(
+    "S0", "queue", "replay",
+    "let S = S0;\n" + ADOPT_SRC + "\nreturn { adopt, getDeals: () => S.deals };"
+  )(initialS, [], () => {});
+}
+
+test("adopt: a snapshot with no deals key keeps the local deals untouched", () => {
+  const localDeals = { d1: { id: "d1", property: "Placeholder property" } };
+  const A = makeAdopt({ entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: localDeals });
+  A.adopt({ entities: [], notes: [], tasks: [], match: [], activity: [] });
+  assert.deepEqual(A.getDeals(), localDeals);
+});
+
+test("adopt: a snapshot WITH a deals key (even an empty array) replaces the local deals", () => {
+  const localDeals = { d1: { id: "d1", property: "Placeholder property" } };
+  const A = makeAdopt({ entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: localDeals });
+  A.adopt({ entities: [], notes: [], tasks: [], match: [], activity: [], deals: [] });
+  assert.deepEqual(A.getDeals(), {});
+});
+
+test("adopt: a snapshot with a real deals array is indexed by id as usual", () => {
+  const A = makeAdopt({ entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {} });
+  A.adopt({ entities: [], notes: [], tasks: [], match: [], activity: [], deals: [{ id: "d9", property: "x" }] });
+  assert.deepEqual(A.getDeals(), { d9: { id: "d9", property: "x" } });
 });

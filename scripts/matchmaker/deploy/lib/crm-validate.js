@@ -65,6 +65,9 @@ export function validateDealFields(o) {
     stage: DEAL_STAGES.has(o.stage) ? o.stage : "agreed",
     otp_date: date(o.otp_date),
     completion_date: date(o.completion_date),
-    notes: str(o.notes, 4000),
+    // What month/year to date totals bucket by (dealTotals() in app.js) — deliberately
+    // separate from otp_date/completion_date, which track the property transaction.
+    deal_date: date(o.deal_date),
+    notes: str(o.notes, 2000),
   };
 }

@@ -63,14 +63,25 @@ test("validateDealFields: a well formed deal passes every field through normalis
     id: "d_abc123", deal_type: "rental", property: "  123 Example Rd #05-01  ",
     price: "3200", commission_gross: "1600.006", commission_net: 1400,
     cobroke_agent: "Jane Tan", cobroke_split_pct: "40", stage: "otp",
-    otp_date: "2026-09-20", completion_date: "2026-10-15", notes: "  keys handover pending  ",
+    otp_date: "2026-09-20", completion_date: "2026-10-15", deal_date: "2026-09-16",
+    notes: "  keys handover pending  ",
   });
   assert.deepEqual(d, {
     id: "d_abc123", deal_type: "rental", property: "123 Example Rd #05-01",
     price: 3200, commission_gross: 1600.01, commission_net: 1400,
     cobroke_agent: "Jane Tan", cobroke_split_pct: 40, stage: "otp",
-    otp_date: "2026-09-20", completion_date: "2026-10-15", notes: "keys handover pending",
+    otp_date: "2026-09-20", completion_date: "2026-10-15", deal_date: "2026-09-16",
+    notes: "keys handover pending",
   });
+});
+
+test("validateDealFields: deal_date validates like every other date, and notes cap at 2000 characters", () => {
+  const good = validateDealFields({ id: "d1", deal_date: "2026-09-16" });
+  assert.equal(good.deal_date, "2026-09-16");
+  const bad = validateDealFields({ id: "d1", deal_date: "2026-13-40" });
+  assert.equal(bad.deal_date, null);
+  const long = validateDealFields({ id: "d1", notes: "x".repeat(2500) });
+  assert.equal(long.notes.length, 2000);
 });
 
 test("validateDealFields: no id at all means no usable deal — returns null", () => {

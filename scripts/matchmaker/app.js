@@ -996,10 +996,10 @@ function landlordHeadsUpDraft(l, t, slotLabel) {
 
 // ===================== links =====================
 // Quick add (CRM tab) is the one place someone can type a phone number in free form —
-// everywhere else it arrives already-formatted from the WhatsApp/CSV databases. "6565"
+// everywhere else it arrives already formatted from the WhatsApp/CSV databases. "6565"
 // is the doubled prefix mistake that free typing invites (+65 typed twice, once by hand
-// and once by muscle memory pasting a number that already had it): a 12-digit string
-// starting "6565" is stripped back to a single "65" before the normal 8-digit rule runs.
+// and once by muscle memory pasting a number that already had it): a 12 digit string
+// starting "6565" is stripped back to a single "65" before the normal 8 digit rule runs.
 function normPhone(raw) { let p = (raw || "").replace(/[^0-9]/g, ""); if (p.length === 12 && p.slice(0, 4) === "6565") p = p.slice(2); if (p.length === 8 && /^[89]/.test(p)) p = "65" + p; return p; }
 function waLink(l, t) {
   const target = isCobroke(l) ? l.phone : t.phone;
@@ -1158,7 +1158,10 @@ const CRM = (function () {
       else if (o.op === "match" && o.listing_id) matchOpIndex.set(o.listing_id + "|" + o.tenant_id, o);
       // A deal edited twice before the next flush (e.g. stage bumped, then the OTP date
       // filled in a minute later) compacts to one upsert op, same reasoning as entity/match
-      // above — deal_delete is never compacted, it always removes whatever is queued.
+      // above. deal_delete is never compacted — deleting a deal that is still queued as
+      // an unsynced upsert simply appends the delete op after it, it does not remove
+      // the queued upsert. Both still flush, upsert then delete, in that order, so the
+      // net result on the server is correct either way, just not as few ops as possible.
       else if (o.op === "deal" && o.id) dealOpIndex.set(o.id, o);
     });
   }
@@ -1189,7 +1192,24 @@ const CRM = (function () {
       else { queue.push(op); matchOpIndex.set(mk, op); }
     } else if (op.op === "deal" && op.id) {
       const existing = dealOpIndex.get(op.id);
-      if (existing) Object.assign(existing, op);
+      // Explicit field by field assignment — same reasoning as the entity branch
+      // above, not Object.assign. upsertDeal() below only includes key/kind/ref_id/
+      // name/phone when the deal actually has a linked contact, so unlinking one
+      // (no subj this time) pushes an op where those fields are simply absent, not
+      // explicitly null. Object.assign only copies properties present on the
+      // source, so it would leave the PREVIOUS queued op's stale key sitting on the
+      // compacted op forever — the deal would look linked again the moment it
+      // flushes. Assigning every field here means a field genuinely absent from
+      // the new op (undefined) always overwrites whatever the old op had.
+      if (existing) {
+        existing.deal_type = op.deal_type; existing.property = op.property; existing.price = op.price;
+        existing.commission_gross = op.commission_gross; existing.commission_net = op.commission_net;
+        existing.cobroke_agent = op.cobroke_agent; existing.cobroke_split_pct = op.cobroke_split_pct;
+        existing.stage = op.stage; existing.otp_date = op.otp_date; existing.completion_date = op.completion_date;
+        existing.deal_date = op.deal_date; existing.notes = op.notes; existing.created_at = op.created_at;
+        existing.key = op.key; existing.kind = op.kind; existing.ref_id = op.ref_id;
+        existing.name = op.name; existing.phone = op.phone;
+      }
       else { queue.push(op); dealOpIndex.set(op.id, op); }
     } else {
       queue.push(op);
@@ -1218,9 +1238,14 @@ const CRM = (function () {
       saveSync(); paint(); if (window.render) render();
     } catch (e) { mode = "offline"; lastErr = String(e && e.message || e); paint(); retryLater(); }
   }
+  // 50, not the backend's own 200 op cap (deploy/api/crm.js MAX_OPS) — a large queued
+  // backlog (e.g. after a long offline stretch, or a bulk quick add session) can carry
+  // notes/deal fields near their own size caps each, and 200 of those in one POST body
+  // risks the endpoint's 1MB payload ceiling, which would fail the whole batch and keep
+  // retrying it forever rather than draining it a chunk at a time.
   async function flush() {
     if (mode === "local" || !queue.length || mode === "syncing") return;
-    const sending = queue.slice(0, 200), prev = mode;
+    const sending = queue.slice(0, 50), prev = mode;
     mode = "syncing"; paint();
     try {
       const r = await fetch(API, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ops: sending }) });
@@ -1247,7 +1272,13 @@ const CRM = (function () {
   function adopt(d) {
     const e = {}; (d.entities || []).forEach(x => e[x.key] = x);
     const m = {}; (d.match || []).forEach(x => m[x.listing_id + "|" + x.tenant_id] = x.status);
-    const dl = {}; (d.deals || []).forEach(x => dl[x.id] = x);
+    const built = {}; (d.deals || []).forEach(x => built[x.id] = x);
+    // An older deployed backend (or a deploy.sh rollback to a build before the deals
+    // block shipped) answers a snapshot with no "deals" key at all — not an empty
+    // array, an ABSENT key. That must not be read as "the server says there are zero
+    // deals now, delete every local one" — it means this deployment does not know
+    // about deals yet, so every deal recorded so far stays exactly where it was.
+    const dl = ("deals" in d) ? built : S.deals;
     S = { entities: e, notes: d.notes || [], tasks: d.tasks || [], match: m, activity: d.activity || [], deals: dl };
     queue.forEach(replay);
   }
@@ -1282,7 +1313,21 @@ const CRM = (function () {
     // A "deal" op carries the whole record every time (see upsertDeal below — there is no
     // separate patch shape like entity has), so replay is a plain overwrite by id, adding
     // the row back if adopt()'s fresh snapshot has not caught up to this write yet.
-    else if (o.op === "deal" && o.id) { S.deals[o.id] = Object.assign({}, S.deals[o.id], o); }
+    // Full explicit replace, not a merge onto whatever S.deals[o.id] already holds —
+    // same reasoning as the push() compaction above: the op is the whole record every
+    // time (upsertDeal always sends every field), so a field this op does not carry
+    // (an unlinked key, absent rather than null) must win over a stale value already
+    // sitting in S.deals from an earlier snapshot, not be quietly merged away.
+    else if (o.op === "deal" && o.id) {
+      S.deals[o.id] = {
+        id: o.id, deal_type: o.deal_type, property: o.property, price: o.price,
+        commission_gross: o.commission_gross, commission_net: o.commission_net,
+        cobroke_agent: o.cobroke_agent, cobroke_split_pct: o.cobroke_split_pct,
+        stage: o.stage, otp_date: o.otp_date, completion_date: o.completion_date,
+        deal_date: o.deal_date, notes: o.notes, created_at: o.created_at,
+        key: o.key, kind: o.kind, ref_id: o.ref_id, name: o.name, phone: o.phone,
+      };
+    }
     else if (o.op === "deal_delete" && o.id) { delete S.deals[o.id]; }
   }
 
@@ -1508,10 +1553,18 @@ const CRM = (function () {
     // is set by the caller (newDealId() for a new deal, the existing id for an edit).
     upsertDeal(deal, subj) {
       if (!deal || !deal.id) return;
-      S.deals[deal.id] = Object.assign({}, deal);
       const k = subj ? keyOf(subj) : null;
-      if (k) { ensure(k, subj); S.deals[deal.id].key = k; }
-      push(Object.assign({ op: "deal" }, deal, k ? { key: k, kind: subj.kind, ref_id: subj.id, name: subj.name, phone: subj.phone } : {}));
+      if (k) ensure(k, subj);
+      // key (and kind/ref_id/name/phone) are always explicit here, null when there is
+      // no linked contact — never simply left off the op. push()'s deal compaction and
+      // replay() both do a full field by field assign, so an omitted key would read as
+      // "no opinion, keep whatever was there before" instead of "unlinked", and an
+      // unlink would silently fail to survive a compacted or replayed queue.
+      S.deals[deal.id] = Object.assign({}, deal, { key: k });
+      push(Object.assign({ op: "deal" }, deal, {
+        key: k, kind: k ? subj.kind : null, ref_id: k ? subj.id : null,
+        name: k ? subj.name : null, phone: k ? subj.phone : null,
+      }));
     },
     deleteDeal(id) {
       delete S.deals[id];
@@ -6220,7 +6273,7 @@ function crmBlankDealDraft() {
   return {
     editId: null, deal_type: "rental", property: "", price: "", commission_gross: "",
     cobroke_agent: "", cobroke_split_pct: "", stage: "agreed", otp_date: "", completion_date: "",
-    notes: "", linkedKey: "", linkedName: "", contactSearch: "",
+    deal_date: todayISO(), notes: "", linkedKey: "", linkedName: "", contactSearch: "",
   };
 }
 let CRM_UI = {
@@ -6236,22 +6289,33 @@ function scheduleCRMRerender() { clearTimeout(crmDebounceTimer); crmDebounceTime
 // shows up with the default stage "new". Exposed at module scope (not nested inside
 // renderCRM) so tests/matchmaker/crm.test.mjs can slice it out and run it against
 // fixture data without a live CRM store.
+// Row identity is kind+phone, NOT the bare CRM entity key — a landlord and a tenant
+// sharing one phone number is normal in this business (a landlord who is also renting
+// elsewhere, a shared family line) and both are real, distinct people who each need
+// their own row with their own name. keyOfFn() (CRM.keyOf) is phone based system wide
+// on purpose — the underlying crm_entity record (stage/notes/tasks) really is shared
+// between them today, that is unchanged and out of scope here — this only stops the
+// CONTACTS TABLE from silently dropping the second person's row entirely.
 function crmMergedContacts(entities, tenants, landlords, sales, keyOfFn) {
   const map = new Map();
-  (entities || []).forEach(e => { if (e && e.key) map.set(e.key, Object.assign({ address: "", _last_contact: null }, e)); });
+  (entities || []).forEach(e => {
+    if (!e || !e.key) return;
+    map.set((e.kind || "person") + "|" + e.key, Object.assign({ address: "", _last_contact: null }, e));
+  });
   const addSrc = (arr, kind, addrField) => {
     (arr || []).forEach(r => {
       if (!r || !r.phone) return;
       const k = keyOfFn({ kind, id: r.id, name: r.name, phone: r.phone });
       if (!k) return;
-      if (!map.has(k)) {
-        map.set(k, {
+      const rowKey = kind + "|" + k;
+      if (!map.has(rowKey)) {
+        map.set(rowKey, {
           key: k, kind, ref_id: r.id, name: r.name, phone: r.phone, stage: "new",
           next_action: null, next_due: null, flagged: false, archived: false,
           address: addrField ? (r[addrField] || "") : "", _last_contact: r.last_contact || null,
         });
       } else {
-        const ex = map.get(k);
+        const ex = map.get(rowKey);
         if (!ex.name) ex.name = r.name;
         if (!ex.address) ex.address = addrField ? (r[addrField] || "") : "";
         if (!ex._last_contact) ex._last_contact = r.last_contact || null;
@@ -6286,25 +6350,42 @@ function followUpQueueItems(tasks, entities, today) {
   const duePlans = (entities || []).filter(e => e && e.next_due && e.next_due <= today).sort((a, b) => a.next_due < b.next_due ? -1 : 1);
   return { tasks: dueTasks, plans: duePlans };
 }
-function dealDateOf(d) { return (d && (d.completion_date || d.otp_date || (d.created_at || "").slice(0, 10))) || ""; }
+// Pure — best display/sort date for a deal. deal_date is the authoritative field going
+// forward (every deal submitted through the form carries one, see crmSubmitDeal), the
+// rest is a fallback chain for a deal that predates it. Never used for totals — see
+// dealTotals() below, which is deliberately deal_date only.
+function dealDateOf(d) { return (d && (d.deal_date || d.completion_date || d.otp_date || (d.created_at || "").slice(0, 10))) || ""; }
 // Pure — month/year to date gross+net totals, excluding deals that fell through (they
-// earned no commission). "Month"/"year" are read off whichever of completion_date/
-// otp_date/created_at the deal actually has.
+// earned no commission). Bucketed by deal_date ONLY, not completion_date/otp_date/
+// created_at — those track the property transaction and when this row was recorded,
+// neither of which is necessarily when Winfred wants the deal counted. A deal with no
+// deal_date at all (only possible for one that predates the field and has never been
+// resaved) is excluded rather than guessed at.
 function dealTotals(deals, today) {
   const y = today.slice(0, 4), m = today.slice(0, 7);
   let monthGross = 0, monthNet = 0, ytdGross = 0, ytdNet = 0;
   (deals || []).forEach(d => {
     if (!d || d.stage === "fell_through") return;
-    const dd = dealDateOf(d); if (!dd) return;
+    const dd = d.deal_date; if (!dd) return;
     const g = Number(d.commission_gross) || 0, n = Number(d.commission_net) || 0;
     if (dd.slice(0, 4) === y) { ytdGross += g; ytdNet += n; }
     if (dd.slice(0, 7) === m) { monthGross += g; monthNet += n; }
   });
   return { monthGross, monthNet, ytdGross, ytdNet };
 }
-function crmComputeNet(gross, splitPct) {
+// Pure — mirrors v_commission_attribution's own rule (db/schema.sql):
+// "commission_gross * (100 - COALESCE(cobroke_split_pct, 50)) / 100" when an agent is
+// named. A named agent with no split recorded defaults to 50 percent, never 0 — an
+// unrecorded split must not silently read as keeping the whole commission. No agent
+// named means no split at all.
+function crmComputeNet(gross, splitPct, agent) {
   if (gross == null) return null;
-  const pct = splitPct != null ? splitPct : 0;
+  // splitPct !== "" too, not just != null — crmSubmitDeal always normalises a blank
+  // input to null before calling this, but an empty string must still read as "no
+  // split entered" here rather than as an explicit split of zero for any other,
+  // future caller that has not gone through that normalisation.
+  const hasSplit = splitPct != null && splitPct !== "";
+  const pct = agent ? (hasSplit ? splitPct : 50) : 0;
   return Math.round((gross * (1 - pct / 100)) * 100) / 100;
 }
 // Pure — the shape scripts/ops/log_deal.py's --import-json mode expects, matching the
@@ -6407,7 +6488,7 @@ function renderCRMFollowUp(box) {
 function renderCRMContacts(box) {
   const wrap = el("div", "crmblock", '<div class="section-hd">👥 Contacts</div>');
   const filterRow = el("div", "crmfilters",
-    '<input id="crmQ" placeholder="Search name, phone or address" value="' + esc(CRM_UI.q) + '">' +
+    '<input id="crmQ" type="text" placeholder="Search name, phone or address" value="' + esc(CRM_UI.q) + '">' +
     '<div class="stagerow" id="crmKindChips">' +
       ["", "tenant", "landlord", "sale", "buyer", "person"].map(k =>
         '<span class="pick' + (CRM_UI.kind === k ? " sel" : "") + '" data-kind="' + esc(k) + '">' + esc(k ? CRM_KIND_LABELS[k] : "All kinds") + '</span>').join("") +
@@ -6436,11 +6517,14 @@ function renderCRMContacts(box) {
   }
   const today = todayISO();
   const shown = CRM_UI.showAll ? list : list.slice(0, 150);
-  const rows = shown.map(c => {
+  const rows = shown.map((c, idx) => {
     const overdue = c.next_due && c.next_due < today;
     const last = crmLastActivity(c, CRM.activityByKey);
     const notesN = CRM.notesByKey(c.key).length;
-    return '<tr class="mrow crmcontactrow" data-key="' + esc(c.key) + '">' +
+    // data-idx, not c.key — a landlord and a tenant on the same phone (item 11) share
+    // one crm_entity key, so two DIFFERENT rows can carry the identical key; the index
+    // into `shown` is what is actually unique per row.
+    return '<tr class="mrow crmcontactrow" data-idx="' + idx + '">' +
       '<td data-label="Name"><b>' + esc(c.name || "?") + '</b></td>' +
       '<td data-label="Kind"><span class="chip">' + esc(CRM_KIND_LABELS[c.kind] || "Other") + '</span></td>' +
       '<td data-label="Stage"><span class="chip">' + esc(STAGE_LABELS[c.stage || "new"] || "New") + '</span></td>' +
@@ -6462,9 +6546,9 @@ function renderCRMContacts(box) {
   }
   box.appendChild(wrap);
   wireCRMFilterEvents(wrap);
-  wrap.querySelectorAll(".crmcontactrow[data-key]").forEach(r => {
+  wrap.querySelectorAll(".crmcontactrow[data-idx]").forEach(r => {
     r.onclick = () => {
-      const c = list.find(x => x.key === r.dataset.key);
+      const c = shown[parseInt(r.dataset.idx, 10)];
       if (c) openCRM({ kind: c.kind, id: c.ref_id, name: c.name, phone: c.phone });
     };
   });
@@ -6538,12 +6622,19 @@ function renderCRMDeals(box) {
       '<input id="crmDealPrice" type="number" min="0" step="0.01" placeholder="Price or monthly rent $" value="' + esc(d.price) + '">' +
       '<input id="crmDealGross" type="number" min="0" step="0.01" placeholder="Commission gross $" value="' + esc(d.commission_gross) + '">' +
       '<input id="crmDealAgent" placeholder="Co broke agent (optional)" value="' + esc(d.cobroke_agent) + '">' +
-      '<input id="crmDealSplit" type="number" min="0" max="100" step="1" placeholder="Co broke split %" value="' + esc(d.cobroke_split_pct) + '">' +
+      // Split % blank with an agent named reads as 50 assumed (see crmComputeNet) —
+      // the placeholder says so; #crmDealAgent's own oninput below keeps it live as
+      // the agent name is typed, and it is set correctly here too for an edit that
+      // opens with an agent already on the deal.
+      '<input id="crmDealSplit" type="number" min="0" max="100" step="1" placeholder="' +
+        ((d.cobroke_agent || "").trim() ? "Co broke split % (50 assumed if blank)" : "Co broke split %") +
+        '" value="' + esc(d.cobroke_split_pct) + '">' +
       '<select id="crmDealStage">' + DEAL_STAGE_ORDER.map(s =>
         '<option value="' + s + '"' + (d.stage === s ? " selected" : "") + '>' + esc(DEAL_STAGE_LABELS[s]) + '</option>').join("") + '</select>' +
+      '<label class="mut" style="font-size:11px;display:flex;flex-direction:column;gap:3px">Deal date<input id="crmDealDate" type="date" value="' + esc(d.deal_date) + '"></label>' +
       '<label class="mut" style="font-size:11px;display:flex;flex-direction:column;gap:3px">OTP date<input id="crmDealOtp" type="date" value="' + esc(d.otp_date) + '"></label>' +
       '<label class="mut" style="font-size:11px;display:flex;flex-direction:column;gap:3px">Completion date<input id="crmDealCompletion" type="date" value="' + esc(d.completion_date) + '"></label>' +
-      '<textarea id="crmDealNotes" placeholder="Notes (optional)">' + esc(d.notes) + '</textarea>' +
+      '<textarea id="crmDealNotes" placeholder="Notes (optional)" maxlength="2000">' + esc(d.notes) + '</textarea>' +
       '<input id="crmDealContactSearch" placeholder="Link a contact — search name or phone" value="' + esc(d.contactSearch) + '">' +
       (d.linkedKey ? ('<span class="chip removable" id="crmDealLinkedChip">🔗 ' + esc(d.linkedName) + ' <span class="x" data-unlink="1">×</span></span>') : '') +
       '<div id="crmDealContactResults">' + matches.map(c =>
@@ -6572,13 +6663,14 @@ function renderCRMDeals(box) {
       '<td data-label="Net">' + (dl.commission_net != null ? ("$" + Number(dl.commission_net).toLocaleString()) : "—") + '</td>' +
       '<td data-label="Co broke">' + esc(dl.cobroke_agent || "—") + (dl.cobroke_split_pct != null ? (" (" + dl.cobroke_split_pct + "%)") : "") + '</td>' +
       '<td data-label="Linked">' + esc(linked || "—") + '</td>' +
+      '<td data-label="Deal date">' + esc(dl.deal_date || "—") + '</td>' +
       '<td data-label="OTP">' + esc(dl.otp_date || "—") + '</td>' +
       '<td data-label="Completion">' + esc(dl.completion_date || "—") + '</td>' +
       '<td data-label="Actions"><button class="btn" data-editdeal="' + esc(dl.id) + '">Edit</button> <button class="btn danger" data-deldeal="' + esc(dl.id) + '">Delete</button></td>' +
     '</tr>';
   }).join("");
   const tableHtml = deals.length
-    ? ('<div class="maptablewrap"><table class="maptable stack"><thead><tr><th>Property</th><th>Type</th><th>Stage</th><th>Price</th><th>Gross</th><th>Net</th><th>Co broke</th><th>Linked</th><th>OTP</th><th>Completion</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>')
+    ? ('<div class="maptablewrap"><table class="maptable stack"><thead><tr><th>Property</th><th>Type</th><th>Stage</th><th>Price</th><th>Gross</th><th>Net</th><th>Co broke</th><th>Linked</th><th>Deal date</th><th>OTP</th><th>Completion</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>')
     : '<div class="empty">No deals logged yet.</div>';
 
   const wrap = el("div", "crmblock", formHtml + totalsHtml + tableHtml +
@@ -6592,12 +6684,21 @@ function renderCRMDeals(box) {
   bind("#crmDealProperty", "property");
   bind("#crmDealPrice", "price");
   bind("#crmDealGross", "commission_gross");
-  bind("#crmDealAgent", "cobroke_agent");
   bind("#crmDealSplit", "cobroke_split_pct");
   bind("#crmDealStage", "stage", "onchange");
+  bind("#crmDealDate", "deal_date", "onchange");
   bind("#crmDealOtp", "otp_date", "onchange");
   bind("#crmDealCompletion", "completion_date", "onchange");
-  bind("#crmDealNotes", "notes");
+  // Not the generic bind() above — the split % field's placeholder (the "50 assumed"
+  // hint) has to react live as the agent name is typed in, not just at the next
+  // whole box rerender.
+  const agentEl = wrap.querySelector("#crmDealAgent"), splitEl = wrap.querySelector("#crmDealSplit");
+  if (agentEl) agentEl.oninput = () => {
+    d.cobroke_agent = agentEl.value;
+    if (splitEl) splitEl.placeholder = agentEl.value.trim() ? "Co broke split % (50 assumed if blank)" : "Co broke split %";
+  };
+  const notesEl = wrap.querySelector("#crmDealNotes");
+  if (notesEl) notesEl.oninput = () => { d.notes = notesEl.value.slice(0, 2000); };
   const searchEl = wrap.querySelector("#crmDealContactSearch");
   if (searchEl) searchEl.oninput = () => { d.contactSearch = searchEl.value; scheduleCRMRerender(); };
   wrap.querySelectorAll("[data-link]").forEach(pickEl => {
@@ -6621,7 +6722,8 @@ function crmEditDeal(id) {
     price: dl.price != null ? dl.price : "", commission_gross: dl.commission_gross != null ? dl.commission_gross : "",
     cobroke_agent: dl.cobroke_agent || "", cobroke_split_pct: dl.cobroke_split_pct != null ? dl.cobroke_split_pct : "",
     stage: dl.stage || "agreed", otp_date: dl.otp_date || "", completion_date: dl.completion_date || "",
-    notes: dl.notes || "", linkedKey: dl.key || "", linkedName: crmContactNameByKey(dl.key), contactSearch: "",
+    deal_date: dl.deal_date || todayISO(), notes: dl.notes || "", linkedKey: dl.key || "",
+    linkedName: crmContactNameByKey(dl.key), contactSearch: "",
   };
   renderCRM();
 }
@@ -6642,20 +6744,24 @@ function crmSubmitDeal() {
   if (price != null && (!isFinite(price) || price < 0)) { toast("Price or rent does not look like a number."); return; }
   if (gross != null && (!isFinite(gross) || gross < 0)) { toast("Commission gross does not look like a number."); return; }
   if (splitPct != null && (!isFinite(splitPct) || splitPct < 0 || splitPct > 100)) { toast("Co broke split % must be between 0 and 100."); return; }
-  const net = gross != null ? crmComputeNet(gross, splitPct) : null;
+  const agent = (d.cobroke_agent || "").trim() || null;
+  const net = gross != null ? crmComputeNet(gross, splitPct, agent) : null;
   const id = d.editId || ("deal_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7));
-  // dealDateOf()/dealTotals() fall back to created_at when neither completion_date nor
-  // otp_date is set yet — a brand new deal needs that stamp the moment it is created, or
-  // it silently drops out of the month/YTD totals until the next successful server sync
-  // fills it in (the backend's own default is a DB side now(), never round tripped back
-  // to a client that has not synced). Editing an existing deal must keep its original
-  // stamp, never overwrite it with "now".
+  // created_at needs its own client side stamp the moment a brand new deal is created —
+  // it is still useful for record keeping, but month/YTD totals no longer read it (see
+  // dealTotals(), which buckets by deal_date only). Editing an existing deal must keep
+  // its original created_at, never overwrite it with "now".
   const existing = d.editId ? CRM.deals().find(x => x.id === d.editId) : null;
+  // deal_date defaults to today (local day) the moment the form is submitted if the
+  // field was ever cleared — every deal must have one, or dealTotals() silently drops
+  // it from both totals.
+  const dealDate = d.deal_date || todayISO();
   const dealObj = {
     id, deal_type: d.deal_type, property: property || null, price, commission_gross: gross,
-    commission_net: net, cobroke_agent: (d.cobroke_agent || "").trim() || null,
+    commission_net: net, cobroke_agent: agent,
     cobroke_split_pct: splitPct, stage: d.stage, otp_date: d.otp_date || null,
-    completion_date: d.completion_date || null, notes: (d.notes || "").trim() || null,
+    completion_date: d.completion_date || null, deal_date: dealDate,
+    notes: (d.notes || "").trim().slice(0, 2000) || null,
     created_at: (existing && existing.created_at) || new Date().toISOString(),
   };
   const subj = d.linkedKey ? crmSubjFromKey(d.linkedKey) : null;
@@ -6693,7 +6799,14 @@ function crmExportDealsJSON() {
   // (item 10) 1-9/0 select tabs "in order" — the tab strip's own DOM order,
   // read once here rather than hardcoded, so it can never drift from what
   // is actually on screen if a tab is ever added/reordered/removed.
-  TAB_ORDER = [...document.querySelectorAll("#tabs .tab")].map(t => t.dataset.v);
+  // "crm" is filtered out on purpose: it sits in position 2 of the visible tab strip
+  // (right after Dashboard, still clickable there), but folding it into the digit
+  // shortcuts as well would push every tab after it one slot down — Sales, on "0"
+  // before CRM existed, would fall off the end of the 1-9/0 range entirely, and
+  // Revival (already unreachable by number, being the 12th tab) would only get
+  // further out of reach. Excluding CRM keeps 1-9/0 mapped to exactly what they
+  // mapped to before this tab was added, and CRM itself gets no number shortcut.
+  TAB_ORDER = [...document.querySelectorAll("#tabs .tab")].map(t => t.dataset.v).filter(v => v !== "crm");
   // #q fires on every keystroke, unlike the select/checkbox filters (one
   // event per discrete choice) — a render() here also recomputes faceted
   // counts across every match plus rebuilds up to 120+ tenant/listing cards,
