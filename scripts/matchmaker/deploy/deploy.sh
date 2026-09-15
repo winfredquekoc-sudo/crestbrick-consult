@@ -255,6 +255,22 @@ else
   echo "verified: $PROD_ALIAS returns 401 (auth wall active) — build identity NOT confirmed (MM_USER/MM_PASS were not set), so this does NOT prove build_id $BUILD_ID (this build) is what's being served, only that whatever is being served is behind the wall"
 fi
 
+# --- CRM pull bridge (Sep 2026). Same MM_USER/MM_PASS gate as the body check
+# above: with neither set, crm_pull.py itself is a documented no op (one line,
+# exit 0), so this is only ever a real pull once Winfred exports both for a
+# slot job. Runs after the alias is confirmed up so there is something real to
+# read from, and never blocks the deploy — a dispatch row or a completed deal
+# sitting one refresh slot longer is not worth failing an otherwise good ship
+# over. Reads/writes only: it never sends a WhatsApp message itself. ---
+if [ -n "${MM_USER:-}" ] && [ -n "${MM_PASS:-}" ]; then
+  echo "deploy.sh: running crm_pull.py --apply (pulls dispatch rows and completed deals onto this Mac)..."
+  if ! (cd "$REPO" && /usr/bin/python3 scripts/matchmaker/crm_pull.py --apply); then
+    echo "deploy.sh: crm_pull.py failed — non fatal, the deploy above already completed. Check the output above." >&2
+  fi
+else
+  echo "note: MM_USER/MM_PASS not set — crm_pull.py skipped for this slot (it would have been a no op anyway)."
+fi
+
 # --- the CRM API must sit behind the SAME wall as the app. /api/crm can read and write
 # every note, stage and phone number in the CRM, so an /api route that answered without
 # auth would hand all of it out even while "/" still looked locked. This check is the

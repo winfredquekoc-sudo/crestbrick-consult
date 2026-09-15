@@ -1108,7 +1108,7 @@ function linkButtonHtml(href, label) {
 const CRM = (function () {
   const LKEY = "cbkcrm_v1", QKEY = "cbkcrm_queue_v1", MKEY = "cbkcrm_migrated_v1";
   const API = "/api/crm";
-  let S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {} };
+  let S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {}, dispatch: {} };
   let queue = [], mode = "local", lastErr = "", timer = null, retryTimer = null, backoff = 0, booted = false, nextTmp = -1;
   const RETRY_MIN = 5000, RETRY_MAX = 60000;
 
@@ -1150,9 +1150,9 @@ const CRM = (function () {
   // anywhere `queue` itself is reassigned wholesale (boot's initial load,
   // migrate's concat, flush's post send slice) so a stale entry can never
   // point at an op object that has already left the array.
-  let entityOpIndex = new Map(), matchOpIndex = new Map(), dealOpIndex = new Map();
+  let entityOpIndex = new Map(), matchOpIndex = new Map(), dealOpIndex = new Map(), dispatchOpIndex = new Map();
   function reindexQueue() {
-    entityOpIndex = new Map(); matchOpIndex = new Map(); dealOpIndex = new Map();
+    entityOpIndex = new Map(); matchOpIndex = new Map(); dealOpIndex = new Map(); dispatchOpIndex = new Map();
     queue.forEach(o => {
       if (o.op === "entity" && o.key) entityOpIndex.set(o.key, o);
       else if (o.op === "match" && o.listing_id) matchOpIndex.set(o.listing_id + "|" + o.tenant_id, o);
@@ -1163,6 +1163,10 @@ const CRM = (function () {
       // the queued upsert. Both still flush, upsert then delete, in that order, so the
       // net result on the server is correct either way, just not as few ops as possible.
       else if (o.op === "deal" && o.id) dealOpIndex.set(o.id, o);
+      // Same reasoning again for a dispatch row: marking queued, then crm_pull.py
+      // marking pulled a minute later, compacts to one upsert. dispatch_cancel is
+      // never compacted, same as deal_delete above.
+      else if (o.op === "dispatch" && o.id) dispatchOpIndex.set(o.id, o);
     });
   }
 
@@ -1211,6 +1215,18 @@ const CRM = (function () {
         existing.name = op.name; existing.phone = op.phone;
       }
       else { queue.push(op); dealOpIndex.set(op.id, op); }
+    } else if (op.op === "dispatch" && op.id) {
+      const existing = dispatchOpIndex.get(op.id);
+      // Same field by field assignment as the deal branch above, and for the same
+      // reason: upsertDispatch always sends the whole row, so a field genuinely
+      // absent from the new op must win over whatever the compacted op had, not be
+      // quietly merged away by Object.assign skipping it.
+      if (existing) {
+        existing.tenant_id = op.tenant_id; existing.listing_id = op.listing_id; existing.jid = op.jid;
+        existing.phone = op.phone; existing.text = op.text; existing.viewing_slot = op.viewing_slot;
+        existing.status = op.status; existing.device = op.device;
+      }
+      else { queue.push(op); dispatchOpIndex.set(op.id, op); }
     } else {
       queue.push(op);
     }
@@ -1279,7 +1295,12 @@ const CRM = (function () {
     // deals now, delete every local one" — it means this deployment does not know
     // about deals yet, so every deal recorded so far stays exactly where it was.
     const dl = ("deals" in d) ? built : S.deals;
-    S = { entities: e, notes: d.notes || [], tasks: d.tasks || [], match: m, activity: d.activity || [], deals: dl };
+    const builtDp = {}; (d.dispatch || []).forEach(x => builtDp[x.id] = x);
+    // Same absent key reasoning as deals just above — an older deployment (or a
+    // rollback to a build before this table shipped) answering with no "dispatch"
+    // key at all must not be read as "there are now zero dispatch rows".
+    const dp = ("dispatch" in d) ? builtDp : S.dispatch;
+    S = { entities: e, notes: d.notes || [], tasks: d.tasks || [], match: m, activity: d.activity || [], deals: dl, dispatch: dp };
     queue.forEach(replay);
   }
   // (item 3) Every op type the queue can hold must be replayable, not just
@@ -1329,6 +1350,18 @@ const CRM = (function () {
       };
     }
     else if (o.op === "deal_delete" && o.id) { delete S.deals[o.id]; }
+    // Same full replace reasoning as the deal branch above — upsertDispatch always
+    // sends the whole row, so replay overwrites S.dispatch[o.id] outright.
+    else if (o.op === "dispatch" && o.id) {
+      S.dispatch[o.id] = {
+        id: o.id, tenant_id: o.tenant_id, listing_id: o.listing_id, jid: o.jid, phone: o.phone,
+        text: o.text, viewing_slot: o.viewing_slot, status: o.status, device: o.device,
+        created_at: o.created_at, pulled_at: o.pulled_at,
+      };
+    }
+    else if (o.op === "dispatch_cancel" && o.id) {
+      const row = S.dispatch[o.id]; if (row) row.status = "cancelled";
+    }
   }
 
   // One-time import of pre-existing device-local state (marks, verdict overrides,
@@ -1410,10 +1443,11 @@ const CRM = (function () {
       // file's bottom) left the CRM permanently unsynced for the session with
       // nothing on screen to explain why. Reset to a fresh, well shaped store
       // instead of trusting the parsed shape.
-      if (!S || typeof S !== "object" || Array.isArray(S)) S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {} };
+      if (!S || typeof S !== "object" || Array.isArray(S)) S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {}, dispatch: {} };
       if (!S.entities || typeof S.entities !== "object") S.entities = {};
       if (!S.match || typeof S.match !== "object") S.match = {};
       if (!S.deals || typeof S.deals !== "object" || Array.isArray(S.deals)) S.deals = {};
+      if (!S.dispatch || typeof S.dispatch !== "object" || Array.isArray(S.dispatch)) S.dispatch = {};
       if (!Array.isArray(S.notes)) S.notes = [];
       if (!Array.isArray(S.tasks)) S.tasks = [];
       if (!Array.isArray(S.activity)) S.activity = [];
@@ -1570,6 +1604,28 @@ const CRM = (function () {
       delete S.deals[id];
       push({ op: "deal_delete", id });
     },
+    // ---- dispatch bridge (CRM pull) ----
+    // Rows the app has marked ready to send. crm_pull.py (run on Winfred's own
+    // Mac) reads these through the CRM API, runs each one through
+    // queue_drafts.py's own checks, and appends the accepted ones to the real
+    // morning dispatch queue. Nothing in this app or on the server ever sends
+    // a message itself.
+    dispatchRows() { return Object.values(S.dispatch); },
+    dispatchFor(lid, tid) { return S.dispatch["dispatch_" + lid + "_" + tid] || null; },
+    // Always a full replace, same reasoning as upsertDeal above — there is no
+    // partial patch shape for a dispatch row. id is derived from the pair so
+    // marking the same pair queued twice (e.g. re queueing after an edit)
+    // upserts the same row rather than creating a second one.
+    upsertDispatch(row) {
+      if (!row || !row.id) return;
+      S.dispatch[row.id] = Object.assign({}, row);
+      push(Object.assign({ op: "dispatch" }, row));
+    },
+    cancelDispatch(id, reason) {
+      const row = S.dispatch[id];
+      if (row) row.status = "cancelled";
+      push({ op: "dispatch_cancel", id, reason: reason || "" });
+    },
     // ---- backup/export bridge (item 1) ----
     // Raw snapshot for exportBlob()/writeAutoBackup() below — this is the ONLY
     // durable copy of every stage, note and task Winfred has ever recorded
@@ -1718,8 +1774,38 @@ function getMarkV(lid, tid) { const mk = readMark(lid, tid); return mk ? (mk.v |
 // mark write that changes `v` also appends to the history log the funnel
 // reads — patchMark is the single choke point for every mark write in the
 // app, so both concerns live here rather than being repeated per call site.
+// CRM pull bridge: writes (or cancels) the crm_dispatch row for this pair through
+// the same op queue every other CRM write uses, rather than only the local
+// "Queued" mark below — that op queue is what lets crm_pull.py see a row at all.
+// Looked up by id, not passed in, since patchMark/clearMarkV only carry the pair's
+// ids, not the full listing/tenant records.
+function writeDispatchRow(lid, tid) {
+  if (typeof CRM === "undefined") return;
+  const l = (DATA.listings || []).find(x => x.id === lid);
+  const t = ALL_TENANTS.find(x => x.id === tid) || (DATA.all_tenants || []).find(x => x.id === tid);
+  if (!l || !t) return;
+  CRM.upsertDispatch({
+    id: "dispatch_" + lid + "_" + tid,
+    tenant_id: tid,
+    listing_id: lid,
+    jid: null,
+    phone: t.phone || null,
+    text: draftFor(l, t),
+    viewing_slot: null,
+    status: "queued",
+  });
+}
+function cancelDispatchRow(lid, tid, reason) {
+  if (typeof CRM === "undefined") return;
+  CRM.cancelDispatch("dispatch_" + lid + "_" + tid, reason);
+}
+// (70) every mark stamps by:<device name> once one has been set. (13)/(27) a
+// mark write that changes `v` also appends to the history log the funnel
+// reads — patchMark is the single choke point for every mark write in the
+// app, so both concerns live here rather than being repeated per call site.
 function patchMark(lid, tid, patch) {
   const cur = readMark(lid, tid) || {};
+  const wasQueued = cur.v === "Queued";
   const next = Object.assign({}, cur, patch, { ts: Date.now() });
   if (typeof PREFS !== "undefined" && PREFS && PREFS.device_name) next.by = PREFS.device_name;
   const key = markKey(lid, tid);
@@ -1728,9 +1814,18 @@ function patchMark(lid, tid, patch) {
   MARK_GEN++;               // (item 3) invalidate the facet count cache too
   if (patch && patch.v) pushMarkHistory(lid, tid, patch.v);
   mirrorMatchToCRM(lid, tid);   // durable copy — see crmMatchStatusFor's comment
+  // Queueing writes a real dispatch row; moving off Queued to anything else
+  // (Not interested, Contacted, Clear) cancels whatever row was sitting there
+  // so crm_pull.py never sends a draft the app itself has moved on from.
+  if (patch && patch.v === "Queued") writeDispatchRow(lid, tid);
+  else if (wasQueued && patch && "v" in patch && patch.v !== "Queued") cancelDispatchRow(lid, tid, "unqueued in app");
   return next;
 }
-function clearMarkV(lid, tid) { const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); MARK_GEN++; mirrorMatchToCRM(lid, tid); }
+function clearMarkV(lid, tid) {
+  const wasQueued = getMarkV(lid, tid) === "Queued";
+  const key = markKey(lid, tid); localStorage.removeItem(key); MARK_CACHE.delete(key); MARK_GEN++; mirrorMatchToCRM(lid, tid);
+  if (wasQueued) cancelDispatchRow(lid, tid, "unqueued in app");
+}
 
 function overrideKey(lid, tid) { return OVERRIDE_PREFIX + lid + "_" + tid; }
 function readOverride(lid, tid) {
@@ -4370,18 +4465,32 @@ function renderRevival() {
 
 // ===================== dispatch / queued drawer =====================
 function queuedMatches() { return MATCHES.filter(m => { const mk = readMark(m.l.id, m.t.id); return mk && mk.v === "Queued"; }); }
+// Status shown per row: the local mark says a draft was queued, but only the
+// server side crm_dispatch row (synced through the op queue above) knows
+// whether crm_pull.py has since taken it. "queued" is also the honest label
+// in local only mode (CRM.mode === "local"), where nothing syncs at all.
+function dispatchRowStatusLabel(lid, tid) {
+  if (typeof CRM === "undefined") return "queued";
+  const row = CRM.dispatchFor(lid, tid);
+  if (!row) return "queued";
+  if (row.status === "pulled") return "pulled by the Mac";
+  if (row.status === "sent") return "sent";
+  if (row.status === "cancelled") return "cancelled";
+  return "queued";
+}
 function openDispatchDrawer() {
   const wrap = el("div", "drawer-wrap");
   const items = queuedMatches();
   let html = '<div class="drawer"><h2>Dispatch (' + items.length + ')</h2>' +
-    '<div class="mut" style="font-size:12px;margin-bottom:10px">send happens via your morning dispatch after you run the queue command — nothing sends from this page</div>';
+    '<div class="mut" style="font-size:12px;margin-bottom:10px">send happens via your morning dispatch after crm_pull.py picks this up — nothing sends from this page</div>';
   if (!items.length) html += '<div class="empty">Nothing queued yet. Mark a tenant Queued from the worklist or a listing panel.</div>';
   items.forEach((m, i) => {
-    html += '<div class="row"><div class="nm">' + esc(m.t.name) + '</div><div class="mut" style="font-size:12px">' + esc(m.l.name) + ' · ' + esc(m.l.district) + '</div>' +
+    html += '<div class="row"><div class="nm">' + esc(m.t.name) + '</div><div class="mut" style="font-size:12px">' + esc(m.l.name) + ' · ' + esc(m.l.district) +
+      ' · status: ' + esc(dispatchRowStatusLabel(m.l.id, m.t.id)) + '</div>' +
       '<div class="draftbox">' + esc(draftFor(m.l, m.t)) + '</div>' +
       '<div class="acts"><button class="btn" data-dcopy="' + i + '">Copy</button><button class="btn" data-dunq="' + i + '">Unqueue</button></div></div>';
   });
-  html += '<div class="acts" style="margin-top:12px"><button class="btn p full" data-exportq="1">Export queue JSON</button><button class="btn full" data-closedrawer="1">Close</button></div></div>';
+  html += '<div class="acts" style="margin-top:12px"><button class="btn full" data-closedrawer="1">Close</button></div></div>';
   wrap.innerHTML = html;
   mountOverlay(wrap);
   wrap.querySelectorAll("[data-dcopy]").forEach(b => b.onclick = () => { const m = items[+b.dataset.dcopy]; navigator.clipboard.writeText(draftFor(m.l, m.t)); b.textContent = "Copied"; });
@@ -4390,7 +4499,6 @@ function openDispatchDrawer() {
     writeMarkClearUndoable(m.l.id, m.t.id, fname(m.t.name) + " unqueued");
     openDispatchDrawer();
   });
-  wrap.querySelector("[data-exportq]").onclick = () => exportQueueJSON(items);
   wrap.querySelector("[data-closedrawer]").onclick = () => wrap.remove();
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
@@ -4593,6 +4701,11 @@ function paletteActions() {
     { label: "Open Stats", run: () => { view = "stats"; render(); } },
     { label: "Add tenant", run: () => openQuickAddTenant() },
     { label: "Open Dispatch", run: () => openDispatchDrawer() },
+    // Fallback only — the normal path is the dispatch drawer's Mark queued
+    // action writing straight to crm_dispatch through the op queue above, which
+    // crm_pull.py then reads. This stays for a device with no backend configured
+    // (CRM.mode === "local") or a one off manual export.
+    { label: "Export queue (fallback)", run: () => exportQueueJSON(queuedMatches()) },
     { label: "Open Snoozed", run: () => openSnoozedList() },
     { label: "Bulk action on filtered set", run: () => openBulkActionModal() },
     { label: "Export state", run: () => downloadJSON(exportBlob(), "matchmaker-state-" + DATA.generated + ".json") },

@@ -14,7 +14,7 @@
 // function already passed the wall, and a second scheme would be another thing to
 // get wrong. Never loosen middleware.js's matcher to exclude /api.
 import { db, ensureSchema, configured } from "../lib/db.js";
-import { STAGES, KINDS, str, date, bool, validateDealFields } from "../lib/crm-validate.js";
+import { STAGES, KINDS, str, date, bool, validateDealFields, validateDispatchFields } from "../lib/crm-validate.js";
 
 const MAX_OPS = 200;
 
@@ -29,7 +29,7 @@ async function readBody(req) {
 }
 
 async function snapshot(client) {
-  const [entities, notes, tasks, match, activity, deals] = await Promise.all([
+  const [entities, notes, tasks, match, activity, deals, dispatch] = await Promise.all([
     // crm_entity was the only one of these five queries with no LIMIT — notes/tasks/
     // activity are capped below at 2000/1000/300. This table holds every tenant,
     // landlord and listing key ever seen, all with names and phone numbers, so an
@@ -56,6 +56,15 @@ async function snapshot(client) {
                          to_char(deal_date,'YYYY-MM-DD') as deal_date, notes,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at
                   from crm_deal order by created_at desc limit 2000`),
+    // Only queued and pulled rows — a sent or cancelled row has nothing left
+    // for either the app or crm_pull.py to act on, so it is left out of the
+    // payload the same way notes/tasks/activity are capped above, rather than
+    // growing this endpoint's response with a table that never gets pruned.
+    client.query(`select id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device,
+                         to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at,
+                         to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at
+                  from crm_dispatch where status in ('queued','pulled')
+                  order by created_at desc limit 2000`),
   ]);
   return {
     ok: true,
@@ -65,6 +74,7 @@ async function snapshot(client) {
     match: match.rows,
     activity: activity.rows,
     deals: deals.rows,
+    dispatch: dispatch.rows,
   };
 }
 
@@ -221,6 +231,55 @@ async function applyOp(client, o) {
       const id = str(o.id, 60);
       if (!id) return 0;
       await client.query(`delete from crm_deal where id = $1`, [id]);
+      return 1;
+    }
+    // Enqueues (from the app's Mark queued action and the dispatch drawer) or
+    // updates (from crm_pull.py, moving a row to pulled once it has appended
+    // the draft to the real morning dispatch queue on Winfred's Mac) one
+    // crm_dispatch row. Always the whole record, same upsert shape as "deal"
+    // above — there is no separate patch shape for a partial update.
+    case "dispatch": {
+      const d = validateDispatchFields(o);
+      if (!d) return 0;
+      await client.query(
+        `insert into crm_dispatch (id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device, pulled_at)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9, case when $8 = 'pulled' then now() else null end)
+         on conflict (id) do update set
+           tenant_id = excluded.tenant_id, listing_id = excluded.listing_id, jid = excluded.jid,
+           phone = excluded.phone, text = excluded.text, viewing_slot = excluded.viewing_slot,
+           status = excluded.status, device = coalesce(excluded.device, crm_dispatch.device),
+           pulled_at = case when excluded.status = 'pulled' and crm_dispatch.pulled_at is null
+                            then now() else crm_dispatch.pulled_at end`,
+        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, d.status, d.device]
+      );
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [d.tenant_id, "dispatch:" + d.status, (d.viewing_slot || d.text || "dispatch").slice(0, 120)]);
+      return 1;
+    }
+    // A row the app unqueued, or a check in queue_drafts.py refused (dead lead,
+    // unverifiable recency, already queued elsewhere) — there is no reason
+    // column on crm_dispatch, so the reason rides on the activity row instead,
+    // the same way a deal's own free text lives in notes rather than a fixed
+    // column per possible field.
+    case "dispatch_cancel": {
+      const id = str(o.id, 60);
+      if (!id) return 0;
+      const upd = await client.query(
+        `update crm_dispatch set status = 'cancelled' where id = $1 returning tenant_id`, [id]);
+      const tenant_id = upd.rows[0] && upd.rows[0].tenant_id;
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [tenant_id || null, "dispatch:cancelled", str(o.reason, 500) || ""]);
+      return upd.rowCount;
+    }
+    // A plain activity log line with no other side effect — used by crm_pull.py
+    // to record a completed deal import into clients.db, so that action shows
+    // up in the app's own activity feed rather than only in a terminal log on
+    // Winfred's Mac.
+    case "activity": {
+      const verb = str(o.verb, 60);
+      if (!verb) return 0;
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [str(o.key, 120), verb, str(o.detail, 500)]);
       return 1;
     }
     default:

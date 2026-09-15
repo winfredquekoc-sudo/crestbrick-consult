@@ -71,3 +71,29 @@ export function validateDealFields(o) {
     notes: str(o.notes, 2000),
   };
 }
+
+export const DISPATCH_STATUSES = new Set(["queued", "pulled", "sent", "cancelled"]);
+
+// Validates and normalises one incoming "dispatch" op's fields — a row destined
+// for crm_dispatch. Required: id, tenant_id and text (the drafted message); with
+// no draft text or no tenant to send it to there is nothing usable to queue.
+// Everything else is context the app or crm_pull.py may or may not have on
+// hand, so it is optional. Returns null on a missing required field, same
+// null on unusable contract as validateDealFields above.
+export function validateDispatchFields(o) {
+  const id = str(o && o.id, 60);
+  const tenant_id = str(o && o.tenant_id, 80);
+  const text = str(o && o.text, 2000);
+  if (!id || !tenant_id || !text) return null;
+  return {
+    id,
+    tenant_id,
+    listing_id: str(o.listing_id, 80),
+    jid: str(o.jid, 80),
+    phone: str(o.phone, 40),
+    text,
+    viewing_slot: str(o.viewing_slot, 200),
+    status: DISPATCH_STATUSES.has(o.status) ? o.status : "queued",
+    device: str(o.device, 80),
+  };
+}

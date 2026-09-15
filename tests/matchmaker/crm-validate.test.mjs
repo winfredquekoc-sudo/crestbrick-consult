@@ -7,6 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   str, date, bool, num, validateDealFields, DEAL_TYPES, DEAL_STAGES, KINDS,
+  validateDispatchFields, DISPATCH_STATUSES,
 } from "../../scripts/matchmaker/deploy/lib/crm-validate.js";
 
 test("str: trims, caps length, blank/whitespace-only becomes null", () => {
@@ -115,4 +116,52 @@ test("validateDealFields: malformed dates and out-of-range money never reach the
   assert.equal(d.price, null);
   assert.equal(d.commission_gross, null);
   assert.equal(d.cobroke_split_pct, null);   // 150 > the 100 percent cap
+});
+
+// =====================================================================
+// validateDispatchFields — the "dispatch" op's field by field validation, used
+// by both the app's Mark queued action and crm_pull.py marking a row pulled.
+// =====================================================================
+
+test("validateDispatchFields: a well formed dispatch row passes every field through normalised", () => {
+  const d = validateDispatchFields({
+    id: "dispatch_L1_T1", tenant_id: "T1", listing_id: "L1", jid: "6591234567@s.whatsapp.net",
+    phone: "  91234567  ", text: "  Hi, this unit might suit you  ", viewing_slot: "Sat 2pm",
+    status: "pulled", device: "winfreds mac",
+  });
+  assert.deepEqual(d, {
+    id: "dispatch_L1_T1", tenant_id: "T1", listing_id: "L1", jid: "6591234567@s.whatsapp.net",
+    phone: "91234567", text: "Hi, this unit might suit you", viewing_slot: "Sat 2pm",
+    status: "pulled", device: "winfreds mac",
+  });
+});
+
+test("validateDispatchFields: id, tenant_id and text are all required — missing any means no usable row", () => {
+  assert.equal(validateDispatchFields({ tenant_id: "T1", text: "hi" }), null);          // no id
+  assert.equal(validateDispatchFields({ id: "d1", text: "hi" }), null);                 // no tenant_id
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1" }), null);            // no text
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "   " }), null); // blank text
+  assert.equal(validateDispatchFields({ id: "", tenant_id: "T1", text: "hi" }), null);
+});
+
+test("validateDispatchFields: status defaults to queued and falls back on an unknown value", () => {
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi" }).status, "queued");
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi", status: "sending now" }).status, "queued");
+  for (const s of DISPATCH_STATUSES) {
+    assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi", status: s }).status, s);
+  }
+});
+
+test("validateDispatchFields: text caps at 2000 characters, same cap as a deal's notes", () => {
+  const d = validateDispatchFields({ id: "d1", tenant_id: "T1", text: "x".repeat(2500) });
+  assert.equal(d.text.length, 2000);
+});
+
+test("validateDispatchFields: optional fields (listing_id, jid, phone, viewing_slot, device) default to null when absent", () => {
+  const d = validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi" });
+  assert.equal(d.listing_id, null);
+  assert.equal(d.jid, null);
+  assert.equal(d.phone, null);
+  assert.equal(d.viewing_slot, null);
+  assert.equal(d.device, null);
 });
