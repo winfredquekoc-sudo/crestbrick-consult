@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HDB Resale Purchase Timeline From Offer to Keys</title>
+    <meta name="description" content="A stage by stage look at the HDB resale timeline, from your HFE letter to key collection, with typical week counts and what commonly delays it.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="HDB Resale Purchase Timeline From Offer to Keys">
+    <meta property="og:description" content="A stage by stage look at the HDB resale timeline, from your HFE letter to key collection, with typical week counts and what commonly delays it.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            color: var(--accent-gold);
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+    <article>
+        <h1>HDB Resale Purchase Timeline From Offer to Keys</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            A typical HDB resale purchase runs about 12 to 16 weeks from your first HFE letter application to key collection. Expect roughly 3 to 4 weeks for the HFE letter, a 21 day option period once you sign the option to purchase, and about 8 weeks from HDB accepting your resale application to the completion appointment.
+        </p>
+
+        <h2>Timing: stage one, the HFE letter</h2>
+        <p>
+            Before you can be granted an option to purchase on a resale flat, you need a valid HDB Flat Eligibility letter. Applying takes roughly 3 to 4 weeks depending on how complete your documents are, so apply as soon as you decide to look seriously, not after you have already found a unit you like. Our <a href="/insights/hdb-hfe-letter-guide-2026.html">HFE letter guide</a> walks through the application in detail.
+        </p>
+
+        <h2>Timing: stage two, finding a flat and the OTP</h2>
+        <p>
+            Once you have your HFE letter, house hunting begins in earnest. When you and a seller agree on price, the seller grants you an option to purchase, which comes with a standard 21 calendar day option period for you to decide whether to proceed. This window is fixed by convention across the market and does not extend for financing delays, so have your loan or CPF position roughly sorted before you get to this stage. How many weeks house hunting itself takes varies enormously, from a matter of days if you already know exactly what you want, to several months if you are being selective on location, floor level or lease remaining.
+        </p>
+
+        <h2>Timing: stage three, exercising the OTP and the resale application</h2>
+        <p>
+            If you exercise the option, both you and the seller then submit your resale application, usually through the HDB Resale Portal. Whichever party submits first starts a 7 calendar day window for the other party to complete their portion, so coordinate with your seller on timing rather than assuming they will move as fast as you do.
+        </p>
+
+        <h2>Timing: stage four, HDB acceptance</h2>
+        <p>
+            HDB reviews the joint application and typically issues an acceptance notice within 28 working days. This is the stage where eligibility checks, any required valuation, and grant processing get finalised on HDB's side, so incomplete documents or an unresolved eligibility question here is a common source of delay.
+        </p>
+
+        <h2>Timing: stage five, acceptance to the completion appointment</h2>
+        <p>
+            From acceptance, plan for about 8 more weeks before your completion appointment, where legal documents are signed, your loan or CPF funds are disbursed, and keys change hands. Your lawyer, whether a law firm or HDB's own legal service, prepares the necessary paperwork during this window, alongside your bank if you are taking a loan.
+        </p>
+
+        <h2>Timing: what commonly delays it</h2>
+        <p>
+            The stages above assume nothing goes wrong. In practice, the most common delays come from incomplete HFE documentation, a bank loan approval that takes longer than expected, a valuation that comes in below the agreed price and forces a renegotiation, or the seller's own onward housing arrangement not being ready in time. If either party is also selling a flat to fund this purchase, the two transactions need to be sequenced carefully. Our <a href="/insights/selling-timeline-sequencing-singapore-first-time.html">guide to sequencing a sale and a purchase</a> covers exactly this situation.
+        </p>
+
+        <h2>Timing: planning your lease notice and renovation around it</h2>
+        <p>
+            Do not give notice on your current home, whether to a landlord or by listing your own flat, until your HFE letter is in hand and your OTP is exercised. Once you have a confirmed completion date, build in at least a few weeks of buffer between key collection and your target move in date for renovation, since contractor schedules and material lead times rarely match a resale flat's exact completion day. Our <a href="/insights/first-home-legal-completion-timeline.html">legal completion timeline guide</a> sets out what happens in the final weeks before you get your keys.
+        </p>
+
+        <h2>Money: what to line up while the clock is running</h2>
+        <p>
+            Use the weeks between exercising your OTP and your completion appointment productively rather than passively waiting. Confirm your loan or HDB loan disbursement instructions with your bank, check your CPF Ordinary Account balance and any withdrawal limit against your purchase price, and get renovation quotes lined up early so contractors are not starting their own planning only after you collect keys. If you are also selling a flat to fund this purchase, keep both timelines visible side by side rather than tracking them separately, since a delay on either side pushes the other.
+        </p>
+        <p>
+            None of these week counts are guaranteed for every case. Treat them as planning ranges, and build a buffer of a few weeks into any date you commit to elsewhere, such as a tenancy notice period or a renovation contractor's booking, rather than planning against the tightest possible timeline.
+        </p>
+
+        <h2>Timing: if you are buying and selling at the same time</h2>
+        <p>
+            Many resale buyers are also sellers, moving from one HDB flat to another. In this case, the two transactions rarely run on identical schedules, and the practical question is usually which side moves first, your sale completion or your purchase completion, and how many weeks or months you can bridge between them. Some sellers negotiate an extended stay in their old flat past their own completion date to line up with their new purchase, though this depends entirely on what the buyer of your current flat is willing to agree to. Talk to your agent early about which side of the transaction is more likely to slip, so you are planning around the realistic date rather than the optimistic one.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <p class="faq-q">How long does buying an HDB resale flat take from start to finish?</p>
+        <p>Roughly 12 to 16 weeks from your first HFE letter application to key collection, assuming no major complications. This covers the HFE letter, house hunting, the option period, the resale application, HDB's acceptance, and the completion appointment.</p>
+
+        <p class="faq-q">How many days do I get to decide once I receive the option to purchase?</p>
+        <p>A standard 21 calendar days. This option period is fixed by market convention and does not extend for financing delays, so it helps to have your loan or CPF position roughly worked out before you reach this stage.</p>
+
+        <p class="faq-q">What is the most common reason an HDB resale purchase gets delayed?</p>
+        <p>Incomplete HFE documentation, a bank loan approval that takes longer than planned, a valuation that comes in below the agreed price, or the seller's own onward housing arrangement not being ready in time are the most common causes.</p>
+
+
+        <div class="cta-box article-cta">
+            <h3>Plan your move date around real numbers</h3>
+            <p>If you are trying to line up a lease notice, a sale, or renovation against a resale purchase, walk through your specific timeline before you commit to any date.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a lawyer, accountant or financial adviser. For advice specific to your situation, consult a qualified professional. Rules and figures cited are accurate as of the publication date and are subject to change.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Housing and Development Board:</strong> resale flat buying procedure and the HFE letter requirement, <a href="https://www.hdb.gov.sg">hdb.gov.sg</a></li>
+                <li><strong>PropKaki:</strong> stage by stage HDB resale timeline with day and week counts, <a href="https://propkaki.sg/guides/hdb-resale-process-singapore">propkaki.sg</a></li>
+                <li><strong>Central Provident Fund Board:</strong> CPF use and disbursement timing for a resale purchase, <a href="https://www.cpf.gov.sg">cpf.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "HDB Resale Purchase Timeline From Offer to Keys",
+    "description": "A stage by stage look at the HDB resale timeline, from your HFE letter to key collection, with typical week counts and what commonly delays it.",
+    "image": "https://winfredquek.com/og-image.jpg",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How long does buying an HDB resale flat take from start to finish?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Roughly 12 to 16 weeks from your first HFE letter application to key collection, assuming no major complications. This covers the HFE letter, house hunting, the option period, the resale application, HDB's acceptance, and the completion appointment."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How many days do I get to decide once I receive the option to purchase?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "A standard 21 calendar days. This option period is fixed by market convention and does not extend for financing delays, so it helps to have your loan or CPF position roughly worked out before you reach this stage."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What is the most common reason an HDB resale purchase gets delayed?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Incomplete HFE documentation, a bank loan approval that takes longer than planned, a valuation that comes in below the agreed price, or the seller's own onward housing arrangement not being ready in time are the most common causes."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

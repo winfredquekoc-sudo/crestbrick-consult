@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How to Check If Your Block Gets HIP</title>
+    <meta name="description" content="HIP is announced precinct by precinct, not by request. How to check your block's status, what HIP covers, and how costs are shared by citizenship.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="How to Check If Your Block Gets HIP">
+    <meta property="og:description" content="HIP is announced precinct by precinct, not by request. How to check your block's status, what HIP covers, and how costs are shared by citizenship.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            color: var(--accent-gold);
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+    <article>
+        <h1>How to Check If Your Block Gets the Home Improvement Programme</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            HDB announces Home Improvement Programme eligibility precinct by precinct, based on a block's age and condition, not by individual owner request. Check your block's status through HDB's website or wait for an official precinct announcement letter. HIP covers essential items like toilets and entrances, but excludes major add on upgrades, and costs are shared differently for citizens and permanent residents.
+        </p>
+
+        <h2>Timing: how HIP precincts get selected and announced</h2>
+        <p>
+            HDB generally considers a block for HIP once it reaches around 30 years old and has not already gone through the older Main Upgrading Programme. HDB carries out its own technical assessment of the block's condition, and before works proceed, a majority of Singapore Citizen households in the block, generally at least 75 percent, must vote in favour at a residents committee exercise. You cannot request HIP for your own unit alone. It is approved and rolled out at the block and precinct level.
+        </p>
+
+        <h2>Timing: how to check if your block is on the list</h2>
+        <p>
+            The most reliable way to check is directly on HDB's website, where precinct level upgrading programmes including HIP are listed, or through an official notice from HDB or your Town Council once your precinct has been selected. If your block has not been announced yet, HDB has not necessarily forgotten it, older blocks are simply worked through over time as budget and manpower allow. Our <a href="/insights/sers-scheme-explained-singapore.html">explainer on SERS</a> covers the separate, much rarer scheme for blocks selected for redevelopment rather than upgrading.
+        </p>
+
+        <h2>Safety: what HIP actually covers, and what it does not</h2>
+        <p>
+            Essential improvements address genuine health and safety issues: structural crack and spalling concrete repair, replacement of old soil and waste discharge stacks, rewiring of ageing electrical systems, and a bathroom upgrade with new waterproofing. Optional improvements, which owners can individually choose to take up or decline, include new entrance doors, grille gates, refuse chute upgrades and additional ramps, alongside senior friendly fittings under the Enhancement for Active Seniors track.
+        </p>
+        <p>
+            HIP does not cover cosmetic interior renovation, does not extend to fittings or finishes beyond the bathroom and entrance scope it defines, and it is a different programme entirely from the Selective En bloc Redevelopment Scheme, which involves relocating and rebuilding a whole block rather than upgrading it in place. See our <a href="/insights/hdb-home-improvement-programme-hip-guide.html">full HIP guide</a> for the complete scope of works.
+        </p>
+
+        <h2>Money: cost sharing by citizenship</h2>
+        <p>
+            For Singapore Citizen households, essential works are fully funded by the government, and optional works are heavily subsidised, with owners typically co paying a small percentage of the cost depending on flat type. Permanent Resident households generally have to bear the full cost of the essential works portion unless a household member obtains Singapore citizenship within a stipulated period, in which case a subsidy or a more favourable interest rate on any instalment plan may apply. Always confirm the current cost breakdown for your specific block once billing is finalised, since figures are set precinct by precinct.
+        </p>
+        <div class="callout callout-info">
+            <strong>Billing only happens after works complete.</strong> You are billed based on who owns the flat once your precinct's upgrading costs are finalised, not when the programme is first announced.
+        </div>
+
+        <h2>Timing: typical rollout length</h2>
+        <p>
+            A full precinct, usually made up of 8 to 10 blocks, commonly takes around 1.5 to 2 years from announcement to completion across all blocks, since work is phased block by block rather than done all at once. Expect a period of noise, dust and your bathroom being out of use for several days once your specific block's turn comes up, so plan around it if you are renting the unit out or have an upcoming sale in mind.
+        </p>
+
+        <h2>Money: how HIP affects a sale or a rental listing</h2>
+        <p>
+            An announced but not yet completed HIP can cut both ways when you are selling or renting out a flat. Some buyers and tenants see an upcoming HIP as a plus, since the block's bathrooms, wiring and common areas will soon be upgraded at little or no cost to the owner. Others prefer to avoid the disruption window entirely and will ask when the works are actually scheduled before committing. If your block is mid programme, be upfront in your listing about which stage the works are at, since this is exactly the kind of detail a buyer's or tenant's own enquiries will surface anyway.
+        </p>
+        <p>
+            If you are a Permanent Resident owner and essential works are billed to you in full, factor that cost into your own numbers before deciding whether to sell ahead of the works or wait until after they complete and the flat carries the benefit of the upgrade.
+        </p>
+
+        <h2>Safety: what to do while you wait for an announcement</h2>
+        <p>
+            If your block has not been announced for HIP and you are dealing with an ageing bathroom, spalling concrete or old wiring in the meantime, these are safety issues you can and should raise with your Town Council directly rather than simply waiting out the years until a precinct wide programme arrives. Some repairs fall under the Town Council's own routine maintenance responsibilities even outside a formal upgrading programme, and a genuine safety hazard should never wait for a scheme announcement to get addressed.
+        </p>
+        <p>
+            It also helps to keep your own record of your block's age and any prior upgrading history, since this is useful context if you are asked about it during a sale, a rental enquiry, or simply when trying to gauge how close your block might be to its turn.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <p class="faq-q">How do I find out if my HDB block is getting the Home Improvement Programme?</p>
+        <p>Check directly on HDB's website, where precinct level upgrading programmes are listed, or wait for an official notice from HDB or your Town Council once your precinct has been selected. HIP is announced at the block and precinct level, not by individual owner request.</p>
+
+        <p class="faq-q">Does HIP cover renovation inside my flat?</p>
+        <p>No. HIP covers a defined scope of essential and optional works such as structural repairs, plumbing stacks, rewiring, bathroom waterproofing, entrance doors and ramps. It does not cover cosmetic interior renovation or fittings outside that defined scope.</p>
+
+        <p class="faq-q">Do permanent residents pay more for HIP than Singapore Citizens?</p>
+        <p>Generally yes. Singapore Citizen households have essential works fully funded and optional works heavily subsidised, while Permanent Resident households typically bear the full cost of essential works unless a household member obtains citizenship within a stipulated period.</p>
+
+
+        <div class="cta-box article-cta">
+            <h3>Not sure what HIP means for your unit</h3>
+            <p>If your block has just been announced for HIP, or you are weighing a sale before or after the works, message Winfred for a quick read on the timing.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a lawyer, accountant or financial adviser. For advice specific to your situation, consult a qualified professional. Rules and figures cited are accurate as of the publication date and are subject to change.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Housing and Development Board:</strong> Home Improvement Programme scope and eligibility, <a href="https://www.hdb.gov.sg/cs/infoweb/residential/living-in-an-hdb-flat/sers-and-upgrading-programmes/upgrading-programmes/types/home-improvement-programme-hip">hdb.gov.sg</a></li>
+                <li><strong>PropertyGuru:</strong> HDB upgrading programmes and the current HIP rollout schedule, <a href="https://www.propertyguru.com.sg/property-guides/hdb-upgrading-97615">propertyguru.com.sg</a></li>
+                <li><strong>Credit21:</strong> HIP cost sharing breakdown by citizenship status, <a href="https://www.credit21.com.sg/what-is-the-home-improvement-programme-hip-scheme-in-singapore-how-much-is-it/">credit21.com.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How to Check If Your Block Gets the Home Improvement Programme",
+    "description": "HIP is announced precinct by precinct, not by request. How to check your block's status, what HIP covers, and how costs are shared by citizenship.",
+    "image": "https://winfredquek.com/og-image.jpg",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "How do I find out if my HDB block is getting the Home Improvement Programme?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Check directly on HDB's website, where precinct level upgrading programmes are listed, or wait for an official notice from HDB or your Town Council once your precinct has been selected. HIP is announced at the block and precinct level, not by individual owner request."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does HIP cover renovation inside my flat?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. HIP covers a defined scope of essential and optional works such as structural repairs, plumbing stacks, rewiring, bathroom waterproofing, entrance doors and ramps. It does not cover cosmetic interior renovation or fittings outside that defined scope."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do permanent residents pay more for HIP than Singapore Citizens?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Generally yes. Singapore Citizen households have essential works fully funded and optional works heavily subsidised, while Permanent Resident households typically bear the full cost of essential works unless a household member obtains citizenship within a stipulated period."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

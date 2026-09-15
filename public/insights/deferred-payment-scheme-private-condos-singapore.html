@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deferred Payment Scheme for Private Condos</title>
+    <meta name="description" content="DPS was removed for new Executive Condo land, not private condos. How a deferred structure differs from the standard progressive payment schedule.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Deferred Payment Scheme for Private Condos">
+    <meta property="og:description" content="DPS was removed for new Executive Condo land, not private condos. How a deferred structure differs from the standard progressive payment schedule.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-q {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-top: 24px;
+            margin-bottom: 8px;
+            color: var(--accent-gold);
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Deferred Payment Scheme for Private Condos</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Deferred payment scheme was not scrapped across the board. The removal that took effect from 8 May 2026 applies to new Executive Condominium land, not to private condominiums. Some private developers still structure a deferred or delayed payment option on selected launches, usually priced at a premium per square foot against the standard progressive payment schedule.
+        </p>
+
+        <h2>Timing: what actually got removed, and when</h2>
+        <p>
+            The change you may have heard about applies to Executive Condominiums, a hybrid public and private housing type that sits under HDB's oversight even though it is developed and sold like a private condo. For EC land tendered from 8 May 2026 onward, developers can no longer offer their old deferred payment structure, which historically let buyers pay a small amount at booking and defer the bulk of the price until the project reached Temporary Occupation Permit. Our <a href="/insights/ec-dps-removed-2026.html">full explainer on the EC DPS removal</a> covers exactly which projects are affected and which are not.
+        </p>
+        <p>
+            Private condominiums fall under a different regulatory track and were never part of that specific EC change. That is the source of the confusion: buyers hear "DPS removed" in the news and assume it applies to every new launch, when the announcement was scoped to EC land parcels only.
+        </p>
+
+        <h2>Money: the normal progressive payment schedule</h2>
+        <p>
+            Almost every private condo launch today sells under the standard schedule set out in the Housing Developers Rules. Under this schedule, a licensed developer can only collect payment from you in stages tied to actual construction progress: a booking fee, a further instalment when you sign the Sale and Purchase Agreement, then a series of payments released as each construction milestone is reached, such as the foundation, the structural framework, the walls, the ceiling, the electrical and mechanical works, and the common facilities. A large instalment falls due at Temporary Occupation Permit, with the balance on legal completion.
+        </p>
+        <p>
+            This structure spreads your cash outlay across the whole construction period, usually 3 to 4 years, and each instalment lines up roughly with a mortgage drawdown from your bank, so your loan interest only accrues on what has actually been disbursed so far.
+        </p>
+
+        <h2>Money: how a deferred structure differs</h2>
+        <p>
+            Where a developer still offers a deferred variant on a private launch, the mechanics generally flip the normal schedule around. You pay a larger percentage upfront at booking and signing, then the remaining balance is deferred as one lump sum due only at Temporary Occupation Permit, rather than being drawn down progressively as the building goes up. In effect you are not paying monthly mortgage instalments during construction at all, because there is no loan drawdown happening yet.
+        </p>
+        <div class="callout callout-info">
+            <strong>Do not assume a specific project offers this.</strong> DPS style structures are the exception on private launches today, not the norm, and terms differ by developer. Always confirm directly with the project's sales team and your lawyer before relying on it.
+        </div>
+
+        <h2>Money: the cash flow trade off</h2>
+        <p>
+            The appeal of a deferred structure is liquidity. You keep your cash and CPF free during construction, which suits a buyer who is still servicing another mortgage, staying in a rented home, or waiting to sell an existing property before the new one completes. The trade off sits on the other end of the timeline: you need your full financing, whether cash, CPF or bank loan, ready and approved in one go at Temporary Occupation Permit, several years after you signed, and interest rates or your own income position may have moved by then. Developers typically price this flexibility into the headline price per square foot, so the unit itself usually costs more than an equivalent one sold under the standard schedule.
+        </p>
+        <p>
+            Before choosing either structure, run both cash flow paths against your own numbers rather than the marketing pitch. Our <a href="/insights/how-long-to-buy-a-condo-singapore-timeline.html">condo buying timeline guide</a> sets out how the standard schedule lines up against the construction calendar.
+        </p>
+
+        <h2>Money: questions worth asking before you book</h2>
+        <p>
+            If a sales team offers you a deferred structure, ask exactly how much is due at booking and signing, what percentage remains deferred, and whether that remaining sum is a fixed dollar figure or tied to a formula that could move. Ask how the per square foot price compares with a similar unit in the same project sold under the standard schedule, since that gap is effectively the price of the deferral. Ask your lawyer to confirm the deferred sum is properly secured against the unit, and ask your bank early whether it is comfortable financing a large single drawdown years from now rather than a series of smaller progressive ones, since not every lender treats the two structures the same way.
+        </p>
+        <p>
+            None of this makes a deferred structure wrong for every buyer. It simply means the decision belongs with your own cash flow plan and your lawyer's review of the specific contract, not with a sales gallery's comparison chart.
+        </p>
+
+        <h2>Safety: read the contract, not the brochure</h2>
+        <p>
+            A sales brochure will describe a deferred structure in a single friendly sentence. The actual Sale and Purchase Agreement will spell out the exact percentages, the exact trigger dates, and what happens if you are late on the deferred sum, including any interest or penalty clause. Have your own lawyer review these clauses before you sign anything, separate from the developer's own conveyancing panel if you want a fully independent read. This is a large financial commitment years into the future, and the contract terms, not the sales pitch, are what will actually apply at Temporary Occupation Permit.
+        </p>
+        <p>
+            It is also worth asking what happens to your deferred payment obligation if the project is delayed past its expected Temporary Occupation Permit date. Construction delays happen, and you want clarity upfront on whether your deferred payment date moves with the project or stays fixed regardless.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <p class="faq-q">Was the deferred payment scheme removed for all new condo launches?</p>
+        <p>No. The removal that took effect from 8 May 2026 applies only to Executive Condominium land tendered from that date onward. Private condominiums were not covered by that change, and some private developers still structure a deferred payment option on selected launches.</p>
+
+        <p class="faq-q">How is a deferred payment structure different from the normal progressive schedule?</p>
+        <p>Under the normal schedule you pay in stages tied to construction milestones, roughly matching each mortgage drawdown to the building's progress. Under a deferred structure you pay a larger amount upfront and then defer most of the remaining balance as one lump sum due at Temporary Occupation Permit, usually at a premium per square foot versus the standard schedule.</p>
+
+        <p class="faq-q">Should I expect every new launch to offer a deferred payment option?</p>
+        <p>No. Most private launches today sell under the standard progressive payment schedule. A deferred structure is offered by only some developers on selected projects, so always confirm directly with the developer's sales team whether a specific launch offers it before assuming it does.</p>
+
+
+        <div class="cta-box article-cta">
+            <h3>Model both payment paths before you book</h3>
+            <p>Whether the launch you are looking at uses the standard schedule or a deferred structure, run the real monthly and lump sum numbers before you put down a booking fee.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a lawyer, accountant or financial adviser. For advice specific to your situation, consult a qualified professional. Rules and figures cited are accurate as of the publication date and are subject to change.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Housing and Development Board:</strong> Executive Condominium deferred payment scheme changes, <a href="https://www.hdb.gov.sg">hdb.gov.sg</a></li>
+                <li><strong>Urban Redevelopment Authority:</strong> private residential price trends and launch data, <a href="https://www.ura.gov.sg">ura.gov.sg</a></li>
+                <li><strong>Central Provident Fund Board:</strong> using CPF under a progressive payment schedule, <a href="https://www.cpf.gov.sg">cpf.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Deferred Payment Scheme for Private Condos",
+    "description": "DPS was removed for new Executive Condo land, not private condos. How a deferred structure differs from the standard progressive payment schedule.",
+    "image": "https://winfredquek.com/og-image.jpg",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Was the deferred payment scheme removed for all new condo launches?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. The removal that took effect from 8 May 2026 applies only to Executive Condominium land tendered from that date onward. Private condominiums were not covered by that change, and some private developers still structure a deferred payment option on selected launches."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "How is a deferred payment structure different from the normal progressive schedule?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Under the normal schedule you pay in stages tied to construction milestones, roughly matching each mortgage drawdown to the building's progress. Under a deferred structure you pay a larger amount upfront and then defer most of the remaining balance as one lump sum due at Temporary Occupation Permit, usually at a premium per square foot versus the standard schedule."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Should I expect every new launch to offer a deferred payment option?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Most private launches today sell under the standard progressive payment schedule. A deferred structure is offered by only some developers on selected projects, so always confirm directly with the developer's sales team whether a specific launch offers it before assuming it does."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>
