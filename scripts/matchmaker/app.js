@@ -995,7 +995,12 @@ function landlordHeadsUpDraft(l, t, slotLabel) {
 }
 
 // ===================== links =====================
-function normPhone(raw) { let p = (raw || "").replace(/[^0-9]/g, ""); if (p.length === 8 && /^[89]/.test(p)) p = "65" + p; return p; }
+// Quick add (CRM tab) is the one place someone can type a phone number in free form —
+// everywhere else it arrives already-formatted from the WhatsApp/CSV databases. "6565"
+// is the doubled prefix mistake that free typing invites (+65 typed twice, once by hand
+// and once by muscle memory pasting a number that already had it): a 12-digit string
+// starting "6565" is stripped back to a single "65" before the normal 8-digit rule runs.
+function normPhone(raw) { let p = (raw || "").replace(/[^0-9]/g, ""); if (p.length === 12 && p.slice(0, 4) === "6565") p = p.slice(2); if (p.length === 8 && /^[89]/.test(p)) p = "65" + p; return p; }
 function waLink(l, t) {
   const target = isCobroke(l) ? l.phone : t.phone;
   const p = normPhone(target);
@@ -1103,7 +1108,7 @@ function linkButtonHtml(href, label) {
 const CRM = (function () {
   const LKEY = "cbkcrm_v1", QKEY = "cbkcrm_queue_v1", MKEY = "cbkcrm_migrated_v1";
   const API = "/api/crm";
-  let S = { entities: {}, notes: [], tasks: [], match: {}, activity: [] };
+  let S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {} };
   let queue = [], mode = "local", lastErr = "", timer = null, retryTimer = null, backoff = 0, booted = false, nextTmp = -1;
   const RETRY_MIN = 5000, RETRY_MAX = 60000;
 
@@ -1145,12 +1150,16 @@ const CRM = (function () {
   // anywhere `queue` itself is reassigned wholesale (boot's initial load,
   // migrate's concat, flush's post send slice) so a stale entry can never
   // point at an op object that has already left the array.
-  let entityOpIndex = new Map(), matchOpIndex = new Map();
+  let entityOpIndex = new Map(), matchOpIndex = new Map(), dealOpIndex = new Map();
   function reindexQueue() {
-    entityOpIndex = new Map(); matchOpIndex = new Map();
+    entityOpIndex = new Map(); matchOpIndex = new Map(); dealOpIndex = new Map();
     queue.forEach(o => {
       if (o.op === "entity" && o.key) entityOpIndex.set(o.key, o);
       else if (o.op === "match" && o.listing_id) matchOpIndex.set(o.listing_id + "|" + o.tenant_id, o);
+      // A deal edited twice before the next flush (e.g. stage bumped, then the OTP date
+      // filled in a minute later) compacts to one upsert op, same reasoning as entity/match
+      // above — deal_delete is never compacted, it always removes whatever is queued.
+      else if (o.op === "deal" && o.id) dealOpIndex.set(o.id, o);
     });
   }
 
@@ -1178,6 +1187,10 @@ const CRM = (function () {
       const existing = matchOpIndex.get(mk);
       if (existing) existing.status = op.status;
       else { queue.push(op); matchOpIndex.set(mk, op); }
+    } else if (op.op === "deal" && op.id) {
+      const existing = dealOpIndex.get(op.id);
+      if (existing) Object.assign(existing, op);
+      else { queue.push(op); dealOpIndex.set(op.id, op); }
     } else {
       queue.push(op);
     }
@@ -1234,7 +1247,8 @@ const CRM = (function () {
   function adopt(d) {
     const e = {}; (d.entities || []).forEach(x => e[x.key] = x);
     const m = {}; (d.match || []).forEach(x => m[x.listing_id + "|" + x.tenant_id] = x.status);
-    S = { entities: e, notes: d.notes || [], tasks: d.tasks || [], match: m, activity: d.activity || [] };
+    const dl = {}; (d.deals || []).forEach(x => dl[x.id] = x);
+    S = { entities: e, notes: d.notes || [], tasks: d.tasks || [], match: m, activity: d.activity || [], deals: dl };
     queue.forEach(replay);
   }
   // (item 3) Every op type the queue can hold must be replayable, not just
@@ -1265,6 +1279,11 @@ const CRM = (function () {
       if (t) Object.assign(t, { title: o.title, due: o.due, done: o.done });
     }
     else if (o.op === "task_delete" && o.id != null) { S.tasks = S.tasks.filter(t => t.id !== o.id); }
+    // A "deal" op carries the whole record every time (see upsertDeal below — there is no
+    // separate patch shape like entity has), so replay is a plain overwrite by id, adding
+    // the row back if adopt()'s fresh snapshot has not caught up to this write yet.
+    else if (o.op === "deal" && o.id) { S.deals[o.id] = Object.assign({}, S.deals[o.id], o); }
+    else if (o.op === "deal_delete" && o.id) { delete S.deals[o.id]; }
   }
 
   // One-time import of pre-existing device-local state (marks, verdict overrides,
@@ -1346,9 +1365,10 @@ const CRM = (function () {
       // file's bottom) left the CRM permanently unsynced for the session with
       // nothing on screen to explain why. Reset to a fresh, well shaped store
       // instead of trusting the parsed shape.
-      if (!S || typeof S !== "object" || Array.isArray(S)) S = { entities: {}, notes: [], tasks: [], match: {}, activity: [] };
+      if (!S || typeof S !== "object" || Array.isArray(S)) S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {} };
       if (!S.entities || typeof S.entities !== "object") S.entities = {};
       if (!S.match || typeof S.match !== "object") S.match = {};
+      if (!S.deals || typeof S.deals !== "object" || Array.isArray(S.deals)) S.deals = {};
       if (!Array.isArray(S.notes)) S.notes = [];
       if (!Array.isArray(S.tasks)) S.tasks = [];
       if (!Array.isArray(S.activity)) S.activity = [];
@@ -1441,8 +1461,62 @@ const CRM = (function () {
         if (queue.length !== before) scheduleSave();
       }
     },
+    // (CRM tab) One tap Done from the follow up queue — sets done:true rather than
+    // toggleTask's flip, since a tap on an item already shown as open must always
+    // mean "finish it", never undo it if tapped twice by mistake.
+    completeTask(id) {
+      const t = S.tasks.find(x => x.id === id); if (!t || t.done) return; t.done = true;
+      if (id > 0) { push({ op: "task", id, title: t.title, due: t.due, done: true }); }
+      else {
+        const q = queue.find(o => o.op === "task" && o.tempId === id);
+        if (q) { q.done = true; scheduleSave(); }
+      }
+    },
+    snoozeTask(id, days) {
+      const t = S.tasks.find(x => x.id === id); if (!t) return; const due = addDaysISO(todayISO(), days); t.due = due;
+      if (id > 0) { push({ op: "task", id, title: t.title, due, done: t.done }); }
+      else {
+        const q = queue.find(o => o.op === "task" && o.tempId === id);
+        if (q) { q.due = due; scheduleSave(); }
+      }
+    },
+    // Same "Done"/"Snooze" pair for an entity's own next action plan (not a discrete
+    // task row) — Done clears it, Snooze pushes next_due forward. Both go through the
+    // ordinary entity patch op, which already logs activity server side (see
+    // applyOp's "entity" case in deploy/api/crm.js).
+    completePlan(s) {
+      const k = keyOf(s); if (!k) return; const e = ensure(k, s); e.next_action = null; e.next_due = null;
+      push({ op: "entity", key: k, kind: s.kind, ref_id: s.id, name: s.name, phone: s.phone, patch: { next_action: null, next_due: null } });
+    },
+    snoozePlan(s, days) {
+      const k = keyOf(s); if (!k) return; const e = ensure(k, s); const due = addDaysISO(todayISO(), days); e.next_due = due;
+      push({ op: "entity", key: k, kind: s.kind, ref_id: s.id, name: s.name, phone: s.phone, patch: { next_due: due } });
+    },
     activity(s) { if (!s) return S.activity.slice(); const k = keyOf(s); return S.activity.filter(a => a.key === k); },
+    // (CRM tab) byKey variants — the merged contacts table builds synthetic subjects
+    // for DATA records that have never been touched via the drawer (see
+    // crmMergedContacts()), and already has their key computed once rather than
+    // recomputing it through keyOf(subj) for every notes/tasks/activity lookup.
+    notesByKey(k) { return k ? S.notes.filter(n => n.key === k) : []; },
+    tasksByKey(k) { return k ? S.tasks.filter(t => t.key === k) : []; },
+    activityByKey(k) { return k ? S.activity.filter(a => a.key === k) : []; },
     all() { return Object.values(S.entities); },
+    // ---- deals block (CRM tab) ----
+    deals() { return Object.values(S.deals); },
+    // Always a full replace, not a patch — the deal form always submits every field,
+    // so there is no partial update shape to merge the way entity patches do. `deal.id`
+    // is set by the caller (newDealId() for a new deal, the existing id for an edit).
+    upsertDeal(deal, subj) {
+      if (!deal || !deal.id) return;
+      S.deals[deal.id] = Object.assign({}, deal);
+      const k = subj ? keyOf(subj) : null;
+      if (k) { ensure(k, subj); S.deals[deal.id].key = k; }
+      push(Object.assign({ op: "deal" }, deal, k ? { key: k, kind: subj.kind, ref_id: subj.id, name: subj.name, phone: subj.phone } : {}));
+    },
+    deleteDeal(id) {
+      delete S.deals[id];
+      push({ op: "deal_delete", id });
+    },
     // ---- backup/export bridge (item 1) ----
     // Raw snapshot for exportBlob()/writeAutoBackup() below — this is the ONLY
     // durable copy of every stage, note and task Winfred has ever recorded
@@ -1450,7 +1524,7 @@ const CRM = (function () {
     // module's header comment), so it has to travel with state export/import/
     // backup exactly like marks/overrides/offers/scratch do, not be left out.
     exportState() {
-      return { entities: Object.values(S.entities), notes: S.notes.slice(), tasks: S.tasks.slice(), match: Object.assign({}, S.match) };
+      return { entities: Object.values(S.entities), notes: S.notes.slice(), tasks: S.tasks.slice(), match: Object.assign({}, S.match), deals: Object.values(S.deals) };
     },
     // Merge policy: if this device's CRM store is empty (the realistic case —
     // browser data was just cleared, or this is a restore onto a fresh
@@ -1459,9 +1533,9 @@ const CRM = (function () {
     // overwrite or drop anything already recorded on this device, same rule
     // as importBlob() uses for marks/overrides/offers.
     importState(blob) {
-      const empty = { entities: 0, notes: 0, tasks: 0, match: 0 };
+      const empty = { entities: 0, notes: 0, tasks: 0, match: 0, deals: 0 };
       if (!blob || typeof blob !== "object") return empty;
-      if (!Object.keys(S.entities).length && !S.notes.length && !S.tasks.length && !Object.keys(S.match).length) {
+      if (!Object.keys(S.entities).length && !S.notes.length && !S.tasks.length && !Object.keys(S.match).length && !Object.keys(S.deals).length) {
         const e = {}, restoreOps = [];
         (Array.isArray(blob.entities) ? blob.entities : []).forEach(x => {
           if (!x || !x.key) return;
@@ -1488,12 +1562,21 @@ const CRM = (function () {
           const us = k.indexOf("|");
           if (us !== -1) restoreOps.push({ op: "match", listing_id: k.slice(0, us), tenant_id: k.slice(us + 1), status: match[k] });
         });
-        S = { entities: e, notes, tasks, match, activity: S.activity };
+        const dl = {};
+        // Unlike notes/tasks (temp id vs a real server id), a deal's id is always client
+        // assigned and the "deal" op is a full idempotent upsert — safe to requeue every
+        // one of them regardless of whether the exporting device ever reached a server.
+        (Array.isArray(blob.deals) ? blob.deals : []).forEach(x => {
+          if (!x || !x.id) return;
+          dl[x.id] = Object.assign({}, x);
+          restoreOps.push(Object.assign({ op: "deal" }, x));
+        });
+        S = { entities: e, notes, tasks, match, activity: S.activity, deals: dl };
         if (restoreOps.length) { queue = queue.concat(restoreOps); reindexQueue(); }
         saveSync();
-        return { entities: Object.keys(e).length, notes: notes.length, tasks: tasks.length, match: Object.keys(match).length };
+        return { entities: Object.keys(e).length, notes: notes.length, tasks: tasks.length, match: Object.keys(match).length, deals: Object.keys(dl).length };
       }
-      let entC = 0, noteC = 0, taskC = 0, matchC = 0;
+      let entC = 0, noteC = 0, taskC = 0, matchC = 0, dealC = 0;
       (Array.isArray(blob.entities) ? blob.entities : []).forEach(x => {
         if (x && x.key && !S.entities[x.key]) { S.entities[x.key] = Object.assign({}, x); entC++; }
       });
@@ -1512,8 +1595,11 @@ const CRM = (function () {
       if (blob.match && typeof blob.match === "object") {
         Object.keys(blob.match).forEach(k => { if (!(k in S.match)) { S.match[k] = blob.match[k]; matchC++; } });
       }
+      (Array.isArray(blob.deals) ? blob.deals : []).forEach(x => {
+        if (x && x.id && !S.deals[x.id]) { S.deals[x.id] = Object.assign({}, x); dealC++; }
+      });
       saveSync();
-      return { entities: entC, notes: noteC, tasks: taskC, match: matchC };
+      return { entities: entC, notes: noteC, tasks: taskC, match: matchC, deals: dealC };
     },
   };
 })();
@@ -2630,7 +2716,7 @@ function measureHeaderHeight() {
 }
 // (item 6) panels heavy enough to be worth releasing on exit — each one
 // rebuilds fully from box.innerHTML = "" on entry (see render() below).
-const HEAVY_PANELS = ["alltenants", "landlords", "stats", "sales", "revival", "whole"];
+const HEAVY_PANELS = ["alltenants", "landlords", "stats", "sales", "revival", "whole", "crm"];
 // (runner up) render() used to sweep MATCHES three separate times for three
 // independent counts (KPI qualified, snoozedActive().length, queuedMatches()
 // .length) on every single render — every tab switch, mark write and filter
@@ -2663,7 +2749,7 @@ function render() {
   // deliberately left alone: the Leaflet instance (_mmMap) is attached to
   // live DOM inside it, and renderMapView()/initMatchmakerMap() already
   // manage that instance's lifecycle themselves.
-  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival"].forEach(v => {
+  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival", "crm"].forEach(v => {
     const e = $("#" + v);
     if (!e) return;
     if (v === view) { e.style.display = (v === "listing" || v === "tenant") ? "grid" : "block"; return; }
@@ -2687,6 +2773,7 @@ function render() {
   if (view === "alltenants") renderAllTenantsRoster();
   if (view === "sales") renderSalesRoster();
   if (view === "revival") renderRevival();
+  if (view === "crm") renderCRM();
   CRM.paint();
   $("#legend").innerHTML = "Score = budget 30 + location 25 + lease 15 + move in 15 + freshness 15 (urgency and MRT adjacency can add a little more, capped at 100). ⚑ flags are landlord preference gates (gender, ethnicity, pax) or budget/lease gaps — a red conflict still shows so you can judge, it is not auto hidden. " +
     "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
@@ -2981,7 +3068,9 @@ const FACET_VIEWS = ["work", "listing", "tenant", "whole", "pipeline"];
 // .filters bar (and the search/filter debounce hook) is skipped only there;
 // every other view keeps at least q/d live, even the rosters outside
 // FACET_VIEWS above (landlords/alltenants/sales/revival all filter by them).
-const NON_FILTER_VIEWS = ["mapview", "stats"];
+// "crm" has its own self contained search/filter UI (see renderCRM/CRM_UI above) —
+// the global filter bar/#q would otherwise fight over the same keystrokes.
+const NON_FILTER_VIEWS = ["mapview", "stats", "crm"];
 let FACET_CACHE_KEY = null;
 function updateFacetedCounts() {
   if (FACET_VIEWS.indexOf(view) === -1) return;
@@ -6106,6 +6195,477 @@ function renderPipeline() {
     grid.appendChild(col);
   });
   box.appendChild(grid.children.length ? grid : el("div", "empty", "No pipeline records match the current search."));
+}
+
+// ===================== CRM tab (follow up queue, contacts, quick add, deals) =====================
+// Fourth first class surface alongside the drawer/Pipeline tab above. All in progress
+// form input (quick add fields, the deal form, the contacts search/filters) is mirrored
+// into CRM_UI below rather than left to live purely in the DOM — renderCRM() tears the
+// whole #crm box down and rebuilds it on every call (same pattern every roster tab in
+// this file already uses), and a call can arrive from anywhere (a Done/Snooze tap,
+// CRM.boot()'s resync, another tab's action bleeding into a shared render()) — without
+// this, typing half a note while the follow up queue's "Done" button fires elsewhere
+// would silently wipe it.
+function addDaysISO(iso, days) {
+  const d = new Date((iso || todayISO()) + "T00:00:00Z");
+  d.setUTCDate(d.getUTCDate() + (days || 0));
+  return d.toISOString().slice(0, 10);
+}
+const CRM_KIND_LABELS = { tenant: "Tenant", landlord: "Landlord", sale: "Seller", buyer: "Buyer", person: "Other" };
+const CRM_SOURCE_OPTIONS = ["Carousell", "PropertyGuru", "referral", "walk in", "other"];
+const DEAL_STAGE_ORDER = ["agreed", "otp", "signed", "completed", "fell_through"];
+const DEAL_STAGE_LABELS = { agreed: "Agreed", otp: "OTP", signed: "Signed", completed: "Completed", fell_through: "Fell through" };
+
+function crmBlankDealDraft() {
+  return {
+    editId: null, deal_type: "rental", property: "", price: "", commission_gross: "",
+    cobroke_agent: "", cobroke_split_pct: "", stage: "agreed", otp_date: "", completion_date: "",
+    notes: "", linkedKey: "", linkedName: "", contactSearch: "",
+  };
+}
+let CRM_UI = {
+  q: "", kind: "", stage: "", needsAction: false, showAll: false,
+  qa: { name: "", phone: "", kind: "tenant", source: "", note: "" },
+  deal: crmBlankDealDraft(),
+};
+let crmDebounceTimer = null;
+function scheduleCRMRerender() { clearTimeout(crmDebounceTimer); crmDebounceTimer = setTimeout(() => { if (view === "crm") renderCRM(); }, 200); }
+
+// Pure — merges every CRM entity with every phoned tenant/landlord/sale record from
+// DATA, keyed the same way CRM.keyOf() keys a subject, so an untouched person still
+// shows up with the default stage "new". Exposed at module scope (not nested inside
+// renderCRM) so tests/matchmaker/crm.test.mjs can slice it out and run it against
+// fixture data without a live CRM store.
+function crmMergedContacts(entities, tenants, landlords, sales, keyOfFn) {
+  const map = new Map();
+  (entities || []).forEach(e => { if (e && e.key) map.set(e.key, Object.assign({ address: "", _last_contact: null }, e)); });
+  const addSrc = (arr, kind, addrField) => {
+    (arr || []).forEach(r => {
+      if (!r || !r.phone) return;
+      const k = keyOfFn({ kind, id: r.id, name: r.name, phone: r.phone });
+      if (!k) return;
+      if (!map.has(k)) {
+        map.set(k, {
+          key: k, kind, ref_id: r.id, name: r.name, phone: r.phone, stage: "new",
+          next_action: null, next_due: null, flagged: false, archived: false,
+          address: addrField ? (r[addrField] || "") : "", _last_contact: r.last_contact || null,
+        });
+      } else {
+        const ex = map.get(k);
+        if (!ex.name) ex.name = r.name;
+        if (!ex.address) ex.address = addrField ? (r[addrField] || "") : "";
+        if (!ex._last_contact) ex._last_contact = r.last_contact || null;
+      }
+    });
+  };
+  addSrc(tenants, "tenant", "preferred_location");
+  addSrc(landlords, "landlord", "address");
+  addSrc(sales, "sale", "address");
+  return [...map.values()];
+}
+function crmLastActivity(c, activityByKeyFn) {
+  const acts = activityByKeyFn(c.key);
+  if (acts && acts.length) return (acts[0].at || "").slice(0, 10);
+  return c._last_contact || "";
+}
+// Pure — soonest/overdue due date first, then most recently active first for anything
+// with no due date at all.
+function crmSortContacts(list, lastActivityFn) {
+  return list.slice().sort((a, b) => {
+    const ad = a.next_due || "9999-99-99", bd = b.next_due || "9999-99-99";
+    if (ad !== bd) return ad < bd ? -1 : 1;
+    const aa = lastActivityFn(a) || "", ba = lastActivityFn(b) || "";
+    return aa < ba ? 1 : (aa > ba ? -1 : 0);
+  });
+}
+// Pure — the follow up queue's own selection: open tasks due today or earlier, and
+// entities whose own next action plan is due today or earlier. Both come back sorted
+// soonest/most overdue first.
+function followUpQueueItems(tasks, entities, today) {
+  const dueTasks = (tasks || []).filter(t => t && !t.done && t.due && t.due <= today).sort((a, b) => a.due < b.due ? -1 : 1);
+  const duePlans = (entities || []).filter(e => e && e.next_due && e.next_due <= today).sort((a, b) => a.next_due < b.next_due ? -1 : 1);
+  return { tasks: dueTasks, plans: duePlans };
+}
+function dealDateOf(d) { return (d && (d.completion_date || d.otp_date || (d.created_at || "").slice(0, 10))) || ""; }
+// Pure — month/year to date gross+net totals, excluding deals that fell through (they
+// earned no commission). "Month"/"year" are read off whichever of completion_date/
+// otp_date/created_at the deal actually has.
+function dealTotals(deals, today) {
+  const y = today.slice(0, 4), m = today.slice(0, 7);
+  let monthGross = 0, monthNet = 0, ytdGross = 0, ytdNet = 0;
+  (deals || []).forEach(d => {
+    if (!d || d.stage === "fell_through") return;
+    const dd = dealDateOf(d); if (!dd) return;
+    const g = Number(d.commission_gross) || 0, n = Number(d.commission_net) || 0;
+    if (dd.slice(0, 4) === y) { ytdGross += g; ytdNet += n; }
+    if (dd.slice(0, 7) === m) { monthGross += g; monthNet += n; }
+  });
+  return { monthGross, monthNet, ytdGross, ytdNet };
+}
+function crmComputeNet(gross, splitPct) {
+  if (gross == null) return null;
+  const pct = splitPct != null ? splitPct : 0;
+  return Math.round((gross * (1 - pct / 100)) * 100) / 100;
+}
+// Pure — the shape scripts/ops/log_deal.py's --import-json mode expects, matching the
+// clients.db deals table's own columns. client_slug is always null: Matchmaker has no
+// notion of a clients.db slug, so a linked contact's name (if any) is folded into notes
+// instead, for Winfred to reconcile by hand at import time.
+function dealExportRow(d, linkedName) {
+  const linkTag = linkedName ? (" [linked: " + linkedName + "]") : "";
+  return {
+    id: d.id, client_slug: null, deal_type: d.deal_type || null,
+    property_address: d.property || null,
+    price: d.price != null ? d.price : null,
+    commission_gross: d.commission_gross != null ? d.commission_gross : null,
+    commission_net: d.commission_net != null ? d.commission_net : null,
+    cobroke_agent: d.cobroke_agent || null,
+    cobroke_split_pct: d.cobroke_split_pct != null ? d.cobroke_split_pct : null,
+    stage: d.stage || "agreed",
+    otp_date: d.otp_date || null,
+    completion_date: d.completion_date || null,
+    notes: ((d.notes || "") + linkTag).trim() || null,
+    created_at: d.created_at || null,
+  };
+}
+function crmContactNameByKey(key) {
+  if (!key) return "";
+  const e = CRM.all().find(x => x.key === key);
+  return (e && e.name) ? e.name : "";
+}
+function crmSubjFromKey(key) {
+  const e = CRM.all().find(x => x.key === key);
+  if (e) return { kind: e.kind, id: e.ref_id, name: e.name, phone: e.phone };
+  // Fall back to the merged contacts — an untouched DATA record picked as the link has
+  // no crm_entity row yet, only a synthetic contact from crmMergedContacts().
+  const c = crmMergedContacts(CRM.all(), DATA.all_tenants, DATA.all_landlords, DATA.sales, CRM.keyOf).find(x => x.key === key);
+  return c ? { kind: c.kind, id: c.ref_id, name: c.name, phone: c.phone } : null;
+}
+
+function renderCRM() {
+  const box = $("#crm"); box.innerHTML = "";
+  box.appendChild(el("div", "help", "🗂 <b>CRM</b> — follow up queue, every contact merged with the databases, quick add and deals. " +
+    (CRM.mode === "local"
+      ? "⚠️ No cloud backend is configured, so this is saved on <b>this device only</b> — it will not appear on your phone."
+      : "This syncs to your CRM database and survives a nightly rebuild.")));
+  renderCRMFollowUp(box);
+  renderCRMContacts(box);
+  renderCRMQuickAdd(box);
+  renderCRMDeals(box);
+}
+
+function renderCRMFollowUp(box) {
+  const today = todayISO();
+  const { tasks, plans } = followUpQueueItems(CRM.tasks(), CRM.all(), today);
+  const wrap = el("div", "crmblock", '<div class="section-hd">🔔 Follow up queue</div>');
+  if (!tasks.length && !plans.length) {
+    wrap.appendChild(el("div", "empty", "Nothing overdue or due today. You are caught up."));
+    box.appendChild(wrap);
+    return;
+  }
+  const addSnoozeButtons = (acts, onSnooze) => {
+    [1, 3, 7].forEach(n => {
+      const b = el("button", "btn", "Snooze " + n + "d");
+      b.onclick = (e) => { e.stopPropagation(); onSnooze(n); render(); };
+      acts.appendChild(b);
+    });
+  };
+  tasks.forEach(t => {
+    const e = t.key ? CRM.all().find(x => x.key === t.key) : null;
+    const overdue = t.due < today;
+    const row = el("div", "row" + (overdue ? " mark-neg" : ""),
+      "<div class='rtop'><span class='nm'>" + esc(t.title) + "</span>" +
+      "<span class='chip" + (overdue ? " r" : " a") + "'>" + (overdue ? "overdue " : "due ") + esc(t.due) + "</span>" +
+      (e ? ("<span class='chip'>" + esc(e.name || "?") + "</span>") : "") + "</div>");
+    const acts = el("div", "acts");
+    const doneBtn = el("button", "btn p", "✓ Done");
+    doneBtn.onclick = (ev) => { ev.stopPropagation(); CRM.completeTask(t.id); render(); };
+    acts.appendChild(doneBtn);
+    addSnoozeButtons(acts, (n) => CRM.snoozeTask(t.id, n));
+    row.appendChild(acts);
+    if (e) row.onclick = () => openCRM(e);
+    wrap.appendChild(row);
+  });
+  plans.forEach(e => {
+    const overdue = e.next_due < today;
+    const row = el("div", "row" + (overdue ? " mark-neg" : ""),
+      "<div class='rtop'><span class='nm'>" + esc(e.name || "?") + "</span>" +
+      "<span class='chip'>" + esc(e.next_action || "follow up") + "</span>" +
+      "<span class='chip" + (overdue ? " r" : " a") + "'>" + (overdue ? "overdue " : "due ") + esc(e.next_due) + "</span></div>");
+    const acts = el("div", "acts");
+    const doneBtn = el("button", "btn p", "✓ Done");
+    doneBtn.onclick = (ev) => { ev.stopPropagation(); CRM.completePlan(e); render(); };
+    acts.appendChild(doneBtn);
+    addSnoozeButtons(acts, (n) => CRM.snoozePlan(e, n));
+    row.appendChild(acts);
+    row.onclick = () => openCRM(e);
+    wrap.appendChild(row);
+  });
+  box.appendChild(wrap);
+}
+
+function renderCRMContacts(box) {
+  const wrap = el("div", "crmblock", '<div class="section-hd">👥 Contacts</div>');
+  const filterRow = el("div", "crmfilters",
+    '<input id="crmQ" placeholder="Search name, phone or address" value="' + esc(CRM_UI.q) + '">' +
+    '<div class="stagerow" id="crmKindChips">' +
+      ["", "tenant", "landlord", "sale", "buyer", "person"].map(k =>
+        '<span class="pick' + (CRM_UI.kind === k ? " sel" : "") + '" data-kind="' + esc(k) + '">' + esc(k ? CRM_KIND_LABELS[k] : "All kinds") + '</span>').join("") +
+    '</div>' +
+    '<div class="stagerow" id="crmStageChips">' +
+      [""].concat(STAGE_ORDER).map(s =>
+        '<span class="pick' + (CRM_UI.stage === s ? " sel" : "") + '" data-stage="' + esc(s) + '">' + esc(s ? STAGE_LABELS[s] : "All stages") + '</span>').join("") +
+    '</div>' +
+    '<label class="tog"><input type="checkbox" id="crmNeedsAction"' + (CRM_UI.needsAction ? " checked" : "") + '> needs next action</label>');
+  wrap.appendChild(filterRow);
+
+  let list = crmMergedContacts(CRM.all(), DATA.all_tenants, DATA.all_landlords, DATA.sales, CRM.keyOf);
+  const q = CRM_UI.q.trim().toLowerCase();
+  if (q) list = list.filter(c => ((c.name || "") + " " + (c.phone || "") + " " + (c.address || "")).toLowerCase().includes(q));
+  if (CRM_UI.kind) list = list.filter(c => c.kind === CRM_UI.kind);
+  if (CRM_UI.stage) list = list.filter(c => (c.stage || "new") === CRM_UI.stage);
+  if (CRM_UI.needsAction) list = list.filter(c => !c.next_due);
+  list = crmSortContacts(list, (c) => crmLastActivity(c, CRM.activityByKey));
+
+  wrap.appendChild(el("div", "mut", list.length + " contact" + (list.length === 1 ? "" : "s")));
+  if (!list.length) {
+    wrap.appendChild(el("div", "empty", "No contacts match the current search or filters."));
+    box.appendChild(wrap);
+    wireCRMFilterEvents(wrap);
+    return;
+  }
+  const today = todayISO();
+  const shown = CRM_UI.showAll ? list : list.slice(0, 150);
+  const rows = shown.map(c => {
+    const overdue = c.next_due && c.next_due < today;
+    const last = crmLastActivity(c, CRM.activityByKey);
+    const notesN = CRM.notesByKey(c.key).length;
+    return '<tr class="mrow crmcontactrow" data-key="' + esc(c.key) + '">' +
+      '<td data-label="Name"><b>' + esc(c.name || "?") + '</b></td>' +
+      '<td data-label="Kind"><span class="chip">' + esc(CRM_KIND_LABELS[c.kind] || "Other") + '</span></td>' +
+      '<td data-label="Stage"><span class="chip">' + esc(STAGE_LABELS[c.stage || "new"] || "New") + '</span></td>' +
+      '<td data-label="Next action">' + (c.next_action ? esc(c.next_action) : '<span class="mut">—</span>') +
+        (c.next_due ? (' <span class="chip' + (overdue ? " r" : "") + '">' + esc(c.next_due) + '</span>') : '') + '</td>' +
+      '<td data-label="Last activity">' + esc(last || "—") + '</td>' +
+      '<td data-label="Notes">' + (notesN || "") + '</td>' +
+      '<td data-label="WhatsApp">' + (c.phone
+        ? ('<a class="btn w" target="_blank" rel="noopener noreferrer" href="' + escUrl(waPlain(c.phone, "")) + '" onclick="event.stopPropagation()">WhatsApp</a>')
+        : '<span class="mut">no phone</span>') + '</td>' +
+      '</tr>';
+  }).join("");
+  wrap.appendChild(el("div", "maptablewrap",
+    '<table class="maptable stack"><thead><tr><th>Name</th><th>Kind</th><th>Stage</th><th>Next action</th><th>Last activity</th><th>Notes</th><th>WhatsApp</th></tr></thead><tbody>' + rows + '</tbody></table>'));
+  if (!CRM_UI.showAll && list.length > 150) {
+    const b = el("button", "hbtn", "Show all " + list.length);
+    b.onclick = () => { CRM_UI.showAll = true; renderCRM(); };
+    wrap.appendChild(b);
+  }
+  box.appendChild(wrap);
+  wireCRMFilterEvents(wrap);
+  wrap.querySelectorAll(".crmcontactrow[data-key]").forEach(r => {
+    r.onclick = () => {
+      const c = list.find(x => x.key === r.dataset.key);
+      if (c) openCRM({ kind: c.kind, id: c.ref_id, name: c.name, phone: c.phone });
+    };
+  });
+}
+function wireCRMFilterEvents(wrap) {
+  const qEl = wrap.querySelector("#crmQ");
+  if (qEl) qEl.oninput = () => { CRM_UI.q = qEl.value; CRM_UI.showAll = false; scheduleCRMRerender(); };
+  wrap.querySelectorAll("#crmKindChips [data-kind]").forEach(c => c.onclick = () => { CRM_UI.kind = c.dataset.kind; CRM_UI.showAll = false; renderCRM(); });
+  wrap.querySelectorAll("#crmStageChips [data-stage]").forEach(c => c.onclick = () => { CRM_UI.stage = c.dataset.stage; CRM_UI.showAll = false; renderCRM(); });
+  const na = wrap.querySelector("#crmNeedsAction");
+  if (na) na.onchange = () => { CRM_UI.needsAction = na.checked; CRM_UI.showAll = false; renderCRM(); };
+}
+
+function renderCRMQuickAdd(box) {
+  const qa = CRM_UI.qa;
+  const wrap = el("div", "crmblock",
+    '<div class="section-hd">＋ Quick add</div>' +
+    '<div class="crmform">' +
+      '<input id="crmQaName" placeholder="Name" value="' + esc(qa.name) + '">' +
+      '<input id="crmQaPhone" placeholder="Phone" value="' + esc(qa.phone) + '">' +
+      '<select id="crmQaKind">' + ["tenant", "landlord", "sale", "buyer", "person"].map(k =>
+        '<option value="' + k + '"' + (qa.kind === k ? " selected" : "") + '>' + esc(CRM_KIND_LABELS[k]) + '</option>').join("") + '</select>' +
+      '<select id="crmQaSource"><option value="">Source (optional)</option>' + CRM_SOURCE_OPTIONS.map(s =>
+        '<option value="' + esc(s) + '"' + (qa.source === s ? " selected" : "") + '>' + esc(s) + '</option>').join("") + '</select>' +
+      '<textarea id="crmQaNote" placeholder="First note (optional)">' + esc(qa.note) + '</textarea>' +
+      '<button class="btn p" id="crmQaSubmit" type="button">+ Add contact</button>' +
+    '</div>');
+  box.appendChild(wrap);
+  const nameEl = wrap.querySelector("#crmQaName"), phoneEl = wrap.querySelector("#crmQaPhone"),
+        kindEl = wrap.querySelector("#crmQaKind"), sourceEl = wrap.querySelector("#crmQaSource"),
+        noteEl = wrap.querySelector("#crmQaNote");
+  nameEl.oninput = () => { qa.name = nameEl.value; };
+  phoneEl.oninput = () => { qa.phone = phoneEl.value; };
+  kindEl.onchange = () => { qa.kind = kindEl.value; };
+  sourceEl.onchange = () => { qa.source = sourceEl.value; };
+  noteEl.oninput = () => { qa.note = noteEl.value; };
+  wrap.querySelector("#crmQaSubmit").onclick = crmSubmitQuickAdd;
+}
+function crmSubmitQuickAdd() {
+  const qa = CRM_UI.qa;
+  const name = (qa.name || "").trim();
+  const phoneRaw = (qa.phone || "").trim();
+  const phone = normPhone(phoneRaw);
+  if (phoneRaw && !phone) { toast("That phone number does not look valid."); return; }
+  if (!name && !phone) { toast("Enter a name or phone to add a contact."); return; }
+  const id = "qa_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  const subj = { kind: qa.kind || "person", id, name, phone };
+  const k = CRM.keyOf(subj);
+  if (!k) { toast("Need a name or phone to save a contact."); return; }
+  CRM.setStage(subj, "new");
+  const noteBody = (qa.source ? ("Source: " + qa.source) : "") + (qa.source && qa.note ? " — " : "") + (qa.note || "");
+  if (noteBody.trim()) CRM.addNote(subj, noteBody.trim());
+  CRM_UI.qa = { name: "", phone: "", kind: "tenant", source: "", note: "" };
+  render();
+  openCRM(subj);
+}
+
+function renderCRMDeals(box) {
+  const d = CRM_UI.deal;
+  const searchQ = (d.contactSearch || "").trim().toLowerCase();
+  const matches = searchQ
+    ? crmMergedContacts(CRM.all(), DATA.all_tenants, DATA.all_landlords, DATA.sales, CRM.keyOf)
+        .filter(c => ((c.name || "") + " " + (c.phone || "")).toLowerCase().includes(searchQ)).slice(0, 8)
+    : [];
+  const formHtml =
+    '<div class="section-hd">💰 Deals</div>' +
+    '<div class="crmform">' +
+      '<select id="crmDealType">' + ["rental", "sale"].map(t =>
+        '<option value="' + t + '"' + (d.deal_type === t ? " selected" : "") + '>' + (t === "rental" ? "Rental" : "Sale") + '</option>').join("") + '</select>' +
+      '<input id="crmDealProperty" placeholder="Property" value="' + esc(d.property) + '">' +
+      '<input id="crmDealPrice" type="number" min="0" step="0.01" placeholder="Price or monthly rent $" value="' + esc(d.price) + '">' +
+      '<input id="crmDealGross" type="number" min="0" step="0.01" placeholder="Commission gross $" value="' + esc(d.commission_gross) + '">' +
+      '<input id="crmDealAgent" placeholder="Co broke agent (optional)" value="' + esc(d.cobroke_agent) + '">' +
+      '<input id="crmDealSplit" type="number" min="0" max="100" step="1" placeholder="Co broke split %" value="' + esc(d.cobroke_split_pct) + '">' +
+      '<select id="crmDealStage">' + DEAL_STAGE_ORDER.map(s =>
+        '<option value="' + s + '"' + (d.stage === s ? " selected" : "") + '>' + esc(DEAL_STAGE_LABELS[s]) + '</option>').join("") + '</select>' +
+      '<label class="mut" style="font-size:11px;display:flex;flex-direction:column;gap:3px">OTP date<input id="crmDealOtp" type="date" value="' + esc(d.otp_date) + '"></label>' +
+      '<label class="mut" style="font-size:11px;display:flex;flex-direction:column;gap:3px">Completion date<input id="crmDealCompletion" type="date" value="' + esc(d.completion_date) + '"></label>' +
+      '<textarea id="crmDealNotes" placeholder="Notes (optional)">' + esc(d.notes) + '</textarea>' +
+      '<input id="crmDealContactSearch" placeholder="Link a contact — search name or phone" value="' + esc(d.contactSearch) + '">' +
+      (d.linkedKey ? ('<span class="chip removable" id="crmDealLinkedChip">🔗 ' + esc(d.linkedName) + ' <span class="x" data-unlink="1">×</span></span>') : '') +
+      '<div id="crmDealContactResults">' + matches.map(c =>
+        '<div class="pick" data-link="' + esc(c.key) + '" data-name="' + esc(c.name || "") + '">' + esc(c.name || "?") + (c.phone ? (" · " + esc(c.phone)) : "") + '</div>').join("") + '</div>' +
+      '<div class="acts">' +
+        '<button class="btn p" id="crmDealSubmit" type="button">' + (d.editId ? "Save deal" : "+ Add deal") + '</button>' +
+        (d.editId ? '<button class="btn" id="crmDealCancel" type="button">Cancel edit</button>' : '') +
+      '</div>' +
+    '</div>';
+
+  const deals = CRM.deals();
+  const totals = dealTotals(deals, todayISO());
+  const totalsHtml = '<div class="crmtotals">' +
+    '<span class="chip">This month — gross $' + Math.round(totals.monthGross).toLocaleString() + ' · net $' + Math.round(totals.monthNet).toLocaleString() + '</span>' +
+    '<span class="chip">Year to date — gross $' + Math.round(totals.ytdGross).toLocaleString() + ' · net $' + Math.round(totals.ytdNet).toLocaleString() + '</span>' +
+  '</div>';
+
+  const sortedDeals = deals.slice().sort((a, b) => (dealDateOf(b) || "").localeCompare(dealDateOf(a) || ""));
+  const rows = sortedDeals.map(dl => {
+    const linked = crmContactNameByKey(dl.key);
+    return '<tr class="mrow"><td data-label="Property">' + esc(dl.property || "?") + '</td>' +
+      '<td data-label="Type">' + esc(dl.deal_type === "sale" ? "Sale" : "Rental") + '</td>' +
+      '<td data-label="Stage">' + esc(DEAL_STAGE_LABELS[dl.stage] || dl.stage || "Agreed") + '</td>' +
+      '<td data-label="Price">' + (dl.price != null ? ("$" + Number(dl.price).toLocaleString()) : "—") + '</td>' +
+      '<td data-label="Gross">' + (dl.commission_gross != null ? ("$" + Number(dl.commission_gross).toLocaleString()) : "—") + '</td>' +
+      '<td data-label="Net">' + (dl.commission_net != null ? ("$" + Number(dl.commission_net).toLocaleString()) : "—") + '</td>' +
+      '<td data-label="Co broke">' + esc(dl.cobroke_agent || "—") + (dl.cobroke_split_pct != null ? (" (" + dl.cobroke_split_pct + "%)") : "") + '</td>' +
+      '<td data-label="Linked">' + esc(linked || "—") + '</td>' +
+      '<td data-label="OTP">' + esc(dl.otp_date || "—") + '</td>' +
+      '<td data-label="Completion">' + esc(dl.completion_date || "—") + '</td>' +
+      '<td data-label="Actions"><button class="btn" data-editdeal="' + esc(dl.id) + '">Edit</button> <button class="btn danger" data-deldeal="' + esc(dl.id) + '">Delete</button></td>' +
+    '</tr>';
+  }).join("");
+  const tableHtml = deals.length
+    ? ('<div class="maptablewrap"><table class="maptable stack"><thead><tr><th>Property</th><th>Type</th><th>Stage</th><th>Price</th><th>Gross</th><th>Net</th><th>Co broke</th><th>Linked</th><th>OTP</th><th>Completion</th><th>Actions</th></tr></thead><tbody>' + rows + '</tbody></table></div>')
+    : '<div class="empty">No deals logged yet.</div>';
+
+  const wrap = el("div", "crmblock", formHtml + totalsHtml + tableHtml +
+    '<div class="acts"><button class="btn" id="crmDealExport" type="button">⬇ Export deals JSON</button></div>');
+  box.appendChild(wrap);
+
+  // Plain typing never re-renders (see this block's header note) — only field state
+  // updates, so the form survives a render() fired from anywhere else mid edit.
+  const bind = (id, field, ev) => { const e = wrap.querySelector(id); if (e) e[ev || "oninput"] = () => { d[field] = e.value; }; };
+  bind("#crmDealType", "deal_type", "onchange");
+  bind("#crmDealProperty", "property");
+  bind("#crmDealPrice", "price");
+  bind("#crmDealGross", "commission_gross");
+  bind("#crmDealAgent", "cobroke_agent");
+  bind("#crmDealSplit", "cobroke_split_pct");
+  bind("#crmDealStage", "stage", "onchange");
+  bind("#crmDealOtp", "otp_date", "onchange");
+  bind("#crmDealCompletion", "completion_date", "onchange");
+  bind("#crmDealNotes", "notes");
+  const searchEl = wrap.querySelector("#crmDealContactSearch");
+  if (searchEl) searchEl.oninput = () => { d.contactSearch = searchEl.value; scheduleCRMRerender(); };
+  wrap.querySelectorAll("[data-link]").forEach(pickEl => {
+    pickEl.onclick = () => { d.linkedKey = pickEl.dataset.link; d.linkedName = pickEl.dataset.name; d.contactSearch = ""; renderCRM(); };
+  });
+  const unlinkEl = wrap.querySelector("[data-unlink]");
+  if (unlinkEl) unlinkEl.onclick = (e) => { e.stopPropagation(); d.linkedKey = ""; d.linkedName = ""; renderCRM(); };
+  const submitBtn = wrap.querySelector("#crmDealSubmit");
+  if (submitBtn) submitBtn.onclick = crmSubmitDeal;
+  const cancelBtn = wrap.querySelector("#crmDealCancel");
+  if (cancelBtn) cancelBtn.onclick = () => { CRM_UI.deal = crmBlankDealDraft(); renderCRM(); };
+  wrap.querySelectorAll("[data-editdeal]").forEach(b => b.onclick = () => crmEditDeal(b.dataset.editdeal));
+  wrap.querySelectorAll("[data-deldeal]").forEach(b => b.onclick = () => crmDeleteDealConfirm(b.dataset.deldeal));
+  const exportBtn = wrap.querySelector("#crmDealExport");
+  if (exportBtn) exportBtn.onclick = crmExportDealsJSON;
+}
+function crmEditDeal(id) {
+  const dl = CRM.deals().find(x => x.id === id); if (!dl) return;
+  CRM_UI.deal = {
+    editId: dl.id, deal_type: dl.deal_type || "rental", property: dl.property || "",
+    price: dl.price != null ? dl.price : "", commission_gross: dl.commission_gross != null ? dl.commission_gross : "",
+    cobroke_agent: dl.cobroke_agent || "", cobroke_split_pct: dl.cobroke_split_pct != null ? dl.cobroke_split_pct : "",
+    stage: dl.stage || "agreed", otp_date: dl.otp_date || "", completion_date: dl.completion_date || "",
+    notes: dl.notes || "", linkedKey: dl.key || "", linkedName: crmContactNameByKey(dl.key), contactSearch: "",
+  };
+  renderCRM();
+}
+function crmDeleteDealConfirm(id) {
+  const dl = CRM.deals().find(x => x.id === id); if (!dl) return;
+  if (!confirm("Delete this deal (" + (dl.property || "no property set") + ")? This cannot be undone.")) return;
+  CRM.deleteDeal(id);
+  if (CRM_UI.deal.editId === id) CRM_UI.deal = crmBlankDealDraft();
+  render();
+}
+function crmSubmitDeal() {
+  const d = CRM_UI.deal;
+  const property = (d.property || "").trim();
+  const price = d.price === "" || d.price == null ? null : Number(d.price);
+  const gross = d.commission_gross === "" || d.commission_gross == null ? null : Number(d.commission_gross);
+  const splitPct = d.cobroke_split_pct === "" || d.cobroke_split_pct == null ? null : Number(d.cobroke_split_pct);
+  if (!property && !d.linkedKey) { toast("Enter a property or link a contact before saving a deal."); return; }
+  if (price != null && (!isFinite(price) || price < 0)) { toast("Price or rent does not look like a number."); return; }
+  if (gross != null && (!isFinite(gross) || gross < 0)) { toast("Commission gross does not look like a number."); return; }
+  if (splitPct != null && (!isFinite(splitPct) || splitPct < 0 || splitPct > 100)) { toast("Co broke split % must be between 0 and 100."); return; }
+  const net = gross != null ? crmComputeNet(gross, splitPct) : null;
+  const id = d.editId || ("deal_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7));
+  // dealDateOf()/dealTotals() fall back to created_at when neither completion_date nor
+  // otp_date is set yet — a brand new deal needs that stamp the moment it is created, or
+  // it silently drops out of the month/YTD totals until the next successful server sync
+  // fills it in (the backend's own default is a DB side now(), never round tripped back
+  // to a client that has not synced). Editing an existing deal must keep its original
+  // stamp, never overwrite it with "now".
+  const existing = d.editId ? CRM.deals().find(x => x.id === d.editId) : null;
+  const dealObj = {
+    id, deal_type: d.deal_type, property: property || null, price, commission_gross: gross,
+    commission_net: net, cobroke_agent: (d.cobroke_agent || "").trim() || null,
+    cobroke_split_pct: splitPct, stage: d.stage, otp_date: d.otp_date || null,
+    completion_date: d.completion_date || null, notes: (d.notes || "").trim() || null,
+    created_at: (existing && existing.created_at) || new Date().toISOString(),
+  };
+  const subj = d.linkedKey ? crmSubjFromKey(d.linkedKey) : null;
+  CRM.upsertDeal(dealObj, subj);
+  CRM_UI.deal = crmBlankDealDraft();
+  render();
+}
+function crmExportDealsJSON() {
+  const rows = CRM.deals().map(dl => dealExportRow(dl, crmContactNameByKey(dl.key)));
+  downloadJSON(rows, "crestbrick-deals-" + todayISO() + ".json");
 }
 
 // ===================== init =====================

@@ -671,3 +671,26 @@ body.density-compact .lc{padding:7px 9px}
   .btn.more{min-height:44px}
 }
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}
+
+/* ===================== CRM tab (follow up queue, contacts, quick add, deals) =====================
+   Reuses .row/.chip/.pick/.acts/.btn/.section-hd/.help/.maptablewrap/.maptable.stack from
+   above wherever the shape already matches — only the four blocks' own layout (the
+   filter row, the two forms, the totals strip) needs anything new here. */
+.crmblock{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:12px}
+.crmfilters{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.crmfilters input{width:100%}
+.crmform{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.crmform input,.crmform select{flex:1 1 170px;min-width:130px}
+.crmform textarea{flex:1 1 100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical;min-height:44px;outline:none}
+.crmform .acts{flex:1 1 100%}
+#crmDealContactResults{display:flex;flex-direction:column;gap:4px;width:100%}
+#crmDealContactResults:empty{display:none}
+#crmDealContactResults .pick{text-align:left;width:100%}
+.crmtotals{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+/* Mobile: the contacts/deals tables scroll inside their own .maptablewrap container
+   (same mechanism the map sub tabs already use for the same reason — see .maptable.stack
+   above), never the page itself. */
+@media (max-width:700px){
+  .crmform input,.crmform select{flex:1 1 100%;min-width:0}
+  .crmfilters .stagerow{gap:4px}
+}

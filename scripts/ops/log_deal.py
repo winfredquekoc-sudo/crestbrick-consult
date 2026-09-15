@@ -11,11 +11,15 @@ Usage:
       --price 3200 --gross 1600 --source portal --client "Jane Tan"
   log_deal.py list [--year 2026]
   log_deal.py undo <id> [--yes]
+  log_deal.py import-json <file>
+      Loads rows exported by the Matchmaker CRM tab's "Export deals JSON" button
+      (scripts/matchmaker/app.js). Idempotent by the export's own id — re-running
+      the same file twice never double inserts.
 
 DB path overridable with CLIENTS_DB env var, backup dir with CLIENTS_DB_BACKUP_DIR
 (tests only — never the real db).
 """
-import argparse, glob, os, re, shutil, sqlite3, sys
+import argparse, glob, json, os, re, shutil, sqlite3, sys
 from datetime import datetime, timedelta, timezone
 
 SGT = timezone(timedelta(hours=8))
@@ -213,6 +217,62 @@ def cmd_undo(args):
     con.close()
     print("Deleted deal #%d" % args.id)
 
+# The Matchmaker CRM tab's "Export deals JSON" button (scripts/matchmaker/app.js,
+# dealExportRow()) writes rows shaped like the deals table it was designed against:
+# id, client_slug, deal_type, property_address, price, commission_gross,
+# commission_net, cobroke_agent, cobroke_split_pct, stage, otp_date, completion_date,
+# notes, created_at. Matchmaker's own deal_type/stage vocabulary is not this table's
+# (deal_type_t/deal_stage_t belong to a different, Postgres flavoured schema) —
+# mapped here the same way resolve_deal_type() above maps --type/--role.
+MM_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
+MM_STAGE_MAP = {"agreed": "open", "otp": "open", "signed": "open", "completed": "closed", "fell_through": "lost"}
+
+def cmd_import_json(args):
+    with open(args.file) as f:
+        rows = json.load(f)
+    if not isinstance(rows, list):
+        raise ValueError("--import-json file must contain a JSON array of deal rows")
+    con = connect()
+    backup_db()
+    inserted = skipped_dupe = skipped_bad = 0
+    for r in rows:
+        if not isinstance(r, dict):
+            skipped_bad += 1
+            continue
+        import_id = str(r.get("id") or "").strip()
+        if not import_id:
+            skipped_bad += 1
+            continue
+        tag = "[matchmaker-import-id=%s]" % import_id
+        # Idempotent by id, same spirit as the rest of this file's notes tag
+        # bookkeeping (notes_tag in cmd_add) — deals.id here is this sqlite table's
+        # own autoincrement primary key, not Matchmaker's client generated id, so the
+        # dedupe key has to live in a searchable column instead: notes.
+        existing = con.execute("SELECT id FROM deals WHERE notes LIKE ?", ("%" + tag + "%",)).fetchone()
+        if existing:
+            skipped_dupe += 1
+            continue
+        deal_type = MM_DEAL_TYPE_MAP.get(r.get("deal_type"))
+        stage = MM_STAGE_MAP.get(r.get("stage"), "open")
+        notes = ((r.get("notes") or "").strip() + " " + tag).strip()
+        con.execute(
+            "INSERT INTO deals (client_slug, deal_type, property_address, price, "
+            "commission_gross, commission_net, cobroke_agent, cobroke_split_pct, "
+            "stage, completion_date, closed_date, notes) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            (UNLINKED_SLUG, deal_type, r.get("property_address"), r.get("price"),
+             r.get("commission_gross"), r.get("commission_net"), r.get("cobroke_agent"),
+             r.get("cobroke_split_pct"), stage, r.get("completion_date"),
+             r.get("completion_date") or r.get("otp_date"), notes))
+        inserted += 1
+    con.commit()
+    con.close()
+    print("Imported %d deal(s), skipped %d already present, skipped %d malformed row(s)" %
+          (inserted, skipped_dupe, skipped_bad))
+    if inserted:
+        print("client_slug is 'unlinked-deal' for every imported row — Matchmaker has no "
+              "clients.db slug of its own, a linked contact's name (if any) rode along in "
+              "the notes tag instead; reconcile with `log_deal.py list` and edit by hand.")
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -236,6 +296,9 @@ def main():
     p_undo.add_argument("id", type=int)
     p_undo.add_argument("--yes", action="store_true")
     p_undo.set_defaults(fn=cmd_undo)
+    p_import = sub.add_parser("import-json", help="load deals exported from the Matchmaker CRM tab")
+    p_import.add_argument("file", help="path to the JSON file from CRM tab's Export deals JSON button")
+    p_import.set_defaults(fn=cmd_import_json)
     args = ap.parse_args()
     try:
         args.fn(args)
