@@ -157,8 +157,11 @@ async function applyOp(client, o) {
       // task can be marked done (via CRM.completeTask/snoozeTask mutating the still
       // queued add op, see app.js) before it has ever reached the server, and without
       // this the very first snapshot after that sync would show it undone again.
+      // done_at mirrors the UPDATE branch's own case/when — a task created already
+      // done must not read as done with no completion timestamp.
       const r = await client.query(
-        `insert into crm_task (key, title, due, done) values ($1,$2,$3,$4) returning id`,
+        `insert into crm_task (key, title, due, done, done_at)
+         values ($1,$2,$3,$4, case when $4 then now() else null end) returning id`,
         [key, title, date(o.due), bool(o.done)]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,'task',$2)`,

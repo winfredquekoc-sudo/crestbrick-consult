@@ -245,6 +245,9 @@ def cmd_undo(args):
 MM_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
 MM_STAGE_MAP = {"otp": "otp", "signed": "exercise", "completed": "completion", "fell_through": "dead"}
 
+def table_has_column(con, table, column):
+    return any(row[1] == column for row in con.execute("PRAGMA table_info(%s)" % table))
+
 def cmd_import_json(args):
     with open(args.file) as f:
         rows = json.load(f)
@@ -252,6 +255,10 @@ def cmd_import_json(args):
         raise ValueError("--import-json file must contain a JSON array of deal rows")
     con = connect()
     backup_db()
+    # deal_date (scripts/matchmaker/app.js's dealExportRow()) is what month/year to
+    # date totals bucket by on the Matchmaker side — this table may or may not have
+    # grown a matching column yet, checked once here rather than per row.
+    has_deal_date_col = table_has_column(con, "deals", "deal_date")
     inserted = skipped_dupe = skipped_bad = skipped_agreed = failed = 0
     for r in rows:
         if not isinstance(r, dict):
@@ -287,17 +294,33 @@ def cmd_import_json(args):
         # cmd_add's own cobroke_amount = gross - net (see cmd_add above); mirrored
         # here so an imported row reads the same way in v_commission_attribution.
         cobroke_amount = (gross - net) if (gross is not None and net is not None) else None
-        notes = ((r.get("notes") or "").strip() + " " + tag).strip()
+        deal_date = r.get("deal_date")
+        # No deal_date column on this table — folded into the notes tag instead, the
+        # same way a linked contact's name is (dealExportRow()'s own [linked: ...]
+        # tag), so the date is not simply lost.
+        deal_date_tag = (" [deal_date: %s]" % deal_date) if (deal_date and not has_deal_date_col) else ""
+        notes = ((r.get("notes") or "").strip() + " " + tag + deal_date_tag).strip()
         try:
-            con.execute(
-                "INSERT INTO deals (client_slug, deal_type, property_address, price, "
-                "commission_gross, commission_net, cobroke_agent, cobroke_split_pct, "
-                "cobroke_amount, stage, otp_date, completion_date, closed_date, notes) "
-                "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (UNLINKED_SLUG, deal_type, r.get("property_address"), r.get("price"),
-                 gross, net, r.get("cobroke_agent"), r.get("cobroke_split_pct"),
-                 cobroke_amount, stage, r.get("otp_date"), r.get("completion_date"),
-                 r.get("completion_date") or r.get("otp_date"), notes))
+            if has_deal_date_col:
+                con.execute(
+                    "INSERT INTO deals (client_slug, deal_type, property_address, price, "
+                    "commission_gross, commission_net, cobroke_agent, cobroke_split_pct, "
+                    "cobroke_amount, stage, otp_date, completion_date, deal_date, closed_date, notes) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (UNLINKED_SLUG, deal_type, r.get("property_address"), r.get("price"),
+                     gross, net, r.get("cobroke_agent"), r.get("cobroke_split_pct"),
+                     cobroke_amount, stage, r.get("otp_date"), r.get("completion_date"), deal_date,
+                     r.get("completion_date") or r.get("otp_date"), notes))
+            else:
+                con.execute(
+                    "INSERT INTO deals (client_slug, deal_type, property_address, price, "
+                    "commission_gross, commission_net, cobroke_agent, cobroke_split_pct, "
+                    "cobroke_amount, stage, otp_date, completion_date, closed_date, notes) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (UNLINKED_SLUG, deal_type, r.get("property_address"), r.get("price"),
+                     gross, net, r.get("cobroke_agent"), r.get("cobroke_split_pct"),
+                     cobroke_amount, stage, r.get("otp_date"), r.get("completion_date"),
+                     r.get("completion_date") or r.get("otp_date"), notes))
         except sqlite3.IntegrityError as e:
             print("failed (%s): %s" % (e, import_id))
             failed += 1

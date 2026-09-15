@@ -60,11 +60,14 @@ const CRM_SRC = slice("function addDaysISO(iso, days) {", "function crmContactNa
 // CRM_UI's own top level initialiser calls crmBlankDealDraft() immediately, which
 // calls todayISO() — defined outside this slice's span (near crmBtn/openCRM above it)
 // — so it has to be injected the same way TODAY/Scoring are injected elsewhere.
-function makeCrmHelpers(todayISOFn) {
+// crmFindContactByPhone calls normPhone() — defined outside this slice's span (it is
+// PHONE_SRC's own function, sliced separately above) — injected here the same way
+// todayISO is, reusing the real implementation rather than a stub.
+function makeCrmHelpers(todayISOFn, normPhoneFn) {
   return new Function(
-    "todayISO",
-    CRM_SRC + "\nreturn { addDaysISO, followUpQueueItems, dealDateOf, dealTotals, crmComputeNet, dealExportRow, crmMergedContacts };"
-  )(todayISOFn || (() => "2026-09-16"));
+    "todayISO", "normPhone",
+    CRM_SRC + "\nreturn { addDaysISO, followUpQueueItems, dealDateOf, dealTotals, crmComputeNet, dealSplitDisplay, dealExportRow, crmMergedContacts, crmFindContactByPhone };"
+  )(todayISOFn || (() => "2026-09-16"), normPhoneFn || PH.normPhone);
 }
 const C = makeCrmHelpers();
 
@@ -175,23 +178,48 @@ test("crmComputeNet: no gross means no net, regardless of agent or split", () =>
   assert.equal(C.crmComputeNet(null, 40, "Jane Tan"), null);
 });
 
+// ---- dealSplitDisplay — the deals table's own visible "50 assumed" (not just the form) ----
+
+test("dealSplitDisplay: a named agent with no split shows the 50 percent assumption in the table itself", () => {
+  assert.equal(C.dealSplitDisplay({ cobroke_agent: "Jane Tan", cobroke_split_pct: null }), "50% (assumed)");
+  assert.equal(C.dealSplitDisplay({ cobroke_agent: "Jane Tan", cobroke_split_pct: "" }), "50% (assumed)");
+});
+
+test("dealSplitDisplay: an explicit split percentage displays as typed, not the assumed default", () => {
+  assert.equal(C.dealSplitDisplay({ cobroke_agent: "Jane Tan", cobroke_split_pct: 40 }), "40%");
+  assert.equal(C.dealSplitDisplay({ cobroke_agent: "Jane Tan", cobroke_split_pct: 0 }), "0%");
+});
+
+test("dealSplitDisplay: no agent named shows nothing at all, not '0%' or an assumed default", () => {
+  assert.equal(C.dealSplitDisplay({ cobroke_agent: null, cobroke_split_pct: null }), "");
+  assert.equal(C.dealSplitDisplay({ cobroke_agent: "", cobroke_split_pct: 40 }), "");
+  assert.equal(C.dealSplitDisplay(null), "");
+});
+
 // ---- dealExportRow ----
 
-test("dealExportRow: matches the clients.db deals table column shape log_deal.py's --import-json expects", () => {
+test("dealExportRow: matches the clients.db deals table column shape log_deal.py's --import-json expects, plus deal_date", () => {
   const row = C.dealExportRow({
     id: "deal_abc", deal_type: "rental", property: "123 Example Rd", price: 3200,
     commission_gross: 1600, commission_net: 1400, cobroke_agent: "Jane Tan",
     cobroke_split_pct: 40, stage: "otp", otp_date: "2026-09-20", completion_date: null,
-    notes: "keys pending", created_at: "2026-09-16T00:00:00Z",
+    deal_date: "2026-09-16", notes: "keys pending", created_at: "2026-09-16T00:00:00Z",
   }, null);
   assert.deepEqual(Object.keys(row), [
     "id", "client_slug", "deal_type", "property_address", "price", "commission_gross",
     "commission_net", "cobroke_agent", "cobroke_split_pct", "stage", "otp_date",
-    "completion_date", "notes", "created_at",
+    "completion_date", "deal_date", "notes", "created_at",
   ]);
   assert.equal(row.client_slug, null);           // Matchmaker never knows a clients.db slug
   assert.equal(row.property_address, "123 Example Rd");
+  assert.equal(row.deal_date, "2026-09-16");
   assert.equal(row.notes, "keys pending");
+});
+
+test("dealExportRow: no deal_date on the deal itself exports as null, not undefined or dropped", () => {
+  const row = C.dealExportRow({ id: "d1" }, null);
+  assert.equal(row.deal_date, null);
+  assert.ok("deal_date" in row);
 });
 
 test("dealExportRow: a linked contact's name is folded into notes as a reconciliation tag", () => {
@@ -236,6 +264,34 @@ test("crmMergedContacts: the same person appearing in DATA and as a touched CRM 
   const rows = C.crmMergedContacts(entities, tenants, [], [], fakeKeyOf);
   assert.equal(rows.length, 1);
   assert.equal(rows[0].stage, "contacted");
+});
+
+// =====================================================================
+// crmFindContactByPhone — quick add's dedupe check (item 1 of the second review
+// pass): a phone number already on file, in any kind, must be found rather than
+// let quick add create a second row for it.
+// =====================================================================
+
+test("crmFindContactByPhone: finds an existing contact by phone regardless of kind", () => {
+  const merged = C.crmMergedContacts([], [{ id: "T1", name: "Placeholder Tenant", phone: "91116666", preferred_location: "x" }], [], [], fakeKeyOf);
+  const found = C.crmFindContactByPhone("6591116666", merged);
+  assert.ok(found);
+  assert.equal(found.name, "Placeholder Tenant");
+  assert.equal(found.kind, "tenant");
+});
+
+test("crmFindContactByPhone: no match returns null rather than throwing", () => {
+  const merged = C.crmMergedContacts([], [{ id: "T1", name: "Placeholder Tenant", phone: "91116666", preferred_location: "x" }], [], [], fakeKeyOf);
+  assert.equal(C.crmFindContactByPhone("6599990000", merged), null);
+  assert.equal(C.crmFindContactByPhone("", merged), null);
+  assert.equal(C.crmFindContactByPhone(null, merged), null);
+});
+
+test("crmFindContactByPhone: matches a landlord row just as well as a tenant row on the same lookup", () => {
+  const merged = C.crmMergedContacts([], [], [{ id: "L1", name: "Placeholder Landlord", phone: "91117777", address: "x" }], [], fakeKeyOf);
+  const found = C.crmFindContactByPhone("6591117777", merged);
+  assert.equal(found.kind, "landlord");
+  assert.equal(found.name, "Placeholder Landlord");
 });
 
 // =====================================================================

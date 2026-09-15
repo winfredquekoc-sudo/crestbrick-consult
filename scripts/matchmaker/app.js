@@ -6327,6 +6327,15 @@ function crmMergedContacts(entities, tenants, landlords, sales, keyOfFn) {
   addSrc(sales, "sale", "address");
   return [...map.values()];
 }
+// Pure — quick add's own dedupe check (item 1 of the second review pass): a phone
+// number already on file, in ANY kind, must open that record rather than let quick
+// add create a second row for it. Scans the full merged contacts list (crmMergedContacts
+// above), not just CRM.all(), so an untouched DATA record — never opened via the
+// drawer, so it has no crm_entity row yet — still counts as "already on file".
+function crmFindContactByPhone(phone, mergedContacts) {
+  if (!phone) return null;
+  return (mergedContacts || []).find(c => normPhone(c.phone) === phone) || null;
+}
 function crmLastActivity(c, activityByKeyFn) {
   const acts = activityByKeyFn(c.key);
   if (acts && acts.length) return (acts[0].at || "").slice(0, 10);
@@ -6388,6 +6397,14 @@ function crmComputeNet(gross, splitPct, agent) {
   const pct = agent ? (hasSplit ? splitPct : 50) : 0;
   return Math.round((gross * (1 - pct / 100)) * 100) / 100;
 }
+// Pure — the deals table's own co broke split display. Same 50 percent default
+// crmComputeNet() assumes, made visible in the table itself rather than only as a
+// placeholder hint on the form (which a saved row, opened later, never shows again).
+function dealSplitDisplay(dl) {
+  if (!dl || !dl.cobroke_agent) return "";
+  const hasSplit = dl.cobroke_split_pct != null && dl.cobroke_split_pct !== "";
+  return hasSplit ? (dl.cobroke_split_pct + "%") : "50% (assumed)";
+}
 // Pure — the shape scripts/ops/log_deal.py's --import-json mode expects, matching the
 // clients.db deals table's own columns. client_slug is always null: Matchmaker has no
 // notion of a clients.db slug, so a linked contact's name (if any) is folded into notes
@@ -6405,6 +6422,11 @@ function dealExportRow(d, linkedName) {
     stage: d.stage || "agreed",
     otp_date: d.otp_date || null,
     completion_date: d.completion_date || null,
+    // clients.db's own deals table may not have this column — log_deal.py's
+    // import-json mode checks for it at import time and folds this into the notes
+    // tag instead when it is missing, the same way linkedName is above, so nothing
+    // is lost either way.
+    deal_date: d.deal_date || null,
     notes: ((d.notes || "") + linkTag).trim() || null,
     created_at: d.created_at || null,
   };
@@ -6594,6 +6616,20 @@ function crmSubmitQuickAdd() {
   const phone = normPhone(phoneRaw);
   if (phoneRaw && !phone) { toast("That phone number does not look valid."); return; }
   if (!name && !phone) { toast("Enter a name or phone to add a contact."); return; }
+  // A phone already on file, in any kind, opens that record instead of creating a
+  // second row for it — the whole point of quick add is to avoid duplicate contacts,
+  // not create them.
+  if (phone) {
+    const merged = crmMergedContacts(CRM.all(), DATA.all_tenants, DATA.all_landlords, DATA.sales, CRM.keyOf);
+    const dupe = crmFindContactByPhone(phone, merged);
+    if (dupe) {
+      toast("Already on file as " + (CRM_KIND_LABELS[dupe.kind] || "a contact") + ".");
+      CRM_UI.qa = { name: "", phone: "", kind: "tenant", source: "", note: "" };
+      render();
+      openCRM({ kind: dupe.kind, id: dupe.ref_id, name: dupe.name, phone: dupe.phone });
+      return;
+    }
+  }
   const id = "qa_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   const subj = { kind: qa.kind || "person", id, name, phone };
   const k = CRM.keyOf(subj);
@@ -6661,7 +6697,7 @@ function renderCRMDeals(box) {
       '<td data-label="Price">' + (dl.price != null ? ("$" + Number(dl.price).toLocaleString()) : "—") + '</td>' +
       '<td data-label="Gross">' + (dl.commission_gross != null ? ("$" + Number(dl.commission_gross).toLocaleString()) : "—") + '</td>' +
       '<td data-label="Net">' + (dl.commission_net != null ? ("$" + Number(dl.commission_net).toLocaleString()) : "—") + '</td>' +
-      '<td data-label="Co broke">' + esc(dl.cobroke_agent || "—") + (dl.cobroke_split_pct != null ? (" (" + dl.cobroke_split_pct + "%)") : "") + '</td>' +
+      '<td data-label="Co broke">' + esc(dl.cobroke_agent || "—") + (dealSplitDisplay(dl) ? (" (" + esc(dealSplitDisplay(dl)) + ")") : "") + '</td>' +
       '<td data-label="Linked">' + esc(linked || "—") + '</td>' +
       '<td data-label="Deal date">' + esc(dl.deal_date || "—") + '</td>' +
       '<td data-label="OTP">' + esc(dl.otp_date || "—") + '</td>' +
