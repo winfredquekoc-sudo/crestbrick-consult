@@ -129,8 +129,11 @@ def main():
     assert len(c["snippets"]) >= 2, "expected a few snippets, not zero"
     assert all(len(s["text"]) <= DC.SNIPPET_TEXT_CHARS for s in c["snippets"])
 
-    # normalize_phone: SG local convention, last 8 digits.
-    assert DC.normalize_phone("+65 9123 4567") == "91234567"
+    # normalize_phone: item 3 -- this file now imports the ONE shared normalizer
+    # from scripts/matchmaker/enrich.py (idempotent, 65-prefixed) instead of its
+    # own last-8-digit reimplementation.
+    assert DC.normalize_phone("+65 9123 4567") == "6591234567", DC.normalize_phone("+65 9123 4567")
+    assert DC.normalize_phone("656591234567") == "6591234567", DC.normalize_phone("656591234567")  # idempotent
     assert DC.normalize_phone("") == ""
     assert DC.normalize_phone(None) == ""
 

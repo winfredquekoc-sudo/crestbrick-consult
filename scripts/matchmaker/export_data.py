@@ -55,56 +55,112 @@ def stage_photos(photos):
 
 
 def _load_geocache():
+    """Returns (cache_dict, pending_list). item 6 -- the file now carries a
+    "pending" list alongside the address cache (was a flat {query: result}
+    dict); a plain older flat file is read as the cache with an empty pending
+    list, so an existing on-disk file upgrades in place on the next save."""
     try:
-        with open(GEOCACHE_PATH) as f: return json.load(f)
-    except (OSError, ValueError): return {}
+        with open(GEOCACHE_PATH) as f: data = json.load(f)
+    except (OSError, ValueError): return {}, []
+    if not isinstance(data, dict): return {}, []
+    if "cache" in data or "pending" in data:
+        cache = data.get("cache")
+        pending = data.get("pending")
+        return (cache if isinstance(cache, dict) else {}), \
+               ([p for p in pending if isinstance(p, str)] if isinstance(pending, list) else [])
+    return data, []  # legacy flat shape, no pending list yet
 
-_GEOCACHE = _load_geocache()
+_GEOCACHE, _GEOCODE_PENDING = _load_geocache()
 _GEOCACHE_DIRTY = False
 _GEOCODE_BUDGET = 20   # max live lookups per export; the rest fall back to cache/centroid
 
+def _live_geocode_attempt(key):
+    """One live OneMap lookup for an already lowercased/stripped `key`,
+    consuming one unit of the shared _GEOCODE_BUDGET. Returns {"lat","lng"}
+    or None; caches the result (including a negative None) and never raises
+    -- OneMap failures are swallowed exactly as before. Factored out of
+    geocode() so prime_pending_geocodes() (item 6) can share the exact same
+    lookup path instead of a second copy."""
+    global _GEOCACHE_DIRTY, _GEOCODE_BUDGET
+    _GEOCODE_BUDGET -= 1
+    import urllib.request, urllib.parse
+    # raw DB addresses carry noise OneMap can't match ("(full addr withheld)", unit
+    # numbers) — try the postal code first, then a de-noised street, then the raw text
+    cands = []
+    pm = re.search(r"[sS]?(\d{6})\b", key)
+    if pm: cands.append(pm.group(1))
+    street = re.sub(r"\(.*?\)|#\d+-\d+[a-z]?|\bs\d{6}\b|\bblk\b", " ", key)
+    street = re.sub(r"[,;].*$", "", street).strip()
+    if street and street not in cands: cands.append(street[:80])
+    if key[:80] not in cands: cands.append(key[:80])
+    hit = None
+    for cand in cands:
+        # OneMap throttles rapid-fire requests (observed: 2 hits then straight
+        # refusals on 20 Aug 2026) — pace every call and retry once per candidate
+        for attempt in (1, 2):
+            try:
+                time.sleep(0.6)
+                u = ("https://www.onemap.gov.sg/api/common/elastic/search?returnGeom=Y"
+                     "&getAddrDetails=N&searchVal=" + urllib.parse.quote(cand))
+                req = urllib.request.Request(u, headers={"User-Agent": "crestbrick-matchmaker/1.0"})
+                with urllib.request.urlopen(req, timeout=6) as r:
+                    res = (json.load(r).get("results") or [])
+                if res:
+                    hit = {"lat": float(res[0]["LATITUDE"]), "lng": float(res[0]["LONGITUDE"])}
+                break
+            except Exception:
+                if attempt == 2: pass
+        if hit: break
+    _GEOCACHE[key] = hit
+    _GEOCACHE_DIRTY = True
+    return hit
+
+
+def prime_pending_geocodes():
+    """item 6 -- addresses that fell back to a district centroid on a PRIOR
+    run (recorded in _GEOCODE_PENDING, loaded from the geocache file's
+    "pending" list) are retried FIRST this run, within the same live-lookup
+    budget, before build_listings() gets a chance to spend that budget on
+    whatever address it happens to reach first in landlord-db order.
+    Previously a query that missed the budget, or that OneMap genuinely
+    couldn't resolve, was negative-cached (or simply forgotten) with no
+    mechanism ever bringing it back for another try — an address could sit
+    on a hollow centroid pin indefinitely. Call this once, before
+    build_listings(), never inside a test (it makes real network calls)."""
+    global _GEOCACHE_DIRTY
+    if not _GEOCODE_PENDING:
+        return
+    still_pending = []
+    for key in _GEOCODE_PENDING:
+        if not key or _GEOCACHE.get(key):
+            continue  # already resolved (e.g. a duplicate listing got there first) -- drop it
+        if _GEOCODE_BUDGET <= 0:
+            still_pending.append(key)
+            continue
+        if not _live_geocode_attempt(key):
+            still_pending.append(key)
+    _GEOCODE_PENDING[:] = still_pending
+    _GEOCACHE_DIRTY = True
+
+
 def geocode(query, district):
     """(lat, lng, src) for a listing. Cache -> OneMap (budgeted, silent on failure) ->
-    district centroid. src is 'exact' or 'approx' so the UI can draw approx pins hollow."""
-    global _GEOCACHE_DIRTY, _GEOCODE_BUDGET
+    district centroid. src is 'exact' or 'approx' so the UI can draw approx pins hollow.
+    A query that ends up "approx" (centroid fallback, for any reason -- budget
+    exhausted or OneMap came back empty) is queued in _GEOCODE_PENDING (item
+    6) so prime_pending_geocodes() retries it with priority next run."""
+    global _GEOCACHE_DIRTY
     key = (query or "").strip().lower()
     if key and key in _GEOCACHE:
         c = _GEOCACHE[key]
         if c: return c["lat"], c["lng"], "exact"
     elif key and _GEOCODE_BUDGET > 0:
-        _GEOCODE_BUDGET -= 1
-        import urllib.request, urllib.parse
-        # raw DB addresses carry noise OneMap can't match ("(full addr withheld)", unit
-        # numbers) — try the postal code first, then a de-noised street, then the raw text
-        cands = []
-        pm = re.search(r"[sS]?(\d{6})\b", key)
-        if pm: cands.append(pm.group(1))
-        street = re.sub(r"\(.*?\)|#\d+-\d+[a-z]?|\bs\d{6}\b|\bblk\b", " ", key)
-        street = re.sub(r"[,;].*$", "", street).strip()
-        if street and street not in cands: cands.append(street[:80])
-        if key[:80] not in cands: cands.append(key[:80])
-        hit = None
-        for cand in cands:
-            # OneMap throttles rapid-fire requests (observed: 2 hits then straight
-            # refusals on 20 Aug 2026) — pace every call and retry once per candidate
-            for attempt in (1, 2):
-                try:
-                    time.sleep(0.6)
-                    u = ("https://www.onemap.gov.sg/api/common/elastic/search?returnGeom=Y"
-                         "&getAddrDetails=N&searchVal=" + urllib.parse.quote(cand))
-                    req = urllib.request.Request(u, headers={"User-Agent": "crestbrick-matchmaker/1.0"})
-                    with urllib.request.urlopen(req, timeout=6) as r:
-                        res = (json.load(r).get("results") or [])
-                    if res:
-                        hit = {"lat": float(res[0]["LATITUDE"]), "lng": float(res[0]["LONGITUDE"])}
-                    break
-                except Exception:
-                    if attempt == 2: pass
-            if hit: break
-        _GEOCACHE[key] = hit    # negative-cache misses so they never re-query
-        _GEOCACHE_DIRTY = True
+        hit = _live_geocode_attempt(key)
         if hit:
             return hit["lat"], hit["lng"], "exact"
+    if key and key not in _GEOCODE_PENDING:
+        _GEOCODE_PENDING.append(key)
+        _GEOCACHE_DIRTY = True
     lat, lng = DISTRICT_CENTROIDS.get(district or "", (1.352, 103.82))
     return lat, lng, "approx"
 
@@ -112,7 +168,7 @@ def _save_geocache():
     if not _GEOCACHE_DIRTY: return
     try:
         tmp = GEOCACHE_PATH + ".tmp"
-        with open(tmp, "w") as f: json.dump(_GEOCACHE, f, indent=1)
+        with open(tmp, "w") as f: json.dump({"cache": _GEOCACHE, "pending": _GEOCODE_PENDING}, f, indent=1)
         os.replace(tmp, GEOCACHE_PATH)
     except OSError: pass
 SEEN_PATH = os.path.expanduser("~/.claude/state/matchmaker-seen.json")
@@ -123,6 +179,26 @@ BUSY_BLOCKS_PATH = os.path.expanduser("~/.claude/state/busy-blocks.json")
 
 
 # ---------------------------------------------------------- field parsing --
+# item 4/6 -- unverified stubs the discovery sweep in refresh-rental-dbs.sh
+# writes (contact_label_source "content sweep (contact not yet labelled)")
+# used to reach tenants as live listings with only this soft text marker to
+# tell them apart: the sweep runs Haiku several times a day and writes
+# straight into the live landlord database, and availability() bucketed
+# anything with an active status and a price as Available. 22 records had to
+# be reviewed by hand on 15 Sep 2026 after exactly this happened. A stub is
+# still carrying its own unconfirmed placeholder text (full_address "To
+# confirm", or "to confirm" inside rooms_and_rent) until a human promotes it
+# -- see build.py's check_anomalies pending_review counter, which warns past
+# 5 of these outstanding at once.
+def is_pending_review(l):
+    src = (l.get("contact_label_source") or "").lower()
+    if not src.startswith("content sweep"):
+        return False
+    addr = (l.get("full_address") or "").strip().lower()
+    rooms = (l.get("rooms_and_rent") or "").lower()
+    return addr == "to confirm" or "to confirm" in rooms
+
+
 def availability(l):
     # A closed status outranks offer_pending: the flag is set when an offer comes in
     # and is not always cleared once the unit closes, so checking it first
@@ -131,6 +207,7 @@ def availability(l):
     if st.startswith("closed (tenanted") or st.startswith("closed (unavailable"): return "Taken"
     if st.startswith("closed") or st.startswith("archived") or st.startswith("cold"): return "Off market"
     if l.get("offer_pending"): return "Offer pending"
+    if st == "active" and is_pending_review(l): return "Pending review"
     has_price = bool(l.get("rent_min") or l.get("rent_max"))
     cobroke = "co-broke" in (l.get("contact_label_source") or "").lower()
     if st in ("active", "channel", "active-verify") and (has_price or cobroke): return "Available"
@@ -146,6 +223,7 @@ def lifecycle(l):
     if st.startswith("cold"): return "renewal_watch"
     if st.startswith("closed") or st.startswith("archived"): return "paused"  # incl. "closed (unavailable..."
     if l.get("offer_pending"): return "offer_pending"
+    if st == "active" and is_pending_review(l): return "pending_review"
     if st in ("active", "channel", "active-verify"): return "available"
     return "unknown"
 
@@ -180,14 +258,73 @@ def parse_gender(txt):
     return "any"
 
 RACES = ["indian","chinese","malay","filipino","myanmar","burmese","korean","japanese","pakistani","caucasian","local"]
+
+# Ethnicity is an internal screening signal ONLY -- a landlord preference the
+# app uses to sort/gate matches, never a tenant facing judgement made here.
+# Two guards on the raw text parse, both Winfred's fixes for a real symptom
+# on the live book:
+#
+#   item 13 -- a stray "only" ("small room only, prefers Chinese") used to
+#   apply the HARD block rule the moment "only" appeared ANYWHERE alongside
+#   any race word, silently dropping qualified tenants who never render in
+#   the worklist. Now "only" must sit within ETH_ONLY_PROXIMITY_TOKENS words
+#   of the race word, in the SAME clause (split on , ; . or "but") -- an
+#   unrelated "only" earlier in the sentence (room size, price, tenancy
+#   term) no longer creates a false hard gate; the race mention elsewhere
+#   in the sentence falls through to a soft "prefer" instead.
+#
+#   item 14 -- the bare substring "any" used to short circuit straight to
+#   "no preference" before ever scanning for a race word, so a real
+#   exclusion stated later in the SAME text ("any race except Indian", "not
+#   any particular race but no Indian") was silently discarded. "any" is now
+#   decisive only when no exclusion marker (no/not/except/exclude/without)
+#   appears anywhere after it in the text.
+ETH_ONLY_PROXIMITY_TOKENS = 3
+_ETH_EXCLUSION_MARKERS_RE = re.compile(r"\b(?:no|not|except|exclude|without)\b")
+_ETH_CLAUSE_SPLIT_RE = re.compile(r"[,;.]|\bbut\b")
+_ETH_WORD_RE = re.compile(r"[a-z]+")
+
+
+def _races_near_only(text, candidate_races):
+    """candidate_races found within ETH_ONLY_PROXIMITY_TOKENS words of "only",
+    scoped to the same clause -- see parse_ethnicity's item 13 note above."""
+    hits = []
+    for clause in _ETH_CLAUSE_SPLIT_RE.split(text):
+        words = _ETH_WORD_RE.findall(clause)
+        only_idxs = [i for i, w in enumerate(words) if w == "only"]
+        if not only_idxs:
+            continue
+        for r in candidate_races:
+            if r in hits:
+                continue
+            for i, w in enumerate(words):
+                if w == r and any(abs(i - oi) <= ETH_ONLY_PROXIMITY_TOKENS for oi in only_idxs):
+                    hits.append(r)
+                    break
+    return hits
+
+
 def parse_ethnicity(txt):
     t = (txt or "").lower()
-    if not t or "no pref" in t or "no race" in t or "any" in t: return {"rule":"any","races":[]}
+    if not t:
+        return {"rule": "any", "races": []}
+    any_idx = t.find("any")
+    # "no pref"/"no race" stay unconditional shortcuts (they are not the "any"
+    # bug this guards against); the bare "any" substring is decisive only when
+    # no exclusion marker follows it anywhere in the text (item 14).
+    any_decisive = ("no pref" in t or "no race" in t or
+                    (any_idx != -1 and not _ETH_EXCLUSION_MARKERS_RE.search(t, any_idx + len("any"))))
+    if any_decisive:
+        return {"rule": "any", "races": []}
     found = [r for r in RACES if r in t]
     if "no " in t or "not " in t or "except" in t or "exclude" in t:
-        excl = [r for r in RACES if re.search(r"no[t]?\s+"+r, t) or ("no "+r in t)]
+        excl = [r for r in RACES if re.search(r"(?:no[t]?|except|exclude|without)\s+" + r, t) or ("no " + r in t)]
         if excl: return {"rule":"exclude","races":excl}
-    if "only" in t and found: return {"rule":"only","races":found}
+    if "only" in t and found:
+        near = _races_near_only(t, found)
+        if near:
+            return {"rule": "only", "races": near}
+        return {"rule": "prefer", "races": found}  # "only" present but not about a race word (item 13)
     if "pref" in t and found: return {"rule":"prefer","races":found}
     if found: return {"rule":"prefer","races":found}
     return {"rule":"note","races":[], "raw":(txt or "")[:80]}
@@ -771,6 +908,14 @@ BUDGET_CONTRADICTION_MIN_DELTA = 50    # ...AND by >=$50, so a same-figure resta
                                         # filled-in intake form ("budget 870" vs their own
                                         # "Budget:max 900") reads as rounding, not a real signal.
 
+# item 8 -- plausible SG monthly ROOM RENTAL budget band for a tenant's
+# budget/budget_min/budget_max fields at export. Deliberately wide (real room
+# rentals run roughly $600-$3,000) so this only screens obvious mis-parses or
+# a mixed-up field (a purchase price, a phone digit run) rather than
+# legitimate outliers.
+BUDGET_PLAUSIBLE_MIN = 300
+BUDGET_PLAUSIBLE_MAX = 15000
+
 
 def find_budget_contradiction(conn, jid, stated_budget):
     """Scan this tenant's own inbound WA messages for a self-stated higher budget
@@ -815,6 +960,7 @@ _PROFILE_FIELDS = ("name","nationality","ethnicity","gender","age","pass_type","
                    "employment_type","no_of_pax","move_in_date","lease_term_months","budget",
                    "preferred_location","email")
 INFO_RICH_MIN = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.json")))["info_rich_min"]
+SPARSE_PROFILE_MIN = 4  # item 8 -- fewer than this many of the 14 profile fields filled -> "sparse"
 
 def load_fee_willing(path):
     try:
@@ -978,6 +1124,26 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
             if rb_note:
                 budget_min, budget_max, budget_note = rb_min, rb_max, rb_note
 
+        # item 8 -- bound the resolved budget to a plausible SG rental range at
+        # export time. Nothing upstream validates this: a tenant record with
+        # only 2 of 14 profile fields filled was seen carrying a budget in the
+        # high six figures, apparently a SALE price that leaked into a rental
+        # budget field, and it still scored as a good fit because the missing
+        # field detector only checks for null/empty, not plausibility. Outside
+        # the band, the value is treated as missing (the "missing" check below
+        # already reads budget/budget_min/budget_max, so nulling them here is
+        # enough to count it) and the record is flagged budget_suspicious with
+        # the original figure kept in budget_raw rather than silently trusted
+        # or silently dropped.
+        budget_suspicious_raw = next(
+            (v for v in (budget, budget_min, budget_max)
+             if v is not None and not (BUDGET_PLAUSIBLE_MIN <= v <= BUDGET_PLAUSIBLE_MAX)),
+            None)
+        if budget_suspicious_raw is not None:
+            if budget is not None and not (BUDGET_PLAUSIBLE_MIN <= budget <= BUDGET_PLAUSIBLE_MAX): budget = None
+            if budget_min is not None and not (BUDGET_PLAUSIBLE_MIN <= budget_min <= BUDGET_PLAUSIBLE_MAX): budget_min = None
+            if budget_max is not None and not (BUDGET_PLAUSIBLE_MIN <= budget_max <= BUDGET_PLAUSIBLE_MAX): budget_max = None
+
         raw_move_in = t.get("move_in_date") or ""
         move_in = enrich.norm_date(raw_move_in) or raw_move_in
         # move_in stays the tenant's verbatim text for display; move_in_norm is
@@ -987,6 +1153,12 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
         # read). None when nothing recognisable -- scoring then falls back to
         # today's existing default behavior exactly as before this field existed.
         move_in_norm = enrich.norm_move_in(raw_move_in, today)
+        # item 8 -- a move-in date that IS present but that neither parser above
+        # could read (kept verbatim in `move_in`) is flagged rather than left
+        # silently unnormalized: move_in_unparsed distinguishes "typed something
+        # we can't read" from "typed nothing" (missing[] below only catches the
+        # latter).
+        move_in_unparsed = bool(raw_move_in.strip()) and not move_in_norm
         raw_last_contact = t.get("last_contact") or ""
         last_contact = enrich.norm_date(raw_last_contact) or raw_last_contact
         pax = num(t.get("no_of_pax")); lease_months = num(t.get("lease_term_months"))
@@ -1053,6 +1225,13 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
         out.append({
             "id": t.get("id"), "name": name,
             "profile_filled": _filled, "profile_total": len(_PROFILE_FIELDS),
+            # item 8 -- fewer than SPARSE_PROFILE_MIN of the 14 profile fields
+            # filled: a companion, negative signal to the existing INFO RICH
+            # positive badge above (there was no counterpart flag for a sparse
+            # record before this). Export side only for now -- the app's own
+            # rendering of this badge is a one line change left to the
+            # streamline pass.
+            "sparse": _filled < SPARSE_PROFILE_MIN,
             "pays_agent_fee": bool(_fee),
             "pinned": bool(_prio),
             "segment": tenant_segment(t, _filled, _fee),
@@ -1062,10 +1241,12 @@ def build_tenants(tenants_raw, exclusions_cfg, wa_conn, today, area_keywords):
             "district": district, "district_inferred": district_inferred,
             "district_source": district_source, "district_conflict": district_conflict,
             "budget": budget, "budget_min": budget_min, "budget_max": budget_max,
+            "budget_suspicious": budget_suspicious_raw is not None, "budget_raw": budget_suspicious_raw,
             "budget_contradiction": budget_contradiction,
             "pax": pax, "gender": gender, "ethnicity": t.get("ethnicity") or "",
             "nationality": nationality, "pass_type": pass_type,
             "occupation": occupation, "move_in": move_in, "move_in_norm": move_in_norm,
+            "move_in_unparsed": move_in_unparsed,
             "lease_months": lease_months, "phone": t.get("phone") or "",
             "last_contact": last_contact,
             "last_wa": last_wa, "lang": lang,
@@ -1209,12 +1390,17 @@ def build_revival(tenants_raw, landlords, dist_area, area_keywords, today):
 
 
 # ------------------------------------------------------------- health -----
-def compute_health(listings, tenants):
+def compute_health(listings, tenants, landlords=None):
     def unparsed(l):
         g = l["gates"]
         return bool(l["req_raw"]) and g["gender"] == "any" and g["ethnicity"]["rule"] in ("any", "note") \
             and g["max_pax"] is None and g["lease_min"] is None \
             and not g["cooking"] and not g["pets"] and not g["smoking"]
+    # pending_review (item 4/6) reads the RAW landlord list, not listings[]:
+    # build_listings() already excludes "Pending review" records entirely
+    # (they are never "Available"/"Offer pending"), so this is the only place
+    # left that can still count them.
+    pending_review = sum(1 for l in (landlords or []) if availability(l) == "Pending review")
     return {
         "tenants_missing_budget": sum(1 for t in tenants if "budget" in t["missing"]),
         "tenants_missing_move_in": sum(1 for t in tenants if "move_in" in t["missing"]),
@@ -1222,6 +1408,7 @@ def compute_health(listings, tenants):
         "tenants_missing_lease_months": sum(1 for t in tenants if "lease_months" in t["missing"]),
         "tenants_missing_district": sum(1 for t in tenants if "district" in t["missing"]),
         "listings_unparsed_req_raw": sum(1 for l in listings if unparsed(l)),
+        "pending_review": pending_review,
     }
 
 
@@ -1244,19 +1431,36 @@ def unlock_value_for(missing, listings):
     only count a listing when that listing actually gates on the field (has a
     price floor / a max_pax / a lease_min / a known available_from); district
     still counts every listing WITH a district set (location scoring applies
-    universally, but only where there's something to be adjacent to)."""
+    universally, but only where there's something to be adjacent to).
+
+    item 16 fix: each field's contribution is the FRACTION of currently
+    available listings it gates, not the raw count -- "district" is set on
+    effectively every listing (adjacency scoring is universal), so a raw
+    count structurally dominated: it always sat near the ceiling of the
+    whole available pool regardless of what else a tenant was missing, so
+    the enrichment queue almost always recommended asking for district over
+    a narrower, more decisive field. A raw count also scales with the size
+    of the listings pool itself (a bigger book inflates every field's
+    number, district's most of all since it sits nearest 100%), which is
+    not a property of how useful the ask actually is. Summing bounded 0..1
+    fractions instead caps a single field's contribution at "gates the
+    whole market" and keeps two builds with different inventory sizes
+    comparable on the same scale."""
     if not missing:
         return 0
     avail = [l for l in listings if l.get("availability") == "Available"]
-    value = 0
+    if not avail:
+        return 0
+    total = len(avail)
+    gated = {"budget": 0, "pax": 0, "lease_months": 0, "move_in": 0, "district": 0}
     for l in avail:
         g = l.get("gates") or {}
-        if "budget" in missing and l.get("rent_min") is not None: value += 1
-        if "pax" in missing and g.get("max_pax") is not None: value += 1
-        if "lease_months" in missing and g.get("lease_min") is not None: value += 1
-        if "move_in" in missing and l.get("available_from") is not None: value += 1
-        if "district" in missing and l.get("district"): value += 1
-    return value
+        if l.get("rent_min") is not None: gated["budget"] += 1
+        if g.get("max_pax") is not None: gated["pax"] += 1
+        if g.get("lease_min") is not None: gated["lease_months"] += 1
+        if l.get("available_from") is not None: gated["move_in"] += 1
+        if l.get("district"): gated["district"] += 1
+    return sum(gated[field] / total for field in missing if field in gated)
 
 
 def build_enrichment_queue(tenants, listings):
@@ -1881,6 +2085,7 @@ def main():
     area_keywords = build_area_keywords(dist_area)  # built before build_tenants -- it needs
                                                      # this for district inference (item 1)
 
+    prime_pending_geocodes()  # item 6 -- spend budget on last run's centroid fallbacks first
     listings = build_listings(land["landlords"], dist_area, fixed_viewing_index, photo_url_index, seen_registry, today, harvested_photos)
     dedup_listing_pairs = apply_listing_dup_of(listings)
     save_seen_registry(SEEN_PATH, seen_registry)
@@ -1931,7 +2136,7 @@ def main():
     if key_problems:
         raise StateFileError("unsafe id(s) for the app's localStorage mark keys:\n  " + "\n  ".join(key_problems))
 
-    health = compute_health(listings, tenants)
+    health = compute_health(listings, tenants, land["landlords"])
     busy_blocks = load_busy_blocks(BUSY_BLOCKS_PATH)  # [68] optional, dormant until a UI clash check exists
 
     delta = compute_delta(prev, listings, tenants)

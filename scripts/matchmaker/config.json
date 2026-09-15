@@ -4,5 +4,12 @@
   "stale_days": 45,
   "info_rich_min": 10,
   "days_listed_elasticity": 21,
-  "_comment": "Single home for matchmaker thresholds (Winfred, 21 Aug 2026). scoring.js keeps mirror literals for the browser; build.py FAILS the build if they drift from this file. Python (close_stale_prospects, apply_tenant_lifecycle via tenant_state, export_data) reads this file directly. dead_days and stale_days are the same rule seen from two sides (app block / db sweep) and must stay equal."
+  "near_miss_clearance": 0.92,
+  "budget_hard_block_ratio": 0.9,
+  "lookalike_penalty": 8,
+  "nudge_after_days": 3,
+  "data_age_amber_days": 3,
+  "data_age_red_days": 14,
+  "price_elasticity_deltas": [50, 100, 150],
+  "_comment": "Single home for matchmaker thresholds (Winfred, 21 Aug 2026). scoring.js keeps mirror literals for the browser; build.py FAILS the build if they drift from this file. Python (close_stale_prospects, apply_tenant_lifecycle via tenant_state, export_data) reads this file directly. dead_days and stale_days are the same rule seen from two sides (app block / db sweep) and must stay equal. Every numeric/array constant scoring.js declares at its own top gets a matching entry here (item 5, 16 Sep 2026) so build.py's check_config_consistency can catch drift on all of them, not just the original three."
 }

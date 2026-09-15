@@ -40,7 +40,7 @@ def norm_date(raw):
     return None
 
 
-IMMEDIATE_RE = re.compile(r"^(?:immediately|asap|now|anytime)\b", re.I)
+IMMEDIATE_RE = re.compile(r"^(?:immediately|immediate|asap|now|anytime)\b", re.I)
 # "start"/"middle"/"end" accepted as everyday synonyms for early/mid/late —
 # real tenant-db data uses "End of September 2026" and "end aug", not the
 # word "late" itself.
@@ -185,8 +185,20 @@ def find_available_from(texts, today):
 
 
 # --------------------------------------------------------------- phones ----
+# The ONE shared phone normalizer for the matchmaker data lane -- every other
+# script under scripts/ that reads or writes a landlord/tenant phone number
+# imports this instead of reimplementing its own version (Winfred, item 3):
+# export_data.py already did; discovery_candidates.py now does too. A value
+# that already went through this function once (or arrived pre-normalized
+# from an upstream writer) can otherwise pick up a DOUBLED country code on a
+# second pass -- "6565XXXXXXXX" instead of "65XXXXXXXX" -- which breaks the
+# exclusion-list and priority-list phone matches that compare on the
+# normalized value. Stripping one leading "65" first makes this idempotent:
+# normalize_phone(normalize_phone(x)) == normalize_phone(x) for every input.
 def normalize_phone(raw):
     p = re.sub(r"[^0-9]", "", raw or "")
+    if len(p) == 12 and p.startswith("6565") and p[4] in "89":
+        p = p[2:]
     if len(p) == 8 and p[0] in "89":
         p = "65" + p
     return p

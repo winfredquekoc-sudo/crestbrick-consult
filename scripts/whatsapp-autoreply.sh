@@ -33,7 +33,12 @@ else
   DB_AGE=9999
 fi
 if [ "$DB_AGE" -gt 90 ]; then
-  python3 "$SCRIPT_DIR/update_landlord_db.py" >> "$LOG_FILE" 2>&1 || true
+  # update_landlord_db.py removed 16 Sep 2026 -- hardcoded the retired Groq
+  # model, had no launchd job of its own, and wrote a file nothing reads.
+  # This whole script has been retired (see
+  # _archived/com.crestbrick.whatsapp-autoreply.plist.retired-20260612) and
+  # never runs; kept as historical reference only.
+  : # was: python3 "$SCRIPT_DIR/update_landlord_db.py" >> "$LOG_FILE" 2>&1 || true
 fi
 
 # ── Refresh Carousell landlord blocklist ──────────────────────────────────────
