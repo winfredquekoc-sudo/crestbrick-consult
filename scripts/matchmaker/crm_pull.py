@@ -9,40 +9,53 @@ one needs a manual export from the app anymore:
      dedupe by tenant id and jid, cold over the dead lead threshold, an
      unverifiable tenant) by importing that module's own functions, never by
      copying them. A row is marked pulled on the server FIRST, and only once
-     that write is confirmed by the API's own response is the draft appended
-     to the real morning dispatch queue (~/.claude/state/morning-dispatch-
-     queue.json), tagged with its own dispatch_id.
+     that write is confirmed does the draft get appended to the real morning
+     dispatch queue (~/.claude/state/morning-dispatch-queue.json), tagged
+     with its own dispatch_id.
 
-     Every successful append is recorded in a local ledger
-     (~/.claude/state/matchmaker-dispatch-ledger.json, written atomically),
-     with the append time and the queue file it went into. A pulled row is
-     only ever reconsidered for a fresh append (running it through
-     classify_items exactly like a brand new one, so a tenant who went cold
-     or dead in the meantime is still refused) when its id is absent from the
-     ledger AND it was pulled within the last two hours — the crash window
-     of the same slot. Any other pulled row is left alone by this path.
-     Once a pulled row's id turns up in ANY of the queue file's .done-*
-     archives, or has sat in the ledger for 24 hours or more, it is marked
-     sent on the server, a terminal state nothing here ever changes again.
+     There is no separate ledger. What was actually appended is read
+     straight off the queue file and every one of its .done-* archives —
+     both carry a dispatch_id on each item this script ever writes, and
+     that is the only record of "already delivered" this script keeps. The
+     whole sequence — fetching the CRM snapshot, marking rows sent or
+     expired, classifying and appending every remaining row — runs under
+     ONE exclusive lock on the queue file (<queue file>.lock), held from
+     before the snapshot is even fetched until the last append. An
+     overlapping run of this same script simply waits for that lock, then
+     fetches its own snapshot and finds everything the first run did
+     already sitting in the queue file, so it appends nothing twice.
 
-     If the append itself fails after a row was marked pulled, that row is
-     moved to cancelled with reason "append failed" so nothing is left
-     pulled but unqueued. A row that instead fails one of queue_drafts.py's
-     checks is marked cancelled with that reason. A cancelled row accepts a
-     fresh queued write later (the app's own Mark Queued action does this)
-     and is treated exactly like a new row from there.
+     A pulled row whose dispatch id turns up in ANY of the queue file's
+     .done-* archives is marked sent on the server — a terminal state
+     nothing here ever changes again. A pulled row older than 7 days (by
+     the CRM API's own clock, in the snapshot's server_time field — never
+     the Mac's local clock, which this script cannot trust to agree with
+     the server) with no archive match is marked cancelled with reason
+     "expired". Every other pulled row — however old, as long as it is
+     under 7 days and not already sitting in the current queue file — is
+     simply given a fresh classify_items check and appended if it still
+     passes, exactly like a brand new row. A row that fails a check, or
+     whose append itself fails after being marked pulled, is marked
+     cancelled with the reason.
 
-     A separate cleanup step removes any queue item whose dispatch row has
-     since been cancelled (only items that carry a dispatch_id), so
-     cancelling a row before the real 08:00 send still stops it. This step
-     takes an exclusive lock on the queue file, re reads it under that lock,
-     skips entirely if the file changed since this run first looked at it,
-     and never runs at all between 07:45 and 08:45 Singapore time.
+     A cancelled row (refused, expired, unqueued, or an append failure) is
+     never resurrected by this script: the app always writes a FRESH
+     dispatch id for a new attempt (see app.js's writeDispatchRow), so a
+     later requeue of the same tenant/listing pair arrives here as an
+     entirely different row with its own id, never as a status flip on the
+     old one.
 
   2. Deals at stage completed that are not yet in clients.db. Each one is
      imported through scripts/ops/log_deal.py's own import-json function
      (imported, never shelled out to), and the import is recorded as a
      crm_activity row through the API.
+
+A separate cleanup step removes any queue item whose dispatch row has since
+been cancelled (only items that carry a dispatch_id), so cancelling a row
+before the real 08:00 send still stops it. This step takes its own
+exclusive lock on the queue file, re reads it under that lock, skips
+entirely if the file changed since this run first looked at it, and never
+runs at all between 07:45 and 08:45 Singapore time.
 
 This script never sends a WhatsApp message. Sending stays the job of the
 existing morning dispatch job (or Winfred by hand) reading the queue file
@@ -54,7 +67,9 @@ normal state on any machine that has not been handed deploy slot
 credentials.
 
 Dry run by default: fetches the CRM snapshot and reports what it would do,
-with no writes anywhere. Pass --apply to actually write.
+with no writes anywhere (dry run still takes the lock briefly to read the
+queue file consistently, but never writes through it). Pass --apply to
+actually write.
 
 A single run stops picking up new dispatch rows and new deals once it has
 been running for TIME_BUDGET_SECONDS, so a slot never stalls; whatever is
@@ -79,11 +94,9 @@ import queue_drafts    # scripts/matchmaker/queue_drafts.py — imported, never 
 import log_deal        # scripts/ops/log_deal.py — imported, never shelled out to
 
 DEFAULT_API_URL = "https://crestbrick-matchmaker-private.vercel.app/api/crm"
-LEDGER_PATH = os.path.expanduser("~/.claude/state/matchmaker-dispatch-ledger.json")
 CHUNK_SIZE = 50                # matches the app's own flush() batching (deploy/api/crm.js MAX_OPS is 200)
 TIME_BUDGET_SECONDS = 60
-RECOVERY_WINDOW_HOURS = 2      # the crash window of the same slot — see module docstring
-SENT_LEDGER_AGE_HOURS = 24     # a ledger entry this old is treated as sent even with no archive match yet
+EXPIRY_DAYS = 7                # a pulled row older than this, unarchived, is given up on and cancelled
 BLACKOUT_START = (7, 45)       # cleanup never runs in this Singapore time window — the real 08:00 send
 BLACKOUT_END = (8, 45)
 # The exact tag log_deal.py's import-json mode stamps into notes for dedupe
@@ -149,7 +162,8 @@ def _parse_iso(s):
     this project), and of anything malformed — returns None rather than
     raising, since a timestamp this script cannot read is exactly the same as
     one that is not there for every caller here (an unknown age is never
-    treated as fresh)."""
+    treated as fresh, and a missing server clock never falls back to the
+    Mac's own)."""
     if not s:
         return None
     try:
@@ -161,22 +175,17 @@ def _parse_iso(s):
         return None
 
 
-# ------------------------------------------------------------- the ledger --
-def load_ledger():
-    try:
-        data = json.load(open(LEDGER_PATH))
-        return data if isinstance(data, dict) else {}
-    except (OSError, ValueError):
-        return {}
+def _now_sgt():
+    # A plain function, not an inline call, so a test can monkeypatch this one
+    # name and get a deterministic clock through every call site below —
+    # including the ones inside main() — without the real wall clock ever
+    # being able to land a test run inside the cleanup blackout window, or
+    # skew a dead lead check, by accident.
+    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
 
 
-def save_ledger(ledger):
-    d = os.path.dirname(LEDGER_PATH)
-    if d:
-        os.makedirs(d, exist_ok=True)
-    tmp = LEDGER_PATH + ".tmp"
-    json.dump(ledger, open(tmp, "w"), indent=1, ensure_ascii=False)
-    os.replace(tmp, LEDGER_PATH)
+def _today_sgt():
+    return _now_sgt().date()
 
 
 # ------------------------------------------------------- queue file reads ---
@@ -197,210 +206,178 @@ def all_archived_dispatch_ids(queue_path):
     """dispatch_id values found in EVERY .done-* archive next to the queue
     file (the morning dispatch job's own naming: <queue_path>.done-
     <timestamp>), not only the newest one — a dispatch id can sit in an
-    archive that has since been superseded by one or more later rotations,
-    and checking only the newest file was exactly the bug this function
-    exists to not repeat. Read only, never written here."""
+    archive that has since been superseded by one or more later rotations.
+    Read only, never written here."""
     ids = set()
     for f in glob.glob(queue_path + ".done-*"):
         ids |= _dispatch_ids_in_file(f)
     return ids
 
 
+def _read_queue_items(queue_path):
+    if not os.path.exists(queue_path):
+        return []
+    try:
+        return json.load(open(queue_path)).get("items") or []
+    except (OSError, ValueError):
+        return []
+
+
+def _is_expired(row, server_now):
+    if server_now is None:
+        return False
+    pulled_at = _parse_iso(row.get("pulled_at"))
+    if pulled_at is None:
+        return False
+    return (server_now - pulled_at) >= datetime.timedelta(days=EXPIRY_DAYS)
+
+
 # ------------------------------------------------------------- dispatch ----
-def gather_candidates(rows, ledger, now_utc):
-    """Every status queued row, plus every status pulled row worth giving a
-    second try: its id is absent from the ledger (nothing here has ever
-    actually appended it) AND it was pulled within RECOVERY_WINDOW_HOURS —
-    the crash window of the same slot. A pulled row already in the ledger, or
-    one that has aged past the window without ever reaching the ledger, is
-    left alone entirely by this function; mark_sent_rows is what eventually
-    resolves those once they show up archived or old enough."""
+def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=None):
+    """Everything here runs while the caller already holds the exclusive
+    lock on <queue file>.lock, acquired before rows was even fetched — see
+    run_dispatch_locked below. A second overlapping run blocks on that same
+    lock until this one releases it, then fetches its own fresh snapshot and
+    finds every row this run appended already sitting in the queue file, so
+    it never appends twice.
+
+    (a) every pulled row whose id is in any .done-* archive is marked sent.
+    (b) every remaining pulled row older than EXPIRY_DAYS by server_now is
+        marked cancelled with reason "expired".
+    (c) every row still queued or pulled after (a) and (b): if its id is
+        already in the current queue file, it is skipped (already
+        delivered — this is the crash recovery case, needing no ledger,
+        no time window, just the file itself). Otherwise it is run through
+        queue_drafts.py's own classify_items, with the queue's own current
+        dedupe applied but this row's own dispatch_id excluded from it (so a
+        row's own earlier, still uncommitted state within this same pass
+        never marks it a duplicate of itself), marked pulled on the server
+        (a harmless no op if it was pulled already), and appended."""
+    summary = {"queued": 0, "pulled_seen": 0, "approved": 0, "cancelled": 0,
+               "marked_sent": 0, "expired": 0, "appended": 0, "already_appended": 0,
+               "append_failed": 0, "time_budget_hit": False}
     queued_rows = [r for r in rows if r.get("status") == "queued"]
-    recoverable_rows = []
-    for r in rows:
-        if r.get("status") != "pulled":
-            continue
-        if r.get("id") in ledger:
-            continue
-        pulled_at = _parse_iso(r.get("pulled_at"))
-        if pulled_at is None:
-            continue
-        if now_utc - pulled_at <= datetime.timedelta(hours=RECOVERY_WINDOW_HOURS):
-            recoverable_rows.append(r)
-    return queued_rows, recoverable_rows
+    pulled_rows = [r for r in rows if r.get("status") == "pulled"]
+    summary["queued"] = len(queued_rows)
+    summary["pulled_seen"] = len(pulled_rows)
 
+    queue_path = queue_drafts.QUEUE_PATH
+    archived_ids = all_archived_dispatch_ids(queue_path)
+    to_sent = [r for r in pulled_rows if r.get("id") in archived_ids]
+    to_expire = [r for r in pulled_rows
+                 if r.get("id") not in archived_ids and _is_expired(r, server_now)]
+    summary["marked_sent"] = len(to_sent)
+    summary["expired"] = len(to_expire)
 
-def classify_and_mark(rows, ledger, user, pw, apply_, deadline=None):
-    """Runs every candidate row (queued, plus any recoverable pulled row —
-    see gather_candidates) through queue_drafts.py's own checks, exactly the
-    same call for both: a recovered row is never trusted just because it was
-    approved once before, since a tenant can go cold or dead in between.
-    When apply_, POSTs the cancelled ops and the pulled ops (only for rows
-    that were actually status queued — a recovered row is pulled already) in
-    chunks of CHUNK_SIZE, confirming each pulled write against that same
-    response. Returns (confirmed, summary), confirmed a list of (row, item)
-    tuples ready for append_entries — never appends anything itself, so a run
-    that dies here leaves exactly the crash window append_entries' own ledger
-    check is built to recover from."""
-    now_utc = datetime.datetime.now(datetime.timezone.utc)
-    queued_rows, recoverable_rows = gather_candidates(rows, ledger, now_utc)
-    all_rows = queued_rows + recoverable_rows
-    summary = {"queued": len(queued_rows), "recoverable": len(recoverable_rows),
-               "approved": 0, "cancelled": 0, "time_budget_hit": False}
-    if not all_rows:
-        return [], summary
+    if apply_ and to_sent:
+        ops = [{"op": "dispatch", "id": r.get("id"), "tenant_id": r.get("tenant_id"),
+                "listing_id": r.get("listing_id"), "jid": r.get("jid"), "phone": r.get("phone"),
+                "text": r.get("text"), "viewing_slot": r.get("viewing_slot"),
+                "status": "sent", "device": r.get("device")} for r in to_sent]
+        for chunk in _chunks(ops, CHUNK_SIZE):
+            post_ops(user, pw, chunk)
+
+    if apply_ and to_expire:
+        ops = [{"op": "dispatch_cancel", "id": r.get("id"), "reason": "expired"} for r in to_expire]
+        for chunk in _chunks(ops, CHUNK_SIZE):
+            post_ops(user, pw, chunk)
+
+    handled_ids = {r.get("id") for r in to_sent} | {r.get("id") for r in to_expire}
+    remaining = [r for r in (queued_rows + pulled_rows) if r.get("id") not in handled_ids]
+    if not remaining:
+        return summary
 
     tenants_by_id = queue_drafts.load_tenants_by_id(queue_drafts.TENANT_DB_PATH)
     wa_conn = enrich.open_wa_bridge(queue_drafts.WA_DB_PATH)
     if wa_conn is None:
         print("crm_pull: WhatsApp bridge unavailable — cold check relies on tenant-db last_contact only")
-    today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date()
-    queued_ids, queued_jids = queue_drafts.pending_recipients(queue_drafts.QUEUE_PATH)
+    today = _today_sgt()
 
-    pulled_ops, cancel_ops, approved_entries = [], [], []
+    # Read once; mirrored in memory as this loop itself appends, since the
+    # lock this function runs under means nothing else can touch the file
+    # meanwhile — there is no need to re read it from disk on every row.
+    known_items = _read_queue_items(queue_path)
+    current_ids = {i.get("dispatch_id") for i in known_items if i.get("dispatch_id")}
+
     try:
-        for row in all_rows:
+        for row in remaining:
+            rid = row.get("id")
+            if rid in current_ids:
+                summary["already_appended"] += 1
+                continue
             if _time_up(deadline):
-                remaining = len(all_rows) - (len(approved_entries) + len(cancel_ops))
-                print("crm_pull: time budget exceeded — skipping %d remaining dispatch row(s)" % remaining)
+                print("crm_pull: time budget exceeded — skipping remaining dispatch row(s)")
                 summary["time_budget_hit"] = True
                 break
             item = {"tenant_id": row.get("tenant_id"), "phone": row.get("phone") or "",
                     "name": "", "message": row.get("text") or ""}
+            # The current queue's own dedupe, minus any item that is this exact
+            # row's own — a half finished pass (this row already marked pulled
+            # a moment ago in a PRIOR run, its own append never landing) must
+            # never see its own leftover state and call itself a duplicate.
+            queued_ids = {i.get("tenant_id") for i in known_items
+                          if i.get("tenant_id") and i.get("dispatch_id") != rid}
+            queued_jids = {i.get("jid") for i in known_items
+                           if i.get("jid") and i.get("dispatch_id") != rid}
             approved, refused, skipped, duplicates = queue_drafts.classify_items(
                 [item], tenants_by_id, wa_conn, today, queued_ids, queued_jids)
             if approved:
                 a = approved[0]
-                # classify_items copies queued_ids/queued_jids internally rather
-                # than mutating the caller's sets, so the running sets here have
-                # to be updated by hand for the NEXT row in this same batch to
-                # see this one as already spoken for.
-                queued_ids.add(a["tenant_id"]); queued_jids.add(a["jid"])
-                needs_pulled_post = row.get("status") == "queued"
-                if needs_pulled_post:
-                    pulled_ops.append({
-                        "op": "dispatch", "id": row.get("id"), "tenant_id": row.get("tenant_id"),
-                        "listing_id": row.get("listing_id"), "jid": a.get("jid"), "phone": row.get("phone"),
-                        "text": row.get("text"), "viewing_slot": row.get("viewing_slot"),
-                        "status": "pulled", "device": device_name(),
-                    })
-                approved_entries.append((row, a, needs_pulled_post))
+                summary["approved"] += 1
+                if not apply_:
+                    continue
+                pulled_op = {
+                    "op": "dispatch", "id": rid, "tenant_id": row.get("tenant_id"),
+                    "listing_id": row.get("listing_id"), "jid": a.get("jid"), "phone": row.get("phone"),
+                    "text": row.get("text"), "viewing_slot": row.get("viewing_slot"),
+                    "status": "pulled", "device": device_name(),
+                }
+                post_ops(user, pw, [pulled_op])   # queued -> pulled, or pulled -> pulled as a no op
+                batch_item = {"tenant_id": a["tenant_id"], "jid": a["jid"], "message": a["message"], "dispatch_id": rid}
+                try:
+                    queue_drafts.merge_into_queue([batch_item], queue_path, held_lock=lockf)
+                except Exception as e:
+                    post_ops(user, pw, [{"op": "dispatch_cancel", "id": rid, "reason": "append failed"}])
+                    print("crm_pull: append failed (%s) — dispatch row %s cancelled" % (e, rid), file=sys.stderr)
+                    summary["append_failed"] += 1
+                    continue
+                known_items.append(batch_item)
+                current_ids.add(rid)
+                summary["appended"] += 1
             else:
+                summary["cancelled"] += 1
+                if not apply_:
+                    continue
                 reason = (refused or skipped or duplicates)[0][2]
-                cancel_ops.append({"op": "dispatch_cancel", "id": row.get("id"), "reason": reason})
+                post_ops(user, pw, [{"op": "dispatch_cancel", "id": rid, "reason": reason}])
     finally:
         if wa_conn:
             wa_conn.close()
 
-    summary["approved"] = len(approved_entries)
-    summary["cancelled"] = len(cancel_ops)
-    if not apply_:
-        return [], summary
-
-    if cancel_ops:
-        for chunk in _chunks(cancel_ops, CHUNK_SIZE):
-            post_ops(user, pw, chunk)
-
-    confirmed = []
-    id_to_entry = {row.get("id"): (row, a) for row, a, needs in approved_entries}
-    for chunk in _chunks(pulled_ops, CHUNK_SIZE):
-        resp = post_ops(user, pw, chunk)
-        by_id = {d.get("id"): d for d in (resp.get("dispatch") or [])}
-        for op in chunk:
-            d = by_id.get(op["id"])
-            if d and d.get("status") == "pulled":
-                confirmed.append(id_to_entry[op["id"]])
-    # A recovered row is pulled already — nothing to POST or confirm for it,
-    # it goes straight to the append stage.
-    for row, a, needs in approved_entries:
-        if not needs:
-            confirmed.append((row, a))
-    return confirmed, summary
-
-
-def append_entries(entries, user, pw, ledger):
-    """entries: a list of (row, item) tuples, item carrying tenant_id/jid/
-    message. Skips any row whose dispatch id is already in the ledger (this
-    script has appended it before, in this run or an earlier one) or already
-    sitting in the current queue file's own items (a defensive second check,
-    e.g. a hand edited ledger). Stamps every appended item with its
-    dispatch_id and records it in the ledger, written atomically. On a local
-    failure to write the queue file, marks every row in this batch cancelled
-    with reason "append failed" so nothing is left pulled but unqueued."""
-    summary = {"appended": 0, "already_appended": 0, "append_failed": 0}
-    if not entries:
-        return summary
-    current_ids = _dispatch_ids_in_file(queue_drafts.QUEUE_PATH) if os.path.exists(queue_drafts.QUEUE_PATH) else set()
-    to_append = [(row, item) for row, item in entries
-                 if row.get("id") not in ledger and row.get("id") not in current_ids]
-    summary["already_appended"] = len(entries) - len(to_append)
-    if not to_append:
-        return summary
-    batch = [{"tenant_id": item.get("tenant_id"), "jid": item.get("jid"), "message": item.get("message"),
-              "dispatch_id": row.get("id")} for row, item in to_append]
-    try:
-        queue_drafts.merge_into_queue(batch, queue_drafts.QUEUE_PATH)
-    except Exception as e:
-        ids = [row.get("id") for row, item in to_append]
-        cancel_ops = [{"op": "dispatch_cancel", "id": rid, "reason": "append failed"} for rid in ids]
-        for chunk in _chunks(cancel_ops, CHUNK_SIZE):
-            post_ops(user, pw, chunk)
-        print("crm_pull: append failed (%s) — %d row(s) cancelled" % (e, len(ids)), file=sys.stderr)
-        summary["append_failed"] = len(ids)
-        return summary
-    now = datetime.datetime.now(datetime.timezone.utc)
-    for row, item in to_append:
-        ledger[row.get("id")] = {"appended_at": now.isoformat(), "queue_file": queue_drafts.QUEUE_PATH}
-    save_ledger(ledger)
-    summary["appended"] = len(to_append)
     return summary
 
 
-def mark_sent_rows(rows, ledger, user, pw, apply_):
-    """For each currently pulled row whose dispatch id shows up in ANY of the
-    queue file's .done-* archives, or has sat in the ledger for
-    SENT_LEDGER_AGE_HOURS or more, marks it sent on the server — the terminal
-    state nextDispatchStatus (crm-validate.js) only allows a pulled row to
-    move into, and never changes again. This is what stops a long lived
-    pulled row from ever being reconsidered by gather_candidates once it is
-    genuinely done, regardless of how many further archive rotations happen
-    afterward."""
-    pulled_rows = [r for r in rows if r.get("status") == "pulled"]
-    summary = {"marked_sent": 0}
-    if not pulled_rows:
-        return summary
-    archived_ids = all_archived_dispatch_ids(queue_drafts.QUEUE_PATH)
-    now = datetime.datetime.now(datetime.timezone.utc)
-    to_mark = []
-    for row in pulled_rows:
-        rid = row.get("id")
-        if rid in archived_ids:
-            to_mark.append(row)
-            continue
-        entry = ledger.get(rid)
-        if entry:
-            appended_at = _parse_iso(entry.get("appended_at"))
-            if appended_at and (now - appended_at) >= datetime.timedelta(hours=SENT_LEDGER_AGE_HOURS):
-                to_mark.append(row)
-    summary["marked_sent"] = len(to_mark)
-    if not apply_ or not to_mark:
-        return summary
-    ops = [{"op": "dispatch", "id": row.get("id"), "tenant_id": row.get("tenant_id"),
-            "listing_id": row.get("listing_id"), "jid": row.get("jid"), "phone": row.get("phone"),
-            "text": row.get("text"), "viewing_slot": row.get("viewing_slot"),
-            "status": "sent", "device": row.get("device")} for row in to_mark]
-    for chunk in _chunks(ops, CHUNK_SIZE):
-        post_ops(user, pw, chunk)
-    return summary
-
-
-def process_dispatch(rows, user, pw, apply_, deadline=None):
-    ledger = load_ledger()
-    confirmed, summary = classify_and_mark(rows, ledger, user, pw, apply_, deadline)
-    if apply_:
-        summary.update(append_entries(confirmed, user, pw, ledger))
-    summary.update(mark_sent_rows(rows, ledger, user, pw, apply_))
-    return summary
+def run_dispatch_locked(user, pw, apply_, deadline=None):
+    """Acquires the exclusive lock on <queue file>.lock BEFORE even fetching
+    the CRM snapshot, and holds it until process_dispatch_locked's last
+    append or mark — see the module docstring. An overlapping run of this
+    script blocks here until this one fully finishes, then fetches its own,
+    now current, snapshot. Returns (snap, dispatch_summary)."""
+    queue_path = queue_drafts.QUEUE_PATH
+    lock_path = queue_path + ".lock"
+    lock_dir = os.path.dirname(lock_path)
+    if lock_dir:
+        os.makedirs(lock_dir, exist_ok=True)
+    with open(lock_path, "a+") as lockf:
+        fcntl.flock(lockf, fcntl.LOCK_EX)
+        try:
+            snap = fetch_snapshot(user, pw)
+            dispatch_rows = snap.get("dispatch") or []
+            server_now = _parse_iso(snap.get("server_time"))
+            d_summary = process_dispatch_locked(dispatch_rows, server_now, user, pw, apply_, lockf, deadline)
+        finally:
+            fcntl.flock(lockf, fcntl.LOCK_UN)
+    return snap, d_summary
 
 
 def _in_blackout(now_sgt):
@@ -408,25 +385,19 @@ def _in_blackout(now_sgt):
     return BLACKOUT_START <= hm <= BLACKOUT_END
 
 
-def _now_sgt():
-    # A plain function, not an inline call, so a test can monkeypatch this one
-    # name and get a deterministic clock through every call site below —
-    # including the ones inside main() — without the real wall clock ever
-    # being able to land a test run inside the blackout window by accident.
-    return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
-
-
 def cleanup_cancelled(dispatch_rows, apply_, mtime_at_fetch=_MTIME_UNSET, now=None):
     """Removes any item from the real dispatch queue whose dispatch row has
     since been cancelled — only items that carry a dispatch_id, so a manual
     or another producer's item is never touched. Never runs between 07:45
-    and 08:45 Singapore time (the real send window), and otherwise takes an
-    exclusive lock on <queue file>.lock, re reads the queue file under that
-    lock, and skips the whole pass if the file's mtime has changed since
-    mtime_at_fetch (this run first looked at it, right after fetching the
-    CRM snapshot) — something else touched it in between (most likely this
-    same run's own append), so this pass defers to the next run rather than
-    read modify write against a file it can no longer be sure it understands.
+    and 08:45 Singapore time (the real send window), and otherwise takes its
+    own exclusive lock on <queue file>.lock (separate from, and after,
+    run_dispatch_locked's own lock above), re reads the queue file under
+    that lock, and skips the whole pass if the file's mtime has changed
+    since mtime_at_fetch — something else touched it since this run last
+    looked (most likely a concurrent process, since this run's own dispatch
+    processing has already fully finished and released its lock by the time
+    this is called), so this pass defers to the next run rather than read
+    modify write against a file it can no longer be sure it understands.
     mtime_at_fetch left at its default disables that specific check, for a
     caller (a test, most likely) that does not care about it."""
     cancelled_ids = {r.get("id") for r in dispatch_rows if r.get("status") == "cancelled"}
@@ -588,26 +559,25 @@ def main(argv=None):
     # sit inside this one try, so a network problem anywhere in the run comes
     # back as one line and exit code 1, never a raw traceback.
     try:
-        snap = fetch_snapshot(user, pw)
-        dispatch_rows = snap.get("dispatch") or []
-        # Captured right after the fetch, before process_dispatch can touch the
-        # queue file itself — see cleanup_cancelled's own docstring for why.
+        snap, d_summary = run_dispatch_locked(user, pw, args.apply, deadline)
+        # Captured only now, after run_dispatch_locked has fully finished and
+        # released its own lock — see cleanup_cancelled's own docstring for
+        # why this is the right moment, not before dispatch processing.
         mtime_at_fetch = os.path.getmtime(queue_drafts.QUEUE_PATH) if os.path.exists(queue_drafts.QUEUE_PATH) else None
-        d_summary = process_dispatch(dispatch_rows, user, pw, args.apply, deadline)
-        c_summary = cleanup_cancelled(dispatch_rows, args.apply, mtime_at_fetch=mtime_at_fetch)
+        c_summary = cleanup_cancelled(snap.get("dispatch") or [], args.apply, mtime_at_fetch=mtime_at_fetch)
         l_summary = process_deals(snap.get("deals") or [], user, pw, args.apply, deadline)
     except (urllib.error.URLError, OSError, ValueError) as e:
         print("crm_pull: failed (%s) — nothing done" % e, file=sys.stderr)
         return 1
 
     mode = "apply" if args.apply else "dry run"
-    print("crm_pull (%s): dispatch %d queued, %d recoverable, %d approved, %d cancelled, "
-          "%d appended (%d already, %d append failed), %d marked sent — "
+    print("crm_pull (%s): dispatch %d queued, %d pulled, %d approved, %d cancelled, "
+          "%d marked sent, %d expired, %d appended (%d already, %d append failed) — "
           "cleanup removed %d — deals %d completed, %d pending import, %d imported" % (
-              mode, d_summary["queued"], d_summary.get("recoverable", 0), d_summary["approved"],
-              d_summary["cancelled"], d_summary.get("appended", 0), d_summary.get("already_appended", 0),
-              d_summary.get("append_failed", 0), d_summary.get("marked_sent", 0),
-              c_summary["removed_from_queue"],
+              mode, d_summary["queued"], d_summary["pulled_seen"], d_summary["approved"],
+              d_summary["cancelled"], d_summary["marked_sent"], d_summary["expired"],
+              d_summary.get("appended", 0), d_summary.get("already_appended", 0),
+              d_summary.get("append_failed", 0), c_summary["removed_from_queue"],
               l_summary["completed"], l_summary["pending_import"], l_summary["imported"]))
     return 0
 

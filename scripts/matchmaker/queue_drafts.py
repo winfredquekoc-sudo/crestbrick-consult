@@ -9,7 +9,7 @@ Usage:
   python3 scripts/matchmaker/queue_drafts.py exported-queue.json
   cat exported-queue.json | python3 scripts/matchmaker/queue_drafts.py [--yes]
 """
-import argparse, datetime, json, os, sys
+import argparse, datetime, fcntl, json, os, sys
 import enrich
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
@@ -122,31 +122,55 @@ def classify_items(items, tenants_by_id, wa_conn, today, queued_ids=None, queued
     return approved, refused, skipped, duplicates
 
 
-def merge_into_queue(to_queue, queue_path):
+def merge_into_queue(to_queue, queue_path, held_lock=None):
     """Preserves an existing queue's 'created' timestamp when appending — that
     keeps morning-dispatch.sh's 'did the tenant reply since queued' check
-    conservative for every item in the batch, not just the newest ones."""
-    if os.path.exists(queue_path):
-        q = json.load(open(queue_path))
-        q.setdefault("items", [])
-    else:
-        now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
-        q = {"created": now.isoformat(timespec="seconds"), "items": []}
-    for a in to_queue:
-        item = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
-        # Set only by crm_pull.py (CRM pull bridge): the crm_dispatch row id
-        # this item came from, so a later run can tell "already delivered"
-        # apart from "still pulled but never actually appended" and prune a
-        # cancelled row's item back out before it sends. Absent for every
-        # other producer of this file (the manual queue_drafts.py flow
-        # included), so their items keep exactly the 4 fields they always had.
-        if a.get("dispatch_id"):
-            item["dispatch_id"] = a["dispatch_id"]
-        q["items"].append(item)
-    os.makedirs(os.path.dirname(queue_path), exist_ok=True)
-    tmp = queue_path + ".tmp"
-    json.dump(q, open(tmp, "w"), indent=1, ensure_ascii=False)
-    os.replace(tmp, queue_path)
+    conservative for every item in the batch, not just the newest ones.
+
+    Takes an exclusive fcntl lock on <queue_path>.lock for the read modify
+    write, so this manual/CLI path is protected the same way crm_pull.py's
+    own dispatch processing is. Pass held_lock (an already open, already
+    locked file object) when the caller — crm_pull.py, running its own
+    fetch-through-append sequence under one lock end to end — already holds
+    it: this makes the call a no op on locking and reuses that lock instead
+    of trying to acquire a second one on the same file from the same run,
+    which would either be pointless (fcntl allows a process to re-lock a
+    file it already holds) or, if flock semantics ever differ across
+    platforms enough to matter, could pointlessly block."""
+    def _do_merge():
+        if os.path.exists(queue_path):
+            q = json.load(open(queue_path))
+            q.setdefault("items", [])
+        else:
+            now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
+            q = {"created": now.isoformat(timespec="seconds"), "items": []}
+        for a in to_queue:
+            item = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
+            # Set only by crm_pull.py (CRM pull bridge): the crm_dispatch row id
+            # this item came from, so a later run can tell "already delivered"
+            # apart from "still pulled but never actually appended" and prune a
+            # cancelled row's item back out before it sends. Absent for every
+            # other producer of this file (the manual queue_drafts.py flow
+            # included), so their items keep exactly the 4 fields they always had.
+            if a.get("dispatch_id"):
+                item["dispatch_id"] = a["dispatch_id"]
+            q["items"].append(item)
+        os.makedirs(os.path.dirname(queue_path), exist_ok=True)
+        tmp = queue_path + ".tmp"
+        json.dump(q, open(tmp, "w"), indent=1, ensure_ascii=False)
+        os.replace(tmp, queue_path)
+
+    if held_lock is not None:
+        _do_merge()
+        return
+    lock_path = queue_path + ".lock"
+    os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+    with open(lock_path, "a+") as lockf:
+        fcntl.flock(lockf, fcntl.LOCK_EX)
+        try:
+            _do_merge()
+        finally:
+            fcntl.flock(lockf, fcntl.LOCK_UN)
 
 
 def main():

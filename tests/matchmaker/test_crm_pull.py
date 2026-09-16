@@ -3,33 +3,48 @@
 No pytest, stdlib only:
     /usr/bin/python3 tests/matchmaker/test_crm_pull.py
 
-Runs crm_pull.main() (and, for the crash window, recovery window and time
-budget cases, its lower level functions directly) against a fake CRM API (an
-in memory stand in for fetch_snapshot/post_ops, since a real network call has
-no place in a test) and a throwaway sqlite clients.db. Covers:
-  (a) a crash after marking pulled but before appending is recovered by the
-      next run, appended exactly once
-  (b) a crash after the append itself (before the ledger write lands) never
-      double appends on the next run
+Runs crm_pull.main() against a fake CRM API (an in memory stand in for
+fetch_snapshot/post_ops, since a real network call has no place in a test)
+and a throwaway sqlite clients.db. There is no ledger any more (PR #132
+third rework): the record of what was actually appended is the queue file
+plus its .done-* archives, and a pulled row's age is judged only against the
+CRM API's own server_time, never the Mac's local clock. Covers:
+  (a) a crash after marking a row pulled but before appending it is
+      recovered by the next run, appended exactly once
+  (b) a crash after the append itself never double appends and never
+      cancels on the next run
   (c) a row that has been through the real 08:00 archive and two further
-      rotations is never appended again and is marked sent
+      rotations is never appended again and is marked sent, even once it
+      is older than the 7 day expiry window
   (d) cancelling a row after it was pulled prunes its queue item once
-  (e) 212 dispatch rows in one run still POST in chunks of 50
-  (f) a cancelled row re marked Queued reaches the real queue exactly once
-  (g) a pulled row 3 hours old with no ledger entry is NOT recovered
+  (e) 212 dispatch rows needing a sent/expired mark in one run still POST
+      in chunks of 50
+  (f) a cancelled row re queued as a brand new dispatch id (the app never
+      reuses a cancelled row's own id) reaches the real queue exactly once
+  (g) a pulled row absent from both the queue file and every archive is
+      recovered and appended once, regardless of its age, as long as it is
+      under the 7 day expiry window
   (h) a recovered row that has since gone dead is cancelled with the dead
       lead reason, never appended
+  (i) the queue file disappearing mid run cancels nothing — the row is
+      still appended (recreating the file), never blamed on the missing file
+  (j) two overlapping runs (the second genuinely blocked on the queue file's
+      lock, not just interleaved by chance) append the same row exactly once
+  (k) skewing the Mac's own clock 3 hours either way changes nothing about
+      which pulled rows are judged expired — only server_time decides that
 plus the original dead lead / accepted draft / non completed deal / missing
-deals table cases from the first two review rounds.
+deals table / blackout / time budget cases from earlier review rounds.
 
 All fixture people are invented (SG plausible, obviously fake).
 """
 import datetime
+import fcntl
 import json
 import os
 import sqlite3
 import sys
 import tempfile
+import threading
 import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -52,10 +67,6 @@ def check(name, fn):
 
 
 # ------------------------------------------------------------- fixtures ----
-def iso_hours_ago(n):
-    return (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=n)).isoformat()
-
-
 def today_sgt():
     return datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date().isoformat()
 
@@ -67,25 +78,31 @@ def days_ago_sgt(n):
 
 class FakeServer:
     """Stands in for the CRM API: fetch_snapshot()/post_ops() are pointed at
-    this instead of a real network call. apply_ops() mirrors deploy/api/crm.js's
-    own "dispatch"/"dispatch_cancel"/"activity" op handling — including
-    nextDispatchStatus's transition table (queued moves anywhere, pulled only
-    ever moves on to sent, cancelled only ever moves back to queued, sent is
-    terminal) and stamping pulled_at fresh only when a row newly BECOMES
-    pulled — closely enough for this script's own logic (the ledger, the
-    recovery window, the sent marking) to be exercised end to end against
-    realistic server responses."""
+    this instead of a real network call. apply_ops() mirrors deploy/api/
+    crm.js's own "dispatch"/"dispatch_cancel"/"activity" op handling —
+    including nextDispatchStatus's transition table (queued moves anywhere,
+    pulled only ever moves on to sent, cancelled only ever moves back to
+    queued, sent is terminal) and stamping pulled_at fresh only when a row
+    newly BECOMES pulled — closely enough for this script's own logic to be
+    exercised end to end against realistic server responses.
+
+    server_time is its own clock, independent of the real wall clock and of
+    crm_pull.py's own _now_sgt() (the Mac's clock) — exactly the separation
+    the real API/Mac pair has, and what test (k) below exists to prove
+    actually matters."""
 
     def __init__(self):
         self.dispatch = {}
         self.deals = {}
         self.activity = []
         self.posted_ops = []
+        self.server_time = datetime.datetime.now(datetime.timezone.utc)
 
     def snapshot(self):
         return {
             "dispatch": [dict(r) for r in self.dispatch.values() if r["status"] in ("queued", "pulled", "cancelled")],
             "deals": [dict(d) for d in self.deals.values()],
+            "server_time": self.server_time.isoformat().replace("+00:00", "Z"),
         }
 
     def _next_status(self, current, incoming):
@@ -153,16 +170,14 @@ def make_deals_db(path):
 
 class Fixture:
     """One full environment: a temp tenant-db.json, a temp morning dispatch
-    queue path, a temp ledger path, a temp clients.db, and a fresh FakeServer
-    — plus the module level monkeypatches crm_pull/queue_drafts/log_deal need
-    to use them instead of Winfred's real files. restore() undoes every
-    patch."""
+    queue path, a temp clients.db, and a fresh FakeServer — plus the module
+    level monkeypatches crm_pull/queue_drafts/log_deal need to use them
+    instead of Winfred's real files. restore() undoes every patch."""
 
     def __init__(self):
         self.dir = tempfile.mkdtemp(prefix="mm-crm-pull-test-")
         self.tenant_db_path = os.path.join(self.dir, "tenant-db.json")
         self.queue_path = os.path.join(self.dir, "morning-dispatch-queue.json")
-        self.ledger_path = os.path.join(self.dir, "matchmaker-dispatch-ledger.json")
         self.clients_db_path = os.path.join(self.dir, "clients.db")
         make_deals_db(self.clients_db_path)
 
@@ -209,7 +224,6 @@ class Fixture:
             "TENANT_DB_PATH": queue_drafts.TENANT_DB_PATH,
             "WA_DB_PATH": queue_drafts.WA_DB_PATH,
             "QUEUE_PATH": queue_drafts.QUEUE_PATH,
-            "LEDGER_PATH": crm_pull.LEDGER_PATH,
             "DB_PATH": log_deal.DB_PATH,
             "BACKUP_DIR": log_deal.BACKUP_DIR,
             "fetch_snapshot": crm_pull.fetch_snapshot,
@@ -221,16 +235,15 @@ class Fixture:
         queue_drafts.TENANT_DB_PATH = self.tenant_db_path
         queue_drafts.WA_DB_PATH = os.path.join(self.dir, "no-such-wa-bridge.db")
         queue_drafts.QUEUE_PATH = self.queue_path
-        crm_pull.LEDGER_PATH = self.ledger_path
         log_deal.DB_PATH = self.clients_db_path
         log_deal.BACKUP_DIR = os.path.join(self.dir, "backups")
         crm_pull.fetch_snapshot = lambda user, pw: self.server.snapshot()
         crm_pull.post_ops = lambda user, pw, ops: self.server.apply_ops(ops)
         # A fixed, safe (well outside 07:45-08:45) Singapore time for every
         # cleanup_cancelled call this fixture drives through main() — without
-        # this, a test run happening to land inside the real send window would
-        # make cleanup skip everywhere and fail these tests for a reason that
-        # has nothing to do with the code under test.
+        # this, a test run happening to land inside the real send window
+        # would make cleanup skip everywhere for a reason that has nothing to
+        # do with the code under test.
         safe_time = datetime.datetime(2026, 9, 16, 12, 0, tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
         crm_pull._now_sgt = lambda: safe_time
         os.environ["MM_USER"] = "test-user-placeholder"
@@ -240,7 +253,6 @@ class Fixture:
         queue_drafts.TENANT_DB_PATH = self._orig["TENANT_DB_PATH"]
         queue_drafts.WA_DB_PATH = self._orig["WA_DB_PATH"]
         queue_drafts.QUEUE_PATH = self._orig["QUEUE_PATH"]
-        crm_pull.LEDGER_PATH = self._orig["LEDGER_PATH"]
         log_deal.DB_PATH = self._orig["DB_PATH"]
         log_deal.BACKUP_DIR = self._orig["BACKUP_DIR"]
         crm_pull.fetch_snapshot = self._orig["fetch_snapshot"]
@@ -273,17 +285,21 @@ class Fixture:
         json.dump({"created": "2026-09-01T00:00:00+08:00", "items": items}, open(path, "w"))
         return path
 
-    def ledger(self):
-        if not os.path.exists(self.ledger_path):
-            return {}
-        return json.load(open(self.ledger_path))
-
     def deal_rows(self):
         con = sqlite3.connect(self.clients_db_path)
         con.row_factory = sqlite3.Row
         rows = [dict(r) for r in con.execute("SELECT * FROM deals").fetchall()]
         con.close()
         return rows
+
+
+def pulled_at_from_server(fx, days_ago=0, hours_ago=0):
+    """A pulled_at timestamp expressed relative to the FakeServer's OWN
+    clock, never the real wall clock — every expiry decision has to be
+    judged against server_time, so fixtures built against anything else
+    would not actually be testing that rule."""
+    dt = fx.server.server_time - datetime.timedelta(days=days_ago, hours=hours_ago)
+    return dt.isoformat()
 
 
 # ------------------------------------------------------------------ tests ---
@@ -309,11 +325,10 @@ def t_dry_run_writes_nothing():
         assert fx.queue_items() == [], "dry run must never write the dispatch queue"
         assert fx.deal_rows() == [], "dry run must never write clients.db"
         assert fx.server.posted_ops == [], "dry run must never POST anything"
-        assert fx.ledger() == {}, "dry run must never write the ledger"
         assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "queued"
     finally:
         fx.restore()
-check("main() dry run: reports without writing the queue, the ledger, clients.db or the API", t_dry_run_writes_nothing)
+check("main() dry run: reports without writing the queue, clients.db or the API", t_dry_run_writes_nothing)
 
 
 def t_dead_lead_refused_and_cancelled_with_reason():
@@ -342,10 +357,9 @@ def t_accepted_draft_appended_once_and_marked_pulled():
         assert matches[0]["jid"] == "6591111111@s.whatsapp.net"
         assert matches[0]["dispatch_id"] == "dispatch_L1_T1", "every appended item must carry its dispatch id"
         assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
-        assert "dispatch_L1_T1" in fx.ledger(), "a successful append must be recorded in the ledger"
     finally:
         fx.restore()
-check("crm_pull --apply: an accepted draft is appended to the queue once, tagged with its dispatch id, marked pulled and recorded in the ledger", t_accepted_draft_appended_once_and_marked_pulled)
+check("crm_pull --apply: an accepted draft is appended to the queue once, tagged with its dispatch id and marked pulled", t_accepted_draft_appended_once_and_marked_pulled)
 
 
 def t_second_run_appends_nothing_more():
@@ -365,19 +379,15 @@ check("crm_pull --apply: run twice, the second run appends nothing more to the q
 def t_crash_after_mark_before_append_recovers_once():
     fx = Fixture()
     try:
-        # Step one only: mark T1 pulled and confirm it against the (fake)
-        # server's response, but never call append_entries — exactly as if
-        # the process died right there, between the two steps.
-        ledger = crm_pull.load_ledger()
-        confirmed, summary = crm_pull.classify_and_mark(fx.server.snapshot()["dispatch"], ledger, "u", "p", True)
-        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+        # Simulate the process dying right between the two steps: the mark
+        # pulled write landed and was confirmed, but the append never ran.
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx)
         assert fx.queue_items() == [], "nothing should be appended yet — this is the simulated crash point"
-        assert "dispatch_L1_T1" not in fx.ledger()
 
         # A full, ordinary second run must recover the still pulled, not yet
-        # appended row (its id is absent from the ledger and it was pulled
-        # moments ago, well within the recovery window) and append it —
-        # exactly once overall, not zero and not twice.
+        # appended row — its id is in neither the queue file nor any archive
+        # — and append it exactly once overall, not zero and not twice.
         crm_pull.main(["--apply"])
         matches = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
         assert len(matches) == 1, "the crash recovered draft must be appended exactly once overall"
@@ -390,42 +400,43 @@ def t_crash_after_mark_before_append_recovers_once():
 check("(a) crash after mark, before append: the next run recovers and appends exactly once", t_crash_after_mark_before_append_recovers_once)
 
 
-# ---- (b) crash after the append, before the ledger write lands ------------
-def t_crash_after_append_before_ledger_never_double_appends():
+# ---- (b) crash after the append itself -------------------------------------
+def t_crash_after_append_never_double_appends_or_cancels():
     fx = Fixture()
     try:
-        # Simulate the append having already actually happened (the queue file
-        # itself was written) but the ledger write never landing — the
-        # narrower crash window between the two file writes append_entries
-        # itself performs.
+        # The append has already actually happened: both the mark pulled
+        # write and the queue file write landed. There is no ledger step
+        # left to crash on after this — the queue file itself is the record.
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
-        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx)
         queue_drafts.merge_into_queue(
             [{"tenant_id": "T1", "jid": "6591111111@s.whatsapp.net", "message": "already appended",
               "dispatch_id": "dispatch_L1_T1"}],
             fx.queue_path)
-        assert fx.ledger() == {}, "the simulated crash means the ledger never got the entry"
 
         crm_pull.main(["--apply"])
         matches = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
-        assert len(matches) == 1, "a row already in the queue file must never be appended a second time, ledger or not"
+        assert len(matches) == 1, "a row already in the queue file must never be appended a second time"
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
+            "a row that was already fully delivered must not be cancelled just for being seen again"
+        cancel_ops = [o for o in fx.server.posted_ops if o["op"] == "dispatch_cancel" and o["id"] == "dispatch_L1_T1"]
+        assert cancel_ops == [], "nothing about seeing an already appended row again should ever cancel it"
     finally:
         fx.restore()
-check("(b) crash after append, before the ledger write: the next run appends nothing more", t_crash_after_append_before_ledger_never_double_appends)
+check("(b) crash after the append: the next run appends nothing more and cancels nothing", t_crash_after_append_never_double_appends_or_cancels)
 
 
 # ---- (c) 08:00 archived, then two further rotations: sent, never re appended
 def t_archived_row_survives_further_rotations_and_is_marked_sent():
     fx = Fixture()
     try:
-        # The row was genuinely pulled and sent a while ago. No ledger entry
-        # at all for this test (as if this script's ledger were rebuilt after
-        # an unrelated incident) — proving the block on re appending it comes
-        # from its age (well past the 2 hour recovery window), and the sent
-        # marking comes from finding it in an OLDER archive after later
-        # rotations have superseded it as "the newest" file.
+        # The row was genuinely pulled and sent well over EXPIRY_DAYS ago —
+        # proving the sent marking comes from the archive match itself, not
+        # from age, and that an archived row is never instead judged expired
+        # even though it is well past the 7 day window.
+        old_pulled_at = pulled_at_from_server(fx, days_ago=crm_pull.EXPIRY_DAYS + 3)
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
-        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = iso_hours_ago(30)
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = old_pulled_at
         fx.write_archive("202609160800", ["dispatch_L1_T1"])   # the real 08:00 send
         fx.write_archive("202609160900", [])                    # rotation 1, unrelated
         fx.write_archive("202609161000", [])                    # rotation 2, unrelated — now the newest
@@ -433,12 +444,12 @@ def t_archived_row_survives_further_rotations_and_is_marked_sent():
         crm_pull.main(["--apply"])
 
         matches = [i for i in fx.queue_items() if i.get("dispatch_id") == "dispatch_L1_T1"]
-        assert matches == [], "an already sent row, 30 hours old, must never be appended again"
+        assert matches == [], "an already sent row must never be appended again"
         assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "sent", \
-            "a row found in an archive that is no longer the newest one must still be marked sent"
+            "a row found in an archive that is no longer the newest one, and well past the expiry window, must still be marked sent, not expired"
     finally:
         fx.restore()
-check("(c) a row archived at 08:00, surviving two further rotations, is never re appended and is marked sent", t_archived_row_survives_further_rotations_and_is_marked_sent)
+check("(c) a row archived at 08:00, surviving two further rotations, is never re appended and ends sent", t_archived_row_survives_further_rotations_and_is_marked_sent)
 
 
 # ---- (d) cancel after pull, before 08:00: pruned once ----------------------
@@ -456,7 +467,7 @@ def t_cancel_after_pull_prunes_queue_item_once():
         assert all(i.get("dispatch_id") != "dispatch_L1_T1" for i in items), \
             "a cancelled row's queue item must be pruned before the real 08:00 send"
         crm_pull.main(["--apply"])
-        assert fx.queue_items() == [i for i in fx.queue_items()], "pruning again is a no op, not an error"
+        assert all(i.get("dispatch_id") != "dispatch_L1_T1" for i in fx.queue_items()), "pruning again is a no op, not an error"
     finally:
         fx.restore()
 check("(d) cancelling a row after it was pulled prunes its queue item exactly once", t_cancel_after_pull_prunes_queue_item_once)
@@ -508,19 +519,21 @@ def t_cleanup_skips_when_the_queue_file_changed_since_the_fetch():
 check("crm_pull: cleanup skips this pass when the queue file changed since the run last looked at it", t_cleanup_skips_when_the_queue_file_changed_since_the_fetch)
 
 
-# ---- (e) 212 rows: still chunked at 50 -------------------------------------
+# ---- (e) 212 rows needing a sent/expired mark: still chunked at 50 --------
 def t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows():
     fx = Fixture()
     try:
-        for i in range(210):
-            tid = "TB%03d" % i
-            phone = "9%07d" % i
-            fx.add_tenant(tid, phone, phone + "@s.whatsapp.net")
-            fx.server.dispatch["dispatch_LB_" + tid] = {
-                "id": "dispatch_LB_" + tid, "tenant_id": tid, "listing_id": "LB", "jid": None,
-                "phone": phone, "text": "hi bulk " + tid, "viewing_slot": None,
-                "status": "queued", "device": None,
+        archived_ids = []
+        for i in range(212):
+            did = "dispatch_LB_TB%03d" % i
+            archived_ids.append(did)
+            fx.server.dispatch[did] = {
+                "id": did, "tenant_id": "TB%03d" % i, "listing_id": "LB", "jid": "x@s.whatsapp.net",
+                "phone": "9%07d" % i, "text": "hi bulk %d" % i, "viewing_slot": None,
+                "status": "pulled", "device": "mac", "pulled_at": pulled_at_from_server(fx, hours_ago=1),
             }
+        fx.write_archive("202609160800", archived_ids)  # every one of the 212 already actually sent
+
         call_sizes = []
         real_post_ops = crm_pull.post_ops
 
@@ -532,79 +545,85 @@ def t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows():
             crm_pull.main(["--apply"])
         finally:
             crm_pull.post_ops = real_post_ops
+
         assert call_sizes, "expected at least one POST"
         assert all(n <= 50 for n in call_sizes), "every POST must be chunked at 50 ops: %r" % call_sizes
-        assert len(call_sizes) >= 5, "212 dispatch rows should need at least 5 chunks of 50: %r" % call_sizes
+        assert len(call_sizes) >= 5, "212 rows to mark sent should need at least 5 chunks of 50: %r" % call_sizes
+        assert all(fx.server.dispatch[did]["status"] == "sent" for did in archived_ids)
     finally:
         fx.restore()
-check("(e) 212 dispatch rows in one run still POST in chunks of 50", t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows)
+check("(e) 212 rows needing a sent mark in one run still POST in chunks of 50", t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows)
 
 
-# ---- (f) cancelled then re queued reaches the Mac once ---------------------
-def t_cancelled_then_requeued_reaches_the_mac_once():
+# ---- (f) cancelled then re queued as a NEW id reaches the Mac once --------
+def t_cancelled_then_requeued_with_a_new_id_reaches_the_mac_once():
     fx = Fixture()
     try:
         crm_pull.main(["--apply"])  # T2 refused as a dead lead -> cancelled
-        assert fx.server.dispatch["dispatch_L2_T2"]["status"] == "cancelled"
+        old_id = "dispatch_L2_T2"
+        assert fx.server.dispatch[old_id]["status"] == "cancelled"
 
-        # T2's situation changes and the app's own Mark Queued action writes
-        # the "dispatch" op again on the SAME id, with fresh contact info —
-        # exactly what CRM.upsertDispatch/writeDispatchRow do client side.
+        # T2's situation changes and the app writes a BRAND NEW dispatch id
+        # for the fresh attempt — writeDispatchRow (app.js) never reuses a
+        # cancelled row's own id, unlike the design this replaced.
         tdb = json.load(open(fx.tenant_db_path))
         for t in tdb["tenants"]:
             if t["id"] == "T2":
                 t["last_contact"] = today_sgt()
         json.dump(tdb, open(fx.tenant_db_path, "w"))
+        new_id = "dispatch_L2_T2_9999999999999"
         fx.server.apply_ops([{
-            "op": "dispatch", "id": "dispatch_L2_T2", "tenant_id": "T2", "listing_id": "L2",
+            "op": "dispatch", "id": new_id, "tenant_id": "T2", "listing_id": "L2",
             "jid": None, "phone": "92222222", "text": "Hi Tenant Two, still interested?",
             "viewing_slot": None, "status": "queued", "device": None,
         }])
-        assert fx.server.dispatch["dispatch_L2_T2"]["status"] == "queued", \
-            "the server must accept a fresh queued write on a cancelled row through the same id"
+        assert fx.server.dispatch[new_id]["status"] == "queued"
+        assert fx.server.dispatch[old_id]["status"] == "cancelled", "the old attempt stays cancelled, untouched"
 
         crm_pull.main(["--apply"])
         matches = [i for i in fx.queue_items() if i["tenant_id"] == "T2"]
         assert len(matches) == 1, "the requeued draft must reach the real dispatch queue exactly once"
-        assert fx.server.dispatch["dispatch_L2_T2"]["status"] == "pulled"
+        assert matches[0]["dispatch_id"] == new_id, "the appended item must carry the NEW attempt's id"
+        assert fx.server.dispatch[new_id]["status"] == "pulled"
 
         crm_pull.main(["--apply"])
         matches_again = [i for i in fx.queue_items() if i["tenant_id"] == "T2"]
         assert len(matches_again) == 1, "a further run must not append it again"
     finally:
         fx.restore()
-check("(f) a cancelled row re marked Queued reaches the real dispatch queue exactly once", t_cancelled_then_requeued_reaches_the_mac_once)
+check("(f) a cancelled row re queued under a brand new id reaches the real dispatch queue exactly once", t_cancelled_then_requeued_with_a_new_id_reaches_the_mac_once)
 
 
-# ---- (g) a pulled row 3 hours old, no ledger entry: NOT recovered ---------
-def t_pulled_row_3_hours_old_with_no_ledger_entry_is_not_recovered():
+# ---- (g) a pulled row missing from queue and archives: recovered once ----
+def t_pulled_row_missing_everywhere_is_recovered_once_regardless_of_age():
     fx = Fixture()
     try:
+        # Well under the 7 day expiry window, but old enough that the
+        # earlier (deleted) recovery window design would have refused to
+        # touch it. Not in the queue file, not in any archive.
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
-        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = iso_hours_ago(3)
-        ledger = {}
-        queued, recoverable = crm_pull.gather_candidates(
-            fx.server.snapshot()["dispatch"], ledger, datetime.datetime.now(datetime.timezone.utc))
-        assert recoverable == [], "a pulled row past the 2 hour recovery window must never be recovered"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx, days_ago=6, hours_ago=23)
 
         crm_pull.main(["--apply"])
-        assert fx.queue_items() == [], "nothing should be appended for a stale, un ledgered pulled row"
-        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
-            "at 3 hours old it is also not yet old enough for the 24 hour sent marking"
+
+        matches = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
+        assert len(matches) == 1, "a pulled row absent everywhere must be recovered and appended, no matter its age under 7 days"
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+
+        crm_pull.main(["--apply"])
+        matches_again = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
+        assert len(matches_again) == 1, "a further run must not append it again"
     finally:
         fx.restore()
-check("(g) a pulled row 3 hours old with no ledger entry is NOT recovered", t_pulled_row_3_hours_old_with_no_ledger_entry_is_not_recovered)
+check("(g) a pulled row absent from the queue and every archive is recovered and appended exactly once, regardless of age under 7 days", t_pulled_row_missing_everywhere_is_recovered_once_regardless_of_age)
 
 
 # ---- (h) recovered row now a dead lead: cancelled, not appended -----------
 def t_recovered_row_now_dead_is_cancelled_not_appended():
     fx = Fixture()
     try:
-        # T1 was pulled moments ago (inside the recovery window, absent from
-        # the ledger — a genuine crash candidate) but has since gone quiet
-        # long enough to trip the dead lead rule.
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
-        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = iso_hours_ago(1)
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx, hours_ago=1)
         tdb = json.load(open(fx.tenant_db_path))
         for t in tdb["tenants"]:
             if t["id"] == "T1":
@@ -617,11 +636,135 @@ def t_recovered_row_now_dead_is_cancelled_not_appended():
         assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "cancelled"
         cancel_ops = [o for o in fx.server.posted_ops if o["op"] == "dispatch_cancel" and o["id"] == "dispatch_L1_T1"]
         assert len(cancel_ops) == 1
-        assert "dead-lead" in cancel_ops[0]["reason"] or "d ago" in cancel_ops[0]["reason"], \
+        assert "d ago" in cancel_ops[0]["reason"], \
             "the cancel reason should be the same dead lead message queue_drafts.py itself produces: %r" % cancel_ops[0]["reason"]
     finally:
         fx.restore()
 check("(h) a recovered row that has since gone dead is cancelled with the dead lead reason, not appended", t_recovered_row_now_dead_is_cancelled_not_appended)
+
+
+# ---- (i) queue file deleted mid run: cancels nothing -----------------------
+def t_queue_file_deleted_mid_run_cancels_nothing():
+    fx = Fixture()
+    try:
+        # A manual item already sitting in the queue file, standing in for
+        # "something is on disk when this run starts".
+        queue_drafts.merge_into_queue(
+            [{"tenant_id": "T9", "jid": "6599999999@s.whatsapp.net", "message": "manual item"}],
+            fx.queue_path)
+        assert os.path.exists(fx.queue_path)
+
+        real_merge = queue_drafts.merge_into_queue
+
+        def deleting_merge(to_queue, queue_path, held_lock=None):
+            # Simulates something outside this run's own lock removing the
+            # queue file in the middle of processing — a hand edit, a
+            # runaway cleanup script, anything. The append itself must
+            # still succeed (recreating the file) and nothing here may
+            # read the disappearance as a reason to cancel the row.
+            if os.path.exists(queue_path):
+                os.remove(queue_path)
+            return real_merge(to_queue, queue_path, held_lock=held_lock)
+        queue_drafts.merge_into_queue = deleting_merge
+        try:
+            crm_pull.main(["--apply"])
+        finally:
+            queue_drafts.merge_into_queue = real_merge
+
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
+            "a row must never be cancelled just because the queue file vanished mid run"
+        # dispatch_L2_T2 is the fixture's own dead lead and is expected to be
+        # cancelled on every run regardless of this scenario — only T1's own
+        # row (the one whose append hit the disappearing file) is what this
+        # test cares about never seeing a cancel op.
+        cancel_ops = [o for o in fx.server.posted_ops if o["op"] == "dispatch_cancel" and o["id"] == "dispatch_L1_T1"]
+        assert cancel_ops == [], "nothing about the missing file should have produced a cancel op for T1: %r" % cancel_ops
+        matches = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
+        assert len(matches) == 1, "the row must still land in the recreated queue file"
+    finally:
+        fx.restore()
+check("(i) the queue file disappearing mid run cancels nothing — the row still lands, recreating the file", t_queue_file_deleted_mid_run_cancels_nothing)
+
+
+# ---- (j) two overlapping runs, second genuinely blocked on the lock -------
+def t_two_concurrent_runs_second_blocked_on_lock_appends_once():
+    fx = Fixture()
+    try:
+        fx.server.deals = {}  # keep sqlite out of this — the lock is what is under test here
+        real_fetch = crm_pull.fetch_snapshot
+
+        # Holds the first run inside its own lock long enough to guarantee
+        # the second run's attempt to acquire the SAME lock genuinely blocks
+        # at the OS level (flock releases the GIL while waiting), rather
+        # than the two runs merely happening to interleave by luck.
+        def slow_fetch(user, pw):
+            time.sleep(0.3)
+            return real_fetch(user, pw)
+        crm_pull.fetch_snapshot = slow_fetch
+
+        results = []
+
+        def run_it():
+            results.append(crm_pull.main(["--apply"]))
+
+        t1 = threading.Thread(target=run_it)
+        t2 = threading.Thread(target=run_it)
+        t1.start()
+        time.sleep(0.05)   # let t1 acquire the lock and enter its slow fetch first
+        t2.start()
+        t1.join(timeout=10)
+        t2.join(timeout=10)
+        crm_pull.fetch_snapshot = real_fetch
+
+        assert not t1.is_alive() and not t2.is_alive(), "both runs must finish, not deadlock"
+        assert results == [0, 0], "both runs must exit cleanly: %r" % results
+        matches = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
+        assert len(matches) == 1, "two overlapping runs must still append the row exactly once, not twice: %r" % fx.queue_items()
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+    finally:
+        fx.restore()
+check("(j) two overlapping runs, the second genuinely blocked on the queue lock, append the row exactly once", t_two_concurrent_runs_second_blocked_on_lock_appends_once)
+
+
+# ---- (k) Mac clock skewed 3 hours either way changes nothing --------------
+def t_mac_clock_skew_never_changes_expiry_outcome():
+    fx = Fixture()
+    try:
+        expired_id = "dispatch_L1_T1"
+        fx.server.dispatch[expired_id]["status"] = "pulled"
+        fx.server.dispatch[expired_id]["pulled_at"] = pulled_at_from_server(fx, days_ago=crm_pull.EXPIRY_DAYS + 1)
+
+        not_expired_id = "dispatch_L2_T2"
+        fx.server.dispatch[not_expired_id]["status"] = "pulled"
+        fx.server.dispatch[not_expired_id]["pulled_at"] = pulled_at_from_server(fx, days_ago=3)
+        # Already in the queue file, so the remaining row loop treats it as
+        # already delivered and leaves its status alone either way — this
+        # test only cares whether IT GETS EXPIRED, not whether it gets
+        # reclassified against the dead lead rule too.
+        queue_drafts.merge_into_queue(
+            [{"tenant_id": "T2", "jid": "6592222222@s.whatsapp.net", "message": "already appended",
+              "dispatch_id": not_expired_id}],
+            fx.queue_path)
+
+        real_now_sgt = crm_pull._now_sgt
+        base = real_now_sgt()
+
+        for skew_hours in (3, -3):
+            fx.server.dispatch[expired_id]["status"] = "pulled"
+            fx.server.dispatch[not_expired_id]["status"] = "pulled"
+            crm_pull._now_sgt = lambda: base + datetime.timedelta(hours=skew_hours)
+            try:
+                crm_pull.main(["--apply"])
+            finally:
+                crm_pull._now_sgt = real_now_sgt
+
+            assert fx.server.dispatch[expired_id]["status"] == "cancelled", \
+                "server clock says this row is past the expiry window — a %+d hour Mac clock skew must not save it" % skew_hours
+            assert fx.server.dispatch[not_expired_id]["status"] == "pulled", \
+                "server clock says this row is well inside the expiry window — a %+d hour Mac clock skew must not expire it" % skew_hours
+    finally:
+        fx.restore()
+check("(k) skewing the Mac's own clock 3 hours either way changes no expiry outcome — only server_time decides", t_mac_clock_skew_never_changes_expiry_outcome)
 
 
 def t_completed_deal_imported_once():
@@ -670,13 +813,15 @@ check("crm_pull --apply: a clients.db with no deals table skips import instead o
 def t_time_budget_skips_remaining_dispatch_rows():
     fx = Fixture()
     try:
-        past_deadline = time.monotonic() - 1
-        ledger = crm_pull.load_ledger()
-        confirmed, summary = crm_pull.classify_and_mark(
-            fx.server.snapshot()["dispatch"], ledger, "u", "p", True, deadline=past_deadline)
-        assert summary["time_budget_hit"] is True
-        assert summary["approved"] == 0 and summary["cancelled"] == 0
-        assert confirmed == []
+        orig_budget = crm_pull.TIME_BUDGET_SECONDS
+        crm_pull.TIME_BUDGET_SECONDS = -1  # already expired before main() even starts its clock
+        try:
+            crm_pull.main(["--apply"])
+        finally:
+            crm_pull.TIME_BUDGET_SECONDS = orig_budget
+        # Nothing should have been appended — the very first remaining row
+        # already finds the time budget spent.
+        assert fx.queue_items() == [], "a spent time budget must skip remaining dispatch rows instead of stalling"
     finally:
         fx.restore()
 check("crm_pull: a spent time budget skips remaining dispatch rows instead of stalling", t_time_budget_skips_remaining_dispatch_rows)

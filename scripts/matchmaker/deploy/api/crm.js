@@ -29,7 +29,7 @@ async function readBody(req) {
 }
 
 async function snapshot(client) {
-  const [entities, notes, tasks, match, activity, deals, dispatch] = await Promise.all([
+  const [entities, notes, tasks, match, activity, deals, dispatch, serverTime] = await Promise.all([
     // crm_entity was the only one of these five queries with no LIMIT — notes/tasks/
     // activity are capped below at 2000/1000/300. This table holds every tenant,
     // landlord and listing key ever seen, all with names and phone numbers, so an
@@ -69,6 +69,12 @@ async function snapshot(client) {
                          to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at
                   from crm_dispatch where status in ('queued','pulled','cancelled')
                   order by created_at desc limit 2000`),
+    // crm_pull.py's 7 day expiry check on a stuck pulled row has to compare
+    // against a clock neither side can skew relative to the other — the
+    // database's own now(), the same clock created_at/pulled_at are already
+    // stamped with, not the Mac's local clock and not the Vercel lambda's
+    // own process clock either.
+    client.query(`select to_char(now(),'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as t`),
   ]);
   return {
     ok: true,
@@ -79,6 +85,7 @@ async function snapshot(client) {
     activity: activity.rows,
     deals: deals.rows,
     dispatch: dispatch.rows,
+    server_time: serverTime.rows[0].t,
   };
 }
 
@@ -263,10 +270,10 @@ async function applyOp(client, o) {
            -- Stamped fresh every time a row newly BECOMES pulled (its prior
            -- status was something else), not only the first time ever — a
            -- row cancelled and requeued and pulled again a second time must
-           -- carry the SECOND pull's timestamp, since crm_pull.py's own 2
-           -- hour recovery window (matchmaker-dispatch-ledger.json) reads
-           -- this value to decide whether a still pulled row is worth
-           -- recovering at all. Left untouched on a redundant re confirmation
+           -- carry the SECOND pull's timestamp, since crm_pull.py's own 7
+           -- day expiry check reads this value, against this same server's
+           -- clock, to decide when a still pulled row has been sitting long
+           -- enough to give up on. Left untouched on a redundant reconfirmation
            -- of an already pulled row (crm_dispatch.status = 'pulled' here
            -- already), so a duplicate POST cannot quietly restart the clock.
            pulled_at = case when $8 = 'pulled' and crm_dispatch.status != 'pulled'

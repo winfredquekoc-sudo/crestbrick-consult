@@ -83,10 +83,10 @@ export const DISPATCH_STATUSES = new Set(["queued", "pulled", "sent", "cancelled
 //                real send is confirmed via the queue's own .done-* archive or
 //                a long enough time in its append ledger); pulled can never
 //                regress to queued through this op
-//   cancelled -> queued only (requeueing the SAME pair after a refusal or an
-//                unqueue — Mark Queued in the app writes this op again with the
-//                same id on purpose, so a fresh id is not required here, unlike
-//                an earlier draft of this rule assumed)
+//   cancelled -> queued only (the app never reuses a cancelled row's id — a
+//                fresh Mark Queued always writes a brand new id, see app.js's
+//                writeDispatchRow — so this branch is a defensive allowance
+//                for a same id requeue, not something the app relies on today)
 //   sent      -> sent, always — terminal, no further write through this op can
 //                change it
 // dispatch_cancel is a separate op with its own guard in api/crm.js and does

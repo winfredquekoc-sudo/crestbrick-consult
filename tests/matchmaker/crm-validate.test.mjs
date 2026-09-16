@@ -199,11 +199,85 @@ test("nextDispatchStatus: a sent row is terminal — no incoming status changes 
   assert.equal(nextDispatchStatus("sent", "cancelled"), "sent");
 });
 
-test("nextDispatchStatus: a cancelled row CAN be re queued through the same id — Mark Queued in the app writes this op again on purpose", () => {
+test("nextDispatchStatus: a cancelled row CAN be re queued through the same id (a defensive allowance — the app itself always writes a brand new id instead, see writeDispatchRow)", () => {
   assert.equal(nextDispatchStatus("cancelled", "queued"), "queued");
 });
 
 test("nextDispatchStatus: a cancelled row cannot jump straight to pulled or sent, only back to queued first", () => {
   assert.equal(nextDispatchStatus("cancelled", "pulled"), "cancelled");
   assert.equal(nextDispatchStatus("cancelled", "sent"), "cancelled");
+});
+
+// One full table, every (currentStatus, incomingStatus) pair including the
+// brand new row case (currentStatus null) — PR #132 rework: the per attempt
+// dispatch id design (app.js writeDispatchRow) means a queued or pulled row
+// almost never sees a cancelled or queued incoming write for the SAME id in
+// practice any more, but the server side rule still has to hold for every
+// combination on its own, since nothing here can see or trust what the
+// client meant to do.
+test("nextDispatchStatus: full transition table, every current x incoming pair", () => {
+  const STATUSES = ["queued", "pulled", "sent", "cancelled"];
+  const TABLE = {
+    // currentStatus: { incomingStatus: expected }
+    " new": { queued: "queued", pulled: "pulled", sent: "sent", cancelled: "cancelled" },
+    queued:      { queued: "queued", pulled: "pulled", sent: "sent", cancelled: "cancelled" },
+    pulled:      { queued: "pulled", pulled: "pulled", sent: "sent", cancelled: "pulled" },
+    sent:        { queued: "sent",   pulled: "sent",   sent: "sent", cancelled: "sent" },
+    cancelled:   { queued: "queued", pulled: "cancelled", sent: "cancelled", cancelled: "cancelled" },
+  };
+  for (const current of [" new", ...STATUSES]) {
+    for (const incoming of STATUSES) {
+      const currentArg = current === " new" ? null : current;
+      const got = nextDispatchStatus(currentArg, incoming);
+      const want = TABLE[current][incoming];
+      assert.equal(got, want,
+        `nextDispatchStatus(${JSON.stringify(currentArg)}, ${JSON.stringify(incoming)}) should be ${want}, got ${got}`);
+    }
+  }
+});
+
+// =====================================================================
+// dispatch id shape — "dispatch_<listing_id>_<tenant_id>_<created ms>", one
+// brand new id per attempt (app.js writeDispatchRow, PR #132 rework). This
+// module never generates or parses that shape itself (id is an opaque str()
+// here), but it is the field every dedupe and status transition check above
+// keys off, so its round trip through validateDispatchFields has to be exact
+// — nothing here may trim, reflow or otherwise alter it.
+// =====================================================================
+const PER_ATTEMPT_ID_RE = /^dispatch_[^_]+_[^_]+_\d+$/;
+
+test("validateDispatchFields: a realistic per attempt id round trips untouched", () => {
+  const id = "dispatch_L42_T1007_" + Date.now();
+  assert.ok(PER_ATTEMPT_ID_RE.test(id), "fixture id must itself match the real shape: " + id);
+  const d = validateDispatchFields({ id, tenant_id: "T1007", text: "hi" });
+  assert.equal(d.id, id);
+});
+
+test("validateDispatchFields: two attempts for the same pair produce two different ids, both usable", () => {
+  const first = validateDispatchFields({ id: "dispatch_L1_T1_1000", tenant_id: "T1", text: "first attempt" });
+  const second = validateDispatchFields({ id: "dispatch_L1_T1_2000", tenant_id: "T1", text: "second attempt" });
+  assert.notEqual(first.id, second.id);
+  assert.ok(PER_ATTEMPT_ID_RE.test(first.id));
+  assert.ok(PER_ATTEMPT_ID_RE.test(second.id));
+});
+
+test("validateDispatchFields: id is capped at 60 characters like any other str() field — stays well clear of that cap for realistic listing/tenant ids", () => {
+  const id = "dispatch_L1_T1_" + Date.now();
+  assert.ok(id.length < 60, "a realistic per attempt id must sit well under the 60 char cap: " + id.length);
+  const d = validateDispatchFields({ id, tenant_id: "T1", text: "hi" });
+  assert.equal(d.id, id, "a realistic id must never be truncated");
+  // Documents the boundary rather than asserting it should be higher: an
+  // oversized listing or tenant id could in principle push the timestamp
+  // suffix past 60 characters and truncate away the very thing that makes
+  // each attempt unique. Realistic ids from export_data.py are short slugs
+  // (e.g. "L42", "T1007"), nowhere near this.
+  const oversized = "dispatch_" + "x".repeat(80) + "_T1_" + Date.now();
+  const truncated = validateDispatchFields({ id: oversized, tenant_id: "T1", text: "hi" });
+  assert.equal(truncated.id.length, 60);
+  assert.notEqual(truncated.id, oversized);
+});
+
+test("validateDispatchFields: an empty or whitespace only id is rejected outright, same as no id", () => {
+  assert.equal(validateDispatchFields({ id: "", tenant_id: "T1", text: "hi" }), null);
+  assert.equal(validateDispatchFields({ id: "   ", tenant_id: "T1", text: "hi" }), null);
 });

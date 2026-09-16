@@ -1611,11 +1611,24 @@ const CRM = (function () {
     // morning dispatch queue. Nothing in this app or on the server ever sends
     // a message itself.
     dispatchRows() { return Object.values(S.dispatch); },
-    dispatchFor(lid, tid) { return S.dispatch["dispatch_" + lid + "_" + tid] || null; },
+    // The newest attempt for this pair, not a fixed row — id is now
+    // "dispatch_<lid>_<tid>_<created ms>" (one brand new row per Mark Queued
+    // attempt, never reused), so finding "the" dispatch row for a pair means
+    // finding the one with the highest timestamp suffix among every attempt
+    // ever made for it. Sorting on the id itself (not a server round trip
+    // for created_at) means this works the instant a row is written, still
+    // entirely client side.
+    dispatchFor(lid, tid) {
+      const rows = Object.values(S.dispatch).filter(r => r.listing_id === lid && r.tenant_id === tid);
+      if (!rows.length) return null;
+      const ts = (id) => { const n = Number(String(id || "").split("_").pop()); return Number.isFinite(n) ? n : 0; };
+      rows.sort((a, b) => ts(b.id) - ts(a.id));
+      return rows[0];
+    },
     // Always a full replace, same reasoning as upsertDeal above — there is no
-    // partial patch shape for a dispatch row. id is derived from the pair so
-    // marking the same pair queued twice (e.g. re queueing after an edit)
-    // upserts the same row rather than creating a second one.
+    // partial patch shape for a dispatch row. Every write is a brand new id
+    // (see writeDispatchRow), so this never collides with an earlier attempt
+    // for the same pair — there is nothing to upsert onto, only insert.
     upsertDispatch(row) {
       if (!row || !row.id) return;
       S.dispatch[row.id] = Object.assign({}, row);
@@ -1781,17 +1794,23 @@ function getMarkV(lid, tid) { const mk = readMark(lid, tid); return mk ? (mk.v |
 // ids, not the full listing/tenant records.
 function writeDispatchRow(lid, tid) {
   if (typeof CRM === "undefined") return;
-  // Once crm_pull.py has taken this row (or, eventually, once it has actually
-  // been sent), re marking Queued must never resend the dispatch op. The
-  // server itself also refuses to regress the status (nextDispatchStatus in
-  // crm-validate.js), but skipping the write here avoids a pointless op and
-  // keeps the local op queue honest about what actually changed.
+  // Once a previous attempt for this pair is still in flight (queued or
+  // pulled), re marking Queued must never resend a dispatch op — the
+  // server side checks in crm_pull.py's own archive/expiry handling never
+  // even see a duplicate. Once that attempt is sent or cancelled, a fresh
+  // attempt is a genuinely new row (a new id, timestamped below), never the
+  // same one, so there is nothing to protect against there.
   if (dispatchAlreadyHandled(lid, tid)) return;
   const l = (DATA.listings || []).find(x => x.id === lid);
   const t = ALL_TENANTS.find(x => x.id === tid) || (DATA.all_tenants || []).find(x => x.id === tid);
   if (!l || !t) return;
   CRM.upsertDispatch({
-    id: "dispatch_" + lid + "_" + tid,
+    // One id per attempt, never reused — re queueing after a cancel (or a
+    // second message after a sent one) always inserts a new row rather than
+    // updating an old one, which is what makes cancelled and sent both safe
+    // to write over from the app's own point of view: there is no shared id
+    // for a stale write to land on by mistake.
+    id: "dispatch_" + lid + "_" + tid + "_" + Date.now(),
     tenant_id: tid,
     listing_id: lid,
     jid: null,
@@ -1803,14 +1822,27 @@ function writeDispatchRow(lid, tid) {
 }
 function cancelDispatchRow(lid, tid, reason) {
   if (typeof CRM === "undefined") return;
-  CRM.cancelDispatch("dispatch_" + lid + "_" + tid, reason);
+  const row = CRM.dispatchFor(lid, tid);   // the newest attempt for this pair
+  if (row) CRM.cancelDispatch(row.id, reason);
 }
-// True once crm_pull.py has pulled this pair's draft (or, eventually, once it
-// has actually been sent) — the point past which the app must never write a
-// new "Queued" dispatch op for the same pair, and past which the dispatch
-// drawer's own Unqueue button stops being useful (the real queue file on the
-// Mac is the record of truth by then, not this row's local mark).
+// Blocks a NEW dispatch write for this pair: true while the newest attempt
+// is still in flight (queued, waiting for crm_pull.py, or pulled, waiting
+// for the real send). Once that attempt is sent or cancelled, a fresh Mark
+// Queued is a genuinely new row (a new id — see writeDispatchRow) rather
+// than a resend of the same one, so there is nothing left to protect
+// against and a new write is allowed.
 function dispatchAlreadyHandled(lid, tid) {
+  if (typeof CRM === "undefined") return false;
+  const row = CRM.dispatchFor(lid, tid);
+  return !!(row && (row.status === "queued" || row.status === "pulled"));
+}
+// A different question from dispatchAlreadyHandled above: not "can a new
+// write happen" but "does the drawer's existing Unqueue button still do
+// anything useful for the newest row". True once crm_pull.py has pulled it
+// (or, eventually, once it has actually been sent) — past that point the
+// real queue file on the Mac is the record of truth, not this row's local
+// mark, so Unqueue is retired for it.
+function dispatchHandedOffToMac(lid, tid) {
   if (typeof CRM === "undefined") return false;
   const row = CRM.dispatchFor(lid, tid);
   return !!(row && (row.status === "pulled" || row.status === "sent"));
@@ -4521,7 +4553,7 @@ function openDispatchDrawer() {
     // drawer — Unqueue here would only clear the local mark and leave the
     // Mac side queue file untouched, which reads as "cancelled" without
     // actually stopping anything.
-    const handedOff = dispatchAlreadyHandled(m.l.id, m.t.id);
+    const handedOff = dispatchHandedOffToMac(m.l.id, m.t.id);
     const unqueueHtml = handedOff
       ? '<span class="btn disabled" title="Already pulled to the Mac, remove it from the morning queue there">Unqueue</span>'
       : '<button class="btn" data-dunq="' + i + '">Unqueue</button>';
