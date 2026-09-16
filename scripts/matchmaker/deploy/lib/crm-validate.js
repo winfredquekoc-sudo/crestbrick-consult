@@ -71,3 +71,72 @@ export function validateDealFields(o) {
     notes: str(o.notes, 2000),
   };
 }
+
+export const DISPATCH_STATUSES = new Set(["queued", "pulled", "sent", "cancelled"]);
+
+// The "dispatch" op's status transition rule, used by its upsert in api/crm.js.
+// currentStatus is null for a row that does not exist yet (a first insert),
+// which always takes the incoming status as is. Otherwise:
+//   queued    -> anything (the normal flow: the app writes queued, crm_pull.py
+//                moves it to pulled once it has appended the draft)
+//   pulled    -> sent only (crm_pull.py's own terminal state marking, once the
+//                real send is confirmed via the queue's own .done-* archive or
+//                a long enough time in its append ledger); pulled can never
+//                regress to queued through this op
+//   cancelled -> queued only (the app never reuses a cancelled row's id — a
+//                fresh Mark Queued always writes a brand new id, see app.js's
+//                writeDispatchRow — so this branch is a defensive allowance
+//                for a same id requeue, not something the app relies on today)
+//   sent      -> sent, always — terminal, no further write through this op can
+//                change it
+// dispatch_cancel is a separate op with its own guard in api/crm.js and does
+// not go through this function — a pulled row must still be cancellable
+// (crm_pull.py's own append failed recovery, and cancelling before the 08:00
+// send), which this function does not need to allow since that path never
+// calls it.
+export function nextDispatchStatus(currentStatus, incomingStatus) {
+  if (currentStatus == null) return incomingStatus;
+  if (currentStatus === "sent") return "sent";
+  if (currentStatus === "queued") return incomingStatus;
+  if (currentStatus === "pulled") return incomingStatus === "sent" ? "sent" : currentStatus;
+  if (currentStatus === "cancelled") return incomingStatus === "queued" ? "queued" : currentStatus;
+  return currentStatus;
+}
+
+// Validates and normalises one incoming "dispatch" op's fields — a row destined
+// for crm_dispatch. Required: id, tenant_id and text (the drafted message); with
+// no draft text or no tenant to send it to there is nothing usable to queue.
+// Everything else is context the app or crm_pull.py may or may not have on
+// hand, so it is optional. Returns null on a missing required field, same
+// null on unusable contract as validateDealFields above.
+export function validateDispatchFields(o) {
+  const id = str(o && o.id, 60);
+  const tenant_id = str(o && o.tenant_id, 80);
+  const text = str(o && o.text, 2000);
+  if (!id || !tenant_id || !text) return null;
+  return {
+    id,
+    tenant_id,
+    listing_id: str(o.listing_id, 80),
+    jid: str(o.jid, 80),
+    phone: str(o.phone, 40),
+    text,
+    viewing_slot: str(o.viewing_slot, 200),
+    status: DISPATCH_STATUSES.has(o.status) ? o.status : "queued",
+    device: str(o.device, 80),
+  };
+}
+
+// Validates the "ambiguous" op's only field. This op never writes
+// crm_dispatch.status — nextDispatchStatus's transition table above is
+// unchanged by it — it only stamps ambiguous_since once on a row still
+// pulled, the moment crm_pull.py finds an archive it cannot fully trust
+// (see MIN_SENT_ARCHIVE_AGE and the queue-file-and-archive-at-once case in
+// its own docstring). That is what lets the dispatch drawer show Winfred a
+// Sent / Not sent check instead of the row silently getting the same
+// inconclusive check run against it, forever, run after run.
+export function validateAmbiguousFields(o) {
+  const id = str(o && o.id, 60);
+  if (!id) return null;
+  return { id };
+}

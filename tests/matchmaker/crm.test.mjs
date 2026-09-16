@@ -325,3 +325,207 @@ test("adopt: a snapshot with a real deals array is indexed by id as usual", () =
   A.adopt({ entities: [], notes: [], tasks: [], match: [], activity: [], deals: [{ id: "d9", property: "x" }] });
   assert.deepEqual(A.getDeals(), { d9: { id: "d9", property: "x" } });
 });
+
+// =====================================================================
+// writeDispatchRow / dispatchAlreadyHandled / dispatchHandedOffToMac /
+// bulkQueueTargets — per attempt dispatch ids (PR #132 third review fix):
+// a queued or pulled attempt blocks a new write, a sent or cancelled one
+// allows a fresh attempt (a brand new id, never reused).
+// =====================================================================
+const DISPATCH_SRC = slice("function writeDispatchRow(lid, tid) {", "function patchMark(lid, tid, patch) {");
+function makeDispatchHelpers(fakeCRM, fakeData) {
+  return new Function(
+    "CRM", "DATA", "ALL_TENANTS", "draftFor",
+    DISPATCH_SRC + "\nreturn { writeDispatchRow, cancelDispatchRow, dispatchAlreadyHandled, dispatchHandedOffToMac, dispatchIsAmbiguous, resolveAmbiguousSent, resolveAmbiguousNotSent, bulkQueueTargets };"
+  )(fakeCRM, fakeData.DATA, fakeData.ALL_TENANTS, fakeData.draftFor);
+}
+
+// Mirrors CRM.dispatchFor's real implementation: the newest attempt for a
+// (listing_id, tenant_id) pair, picked by the id's own trailing timestamp,
+// not a direct key lookup — there is no fixed row per pair any more.
+function fakeCRMWithDispatch(rowsById) {
+  const upserts = [];
+  const ts = (id) => { const n = Number(String(id || "").split("_").pop()); return Number.isFinite(n) ? n : 0; };
+  return {
+    upserts,
+    dispatchFor(lid, tid) {
+      const rows = Object.values(rowsById).filter(r => r.listing_id === lid && r.tenant_id === tid);
+      if (!rows.length) return null;
+      rows.sort((a, b) => ts(b.id) - ts(a.id));
+      return rows[0];
+    },
+    upsertDispatch(row) { upserts.push(row); rowsById[row.id] = row; },
+    cancelDispatch(id, reason) { upserts.push({ op: "cancel", id, reason }); if (rowsById[id]) rowsById[id].status = "cancelled"; },
+  };
+}
+
+const FAKE_LISTING = { id: "L1", name: "Test Listing" };
+const FAKE_TENANT = { id: "T1", name: "Test Tenant", phone: "91234567" };
+const FAKE_DATA = { DATA: { listings: [FAKE_LISTING], all_tenants: [FAKE_TENANT] }, ALL_TENANTS: [FAKE_TENANT], draftFor: () => "hi there" };
+
+test("dispatchAlreadyHandled: true only while the newest attempt is queued or pulled", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "queued" },
+    d2: { id: "d2", listing_id: "L1", tenant_id: "T2", status: "pulled" },
+    d3: { id: "d3", listing_id: "L1", tenant_id: "T3", status: "sent" },
+    d4: { id: "d4", listing_id: "L1", tenant_id: "T4", status: "cancelled" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T1"), true, "queued blocks a new write");
+  assert.equal(H.dispatchAlreadyHandled("L1", "T2"), true, "pulled blocks a new write");
+  assert.equal(H.dispatchAlreadyHandled("L1", "T3"), false, "sent allows a fresh attempt");
+  assert.equal(H.dispatchAlreadyHandled("L1", "T4"), false, "cancelled allows a fresh attempt");
+  assert.equal(H.dispatchAlreadyHandled("L1", "T9"), false, "no row at all is not handled either");
+});
+
+test("dispatchAlreadyHandled: only the NEWEST attempt for the pair matters, not an older one", () => {
+  const crm = fakeCRMWithDispatch({
+    old: { id: "dispatch_L1_T1_1000", listing_id: "L1", tenant_id: "T1", status: "sent" },
+    fresh: { id: "dispatch_L1_T1_2000", listing_id: "L1", tenant_id: "T1", status: "queued" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T1"), true, "the newer queued attempt wins over the older sent one");
+});
+
+test("dispatchHandedOffToMac: true only once the newest attempt is pulled or sent (unlike dispatchAlreadyHandled)", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "queued" },
+    d2: { id: "d2", listing_id: "L1", tenant_id: "T2", status: "pulled" },
+    d3: { id: "d3", listing_id: "L1", tenant_id: "T3", status: "sent" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  assert.equal(H.dispatchHandedOffToMac("L1", "T1"), false, "a plain queued row's Unqueue button still works");
+  assert.equal(H.dispatchHandedOffToMac("L1", "T2"), true);
+  assert.equal(H.dispatchHandedOffToMac("L1", "T3"), true);
+});
+
+test("writeDispatchRow: a brand new pair is written with a fresh, attempt stamped id", () => {
+  const crm = fakeCRMWithDispatch({});
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 1);
+  assert.ok(/^dispatch_L1_T1_\d+$/.test(crm.upserts[0].id), "id must be dispatch_<lid>_<tid>_<created ms>: " + crm.upserts[0].id);
+  assert.equal(crm.upserts[0].status, "queued");
+});
+
+test("writeDispatchRow: a queued row is never resent", () => {
+  const crm = fakeCRMWithDispatch({ d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "queued" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 0, "re marking Queued while an attempt is still queued must not push another one");
+});
+
+test("writeDispatchRow: a pulled row is never resent", () => {
+  const crm = fakeCRMWithDispatch({ d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 0, "re marking Queued on an already pulled row must not push a dispatch op");
+});
+
+test("writeDispatchRow: a sent row DOES accept a fresh attempt (a brand new id, not the old one)", () => {
+  const crm = fakeCRMWithDispatch({ d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "sent" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 1, "sent no longer blocks a fresh attempt, since it never reuses the old row's id");
+  assert.notEqual(crm.upserts[0].id, "d1");
+});
+
+test("writeDispatchRow: a cancelled row accepts a fresh attempt with a brand new id", () => {
+  const crm = fakeCRMWithDispatch({ d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "cancelled" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 1);
+  assert.notEqual(crm.upserts[0].id, "d1", "re queueing must never reuse a cancelled row's own id");
+});
+
+test("cancelDispatchRow: cancels the newest attempt for the pair, not a guessed fixed id", () => {
+  const crm = fakeCRMWithDispatch({
+    old: { id: "dispatch_L1_T1_1000", listing_id: "L1", tenant_id: "T1", status: "cancelled" },
+    fresh: { id: "dispatch_L1_T1_2000", listing_id: "L1", tenant_id: "T1", status: "queued" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.cancelDispatchRow("L1", "T1", "unqueued in app");
+  const cancelOps = crm.upserts.filter(o => o.op === "cancel");
+  assert.equal(cancelOps.length, 1);
+  assert.equal(cancelOps[0].id, "dispatch_L1_T1_2000", "must cancel the newest attempt, not the already settled older one");
+});
+
+// =====================================================================
+// dispatchIsAmbiguous / resolveAmbiguousSent / resolveAmbiguousNotSent
+// (PR #132 fifth review round) — the dispatch drawer's "Needs a check"
+// state for a pulled row crm_pull.py stamped ambiguous_since on rather than
+// confidently marking sent or leaving to expire.
+// =====================================================================
+test("dispatchIsAmbiguous: true only for a pulled row with ambiguous_since set", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+    d2: { id: "d2", listing_id: "L1", tenant_id: "T2", status: "pulled" },
+    d3: { id: "d3", listing_id: "L1", tenant_id: "T3", status: "sent", ambiguous_since: "2026-09-16T00:00:00Z" },
+    d4: { id: "d4", listing_id: "L1", tenant_id: "T4", status: "queued" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  assert.equal(H.dispatchIsAmbiguous("L1", "T1"), true, "pulled with ambiguous_since is the drawer's Needs a check state");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T2"), false, "plain pulled, never flagged, is not ambiguous");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T3"), false, "already resolved to sent must not still read as ambiguous");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T4"), false, "queued is never ambiguous");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T9"), false, "no row at all is not ambiguous either");
+});
+
+test("resolveAmbiguousSent: moves the same row straight to sent, never a new id", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z", tenant_id_dup: null },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousSent("L1", "T1");
+  assert.equal(crm.upserts.length, 1);
+  assert.equal(crm.upserts[0].id, "d1", "Sent resolves the SAME row, it never writes a fresh attempt");
+  assert.equal(crm.upserts[0].status, "sent");
+});
+
+test("resolveAmbiguousSent: no row for the pair is a no-op", () => {
+  const crm = fakeCRMWithDispatch({});
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousSent("L1", "T9");
+  assert.equal(crm.upserts.length, 0);
+});
+
+test("resolveAmbiguousNotSent: cancels the row with an operator reason, unblocking a fresh Mark Queued", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousNotSent("L1", "T1");
+  const cancelOps = crm.upserts.filter(o => o.op === "cancel");
+  assert.equal(cancelOps.length, 1);
+  assert.equal(cancelOps[0].id, "d1");
+  assert.equal(cancelOps[0].reason, "operator: not sent");
+  // cancelDispatch's fake, mirroring the real one, flips the row to
+  // cancelled — dispatchAlreadyHandled only ever blocks on queued/pulled,
+  // so a fresh Mark Queued for this pair is allowed again immediately.
+  assert.equal(H.dispatchAlreadyHandled("L1", "T1"), false, "cancelled must unblock a fresh Mark Queued for the pair");
+});
+
+test("bulkQueueTargets: cold pairs and already pulled pairs both drop out, counted separately", () => {
+  const H = makeDispatchHelpers(fakeCRMWithDispatch({}), FAKE_DATA);
+  const set = [
+    { l: { id: "L1" }, t: { id: "T1" } },   // clean — queues
+    { l: { id: "L1" }, t: { id: "T2" } },   // cold
+    { l: { id: "L1" }, t: { id: "T3" } },   // already pulled
+    { l: { id: "L1" }, t: { id: "T4" } },   // clean — queues
+  ];
+  const cold = (l, t) => t.id === "T2";
+  const alreadyHandled = (lid, tid) => tid === "T3";
+  const { target, coldSkipped, pulledSkipped } = H.bulkQueueTargets(set, cold, alreadyHandled);
+  assert.deepEqual(target.map(m => m.t.id), ["T1", "T4"]);
+  assert.equal(coldSkipped, 1);
+  assert.equal(pulledSkipped, 1);
+});
+
+test("bulkQueueTargets: everything already pulled leaves an empty target", () => {
+  const H = makeDispatchHelpers(fakeCRMWithDispatch({}), FAKE_DATA);
+  const set = [{ l: { id: "L1" }, t: { id: "T1" } }];
+  const { target, coldSkipped, pulledSkipped } = H.bulkQueueTargets(set, () => false, () => true);
+  assert.equal(target.length, 0);
+  assert.equal(coldSkipped, 0);
+  assert.equal(pulledSkipped, 1);
+});

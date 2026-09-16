@@ -14,7 +14,7 @@
 // function already passed the wall, and a second scheme would be another thing to
 // get wrong. Never loosen middleware.js's matcher to exclude /api.
 import { db, ensureSchema, configured, CRM_STAGES, CRM_KINDS } from "../lib/db.js";
-import { str, date, bool, validateDealFields } from "../lib/crm-validate.js";
+import { str, date, bool, validateDealFields, validateDispatchFields, validateAmbiguousFields, nextDispatchStatus } from "../lib/crm-validate.js";
 
 // item 5/46 -- CRM_STAGES/CRM_KINDS now live in ../lib/db.js, single sourced
 // with scripts/ops/log_deal.py's MM_STAGE_MAP/MM_DEAL_TYPE_MAP (see that
@@ -34,7 +34,7 @@ async function readBody(req) {
 }
 
 async function snapshot(client) {
-  const [entities, notes, tasks, match, activity, deals] = await Promise.all([
+  const [entities, notes, tasks, match, activity, deals, dispatch, serverTime] = await Promise.all([
     // crm_entity was the only one of these five queries with no LIMIT — notes/tasks/
     // activity are capped below at 2000/1000/300. This table holds every tenant,
     // landlord and listing key ever seen, all with names and phone numbers, so an
@@ -61,6 +61,26 @@ async function snapshot(client) {
                          to_char(deal_date,'YYYY-MM-DD') as deal_date, notes,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at
                   from crm_deal order by created_at desc limit 2000`),
+    // queued, pulled and cancelled rows. A sent row has nothing left for
+    // either the app or crm_pull.py to act on, so that one status is left out
+    // of the payload the same way notes/tasks/activity are capped above,
+    // rather than growing this endpoint's response with a table that never
+    // gets pruned. cancelled has to stay in, even though nothing acts on most
+    // of them either: crm_pull.py's own cleanup step needs to see a row that
+    // was cancelled after already being pulled and appended, so it can remove
+    // the matching item from the real morning dispatch queue before 08:00.
+    client.query(`select id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device,
+                         to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at,
+                         to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at,
+                         to_char(ambiguous_since,'YYYY-MM-DD"T"HH24:MI:SSZ') as ambiguous_since
+                  from crm_dispatch where status in ('queued','pulled','cancelled')
+                  order by created_at desc limit 2000`),
+    // crm_pull.py's 7 day expiry check on a stuck pulled row has to compare
+    // against a clock neither side can skew relative to the other — the
+    // database's own now(), the same clock created_at/pulled_at are already
+    // stamped with, not the Mac's local clock and not the Vercel lambda's
+    // own process clock either.
+    client.query(`select to_char(now(),'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"') as t`),
   ]);
   return {
     ok: true,
@@ -70,6 +90,8 @@ async function snapshot(client) {
     match: match.rows,
     activity: activity.rows,
     deals: deals.rows,
+    dispatch: dispatch.rows,
+    server_time: serverTime.rows[0].t,
   };
 }
 
@@ -226,6 +248,101 @@ async function applyOp(client, o) {
       const id = str(o.id, 60);
       if (!id) return 0;
       await client.query(`delete from crm_deal where id = $1`, [id]);
+      return 1;
+    }
+    // Enqueues (from the app's Mark queued action and the dispatch drawer) or
+    // updates (from crm_pull.py, moving a row to pulled once it has appended
+    // the draft to the real morning dispatch queue on Winfred's Mac) one
+    // crm_dispatch row. Always the whole record, same upsert shape as "deal"
+    // above — there is no separate patch shape for a partial update.
+    case "dispatch": {
+      const d = validateDispatchFields(o);
+      if (!d) return 0;
+      // Read the current status first so nextDispatchStatus (crm-validate.js)
+      // decides the real write, not the SQL text — a pulled or sent row must
+      // never regress to queued through this op, a sent row never changes
+      // again, and cancelled only ever moves back to queued (a genuine
+      // requeue of the same pair), never straight to pulled or sent.
+      const cur = await client.query(`select status from crm_dispatch where id = $1`, [d.id]);
+      const currentStatus = cur.rows[0] ? cur.rows[0].status : null;
+      const nextStatus = nextDispatchStatus(currentStatus, d.status);
+      await client.query(
+        `insert into crm_dispatch (id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device, pulled_at)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9, case when $8 = 'pulled' then now() else null end)
+         on conflict (id) do update set
+           tenant_id = excluded.tenant_id, listing_id = excluded.listing_id, jid = excluded.jid,
+           phone = excluded.phone, text = excluded.text, viewing_slot = excluded.viewing_slot,
+           status = $8, device = coalesce(excluded.device, crm_dispatch.device),
+           -- Stamped fresh every time a row newly BECOMES pulled (its prior
+           -- status was something else), not only the first time ever — a
+           -- row cancelled and requeued and pulled again a second time must
+           -- carry the SECOND pull's timestamp, since crm_pull.py's own 7
+           -- day expiry check reads this value, against this same server's
+           -- clock, to decide when a still pulled row has been sitting long
+           -- enough to give up on. Left untouched on a redundant reconfirmation
+           -- of an already pulled row (crm_dispatch.status = 'pulled' here
+           -- already), so a duplicate POST cannot quietly restart the clock.
+           pulled_at = case when $8 = 'pulled' and crm_dispatch.status != 'pulled'
+                            then now() else crm_dispatch.pulled_at end`,
+        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device]
+      );
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [d.tenant_id, "dispatch:" + nextStatus, (d.viewing_slot || d.text || "dispatch").slice(0, 120)]);
+      return 1;
+    }
+    // A row the app unqueued, or a check in queue_drafts.py refused (dead lead,
+    // unverifiable recency, already queued elsewhere), or crm_pull.py's own
+    // append failed recovery — there is no reason column on crm_dispatch, so
+    // the reason rides on the activity row instead, the same way a deal's own
+    // free text lives in notes rather than a fixed column per possible field.
+    // A row already sent is left alone (status != 'sent') — cancelling after
+    // the message has actually gone out would only mislead whoever reads the
+    // status later, not stop anything.
+    case "dispatch_cancel": {
+      const id = str(o.id, 60);
+      if (!id) return 0;
+      const upd = await client.query(
+        `update crm_dispatch set status = 'cancelled' where id = $1 and status != 'sent' returning tenant_id`, [id]);
+      if (!upd.rowCount) return 0;
+      const tenant_id = upd.rows[0].tenant_id;
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [tenant_id || null, "dispatch:cancelled", str(o.reason, 500) || ""]);
+      return upd.rowCount;
+    }
+    // crm_pull.py's own way of surfacing an archive based sent check it could
+    // not fully trust (see MIN_SENT_ARCHIVE_AGE and the queue-file-and-
+    // archive-at-once case in its own docstring). Never changes status —
+    // nextDispatchStatus's transition table is untouched by this op — only
+    // stamps ambiguous_since, and only the first time: a redundant POST
+    // (crm_pull.py finding the same row still ambiguous on a later run
+    // before it learns to skip an already stamped one, or a retried
+    // request) must never reset the clock on when Winfred was first asked
+    // to look at it. Guarded to a row still 'pulled' — once an operator has
+    // resolved it (Sent moves it to sent, Not sent cancels it, both via the
+    // app's existing dispatch/dispatch_cancel ops), a stale ambiguous op
+    // arriving late must not stamp a freshly requeued or already settled row.
+    case "ambiguous": {
+      const a = validateAmbiguousFields(o);
+      if (!a) return 0;
+      const upd = await client.query(
+        `update crm_dispatch set ambiguous_since = coalesce(ambiguous_since, now())
+         where id = $1 and status = 'pulled' returning tenant_id`,
+        [a.id]
+      );
+      if (!upd.rowCount) return 0;
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [upd.rows[0].tenant_id || null, "dispatch:ambiguous", "needs an operator check — may or may not have sent"]);
+      return upd.rowCount;
+    }
+    // A plain activity log line with no other side effect — used by crm_pull.py
+    // to record a completed deal import into clients.db, so that action shows
+    // up in the app's own activity feed rather than only in a terminal log on
+    // Winfred's Mac.
+    case "activity": {
+      const verb = str(o.verb, 60);
+      if (!verb) return 0;
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [str(o.key, 120), verb, str(o.detail, 500)]);
       return 1;
     }
     default:
