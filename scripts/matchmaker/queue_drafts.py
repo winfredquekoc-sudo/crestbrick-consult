@@ -203,52 +203,70 @@ def main():
     # stays anchored to Singapore's calendar day rather than silently
     # inheriting whatever TZ the invoking shell/cron happens to carry.
     today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date()
-    queued_ids, queued_jids = pending_recipients(QUEUE_PATH)
-    approved, refused, skipped, duplicates = classify_items(
-        items, tenants_by_id, wa_conn, today, queued_ids, queued_jids)
-    if wa_conn: wa_conn.close()
 
-    print(f"\n{len(approved)} ready to queue, {len(refused)} refused (dead-lead rule), "
-          f"{len(duplicates)} already queued, {len(skipped)} skipped (no id/jid)\n")
-    for tid, name, reason in skipped:
-        print(f"  SKIP    {name} ({tid}): {reason}")
-    for tid, name, reason in refused:
-        print(f"  REFUSE  {name} ({tid}): {reason}")
-    for tid, name, reason in duplicates:
-        print(f"  DUP     {name} ({tid}): {reason}")
-    for a in approved:
-        print(f"  READY   {a['name']}  {a['phone']}\n          {a['message']}\n")
+    # The duplicate set (pending_recipients) must be read under the SAME lock
+    # that protects the eventual append (merge_into_queue), and held without a
+    # gap between the two — otherwise a second CLI run, or crm_pull.py's own
+    # append, can slot a row in between this run's duplicate read and its
+    # write, and the same tenant reaches the queue twice. Acquired here, once,
+    # before classify_items even looks at the queue file, and released only
+    # after merge_into_queue's own write (or a return with nothing to write) —
+    # a concurrent run genuinely blocks on this the whole time, including
+    # through the (optional) per item confirmation prompt below, rather than
+    # merely being unlucky not to interleave.
+    lock_path = QUEUE_PATH + ".lock"
+    os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+    with open(lock_path, "a+") as lockf:
+        fcntl.flock(lockf, fcntl.LOCK_EX)
+        try:
+            queued_ids, queued_jids = pending_recipients(QUEUE_PATH)
+            approved, refused, skipped, duplicates = classify_items(
+                items, tenants_by_id, wa_conn, today, queued_ids, queued_jids)
+            if wa_conn: wa_conn.close()
 
-    if not approved:
-        print("nothing to queue."); return
+            print(f"\n{len(approved)} ready to queue, {len(refused)} refused (dead-lead rule), "
+                  f"{len(duplicates)} already queued, {len(skipped)} skipped (no id/jid)\n")
+            for tid, name, reason in skipped:
+                print(f"  SKIP    {name} ({tid}): {reason}")
+            for tid, name, reason in refused:
+                print(f"  REFUSE  {name} ({tid}): {reason}")
+            for tid, name, reason in duplicates:
+                print(f"  DUP     {name} ({tid}): {reason}")
+            for a in approved:
+                print(f"  READY   {a['name']}  {a['phone']}\n          {a['message']}\n")
 
-    if args.dry_run:
-        # Never touches QUEUE_PATH and never calls input() — the whole point of
-        # --dry-run is a safe preview of exactly what a real run would append,
-        # in the same per-item shape merge_into_queue() itself writes (see its
-        # own q["items"].append(...) call below), without risking a stray
-        # Enter keypress queuing something for real during a rehearsal.
-        print(f"DRY RUN — would append {len(approved)} item(s) to {QUEUE_PATH} (nothing written, nothing sent):\n")
-        for a in approved:
-            would_append = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
-            print("  WOULD APPEND " + json.dumps(would_append, ensure_ascii=False))
-        return
+            if not approved:
+                print("nothing to queue."); return
 
-    if args.yes:
-        to_queue = approved
-    else:
-        to_queue = []
-        for a in approved:
-            ans = input(f"Queue to {a['name']} ({a['phone']})? [y/N]: ").strip().lower()
-            if ans in ("y", "yes"):
-                to_queue.append(a)
+            if args.dry_run:
+                # Never touches QUEUE_PATH and never calls input() — the whole point of
+                # --dry-run is a safe preview of exactly what a real run would append,
+                # in the same per-item shape merge_into_queue() itself writes (see its
+                # own q["items"].append(...) call below), without risking a stray
+                # Enter keypress queuing something for real during a rehearsal.
+                print(f"DRY RUN — would append {len(approved)} item(s) to {QUEUE_PATH} (nothing written, nothing sent):\n")
+                for a in approved:
+                    would_append = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
+                    print("  WOULD APPEND " + json.dumps(would_append, ensure_ascii=False))
+                return
 
-    if not to_queue:
-        print("nothing confirmed — queue unchanged."); return
+            if args.yes:
+                to_queue = approved
+            else:
+                to_queue = []
+                for a in approved:
+                    ans = input(f"Queue to {a['name']} ({a['phone']})? [y/N]: ").strip().lower()
+                    if ans in ("y", "yes"):
+                        to_queue.append(a)
 
-    merge_into_queue(to_queue, QUEUE_PATH)
-    print(f"queued {len(to_queue)} item(s) to {QUEUE_PATH}")
-    print("nothing was sent — the morning dispatch job (or Winfred, by hand) sends these.")
+            if not to_queue:
+                print("nothing confirmed — queue unchanged."); return
+
+            merge_into_queue(to_queue, QUEUE_PATH, held_lock=lockf)
+            print(f"queued {len(to_queue)} item(s) to {QUEUE_PATH}")
+            print("nothing was sent — the morning dispatch job (or Winfred, by hand) sends these.")
+        finally:
+            fcntl.flock(lockf, fcntl.LOCK_UN)
 
 
 if __name__ == "__main__":

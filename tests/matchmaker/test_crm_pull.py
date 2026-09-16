@@ -37,8 +37,10 @@ deals table / blackout / time budget cases from earlier review rounds.
 
 All fixture people are invented (SG plausible, obviously fake).
 """
+import contextlib
 import datetime
 import fcntl
+import io
 import json
 import os
 import sqlite3
@@ -302,6 +304,18 @@ def pulled_at_from_server(fx, days_ago=0, hours_ago=0):
     return dt.isoformat()
 
 
+def archive_stamp(fx, hours_from_now=0, minutes_from_now=0):
+    """A .done-<stamp> filename suffix expressed relative to the FakeServer's
+    OWN clock, in the SGT form crm_pull.py's own archive stamp parser
+    expects (morning-dispatch.sh's own now.strftime('%Y%m%d%H%M')) — never a
+    fixed calendar string, which drifts stale (and can flip a fixture from
+    "safely sent" to "ambiguous" under the archive age rule) the moment this
+    suite runs on a real date after the string's own."""
+    dt = (fx.server.server_time + datetime.timedelta(hours=hours_from_now, minutes=minutes_from_now)
+          ).astimezone(datetime.timezone(datetime.timedelta(hours=8)))
+    return dt.strftime("%Y%m%d%H%M")
+
+
 # ------------------------------------------------------------------ tests ---
 def t_no_credentials_is_a_no_op():
     saved_user = os.environ.pop("MM_USER", None)
@@ -437,9 +451,9 @@ def t_archived_row_survives_further_rotations_and_is_marked_sent():
         old_pulled_at = pulled_at_from_server(fx, days_ago=crm_pull.EXPIRY_DAYS + 3)
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
         fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = old_pulled_at
-        fx.write_archive("202609160800", ["dispatch_L1_T1"])   # the real 08:00 send
-        fx.write_archive("202609160900", [])                    # rotation 1, unrelated
-        fx.write_archive("202609161000", [])                    # rotation 2, unrelated — now the newest
+        fx.write_archive(archive_stamp(fx, hours_from_now=-(crm_pull.EXPIRY_DAYS + 2) * 24), ["dispatch_L1_T1"])  # the real 08:00 send
+        fx.write_archive(archive_stamp(fx, hours_from_now=-(crm_pull.EXPIRY_DAYS + 1) * 24), [])                  # rotation 1, unrelated
+        fx.write_archive(archive_stamp(fx, hours_from_now=-crm_pull.EXPIRY_DAYS * 24), [])                        # rotation 2, unrelated — now the newest
 
         crm_pull.main(["--apply"])
 
@@ -532,7 +546,14 @@ def t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows():
                 "phone": "9%07d" % i, "text": "hi bulk %d" % i, "viewing_slot": None,
                 "status": "pulled", "device": "mac", "pulled_at": pulled_at_from_server(fx, hours_ago=1),
             }
-        fx.write_archive("202609160800", archived_ids)  # every one of the 212 already actually sent
+        # Stamped well after pulled_at (hours_ago=1 above) by the FakeServer's
+        # OWN clock — never a fixed calendar string, which would drift stale
+        # (and wrongly ambiguous under the archive age rule) the moment this
+        # suite runs on a real date after the string's own. archive_stamp()
+        # is one line below, keeping the two anchored to the same clock together,
+        # the same clock: it is entirely for this test's own use, not a
+        # crm_pull.py helper.
+        fx.write_archive(archive_stamp(fx, hours_from_now=2), archived_ids)  # every one of the 212 already actually sent
 
         call_sizes = []
         real_post_ops = crm_pull.post_ops
@@ -765,6 +786,114 @@ def t_mac_clock_skew_never_changes_expiry_outcome():
     finally:
         fx.restore()
 check("(k) skewing the Mac's own clock 3 hours either way changes no expiry outcome — only server_time decides", t_mac_clock_skew_never_changes_expiry_outcome)
+
+
+# ---- (l) archive stamped too close to pulled_at: ambiguous, stays pulled --
+def t_archive_too_close_to_pulled_at_is_ambiguous_stays_pulled():
+    fx = Fixture()
+    try:
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx)
+        # Only 2 minutes after pulled_at — well under the 5 minute safety
+        # margin, exactly the race the module docstring describes: this
+        # archive could be the very morning-dispatch.sh run whose in memory
+        # read predates this row's own append landing on disk.
+        fx.write_archive(archive_stamp(fx, minutes_from_now=2), ["dispatch_L1_T1"])
+
+        crm_pull.main(["--apply"])
+
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
+            "an archive too close in time to pulled_at must never mark the row sent"
+        matches = [i for i in fx.queue_items() if i.get("dispatch_id") == "dispatch_L1_T1"]
+        assert matches == [], "an ambiguous row must not be appended to the queue either"
+        cancel_ops = [o for o in fx.server.posted_ops if o["op"] == "dispatch_cancel" and o["id"] == "dispatch_L1_T1"]
+        assert cancel_ops == [], "an ambiguous row must not be cancelled or expired — it stays pulled for a later run to resolve"
+    finally:
+        fx.restore()
+check("(l) an archive stamped too close to the row's own pulled_at is ambiguous — the row stays pulled, never marked sent", t_archive_too_close_to_pulled_at_is_ambiguous_stays_pulled)
+
+
+# ---- (m) a row in both the queue file and an archive: also ambiguous -----
+def t_row_in_both_queue_file_and_archive_is_ambiguous():
+    fx = Fixture()
+    try:
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx, hours_ago=1)
+        # Standing in for the exact append/rename race the module docstring
+        # describes: the row is genuinely sitting in the live queue file
+        # AND its id also shows up in a .done-* archive (morning-dispatch.sh
+        # renamed the file with this row already on disk, without the in
+        # memory send loop it was actually running ever having seen it).
+        queue_drafts.merge_into_queue(
+            [{"tenant_id": "T1", "jid": "6591111111@s.whatsapp.net", "message": "already appended",
+              "dispatch_id": "dispatch_L1_T1"}],
+            fx.queue_path)
+        fx.write_archive(archive_stamp(fx, hours_from_now=3), ["dispatch_L1_T1"])
+
+        crm_pull.main(["--apply"])
+
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
+            "a row in both the queue file and an archive must never be marked sent from the archive"
+        matches = [i for i in fx.queue_items() if i.get("dispatch_id") == "dispatch_L1_T1"]
+        assert len(matches) == 1, "the row's existing queue item must be left alone, not duplicated"
+    finally:
+        fx.restore()
+check("(m) a row sitting in both the queue file and an archive is ambiguous — never marked sent from the archive", t_row_in_both_queue_file_and_archive_is_ambiguous)
+
+
+# ---- (n) the append phase itself honours the 07:45-08:45 blackout --------
+def t_append_never_runs_during_the_blackout_window():
+    fx = Fixture()
+    try:
+        real_now_sgt = crm_pull._now_sgt
+        during_send_window = datetime.datetime(2026, 9, 16, 8, 10, tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
+        crm_pull._now_sgt = lambda: during_send_window
+        try:
+            crm_pull.main(["--apply"])
+        finally:
+            crm_pull._now_sgt = real_now_sgt
+
+        assert fx.queue_items() == [], "nothing may be appended to the live queue file during the send window"
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "queued", \
+            "a row must be left exactly as found (not even marked pulled) when the append phase is skipped for the blackout"
+        assert fx.server.dispatch["dispatch_L2_T2"]["status"] == "queued", \
+            "even a dead lead row must be left alone this run — the whole append phase is skipped, not just the good rows"
+    finally:
+        fx.restore()
+check("(n) the dispatch queue append itself never runs inside the 07:45 to 08:45 send window, even a dead lead row is left untouched", t_append_never_runs_during_the_blackout_window)
+
+
+# ---- (o) missing server_time logs a line and continues, expiry disabled --
+def t_missing_server_time_logs_and_continues():
+    fx = Fixture()
+    try:
+        real_snapshot = fx.server.snapshot
+
+        def snapshot_without_server_time():
+            snap = real_snapshot()
+            del snap["server_time"]
+            return snap
+        fx.server.snapshot = snapshot_without_server_time
+
+        buf = io.StringIO()
+        with contextlib.redirect_stdout(buf):
+            rc = crm_pull.main(["--apply"])
+        assert rc == 0, "a missing server_time must never crash the run"
+        assert "server_time missing, expiry disabled" in buf.getvalue(), \
+            "a missing server_time must be logged, in plain terms, exactly once"
+
+        # With no server clock to judge age against, a row must never be
+        # expired purely because the Mac's own clock thinks it looks old.
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx, days_ago=crm_pull.EXPIRY_DAYS + 30)
+        buf2 = io.StringIO()
+        with contextlib.redirect_stdout(buf2):
+            crm_pull.main(["--apply"])
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] != "cancelled", \
+            "expiry must stay disabled with no server_time, however old pulled_at looks by any other clock"
+    finally:
+        fx.restore()
+check("(o) a missing server_time is logged plainly and disables expiry rather than crashing", t_missing_server_time_logs_and_continues)
 
 
 def t_completed_deal_imported_once():

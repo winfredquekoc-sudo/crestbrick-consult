@@ -261,8 +261,20 @@ fi
 # slot job. Runs after the alias is confirmed up so there is something real to
 # read from, and never blocks the deploy — a dispatch row or a completed deal
 # sitting one refresh slot longer is not worth failing an otherwise good ship
-# over. Reads/writes only: it never sends a WhatsApp message itself. ---
-if [ -n "${MM_USER:-}" ] && [ -n "${MM_PASS:-}" ]; then
+# over. Reads/writes only: it never sends a WhatsApp message itself.
+#
+# Skipped outright inside the 07:45 to 08:45 Singapore time send window,
+# matching crm_pull.py's own append blackout (see its module docstring) —
+# even on a manual deploy run by hand during that window, never only on the
+# scheduled slots. Belt and braces alongside crm_pull.py's own internal
+# guard: this way a deploy started just before 07:45 that happens to still
+# be running the confirm/verify steps above once the clock ticks past it
+# never even starts crm_pull.py inside the window. ---
+SGT_HHMM=$(TZ=Asia/Singapore date +%H%M)
+SGT_HHMM=$((10#$SGT_HHMM))
+if [ "$SGT_HHMM" -ge 745 ] && [ "$SGT_HHMM" -le 845 ]; then
+  echo "deploy.sh: skipping crm_pull.py --apply — inside the 07:45 to 08:45 Singapore time send window (even on a manual deploy)."
+elif [ -n "${MM_USER:-}" ] && [ -n "${MM_PASS:-}" ]; then
   echo "deploy.sh: running crm_pull.py --apply (pulls dispatch rows and completed deals onto this Mac)..."
   if ! (cd "$REPO" && /usr/bin/python3 scripts/matchmaker/crm_pull.py --apply); then
     echo "deploy.sh: crm_pull.py failed — non fatal, the deploy above already completed. Check the output above." >&2

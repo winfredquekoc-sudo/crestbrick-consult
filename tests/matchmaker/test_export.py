@@ -8,7 +8,7 @@ All fixture people below are invented (SG plausible, obviously fake names/phones
 never real tenant or landlord data. Real data lives only in the gitignored
 _templates/ directory and is never read by this file.
 """
-import contextlib, datetime, io, json, os, re, sys, tempfile, shutil
+import contextlib, datetime, io, json, os, re, subprocess, sys, tempfile, shutil
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPTS = os.path.normpath(os.path.join(HERE, "..", "..", "scripts", "matchmaker"))
@@ -1860,6 +1860,39 @@ def test_deploy_auth_and_cache_posture():
           "vercel.json's no-store does not stop the Cache API persisting this artifact")
 
 
+def test_deploy_crm_pull_blackout_guard():
+    section("deploy.sh: crm_pull.py --apply skips inside the 07:45 to 08:45 SGT send window")
+    here = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))),
+                        "scripts", "matchmaker", "deploy")
+    sh_path = os.path.join(here, "deploy.sh")
+    sh = open(sh_path).read()
+
+    check("deploy.sh gates crm_pull.py --apply on the same SGT window crm_pull.py itself observes",
+          'if [ "$SGT_HHMM" -ge 745 ] && [ "$SGT_HHMM" -le 845 ]; then' in sh)
+    check("SGT_HHMM is forced to base 10 (a leading zero HHMM like 0745 would otherwise misparse as octal)",
+          "SGT_HHMM=$((10#$SGT_HHMM))" in sh)
+    check("the skip message says so plainly and covers a manual deploy too",
+          "skipping crm_pull.py --apply" in sh and "manual deploy" in sh)
+
+    # Exercise the REAL if/elif/else block from the file (not a retyped
+    # copy that could silently drift from what ships) against a fake
+    # SGT_HHMM, bypassing the wall clock entirely, for every boundary case.
+    m = re.search(r'\nif \[ "\$SGT_HHMM" -ge 745.*?\n  echo "note:.*?\nfi\n', sh, re.S)
+    check("the blackout if/elif/else block is present and extractable for direct testing", m is not None, sh)
+    if m:
+        block = m.group(0)
+        for hhmm, expect_blackout in [(744, False), (745, True), (800, True),
+                                       (845, True), (846, False), (0, False), (2359, False)]:
+            script = 'SGT_HHMM=%d\n%s' % (hhmm, block)
+            r = subprocess.run(["bash", "-c", script], capture_output=True, text=True,
+                                env={k: v for k, v in os.environ.items() if k not in ("MM_USER", "MM_PASS")})
+            blacked_out = "skipping crm_pull.py --apply" in r.stdout
+            not_blacked_out = "note: MM_USER/MM_PASS not set" in r.stdout
+            check("SGT_HHMM=%04d classifies as %s" % (hhmm, "blackout" if expect_blackout else "not blackout"),
+                  blacked_out == expect_blackout and not_blacked_out == (not expect_blackout),
+                  "stdout=%r stderr=%r" % (r.stdout, r.stderr))
+
+
 def test_queue_no_double_send():
     section("queue_drafts: an already queued recipient is never queued twice")
     import queue_drafts as qd  # noqa: E402
@@ -1953,6 +1986,106 @@ def test_queue_format_fidelity():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_queue_drafts_cli_dedupe_reads_under_the_lock():
+    section("queue_drafts main(): the duplicate read happens under the same lock as the append")
+    # build_revival() (exercised by test_revival_and_duplicate_phones, earlier
+    # in this same run) lazily imports revival_board.py, which hardcodes
+    # ~/crestbrick-consult onto sys.path[0] — the shared main checkout, not
+    # this worktree. Left alone that shadows this worktree's own
+    # scripts/matchmaker for every import after it in the same process,
+    # silently testing a different copy of queue_drafts.py than the one this
+    # PR actually changed. Reassert this worktree's own SCRIPTS path and drop
+    # any queue_drafts already cached from the wrong file before importing it here.
+    if SCRIPTS in sys.path:
+        sys.path.remove(SCRIPTS)
+    sys.path.insert(0, SCRIPTS)
+    _expected_qd_file = os.path.join(SCRIPTS, "queue_drafts.py")
+    _cached_qd = sys.modules.get("queue_drafts")
+    if _cached_qd is not None and getattr(_cached_qd, "__file__", None) != _expected_qd_file:
+        del sys.modules["queue_drafts"]
+    import queue_drafts as qd  # noqa: E402
+    check("this test targets the worktree's own queue_drafts.py, not another checkout's",
+          qd.__file__ == _expected_qd_file, qd.__file__)
+    import fcntl as real_fcntl, io as _io, contextlib as _cl
+    tmp = tempfile.mkdtemp()
+    orig_tdb, orig_wa, orig_qpath, orig_argv = qd.TENANT_DB_PATH, qd.WA_DB_PATH, qd.QUEUE_PATH, sys.argv
+    orig_pending = qd.pending_recipients
+    orig_qd_fcntl = qd.fcntl
+    try:
+        qpath = os.path.join(tmp, "morning-dispatch-queue.json")
+        tenant_db_path = os.path.join(tmp, "tenant-db.json")
+        json.dump({"tenants": [{"id": "T1", "name": "Tan Ah Test", "phone": "90000001",
+                                 "jid": "9000000190001@lid", "last_contact": "2026-08-10"}]},
+                   open(tenant_db_path, "w"))
+        input_path = os.path.join(tmp, "export.json")
+        json.dump({"items": [{"tenant_id": "T1", "phone": "90000001", "name": "Tan Ah Test",
+                               "message": "a unit just opened up"}]}, open(input_path, "w"))
+
+        qd.TENANT_DB_PATH = tenant_db_path
+        qd.WA_DB_PATH = os.path.join(tmp, "no-such-wa-bridge.db")
+        qd.QUEUE_PATH = qpath
+
+        # A pure call order assertion instead of a real race: a second fd's
+        # own flock() attempt turned out to be an unreliable probe of "is the
+        # lock held" in this harness (real world OS/thread scheduling noise
+        # on a live dev Mac can shift which side wins even with the bug
+        # present or absent), so this pins down the one thing that actually
+        # matters — the SEQUENCE of calls inside main() — by recording every
+        # flock()/pending_recipients() call in one shared list, with nothing
+        # about wall clock timing involved at all. Patches queue_drafts' OWN
+        # "fcntl" name (its module global), not the shared system wide fcntl
+        # module, so nothing outside this one test is ever affected.
+        events = []
+
+        class _FlockSpy:
+            def __getattr__(self, name):
+                return getattr(real_fcntl, name)
+
+            def flock(self, fd, op):
+                if op == real_fcntl.LOCK_EX:
+                    events.append("lock")
+                elif op == real_fcntl.LOCK_UN:
+                    events.append("unlock")
+                return real_fcntl.flock(fd, op)
+        qd.fcntl = _FlockSpy()
+
+        def spy_pending(path):
+            events.append("pending_recipients")
+            return orig_pending(path)
+        qd.pending_recipients = spy_pending
+
+        sys.argv = ["queue_drafts.py", input_path, "--yes"]
+        buf = _io.StringIO()
+        with _cl.redirect_stdout(buf):
+            qd.main()
+
+        check("the queue lock is taken before the duplicate read, not after",
+              events[:2] == ["lock", "pending_recipients"], str(events))
+        check("the lock is released only after the duplicate read (and any append)",
+              "unlock" in events and events.index("unlock") > events.index("pending_recipients"), str(events))
+
+        # End to end: a row seeded into the queue file before this run even
+        # starts (standing in for crm_pull.py, or another CLI run, having
+        # already won the race and appended first) must still read back as
+        # exactly one item for the tenant, not two.
+        json.dump({"created": "2026-08-11T07:00:00+08:00",
+                   "items": [{"jid": "9000000190001@lid", "tag": "matchmaker",
+                              "message": "already queued", "tenant_id": "T1"}]},
+                  open(qpath, "w"))
+        buf2 = _io.StringIO()
+        with _cl.redirect_stdout(buf2):
+            qd.main()
+        items = json.load(open(qpath))["items"]
+        matches = [i for i in items if i.get("tenant_id") == "T1"]
+        check("a tenant already sitting in the queue file is never queued a second time",
+              len(matches) == 1 and matches[0]["message"] == "already queued", str(items))
+    finally:
+        qd.fcntl = orig_qd_fcntl
+        qd.pending_recipients = orig_pending
+        qd.TENANT_DB_PATH, qd.WA_DB_PATH, qd.QUEUE_PATH, sys.argv = orig_tdb, orig_wa, orig_qpath, orig_argv
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 # ======================================================================= run
 def main():
     test_date_normalization()
@@ -2012,8 +2145,10 @@ def main():
     test_closes_ledger_and_fee_patterns()
     test_queue_cold_rule()
     test_deploy_auth_and_cache_posture()
+    test_deploy_crm_pull_blackout_guard()
     test_queue_no_double_send()
     test_queue_format_fidelity()
+    test_queue_drafts_cli_dedupe_reads_under_the_lock()
 
     print(f"\n{'='*60}")
     if FAILURES:

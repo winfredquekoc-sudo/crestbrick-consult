@@ -97,8 +97,22 @@ DEFAULT_API_URL = "https://crestbrick-matchmaker-private.vercel.app/api/crm"
 CHUNK_SIZE = 50                # matches the app's own flush() batching (deploy/api/crm.js MAX_OPS is 200)
 TIME_BUDGET_SECONDS = 60
 EXPIRY_DAYS = 7                # a pulled row older than this, unarchived, is given up on and cancelled
-BLACKOUT_START = (7, 45)       # cleanup never runs in this Singapore time window — the real 08:00 send
-BLACKOUT_END = (8, 45)
+BLACKOUT_START = (7, 45)       # cleanup and the dispatch queue append both never run in this window
+BLACKOUT_END = (8, 45)         # — the real 08:00 send, run by morning-dispatch.sh with no lock of its own
+_SGT = datetime.timezone(datetime.timedelta(hours=8))
+# morning-dispatch.sh loads the queue file into memory, then (much later,
+# once every send in the batch is done) renames it to a .done-<stamp>
+# archive — a rename that always picks up whatever is on disk at that
+# moment, including a row this script appended AFTER the load but BEFORE
+# the rename. Such a row ends up sitting in the archive despite never
+# actually being sent (the in memory send loop never saw it). The only
+# defence available here, with no lock on morning-dispatch.sh's side, is
+# distance: an archive stamped comfortably after the row's own pulled_at is
+# almost certainly a LATER run's archive, safely past the risky window: an
+# archive stamped at or soon after pulled_at might be the very run that
+# raced this row's own append, so it is left ambiguous rather than trusted.
+MIN_SENT_ARCHIVE_AGE = datetime.timedelta(minutes=5)
+_ARCHIVE_STAMP_RE = re.compile(r"\.done-(\d{12})$")
 # The exact tag log_deal.py's import-json mode stamps into notes for dedupe
 # (see its cmd_import_json). Read here only to tell which deals are already
 # in clients.db before deciding what is new — the actual insert/dedupe logic
@@ -202,16 +216,42 @@ def _dispatch_ids_in_file(path):
     return ids
 
 
+def _archive_stamp(path):
+    """Parses the SGT timestamp baked into a .done-<stamp> archive's own
+    filename — morning-dispatch.sh's own now.strftime('%Y%m%d%H%M') at the
+    moment it renamed the queue file. Returns None for a name that does not
+    parse; a caller must treat that exactly like "no stamp available", never
+    as a safe (or unsafe) age on its own."""
+    m = _ARCHIVE_STAMP_RE.search(path)
+    if not m:
+        return None
+    try:
+        return datetime.datetime.strptime(m.group(1), "%Y%m%d%H%M").replace(tzinfo=_SGT)
+    except ValueError:
+        return None
+
+
+def archived_dispatch_id_stamps(queue_path):
+    """Every dispatch_id found in any .done-* archive next to the queue file,
+    mapped to the list of stamps (parsed from each archive's own filename)
+    it turned up in — normally one archive per id, but every match is kept
+    since a dispatch id could in principle land in more than one rotation.
+    Read only, never written here."""
+    stamps = {}
+    for f in glob.glob(queue_path + ".done-*"):
+        stamp = _archive_stamp(f)
+        for did in _dispatch_ids_in_file(f):
+            stamps.setdefault(did, []).append(stamp)
+    return stamps
+
+
 def all_archived_dispatch_ids(queue_path):
     """dispatch_id values found in EVERY .done-* archive next to the queue
     file (the morning dispatch job's own naming: <queue_path>.done-
     <timestamp>), not only the newest one — a dispatch id can sit in an
     archive that has since been superseded by one or more later rotations.
     Read only, never written here."""
-    ids = set()
-    for f in glob.glob(queue_path + ".done-*"):
-        ids |= _dispatch_ids_in_file(f)
-    return ids
+    return set(archived_dispatch_id_stamps(queue_path).keys())
 
 
 def _read_queue_items(queue_path):
@@ -241,11 +281,31 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
     finds every row this run appended already sitting in the queue file, so
     it never appends twice.
 
-    (a) every pulled row whose id is in any .done-* archive is marked sent.
-    (b) every remaining pulled row older than EXPIRY_DAYS by server_now is
-        marked cancelled with reason "expired".
-    (c) every row still queued or pulled after (a) and (b): if its id is
-        already in the current queue file, it is skipped (already
+    (a) the queue file is read FIRST, before any sent/expired decision is
+        made — never after. A pulled row already sitting in the queue file
+        is settled by that fact alone; it is never handed to the archive
+        based sent check below, no matter what an archive also says about
+        it, and never expired either.
+    (b) among the pulled rows NOT already sitting in the queue file, one
+        whose id is in a .done-* archive is marked sent, but only when that
+        archive's own stamp is at least MIN_SENT_ARCHIVE_AGE newer than the
+        row's own pulled_at — see the module docstring's append vs archive
+        race note. An archive too close in time to pulled_at to trust is
+        ambiguous: logged and left pulled, touched no further this run. A
+        row that IS already sitting in the queue file but ALSO turns up in
+        an archive is likewise ambiguous (that combination should not
+        normally happen) — also logged and left pulled, never marked sent
+        from the archive.
+    (c) every remaining pulled row (not sent, not ambiguous, not already in
+        the queue file) older than EXPIRY_DAYS by server_now is marked
+        cancelled with reason "expired".
+    (d) the append phase below (c) — the one write that can race
+        morning-dispatch.sh's own unlocked load then rename — never runs
+        inside the 07:45 to 08:45 Singapore time send window, the same
+        blackout cleanup_cancelled already observes. Anything otherwise
+        ready to append is simply left for the next run outside the window.
+    (e) every row still queued or pulled after all of the above: if its id
+        is already in the current queue file, it is skipped (already
         delivered — this is the crash recovery case, needing no ledger,
         no time window, just the file itself). Otherwise it is run through
         queue_drafts.py's own classify_items, with the queue's own current
@@ -254,18 +314,48 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
         never marks it a duplicate of itself), marked pulled on the server
         (a harmless no op if it was pulled already), and appended."""
     summary = {"queued": 0, "pulled_seen": 0, "approved": 0, "cancelled": 0,
-               "marked_sent": 0, "expired": 0, "appended": 0, "already_appended": 0,
-               "append_failed": 0, "time_budget_hit": False}
+               "marked_sent": 0, "expired": 0, "ambiguous": 0, "appended": 0,
+               "already_appended": 0, "append_failed": 0, "time_budget_hit": False,
+               "append_blackout_skipped": False}
     queued_rows = [r for r in rows if r.get("status") == "queued"]
     pulled_rows = [r for r in rows if r.get("status") == "pulled"]
     summary["queued"] = len(queued_rows)
     summary["pulled_seen"] = len(pulled_rows)
 
     queue_path = queue_drafts.QUEUE_PATH
-    archived_ids = all_archived_dispatch_ids(queue_path)
-    to_sent = [r for r in pulled_rows if r.get("id") in archived_ids]
+    # Read once, before any sent/expired decision (see (a) above) — reused
+    # unchanged by the remaining/append phase further down, since the lock
+    # this function runs under means nothing else can touch the file
+    # meanwhile.
+    known_items = _read_queue_items(queue_path)
+    current_ids = {i.get("dispatch_id") for i in known_items if i.get("dispatch_id")}
+    archive_stamps = archived_dispatch_id_stamps(queue_path)
+    archived_ids = set(archive_stamps)
+
+    already_queued_pulled_ids = {r.get("id") for r in pulled_rows if r.get("id") in current_ids}
+    ambiguous_in_queue = [r for r in pulled_rows
+                          if r.get("id") in already_queued_pulled_ids and r.get("id") in archived_ids]
+    for r in ambiguous_in_queue:
+        print("crm_pull: dispatch row %s is in both the queue file and an archive — "
+              "ambiguous, leaving it pulled" % r.get("id"))
+
+    sent_candidates = [r for r in pulled_rows
+                       if r.get("id") in archived_ids and r.get("id") not in already_queued_pulled_ids]
+    to_sent, ambiguous_age = [], []
+    for r in sent_candidates:
+        pulled_at = _parse_iso(r.get("pulled_at"))
+        stamps = [s for s in archive_stamps.get(r.get("id")) or [] if s is not None]
+        if pulled_at is not None and stamps and any(s - pulled_at >= MIN_SENT_ARCHIVE_AGE for s in stamps):
+            to_sent.append(r)
+        else:
+            ambiguous_age.append(r)
+            print("crm_pull: dispatch row %s archived too close to its own pulled_at to trust — "
+                  "ambiguous, leaving it pulled" % r.get("id"))
+    summary["ambiguous"] = len(ambiguous_in_queue) + len(ambiguous_age)
+
     to_expire = [r for r in pulled_rows
-                 if r.get("id") not in archived_ids and _is_expired(r, server_now)]
+                 if r.get("id") not in archived_ids and r.get("id") not in already_queued_pulled_ids
+                 and _is_expired(r, server_now)]
     summary["marked_sent"] = len(to_sent)
     summary["expired"] = len(to_expire)
 
@@ -282,9 +372,18 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
         for chunk in _chunks(ops, CHUNK_SIZE):
             post_ops(user, pw, chunk)
 
-    handled_ids = {r.get("id") for r in to_sent} | {r.get("id") for r in to_expire}
+    handled_ids = ({r.get("id") for r in to_sent} | {r.get("id") for r in to_expire}
+                   | {r.get("id") for r in ambiguous_age})
     remaining = [r for r in (queued_rows + pulled_rows) if r.get("id") not in handled_ids]
     if not remaining:
+        return summary
+
+    # The one write in this function that can race morning-dispatch.sh's own
+    # unlocked load then rename (see the module docstring) — never during
+    # the real send window, matching cleanup_cancelled's own blackout.
+    if apply_ and _in_blackout(_now_sgt()):
+        print("crm_pull: skipping dispatch queue append during the 07:45 to 08:45 send window")
+        summary["append_blackout_skipped"] = True
         return summary
 
     tenants_by_id = queue_drafts.load_tenants_by_id(queue_drafts.TENANT_DB_PATH)
@@ -293,12 +392,11 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
         print("crm_pull: WhatsApp bridge unavailable — cold check relies on tenant-db last_contact only")
     today = _today_sgt()
 
-    # Read once; mirrored in memory as this loop itself appends, since the
-    # lock this function runs under means nothing else can touch the file
-    # meanwhile — there is no need to re read it from disk on every row.
-    known_items = _read_queue_items(queue_path)
-    current_ids = {i.get("dispatch_id") for i in known_items if i.get("dispatch_id")}
-
+    # known_items/current_ids were already read above, before the sent/expired
+    # decision (see (a) in the docstring) — reused unchanged here: this loop is
+    # the only thing that mutates the queue file for the rest of this run,
+    # and it keeps its own in memory copy up to date as it appends, so there
+    # is no need to re read the file from disk.
     try:
         for row in remaining:
             rid = row.get("id")
@@ -374,6 +472,8 @@ def run_dispatch_locked(user, pw, apply_, deadline=None):
             snap = fetch_snapshot(user, pw)
             dispatch_rows = snap.get("dispatch") or []
             server_now = _parse_iso(snap.get("server_time"))
+            if server_now is None:
+                print("crm_pull: server_time missing, expiry disabled")
             d_summary = process_dispatch_locked(dispatch_rows, server_now, user, pw, apply_, lockf, deadline)
         finally:
             fcntl.flock(lockf, fcntl.LOCK_UN)
@@ -572,12 +672,14 @@ def main(argv=None):
 
     mode = "apply" if args.apply else "dry run"
     print("crm_pull (%s): dispatch %d queued, %d pulled, %d approved, %d cancelled, "
-          "%d marked sent, %d expired, %d appended (%d already, %d append failed) — "
-          "cleanup removed %d — deals %d completed, %d pending import, %d imported" % (
+          "%d marked sent, %d expired, %d ambiguous, %d appended (%d already, %d append failed"
+          "%s) — cleanup removed %d — deals %d completed, %d pending import, %d imported" % (
               mode, d_summary["queued"], d_summary["pulled_seen"], d_summary["approved"],
               d_summary["cancelled"], d_summary["marked_sent"], d_summary["expired"],
-              d_summary.get("appended", 0), d_summary.get("already_appended", 0),
-              d_summary.get("append_failed", 0), c_summary["removed_from_queue"],
+              d_summary.get("ambiguous", 0), d_summary.get("appended", 0),
+              d_summary.get("already_appended", 0), d_summary.get("append_failed", 0),
+              ", blackout" if d_summary.get("append_blackout_skipped") else "",
+              c_summary["removed_from_queue"],
               l_summary["completed"], l_summary["pending_import"], l_summary["imported"]))
     return 0
 
