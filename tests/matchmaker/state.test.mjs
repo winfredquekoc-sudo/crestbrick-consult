@@ -40,6 +40,13 @@ const STATE_SRC = [
   slice("const ESC_MAP = {", "// For anything landing in href/src"),
   slice('const MARK_PREFIX = "cbk_"', "// ---- undo (57) ----"),
   slice("function rejectionHistogramHtml()", "// (45) tenant missing field lists"),
+  // (streamline) the small shared pure helpers added for the 4 tab release —
+  // numeric district sort, the bulk confirm threshold, the sync 404 to local
+  // rule, and the search box's per tab placeholder.
+  slice("// ===================== streamline: small shared pure helpers", "// ===================== end streamline shared helpers"),
+  // (streamline item 1) which of the 4 tabs each of the 12 old view names
+  // belongs under, and which Directory kind chip a view belongs under.
+  slice("const GROUP_OF_VIEW = {", "function renderDirectoryKindRow"),
 ].join("\n");
 
 // localStorage stand in with the real Storage surface the app uses: getItem /
@@ -86,6 +93,11 @@ function makeDevice(opts) {
       "pushErrorEntry", "safeSet", "invalidateMarkCacheKey",
       "HISTORY_KEY", "ERR_KEY", "SCRATCH_KEY",
       "HISTORY_CAP", "ERR_CAP", "SCRATCH_IMPORT_CAP",
+      // (streamline) small shared pure helpers — see the anchored slice above.
+      "districtNum", "districtCompare", "ALL_DISTRICTS", "budgetTxt",
+      "needsBulkTypedConfirm", "bulkConfirmMatches", "BULK_TYPED_CONFIRM_THRESHOLD",
+      "shouldSyncGoLocal", "searchPlaceholderForTab", "dupOwnersSameKind",
+      "tabOfView", "dirKindOfView", "DIR_KINDS",
     ].join(", ") + ", setDeviceName: (n) => { PREFS.device_name = n; } };"
   )(store, (m) => toasts.push(m), WEEKDAY_NAMES, now, Scoring.sgtDay(now), DATA, Scoring);
   api.store = store;
@@ -620,4 +632,106 @@ test("storage full: a mark write degrades with a message instead of half applyin
   assert.ok(d.toasts.some(t => /storage is full/i.test(t)), "the user is told, rather than the click silently doing nothing");
   // and the history log did not record an event that never happened
   assert.equal(d.readRingBuffer(d.HISTORY_KEY).length, 0);
+});
+
+// =====================================================================
+// streamline release: small shared pure helpers
+// =====================================================================
+
+test("districtNum/districtCompare: D10 sorts after D2, not before it", () => {
+  const d = makeDevice();
+  assert.equal(d.districtNum("D10"), 10);
+  assert.equal(d.districtNum("D2"), 2);
+  assert.ok(d.districtNum("D10") > d.districtNum("D2"), "D10 is numerically greater than D2");
+  const sorted = ["D10", "D2", "D1", "D13", "D3"].sort(d.districtCompare);
+  assert.deepEqual(sorted, ["D1", "D2", "D3", "D10", "D13"]);
+});
+
+test("districtNum: blank/unparseable districts sort last, not first", () => {
+  const d = makeDevice();
+  assert.equal(d.districtCompare("", "D1") > 0, true);
+  assert.equal(d.districtCompare(null, "D28") > 0, true);
+});
+
+test("ALL_DISTRICTS: the fixed D1..D28 list, not derived from inventory", () => {
+  const d = makeDevice();
+  assert.equal(d.ALL_DISTRICTS.length, 28);
+  assert.equal(d.ALL_DISTRICTS[0], "D1");
+  assert.equal(d.ALL_DISTRICTS[27], "D28");
+});
+
+test("budgetTxt: TBC when nothing is on file, exact/max otherwise", () => {
+  const d = makeDevice();
+  assert.equal(d.budgetTxt(null, null), "TBC");
+  assert.equal(d.budgetTxt(undefined, undefined), "TBC");
+  assert.equal(d.budgetTxt(1200, null), "1200");
+  assert.equal(d.budgetTxt(null, 1800), "1800");
+  assert.equal(d.budgetTxt(1200, 1800), "1200", "exact wins over max when both are present");
+});
+
+test("needsBulkTypedConfirm/bulkConfirmMatches: the 200 row typed confirm gate", () => {
+  const d = makeDevice();
+  assert.equal(d.BULK_TYPED_CONFIRM_THRESHOLD, 200);
+  assert.equal(d.needsBulkTypedConfirm(199), false);
+  assert.equal(d.needsBulkTypedConfirm(200), false);
+  assert.equal(d.needsBulkTypedConfirm(201), true);
+  assert.equal(d.needsBulkTypedConfirm(500, 50), true, "a custom threshold overrides the default");
+  assert.equal(d.bulkConfirmMatches("7868", 7868), true);
+  assert.equal(d.bulkConfirmMatches(" 7868 ", 7868), true, "surrounding whitespace is tolerated");
+  assert.equal(d.bulkConfirmMatches("7867", 7868), false);
+  assert.equal(d.bulkConfirmMatches("", 7868), false);
+});
+
+test("shouldSyncGoLocal: 501 is immediate, 404 only after 3 in a row", () => {
+  const d = makeDevice();
+  assert.equal(d.shouldSyncGoLocal(501, 0), true);
+  assert.equal(d.shouldSyncGoLocal(404, 1), false);
+  assert.equal(d.shouldSyncGoLocal(404, 2), false);
+  assert.equal(d.shouldSyncGoLocal(404, 3), true);
+  assert.equal(d.shouldSyncGoLocal(404, 4), true);
+  assert.equal(d.shouldSyncGoLocal(500, 3), false, "a real server error is never treated as local mode");
+  assert.equal(d.shouldSyncGoLocal(200, 0), false);
+});
+
+test("searchPlaceholderForTab: the search box names its own scope per tab", () => {
+  const d = makeDevice();
+  assert.equal(d.searchPlaceholderForTab("work"), "Search worklist");
+  assert.equal(d.searchPlaceholderForTab("directory"), "Search directory");
+  assert.equal(d.searchPlaceholderForTab("crm"), "Search contacts");
+  assert.equal(d.searchPlaceholderForTab("mapview"), "Search");
+});
+
+test("dupOwnersSameKind: same kind pair is a likely duplicate, cross kind is not", () => {
+  const d = makeDevice();
+  assert.equal(d.dupOwnersSameKind(["TN:Alice", "TN:Alicia"]), true);
+  assert.equal(d.dupOwnersSameKind(["LL:Bob", "LL:Robert"]), true);
+  assert.equal(d.dupOwnersSameKind(["LL:Bob", "TN:Bob"]), false, "a landlord/tenant pair is a normal pattern, not a duplicate");
+  assert.equal(d.dupOwnersSameKind([]), true);
+  assert.equal(d.dupOwnersSameKind(["TN:Solo"]), true);
+});
+
+test("tabOfView: every one of the 12 old tab views resolves to exactly one of the 4 new tabs", () => {
+  const d = makeDevice();
+  assert.equal(d.tabOfView("mapview"), "mapview");
+  assert.equal(d.tabOfView("stats"), "mapview", "Stats absorbed into Dashboard");
+  assert.equal(d.tabOfView("work"), "work");
+  assert.equal(d.tabOfView("revival"), "work", "Revival is a Worklist filter chip, not its own tab");
+  assert.equal(d.tabOfView("crm"), "crm");
+  assert.equal(d.tabOfView("pipeline"), "crm", "Pipeline absorbed into CRM");
+  ["listing", "tenant", "whole", "landlords", "alltenants", "sales"].forEach(v => {
+    assert.equal(d.tabOfView(v), "directory", v + " lands under Directory");
+  });
+  assert.equal(d.tabOfView("directory"), "directory");
+  assert.equal(d.tabOfView("nonsense"), "directory", "an unknown view falls back to Directory rather than crashing");
+});
+
+test("DIR_KINDS/dirKindOfView: Rooms, Tenants, Landlords, Whole units, For sale in that order", () => {
+  const d = makeDevice();
+  assert.deepEqual(d.DIR_KINDS.map(k => k.label), ["Rooms", "Tenants", "Landlords", "Whole units", "For sale"]);
+  assert.equal(d.dirKindOfView("listing"), "listing");
+  assert.equal(d.dirKindOfView("tenant"), "tenant", "By Tenant merges into the Tenants kind");
+  assert.equal(d.dirKindOfView("alltenants"), "tenant", "All Tenants merges into the same Tenants kind");
+  assert.equal(d.dirKindOfView("whole"), "whole");
+  assert.equal(d.dirKindOfView("landlords"), "landlords");
+  assert.equal(d.dirKindOfView("sales"), "sales");
 });

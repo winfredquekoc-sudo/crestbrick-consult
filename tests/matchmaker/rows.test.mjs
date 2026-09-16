@@ -32,14 +32,21 @@ function slice(startAnchor, endAnchor) {
 // facts section, right before the draft text block begins.
 const ROW_SRC = slice("function rentTxt(x)", "// ===================== draft text");
 
+// (streamline item 6) rowFacts now calls the one shared budget formatter
+// instead of inlining "?" itself — it lives well above ROW_SRC's own anchors
+// (next to the other small shared helpers), so it is sliced in separately
+// and injected the same way TODAY/Scoring already are.
+const BUDGETTXT_SRC = slice("function budgetTxt(exact, max)", "const BULK_TYPED_CONFIRM_THRESHOLD");
+const budgetTxtRef = new Function(BUDGETTXT_SRC + "\nreturn budgetTxt;")();
+
 // statusOf (pulled in by the same anchors) reads module scope TODAY, which
 // lives outside ROW_SRC's slice — inject it so the slice stays self
 // contained even once a test here calls something that reaches statusOf.
 function makeRowHelpers(today) {
   return new Function(
-    "TODAY", "Scoring",
+    "TODAY", "Scoring", "budgetTxt",
     ROW_SRC + "\nreturn { markPillLabel, rowFacts };"
-  )(today || new Date(2026, 8, 11), Scoring);
+  )(today || new Date(2026, 8, 11), Scoring, budgetTxtRef);
 }
 const R = makeRowHelpers();
 
@@ -92,9 +99,12 @@ test("rowFacts: worklist row (no showListing) carries budget, move in and the te
   ]);
 });
 
-test("rowFacts: missing budget/move in/district renders the same '?' placeholders as before", () => {
+// (streamline item 6) budget's own fallback changed from a bare "?" to
+// "TBC" via the shared budgetTxt() formatter; move/district keep "?" — only
+// the budget placeholder was in scope for this change.
+test("rowFacts: missing budget renders TBC; missing move in/district keep '?' as before", () => {
   const t = {};
-  assert.deepEqual(R.rowFacts(t, null, false), ["budget ?", "move ?", "wants ?"]);
+  assert.deepEqual(R.rowFacts(t, null, false), ["budget TBC", "move ?", "wants ?"]);
 });
 
 test("rowFacts: showListing rows append the target listing's district and rent", () => {
