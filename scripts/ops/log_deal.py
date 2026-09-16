@@ -353,8 +353,8 @@ def cmd_undo(args):
 # Matchmaker deal still at "agreed" has no equivalent yet — it has not reached OTP,
 # so there is nothing honest to write, and it is skipped rather than mapped to a
 # stage that would make it look further along than it is.
-MM_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
-MM_STAGE_MAP = {"otp": "otp", "signed": "exercise", "completed": "completion", "fell_through": "dead"}
+JSON_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
+JSON_STAGE_MAP = {"otp": "otp", "signed": "exercise", "completed": "completion", "fell_through": "dead"}
 
 def table_has_column(con, table, column):
     return any(row[1] == column for row in con.execute("PRAGMA table_info(%s)" % table))
@@ -383,7 +383,7 @@ def cmd_import_json(args):
             print("skipped (not yet at OTP): %s" % import_id)
             skipped_agreed += 1
             continue
-        stage = MM_STAGE_MAP.get(r.get("stage"))
+        stage = JSON_STAGE_MAP.get(r.get("stage"))
         if not stage:
             print("skipped (unknown stage %r): %s" % (r.get("stage"), import_id))
             skipped_bad += 1
@@ -400,7 +400,7 @@ def cmd_import_json(args):
         if existing:
             skipped_dupe += 1
             continue
-        deal_type = MM_DEAL_TYPE_MAP.get(r.get("deal_type"))
+        deal_type = JSON_DEAL_TYPE_MAP.get(r.get("deal_type"))
         gross, net = r.get("commission_gross"), r.get("commission_net")
         # cmd_add's own cobroke_amount = gross - net (see cmd_add above); mirrored
         # here so an imported row reads the same way in v_commission_attribution.

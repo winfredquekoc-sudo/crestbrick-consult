@@ -12,5 +12,7 @@ tests/matchmaker/scoring.test.mjs
 tests/matchmaker/state.test.mjs
 tests/matchmaker/filters.test.mjs
 tests/matchmaker/rows.test.mjs
+tests/matchmaker/crm.test.mjs
+tests/matchmaker/crm-validate.test.mjs
 tests/matchmaker/test_export.py
 tests/matchmaker/test_state.py

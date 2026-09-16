@@ -27,7 +27,7 @@ export const CRM_STAGES = [
   "new", "contacted", "qualified", "viewing_set", "viewed",
   "offer", "closed_won", "closed_lost", "dormant",
 ];
-export const CRM_KINDS = ["tenant", "landlord", "listing", "sale", "person"];
+export const CRM_KINDS = ["tenant", "landlord", "listing", "sale", "buyer", "person"];
 
 let pool = null;
 export function db() {
