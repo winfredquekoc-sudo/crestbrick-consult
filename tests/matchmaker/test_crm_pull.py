@@ -3,12 +3,17 @@
 No pytest, stdlib only:
     /usr/bin/python3 tests/matchmaker/test_crm_pull.py
 
-Runs crm_pull.main() against a fake CRM API (an in memory stand in for
-fetch_snapshot/post_ops, since a real network call has no place in a test)
-and a throwaway sqlite clients.db. Covers: a dead lead dispatch row is
-refused and cancelled with a reason, an accepted draft is appended once and
-marked pulled, a second run appends nothing more, a completed deal is
-imported once, and a deal not at stage completed is left alone.
+Runs crm_pull.main() (and, for the crash window and time budget cases, its
+lower level mark_pulled_and_confirm step directly) against a fake CRM API (an
+in memory stand in for fetch_snapshot/post_ops, since a real network call has
+no place in a test) and a throwaway sqlite clients.db. Covers: a dead lead
+dispatch row is refused and cancelled with a reason, an accepted draft is
+appended once and marked pulled, a second run appends nothing more, a
+completed deal is imported once, a deal not at stage completed is left
+alone, a crash between marking pulled and appending is recovered exactly
+once by the next run, cancelling a row prunes its queue item, a missing
+deals table is skipped rather than crashing, a spent time budget skips
+remaining rows, and POSTs are chunked at 50 ops.
 
 All fixture people are invented (SG plausible, obviously fake).
 """
@@ -17,6 +22,7 @@ import os
 import sqlite3
 import sys
 import tempfile
+import time
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.normpath(os.path.join(HERE, "..", "..", "scripts", "matchmaker")))
@@ -42,8 +48,12 @@ class FakeServer:
     """Stands in for the CRM API: fetch_snapshot()/post_ops() are pointed at
     this instead of a real network call. apply_ops() mirrors deploy/api/crm.js's
     own "dispatch"/"dispatch_cancel"/"activity" op handling closely enough for
-    this script's own logic to be exercised end to end, including the second
-    run of a snapshot that now reflects what the first run already did."""
+    this script's own logic to be exercised end to end — including the status
+    transition guard (a pulled or sent row never regresses to queued through
+    the "dispatch" op, and a sent row can never be cancelled) and returning
+    the fresh dispatch snapshot on every POST response, which is what lets
+    crm_pull.py confirm a pulled write against the real response rather than
+    assuming it landed."""
 
     def __init__(self):
         self.dispatch = {}
@@ -53,24 +63,34 @@ class FakeServer:
 
     def snapshot(self):
         return {
-            "dispatch": [dict(r) for r in self.dispatch.values() if r["status"] in ("queued", "pulled")],
+            "dispatch": [dict(r) for r in self.dispatch.values() if r["status"] in ("queued", "pulled", "cancelled")],
             "deals": [dict(d) for d in self.deals.values()],
         }
+
+    def _next_status(self, current, incoming):
+        if current is None:
+            return incoming
+        return incoming if current == "queued" else current
 
     def apply_ops(self, ops):
         self.posted_ops.extend(ops)
         for o in ops:
             if o["op"] == "dispatch":
-                row = self.dispatch.get(o["id"], {})
-                row.update({k: v for k, v in o.items() if k != "op"})
-                self.dispatch[o["id"]] = row
+                row = self.dispatch.get(o["id"])
+                current = row["status"] if row else None
+                next_status = self._next_status(current, o["status"])
+                if row is None:
+                    row = {"id": o["id"]}
+                    self.dispatch[o["id"]] = row
+                row.update({k: v for k, v in o.items() if k not in ("op", "status")})
+                row["status"] = next_status
             elif o["op"] == "dispatch_cancel":
                 row = self.dispatch.get(o["id"])
-                if row:
+                if row and row["status"] != "sent":
                     row["status"] = "cancelled"
             elif o["op"] == "activity":
                 self.activity.append(o)
-        return {"ok": True, "applied": len(ops)}
+        return {"ok": True, "applied": len(ops), "dispatch": [dict(r) for r in self.dispatch.values()]}
 
 
 def make_deals_db(path):
@@ -198,6 +218,12 @@ class Fixture:
             else:
                 os.environ[k] = self._orig[k]
 
+    def add_tenant(self, tid, phone, jid, last_contact=None):
+        tdb = json.load(open(self.tenant_db_path))
+        tdb["tenants"].append({"id": tid, "name": "Bulk Tenant " + tid, "phone": phone,
+                                "jid": jid, "last_contact": last_contact or today_sgt()})
+        json.dump(tdb, open(self.tenant_db_path, "w"))
+
     def queue_items(self):
         if not os.path.exists(self.queue_path):
             return []
@@ -265,13 +291,14 @@ def t_accepted_draft_appended_once_and_marked_pulled():
         matches = [i for i in items if i["tenant_id"] == "T1"]
         assert len(matches) == 1, "the fresh tenant's draft should be appended exactly once"
         assert matches[0]["jid"] == "6591111111@s.whatsapp.net"
+        assert matches[0]["dispatch_id"] == "dispatch_L1_T1", "every appended item must carry its dispatch id"
         assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
         pulled_ops = [o for o in fx.server.posted_ops if o["op"] == "dispatch" and o["id"] == "dispatch_L1_T1"]
         assert len(pulled_ops) == 1
         assert pulled_ops[0]["status"] == "pulled"
     finally:
         fx.restore()
-check("crm_pull --apply: an accepted draft is appended to the queue once and marked pulled", t_accepted_draft_appended_once_and_marked_pulled)
+check("crm_pull --apply: an accepted draft is appended to the queue once, tagged with its dispatch id, and marked pulled", t_accepted_draft_appended_once_and_marked_pulled)
 
 
 def t_second_run_appends_nothing_more():
@@ -283,12 +310,39 @@ def t_second_run_appends_nothing_more():
         crm_pull.main(["--apply"])
         second_items = fx.queue_items()
         assert second_items == first_items, "a second run must never double append the dispatch queue"
-        # Every dispatch row is already pulled or cancelled after the first run, so
-        # the second run has nothing status queued left to act on and posts no ops.
+        # Every dispatch row is already pulled (and already appended) or
+        # cancelled after the first run, so the second run has nothing status
+        # queued left to classify and posts no ops for either one.
         assert len(fx.server.posted_ops) == posted_after_first, "a second run must not repost ops for rows already settled"
     finally:
         fx.restore()
 check("crm_pull --apply: run twice, the second run appends nothing more to the queue", t_second_run_appends_nothing_more)
+
+
+def t_crash_between_marking_pulled_and_appending_recovers_exactly_once():
+    fx = Fixture()
+    try:
+        # Step one only: mark T1 pulled and confirm it against the (fake)
+        # server's response, but never call append_entries — exactly as if
+        # the process died right there, between the two steps.
+        crm_pull.mark_pulled_and_confirm(fx.server.snapshot()["dispatch"], "u", "p", True)
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+        assert fx.queue_items() == [], "nothing should be appended yet — this is the simulated crash point"
+
+        # A full, ordinary second run must recover the still pulled, not yet
+        # appended row (its dispatch id is not in the queue file) and append
+        # it — exactly once overall, not zero and not twice.
+        crm_pull.main(["--apply"])
+        matches = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
+        assert len(matches) == 1, "the crash recovered draft must be appended exactly once overall"
+
+        # A third run changes nothing further.
+        crm_pull.main(["--apply"])
+        matches_again = [i for i in fx.queue_items() if i["tenant_id"] == "T1"]
+        assert len(matches_again) == 1
+    finally:
+        fx.restore()
+check("crm_pull: a crash between marking pulled and appending is recovered by the next run, exactly once", t_crash_between_marking_pulled_and_appending_recovers_exactly_once)
 
 
 def t_completed_deal_imported_once():
@@ -320,6 +374,103 @@ def t_non_completed_deal_ignored():
     finally:
         fx.restore()
 check("crm_pull --apply: a deal not at stage completed is left alone", t_non_completed_deal_ignored)
+
+
+def t_missing_deals_table_skips_with_message():
+    fx = Fixture()
+    try:
+        os.remove(fx.clients_db_path)
+        sqlite3.connect(fx.clients_db_path).close()  # a real db file, but no deals table at all
+        rc = crm_pull.main(["--apply"])
+        assert rc == 0, "a missing deals table must be skipped gracefully, never crash the run"
+        # The dispatch half of the run still has to work regardless.
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+    finally:
+        fx.restore()
+check("crm_pull --apply: a clients.db with no deals table skips import instead of crashing", t_missing_deals_table_skips_with_message)
+
+
+def t_time_budget_skips_remaining_dispatch_rows():
+    fx = Fixture()
+    try:
+        past_deadline = time.monotonic() - 1
+        confirmed, summary = crm_pull.mark_pulled_and_confirm(
+            fx.server.snapshot()["dispatch"], "u", "p", True, deadline=past_deadline)
+        assert summary["time_budget_hit"] is True
+        assert summary["approved"] == 0 and summary["cancelled"] == 0, \
+            "nothing should be classified once the time budget is already spent"
+        assert confirmed == []
+    finally:
+        fx.restore()
+check("crm_pull: a spent time budget skips remaining dispatch rows instead of stalling", t_time_budget_skips_remaining_dispatch_rows)
+
+
+def t_cleanup_removes_queue_item_for_a_row_cancelled_after_being_pulled():
+    fx = Fixture()
+    try:
+        crm_pull.main(["--apply"])  # T1 pulled and appended
+        assert any(i.get("dispatch_id") == "dispatch_L1_T1" for i in fx.queue_items())
+        # Something outside crm_pull.py (a future cancel path, or Winfred
+        # editing the CRM directly) cancels the row after it was appended.
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "cancelled"
+        crm_pull.main(["--apply"])
+        items = fx.queue_items()
+        assert all(i.get("dispatch_id") != "dispatch_L1_T1" for i in items), \
+            "a cancelled row's queue item must be pruned before the real 08:00 send"
+    finally:
+        fx.restore()
+check("crm_pull --apply: cancelling an already pulled row prunes its item from the real dispatch queue", t_cleanup_removes_queue_item_for_a_row_cancelled_after_being_pulled)
+
+
+def t_cleanup_never_touches_items_without_a_dispatch_id():
+    fx = Fixture()
+    try:
+        # A manual queue_drafts.py item, or anything from another producer —
+        # never carries a dispatch_id, so cleanup must leave it alone even if
+        # some unrelated dispatch row happens to be cancelled.
+        queue_drafts.merge_into_queue(
+            [{"tenant_id": "T9", "jid": "6599999999@s.whatsapp.net", "message": "manual item"}],
+            fx.queue_path)
+        fx.server.dispatch["dispatch_L2_T2"]["status"] = "cancelled"
+        crm_pull.main(["--apply"])
+        items = fx.queue_items()
+        assert any(i.get("tenant_id") == "T9" and "dispatch_id" not in i for i in items), \
+            "an item with no dispatch_id must survive cleanup untouched"
+    finally:
+        fx.restore()
+check("crm_pull --apply: cleanup only ever removes items that carry a dispatch id", t_cleanup_never_touches_items_without_a_dispatch_id)
+
+
+def t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows():
+    fx = Fixture()
+    try:
+        # 210 more fresh, clean dispatch rows on top of the fixture's own two.
+        for i in range(210):
+            tid = "TB%03d" % i
+            phone = "9%07d" % i
+            fx.add_tenant(tid, phone, phone + "@s.whatsapp.net")
+            fx.server.dispatch["dispatch_LB_" + tid] = {
+                "id": "dispatch_LB_" + tid, "tenant_id": tid, "listing_id": "LB", "jid": None,
+                "phone": phone, "text": "hi bulk " + tid, "viewing_slot": None,
+                "status": "queued", "device": None,
+            }
+        call_sizes = []
+        real_post_ops = crm_pull.post_ops
+
+        def spy(user, pw, ops):
+            call_sizes.append(len(ops))
+            return real_post_ops(user, pw, ops)
+        crm_pull.post_ops = spy
+        try:
+            crm_pull.main(["--apply"])
+        finally:
+            crm_pull.post_ops = real_post_ops
+        assert call_sizes, "expected at least one POST"
+        assert all(n <= 50 for n in call_sizes), "every POST must be chunked at 50 ops: %r" % call_sizes
+        assert len(call_sizes) >= 5, "212 dispatch rows should need at least 5 chunks of 50: %r" % call_sizes
+    finally:
+        fx.restore()
+check("crm_pull --apply: POSTs are chunked at 50 ops even with far more than 200 rows", t_chunks_posts_at_50_ops_even_with_far_more_than_200_rows)
 
 
 print("=" * 60)

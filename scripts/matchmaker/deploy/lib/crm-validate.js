@@ -74,6 +74,20 @@ export function validateDealFields(o) {
 
 export const DISPATCH_STATUSES = new Set(["queued", "pulled", "sent", "cancelled"]);
 
+// The "dispatch" op's status transition rule, used by its upsert in api/crm.js
+// so a pulled or sent row can never regress back to queued, and a cancelled
+// row cannot be silently resurrected through the same id (queueing it again
+// needs a fresh id, which is a plain insert, not this path). currentStatus is
+// null for a row that does not exist yet (a first insert), which always takes
+// the incoming status as is. dispatch_cancel is a separate op with its own
+// guard in api/crm.js and does not go through this function — a pulled row
+// must still be cancellable (crm_pull.py's own append failed recovery, and
+// cancelling before the 08:00 send), only re queueing is blocked here.
+export function nextDispatchStatus(currentStatus, incomingStatus) {
+  if (currentStatus == null) return incomingStatus;
+  return currentStatus === "queued" ? incomingStatus : currentStatus;
+}
+
 // Validates and normalises one incoming "dispatch" op's fields — a row destined
 // for crm_dispatch. Required: id, tenant_id and text (the drafted message); with
 // no draft text or no tenant to send it to there is nothing usable to queue.

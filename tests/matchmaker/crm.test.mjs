@@ -325,3 +325,99 @@ test("adopt: a snapshot with a real deals array is indexed by id as usual", () =
   A.adopt({ entities: [], notes: [], tasks: [], match: [], activity: [], deals: [{ id: "d9", property: "x" }] });
   assert.deepEqual(A.getDeals(), { d9: { id: "d9", property: "x" } });
 });
+
+// =====================================================================
+// writeDispatchRow / dispatchAlreadyHandled / bulkQueueTargets — a pulled or
+// sent row must never be resent, singly or in a bulk action (PR #132 review
+// fix: the app side half of "a pulled/sent row must never regress to queued").
+// =====================================================================
+const DISPATCH_SRC = slice("function writeDispatchRow(lid, tid) {", "function patchMark(lid, tid, patch) {");
+function makeDispatchHelpers(fakeCRM, fakeData) {
+  return new Function(
+    "CRM", "DATA", "ALL_TENANTS", "draftFor",
+    DISPATCH_SRC + "\nreturn { writeDispatchRow, cancelDispatchRow, dispatchAlreadyHandled, bulkQueueTargets };"
+  )(fakeCRM, fakeData.DATA, fakeData.ALL_TENANTS, fakeData.draftFor);
+}
+
+function fakeCRMWithDispatch(rows) {
+  const upserts = [];
+  return {
+    upserts,
+    dispatchFor(lid, tid) { return rows["dispatch_" + lid + "_" + tid] || null; },
+    upsertDispatch(row) { upserts.push(row); },
+  };
+}
+
+const FAKE_LISTING = { id: "L1", name: "Test Listing" };
+const FAKE_TENANT = { id: "T1", name: "Test Tenant", phone: "91234567" };
+const FAKE_DATA = { DATA: { listings: [FAKE_LISTING], all_tenants: [FAKE_TENANT] }, ALL_TENANTS: [FAKE_TENANT], draftFor: () => "hi there" };
+
+test("dispatchAlreadyHandled: true only once a row is pulled or sent", () => {
+  const crm = fakeCRMWithDispatch({
+    dispatch_L1_T1: { id: "dispatch_L1_T1", status: "queued" },
+    dispatch_L1_T2: { id: "dispatch_L1_T2", status: "pulled" },
+    dispatch_L1_T3: { id: "dispatch_L1_T3", status: "sent" },
+    dispatch_L1_T4: { id: "dispatch_L1_T4", status: "cancelled" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T1"), false);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T2"), true);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T3"), true);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T4"), false);
+  assert.equal(H.dispatchAlreadyHandled("L1", "T9"), false, "no row at all is not handled either");
+});
+
+test("writeDispatchRow: a queued or brand new row is written", () => {
+  const crm = fakeCRMWithDispatch({});
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 1);
+  assert.equal(crm.upserts[0].id, "dispatch_L1_T1");
+  assert.equal(crm.upserts[0].status, "queued");
+});
+
+test("writeDispatchRow: a pulled row is never resent", () => {
+  const crm = fakeCRMWithDispatch({ dispatch_L1_T1: { id: "dispatch_L1_T1", status: "pulled" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 0, "re marking Queued on an already pulled row must not push a dispatch op");
+});
+
+test("writeDispatchRow: a sent row is never resent", () => {
+  const crm = fakeCRMWithDispatch({ dispatch_L1_T1: { id: "dispatch_L1_T1", status: "sent" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 0);
+});
+
+test("writeDispatchRow: a cancelled row CAN be queued again (through the same id, on purpose here)", () => {
+  const crm = fakeCRMWithDispatch({ dispatch_L1_T1: { id: "dispatch_L1_T1", status: "cancelled" } });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.writeDispatchRow("L1", "T1");
+  assert.equal(crm.upserts.length, 1, "a cancelled row is not pulled or sent, so the app may re queue it");
+});
+
+test("bulkQueueTargets: cold pairs and already pulled pairs both drop out, counted separately", () => {
+  const H = makeDispatchHelpers(fakeCRMWithDispatch({}), FAKE_DATA);
+  const set = [
+    { l: { id: "L1" }, t: { id: "T1" } },   // clean — queues
+    { l: { id: "L1" }, t: { id: "T2" } },   // cold
+    { l: { id: "L1" }, t: { id: "T3" } },   // already pulled
+    { l: { id: "L1" }, t: { id: "T4" } },   // clean — queues
+  ];
+  const cold = (l, t) => t.id === "T2";
+  const alreadyHandled = (lid, tid) => tid === "T3";
+  const { target, coldSkipped, pulledSkipped } = H.bulkQueueTargets(set, cold, alreadyHandled);
+  assert.deepEqual(target.map(m => m.t.id), ["T1", "T4"]);
+  assert.equal(coldSkipped, 1);
+  assert.equal(pulledSkipped, 1);
+});
+
+test("bulkQueueTargets: everything already pulled leaves an empty target", () => {
+  const H = makeDispatchHelpers(fakeCRMWithDispatch({}), FAKE_DATA);
+  const set = [{ l: { id: "L1" }, t: { id: "T1" } }];
+  const { target, coldSkipped, pulledSkipped } = H.bulkQueueTargets(set, () => false, () => true);
+  assert.equal(target.length, 0);
+  assert.equal(coldSkipped, 0);
+  assert.equal(pulledSkipped, 1);
+});

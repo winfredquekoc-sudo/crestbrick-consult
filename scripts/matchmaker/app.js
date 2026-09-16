@@ -1781,6 +1781,12 @@ function getMarkV(lid, tid) { const mk = readMark(lid, tid); return mk ? (mk.v |
 // ids, not the full listing/tenant records.
 function writeDispatchRow(lid, tid) {
   if (typeof CRM === "undefined") return;
+  // Once crm_pull.py has taken this row (or, eventually, once it has actually
+  // been sent), re marking Queued must never resend the dispatch op. The
+  // server itself also refuses to regress the status (nextDispatchStatus in
+  // crm-validate.js), but skipping the write here avoids a pointless op and
+  // keeps the local op queue honest about what actually changed.
+  if (dispatchAlreadyHandled(lid, tid)) return;
   const l = (DATA.listings || []).find(x => x.id === lid);
   const t = ALL_TENANTS.find(x => x.id === tid) || (DATA.all_tenants || []).find(x => x.id === tid);
   if (!l || !t) return;
@@ -1798,6 +1804,31 @@ function writeDispatchRow(lid, tid) {
 function cancelDispatchRow(lid, tid, reason) {
   if (typeof CRM === "undefined") return;
   CRM.cancelDispatch("dispatch_" + lid + "_" + tid, reason);
+}
+// True once crm_pull.py has pulled this pair's draft (or, eventually, once it
+// has actually been sent) — the point past which the app must never write a
+// new "Queued" dispatch op for the same pair, and past which the dispatch
+// drawer's own Unqueue button stops being useful (the real queue file on the
+// Mac is the record of truth by then, not this row's local mark).
+function dispatchAlreadyHandled(lid, tid) {
+  if (typeof CRM === "undefined") return false;
+  const row = CRM.dispatchFor(lid, tid);
+  return !!(row && (row.status === "pulled" || row.status === "sent"));
+}
+// Pure so it can be tested without the DOM: given the bulk action's filtered
+// set and the two predicates that already gate a single row's Queued action
+// (coldBlockedFn mirrors coldBlocked, alreadyHandledFn mirrors
+// dispatchAlreadyHandled), returns which rows actually get queued and how
+// many were skipped for each reason, for the bulk modal's own summary toast.
+function bulkQueueTargets(set, coldBlockedFn, alreadyHandledFn) {
+  const target = [];
+  let coldSkipped = 0, pulledSkipped = 0;
+  set.forEach(m => {
+    if (coldBlockedFn(m.l, m.t)) { coldSkipped++; return; }
+    if (alreadyHandledFn(m.l.id, m.t.id)) { pulledSkipped++; return; }
+    target.push(m);
+  });
+  return { target, coldSkipped, pulledSkipped };
 }
 // (70) every mark stamps by:<device name> once one has been set. (13)/(27) a
 // mark write that changes `v` also appends to the history log the funnel
@@ -4485,10 +4516,19 @@ function openDispatchDrawer() {
     '<div class="mut" style="font-size:12px;margin-bottom:10px">send happens via your morning dispatch after crm_pull.py picks this up — nothing sends from this page</div>';
   if (!items.length) html += '<div class="empty">Nothing queued yet. Mark a tenant Queued from the worklist or a listing panel.</div>';
   items.forEach((m, i) => {
+    // Once crm_pull.py has pulled this row (or, eventually, sent it), the
+    // Mac's own morning dispatch queue is the record of truth, not this
+    // drawer — Unqueue here would only clear the local mark and leave the
+    // Mac side queue file untouched, which reads as "cancelled" without
+    // actually stopping anything.
+    const handedOff = dispatchAlreadyHandled(m.l.id, m.t.id);
+    const unqueueHtml = handedOff
+      ? '<span class="btn disabled" title="Already pulled to the Mac, remove it from the morning queue there">Unqueue</span>'
+      : '<button class="btn" data-dunq="' + i + '">Unqueue</button>';
     html += '<div class="row"><div class="nm">' + esc(m.t.name) + '</div><div class="mut" style="font-size:12px">' + esc(m.l.name) + ' · ' + esc(m.l.district) +
       ' · status: ' + esc(dispatchRowStatusLabel(m.l.id, m.t.id)) + '</div>' +
       '<div class="draftbox">' + esc(draftFor(m.l, m.t)) + '</div>' +
-      '<div class="acts"><button class="btn" data-dcopy="' + i + '">Copy</button><button class="btn" data-dunq="' + i + '">Unqueue</button></div></div>';
+      '<div class="acts"><button class="btn" data-dcopy="' + i + '">Copy</button>' + unqueueHtml + '</div></div>';
   });
   html += '<div class="acts" style="margin-top:12px"><button class="btn full" data-closedrawer="1">Close</button></div></div>';
   wrap.innerHTML = html;
@@ -4892,13 +4932,20 @@ function openBulkActionModal() {
     const patch = { v: chosenV };
     if (chosenV === "Not interested") patch.reason = wrap.querySelector("[data-bulkreason]").value;
     wrap.remove();
-    // Bulk Queued is still an outbound action: cold pairs drop out of the set
-    // rather than the whole bulk being refused. Contacted / Not interested are
-    // bookkeeping and apply to everything as before.
-    const target = chosenV === "Queued" ? set.filter(m => !coldBlocked(m.l, m.t)) : set;
-    if (!target.length) { toast("Every row in that set is quiet over 30 days — nothing queued"); return; }
-    const skipped = set.length - target.length;
-    bulkApplyMark(target, patch, chosenV + " applied to " + target.length + " rows" + (skipped ? (" (" + skipped + " cold skipped)") : ""));
+    // Bulk Queued is still an outbound action: cold pairs and pairs already
+    // pulled to the Mac both drop out of the set rather than the whole bulk
+    // being refused or resending a dispatch op crm_pull.py has already acted
+    // on. Contacted / Not interested are bookkeeping and apply to everything.
+    if (chosenV === "Queued") {
+      const { target, coldSkipped, pulledSkipped } = bulkQueueTargets(set, coldBlocked, dispatchAlreadyHandled);
+      if (!target.length) { toast("Every row in that set is quiet over 30 days or already pulled — nothing queued"); return; }
+      const parts = [];
+      if (coldSkipped) parts.push(coldSkipped + " cold skipped");
+      if (pulledSkipped) parts.push(pulledSkipped + " already pulled");
+      bulkApplyMark(target, patch, chosenV + " applied to " + target.length + " rows" + (parts.length ? (" (" + parts.join(", ") + ")") : ""));
+      return;
+    }
+    bulkApplyMark(set, patch, chosenV + " applied to " + set.length + " rows");
   };
   wrap.querySelector("[data-cancel]").onclick = () => wrap.remove();
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };

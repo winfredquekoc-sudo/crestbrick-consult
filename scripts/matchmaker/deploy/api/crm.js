@@ -14,7 +14,7 @@
 // function already passed the wall, and a second scheme would be another thing to
 // get wrong. Never loosen middleware.js's matcher to exclude /api.
 import { db, ensureSchema, configured } from "../lib/db.js";
-import { STAGES, KINDS, str, date, bool, validateDealFields, validateDispatchFields } from "../lib/crm-validate.js";
+import { STAGES, KINDS, str, date, bool, validateDealFields, validateDispatchFields, nextDispatchStatus } from "../lib/crm-validate.js";
 
 const MAX_OPS = 200;
 
@@ -56,14 +56,18 @@ async function snapshot(client) {
                          to_char(deal_date,'YYYY-MM-DD') as deal_date, notes,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at
                   from crm_deal order by created_at desc limit 2000`),
-    // Only queued and pulled rows — a sent or cancelled row has nothing left
-    // for either the app or crm_pull.py to act on, so it is left out of the
-    // payload the same way notes/tasks/activity are capped above, rather than
-    // growing this endpoint's response with a table that never gets pruned.
+    // queued, pulled and cancelled rows. A sent row has nothing left for
+    // either the app or crm_pull.py to act on, so that one status is left out
+    // of the payload the same way notes/tasks/activity are capped above,
+    // rather than growing this endpoint's response with a table that never
+    // gets pruned. cancelled has to stay in, even though nothing acts on most
+    // of them either: crm_pull.py's own cleanup step needs to see a row that
+    // was cancelled after already being pulled and appended, so it can remove
+    // the matching item from the real morning dispatch queue before 08:00.
     client.query(`select id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at,
                          to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at
-                  from crm_dispatch where status in ('queued','pulled')
+                  from crm_dispatch where status in ('queued','pulled','cancelled')
                   order by created_at desc limit 2000`),
   ]);
   return {
@@ -241,32 +245,44 @@ async function applyOp(client, o) {
     case "dispatch": {
       const d = validateDispatchFields(o);
       if (!d) return 0;
+      // Read the current status first so nextDispatchStatus (crm-validate.js)
+      // decides the real write, not the SQL text — a pulled or sent row must
+      // never regress to queued through this op, and a cancelled row cannot
+      // be resurrected through the same id (a fresh id is a plain insert,
+      // which never reaches this branch of the query below).
+      const cur = await client.query(`select status from crm_dispatch where id = $1`, [d.id]);
+      const currentStatus = cur.rows[0] ? cur.rows[0].status : null;
+      const nextStatus = nextDispatchStatus(currentStatus, d.status);
       await client.query(
         `insert into crm_dispatch (id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device, pulled_at)
          values ($1,$2,$3,$4,$5,$6,$7,$8,$9, case when $8 = 'pulled' then now() else null end)
          on conflict (id) do update set
            tenant_id = excluded.tenant_id, listing_id = excluded.listing_id, jid = excluded.jid,
            phone = excluded.phone, text = excluded.text, viewing_slot = excluded.viewing_slot,
-           status = excluded.status, device = coalesce(excluded.device, crm_dispatch.device),
-           pulled_at = case when excluded.status = 'pulled' and crm_dispatch.pulled_at is null
+           status = $8, device = coalesce(excluded.device, crm_dispatch.device),
+           pulled_at = case when $8 = 'pulled' and crm_dispatch.pulled_at is null
                             then now() else crm_dispatch.pulled_at end`,
-        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, d.status, d.device]
+        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
-        [d.tenant_id, "dispatch:" + d.status, (d.viewing_slot || d.text || "dispatch").slice(0, 120)]);
+        [d.tenant_id, "dispatch:" + nextStatus, (d.viewing_slot || d.text || "dispatch").slice(0, 120)]);
       return 1;
     }
     // A row the app unqueued, or a check in queue_drafts.py refused (dead lead,
-    // unverifiable recency, already queued elsewhere) — there is no reason
-    // column on crm_dispatch, so the reason rides on the activity row instead,
-    // the same way a deal's own free text lives in notes rather than a fixed
-    // column per possible field.
+    // unverifiable recency, already queued elsewhere), or crm_pull.py's own
+    // append failed recovery — there is no reason column on crm_dispatch, so
+    // the reason rides on the activity row instead, the same way a deal's own
+    // free text lives in notes rather than a fixed column per possible field.
+    // A row already sent is left alone (status != 'sent') — cancelling after
+    // the message has actually gone out would only mislead whoever reads the
+    // status later, not stop anything.
     case "dispatch_cancel": {
       const id = str(o.id, 60);
       if (!id) return 0;
       const upd = await client.query(
-        `update crm_dispatch set status = 'cancelled' where id = $1 returning tenant_id`, [id]);
-      const tenant_id = upd.rows[0] && upd.rows[0].tenant_id;
+        `update crm_dispatch set status = 'cancelled' where id = $1 and status != 'sent' returning tenant_id`, [id]);
+      if (!upd.rowCount) return 0;
+      const tenant_id = upd.rows[0].tenant_id;
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
         [tenant_id || null, "dispatch:cancelled", str(o.reason, 500) || ""]);
       return upd.rowCount;

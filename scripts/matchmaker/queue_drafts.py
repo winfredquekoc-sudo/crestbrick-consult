@@ -133,7 +133,16 @@ def merge_into_queue(to_queue, queue_path):
         now = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8)))
         q = {"created": now.isoformat(timespec="seconds"), "items": []}
     for a in to_queue:
-        q["items"].append({"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]})
+        item = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
+        # Set only by crm_pull.py (CRM pull bridge): the crm_dispatch row id
+        # this item came from, so a later run can tell "already delivered"
+        # apart from "still pulled but never actually appended" and prune a
+        # cancelled row's item back out before it sends. Absent for every
+        # other producer of this file (the manual queue_drafts.py flow
+        # included), so their items keep exactly the 4 fields they always had.
+        if a.get("dispatch_id"):
+            item["dispatch_id"] = a["dispatch_id"]
+        q["items"].append(item)
     os.makedirs(os.path.dirname(queue_path), exist_ok=True)
     tmp = queue_path + ".tmp"
     json.dump(q, open(tmp, "w"), indent=1, ensure_ascii=False)

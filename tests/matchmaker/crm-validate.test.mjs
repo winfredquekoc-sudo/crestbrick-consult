@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   str, date, bool, num, validateDealFields, DEAL_TYPES, DEAL_STAGES, KINDS,
-  validateDispatchFields, DISPATCH_STATUSES,
+  validateDispatchFields, DISPATCH_STATUSES, nextDispatchStatus,
 } from "../../scripts/matchmaker/deploy/lib/crm-validate.js";
 
 test("str: trims, caps length, blank/whitespace-only becomes null", () => {
@@ -164,4 +164,34 @@ test("validateDispatchFields: optional fields (listing_id, jid, phone, viewing_s
   assert.equal(d.phone, null);
   assert.equal(d.viewing_slot, null);
   assert.equal(d.device, null);
+});
+
+// =====================================================================
+// nextDispatchStatus — the "dispatch" op's status transition rule, used by
+// its upsert in api/crm.js so a pulled or sent row never regresses to
+// queued, and a cancelled row cannot be resurrected through the same id.
+// =====================================================================
+
+test("nextDispatchStatus: a row that does not exist yet always takes the incoming status", () => {
+  assert.equal(nextDispatchStatus(null, "queued"), "queued");
+  assert.equal(nextDispatchStatus(null, "pulled"), "pulled");
+});
+
+test("nextDispatchStatus: a queued row can move anywhere, including staying queued", () => {
+  assert.equal(nextDispatchStatus("queued", "pulled"), "pulled");
+  assert.equal(nextDispatchStatus("queued", "cancelled"), "cancelled");
+  assert.equal(nextDispatchStatus("queued", "queued"), "queued");
+});
+
+test("nextDispatchStatus: a pulled row never regresses to queued through this op", () => {
+  assert.equal(nextDispatchStatus("pulled", "queued"), "pulled");
+});
+
+test("nextDispatchStatus: a sent row never regresses to queued through this op", () => {
+  assert.equal(nextDispatchStatus("sent", "queued"), "sent");
+});
+
+test("nextDispatchStatus: a cancelled row cannot be re queued through the same id", () => {
+  assert.equal(nextDispatchStatus("cancelled", "queued"), "cancelled");
+  assert.equal(nextDispatchStatus("cancelled", "pulled"), "cancelled");
 });
