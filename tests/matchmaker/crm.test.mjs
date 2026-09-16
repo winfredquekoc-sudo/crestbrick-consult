@@ -336,7 +336,7 @@ const DISPATCH_SRC = slice("function writeDispatchRow(lid, tid) {", "function pa
 function makeDispatchHelpers(fakeCRM, fakeData) {
   return new Function(
     "CRM", "DATA", "ALL_TENANTS", "draftFor",
-    DISPATCH_SRC + "\nreturn { writeDispatchRow, cancelDispatchRow, dispatchAlreadyHandled, dispatchHandedOffToMac, bulkQueueTargets };"
+    DISPATCH_SRC + "\nreturn { writeDispatchRow, cancelDispatchRow, dispatchAlreadyHandled, dispatchHandedOffToMac, dispatchIsAmbiguous, resolveAmbiguousSent, resolveAmbiguousNotSent, bulkQueueTargets };"
   )(fakeCRM, fakeData.DATA, fakeData.ALL_TENANTS, fakeData.draftFor);
 }
 
@@ -448,6 +448,61 @@ test("cancelDispatchRow: cancels the newest attempt for the pair, not a guessed 
   const cancelOps = crm.upserts.filter(o => o.op === "cancel");
   assert.equal(cancelOps.length, 1);
   assert.equal(cancelOps[0].id, "dispatch_L1_T1_2000", "must cancel the newest attempt, not the already settled older one");
+});
+
+// =====================================================================
+// dispatchIsAmbiguous / resolveAmbiguousSent / resolveAmbiguousNotSent
+// (PR #132 fifth review round) — the dispatch drawer's "Needs a check"
+// state for a pulled row crm_pull.py stamped ambiguous_since on rather than
+// confidently marking sent or leaving to expire.
+// =====================================================================
+test("dispatchIsAmbiguous: true only for a pulled row with ambiguous_since set", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+    d2: { id: "d2", listing_id: "L1", tenant_id: "T2", status: "pulled" },
+    d3: { id: "d3", listing_id: "L1", tenant_id: "T3", status: "sent", ambiguous_since: "2026-09-16T00:00:00Z" },
+    d4: { id: "d4", listing_id: "L1", tenant_id: "T4", status: "queued" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  assert.equal(H.dispatchIsAmbiguous("L1", "T1"), true, "pulled with ambiguous_since is the drawer's Needs a check state");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T2"), false, "plain pulled, never flagged, is not ambiguous");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T3"), false, "already resolved to sent must not still read as ambiguous");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T4"), false, "queued is never ambiguous");
+  assert.equal(H.dispatchIsAmbiguous("L1", "T9"), false, "no row at all is not ambiguous either");
+});
+
+test("resolveAmbiguousSent: moves the same row straight to sent, never a new id", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z", tenant_id_dup: null },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousSent("L1", "T1");
+  assert.equal(crm.upserts.length, 1);
+  assert.equal(crm.upserts[0].id, "d1", "Sent resolves the SAME row, it never writes a fresh attempt");
+  assert.equal(crm.upserts[0].status, "sent");
+});
+
+test("resolveAmbiguousSent: no row for the pair is a no-op", () => {
+  const crm = fakeCRMWithDispatch({});
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousSent("L1", "T9");
+  assert.equal(crm.upserts.length, 0);
+});
+
+test("resolveAmbiguousNotSent: cancels the row with an operator reason, unblocking a fresh Mark Queued", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousNotSent("L1", "T1");
+  const cancelOps = crm.upserts.filter(o => o.op === "cancel");
+  assert.equal(cancelOps.length, 1);
+  assert.equal(cancelOps[0].id, "d1");
+  assert.equal(cancelOps[0].reason, "operator: not sent");
+  // cancelDispatch's fake, mirroring the real one, flips the row to
+  // cancelled — dispatchAlreadyHandled only ever blocks on queued/pulled,
+  // so a fresh Mark Queued for this pair is allowed again immediately.
+  assert.equal(H.dispatchAlreadyHandled("L1", "T1"), false, "cancelled must unblock a fresh Mark Queued for the pair");
 });
 
 test("bulkQueueTargets: cold pairs and already pulled pairs both drop out, counted separately", () => {

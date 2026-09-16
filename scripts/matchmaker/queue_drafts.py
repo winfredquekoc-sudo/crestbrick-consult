@@ -9,13 +9,50 @@ Usage:
   python3 scripts/matchmaker/queue_drafts.py exported-queue.json
   cat exported-queue.json | python3 scripts/matchmaker/queue_drafts.py [--yes]
 """
-import argparse, datetime, fcntl, json, os, sys
+import argparse, datetime, fcntl, json, os, sys, time
 import enrich
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
 TENANT_DB_PATH = os.path.join(ROOT, "_templates/tenant-db.json")
 WA_DB_PATH = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 QUEUE_PATH = os.path.expanduser("~/.claude/state/morning-dispatch-queue.json")
+LOCK_TIMEOUT_SECONDS = 120     # give up waiting for <queue file>.lock rather than block forever
+LOCK_POLL_SECONDS = 0.5        # LOCK_NB poll interval while waiting for the lock
+
+
+def _acquire_lock(lock_path, timeout=None, poll=None):
+    """Opens lock_path and takes the exclusive fcntl lock, polling with
+    LOCK_NB rather than blocking forever — the same shape as crm_pull.py's
+    own _acquire_lock (duplicated here rather than imported, since crm_pull
+    imports this module, not the other way around). Gives up after timeout
+    seconds and returns None; the caller logs "queue lock busy, skipping
+    this run" and treats that as nothing to do, never as an error. Returns
+    the open, locked file object on success — the caller owns unlocking and
+    closing it.
+
+    timeout/poll default to the LOCK_TIMEOUT_SECONDS/LOCK_POLL_SECONDS
+    MODULE GLOBALS, read at call time rather than bound as ordinary default
+    argument values (which Python evaluates once, at function definition
+    time) — a test overriding those globals to run this on a short fuse
+    must actually take effect on every call."""
+    if timeout is None:
+        timeout = LOCK_TIMEOUT_SECONDS
+    if poll is None:
+        poll = LOCK_POLL_SECONDS
+    lock_dir = os.path.dirname(lock_path)
+    if lock_dir:
+        os.makedirs(lock_dir, exist_ok=True)
+    lockf = open(lock_path, "a+")
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            fcntl.flock(lockf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return lockf
+        except OSError:
+            if time.monotonic() >= deadline:
+                lockf.close()
+                return None
+            time.sleep(poll)
 # Named DEAD, not COLD, on purpose — mirroring scoring.js's split of the same two
 # ideas. Collapsing them onto one constant is a bug this codebase has already had
 # once: the app hard blocked outreach at the COLD value and gagged 155 of 218 tenants
@@ -204,69 +241,100 @@ def main():
     # inheriting whatever TZ the invoking shell/cron happens to carry.
     today = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).date()
 
-    # The duplicate set (pending_recipients) must be read under the SAME lock
-    # that protects the eventual append (merge_into_queue), and held without a
-    # gap between the two — otherwise a second CLI run, or crm_pull.py's own
-    # append, can slot a row in between this run's duplicate read and its
-    # write, and the same tenant reaches the queue twice. Acquired here, once,
-    # before classify_items even looks at the queue file, and released only
-    # after merge_into_queue's own write (or a return with nothing to write) —
-    # a concurrent run genuinely blocks on this the whole time, including
-    # through the (optional) per item confirmation prompt below, rather than
-    # merely being unlucky not to interleave.
+    # The duplicate set (pending_recipients) must be read under a lock that
+    # also protects a write — otherwise a second CLI run, or crm_pull.py's
+    # own append, can slot a row in between a read and a write and the same
+    # tenant reaches the queue twice. This used to mean one lock held from
+    # before classify_items right through the (optional) per item
+    # confirmation prompt below — but that prompt waits on a human, for as
+    # long as a human takes, and every other writer (crm_pull.py's own timed
+    # slots included) would sit blocked on this lock the whole time a queue
+    # is sitting at a prompt. So the lock is now taken twice instead: once,
+    # briefly, for the classify pass below (fifth review round), released
+    # before the prompt ever runs; and again, only around the final re
+    # check and the append itself, once an operator has actually answered.
+    # A lock busy past LOCK_TIMEOUT_SECONDS either time is never worth
+    # waiting out — see _acquire_lock — this run just logs and gives up,
+    # nothing done, exactly as safe as if it had never started.
     lock_path = QUEUE_PATH + ".lock"
-    os.makedirs(os.path.dirname(lock_path), exist_ok=True)
-    with open(lock_path, "a+") as lockf:
-        fcntl.flock(lockf, fcntl.LOCK_EX)
-        try:
-            queued_ids, queued_jids = pending_recipients(QUEUE_PATH)
-            approved, refused, skipped, duplicates = classify_items(
-                items, tenants_by_id, wa_conn, today, queued_ids, queued_jids)
-            if wa_conn: wa_conn.close()
+    lockf = _acquire_lock(lock_path)
+    if lockf is None:
+        print("queue lock busy, skipping this run"); return
+    try:
+        queued_ids, queued_jids = pending_recipients(QUEUE_PATH)
+        approved, refused, skipped, duplicates = classify_items(
+            items, tenants_by_id, wa_conn, today, queued_ids, queued_jids)
+    finally:
+        fcntl.flock(lockf, fcntl.LOCK_UN)
+        lockf.close()
+    if wa_conn: wa_conn.close()
 
-            print(f"\n{len(approved)} ready to queue, {len(refused)} refused (dead-lead rule), "
-                  f"{len(duplicates)} already queued, {len(skipped)} skipped (no id/jid)\n")
-            for tid, name, reason in skipped:
-                print(f"  SKIP    {name} ({tid}): {reason}")
-            for tid, name, reason in refused:
-                print(f"  REFUSE  {name} ({tid}): {reason}")
-            for tid, name, reason in duplicates:
-                print(f"  DUP     {name} ({tid}): {reason}")
-            for a in approved:
-                print(f"  READY   {a['name']}  {a['phone']}\n          {a['message']}\n")
+    print(f"\n{len(approved)} ready to queue, {len(refused)} refused (dead-lead rule), "
+          f"{len(duplicates)} already queued, {len(skipped)} skipped (no id/jid)\n")
+    for tid, name, reason in skipped:
+        print(f"  SKIP    {name} ({tid}): {reason}")
+    for tid, name, reason in refused:
+        print(f"  REFUSE  {name} ({tid}): {reason}")
+    for tid, name, reason in duplicates:
+        print(f"  DUP     {name} ({tid}): {reason}")
+    for a in approved:
+        print(f"  READY   {a['name']}  {a['phone']}\n          {a['message']}\n")
 
-            if not approved:
-                print("nothing to queue."); return
+    if not approved:
+        print("nothing to queue."); return
 
-            if args.dry_run:
-                # Never touches QUEUE_PATH and never calls input() — the whole point of
-                # --dry-run is a safe preview of exactly what a real run would append,
-                # in the same per-item shape merge_into_queue() itself writes (see its
-                # own q["items"].append(...) call below), without risking a stray
-                # Enter keypress queuing something for real during a rehearsal.
-                print(f"DRY RUN — would append {len(approved)} item(s) to {QUEUE_PATH} (nothing written, nothing sent):\n")
-                for a in approved:
-                    would_append = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
-                    print("  WOULD APPEND " + json.dumps(would_append, ensure_ascii=False))
-                return
+    if args.dry_run:
+        # Never touches QUEUE_PATH and never calls input() — the whole point of
+        # --dry-run is a safe preview of exactly what a real run would append,
+        # in the same per-item shape merge_into_queue() itself writes (see its
+        # own q["items"].append(...) call below), without risking a stray
+        # Enter keypress queuing something for real during a rehearsal.
+        print(f"DRY RUN — would append {len(approved)} item(s) to {QUEUE_PATH} (nothing written, nothing sent):\n")
+        for a in approved:
+            would_append = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
+            print("  WOULD APPEND " + json.dumps(would_append, ensure_ascii=False))
+        return
 
-            if args.yes:
-                to_queue = approved
-            else:
-                to_queue = []
-                for a in approved:
-                    ans = input(f"Queue to {a['name']} ({a['phone']})? [y/N]: ").strip().lower()
-                    if ans in ("y", "yes"):
-                        to_queue.append(a)
+    # No lock held here: this is exactly the interactive y/N prompt (or, with
+    # --yes, an instant pass-through) that must never keep another writer
+    # blocked on the queue lock while it waits on a human.
+    if args.yes:
+        to_queue = approved
+    else:
+        to_queue = []
+        for a in approved:
+            ans = input(f"Queue to {a['name']} ({a['phone']})? [y/N]: ").strip().lower()
+            if ans in ("y", "yes"):
+                to_queue.append(a)
 
-            if not to_queue:
-                print("nothing confirmed — queue unchanged."); return
+    if not to_queue:
+        print("nothing confirmed — queue unchanged."); return
 
-            merge_into_queue(to_queue, QUEUE_PATH, held_lock=lockf)
-            print(f"queued {len(to_queue)} item(s) to {QUEUE_PATH}")
-            print("nothing was sent — the morning dispatch job (or Winfred, by hand) sends these.")
-        finally:
-            fcntl.flock(lockf, fcntl.LOCK_UN)
+    # Re acquire the lock and re check duplicates before the real append —
+    # the queue file (and therefore what counts as a duplicate) can have
+    # changed while this run sat at the prompt: crm_pull.py's own append, or
+    # another queue_drafts.py invocation, may have queued the same tenant or
+    # jid in the meantime. A row that changed is never appended anyway — it
+    # is reported and dropped, not silently sent a second time.
+    lockf2 = _acquire_lock(lock_path)
+    if lockf2 is None:
+        print("queue lock busy, skipping this run"); return
+    try:
+        queued_ids2, queued_jids2 = pending_recipients(QUEUE_PATH)
+        changed = [a for a in to_queue if a["tenant_id"] in queued_ids2 or a["jid"] in queued_jids2]
+        still_ok = [a for a in to_queue if a not in changed]
+        if changed:
+            print(f"\n{len(changed)} row(s) became duplicates while waiting for confirmation — not appending them:")
+            for a in changed:
+                print(f"  ABORT   {a['name']} ({a['phone']}): now already queued elsewhere, since this run started")
+        if not still_ok:
+            print("nothing left to queue after re checking duplicates."); return
+        merge_into_queue(still_ok, QUEUE_PATH, held_lock=lockf2)
+        print(f"queued {len(still_ok)} item(s) to {QUEUE_PATH}")
+        print("nothing was sent — the morning dispatch job (or Winfred, by hand) sends these.")
+    finally:
+        fcntl.flock(lockf2, fcntl.LOCK_UN)
+        lockf2.close()
 
 
 if __name__ == "__main__":

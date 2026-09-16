@@ -126,3 +126,17 @@ export function validateDispatchFields(o) {
     device: str(o.device, 80),
   };
 }
+
+// Validates the "ambiguous" op's only field. This op never writes
+// crm_dispatch.status — nextDispatchStatus's transition table above is
+// unchanged by it — it only stamps ambiguous_since once on a row still
+// pulled, the moment crm_pull.py finds an archive it cannot fully trust
+// (see MIN_SENT_ARCHIVE_AGE and the queue-file-and-archive-at-once case in
+// its own docstring). That is what lets the dispatch drawer show Winfred a
+// Sent / Not sent check instead of the row silently getting the same
+// inconclusive check run against it, forever, run after run.
+export function validateAmbiguousFields(o) {
+  const id = str(o && o.id, 60);
+  if (!id) return null;
+  return { id };
+}

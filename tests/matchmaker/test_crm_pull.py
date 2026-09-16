@@ -37,6 +37,7 @@ deals table / blackout / time budget cases from earlier review rounds.
 
 All fixture people are invented (SG plausible, obviously fake).
 """
+import builtins
 import contextlib
 import datetime
 import fcntl
@@ -138,6 +139,14 @@ class FakeServer:
                 row = self.dispatch.get(o["id"])
                 if row and row["status"] != "sent":
                     row["status"] = "cancelled"
+            elif o["op"] == "ambiguous":
+                # Mirrors api/crm.js's own guard: only a still 'pulled' row is
+                # stamped, and only the first time — a redundant POST must
+                # never reset the clock on when an operator was first asked
+                # to look at it.
+                row = self.dispatch.get(o["id"])
+                if row and row["status"] == "pulled" and not row.get("ambiguous_since"):
+                    row["ambiguous_since"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
             elif o["op"] == "activity":
                 self.activity.append(o)
         return {"ok": True, "applied": len(ops), "dispatch": [dict(r) for r in self.dispatch.values()]}
@@ -839,6 +848,211 @@ def t_row_in_both_queue_file_and_archive_is_ambiguous():
     finally:
         fx.restore()
 check("(m) a row sitting in both the queue file and an archive is ambiguous — never marked sent from the archive", t_row_in_both_queue_file_and_archive_is_ambiguous)
+
+
+# ---- (m2) an ambiguous row is not a permanent dead end: flagged once, ----
+# ---- left alone on every later run (PR #132 fifth review round) --------
+def t_ambiguous_row_flagged_once_stays_pulled_across_three_runs():
+    fx = Fixture()
+    try:
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx)
+        # Same too-close-to-trust archive as test (l) above.
+        fx.write_archive(archive_stamp(fx, minutes_from_now=2), ["dispatch_L1_T1"])
+
+        crm_pull.main(["--apply"])
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+        assert fx.server.dispatch["dispatch_L1_T1"].get("ambiguous_since"), \
+            "the first run that finds this row ambiguous must flag it on the server"
+        ambiguous_ops = [o for o in fx.server.posted_ops if o["op"] == "ambiguous" and o["id"] == "dispatch_L1_T1"]
+        assert len(ambiguous_ops) == 1, "exactly one ambiguous op must be posted for this row"
+        stamp_after_first_run = fx.server.dispatch["dispatch_L1_T1"]["ambiguous_since"]
+
+        # Two further runs: the row must stay pulled, never re evaluated
+        # (no further ambiguous/sent/cancel op posted for it), and the
+        # server's own stamp must never be disturbed once set.
+        for _ in range(2):
+            crm_pull.main(["--apply"])
+            assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
+                "an ambiguous row must stay pulled indefinitely, not just for one run"
+            assert fx.server.dispatch["dispatch_L1_T1"]["ambiguous_since"] == stamp_after_first_run, \
+                "a later run must never re stamp (or otherwise touch) ambiguous_since"
+
+        ambiguous_ops = [o for o in fx.server.posted_ops if o["op"] == "ambiguous" and o["id"] == "dispatch_L1_T1"]
+        assert len(ambiguous_ops) == 1, \
+            "crm_pull.py must never touch an already ambiguous row again — no repeat ambiguous op across three runs"
+        cancel_or_sent_ops = [o for o in fx.server.posted_ops
+                               if (o.get("id") == "dispatch_L1_T1" and o["op"] == "dispatch_cancel")
+                               or (o.get("id") == "dispatch_L1_T1" and o["op"] == "dispatch" and o.get("status") == "sent")]
+        assert cancel_or_sent_ops == [], "crm_pull.py itself must never resolve an ambiguous row — only an operator does"
+        matches = [i for i in fx.queue_items() if i.get("dispatch_id") == "dispatch_L1_T1"]
+        assert matches == [], "an ambiguous row must never be appended to the queue on its own"
+    finally:
+        fx.restore()
+check("(m2) an ambiguous row is flagged once and stays pulled across three runs, never re touched by crm_pull.py itself", t_ambiguous_row_flagged_once_stays_pulled_across_three_runs)
+
+
+# ---- (m3) operator resolves ambiguous as Not sent: a fresh Mark Queued --
+# ---- for the same pair reaches the Mac exactly once (fifth review round) --
+def t_ambiguous_resolved_not_sent_then_fresh_requeue_appended_once():
+    fx = Fixture()
+    try:
+        # Simulate crm_pull.py already having flagged this row ambiguous on
+        # an earlier run (see (m2) above) — status stays pulled, with
+        # ambiguous_since already set.
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx)
+        fx.server.dispatch["dispatch_L1_T1"]["ambiguous_since"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+        # A run in between must leave it exactly alone.
+        crm_pull.main(["--apply"])
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+
+        # Operator resolution in the app: "Not sent" — dispatch_cancel with
+        # the operator's own reason (see app.js's resolveAmbiguousNotSent).
+        fx.server.apply_ops([{"op": "dispatch_cancel", "id": "dispatch_L1_T1", "reason": "operator: not sent"}])
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "cancelled"
+
+        # A fresh Mark Queued for the SAME pair always writes a brand new
+        # dispatch id (app.js's writeDispatchRow never reuses an old one) —
+        # cancelled unblocks this exactly like any other cancelled row.
+        new_id = "dispatch_L1_T1_" + str(int(time.time() * 1000))
+        fx.server.apply_ops([{
+            "op": "dispatch", "id": new_id, "tenant_id": "T1", "listing_id": "L1",
+            "jid": None, "phone": "91111111", "text": "a fresh attempt after Not sent",
+            "viewing_slot": None, "status": "queued", "device": None,
+        }])
+
+        crm_pull.main(["--apply"])
+
+        matches = [i for i in fx.queue_items() if i.get("dispatch_id") == new_id]
+        assert len(matches) == 1, "the fresh requeue must reach the real dispatch queue exactly once"
+        old_matches = [i for i in fx.queue_items() if i.get("dispatch_id") == "dispatch_L1_T1"]
+        assert old_matches == [], "the old, resolved ambiguous row must never itself be appended"
+        assert fx.server.dispatch[new_id]["status"] == "pulled"
+
+        # A second run must not append it again.
+        crm_pull.main(["--apply"])
+        matches_again = [i for i in fx.queue_items() if i.get("dispatch_id") == new_id]
+        assert len(matches_again) == 1, "a second run must never double append the fresh requeue"
+    finally:
+        fx.restore()
+check("(m3) operator resolves ambiguous as Not sent, unblocking a fresh Mark Queued that is appended exactly once", t_ambiguous_resolved_not_sent_then_fresh_requeue_appended_once)
+
+
+# ---- lock timeout (fifth review round): a busy queue lock is never worth --
+# ---- waiting out forever, on either script -------------------------------
+def t_crm_pull_lock_busy_skips_run_and_exits_0():
+    fx = Fixture()
+    try:
+        orig_timeout, orig_poll = crm_pull.LOCK_TIMEOUT_SECONDS, crm_pull.LOCK_POLL_SECONDS
+        crm_pull.LOCK_TIMEOUT_SECONDS, crm_pull.LOCK_POLL_SECONDS = 0.3, 0.05
+        lock_path = fx.queue_path + ".lock"
+        os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+        holder = open(lock_path, "a+")
+        fcntl.flock(holder, fcntl.LOCK_EX)
+        try:
+            buf = io.StringIO()
+            with contextlib.redirect_stdout(buf):
+                rc = crm_pull.main(["--apply"])
+            assert rc == 0, "a busy lock must never fail the run — it is always safe to try again next run"
+            assert "queue lock busy, skipping this run" in buf.getvalue()
+            assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "queued", \
+                "nothing may be touched when the lock cannot be acquired in time"
+            assert fx.queue_items() == [], "nothing may be appended when the lock cannot be acquired in time"
+        finally:
+            fcntl.flock(holder, fcntl.LOCK_UN)
+            holder.close()
+            crm_pull.LOCK_TIMEOUT_SECONDS, crm_pull.LOCK_POLL_SECONDS = orig_timeout, orig_poll
+    finally:
+        fx.restore()
+check("crm_pull: a busy queue lock past its timeout logs plainly and exits 0, touching nothing", t_crm_pull_lock_busy_skips_run_and_exits_0)
+
+
+def t_queue_drafts_lock_busy_skips_run():
+    fx = Fixture()
+    try:
+        orig_timeout, orig_poll = queue_drafts.LOCK_TIMEOUT_SECONDS, queue_drafts.LOCK_POLL_SECONDS
+        queue_drafts.LOCK_TIMEOUT_SECONDS, queue_drafts.LOCK_POLL_SECONDS = 0.3, 0.05
+        lock_path = fx.queue_path + ".lock"
+        os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+        holder = open(lock_path, "a+")
+        fcntl.flock(holder, fcntl.LOCK_EX)
+        try:
+            payload = {"items": [{"tenant_id": "T1", "phone": "91111111", "name": "Tenant One", "message": "hi"}]}
+            orig_argv, orig_stdin = sys.argv, sys.stdin
+            sys.argv = ["queue_drafts.py", "--yes"]
+            sys.stdin = io.StringIO(json.dumps(payload))
+            buf = io.StringIO()
+            try:
+                with contextlib.redirect_stdout(buf):
+                    queue_drafts.main()
+            finally:
+                sys.argv, sys.stdin = orig_argv, orig_stdin
+            assert "queue lock busy, skipping this run" in buf.getvalue()
+            assert not os.path.exists(fx.queue_path), "nothing may be written when the lock cannot be acquired"
+        finally:
+            fcntl.flock(holder, fcntl.LOCK_UN)
+            holder.close()
+            queue_drafts.LOCK_TIMEOUT_SECONDS, queue_drafts.LOCK_POLL_SECONDS = orig_timeout, orig_poll
+    finally:
+        fx.restore()
+check("queue_drafts: a busy queue lock past its timeout logs plainly and returns, writing nothing", t_queue_drafts_lock_busy_skips_run)
+
+
+def t_queue_drafts_does_not_hold_lock_across_prompt_and_recheck_catches_concurrent_dup():
+    fx = Fixture()
+    try:
+        payload = {"items": [{"tenant_id": "T1", "phone": "91111111", "name": "Tenant One", "message": "hi T1"}]}
+        lock_path = fx.queue_path + ".lock"
+        calls = []
+
+        def fake_input(prompt):
+            calls.append(prompt)
+            # The lock must already be released by the time this "human" is
+            # being asked — proven by acquiring it ourselves, non blocking,
+            # from right here inside the prompt.
+            probe = open(lock_path, "a+")
+            try:
+                fcntl.flock(probe, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except OSError:
+                raise AssertionError("queue_drafts.py must release the lock before the interactive prompt runs")
+            else:
+                fcntl.flock(probe, fcntl.LOCK_UN)
+            finally:
+                probe.close()
+            # Simulate a concurrent writer (crm_pull.py's own append, or
+            # another queue_drafts.py run) queueing this same tenant while
+            # this run is sitting at the prompt.
+            queue_drafts.merge_into_queue(
+                [{"tenant_id": "T1", "jid": "6591111111@s.whatsapp.net", "message": "raced in first"}],
+                fx.queue_path)
+            return "y"
+
+        orig_input = builtins.input
+        builtins.input = fake_input
+        orig_argv, orig_stdin = sys.argv, sys.stdin
+        sys.argv = ["queue_drafts.py"]
+        sys.stdin = io.StringIO(json.dumps(payload))
+        buf = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buf):
+                queue_drafts.main()
+        finally:
+            builtins.input = orig_input
+            sys.argv, sys.stdin = orig_argv, orig_stdin
+
+        assert len(calls) == 1, "the approved item must still be prompted for"
+        out = buf.getvalue()
+        assert "became duplicates while waiting for confirmation" in out, \
+            "a row that turned into a duplicate while waiting on the prompt must be reported, not silently dropped"
+        t1_items = [i for i in fx.queue_items() if i.get("tenant_id") == "T1"]
+        assert len(t1_items) == 1, "the concurrent write must never be doubled up by this run's own, now stale, approval"
+        assert t1_items[0]["message"] == "raced in first", \
+            "the concurrent writer's item must be the one left standing, not silently overwritten"
+    finally:
+        fx.restore()
+check("queue_drafts: the lock is released before the interactive prompt, and a row that becomes a duplicate while waiting is caught on resume and never double appended", t_queue_drafts_does_not_hold_lock_across_prompt_and_recheck_catches_concurrent_dup)
 
 
 # ---- (n) the append phase itself honours the 07:45-08:45 blackout --------

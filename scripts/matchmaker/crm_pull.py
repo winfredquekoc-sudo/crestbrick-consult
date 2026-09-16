@@ -96,6 +96,8 @@ import log_deal        # scripts/ops/log_deal.py — imported, never shelled out
 DEFAULT_API_URL = "https://crestbrick-matchmaker-private.vercel.app/api/crm"
 CHUNK_SIZE = 50                # matches the app's own flush() batching (deploy/api/crm.js MAX_OPS is 200)
 TIME_BUDGET_SECONDS = 60
+LOCK_TIMEOUT_SECONDS = 120     # give up waiting for <queue file>.lock rather than block forever
+LOCK_POLL_SECONDS = 0.5        # LOCK_NB poll interval while waiting for the lock
 EXPIRY_DAYS = 7                # a pulled row older than this, unarchived, is given up on and cancelled
 BLACKOUT_START = (7, 45)       # cleanup and the dispatch queue append both never run in this window
 BLACKOUT_END = (8, 45)         # — the real 08:00 send, run by morning-dispatch.sh with no lock of its own
@@ -169,6 +171,42 @@ def _time_up(deadline):
     return deadline is not None and time.monotonic() > deadline
 
 
+def _acquire_lock(lock_path, timeout=None, poll=None):
+    """Opens lock_path and takes the exclusive fcntl lock, polling with
+    LOCK_NB rather than blocking forever — a wedged holder (or just an
+    unusually long overlapping run) must never stall this one indefinitely.
+    Gives up after timeout seconds and returns None; the caller is
+    responsible for logging "queue lock busy, skipping this run" (the exact
+    line every caller here uses) and treating that exactly like "nothing to
+    do this run", never as an error. Returns the open, locked file object on
+    success — the caller owns unlocking and closing it.
+
+    timeout/poll default to the LOCK_TIMEOUT_SECONDS/LOCK_POLL_SECONDS
+    MODULE GLOBALS, read at call time (never bound as ordinary default
+    argument values, which Python evaluates once at function definition
+    time) — a test overriding those globals to run this on a short fuse
+    must actually take effect on every call, not just on whichever call
+    happens to be compiled first."""
+    if timeout is None:
+        timeout = LOCK_TIMEOUT_SECONDS
+    if poll is None:
+        poll = LOCK_POLL_SECONDS
+    lock_dir = os.path.dirname(lock_path)
+    if lock_dir:
+        os.makedirs(lock_dir, exist_ok=True)
+    lockf = open(lock_path, "a+")
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            fcntl.flock(lockf, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            return lockf
+        except OSError:
+            if time.monotonic() >= deadline:
+                lockf.close()
+                return None
+            time.sleep(poll)
+
+
 def _parse_iso(s):
     """Parses a timestamp this script or the API produced. Tolerant of a bare
     'Z' suffix (Python's own fromisoformat only accepts that from 3.11
@@ -203,6 +241,28 @@ def _today_sgt():
 
 
 # ------------------------------------------------------- queue file reads ---
+def _item_was_skipped(item):
+    """True when an archived item carries anything morning-dispatch.sh (or a
+    future patched version of it — see the sender patch in the PR body) could
+    use to say "this one was never actually sent", as opposed to genuinely
+    going out: a "skipped" field, a free text "reason", or a "status" of
+    "skipped". The live sender today writes none of these — a chat that moved
+    since the queue was built ends up in the very same archive, indistinguishable
+    on the wire from a row that really sent, with only its tag string ("...
+    (chat moved since queue built)") giving it away, and that string is never
+    parsed here since a manual queue_drafts.py tag could read anything. This
+    check is forward looking, for the day the sender is patched to say so
+    itself; until then a deliberately skipped id can still read back as sent
+    from the archive alone (see the PR body's sender patch section)."""
+    if item.get("skipped"):
+        return True
+    if item.get("reason"):
+        return True
+    if item.get("status") == "skipped":
+        return True
+    return False
+
+
 def _dispatch_ids_in_file(path):
     ids = set()
     try:
@@ -211,17 +271,24 @@ def _dispatch_ids_in_file(path):
         return ids
     for item in data.get("items") or []:
         did = item.get("dispatch_id")
-        if did:
+        if did and not _item_was_skipped(item):
             ids.add(did)
     return ids
 
 
 def _archive_stamp(path):
     """Parses the SGT timestamp baked into a .done-<stamp> archive's own
-    filename — morning-dispatch.sh's own now.strftime('%Y%m%d%H%M') at the
-    moment it renamed the queue file. Returns None for a name that does not
-    parse; a caller must treat that exactly like "no stamp available", never
-    as a safe (or unsafe) age on its own."""
+    filename — morning-dispatch.sh's own `now = dt.datetime.now(...)`,
+    captured ONCE at the very top of the script (the moment it loads the
+    queue file into memory), well before the send loop runs at all, and
+    reused unchanged for this archive filename when the queue is renamed to
+    it at the very end. So this is the sender's queue LOAD time, not its
+    rename time — a delta close to zero between this stamp and a row's own
+    pulled_at means the row was appended around when the sender loaded the
+    queue, not around when it finished sending, which is exactly the append
+    versus load race MIN_SENT_ARCHIVE_AGE below exists to catch. Returns
+    None for a name that does not parse; a caller must treat that exactly
+    like "no stamp available", never as a safe (or unsafe) age on its own."""
     m = _ARCHIVE_STAMP_RE.search(path)
     if not m:
         return None
@@ -312,15 +379,36 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
         dedupe applied but this row's own dispatch_id excluded from it (so a
         row's own earlier, still uncommitted state within this same pass
         never marks it a duplicate of itself), marked pulled on the server
-        (a harmless no op if it was pulled already), and appended."""
+        (a harmless no op if it was pulled already), and appended.
+
+    A pulled row already stamped ambiguous_since (the "ambiguous" op, sent
+    the first time (b) above found it inconclusive) is not a permanent dead
+    end — it is filtered out of pulled_rows before any of the above ever
+    runs, on every run, and simply logged as still awaiting an operator's
+    Sent / Not sent check in the app's dispatch drawer. Nothing here ever
+    re evaluates it, expires it, or marks it sent from an archive on its
+    own; only that operator action (which flips status to sent or cancelled
+    through the app's existing dispatch/dispatch_cancel ops) changes it, and
+    a cancelled resolution unblocks a fresh Mark Queued for the same pair
+    exactly like any other cancelled row."""
     summary = {"queued": 0, "pulled_seen": 0, "approved": 0, "cancelled": 0,
-               "marked_sent": 0, "expired": 0, "ambiguous": 0, "appended": 0,
-               "already_appended": 0, "append_failed": 0, "time_budget_hit": False,
-               "append_blackout_skipped": False}
+               "marked_sent": 0, "expired": 0, "ambiguous": 0, "ambiguous_pending": 0,
+               "appended": 0, "already_appended": 0, "append_failed": 0,
+               "time_budget_hit": False, "append_blackout_skipped": False}
     queued_rows = [r for r in rows if r.get("status") == "queued"]
-    pulled_rows = [r for r in rows if r.get("status") == "pulled"]
+    pulled_rows_seen = [r for r in rows if r.get("status") == "pulled"]
+    # Already flagged ambiguous on a prior run: left alone entirely, forever,
+    # until an operator resolves it in the app — see the docstring note
+    # above. Excluded from pulled_rows up front so nothing below (sent
+    # check, expiry, append) ever looks at it again.
+    already_ambiguous = [r for r in pulled_rows_seen if r.get("ambiguous_since")]
+    pulled_rows = [r for r in pulled_rows_seen if not r.get("ambiguous_since")]
     summary["queued"] = len(queued_rows)
-    summary["pulled_seen"] = len(pulled_rows)
+    summary["pulled_seen"] = len(pulled_rows_seen)
+    summary["ambiguous_pending"] = len(already_ambiguous)
+    for r in already_ambiguous:
+        print("crm_pull: dispatch row %s is ambiguous (flagged %s) — awaiting an operator's "
+              "Sent / Not sent check in the app, not touched" % (r.get("id"), r.get("ambiguous_since")))
 
     queue_path = queue_drafts.QUEUE_PATH
     # Read once, before any sent/expired decision (see (a) above) — reused
@@ -337,7 +425,7 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
                           if r.get("id") in already_queued_pulled_ids and r.get("id") in archived_ids]
     for r in ambiguous_in_queue:
         print("crm_pull: dispatch row %s is in both the queue file and an archive — "
-              "ambiguous, leaving it pulled" % r.get("id"))
+              "ambiguous, flagging it on the server for an operator to check" % r.get("id"))
 
     sent_candidates = [r for r in pulled_rows
                        if r.get("id") in archived_ids and r.get("id") not in already_queued_pulled_ids]
@@ -350,8 +438,9 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
         else:
             ambiguous_age.append(r)
             print("crm_pull: dispatch row %s archived too close to its own pulled_at to trust — "
-                  "ambiguous, leaving it pulled" % r.get("id"))
-    summary["ambiguous"] = len(ambiguous_in_queue) + len(ambiguous_age)
+                  "ambiguous, flagging it on the server for an operator to check" % r.get("id"))
+    newly_ambiguous = ambiguous_in_queue + ambiguous_age
+    summary["ambiguous"] = len(newly_ambiguous)
 
     to_expire = [r for r in pulled_rows
                  if r.get("id") not in archived_ids and r.get("id") not in already_queued_pulled_ids
@@ -372,8 +461,17 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
         for chunk in _chunks(ops, CHUNK_SIZE):
             post_ops(user, pw, chunk)
 
+    # Flags each newly ambiguous row on the server exactly once (the "ambiguous"
+    # op is itself idempotent server side — see crm.js — but there is no reason
+    # to POST it again on a later run once it is set: already_ambiguous above
+    # is what keeps a later run from ever reaching this point for the same row).
+    if apply_ and newly_ambiguous:
+        ops = [{"op": "ambiguous", "id": r.get("id")} for r in newly_ambiguous]
+        for chunk in _chunks(ops, CHUNK_SIZE):
+            post_ops(user, pw, chunk)
+
     handled_ids = ({r.get("id") for r in to_sent} | {r.get("id") for r in to_expire}
-                   | {r.get("id") for r in ambiguous_age})
+                   | {r.get("id") for r in newly_ambiguous})
     remaining = [r for r in (queued_rows + pulled_rows) if r.get("id") not in handled_ids]
     if not remaining:
         return summary
@@ -460,14 +558,23 @@ def run_dispatch_locked(user, pw, apply_, deadline=None):
     the CRM snapshot, and holds it until process_dispatch_locked's last
     append or mark — see the module docstring. An overlapping run of this
     script blocks here until this one fully finishes, then fetches its own,
-    now current, snapshot. Returns (snap, dispatch_summary)."""
+    now current, snapshot.
+
+    The lock is polled with LOCK_NB rather than waited on forever (see
+    _acquire_lock) — a run stuck behind a genuinely wedged holder, or just an
+    unusually long overlapping one, gives up after LOCK_TIMEOUT_SECONDS and
+    logs "queue lock busy, skipping this run" rather than stalling this slot
+    indefinitely; whatever it would have done is picked up cleanly next run,
+    the same "nothing done is always safe" posture as every other guard in
+    this pipeline. Returns (snap, dispatch_summary), or (None, None) on that
+    timeout — the caller (main()) treats that as nothing to do this run."""
     queue_path = queue_drafts.QUEUE_PATH
     lock_path = queue_path + ".lock"
-    lock_dir = os.path.dirname(lock_path)
-    if lock_dir:
-        os.makedirs(lock_dir, exist_ok=True)
-    with open(lock_path, "a+") as lockf:
-        fcntl.flock(lockf, fcntl.LOCK_EX)
+    lockf = _acquire_lock(lock_path)
+    if lockf is None:
+        print("crm_pull: queue lock busy, skipping this run")
+        return None, None
+    with lockf:
         try:
             snap = fetch_snapshot(user, pw)
             dispatch_rows = snap.get("dispatch") or []
@@ -499,10 +606,15 @@ def cleanup_cancelled(dispatch_rows, apply_, mtime_at_fetch=_MTIME_UNSET, now=No
     this is called), so this pass defers to the next run rather than read
     modify write against a file it can no longer be sure it understands.
     mtime_at_fetch left at its default disables that specific check, for a
-    caller (a test, most likely) that does not care about it."""
+    caller (a test, most likely) that does not care about it.
+
+    This lock is polled with LOCK_NB the same as run_dispatch_locked's own
+    (see _acquire_lock) — a busy lock after LOCK_TIMEOUT_SECONDS logs "queue
+    lock busy, skipping this run" and this pass is simply skipped, exactly
+    like the blackout and changed-file skips already here, never a hang."""
     cancelled_ids = {r.get("id") for r in dispatch_rows if r.get("status") == "cancelled"}
     summary = {"cancelled_seen": len(cancelled_ids), "removed_from_queue": 0,
-               "skipped_blackout": False, "skipped_changed": False}
+               "skipped_blackout": False, "skipped_changed": False, "skipped_busy": False}
     if not cancelled_ids or not apply_:
         return summary
     now_sgt = now or _now_sgt()
@@ -514,11 +626,12 @@ def cleanup_cancelled(dispatch_rows, apply_, mtime_at_fetch=_MTIME_UNSET, now=No
     if not os.path.exists(queue_path):
         return summary
     lock_path = queue_path + ".lock"
-    lock_dir = os.path.dirname(lock_path)
-    if lock_dir:
-        os.makedirs(lock_dir, exist_ok=True)
-    with open(lock_path, "a+") as lockf:
-        fcntl.flock(lockf, fcntl.LOCK_EX)
+    lockf = _acquire_lock(lock_path)
+    if lockf is None:
+        summary["skipped_busy"] = True
+        print("crm_pull: queue lock busy, skipping this run")
+        return summary
+    with lockf:
         try:
             if not os.path.exists(queue_path):
                 return summary
@@ -660,6 +773,15 @@ def main(argv=None):
     # back as one line and exit code 1, never a raw traceback.
     try:
         snap, d_summary = run_dispatch_locked(user, pw, args.apply, deadline)
+        if snap is None:
+            # run_dispatch_locked already logged "queue lock busy, skipping
+            # this run" — the lock is <queue file>.lock, the same one
+            # cleanup_cancelled needs, so there is nothing safe to do for
+            # either dispatch or cleanup this run. Deal import does not
+            # touch that lock at all, but skipping it too keeps one run's
+            # behaviour simple to reason about: busy means nothing done,
+            # picked up cleanly next run, same as every other guard here.
+            return 0
         # Captured only now, after run_dispatch_locked has fully finished and
         # released its own lock — see cleanup_cancelled's own docstring for
         # why this is the right moment, not before dispatch processing.
@@ -672,11 +794,13 @@ def main(argv=None):
 
     mode = "apply" if args.apply else "dry run"
     print("crm_pull (%s): dispatch %d queued, %d pulled, %d approved, %d cancelled, "
-          "%d marked sent, %d expired, %d ambiguous, %d appended (%d already, %d append failed"
+          "%d marked sent, %d expired, %d newly ambiguous (%d still awaiting operator), "
+          "%d appended (%d already, %d append failed"
           "%s) — cleanup removed %d — deals %d completed, %d pending import, %d imported" % (
               mode, d_summary["queued"], d_summary["pulled_seen"], d_summary["approved"],
               d_summary["cancelled"], d_summary["marked_sent"], d_summary["expired"],
-              d_summary.get("ambiguous", 0), d_summary.get("appended", 0),
+              d_summary.get("ambiguous", 0), d_summary.get("ambiguous_pending", 0),
+              d_summary.get("appended", 0),
               d_summary.get("already_appended", 0), d_summary.get("append_failed", 0),
               ", blackout" if d_summary.get("append_blackout_skipped") else "",
               c_summary["removed_from_queue"],

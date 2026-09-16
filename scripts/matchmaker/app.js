@@ -1847,6 +1847,39 @@ function dispatchHandedOffToMac(lid, tid) {
   const row = CRM.dispatchFor(lid, tid);
   return !!(row && (row.status === "pulled" || row.status === "sent"));
 }
+// True when the newest attempt for this pair is a pulled row crm_pull.py
+// found an archive it could not confidently trust (an archive stamped too
+// close to pulled_at, or the row sitting in both the live queue file and an
+// archive at once — see crm_pull.py's own docstring) and has stamped
+// ambiguous_since on via the "ambiguous" op. This is the dispatch drawer's
+// own "Needs a check" state — resolved only by an operator picking Sent or
+// Not sent below, never by crm_pull.py re running the same inconclusive
+// check against it on a later run.
+function dispatchIsAmbiguous(lid, tid) {
+  if (typeof CRM === "undefined") return false;
+  const row = CRM.dispatchFor(lid, tid);
+  return !!(row && row.status === "pulled" && row.ambiguous_since);
+}
+// Operator resolution for an ambiguous row: "Sent" moves the SAME row
+// straight to sent — pulled -> sent is the one transition nextDispatchStatus
+// already allows (crm-validate.js, unchanged this round) — so a message
+// that genuinely did go out is not left dangling as ambiguous forever.
+function resolveAmbiguousSent(lid, tid) {
+  if (typeof CRM === "undefined") return;
+  const row = CRM.dispatchFor(lid, tid);
+  if (!row) return;
+  CRM.upsertDispatch(Object.assign({}, row, { status: "sent" }));
+}
+// "Not sent" cancels the row with a reason that reads as an operator's own
+// call, not an automated rule. Cancelled unblocks a fresh Mark Queued for
+// the same pair (see dispatchAlreadyHandled above — only queued/pulled ever
+// blocks a new write), which is what actually gets the tenant a message.
+function resolveAmbiguousNotSent(lid, tid) {
+  if (typeof CRM === "undefined") return;
+  const row = CRM.dispatchFor(lid, tid);
+  if (!row) return;
+  CRM.cancelDispatch(row.id, "operator: not sent");
+}
 // Pure so it can be tested without the DOM: given the bulk action's filtered
 // set and the two predicates that already gate a single row's Queued action
 // (coldBlockedFn mirrors coldBlocked, alreadyHandledFn mirrors
@@ -4536,6 +4569,7 @@ function dispatchRowStatusLabel(lid, tid) {
   if (typeof CRM === "undefined") return "queued";
   const row = CRM.dispatchFor(lid, tid);
   if (!row) return "queued";
+  if (row.status === "pulled" && row.ambiguous_since) return "needs a check — may or may not have sent";
   if (row.status === "pulled") return "pulled by the Mac";
   if (row.status === "sent") return "sent";
   if (row.status === "cancelled") return "cancelled";
@@ -4557,9 +4591,18 @@ function openDispatchDrawer() {
     const unqueueHtml = handedOff
       ? '<span class="btn disabled" title="Already pulled to the Mac, remove it from the morning queue there">Unqueue</span>'
       : '<button class="btn" data-dunq="' + i + '">Unqueue</button>';
+    // An ambiguous row (crm_pull.py found an archive it could not fully
+    // trust — see dispatchIsAmbiguous above) gets its own check block: the
+    // Sent / Not sent buttons are the only way this row is ever resolved,
+    // since crm_pull.py itself never touches it again on its own.
+    const ambiguous = dispatchIsAmbiguous(m.l.id, m.t.id);
+    const ambiguousHtml = ambiguous
+      ? '<div class="mut" style="font-size:12px;color:#b45309">Needs a check: may or may not have sent</div>' +
+        '<div class="acts"><button class="btn" data-dsent="' + i + '">Sent</button><button class="btn" data-dnotsent="' + i + '">Not sent</button></div>'
+      : '';
     html += '<div class="row"><div class="nm">' + esc(m.t.name) + '</div><div class="mut" style="font-size:12px">' + esc(m.l.name) + ' · ' + esc(m.l.district) +
       ' · status: ' + esc(dispatchRowStatusLabel(m.l.id, m.t.id)) + '</div>' +
-      '<div class="draftbox">' + esc(draftFor(m.l, m.t)) + '</div>' +
+      '<div class="draftbox">' + esc(draftFor(m.l, m.t)) + '</div>' + ambiguousHtml +
       '<div class="acts"><button class="btn" data-dcopy="' + i + '">Copy</button>' + unqueueHtml + '</div></div>';
   });
   html += '<div class="acts" style="margin-top:12px"><button class="btn full" data-closedrawer="1">Close</button></div></div>';
@@ -4569,6 +4612,16 @@ function openDispatchDrawer() {
   wrap.querySelectorAll("[data-dunq]").forEach(b => b.onclick = () => {
     const m = items[+b.dataset.dunq]; wrap.remove();
     writeMarkClearUndoable(m.l.id, m.t.id, fname(m.t.name) + " unqueued");
+    openDispatchDrawer();
+  });
+  wrap.querySelectorAll("[data-dsent]").forEach(b => b.onclick = () => {
+    const m = items[+b.dataset.dsent]; wrap.remove();
+    resolveAmbiguousSent(m.l.id, m.t.id);
+    openDispatchDrawer();
+  });
+  wrap.querySelectorAll("[data-dnotsent]").forEach(b => b.onclick = () => {
+    const m = items[+b.dataset.dnotsent]; wrap.remove();
+    resolveAmbiguousNotSent(m.l.id, m.t.id);
     openDispatchDrawer();
   });
   wrap.querySelector("[data-closedrawer]").onclick = () => wrap.remove();

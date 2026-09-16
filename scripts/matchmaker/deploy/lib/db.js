@@ -149,6 +149,17 @@ create table if not exists crm_dispatch (
 );
 create index if not exists crm_dispatch_status_idx on crm_dispatch(status);
 create index if not exists crm_dispatch_tenant_idx on crm_dispatch(tenant_id);
+
+-- Ambiguous row resolution (PR #132 fifth review). A pulled row crm_pull.py
+-- could not confidently resolve from the archive (an archive stamp too close
+-- to pulled_at to trust, or the row sitting in both the live queue file and
+-- an archive at once — see crm_pull.py's own docstring) is left status
+-- 'pulled' but gets this stamped once, via the "ambiguous" op, so it is not
+-- a permanent dead end: the app's dispatch drawer surfaces it to Winfred as
+-- a Sent / Not sent check instead of crm_pull.py re running the same
+-- inconclusive check forever. nextDispatchStatus's transition table is
+-- unchanged by this — the "ambiguous" op never writes crm_dispatch.status.
+alter table crm_dispatch add column if not exists ambiguous_since timestamptz;
 `;
 
 // Idempotent, and run at most once per lambda instance rather than per request.

@@ -7,7 +7,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import {
   str, date, bool, num, validateDealFields, DEAL_TYPES, DEAL_STAGES, KINDS,
-  validateDispatchFields, DISPATCH_STATUSES, nextDispatchStatus,
+  validateDispatchFields, DISPATCH_STATUSES, nextDispatchStatus, validateAmbiguousFields,
 } from "../../scripts/matchmaker/deploy/lib/crm-validate.js";
 
 test("str: trims, caps length, blank/whitespace-only becomes null", () => {
@@ -280,4 +280,36 @@ test("validateDispatchFields: id is capped at 60 characters like any other str()
 test("validateDispatchFields: an empty or whitespace only id is rejected outright, same as no id", () => {
   assert.equal(validateDispatchFields({ id: "", tenant_id: "T1", text: "hi" }), null);
   assert.equal(validateDispatchFields({ id: "   ", tenant_id: "T1", text: "hi" }), null);
+});
+
+// =====================================================================
+// validateAmbiguousFields — the "ambiguous" op (PR #132 fifth review round):
+// a pulled row crm_pull.py could not confidently resolve from the archive.
+// Only ever carries an id; api/crm.js's own guard (status = 'pulled', and
+// only stamps ambiguous_since the first time) is server side and out of
+// reach of this module's own pure tests, same split as validateDispatchFields
+// above vs nextDispatchStatus's own transition rule.
+// =====================================================================
+test("validateAmbiguousFields: a realistic id round trips untouched", () => {
+  const id = "dispatch_L1_T1_" + Date.now();
+  assert.deepEqual(validateAmbiguousFields({ id }), { id });
+});
+
+test("validateAmbiguousFields: missing, empty or whitespace only id is rejected, same as validateDispatchFields", () => {
+  assert.equal(validateAmbiguousFields({}), null);
+  assert.equal(validateAmbiguousFields({ id: "" }), null);
+  assert.equal(validateAmbiguousFields({ id: "   " }), null);
+  assert.equal(validateAmbiguousFields(null), null);
+});
+
+test("validateAmbiguousFields: id is capped at 60 characters like every other op's id", () => {
+  const oversized = "dispatch_" + "x".repeat(80);
+  const got = validateAmbiguousFields({ id: oversized });
+  assert.equal(got.id.length, 60);
+  assert.notEqual(got.id, oversized);
+});
+
+test("validateAmbiguousFields: ignores every other field on the op — only id is ever read", () => {
+  const got = validateAmbiguousFields({ id: "d1", status: "sent", tenant_id: "T1", text: "smuggled" });
+  assert.deepEqual(got, { id: "d1" }, "the ambiguous op must never be able to smuggle a status or field change through");
 });

@@ -14,7 +14,7 @@
 // function already passed the wall, and a second scheme would be another thing to
 // get wrong. Never loosen middleware.js's matcher to exclude /api.
 import { db, ensureSchema, configured } from "../lib/db.js";
-import { STAGES, KINDS, str, date, bool, validateDealFields, validateDispatchFields, nextDispatchStatus } from "../lib/crm-validate.js";
+import { STAGES, KINDS, str, date, bool, validateDealFields, validateDispatchFields, nextDispatchStatus, validateAmbiguousFields } from "../lib/crm-validate.js";
 
 const MAX_OPS = 200;
 
@@ -66,7 +66,8 @@ async function snapshot(client) {
     // the matching item from the real morning dispatch queue before 08:00.
     client.query(`select id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at,
-                         to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at
+                         to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at,
+                         to_char(ambiguous_since,'YYYY-MM-DD"T"HH24:MI:SSZ') as ambiguous_since
                   from crm_dispatch where status in ('queued','pulled','cancelled')
                   order by created_at desc limit 2000`),
     // crm_pull.py's 7 day expiry check on a stuck pulled row has to compare
@@ -301,6 +302,31 @@ async function applyOp(client, o) {
       const tenant_id = upd.rows[0].tenant_id;
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
         [tenant_id || null, "dispatch:cancelled", str(o.reason, 500) || ""]);
+      return upd.rowCount;
+    }
+    // crm_pull.py's own way of surfacing an archive based sent check it could
+    // not fully trust (see MIN_SENT_ARCHIVE_AGE and the queue-file-and-
+    // archive-at-once case in its own docstring). Never changes status —
+    // nextDispatchStatus's transition table is untouched by this op — only
+    // stamps ambiguous_since, and only the first time: a redundant POST
+    // (crm_pull.py finding the same row still ambiguous on a later run
+    // before it learns to skip an already stamped one, or a retried
+    // request) must never reset the clock on when Winfred was first asked
+    // to look at it. Guarded to a row still 'pulled' — once an operator has
+    // resolved it (Sent moves it to sent, Not sent cancels it, both via the
+    // app's existing dispatch/dispatch_cancel ops), a stale ambiguous op
+    // arriving late must not stamp a freshly requeued or already settled row.
+    case "ambiguous": {
+      const a = validateAmbiguousFields(o);
+      if (!a) return 0;
+      const upd = await client.query(
+        `update crm_dispatch set ambiguous_since = coalesce(ambiguous_since, now())
+         where id = $1 and status = 'pulled' returning tenant_id`,
+        [a.id]
+      );
+      if (!upd.rowCount) return 0;
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [upd.rows[0].tenant_id || null, "dispatch:ambiguous", "needs an operator check — may or may not have sent"]);
       return upd.rowCount;
     }
     // A plain activity log line with no other side effect — used by crm_pull.py

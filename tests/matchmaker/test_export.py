@@ -1987,7 +1987,8 @@ def test_queue_format_fidelity():
 
 
 def test_queue_drafts_cli_dedupe_reads_under_the_lock():
-    section("queue_drafts main(): the duplicate read happens under the same lock as the append")
+    section("queue_drafts main(): the duplicate read happens under a lock, twice — once for "
+            "classify, once (re checked) for the append — never held across the prompt (PR #132 fifth review round)")
     # build_revival() (exercised by test_revival_and_duplicate_phones, earlier
     # in this same run) lazily imports revival_board.py, which hardcodes
     # ~/crestbrick-consult onto sys.path[0] — the shared main checkout, not
@@ -2035,6 +2036,18 @@ def test_queue_drafts_cli_dedupe_reads_under_the_lock():
         # about wall clock timing involved at all. Patches queue_drafts' OWN
         # "fcntl" name (its module global), not the shared system wide fcntl
         # module, so nothing outside this one test is ever affected.
+        #
+        # PR #132 fifth review round: _acquire_lock takes the lock with
+        # LOCK_EX | LOCK_NB (polled, not a single blocking call — see
+        # queue_drafts.py's own _acquire_lock), so the spy below matches on
+        # the LOCK_EX bit rather than an exact op value, and main() now
+        # acquires this lock TWICE — once, briefly, to classify (read the
+        # duplicate set and run classify_items), released before the
+        # (optional) interactive prompt ever runs; and again, only around
+        # the final re check and the append itself, once an operator has
+        # actually answered. See test_crm_pull.py's own lock tests for the
+        # "never held across the prompt" behaviour itself — this one only
+        # pins the call order.
         events = []
 
         class _FlockSpy:
@@ -2042,7 +2055,7 @@ def test_queue_drafts_cli_dedupe_reads_under_the_lock():
                 return getattr(real_fcntl, name)
 
             def flock(self, fd, op):
-                if op == real_fcntl.LOCK_EX:
+                if op & real_fcntl.LOCK_EX:
                     events.append("lock")
                 elif op == real_fcntl.LOCK_UN:
                     events.append("unlock")
@@ -2059,10 +2072,11 @@ def test_queue_drafts_cli_dedupe_reads_under_the_lock():
         with _cl.redirect_stdout(buf):
             qd.main()
 
-        check("the queue lock is taken before the duplicate read, not after",
-              events[:2] == ["lock", "pending_recipients"], str(events))
-        check("the lock is released only after the duplicate read (and any append)",
-              "unlock" in events and events.index("unlock") > events.index("pending_recipients"), str(events))
+        check("the queue lock is taken before EACH duplicate read, not after",
+              events == ["lock", "pending_recipients", "unlock", "lock", "pending_recipients", "unlock"],
+              str(events))
+        check("the lock is released again straight after each duplicate read, never held across the prompt",
+              events.count("lock") == 2 and events.count("unlock") == 2, str(events))
 
         # End to end: a row seeded into the queue file before this run even
         # starts (standing in for crm_pull.py, or another CLI run, having
