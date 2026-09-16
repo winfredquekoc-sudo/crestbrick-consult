@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-16T00:30:02+08:00",
-  "count": 27,
+  "synced_at": "2026-09-17T00:30:05+08:00",
+  "count": 31,
   "listings": [
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
@@ -130,8 +130,8 @@
       "title": "Common Room, Blk 160 Pasir Ris Street 13",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1300,
-      "price_label": "S$1,300 / mo",
+      "price": 900,
+      "price_label": "From S$900 / mo",
       "address": "Blk 160 Pasir Ris Street 13",
       "district": "D18",
       "highlights": [
@@ -144,24 +144,12 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20160%20Pasir%20Ris%20Street%2013."
     },
     {
-      "id": "master-room-20-simei-street-1-ll125",
-      "title": "Master Room, 20 Simei Street 1",
-      "type": "Condo",
-      "transaction": "rent",
-      "price": 1250,
-      "price_label": "S$1,250 / mo",
-      "address": "20 Simei Street 1",
-      "district": "D18",
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%2020%20Simei%20Street%201."
-    },
-    {
       "id": "room-blk-428-pasir-ris-drive-6-ll135",
       "title": "Room, Blk 428 Pasir Ris Drive 6",
       "type": "HDB",
       "transaction": "rent",
-      "price": 1250,
-      "price_label": "S$1,250 / mo",
+      "price": 900,
+      "price_label": "From S$900 / mo",
       "address": "Blk 428 Pasir Ris Drive 6",
       "district": "D18",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20Blk%20428%20Pasir%20Ris%20Drive%206.",
@@ -203,6 +191,30 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20241%20Hougang%20Street%2022.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20241%20Hougang%20Street%2022."
+    },
+    {
+      "id": "common-room-blk-648-hougang-ave-8-ll159",
+      "title": "Common Room, Blk 648 Hougang Ave 8",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "Blk 648 Hougang Ave 8",
+      "district": "D19",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20648%20Hougang%20Ave%208.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20648%20Hougang%20Ave%208."
+    },
+    {
+      "id": "common-room-134-ang-mo-kio-avenue-3-ll139",
+      "title": "Common Room, 134 Ang Mo Kio Avenue 3",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1100,
+      "price_label": "S$1,100 / mo",
+      "address": "134 Ang Mo Kio Avenue 3",
+      "district": "D20",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20134%20Ang%20Mo%20Kio%20Avenue%203.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20134%20Ang%20Mo%20Kio%20Avenue%203."
     },
     {
       "id": "common-room-156a-bishan-street-11-ll142",
@@ -365,6 +377,21 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20851%20Jurong%20West."
     },
     {
+      "id": "common-room-bukit-batok-street-25-ll116",
+      "title": "Common Room, Bukit Batok Street 25",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1000,
+      "price_label": "S$1,000 / mo",
+      "address": "Bukit Batok Street 25",
+      "district": "D23",
+      "highlights": [
+        "Furnished"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bukit%20Batok%20Street%2025.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Bukit%20Batok%20Street%2025."
+    },
+    {
       "id": "master-room-687c-choa-chu-kang-drive-xx-xxx-ll217",
       "title": "Master Room, 687C Choa Chu Kang Drive #xx-xxx",
       "type": "HDB",
@@ -399,6 +426,18 @@
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Master%20Room%20in%20Blk%20233%20Pending%20Rd."
     },
     {
+      "id": "common-room-sembawang-drive-ll224",
+      "title": "Common Room, Sembawang Drive",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 950,
+      "price_label": "From S$950 / mo",
+      "address": "Sembawang Drive",
+      "district": "D27",
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sembawang%20Drive.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Sembawang%20Drive."
+    },
+    {
       "id": "whole-unit-82-tiong-poh-road-ll220",
       "title": "Whole Unit, 82 Tiong Poh Road (Tiong Bahru)",
       "type": "HDB",
@@ -409,6 +448,23 @@
       "district": "D3",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%2082%20Tiong%20Poh%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%2082%20Tiong%20Poh%20Road."
+    },
+    {
+      "id": "room-715-clementi-west-street-2-ll216",
+      "title": "Room, 715 Clementi West Street 2",
+      "type": "HDB",
+      "transaction": "rent",
+      "price": 1200,
+      "price_label": "S$1,200 / mo",
+      "address": "715 Clementi West Street 2",
+      "district": "D5",
+      "highlights": [
+        "Utilities included",
+        "Furnished",
+        "Aircon"
+      ],
+      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Room%20in%20715%20Clementi%20West%20Street%202.",
+      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Room%20in%20715%20Clementi%20West%20Street%202."
     }
   ]
 }
