@@ -247,14 +247,17 @@ body.has-triagebar main{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
 /* header buttons: + tenant / Dispatch (N) / Snoozed (N) */
 .hbtn{padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:600;font-size:12px;color:var(--ink);display:inline-flex;align-items:center;gap:5px;min-height:44px}
+/* (review fix 5) Filters is disabled (native attribute, not a class) on a tab
+   where it has no effect — visible dimming, same treatment .btn.disabled
+   already gives every other disabled control in this file. */
+.hbtn:disabled{opacity:.4;cursor:not-allowed}
 .hbtn .cnt{background:var(--acc);color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-weight:800}
 
 input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 
 /* ===================== PASS 2 additions ===================== */
 
-/* (54) accessibility floor: every primary tap target >=44px, visible focus ring.
-   Compact density (below) trims padding/font, never the min-height floor. */
+/* (54) accessibility floor: every primary tap target >=44px, visible focus ring. */
 .btn{min-height:44px}
 .tab{min-height:44px;display:inline-flex;align-items:center}
 input,select{min-height:44px}
@@ -649,21 +652,18 @@ input,select{min-height:44px}
   #work .askstrip{display:none}
   /* (item 2, folded back into item 1's clamp) row one's own controls each
      carry the 44px tap-target floor, so at three wrapped lines (search /
-     district+Filters+chips / result+clear+bulk) that alone was 132px+gaps —
-     the single largest remaining piece once tabs/buttons/hrow were trimmed.
+     district+Filters+chips / result+clear) that alone was 132px+gaps — the
+     single largest remaining piece once tabs/buttons/hrow were trimmed.
      Two lines instead of three: search takes its own full-width line, then
      district shrinks enough for district+Filters(n)+result count to share
-     the next one. Bulk action is a power-user action on an already-filtered
-     set, not one of the row one/row two controls item 2 defines, and it
-     does not fit a third control onto line two at this width — dropped from
-     the phone layout only, still on desktop and in the command palette. */
+     the next one. Bulk action moved into the Menu sheet entirely (item 3) —
+     it is no longer a control that has to fit into this row on any width. */
   .filters{margin-top:6px}
   input#q{min-width:0;flex:1 1 100%}
   #fd{max-width:130px;font-size:12px;padding:6px 8px}
   #filterstoggle{padding:5px 9px;font-size:11px}
   #resultcount{font-size:11px}
   #clr{padding:5px 9px;font-size:11px}
-  #bulkbtn{display:none}
   /* (fix 13) 26px is fine with a mouse; below the 44px tap floor on a phone
      is not — same breakpoint every other tap target on this page uses. */
   .btn.more{min-height:44px}

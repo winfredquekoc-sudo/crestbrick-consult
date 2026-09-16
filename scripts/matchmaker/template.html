@@ -113,10 +113,10 @@
        together with #work, whichever the "Revival" chip currently selects. -->
   <div id="revival" style="display:none" role="tabpanel" aria-labelledby="tab-work"></div>
 
-  <div id="crm" style="display:none" role="tabpanel" aria-labelledby="tab-crm"></div>
   <!-- Pipeline absorbs into CRM as a stage board section under the follow up
-       queue — shown/hidden together with #crm. -->
-  <div id="pipeline" style="display:none" role="tabpanel" aria-labelledby="tab-crm"></div>
+       queue — renderCRM() builds its container fresh every render (see
+       renderPipeline() in app.js), there is no separate #pipeline element. -->
+  <div id="crm" style="display:none" role="tabpanel" aria-labelledby="tab-crm"></div>
 
   <!-- Directory: one view, a kind switch (Rooms/Tenants/Landlords/Whole units/For
        sale) selects which of the six existing rosters underneath is visible.

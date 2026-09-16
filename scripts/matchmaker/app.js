@@ -1036,7 +1036,14 @@ function budgetTxt(exact, max) {
 // exact count before Apply is enabled — see openBulkActionModal.
 const BULK_TYPED_CONFIRM_THRESHOLD = 200;
 function needsBulkTypedConfirm(count, threshold) { return count > (threshold != null ? threshold : BULK_TYPED_CONFIRM_THRESHOLD); }
-function bulkConfirmMatches(typed, count) { return String(typed == null ? "" : typed).trim() === String(count); }
+// (review fix 4) the label shows the count WITH thousands commas
+// ("Type 7,868 to confirm"), so typing it back exactly that way has to pass —
+// strip everything but digits from both sides before comparing.
+function bulkConfirmMatches(typed, count) {
+  const digitsOnly = s => String(s == null ? "" : s).replace(/[^0-9]/g, "");
+  const typedDigits = digitsOnly(typed);
+  return !!typedDigits && typedDigits === digitsOnly(count);
+}
 // (item 6) a route that simply does not exist (404) used to read identically
 // to a genuine outage and retried forever. After a few consecutive 404s, treat
 // it the same as a 501 (no backend configured) and settle into local mode.
@@ -2905,13 +2912,14 @@ function render() {
   // deliberately left alone: the Leaflet instance (_mmMap) is attached to
   // live DOM inside it, and renderMapView()/initMatchmakerMap() already
   // manage that instance's lifecycle themselves.
-  // stats/pipeline are treated as permanently attached sections of
-  // mapview/crm (item 1: Dashboard absorbs Stats, CRM absorbs Pipeline) —
-  // they show whenever their parent view does, not on their own `view` value.
-  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival", "crm"].forEach(v => {
+  // stats is treated as a permanently attached section of mapview (item 1:
+  // Dashboard absorbs Stats) — it shows whenever mapview does, not on its own
+  // `view` value. Pipeline (CRM absorbs Pipeline) has no top level element of
+  // its own at all any more — see renderCRM()/renderPipeline() (review fix 1).
+  ["work", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival", "crm"].forEach(v => {
     const e = $("#" + v);
     if (!e) return;
-    const show = (v === view) || (v === "stats" && view === "mapview") || (v === "pipeline" && view === "crm");
+    const show = (v === view) || (v === "stats" && view === "mapview");
     if (show) { e.style.display = (v === "listing" || v === "tenant") ? "grid" : "block"; return; }
     e.style.display = "none";
     if (HEAVY_PANELS.indexOf(v) !== -1) e.innerHTML = "";
@@ -2935,6 +2943,17 @@ function render() {
     CRM_UI.q = ""; CRM_UI.showAll = false;
   }
   const qEl2 = $("#q"); if (qEl2) qEl2.placeholder = searchPlaceholderForTab(activeTab);
+  // (review fix 5) Dashboard/Stats and CRM have no facet controls that do
+  // anything (NON_FILTER_VIEWS) — disable the Filters button there instead of
+  // letting it open a sheet with nothing useful in it. Also closes the sheet
+  // if it happened to be open while navigating onto one of these tabs.
+  const filtersBtn = $("#filtersbtn");
+  if (filtersBtn) {
+    const filtersUseless = NON_FILTER_VIEWS.indexOf(view) !== -1;
+    filtersBtn.disabled = filtersUseless;
+    filtersBtn.title = filtersUseless ? "No filters on this tab" : "";
+    if (filtersUseless) closeFiltersSheet();
+  }
   renderDirectoryKindRow();
   VIEW_RESULT_COUNT = null;   // (item 2) each render*() below sets its own row count; views with none leave #resultcount hidden
   if (view === "work") renderWork(); else renderTriageBar(null);
@@ -2946,7 +2965,7 @@ function render() {
   if (view === "alltenants") renderAllTenantsRoster();
   if (view === "sales") renderSalesRoster();
   if (view === "revival") renderRevival();
-  if (view === "crm") renderCRM();   // renderCRM() itself relocates and repaints #pipeline as its own section
+  if (view === "crm") renderCRM();   // renderCRM() itself builds and repaints the pipeline board as its own section
   CRM.paint();
   $("#legend").innerHTML = "Score = budget 30 + location 25 + lease 15 + move in 15 + freshness 15 (urgency and MRT adjacency can add a little more, capped at 100). ⚑ flags are landlord preference gates (gender, ethnicity, pax) or budget/lease gaps — a red conflict still shows so you can judge, it is not auto hidden. " +
     "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
@@ -3532,8 +3551,8 @@ function selectTabByIndex(i) {
 }
 function shortcutsSheetHtml() {
   return '<div class="triage-legend">' +
-    '<div><span class="key">1</span>-<span class="key">9</span>/<span class="key">0</span> switch tabs, in the order they appear</div>' +
-    '<div><span class="key">/</span> focus search</div>' +
+    '<div><span class="key">1</span> to <span class="key">4</span> switch tabs, in the order they appear</div>' +
+    '<div><span class="key">/</span> open search</div>' +
     '<div><span class="key">Esc</span> blur search, then (search already empty) clear all filters</div>' +
     '<div><span class="key">f</span> toggle More filters</div>' +
     '<div><span class="key">?</span> this list</div>' +
@@ -3585,7 +3604,10 @@ function onKeydown(e) {
     // (item 1) 1-4 select the 4 tabs and nothing else — 5-9/0 used to reach
     // tabs that no longer exist as separate tabs.
     if (e.key >= "1" && e.key <= "4") { selectTabByIndex(Number(e.key) - 1); return; }
-    if (e.key === "/") { e.preventDefault(); if (q) q.focus(); return; }
+    // (review fix 2) #q now lives inside the Search sheet, hidden by default —
+    // focusing it directly did nothing visible. openSearchSheet() reveals the
+    // sheet and focuses the box itself, same as clicking the Search button.
+    if (e.key === "/") { e.preventDefault(); openSearchSheet(); return; }
     if (e.key === "f") { toggleMoreFilters(); return; }
     if (e.key === "?") { openShortcutsSheet(); return; }
   }
@@ -5219,7 +5241,13 @@ function openSearchSheet() {
   setTimeout(() => { const q = $("#q"); if (q) q.focus(); }, 0);
 }
 function closeSearchSheet() { const wrap = $("#searchSheet"); if (wrap) wrap.hidden = true; }
+// (review fix 5) the Filters button itself is disabled on a tab where these
+// controls have no effect (see render()'s own filtersBtn.disabled block), but
+// this guards the function directly too — belt and suspenders against any
+// other path that might still call it (keyboard, command palette, a future
+// caller) opening a sheet with nothing useful in it.
 function openFiltersSheet() {
+  if (NON_FILTER_VIEWS.indexOf(view) !== -1) return;
   const wrap = $("#filtersSheet"); if (!wrap) return;
   closeSearchSheet(); closeMenuSheet();
   wrap.hidden = false;
@@ -6422,8 +6450,14 @@ function renderDrawer() {
 
 // Deliberately shows only records Winfred has actually touched — a column per stage
 // over the whole tenant/landlord database would just be the roster tabs again.
-function renderPipeline() {
-  const box = $("#pipeline"); box.innerHTML = "";
+// (review fix 1) takes its own container instead of hardcoding a persistent
+// #pipeline id — renderCRM() below creates a fresh div every render and hands
+// it here. #crm sits in HEAVY_PANELS, so on every render() that leaves the
+// CRM tab, #crm itself gets innerHTML="" — a #pipeline node that had been
+// re homed inside #crm (the previous approach) was destroyed by that wipe the
+// first time you left the tab, and never came back on return.
+function renderPipeline(box) {
+  box.innerHTML = "";
   box.appendChild(el("div", "help", "📈 <b>Pipeline</b> — every record you have given a stage, a note or a task via the 🗂 CRM button. " +
     (CRM.mode === "local"
       ? "⚠️ No cloud backend is configured, so this is saved on <b>this device only</b> — it will not appear on your phone and is lost if you clear this browser."
@@ -6678,12 +6712,11 @@ function crmSubjFromKey(key) {
 }
 
 // (streamline item 1) CRM absorbs Pipeline as a stage board section under the
-// follow up queue. #pipeline is still its own persistent element (renderPipeline()
-// hardcodes that id) — it lives as #crm's sibling in template.html so #crm's own
-// box.innerHTML="" wipe below never touches it. appendChild() on an
-// a node already in the document MOVES it rather than cloning it, so relocating it
-// here (right after the follow up queue, before Contacts) is enough to make
-// it read as one section of this tab instead of a separate one at the end.
+// follow up queue. box.innerHTML="" below runs every render() this tab is
+// active for, so the pipeline's own container is built fresh here each time
+// (review fix 1) rather than re homing a persistent #pipeline node — that
+// node lived as a sibling of #crm, and #crm is in HEAVY_PANELS, so leaving
+// the tab wiped it via render()'s own hide loop and it never came back.
 function renderCRM() {
   const box = $("#crm"); box.innerHTML = "";
   box.appendChild(el("div", "help", "🗂 <b>CRM</b> — follow up queue, every contact merged with the databases, quick add and deals. " +
@@ -6691,8 +6724,9 @@ function renderCRM() {
       ? "⚠️ No cloud backend is configured, so this is saved on <b>this device only</b> — it will not appear on your phone."
       : "This syncs to your CRM database and survives a nightly rebuild.")));
   renderCRMFollowUp(box);
-  const pipelineBox = $("#pipeline");
-  if (pipelineBox) { box.appendChild(pipelineBox); renderPipeline(); }
+  const pipelineBox = el("div");
+  box.appendChild(pipelineBox);
+  renderPipeline(pipelineBox);
   renderCRMContacts(box);
   renderCRMQuickAdd(box);
   renderCRMDeals(box);
@@ -7104,7 +7138,13 @@ function crmExportDealsJSON() {
   $("#q").addEventListener("input", onDebouncedFilterInput);
   $("#fr").addEventListener("input", onDebouncedFilterInput);
   ["fd", "fv", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", onFilterInput));
-  $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  // (review fix 3) CRM_UI.q is a second, separate search value #q feeds while
+  // on the CRM tab (see onFilterInput above) — clearing #q's own value here
+  // never touched it, so a search left active on Contacts survived a Clear
+  // filters tap. The render() call below already runs renderCRM() again when
+  // the CRM tab is active, which is enough to repaint Contacts unfiltered
+  // once CRM_UI.q is reset alongside it.
+  $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; CRM_UI.q = ""; CRM_UI.showAll = false; render(); };
   const filterToggleBtn = $("#filterstoggle"); if (filterToggleBtn) filterToggleBtn.onclick = toggleMoreFilters;
   applyMoreFiltersOpenState();   // (item 2) restore the panel's remembered open/closed state before first paint
 

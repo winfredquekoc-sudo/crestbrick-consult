@@ -680,6 +680,13 @@ test("needsBulkTypedConfirm/bulkConfirmMatches: the 200 row typed confirm gate",
   assert.equal(d.bulkConfirmMatches(" 7868 ", 7868), true, "surrounding whitespace is tolerated");
   assert.equal(d.bulkConfirmMatches("7867", 7868), false);
   assert.equal(d.bulkConfirmMatches("", 7868), false);
+  // (review fix 4) the modal's own label shows the count WITH thousands
+  // commas ("Type 7,868 to confirm") — typing it back exactly that way, or
+  // with a stray space where a comma would go, must both pass.
+  assert.equal(d.bulkConfirmMatches("7,868", 7868), true, "commas typed back the way the label shows them are tolerated");
+  assert.equal(d.bulkConfirmMatches("7 868", 7868), true, "a space in place of a comma is tolerated");
+  assert.equal(d.bulkConfirmMatches("7,867", 7868), false, "digits still have to match exactly, commas or not");
+  assert.equal(d.bulkConfirmMatches(",", 7868), false, "punctuation with no digits at all never matches");
 });
 
 test("shouldSyncGoLocal: 501 is immediate, 404 only after 3 in a row", () => {
