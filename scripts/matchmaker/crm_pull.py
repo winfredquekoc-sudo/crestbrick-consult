@@ -14,10 +14,11 @@ one needs a manual export from the app anymore:
      with its own dispatch_id.
 
      There is no separate ledger. What was actually appended is read
-     straight off the queue file and every one of its .done-* archives —
-     both carry a dispatch_id on each item this script ever writes, and
-     that is the only record of "already delivered" this script keeps. The
-     whole sequence — fetching the CRM snapshot, marking rows sent or
+     straight off the queue file and every one of its .done-* archives (plus
+     any .sent-* marker — see the PR body's sender patch section, seventh
+     review round) — all of these carry a dispatch_id on each sent item this
+     script ever writes, and that is the only record of "already delivered"
+     this script keeps. The whole sequence — fetching the CRM snapshot, marking rows sent or
      expired, classifying and appending every remaining row — runs under
      ONE exclusive lock on the queue file (<queue file>.lock), held from
      before the snapshot is even fetched until the last append. An
@@ -26,7 +27,7 @@ one needs a manual export from the app anymore:
      already sitting in the queue file, so it appends nothing twice.
 
      A pulled row whose dispatch id turns up in ANY of the queue file's
-     .done-* archives is marked sent on the server — a terminal state
+     .done-* archives (or .sent-* markers) is marked sent on the server — a terminal state
      nothing here ever changes again. A pulled row older than 7 days (by
      the CRM API's own clock, in the snapshot's server_time field — never
      the Mac's local clock, which this script cannot trust to agree with
@@ -118,7 +119,16 @@ _SGT = datetime.timezone(datetime.timedelta(hours=8))
 # archive stamped at or soon after pulled_at might be the very run that
 # raced this row's own append, so it is left ambiguous rather than trusted.
 MIN_SENT_ARCHIVE_AGE = datetime.timedelta(minutes=5)
-_ARCHIVE_STAMP_RE = re.compile(r"\.done-(\d{12})$")
+# .sent-<stamp> is the sender's own fallback (see the PR body's sender patch
+# section, seventh review round): written only when the archive dump/replace/
+# remove sequence itself fails AFTER a send loop has already gone out, so the
+# ids that really were sent that run are not lost with no record anywhere.
+# Same 12 digit SGT stamp as a .done-<stamp> archive, and read the same way
+# below — every function in this file that walks ".done-*" archives walks
+# ".sent-*" markers right alongside them, under the same stamp rule
+# (MIN_SENT_ARCHIVE_AGE included), never a separate, looser check.
+_ARCHIVE_STAMP_RE = re.compile(r"\.(?:done|sent)-(\d{12})$")
+_ARCHIVE_GLOB_SUFFIXES = (".done-*", ".sent-*")
 # The exact tag log_deal.py's import-json mode stamps into notes for dedupe
 # (see its cmd_import_json). Read here only to tell which deals are already
 # in clients.db before deciding what is new — the actual insert/dedupe logic
@@ -273,6 +283,17 @@ def _dispatch_ids_in_file(path):
         data = json.load(open(path))
     except (OSError, ValueError):
         return ids
+    # A <queue>.sent-<stamp> marker (see the PR body's sender patch section,
+    # seventh review round) has its own, simpler shape — {"sent": [<dispatch
+    # id>, ...]} — rather than a .done-* archive's own "items" list. It is
+    # only ever written for ids the sender's send loop itself confirmed went
+    # out that run, so none of _item_was_skipped's per-item checks apply: a
+    # marker never records anything that was skipped.
+    if isinstance(data, dict) and "sent" in data:
+        for did in data.get("sent") or []:
+            if did:
+                ids.add(did)
+        return ids
     for item in data.get("items") or []:
         did = item.get("dispatch_id")
         if did and not _item_was_skipped(item):
@@ -303,25 +324,28 @@ def _archive_stamp(path):
 
 
 def archived_dispatch_id_stamps(queue_path):
-    """Every dispatch_id found in any .done-* archive next to the queue file,
-    mapped to the list of stamps (parsed from each archive's own filename)
-    it turned up in — normally one archive per id, but every match is kept
-    since a dispatch id could in principle land in more than one rotation.
-    Read only, never written here."""
+    """Every dispatch_id found in any .done-* archive OR .sent-* marker next
+    to the queue file, mapped to the list of stamps (parsed from each file's
+    own filename) it turned up in — normally one file per id, but every
+    match is kept since a dispatch id could in principle land in more than
+    one rotation (or an archive AND a marker, in the crash-after-send case
+    the marker exists for). Read only, never written here."""
     stamps = {}
-    for f in glob.glob(queue_path + ".done-*"):
-        stamp = _archive_stamp(f)
-        for did in _dispatch_ids_in_file(f):
-            stamps.setdefault(did, []).append(stamp)
+    for suffix in _ARCHIVE_GLOB_SUFFIXES:
+        for f in glob.glob(queue_path + suffix):
+            stamp = _archive_stamp(f)
+            for did in _dispatch_ids_in_file(f):
+                stamps.setdefault(did, []).append(stamp)
     return stamps
 
 
 def all_archived_dispatch_ids(queue_path):
-    """dispatch_id values found in EVERY .done-* archive next to the queue
-    file (the morning dispatch job's own naming: <queue_path>.done-
-    <timestamp>), not only the newest one — a dispatch id can sit in an
-    archive that has since been superseded by one or more later rotations.
-    Read only, never written here."""
+    """dispatch_id values found in EVERY .done-* archive and .sent-* marker
+    next to the queue file (the morning dispatch job's own naming:
+    <queue_path>.done-<timestamp> / <queue_path>.sent-<timestamp>), not only
+    the newest one — a dispatch id can sit in a file that has since been
+    superseded by one or more later rotations. Read only, never written
+    here."""
     return set(archived_dispatch_id_stamps(queue_path).keys())
 
 

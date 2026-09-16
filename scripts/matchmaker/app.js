@@ -1701,6 +1701,16 @@ const CRM = (function () {
       rows.sort((a, b) => ts(b.id) - ts(a.id));
       return rows[0];
     },
+    // Looks up one dispatch row by its own exact id, never by pair (PR #132
+    // seventh review). The Needs a check section's Sent/Not sent buttons act
+    // on the SPECIFIC row shown to the operator, which is not always the same
+    // row CRM.dispatchFor(lid, tid) — "the newest attempt for the pair" —
+    // would return by the time the click resolves: a fresh Mark Queued
+    // attempt for the same pair can only land once this row is no longer
+    // queued/pulled (dispatchAlreadyHandled), but an operator resolving an
+    // ambiguous row IS exactly that — the row this action targets must never
+    // be re-derived from the pair once resolution starts.
+    dispatchById(id) { return id ? (S.dispatch[id] || null) : null; },
     // Always a full replace, same reasoning as upsertDeal above — there is no
     // partial patch shape for a dispatch row. Every write is a brand new id
     // (see writeDispatchRow), so this never collides with an earlier attempt
@@ -1923,36 +1933,39 @@ function dispatchHandedOffToMac(lid, tid) {
   const row = CRM.dispatchFor(lid, tid);
   return !!(row && (row.status === "pulled" || row.status === "sent"));
 }
-// True when the newest attempt for this pair is a pulled row crm_pull.py
-// found an archive it could not confidently trust (an archive stamped too
-// close to pulled_at, or the row sitting in both the live queue file and an
-// archive at once — see crm_pull.py's own docstring) and has stamped
-// ambiguous_since on via the "ambiguous" op. This is the dispatch drawer's
-// own "Needs a check" state — resolved only by an operator picking Sent or
-// Not sent below, never by crm_pull.py re running the same inconclusive
-// check against it on a later run.
-function dispatchIsAmbiguous(lid, tid) {
-  if (typeof CRM === "undefined") return false;
-  const row = CRM.dispatchFor(lid, tid);
-  return !!(row && row.status === "pulled" && row.ambiguous_since);
-}
-// Operator resolution for an ambiguous row: "Sent" moves the SAME row
-// straight to sent — pulled -> sent is the one transition nextDispatchStatus
-// already allows (crm-validate.js, unchanged this round) — so a message
-// that genuinely did go out is not left dangling as ambiguous forever.
-// sent_confirmed:true rides along on the same op (PR #132 sixth review) — an
-// OPERATOR's own Sent click, never crm_pull.py's own archive based guess
-// (which only ever writes plain status:"sent", no sent_confirmed) — so
-// crm_pull.py's cleanup_resolved can prune this row's queue item on its next
-// run exactly like a cancelled one, instead of leaving a message that really
-// did send sitting in the real morning dispatch queue forever.
-function resolveAmbiguousSent(lid, tid) {
+// Operator resolution for an ambiguous row, both by the row's own EXACT id
+// (PR #132 seventh review), never re-derived from the pair via
+// CRM.dispatchFor — the "Needs a check" section (ambiguousDispatchRows,
+// below) shows a specific row, and that is the row Sent/Not sent must act
+// on, not whatever CRM.dispatchFor(lid, tid) — "the newest attempt for the
+// pair" — happens to return by the time the click resolves. dispatchFor and
+// this row's own id agree in the common case, but must never be assumed to:
+// nothing here blocks two attempts for the same pair coexisting server side
+// (a stale ambiguous op landing late, a second device, a direct API write),
+// and resolving the wrong one would either silently drop a real sent
+// confirmation or wrongly cancel a row the operator never looked at.
+//
+// "Sent" moves the SAME row straight to sent — pulled -> sent is the one
+// transition nextDispatchStatus already allows (crm-validate.js, unchanged
+// this round) — so a message that genuinely did go out is not left dangling
+// as ambiguous forever. sent_confirmed:true rides along on the same op (PR
+// #132 sixth review) — an OPERATOR's own Sent click, never crm_pull.py's own
+// archive based guess (which only ever writes plain status:"sent", no
+// sent_confirmed) — so crm_pull.py's cleanup_resolved can prune this row's
+// queue item on its next run exactly like a cancelled one, instead of
+// leaving a message that really did send sitting in the real morning
+// dispatch queue forever.
+function resolveAmbiguousSent(id) {
   if (typeof CRM === "undefined") return;
-  const row = CRM.dispatchFor(lid, tid);
+  const row = CRM.dispatchById(id);
   if (!row) return;
   CRM.upsertDispatch(Object.assign({}, row, { status: "sent", sent_confirmed: true }));
-  // Also unqueue the LOCAL "Queued" mark for this pair — the row is now
-  // confirmed sent, so the worklist must stop showing it as still queued.
+  // Also unqueue the LOCAL "Queued" mark for this pair — but only when the
+  // row just resolved is still the pair's newest attempt (PR #132 seventh
+  // review). An older ambiguous row being resolved here must never clear a
+  // mark that belongs to a NEWER attempt for the same pair that has since
+  // superseded it — that newer attempt's own state is what the worklist
+  // should keep reflecting, untouched by this older row's resolution.
   // This deliberately does NOT go through clearMarkV, which would also call
   // cancelDispatchRow: the row above is already a real terminal sent state,
   // not something to cancel. Guarded with typeof since this function is also
@@ -1961,23 +1974,27 @@ function resolveAmbiguousSent(lid, tid) {
   // — the guard is a no-op in that harness, and the real thing everywhere
   // this file actually loads as a whole (those are all real top level
   // declarations earlier in this same file).
-  if (typeof getMarkV !== "undefined" && typeof markKey !== "undefined" &&
+  const newest = CRM.dispatchFor(row.listing_id, row.tenant_id);
+  if (newest && newest.id === row.id &&
+      typeof getMarkV !== "undefined" && typeof markKey !== "undefined" &&
       typeof MARK_CACHE !== "undefined" && typeof mirrorMatchToCRM !== "undefined" &&
-      getMarkV(lid, tid) === "Queued") {
-    const key = markKey(lid, tid);
+      getMarkV(row.listing_id, row.tenant_id) === "Queued") {
+    const key = markKey(row.listing_id, row.tenant_id);
     localStorage.removeItem(key);
     MARK_CACHE.delete(key);
     if (typeof MARK_GEN !== "undefined") MARK_GEN++;
-    mirrorMatchToCRM(lid, tid);
+    mirrorMatchToCRM(row.listing_id, row.tenant_id);
   }
 }
-// "Not sent" cancels the row with a reason that reads as an operator's own
-// call, not an automated rule. Cancelled unblocks a fresh Mark Queued for
-// the same pair (see dispatchAlreadyHandled above — only queued/pulled ever
+// "Not sent" cancels the SAME row by its own exact id (PR #132 seventh
+// review — same reasoning as resolveAmbiguousSent above), with a reason that
+// reads as an operator's own call, not an automated rule. Cancelled unblocks
+// a fresh Mark Queued for the same pair once this row is the pair's newest
+// attempt again (see dispatchAlreadyHandled above — only queued/pulled ever
 // blocks a new write), which is what actually gets the tenant a message.
-function resolveAmbiguousNotSent(lid, tid) {
+function resolveAmbiguousNotSent(id) {
   if (typeof CRM === "undefined") return;
-  const row = CRM.dispatchFor(lid, tid);
+  const row = CRM.dispatchById(id);
   if (!row) return;
   CRM.cancelDispatch(row.id, "operator: not sent");
 }
@@ -4854,14 +4871,26 @@ function openDispatchDrawer() {
   if (needsCheck.length) {
     html += '<h3 style="margin:0 0 4px">Needs a check (' + needsCheck.length + ')</h3>' +
       '<div class="mut" style="font-size:12px;margin-bottom:10px">crm_pull.py could not confirm whether these actually sent — shown here regardless of this device\'s own local marks</div>';
-    needsCheck.forEach((row, i) => {
+    needsCheck.forEach((row) => {
       const lbl = labelForDispatchRow(row);
+      // data-nsent/data-nnotsent carry the row's own exact id (PR #132
+      // seventh review), not a list index — resolveAmbiguousSent/NotSent now
+      // look the row up by that id directly (CRM.dispatchById), never by
+      // re-deriving "the newest attempt for this pair" through
+      // CRM.dispatchFor, so the id shown to the operator is exactly the id
+      // acted on even if a further dispatch attempt for the same pair has
+      // shown up by the time this button is clicked.
       html += '<div class="row"><div class="nm">' + esc(lbl.tenant) + '</div><div class="mut" style="font-size:12px">' + esc(lbl.listing) + '</div>' +
         '<div class="mut" style="font-size:12px;color:#b45309">Needs a check: may or may not have sent</div>' +
-        '<div class="acts"><button class="btn" data-nsent="' + i + '">Sent</button><button class="btn" data-nnotsent="' + i + '">Not sent</button></div></div>';
+        '<div class="acts"><button class="btn" data-nsent="' + esc(row.id) + '">Sent</button><button class="btn" data-nnotsent="' + esc(row.id) + '">Not sent</button></div></div>';
     });
   }
-  if (!items.length) html += '<div class="empty">Nothing queued yet. Mark a tenant Queued from the worklist or a listing panel.</div>';
+  // Nothing queued yet only when the Needs a check section above is ALSO
+  // empty (PR #132 seventh review) — a drawer with nothing in the plain
+  // queued list but one or more ambiguous rows still needing an operator's
+  // Sent/Not sent is not "nothing queued yet", and must not tell Winfred
+  // there is nothing here to look at.
+  if (!items.length && !needsCheck.length) html += '<div class="empty">Nothing queued yet. Mark a tenant Queued from the worklist or a listing panel.</div>';
   items.forEach((m, i) => {
     // Once crm_pull.py has pulled this row (or, eventually, sent it), the
     // Mac's own morning dispatch queue is the record of truth, not this
@@ -4890,13 +4919,13 @@ function openDispatchDrawer() {
     openDispatchDrawer();
   });
   wrap.querySelectorAll("[data-nsent]").forEach(b => b.onclick = () => {
-    const row = needsCheck[+b.dataset.nsent]; wrap.remove();
-    resolveAmbiguousSent(row.listing_id, row.tenant_id);
+    const id = b.dataset.nsent; wrap.remove();
+    resolveAmbiguousSent(id);
     openDispatchDrawer();
   });
   wrap.querySelectorAll("[data-nnotsent]").forEach(b => b.onclick = () => {
-    const row = needsCheck[+b.dataset.nnotsent]; wrap.remove();
-    resolveAmbiguousNotSent(row.listing_id, row.tenant_id);
+    const id = b.dataset.nnotsent; wrap.remove();
+    resolveAmbiguousNotSent(id);
     openDispatchDrawer();
   });
   wrap.querySelector("[data-closedrawer]").onclick = () => wrap.remove();

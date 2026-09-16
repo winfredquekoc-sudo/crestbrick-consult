@@ -274,6 +274,18 @@ async function applyOp(client, o) {
       const cur = await client.query(`select status from crm_dispatch where id = $1`, [d.id]);
       const currentStatus = cur.rows[0] ? cur.rows[0].status : null;
       const nextStatus = nextDispatchStatus(currentStatus, d.status);
+      // Only ever WRITE true when this op's own write actually lands the row
+      // on sent (PR #132 seventh review) — an incoming sent_confirmed:true
+      // riding on an op whose nextStatus is anything else (queued, pulled,
+      // cancelled) is ignored outright, never persisted. Without this gate a
+      // stray or malformed op carrying the flag could stamp sent_confirmed
+      // on a row that never actually reached sent, which is exactly the
+      // signal crm_pull.py's cleanup_resolved and the app's own "Needs a
+      // check" section both trust to mean an operator actually confirmed a
+      // send. The OR below is untouched — once true (a genuine sent
+      // confirmation) it still can never regress false through a later,
+      // unrelated dispatch upsert for the same row.
+      const sentConfirmed = nextStatus === "sent" ? !!d.sent_confirmed : false;
       await client.query(
         `insert into crm_dispatch (id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device, pulled_at, sent_confirmed)
          values ($1,$2,$3,$4,$5,$6,$7,$8,$9, case when $8 = 'pulled' then now() else null end, $10)
@@ -294,10 +306,11 @@ async function applyOp(client, o) {
                             then now() else crm_dispatch.pulled_at end,
            -- OR, never overwrite — an operator's own Sent confirmation must
            -- never be undone by a later, unrelated dispatch upsert for the
-           -- same row (there should not be one, since sent is terminal, but
-           -- this is the same defensive posture as pulled_at above).
+           -- same row. $10 is already gated to nextStatus = 'sent' above, so
+           -- this OR only ever has to protect a true value already on the
+           -- row from a later op that does not itself land on sent.
            sent_confirmed = crm_dispatch.sent_confirmed or excluded.sent_confirmed`,
-        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device, d.sent_confirmed]
+        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device, sentConfirmed]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
         [d.tenant_id, "dispatch:" + nextStatus, (d.viewing_slot || d.text || "dispatch").slice(0, 120)]);
