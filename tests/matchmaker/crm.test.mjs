@@ -336,13 +336,16 @@ const DISPATCH_SRC = slice("function writeDispatchRow(lid, tid) {", "function pa
 function makeDispatchHelpers(fakeCRM, fakeData) {
   return new Function(
     "CRM", "DATA", "ALL_TENANTS", "draftFor",
-    DISPATCH_SRC + "\nreturn { writeDispatchRow, cancelDispatchRow, dispatchAlreadyHandled, dispatchHandedOffToMac, dispatchIsAmbiguous, resolveAmbiguousSent, resolveAmbiguousNotSent, bulkQueueTargets };"
+    DISPATCH_SRC + "\nreturn { writeDispatchRow, cancelDispatchRow, dispatchAlreadyHandled, dispatchHandedOffToMac, resolveAmbiguousSent, resolveAmbiguousNotSent, bulkQueueTargets };"
   )(fakeCRM, fakeData.DATA, fakeData.ALL_TENANTS, fakeData.draftFor);
 }
 
 // Mirrors CRM.dispatchFor's real implementation: the newest attempt for a
 // (listing_id, tenant_id) pair, picked by the id's own trailing timestamp,
 // not a direct key lookup — there is no fixed row per pair any more.
+// dispatchById/dispatchRows mirror the real CRM object too (PR #132 seventh
+// review) — dispatchById by the row's own exact id, never re-derived from
+// the pair, and dispatchRows for ambiguousDispatchRows' own tests below.
 function fakeCRMWithDispatch(rowsById) {
   const upserts = [];
   const ts = (id) => { const n = Number(String(id || "").split("_").pop()); return Number.isFinite(n) ? n : 0; };
@@ -354,6 +357,8 @@ function fakeCRMWithDispatch(rowsById) {
       rows.sort((a, b) => ts(b.id) - ts(a.id));
       return rows[0];
     },
+    dispatchById(id) { return rowsById[id] || null; },
+    dispatchRows() { return Object.values(rowsById); },
     upsertDispatch(row) { upserts.push(row); rowsById[row.id] = row; },
     cancelDispatch(id, reason) { upserts.push({ op: "cancel", id, reason }); if (rowsById[id]) rowsById[id].status = "cancelled"; },
   };
@@ -451,58 +456,81 @@ test("cancelDispatchRow: cancels the newest attempt for the pair, not a guessed 
 });
 
 // =====================================================================
-// dispatchIsAmbiguous / resolveAmbiguousSent / resolveAmbiguousNotSent
-// (PR #132 fifth review round) — the dispatch drawer's "Needs a check"
+// resolveAmbiguousSent / resolveAmbiguousNotSent (PR #132 fifth review
+// round; PR #132 seventh review round: act on the row's own exact id,
+// looked up via CRM.dispatchById, never re-derived from the pair through
+// CRM.dispatchFor "the newest attempt" — dispatchIsAmbiguous itself was
+// dead code by the sixth review round, superseded by ambiguousDispatchRows
+// below, and is removed this round) — the dispatch drawer's "Needs a check"
 // state for a pulled row crm_pull.py stamped ambiguous_since on rather than
 // confidently marking sent or leaving to expire.
 // =====================================================================
-test("dispatchIsAmbiguous: true only for a pulled row with ambiguous_since set", () => {
-  const crm = fakeCRMWithDispatch({
-    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
-    d2: { id: "d2", listing_id: "L1", tenant_id: "T2", status: "pulled" },
-    d3: { id: "d3", listing_id: "L1", tenant_id: "T3", status: "sent", ambiguous_since: "2026-09-16T00:00:00Z" },
-    d4: { id: "d4", listing_id: "L1", tenant_id: "T4", status: "queued" },
-  });
-  const H = makeDispatchHelpers(crm, FAKE_DATA);
-  assert.equal(H.dispatchIsAmbiguous("L1", "T1"), true, "pulled with ambiguous_since is the drawer's Needs a check state");
-  assert.equal(H.dispatchIsAmbiguous("L1", "T2"), false, "plain pulled, never flagged, is not ambiguous");
-  assert.equal(H.dispatchIsAmbiguous("L1", "T3"), false, "already resolved to sent must not still read as ambiguous");
-  assert.equal(H.dispatchIsAmbiguous("L1", "T4"), false, "queued is never ambiguous");
-  assert.equal(H.dispatchIsAmbiguous("L1", "T9"), false, "no row at all is not ambiguous either");
-});
-
-test("resolveAmbiguousSent: moves the same row straight to sent, never a new id", () => {
+test("resolveAmbiguousSent: moves the same row straight to sent, sent_confirmed true, never a new id", () => {
   const crm = fakeCRMWithDispatch({
     d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z", tenant_id_dup: null },
   });
   const H = makeDispatchHelpers(crm, FAKE_DATA);
-  H.resolveAmbiguousSent("L1", "T1");
+  H.resolveAmbiguousSent("d1");
   assert.equal(crm.upserts.length, 1);
   assert.equal(crm.upserts[0].id, "d1", "Sent resolves the SAME row, it never writes a fresh attempt");
   assert.equal(crm.upserts[0].status, "sent");
+  assert.equal(crm.upserts[0].sent_confirmed, true, "an operator's own Sent click must stamp sent_confirmed true");
 });
 
-test("resolveAmbiguousSent: no row for the pair is a no-op", () => {
+test("resolveAmbiguousSent: no row for that id is a no-op", () => {
   const crm = fakeCRMWithDispatch({});
   const H = makeDispatchHelpers(crm, FAKE_DATA);
-  H.resolveAmbiguousSent("L1", "T9");
+  H.resolveAmbiguousSent("nope");
   assert.equal(crm.upserts.length, 0);
 });
 
-test("resolveAmbiguousNotSent: cancels the row with an operator reason, unblocking a fresh Mark Queued", () => {
+test("resolveAmbiguousSent: acts on the exact row id passed in, never re-resolves through the pair's newest attempt", () => {
+  // Two attempts for the same pair: the OLDER one is the ambiguous row an
+  // operator is looking at in the drawer; a NEWER one already exists for
+  // the same pair (e.g. a stale ambiguous op landing late, a second
+  // device, or a direct API write — nothing here assumes this cannot
+  // happen). CRM.dispatchFor(lid, tid) would return the NEWER row; the fix
+  // under test is that resolveAmbiguousSent must resolve the row the
+  // operator actually clicked Sent for, by its own id, regardless.
+  const crm = fakeCRMWithDispatch({
+    dispatch_L1_T1_1000: { id: "dispatch_L1_T1_1000", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+    dispatch_L1_T1_2000: { id: "dispatch_L1_T1_2000", listing_id: "L1", tenant_id: "T1", status: "sent" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousSent("dispatch_L1_T1_1000");
+  assert.equal(crm.upserts.length, 1);
+  assert.equal(crm.upserts[0].id, "dispatch_L1_T1_1000", "must resolve the exact row passed in, not CRM.dispatchFor's newest attempt for the pair");
+  assert.equal(crm.upserts[0].status, "sent");
+});
+
+test("resolveAmbiguousNotSent: cancels the row with an operator reason, sent_confirmed absent, unblocking a fresh Mark Queued", () => {
   const crm = fakeCRMWithDispatch({
     d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
   });
   const H = makeDispatchHelpers(crm, FAKE_DATA);
-  H.resolveAmbiguousNotSent("L1", "T1");
+  H.resolveAmbiguousNotSent("d1");
   const cancelOps = crm.upserts.filter(o => o.op === "cancel");
   assert.equal(cancelOps.length, 1);
   assert.equal(cancelOps[0].id, "d1");
   assert.equal(cancelOps[0].reason, "operator: not sent");
+  assert.equal(cancelOps[0].sent_confirmed, undefined, "a Not sent resolution must never carry sent_confirmed");
+  assert.equal(crm.upserts[0].sent_confirmed, undefined, "the cancelled row itself must not pick up sent_confirmed either");
   // cancelDispatch's fake, mirroring the real one, flips the row to
   // cancelled — dispatchAlreadyHandled only ever blocks on queued/pulled,
   // so a fresh Mark Queued for this pair is allowed again immediately.
   assert.equal(H.dispatchAlreadyHandled("L1", "T1"), false, "cancelled must unblock a fresh Mark Queued for the pair");
+});
+
+test("resolveAmbiguousNotSent: acts on the exact row id passed in, never re-resolves through the pair's newest attempt", () => {
+  const crm = fakeCRMWithDispatch({
+    dispatch_L1_T1_1000: { id: "dispatch_L1_T1_1000", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+    dispatch_L1_T1_2000: { id: "dispatch_L1_T1_2000", listing_id: "L1", tenant_id: "T1", status: "queued" },
+  });
+  const H = makeDispatchHelpers(crm, FAKE_DATA);
+  H.resolveAmbiguousNotSent("dispatch_L1_T1_1000");
+  const cancelOps = crm.upserts.filter(o => o.op === "cancel");
+  assert.equal(cancelOps.length, 1);
+  assert.equal(cancelOps[0].id, "dispatch_L1_T1_1000", "must cancel the exact row passed in, not the pair's newest attempt");
 });
 
 test("bulkQueueTargets: cold pairs and already pulled pairs both drop out, counted separately", () => {
@@ -528,4 +556,88 @@ test("bulkQueueTargets: everything already pulled leaves an empty target", () =>
   assert.equal(target.length, 0);
   assert.equal(coldSkipped, 0);
   assert.equal(pulledSkipped, 1);
+});
+
+// =====================================================================
+// ambiguousDispatchRows / labelForDispatchRow (PR #132 sixth review round,
+// tests added seventh review round) — the dispatch drawer's "Needs a check"
+// section, built straight off the CRM snapshot (CRM.dispatchRows()),
+// independent of this device's own local marks and of MATCHES membership.
+// =====================================================================
+const AMBIG_SRC = slice("function ambiguousDispatchRows() {", "function openDispatchDrawer()");
+function makeAmbigHelpers(fakeCRM, fakeData) {
+  return new Function(
+    "CRM", "DATA", "ALL_TENANTS",
+    AMBIG_SRC + "\nreturn { ambiguousDispatchRows, labelForDispatchRow, dispatchRowStatusLabel };"
+  )(fakeCRM, fakeData.DATA, fakeData.ALL_TENANTS);
+}
+
+test("ambiguousDispatchRows: only pulled rows with ambiguous_since, regardless of any other row on the pair", () => {
+  const crm = fakeCRMWithDispatch({
+    d1: { id: "d1", listing_id: "L1", tenant_id: "T1", status: "pulled", ambiguous_since: "2026-09-16T00:00:00Z" },
+    d2: { id: "d2", listing_id: "L1", tenant_id: "T2", status: "pulled" },
+    d3: { id: "d3", listing_id: "L1", tenant_id: "T3", status: "sent", ambiguous_since: "2026-09-16T00:00:00Z" },
+    d4: { id: "d4", listing_id: "L1", tenant_id: "T4", status: "queued" },
+  });
+  const H = makeAmbigHelpers(crm, FAKE_DATA);
+  const rows = H.ambiguousDispatchRows();
+  assert.deepEqual(rows.map(r => r.id), ["d1"], "only a pulled row with ambiguous_since qualifies");
+});
+
+test("ambiguousDispatchRows: empty CRM (local only mode) returns no rows, never throws", () => {
+  const H = makeAmbigHelpers(undefined, FAKE_DATA);
+  assert.deepEqual(H.ambiguousDispatchRows(), []);
+});
+
+test("labelForDispatchRow: resolves listing/tenant names from DATA when present", () => {
+  const crm = fakeCRMWithDispatch({});
+  const H = makeAmbigHelpers(crm, FAKE_DATA);
+  const lbl = H.labelForDispatchRow({ listing_id: "L1", tenant_id: "T1" });
+  assert.equal(lbl.tenant, "Test Tenant");
+  assert.ok(lbl.listing.startsWith("Test Listing"));
+});
+
+test("labelForDispatchRow: falls back to the raw ids when the listing or tenant is not found", () => {
+  const crm = fakeCRMWithDispatch({});
+  const H = makeAmbigHelpers(crm, FAKE_DATA);
+  const lbl = H.labelForDispatchRow({ listing_id: "L9-gone", tenant_id: "T9-gone" });
+  assert.equal(lbl.tenant, "T9-gone");
+  assert.equal(lbl.listing, "L9-gone");
+});
+
+// =====================================================================
+// replay()'s "dispatch" case (PR #132 sixth review round fix, test added
+// seventh review round) — ambiguous_since and sent_confirmed must ride
+// along on a replayed "dispatch" op exactly like every other field, since
+// both resolveAmbiguousSent and writeDispatchRow build the op from
+// Object.assign({}, row, {...}), carrying whatever the row already had.
+// =====================================================================
+const REPLAY_SRC = slice("function replay(o) {", "// One-time import of pre-existing device-local state");
+function makeReplay() {
+  return new Function(
+    "let S = { dispatch: {} };\n" + REPLAY_SRC + "\nreturn { replay, dispatch: S.dispatch };"
+  )();
+}
+
+test("replay: a 'dispatch' op carries ambiguous_since and sent_confirmed into the rebuilt row", () => {
+  const R = makeReplay();
+  R.replay({
+    op: "dispatch", id: "d1", tenant_id: "T1", listing_id: "L1", jid: null, phone: "91234567",
+    text: "hi there", viewing_slot: null, status: "sent", device: "mac",
+    created_at: "2026-09-16T00:00:00Z", pulled_at: "2026-09-16T00:01:00Z",
+    ambiguous_since: "2026-09-16T00:02:00Z", sent_confirmed: true,
+  });
+  assert.equal(R.dispatch.d1.ambiguous_since, "2026-09-16T00:02:00Z");
+  assert.equal(R.dispatch.d1.sent_confirmed, true);
+});
+
+test("replay: a 'dispatch' op with neither field rebuilds the row without them (undefined, not dropped/coerced oddly)", () => {
+  const R = makeReplay();
+  R.replay({
+    op: "dispatch", id: "d1", tenant_id: "T1", listing_id: "L1", jid: null, phone: "91234567",
+    text: "hi there", viewing_slot: null, status: "queued", device: "mac",
+    created_at: "2026-09-16T00:00:00Z", pulled_at: null,
+  });
+  assert.equal(R.dispatch.d1.ambiguous_since, undefined);
+  assert.equal(R.dispatch.d1.sent_confirmed, undefined);
 });

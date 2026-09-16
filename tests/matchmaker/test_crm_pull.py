@@ -137,8 +137,20 @@ class FakeServer:
                 if row is None:
                     row = {"id": o["id"]}
                     self.dispatch[o["id"]] = row
-                row.update({k: v for k, v in o.items() if k not in ("op", "status")})
+                # sent_confirmed is handled separately below, never through
+                # this blanket update — see the OR/gate comment there.
+                row.update({k: v for k, v in o.items() if k not in ("op", "status", "sent_confirmed")})
                 row["status"] = next_status
+                # Mirrors api/crm.js's own PR #132 seventh review fix: only
+                # ever WRITE true when this op's own write actually lands the
+                # row on sent — an incoming sent_confirmed:true riding on an
+                # op whose next_status is anything else is ignored outright.
+                # OR'd onto whatever the row already had, never a plain
+                # overwrite, so a genuine earlier confirmation can never
+                # regress false through a later, unrelated dispatch op for
+                # the same row.
+                incoming_sent_confirmed = bool(o.get("sent_confirmed")) if next_status == "sent" else False
+                row["sent_confirmed"] = bool(row.get("sent_confirmed")) or incoming_sent_confirmed
                 if next_status == "pulled" and current != "pulled":
                     row["pulled_at"] = datetime.datetime.now(datetime.timezone.utc).isoformat()
             elif o["op"] == "dispatch_cancel":
@@ -300,6 +312,18 @@ class Fixture:
         items = [{"jid": "x@s.whatsapp.net", "tag": "matchmaker", "message": "sent",
                   "tenant_id": "Tx", "dispatch_id": d} for d in dispatch_ids]
         json.dump({"created": "2026-09-01T00:00:00+08:00", "items": items}, open(path, "w"))
+        return path
+
+    def write_sent_marker(self, suffix, dispatch_ids):
+        """Writes a .sent-<suffix> marker next to the queue file (PR #132
+        seventh review round's sender patch) — the sender's own fallback
+        when the archive dump/replace/remove sequence itself fails AFTER a
+        send loop has already gone out, so the ids that really were sent
+        that run are not lost with no record anywhere. Simpler shape than a
+        .done-* archive: just the sent dispatch ids, no per-item skip
+        semantics — a marker never records anything that was skipped."""
+        path = self.queue_path + ".sent-" + suffix
+        json.dump({"sent": list(dispatch_ids)}, open(path, "w"))
         return path
 
     def deal_rows(self):
@@ -479,6 +503,31 @@ def t_archived_row_survives_further_rotations_and_is_marked_sent():
     finally:
         fx.restore()
 check("(c) a row archived at 08:00, surviving two further rotations, is never re appended and ends sent", t_archived_row_survives_further_rotations_and_is_marked_sent)
+
+
+# ---- (c2) a .sent-<stamp> marker is read exactly like a .done-* archive ---
+# (PR #132 seventh review round's sender patch — see the PR body): the
+# sender's own fallback when its archive dump/replace/remove sequence fails
+# AFTER a send loop already went out.
+def t_sent_marker_file_is_treated_like_an_archive():
+    fx = Fixture()
+    try:
+        old_pulled_at = pulled_at_from_server(fx, hours_ago=1)
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = old_pulled_at
+        # Well past MIN_SENT_ARCHIVE_AGE from pulled_at, exactly like a
+        # trustworthy .done-* archive stamp would need to be.
+        fx.write_sent_marker(archive_stamp(fx, hours_from_now=3), ["dispatch_L1_T1"])
+
+        crm_pull.main(["--apply"])
+
+        matches = [i for i in fx.queue_items() if i.get("dispatch_id") == "dispatch_L1_T1"]
+        assert matches == [], "a row found in a .sent-* marker must never be appended"
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "sent", \
+            "a .sent-* marker must mark the row sent exactly like a .done-* archive does"
+    finally:
+        fx.restore()
+check("(c2) a .sent-<stamp> marker file is read like a .done-* archive, under the same stamp rule", t_sent_marker_file_is_treated_like_an_archive)
 
 
 # ---- (d) cancel after pull, before 08:00: pruned once ----------------------
@@ -990,6 +1039,34 @@ def t_ambiguous_resolved_sent_prunes_queue_appends_nothing():
     finally:
         fx.restore()
 check("(m4) operator resolves ambiguous as Sent — sent_confirmed prunes the queue item, nothing appended again", t_ambiguous_resolved_sent_prunes_queue_appends_nothing)
+
+
+# ---- (m5) sent_confirmed is gated to an op that actually lands on sent ---
+# (PR #132 seventh review round, mirroring the same gate in deploy/api/crm.js's
+# "dispatch" case): a stray or malformed op carrying sent_confirmed:true must
+# never stamp the flag on a row this same write did not itself move to sent.
+def t_queued_op_with_sent_confirmed_flag_on_pulled_row_stays_pulled_without_it():
+    fx = Fixture()
+    try:
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx, hours_ago=1)
+
+        # nextDispatchStatus(pulled, queued) stays "pulled" (pulled only ever
+        # moves on to sent) — the flag riding along on this op must be
+        # ignored outright, not merely deferred.
+        fx.server.apply_ops([{
+            "op": "dispatch", "id": "dispatch_L1_T1", "tenant_id": "T1", "listing_id": "L1",
+            "jid": None, "phone": "91111111", "text": fx.server.dispatch["dispatch_L1_T1"]["text"],
+            "viewing_slot": None, "status": "queued", "device": None, "sent_confirmed": True,
+        }])
+
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled", \
+            "a queued incoming status against a pulled row must leave it pulled (nextDispatchStatus is unchanged)"
+        assert not fx.server.dispatch["dispatch_L1_T1"].get("sent_confirmed"), \
+            "sent_confirmed must never be set by an op whose own write does not land the row on sent"
+    finally:
+        fx.restore()
+check("(m5) a queued op carrying sent_confirmed on a pulled row leaves it pulled, without the flag", t_queued_op_with_sent_confirmed_flag_on_pulled_row_stays_pulled_without_it)
 
 
 # ---- lock timeout (fifth review round): a busy queue lock is never worth --
