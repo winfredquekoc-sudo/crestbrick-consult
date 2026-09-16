@@ -241,27 +241,72 @@ def test_phone_normalize_idempotent():
 
 # =========================================== ethnicity parser [items 1/13/14]
 def test_parse_ethnicity_guards():
-    section("parse_ethnicity: clause based 'only'/'except' parsing (item 13) and 'any' exclusion guard (item 14) "
-            "-- rewritten per Opus review of PR #133 (16 Sep 2026): a 3 token window was too narrow for "
-            "'only looking for a chinese tenant' style phrasing, so this is now clause scoped, not token scoped")
+    section("parse_ethnicity: negation aware, bracket splitting rewrite (Opus review of PR #133, round 2, "
+            "16 Sep 2026) -- round 1's clause scoping fixed the token-window bugs but collected every race "
+            "word in an 'only' clause with no regard for negation, and did not split on brackets, so "
+            "'Chinese only (no Indian/Malay)' inverted into only:[indian,chinese,malay] -- a real polarity "
+            "inversion on live rental preference text, not just a missed signal. This corpus covers every "
+            "phrasing from both review rounds plus the 4 confirmed live-book regressions.")
     cases = [
         # (raw text, expected rule, expected races)
+
+        # round 2: the 4 confirmed polarity-inversion bug reports
+        ("Chinese only (no Indian/Malay)", "only", ["chinese"]),
+        ("prefer not Indian and Malay (internal screening only, never public)", "exclude", ["indian", "malay"]),
+        ("Excludes Indian, INTERNAL screening preference only, never in public listing", "exclude", ["indian"]),
+        ("Chinese only (confirmed 27 Jun: rejected Indian profile)", "only", ["chinese"]),
+
+        # round 2: "all welcome" / "open to all" / "all except X" (item 4)
+        ("all welcome", "any", []),
+        ("open to all", "any", []),
+        ("open to all races", "any", []),
+        ("all except indian", "exclude", ["indian"]),
+
+        # round 2: negation words beyond plain no/not (item 2)
+        ("excludes indian tenants", "exclude", ["indian"]),
+        ("excluding malay applicants", "exclude", ["malay"]),
+        ("we reject indian tenants", "exclude", ["indian"]),
+        ("avoid indian tenants", "exclude", ["indian"]),
+        ("non chinese tenants preferred", "exclude", ["chinese"]),
+
+        # round 2: generic "only" that is NOT about race (item 3) -- must never
+        # hard-block on a word like "screening"/"pax"/"room" etc.
+        ("1 pax only, Chinese preferred", "prefer", ["chinese"]),
+        ("female only, Chinese preferred", "prefer", ["chinese"]),
+        ("professionals only, no Indian", "exclude", ["indian"]),
+
+        # found live-book cases (via the local, uncommitted regression script
+        # comparing every real ethnicity string old vs new -- see PR body):
+        # plural/derived forms and a race mentioned twice with mixed polarity
+        # in the same clause must not silently drop a real exclusion
+        ("no Indians allowed", "exclude", ["indian"]),
+        ("no Malaysian tenants", "exclude", ["malay"]),
+        ("an Indian applicant was rejected: no Indian", "exclude", ["indian"]),
+
+        # round 1 (unchanged behavior, still must hold)
         ("Chinese only", "only", ["chinese"]),
         ("small room only, prefers Chinese", "prefer", ["chinese"]),
         ("no preference", "any", []),
         ("any race except Indian", "exclude", ["indian"]),
         ("not any particular race but no Indian", "exclude", ["indian"]),
-        ("prefer not Indian and Malay", "exclude", ["indian"]),
+        # improved from round 1 (was exclude:[indian] only -- "Malay" was never
+        # checked for negation there; the round 2 rewrite scans the whole
+        # clause and correctly catches both)
+        ("prefer not Indian and Malay", "exclude", ["indian", "malay"]),
         ("no Indian pls", "exclude", ["indian"]),
         ("Chinese or Malay only", "only", ["chinese", "malay"]),
         ("any race ok but no pets", "any", []),
         ("not Indian and not Malay", "exclude", ["indian", "malay"]),
         ("prefer chinese", "prefer", ["chinese"]),
-        ("no preference", "any", []),
         ("any race except indian", "exclude", ["indian"]),
         ("no one except chinese", "only", ["chinese"]),
         ("only looking for a chinese tenant", "only", ["chinese"]),
         ("we only accept chinese or malay tenants", "only", ["chinese", "malay"]),
+        ("Malay only", "only", ["malay"]),
+        ("any", "any", []),
+        ("no Indian", "exclude", ["indian"]),
+        ("", "any", []),
+        ("strictly Chinese tenants", "only", ["chinese"]),
     ]
     for raw, exp_rule, exp_races in cases:
         got = ed.parse_ethnicity(raw)
@@ -1222,17 +1267,20 @@ def test_enrichment_queue():
          "availability": "Offer pending", "gates": {"max_pax": 1, "lease_min": 12}},
     ]
     # 3 Available listings (LL4 excluded): budget/district gate 2 of 3 (2/3), pax gates 1 of 3 (1/3).
-    # Scaled to a rounded 0..100 integer (Opus review of PR #133) so app.js's "+N" chip keeps working.
+    # Scaled to a rounded 0..100 integer by dividing by the FIXED gate field
+    # count (5), not by how many fields this tenant is missing (Opus review
+    # of PR #133, round 2) -- so app.js's "+N" chip keeps working AND the sum
+    # semantics (item 16) survive: 2/3 / 5 * 100 = 13.33 -> 13, etc.
     check("no missing fields -> 0 unlock value", ed.unlock_value_for([], listings) == 0)
     check("unlock_value_for always returns an int, never a float", isinstance(ed.unlock_value_for(["budget"], listings), int))
-    check("budget missing -> fraction of Available listings with a price floor (LL1, LL3 of 3; LL4 excluded), scaled to 67",
-          ed.unlock_value_for(["budget"], listings) == 67, f"got {ed.unlock_value_for(['budget'], listings)}")
-    check("pax missing -> fraction of Available listings gating on max_pax (LL1 of 3), scaled to 33",
-          ed.unlock_value_for(["pax"], listings) == 33, f"got {ed.unlock_value_for(['pax'], listings)}")
-    check("district missing -> fraction of Available listings that themselves have a district (LL1, LL2 of 3; LL3 excluded), scaled to 67",
-          ed.unlock_value_for(["district"], listings) == 67, f"got {ed.unlock_value_for(['district'], listings)}")
-    check("missing fields SUM independently (item 3, unchanged) -- budget(2/3) + pax(1/3) = 1.0, scaled to 100",
-          ed.unlock_value_for(["budget", "pax"], listings) == 100,
+    check("budget missing -> fraction of Available listings with a price floor (LL1, LL3 of 3; LL4 excluded), scaled to 13",
+          ed.unlock_value_for(["budget"], listings) == 13, f"got {ed.unlock_value_for(['budget'], listings)}")
+    check("pax missing -> fraction of Available listings gating on max_pax (LL1 of 3), scaled to 7",
+          ed.unlock_value_for(["pax"], listings) == 7, f"got {ed.unlock_value_for(['pax'], listings)}")
+    check("district missing -> fraction of Available listings that themselves have a district (LL1, LL2 of 3; LL3 excluded), scaled to 13",
+          ed.unlock_value_for(["district"], listings) == 13, f"got {ed.unlock_value_for(['district'], listings)}")
+    check("missing fields SUM independently (item 3, unchanged) -- budget(2/3) + pax(1/3) = 1.0, scaled to 20",
+          ed.unlock_value_for(["budget", "pax"], listings) == 20,
           f"got {ed.unlock_value_for(['budget', 'pax'], listings)}")
 
     section("the real degenerate case (item 3): missing several gated fields must outrank missing only district")
@@ -1246,8 +1294,8 @@ def test_enrichment_queue():
     all_four = ed.unlock_value_for(["budget", "pax", "lease_months", "move_in"], listings2)
     check("missing only district no longer automatically ties/outranks missing 4 gated fields",
           all_four > district_only, f"district_only={district_only} all_four={all_four}")
-    check("both listings fully gate every field here -> district_only=100, all_four=400",
-          district_only == 100 and all_four == 400, f"district_only={district_only} all_four={all_four}")
+    check("both listings fully gate every field here -> district_only=20 (1/5*100), all_four=80 (4/5*100)",
+          district_only == 20 and all_four == 80, f"district_only={district_only} all_four={all_four}")
 
     section("item 16: weighting by fraction bounds a single field's contribution at 1.0, so "
             "district's score no longer grows (and its advantage over a narrower field no "
@@ -1257,12 +1305,12 @@ def test_enrichment_queue():
                  "availability": "Available", "gates": {"max_pax": None, "lease_min": None}}
                 for i in range(n)]
     small_pool, big_pool = all_district_listings(5), all_district_listings(50)
-    check("district alone scores 100 on a small pool (would have been raw count 5 before this fix)",
-          ed.unlock_value_for(["district"], small_pool) == 100,
+    check("district alone scores 20 on a small pool (would have been raw count 5 before this fix)",
+          ed.unlock_value_for(["district"], small_pool) == 20,
           f"got {ed.unlock_value_for(['district'], small_pool)}")
-    check("district alone STILL scores 100 on a 10x bigger pool (would have been raw count 50 before "
+    check("district alone STILL scores 20 on a 10x bigger pool (would have been raw count 50 before "
           "this fix, an ever widening gap against any narrower field) -- fraction weighting caps it",
-          ed.unlock_value_for(["district"], big_pool) == 100,
+          ed.unlock_value_for(["district"], big_pool) == 20,
           f"got {ed.unlock_value_for(['district'], big_pool)}")
 
     tenants = [
@@ -1276,8 +1324,8 @@ def test_enrichment_queue():
     check("tenant with no missing fields is excluded from the queue",
           "T4" not in {r["id"] for r in q}, f"got {[r['id'] for r in q]}")
     check("queue has exactly the 4 tenants with gaps", len(q) == 4, f"got {len(q)}")
-    check("highest unlock_value (T5, missing budget+pax, sums to 1.0 scaled to 100) ranks first",
-          q[0]["id"] == "T5" and q[0]["unlock_value"] == 100, f"got {q[0]}")
+    check("highest unlock_value (T5, missing budget+pax, sums to 1.0 scaled to 20) ranks first",
+          q[0]["id"] == "T5" and q[0]["unlock_value"] == 20, f"got {q[0]}")
 
 
 # ==================================== live demand / zero-stock [4,23,25] ====

@@ -313,48 +313,144 @@ RACES = ["indian","chinese","malay","filipino","myanmar","burmese","korean","jap
 
 # Ethnicity is an internal screening signal ONLY -- a landlord preference the
 # app uses to sort/gate matches, never a tenant facing judgement made here.
-# Rewritten to work clause by clause (Opus review of PR #133, 16 Sep 2026 --
-# a 3 token proximity window for "only" was too narrow: "only looking for a
-# chinese tenant" and "we only accept chinese or malay tenants" have the race
-# word 4+ tokens from "only" and were wrongly falling through to "prefer").
-# Split on comma/semicolon/period/"but"/"and no" so each clause is judged on
-# its own, then five ordered passes:
 #
-#   1. "only"/"strictly" -- every race word in the SAME CLAUSE becomes the
-#      hard allowed set (item 13). An "only" in a clause with no race word
-#      (room size, price) never reaches into a DIFFERENT clause's race
-#      mention, which falls through to a soft "prefer" instead (pass 5).
-#   2. "except"/"other than" -- polarity depends on what precedes it in the
-#      same clause: "no one except X" / "none except X" (nobody is accepted,
-#      with the one exception of X) makes X the entire allowed set; "any
-#      race except X" (everybody except X) excludes X and allows everyone
-#      else. Ambiguous polarity falls through to the plain exclusion scan.
-#   3. Plain exclusions -- "no X"/"not X"/"exclude X"/"without X"/"except X",
-#      scanned per clause so a negation can never reach across a clause
-#      boundary into an unrelated race mention.
-#   4. "any"/"no preference" -- decisive now that pass 3 has already ruled
-#      out every race actually tied to a negation anywhere in the text
-#      (item 14): an unrelated negation elsewhere ("any race ok but no
-#      pets" -- "pets" is not a race) can no longer block this and fall
-#      through to a bare "note".
+# Rewritten TWICE now (Opus review of PR #133, 16 Sep 2026, two rounds):
+#
+# Round 1 made "only" and the exclusion scan clause scoped rather than a
+# fixed token window, which fixed the false hard blocks/discarded exclusions
+# from the first round but introduced a NEW, more serious bug: a clause
+# containing "only" collected every race word in that clause with no regard
+# for whether the race was ITSELF negated inside the same clause, and the
+# clause splitter did not respect brackets -- so "Chinese only (no
+# Indian/Malay)" (an exclusion the landlord wrote as a parenthetical
+# clarification) inverted into "only": [indian, chinese, malay], i.e. Indian
+# and Malay tenants would score as the LANDLORD'S REQUIRED preference rather
+# than excluded. That is a polarity inversion, not just a missed signal, and
+# on live rental preference data it is a real fair-housing-adjacent risk on
+# top of being wrong.
+#
+# Round 2 (this version) fixes both root causes:
+#   - Bracketed text is split into its OWN clause(s), so "(no Indian/Malay)"
+#     or "(rejected Indian profile)" never shares a clause with the "only"
+#     sitting outside the brackets.
+#   - Race collection is now NEGATION AWARE within a clause: a race word is
+#     only added to an "only"/prefer/found set if no negation marker (no,
+#     not, non, exclude/excludes/excluding, without, reject/rejected/
+#     rejects, avoid -- "prefer not X"/"not keen on X" are covered by the
+#     plain "not" marker) appears EARLIER in that same clause. "no
+#     Indian/Malay" -- one negation marker, both races after it -- excludes
+#     both, matching the spec's own worked example.
+#   - "only"/"strictly" is ignored when it is just describing something else
+#     in the same breath ("screening only", "preference only", "1 pax
+#     only", "room only", "single only", "female/male only", "professionals/
+#     students only") -- it takes a genuine, non-negated race word in the
+#     SAME clause to fire the hard "only" rule at all.
+#   - "all welcome" / "open to all" / "open to all races" / "any race" /
+#     "no preference" all read as "any"; "all except X" behaves exactly like
+#     "any race except X" (X excluded, everyone else allowed).
+#
+# Five ordered passes, same shape as round 1:
+#   1. "only"/"strictly" (real ones, see above) -- the NON-negated race
+#      words in that clause become the hard allowed set.
+#   2. "except"/"other than" -- polarity from what precedes it in the same
+#      clause: "no one except X" / "none except X" (nobody, except X) makes
+#      X the entire allowed set; "any race except X" / "all except X"
+#      (everybody except X) excludes X. Ambiguous polarity falls through.
+#   3. Plain exclusions -- any race preceded by a negation marker anywhere
+#      earlier in its own clause.
+#   4. "any"/"no preference"/"all welcome"/"open to all" -- decisive now
+#      that pass 3 has already ruled out every race actually tied to a
+#      negation anywhere in the text.
 #   5. A plain mention/preference, or "note" with the raw text if nothing
 #      recognisable was found at all.
-_ETH_CLAUSE_SPLIT_RE = re.compile(r"[,;.]|\bbut\b|\band(?=\s+no\b)")
+_ETH_BRACKET_RE = re.compile(r"[\(\[]([^\)\]]*)[\)\]]")
+_ETH_PLAIN_SPLIT_RE = re.compile(r"[,;.]|\s[-–—]\s|\bbut\b|\band(?=\s+no\b)")
 _ETH_EXCEPT_RE = re.compile(r"(?:except|other than)\s+(.*)")
 _ETH_NEGATION_BASE_RE = re.compile(r"\b(?:no\s+one|nobody|none|no\s+preference)\b")
+_ETH_NEGATION_WORDS = ("no", "not", "non", "exclude", "excludes", "excluding",
+                        "without", "reject", "rejected", "rejects", "avoid")
+_ETH_NEGATION_RE = re.compile(r"\b(?:" + "|".join(_ETH_NEGATION_WORDS) + r")\b")
+_ETH_ONLY_RE = re.compile(r"\b(?:only|strictly)\b")
+# "only"/"strictly" describing something OTHER than a race (item 3, round 2)
+# -- stripped out of a clause before checking whether a "real" only remains.
+_ETH_GENERIC_ONLY_PRECEDERS = ("screening", "preference", "preferences", "pax", "room",
+                               "single", "female", "male", "professionals", "students")
+_ETH_GENERIC_ONLY_RE = re.compile(
+    r"\b(?:" + "|".join(_ETH_GENERIC_ONLY_PRECEDERS) + r")\s+(?:only|strictly)\b")
+_ETH_ANY_TRIGGERS = ("no pref", "no race", "any", "all welcome", "open to all")
+
+
+def _split_plain(segment):
+    return _ETH_PLAIN_SPLIT_RE.split(segment)
+
+
+def _split_into_clauses(t):
+    """Bracketed text becomes its own independent clause group -- never
+    sharing a clause with anything outside the brackets -- and is itself
+    split the same way; the surrounding text is split normally. Fixes the
+    round 1 bug where an unrelated parenthetical ("(internal screening
+    only, never public)", "(no Indian/Malay)") leaked its "only" or its
+    negation into the main clause."""
+    clauses, pos = [], 0
+    for m in _ETH_BRACKET_RE.finditer(t):
+        clauses.extend(_split_plain(t[pos:m.start()]))
+        clauses.extend(_split_plain(m.group(1)))
+        pos = m.end()
+    clauses.extend(_split_plain(t[pos:]))
+    return clauses
+
+
+def _clause_has_real_only(clause):
+    """True if "only"/"strictly" survives after stripping every generic,
+    non-race use of it (item 3, round 2)."""
+    stripped = _ETH_GENERIC_ONLY_RE.sub(" ", clause)
+    return bool(_ETH_ONLY_RE.search(stripped))
+
+
+def _clause_race_polarity(clause):
+    """(included, excluded) race words in `clause`: a race is excluded if
+    any negation marker appears EARLIER in the same clause (anywhere
+    before it, not just immediately before -- "no Indian/Malay" excludes
+    both), included otherwise.
+
+    Plain substring match, deliberately NOT \\b-bounded (verified against
+    the real live book, 16 Sep 2026): a strict word boundary silently drops
+    "Indians"/"Chineses"-style plurals ("indian" no longer matches inside
+    "indians") and loses the common colloquial "Malaysian" for "malay" --
+    both real, current landlord phrasings that must keep matching. This
+    matches every other race lookup in this file, which has always been
+    plain substring."""
+    marker_positions = [m.start() for m in _ETH_NEGATION_RE.finditer(clause)]
+    included, excluded = [], []
+    for r in RACES:
+        positions = [i for i in range(len(clause)) if clause.startswith(r, i)]
+        if not positions:
+            continue
+        # If a race is mentioned more than once in the same clause with mixed
+        # polarity (e.g. "...an Indian applicant...rejected...'no Indian'" --
+        # a landlord noting they turned an Indian applicant away), ANY
+        # negated occurrence wins: a real, stated exclusion must never be
+        # dropped just because the same race was also mentioned neutrally
+        # earlier in the same breath.
+        if any(any(mp < pos for mp in marker_positions) for pos in positions):
+            excluded.append(r)
+        else:
+            included.append(r)
+    return included, excluded
 
 
 def parse_ethnicity(txt):
     t = (txt or "").lower()
     if not t:
         return {"rule": "any", "races": []}
-    clauses = _ETH_CLAUSE_SPLIT_RE.split(t)
+    clauses = _split_into_clauses(t)
 
     only_races = []
     for clause in clauses:
-        if "only" in clause or "strictly" in clause:
-            for r in RACES:
-                if r in clause and r not in only_races:
+        if _clause_has_real_only(clause):
+            included, _ = _clause_race_polarity(clause)
+            for r in included:
+                if r not in only_races:
                     only_races.append(r)
     if only_races:
         return {"rule": "only", "races": only_races}
@@ -369,29 +465,27 @@ def parse_ethnicity(txt):
         head = clause[:m.start()]
         if _ETH_NEGATION_BASE_RE.search(head):
             return {"rule": "only", "races": tail_races}
-        if "any" in head:
+        if "any" in head or "all" in head:
             return {"rule": "exclude", "races": tail_races}
-        # ambiguous polarity (no "any"/negation-base before it) -- fall
+        # ambiguous polarity (no "any"/"all"/negation-base before it) -- fall
         # through and let the plain exclusion scan below pick it up
 
     excl = []
     for clause in clauses:
-        for r in RACES:
-            if r in excl:
-                continue
-            if re.search(r"(?:no[t]?|except|exclude|without)\s+" + r, clause) or ("no " + r in clause):
+        _, clause_excluded = _clause_race_polarity(clause)
+        for r in clause_excluded:
+            if r not in excl:
                 excl.append(r)
     if excl:
         return {"rule": "exclude", "races": excl}
 
-    if "no pref" in t or "no race" in t or "any" in t:
+    if any(trigger in t for trigger in _ETH_ANY_TRIGGERS):
         return {"rule": "any", "races": []}
 
     found = [r for r in RACES if r in t]
     if "pref" in t and found: return {"rule":"prefer","races":found}
     if found: return {"rule":"prefer","races":found}
     return {"rule":"note","races":[], "raw":(txt or "")[:80]}
-
 def maps_query(addr, district, dist_area):
     q = addr or dist_area.get(district, district or "")
     return (str(q).strip() + " Singapore") if q else ""
@@ -1478,6 +1572,9 @@ def compute_health(listings, tenants, landlords=None):
 
 
 # ------------------------------------------- enrichment queue [ideas 5-7] --
+UNLOCK_VALUE_GATE_FIELD_COUNT = 5  # budget, pax, lease_months, move_in, district -- see unlock_value_for's own docstring
+
+
 def unlock_value_for(missing, listings):
     """Sum, across the tenant's own missing intake fields, of how many CURRENTLY
     AVAILABLE listings that specific field's gate applies to -- filtered here to
@@ -1512,12 +1609,24 @@ def unlock_value_for(missing, listings):
     whole market" and keeps two builds with different inventory sizes
     comparable on the same scale.
 
-    Scaled to a rounded integer (fraction * 100) rather than returned as a
-    raw float (Opus review of PR #133, 16 Sep 2026): app.js's worklist chip
+    Scaled to a rounded 0..100 integer rather than returned as a raw float
+    (Opus review of PR #133, 16 Sep 2026, round 1): app.js's worklist chip
     renders this verbatim as "+<unlock_value>" and a bare float would print
-    as "+0.6666666666666666" instead of the intended "+37" style count. The
-    scale is otherwise cosmetic -- it does not change the ranking, since
-    every candidate is scaled by the same factor."""
+    as "+0.6666666666666666" instead of the intended "+37" style count.
+
+    The scale (round 2 review) divides the fraction sum by
+    UNLOCK_VALUE_GATE_FIELD_COUNT -- the fixed number of fields this function
+    tracks (budget/pax/lease_months/move_in/district = 5), NOT by how many of
+    them a given tenant happens to be missing. Dividing by the fixed count
+    keeps this a genuine 0..100 scale (100 only when a tenant is missing
+    every field AND every one of them gates the whole market) while
+    preserving the SUM semantics item 16 needs: missing several gated fields
+    still adds up to a higher score than missing only district, exactly as
+    before -- dividing every candidate by the same constant cannot change
+    their relative order. Dividing by the PER-TENANT missing-field count
+    instead would average rather than sum, which reintroduces the item
+    3/16 problem from the other direction (a single near-universal field
+    could tie or beat several genuinely rarer ones)."""
     if not missing:
         return 0
     avail = [l for l in listings if l.get("availability") == "Available"]
@@ -1533,7 +1642,7 @@ def unlock_value_for(missing, listings):
         if l.get("available_from") is not None: gated["move_in"] += 1
         if l.get("district"): gated["district"] += 1
     fraction_sum = sum(gated[field] / total for field in missing if field in gated)
-    return round(fraction_sum * 100)
+    return round(fraction_sum / UNLOCK_VALUE_GATE_FIELD_COUNT * 100)
 
 
 def build_enrichment_queue(tenants, listings):
