@@ -807,7 +807,10 @@ function weeklyFunnel(records, today) {
       else if (r.v === "Viewing booked") viewings++;
     });
   }
-  var conversionPct = contacted > 0 ? Math.round((viewings / contacted) * 100) : 0;
+  // (streamline item 6) null, not 0 — a week nobody was contacted is "not
+  // started", a distinct state from "started and converted nobody", and both
+  // used to read identically as "0%". app.js renders null as a dash.
+  var conversionPct = contacted > 0 ? Math.round((viewings / contacted) * 100) : null;
   return { contacted: contacted, viewings: viewings, conversionPct: conversionPct };
 }
 

@@ -11,6 +11,10 @@ Usage:
       --price 3200 --gross 1600 --source portal --client "Jane Tan"
   log_deal.py list [--year 2026]
   log_deal.py undo <id> [--yes]
+  log_deal.py import-json <file>
+      Loads rows exported by the Matchmaker CRM tab's "Export deals JSON" button
+      (scripts/matchmaker/app.js). Idempotent by the export's own id — re-running
+      the same file twice never double inserts.
 
 DB path overridable with CLIENTS_DB env var, backup dir with CLIENTS_DB_BACKUP_DIR
 (tests only — never the real db).
@@ -204,6 +208,11 @@ def cmd_add(args):
               "(it only counts deals linked to a real client record)" % qlabel)
     con.close()
 
+# Commission only counts once a deal reaches one of these — the same set
+# v_commission_attribution filters on in db/schema.sql, and what monday_brief.py
+# sums. A deal still at otp/exercise has not earned anything yet.
+COUNTED_STAGES = ("completion", "keys", "closed")
+
 def cmd_list(args):
     con = connect()
     where, params = "1=1", []
@@ -211,22 +220,29 @@ def cmd_list(args):
         where += " AND strftime('%Y', COALESCE(completion_date, created_at)) = ?"
         params.append(str(args.year))
     rows = con.execute("SELECT id, COALESCE(completion_date, substr(created_at,1,10)) AS d, "
-                        "deal_type, notes, price, commission_gross, commission_net "
+                        "deal_type, stage, notes, price, commission_gross, commission_net "
                         "FROM deals WHERE %s ORDER BY d" % where, params).fetchall()
     con.close()
     hdr_fmt = "%-4s %-11s %-9s %-10s %-8s %12s %12s %12s"
     row_fmt = "%-4s %-11s %-9s %-10s %-8s %12.2f %12.2f %12.2f"
     print(hdr_fmt % ("id", "date", "type", "role", "source", "price", "gross", "net"))
     tot_price = tot_gross = tot_net = 0
+    in_progress = []
     for r in rows:
         tag = re.search(r"type=(\S+) role=(\S+) source=([^\s\]]+)", r["notes"] or "")
         type_, role, source = tag.groups() if tag else (r["deal_type"] or "?", "?", "?")
         price, gross, net = r["price"] or 0, r["commission_gross"] or 0, r["commission_net"] or 0
-        tot_price += price; tot_gross += gross; tot_net += net
         print(row_fmt % (r["id"], r["d"] or "?", type_, role, source, price, gross, net))
+        if r["stage"] in COUNTED_STAGES:
+            tot_price += price; tot_gross += gross; tot_net += net
+        else:
+            in_progress.append(r["id"])
     print("-" * 90)
     print(row_fmt % ("", "TOTAL", "", "", "", tot_price, tot_gross, tot_net))
-    print("%d deal(s)" % len(rows))
+    print("%d deal(s), %d counted toward TOTAL (stage in %s)" %
+          (len(rows), len(rows) - len(in_progress), ", ".join(COUNTED_STAGES)))
+    if in_progress:
+        print("in progress (not counted): %s" % ", ".join(str(i) for i in in_progress))
 
 def ensure_import_column(con):
     """item 5/46 -- idempotent: add the nullable matchmaker_import_id column
@@ -324,6 +340,113 @@ def cmd_undo(args):
     con.close()
     print("Deleted deal #%d" % args.id)
 
+# The Matchmaker CRM tab's "Export deals JSON" button (scripts/matchmaker/app.js,
+# dealExportRow()) writes rows shaped like the deals table it was designed against:
+# id, client_slug, deal_type, property_address, price, commission_gross,
+# commission_net, cobroke_agent, cobroke_split_pct, stage, otp_date, completion_date,
+# notes, created_at. Matchmaker's own deal_type/stage vocabulary is not this table's
+# (deal_type_t/deal_stage_t belong to a different, Postgres flavoured schema) —
+# mapped here the same way resolve_deal_type() above maps --type/--role.
+#
+# deals.stage only allows otp/exercise/completion/keys/closed/dead (the CHECK
+# constraint db/schema.sql defines and monday_brief.py's SUM query reads). A
+# Matchmaker deal still at "agreed" has no equivalent yet — it has not reached OTP,
+# so there is nothing honest to write, and it is skipped rather than mapped to a
+# stage that would make it look further along than it is.
+MM_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
+MM_STAGE_MAP = {"otp": "otp", "signed": "exercise", "completed": "completion", "fell_through": "dead"}
+
+def table_has_column(con, table, column):
+    return any(row[1] == column for row in con.execute("PRAGMA table_info(%s)" % table))
+
+def cmd_import_json(args):
+    with open(args.file) as f:
+        rows = json.load(f)
+    if not isinstance(rows, list):
+        raise ValueError("--import-json file must contain a JSON array of deal rows")
+    con = connect()
+    backup_db()
+    # deal_date (scripts/matchmaker/app.js's dealExportRow()) is what month/year to
+    # date totals bucket by on the Matchmaker side — this table may or may not have
+    # grown a matching column yet, checked once here rather than per row.
+    has_deal_date_col = table_has_column(con, "deals", "deal_date")
+    inserted = skipped_dupe = skipped_bad = skipped_agreed = failed = 0
+    for r in rows:
+        if not isinstance(r, dict):
+            skipped_bad += 1
+            continue
+        import_id = str(r.get("id") or "").strip()
+        if not import_id:
+            skipped_bad += 1
+            continue
+        if r.get("stage") == "agreed":
+            print("skipped (not yet at OTP): %s" % import_id)
+            skipped_agreed += 1
+            continue
+        stage = MM_STAGE_MAP.get(r.get("stage"))
+        if not stage:
+            print("skipped (unknown stage %r): %s" % (r.get("stage"), import_id))
+            skipped_bad += 1
+            continue
+        tag = "[matchmaker-import-id=%s]" % import_id
+        # Idempotent by id, same spirit as the rest of this file's notes tag
+        # bookkeeping (notes_tag in cmd_add) — deals.id here is this sqlite table's
+        # own autoincrement primary key, not Matchmaker's client generated id, so the
+        # dedupe key has to live in a searchable column instead: notes. instr(), not
+        # LIKE — a Matchmaker id is "deal_<base36 timestamp>_<random>" and can contain
+        # underscores, which LIKE treats as its own single character wildcard and
+        # would match ids it should not.
+        existing = con.execute("SELECT id FROM deals WHERE instr(notes, ?) > 0", (tag,)).fetchone()
+        if existing:
+            skipped_dupe += 1
+            continue
+        deal_type = MM_DEAL_TYPE_MAP.get(r.get("deal_type"))
+        gross, net = r.get("commission_gross"), r.get("commission_net")
+        # cmd_add's own cobroke_amount = gross - net (see cmd_add above); mirrored
+        # here so an imported row reads the same way in v_commission_attribution.
+        cobroke_amount = (gross - net) if (gross is not None and net is not None) else None
+        deal_date = r.get("deal_date")
+        # No deal_date column on this table — folded into the notes tag instead, the
+        # same way a linked contact's name is (dealExportRow()'s own [linked: ...]
+        # tag), so the date is not simply lost.
+        deal_date_tag = (" [deal_date: %s]" % deal_date) if (deal_date and not has_deal_date_col) else ""
+        notes = ((r.get("notes") or "").strip() + " " + tag + deal_date_tag).strip()
+        try:
+            if has_deal_date_col:
+                con.execute(
+                    "INSERT INTO deals (client_slug, deal_type, property_address, price, "
+                    "commission_gross, commission_net, cobroke_agent, cobroke_split_pct, "
+                    "cobroke_amount, stage, otp_date, completion_date, deal_date, closed_date, notes) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (UNLINKED_SLUG, deal_type, r.get("property_address"), r.get("price"),
+                     gross, net, r.get("cobroke_agent"), r.get("cobroke_split_pct"),
+                     cobroke_amount, stage, r.get("otp_date"), r.get("completion_date"), deal_date,
+                     r.get("completion_date") or r.get("otp_date"), notes))
+            else:
+                con.execute(
+                    "INSERT INTO deals (client_slug, deal_type, property_address, price, "
+                    "commission_gross, commission_net, cobroke_agent, cobroke_split_pct, "
+                    "cobroke_amount, stage, otp_date, completion_date, closed_date, notes) "
+                    "VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    (UNLINKED_SLUG, deal_type, r.get("property_address"), r.get("price"),
+                     gross, net, r.get("cobroke_agent"), r.get("cobroke_split_pct"),
+                     cobroke_amount, stage, r.get("otp_date"), r.get("completion_date"),
+                     r.get("completion_date") or r.get("otp_date"), notes))
+        except sqlite3.IntegrityError as e:
+            print("failed (%s): %s" % (e, import_id))
+            failed += 1
+            continue
+        inserted += 1
+    con.commit()
+    con.close()
+    print("Imported %d deal(s), skipped %d already present, skipped %d not yet at OTP, "
+          "skipped %d malformed row(s), %d failed" %
+          (inserted, skipped_dupe, skipped_agreed, skipped_bad, failed))
+    if inserted:
+        print("client_slug is 'unlinked-deal' for every imported row — Matchmaker has no "
+              "clients.db slug of its own, a linked contact's name (if any) rode along in "
+              "the notes tag instead; reconcile with `log_deal.py list` and edit by hand.")
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = ap.add_subparsers(dest="cmd", required=True)
@@ -347,10 +470,13 @@ def main():
     p_undo.add_argument("id", type=int)
     p_undo.add_argument("--yes", action="store_true")
     p_undo.set_defaults(fn=cmd_undo)
-    p_import = sub.add_parser("import_mm", help="import matchmaker CRM deals (item 5/46) from a JSON snapshot")
-    p_import.add_argument("--snapshot", default=MM_CRM_SNAPSHOT_PATH,
-                           help="path to the matchmaker CRM snapshot JSON (default: %(default)s)")
-    p_import.set_defaults(fn=cmd_import_mm)
+    p_import_mm = sub.add_parser("import_mm", help="import matchmaker CRM deals (item 5/46) from a JSON snapshot")
+    p_import_mm.add_argument("--snapshot", default=MM_CRM_SNAPSHOT_PATH,
+                              help="path to the matchmaker CRM snapshot JSON (default: %(default)s)")
+    p_import_mm.set_defaults(fn=cmd_import_mm)
+    p_import_json = sub.add_parser("import-json", help="load deals exported from the Matchmaker CRM tab")
+    p_import_json.add_argument("file", help="path to the JSON file from CRM tab's Export deals JSON button")
+    p_import_json.set_defaults(fn=cmd_import_json)
     args = ap.parse_args()
     try:
         args.fn(args)
