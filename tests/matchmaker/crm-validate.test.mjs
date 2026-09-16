@@ -168,8 +168,9 @@ test("validateDispatchFields: optional fields (listing_id, jid, phone, viewing_s
 
 // =====================================================================
 // nextDispatchStatus — the "dispatch" op's status transition rule, used by
-// its upsert in api/crm.js so a pulled or sent row never regresses to
-// queued, and a cancelled row cannot be resurrected through the same id.
+// its upsert in api/crm.js: queued moves anywhere, pulled only ever moves on
+// to sent (never back to queued), cancelled only ever moves back to queued
+// (a genuine requeue of the same pair), and sent is terminal.
 // =====================================================================
 
 test("nextDispatchStatus: a row that does not exist yet always takes the incoming status", () => {
@@ -185,13 +186,24 @@ test("nextDispatchStatus: a queued row can move anywhere, including staying queu
 
 test("nextDispatchStatus: a pulled row never regresses to queued through this op", () => {
   assert.equal(nextDispatchStatus("pulled", "queued"), "pulled");
+  assert.equal(nextDispatchStatus("pulled", "cancelled"), "pulled", "dispatch_cancel is the op for that, not this one");
 });
 
-test("nextDispatchStatus: a sent row never regresses to queued through this op", () => {
+test("nextDispatchStatus: a pulled row moves on to sent, its only legal next status here", () => {
+  assert.equal(nextDispatchStatus("pulled", "sent"), "sent");
+});
+
+test("nextDispatchStatus: a sent row is terminal — no incoming status changes it", () => {
   assert.equal(nextDispatchStatus("sent", "queued"), "sent");
+  assert.equal(nextDispatchStatus("sent", "pulled"), "sent");
+  assert.equal(nextDispatchStatus("sent", "cancelled"), "sent");
 });
 
-test("nextDispatchStatus: a cancelled row cannot be re queued through the same id", () => {
-  assert.equal(nextDispatchStatus("cancelled", "queued"), "cancelled");
+test("nextDispatchStatus: a cancelled row CAN be re queued through the same id — Mark Queued in the app writes this op again on purpose", () => {
+  assert.equal(nextDispatchStatus("cancelled", "queued"), "queued");
+});
+
+test("nextDispatchStatus: a cancelled row cannot jump straight to pulled or sent, only back to queued first", () => {
   assert.equal(nextDispatchStatus("cancelled", "pulled"), "cancelled");
+  assert.equal(nextDispatchStatus("cancelled", "sent"), "cancelled");
 });

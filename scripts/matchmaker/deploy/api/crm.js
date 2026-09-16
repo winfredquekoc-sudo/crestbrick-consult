@@ -247,9 +247,9 @@ async function applyOp(client, o) {
       if (!d) return 0;
       // Read the current status first so nextDispatchStatus (crm-validate.js)
       // decides the real write, not the SQL text — a pulled or sent row must
-      // never regress to queued through this op, and a cancelled row cannot
-      // be resurrected through the same id (a fresh id is a plain insert,
-      // which never reaches this branch of the query below).
+      // never regress to queued through this op, a sent row never changes
+      // again, and cancelled only ever moves back to queued (a genuine
+      // requeue of the same pair), never straight to pulled or sent.
       const cur = await client.query(`select status from crm_dispatch where id = $1`, [d.id]);
       const currentStatus = cur.rows[0] ? cur.rows[0].status : null;
       const nextStatus = nextDispatchStatus(currentStatus, d.status);
@@ -260,7 +260,16 @@ async function applyOp(client, o) {
            tenant_id = excluded.tenant_id, listing_id = excluded.listing_id, jid = excluded.jid,
            phone = excluded.phone, text = excluded.text, viewing_slot = excluded.viewing_slot,
            status = $8, device = coalesce(excluded.device, crm_dispatch.device),
-           pulled_at = case when $8 = 'pulled' and crm_dispatch.pulled_at is null
+           -- Stamped fresh every time a row newly BECOMES pulled (its prior
+           -- status was something else), not only the first time ever — a
+           -- row cancelled and requeued and pulled again a second time must
+           -- carry the SECOND pull's timestamp, since crm_pull.py's own 2
+           -- hour recovery window (matchmaker-dispatch-ledger.json) reads
+           -- this value to decide whether a still pulled row is worth
+           -- recovering at all. Left untouched on a redundant re confirmation
+           -- of an already pulled row (crm_dispatch.status = 'pulled' here
+           -- already), so a duplicate POST cannot quietly restart the clock.
+           pulled_at = case when $8 = 'pulled' and crm_dispatch.status != 'pulled'
                             then now() else crm_dispatch.pulled_at end`,
         [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device]
       );

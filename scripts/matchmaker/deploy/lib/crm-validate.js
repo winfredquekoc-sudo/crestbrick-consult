@@ -74,18 +74,33 @@ export function validateDealFields(o) {
 
 export const DISPATCH_STATUSES = new Set(["queued", "pulled", "sent", "cancelled"]);
 
-// The "dispatch" op's status transition rule, used by its upsert in api/crm.js
-// so a pulled or sent row can never regress back to queued, and a cancelled
-// row cannot be silently resurrected through the same id (queueing it again
-// needs a fresh id, which is a plain insert, not this path). currentStatus is
-// null for a row that does not exist yet (a first insert), which always takes
-// the incoming status as is. dispatch_cancel is a separate op with its own
-// guard in api/crm.js and does not go through this function — a pulled row
-// must still be cancellable (crm_pull.py's own append failed recovery, and
-// cancelling before the 08:00 send), only re queueing is blocked here.
+// The "dispatch" op's status transition rule, used by its upsert in api/crm.js.
+// currentStatus is null for a row that does not exist yet (a first insert),
+// which always takes the incoming status as is. Otherwise:
+//   queued    -> anything (the normal flow: the app writes queued, crm_pull.py
+//                moves it to pulled once it has appended the draft)
+//   pulled    -> sent only (crm_pull.py's own terminal state marking, once the
+//                real send is confirmed via the queue's own .done-* archive or
+//                a long enough time in its append ledger); pulled can never
+//                regress to queued through this op
+//   cancelled -> queued only (requeueing the SAME pair after a refusal or an
+//                unqueue — Mark Queued in the app writes this op again with the
+//                same id on purpose, so a fresh id is not required here, unlike
+//                an earlier draft of this rule assumed)
+//   sent      -> sent, always — terminal, no further write through this op can
+//                change it
+// dispatch_cancel is a separate op with its own guard in api/crm.js and does
+// not go through this function — a pulled row must still be cancellable
+// (crm_pull.py's own append failed recovery, and cancelling before the 08:00
+// send), which this function does not need to allow since that path never
+// calls it.
 export function nextDispatchStatus(currentStatus, incomingStatus) {
   if (currentStatus == null) return incomingStatus;
-  return currentStatus === "queued" ? incomingStatus : currentStatus;
+  if (currentStatus === "sent") return "sent";
+  if (currentStatus === "queued") return incomingStatus;
+  if (currentStatus === "pulled") return incomingStatus === "sent" ? "sent" : currentStatus;
+  if (currentStatus === "cancelled") return incomingStatus === "queued" ? "queued" : currentStatus;
+  return currentStatus;
 }
 
 // Validates and normalises one incoming "dispatch" op's fields — a row destined
