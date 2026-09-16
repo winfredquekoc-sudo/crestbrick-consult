@@ -241,82 +241,124 @@ def test_phone_normalize_idempotent():
 
 # =========================================== ethnicity parser [items 1/13/14]
 def test_parse_ethnicity_guards():
-    section("parse_ethnicity: negation aware, bracket splitting rewrite (Opus review of PR #133, round 2, "
-            "16 Sep 2026) -- round 1's clause scoping fixed the token-window bugs but collected every race "
-            "word in an 'only' clause with no regard for negation, and did not split on brackets, so "
-            "'Chinese only (no Indian/Malay)' inverted into only:[indian,chinese,malay] -- a real polarity "
-            "inversion on live rental preference text, not just a missed signal. This corpus covers every "
-            "phrasing from both review rounds plus the 4 confirmed live-book regressions.")
+    section("parse_ethnicity: adjacency scoped negation rewrite (Opus HOLD review of PR #133, round 3, "
+            "16 Sep 2026), round 2's clause scoped negation let a marker anywhere earlier in a clause "
+            "negate every race after it, which on the live book produced 4 false hard gates: 'not just "
+            "Chinese' read as excluding Chinese, 'no ethnicity objection raised' read as excluding every "
+            "race mentioned later in the sentence, a preferred race got discarded once a later negation "
+            "fired, and a residency question ('non local') read as a race gate. Round 3 only lets a "
+            "negation word negate a race at most two (modifier only) tokens away, treats 'not just X'/'not "
+            "only X' as an explicit non exclusion, aliases bare country words (India, China, mainland) to "
+            "the race they imply inside an except clause only, lets a landlord's stated preference survive "
+            "and drop the same race from exclude, and never lets a bracket or 'local'/'non local' produce "
+            "a hard gate. This corpus covers every phrasing from all three review rounds plus the 4 "
+            "confirmed live book regressions (see PR body 'Live book comparison').")
     cases = [
-        # (raw text, expected rule, expected races)
+        # (raw text, expected rule, expected races, expected prefer list or None if not asserted)
 
-        # round 2: the 4 confirmed polarity-inversion bug reports
-        ("Chinese only (no Indian/Malay)", "only", ["chinese"]),
-        ("prefer not Indian and Malay (internal screening only, never public)", "exclude", ["indian", "malay"]),
-        ("Excludes Indian, INTERNAL screening preference only, never in public listing", "exclude", ["indian"]),
-        ("Chinese only (confirmed 27 Jun: rejected Indian profile)", "only", ["chinese"]),
+        # round 2: the 4 confirmed polarity inversion bug reports
+        ("Chinese only (no Indian/Malay)", "only", ["chinese"], None),
+        # round 3: "and" breaks adjacency, "not" only reaches Indian (0
+        # tokens away); Malay is 3 tokens from "not" through a non modifier
+        # "and" and is no longer guessed as excluded (was exclude:[indian,
+        # malay] under round 2's clause wide negation scan)
+        ("prefer not Indian and Malay (internal screening only, never public)", "exclude", ["indian"], None),
+        ("Excludes Indian, INTERNAL screening preference only, never in public listing", "exclude", ["indian"], None),
+        ("Chinese only (confirmed 27 Jun: rejected Indian profile)", "only", ["chinese"], None),
 
         # round 2: "all welcome" / "open to all" / "all except X" (item 4)
-        ("all welcome", "any", []),
-        ("open to all", "any", []),
-        ("open to all races", "any", []),
-        ("all except indian", "exclude", ["indian"]),
+        ("all welcome", "any", [], None),
+        ("open to all", "any", [], None),
+        ("open to all races", "any", [], None),
+        ("all except indian", "exclude", ["indian"], None),
 
         # round 2: negation words beyond plain no/not (item 2)
-        ("excludes indian tenants", "exclude", ["indian"]),
-        ("excluding malay applicants", "exclude", ["malay"]),
-        ("we reject indian tenants", "exclude", ["indian"]),
-        ("avoid indian tenants", "exclude", ["indian"]),
-        ("non chinese tenants preferred", "exclude", ["chinese"]),
+        ("excludes indian tenants", "exclude", ["indian"], None),
+        ("excluding malay applicants", "exclude", ["malay"], None),
+        ("we reject indian tenants", "exclude", ["indian"], None),
+        ("avoid indian tenants", "exclude", ["indian"], None),
+        ("non chinese tenants preferred", "exclude", ["chinese"], None),
 
-        # round 2: generic "only" that is NOT about race (item 3) -- must never
-        # hard-block on a word like "screening"/"pax"/"room" etc.
-        ("1 pax only, Chinese preferred", "prefer", ["chinese"]),
-        ("female only, Chinese preferred", "prefer", ["chinese"]),
-        ("professionals only, no Indian", "exclude", ["indian"]),
+        # round 2: generic "only" that is NOT about race (item 3), must never
+        # hard block on a word like "screening"/"pax"/"room" etc.
+        ("1 pax only, Chinese preferred", "prefer", ["chinese"], None),
+        ("female only, Chinese preferred", "prefer", ["chinese"], None),
+        ("professionals only, no Indian", "exclude", ["indian"], None),
 
-        # found live-book cases (via the local, uncommitted regression script
-        # comparing every real ethnicity string old vs new -- see PR body):
+        # found live book cases (via the local, uncommitted regression script
+        # comparing every real ethnicity string old vs new, see PR body):
         # plural/derived forms and a race mentioned twice with mixed polarity
         # in the same clause must not silently drop a real exclusion
-        ("no Indians allowed", "exclude", ["indian"]),
-        ("no Malaysian tenants", "exclude", ["malay"]),
-        ("an Indian applicant was rejected: no Indian", "exclude", ["indian"]),
+        ("no Indians allowed", "exclude", ["indian"], None),
+        ("no Malaysian tenants", "exclude", ["malay"], None),
+        ("an Indian applicant was rejected: no Indian", "exclude", ["indian"], None),
 
         # round 1 (unchanged behavior, still must hold)
-        ("Chinese only", "only", ["chinese"]),
-        ("small room only, prefers Chinese", "prefer", ["chinese"]),
-        ("no preference", "any", []),
-        ("any race except Indian", "exclude", ["indian"]),
-        ("not any particular race but no Indian", "exclude", ["indian"]),
-        # improved from round 1 (was exclude:[indian] only -- "Malay" was never
-        # checked for negation there; the round 2 rewrite scans the whole
-        # clause and correctly catches both)
-        ("prefer not Indian and Malay", "exclude", ["indian", "malay"]),
-        ("no Indian pls", "exclude", ["indian"]),
-        ("Chinese or Malay only", "only", ["chinese", "malay"]),
-        ("any race ok but no pets", "any", []),
-        ("not Indian and not Malay", "exclude", ["indian", "malay"]),
-        ("prefer chinese", "prefer", ["chinese"]),
-        ("any race except indian", "exclude", ["indian"]),
-        ("no one except chinese", "only", ["chinese"]),
-        ("only looking for a chinese tenant", "only", ["chinese"]),
-        ("we only accept chinese or malay tenants", "only", ["chinese", "malay"]),
-        ("Malay only", "only", ["malay"]),
-        ("any", "any", []),
-        ("no Indian", "exclude", ["indian"]),
-        ("", "any", []),
-        ("strictly Chinese tenants", "only", ["chinese"]),
+        ("Chinese only", "only", ["chinese"], None),
+        ("small room only, prefers Chinese", "prefer", ["chinese"], None),
+        ("no preference", "any", [], None),
+        ("any race except Indian", "exclude", ["indian"], None),
+        ("not any particular race but no Indian", "exclude", ["indian"], None),
+        # round 3: same "and" adjacency break as above (was exclude:[indian,
+        # malay] in round 2)
+        ("prefer not Indian and Malay", "exclude", ["indian"], None),
+        ("no Indian pls", "exclude", ["indian"], None),
+        ("Chinese or Malay only", "only", ["chinese", "malay"], None),
+        ("any race ok but no pets", "any", [], None),
+        ("not Indian and not Malay", "exclude", ["indian", "malay"], None),
+        ("prefer chinese", "prefer", ["chinese"], None),
+        ("any race except indian", "exclude", ["indian"], None),
+        ("no one except chinese", "only", ["chinese"], None),
+        ("only looking for a chinese tenant", "only", ["chinese"], None),
+        ("we only accept chinese or malay tenants", "only", ["chinese", "malay"], None),
+        ("Malay only", "only", ["malay"], None),
+        ("any", "any", [], None),
+        ("no Indian", "exclude", ["indian"], None),
+        ("", "any", [], None),
+        ("strictly Chinese tenants", "only", ["chinese"], None),
+
+        # round 3: the 4 confirmed live book HOLD findings (PR #133 third
+        # review, 16 Sep 2026), see PR body "Live book comparison" table
+        # LL110: "not just Chinese" is a relaxation (other nationalities now
+        # ALSO considered), never an exclusion of Chinese
+        ("Widened 22 Aug 2026: male tenants of other nationalities now considered "
+         "(not just Chinese from MY/PH/TW). Indian male students ... approved for "
+         "viewing. Landlord preference, not a fixed gate.", "prefer", ["indian", "chinese"], None),
+        # LL112: "no ethnicity objection raised" negates nothing (no race sits
+        # within 2 tokens of "no"); only the "except India" clause gates
+        ("All except India per intake form (13 Aug 2026); in practice no ethnicity "
+         "objection raised when viewing a Malaysian Chinese couple, a Malaysian "
+         "Indian candidate, or a Filipino candidate", "exclude", ["indian"], None),
+        # LL065: South Indians are a stated preference, indian survives and
+        # is dropped from exclude even though "no ... Malaysian, no Mainland
+        # Chinese" still hard gates malay/chinese
+        ("South Indians, Filipinos, Myanmars preferred; no North Indian female, "
+         "no Malaysian, no Mainland Chinese", "exclude", ["malay", "chinese"], ["indian", "filipino", "myanmar"]),
+        # LL125: "asked if tenants are non local" is a question in a bracket,
+        # never a gate, and "local" itself never gates (item 4)
+        ("Chinese preferred (landlord asked if tenants are non local; landlord preference)",
+         "prefer", ["chinese"], None),
+
+        # round 3: additional required corpus (item 5)
+        ("not just Chinese", "prefer", ["chinese"], None),
+        ("no ethnicity objection raised", "note", [], None),
+        ("no North Indian female", "exclude", ["indian"], None),
+        ("no Mainland Chinese", "exclude", ["chinese"], None),
+        ("all except India", "exclude", ["indian"], None),
+        ("Chinese preferred; excludes Indian", "exclude", ["indian"], ["chinese"]),
+        ("company prefers Germany based staff", "note", [], None),
     ]
-    for raw, exp_rule, exp_races in cases:
+    for raw, exp_rule, exp_races, exp_prefer in cases:
         got = ed.parse_ethnicity(raw)
         check(f"{raw!r} -> rule {exp_rule!r}", got["rule"] == exp_rule, f"got {got}")
         check(f"{raw!r} -> races {exp_races!r}", got["races"] == exp_races, f"got {got}")
+        if exp_prefer is not None:
+            check(f"{raw!r} -> prefer {exp_prefer!r}", got.get("prefer") == exp_prefer, f"got {got}")
 
     section("parse_ethnicity: a few more guard edge cases")
     check("'Malay only' (adjacent) -> hard only", ed.parse_ethnicity("Malay only") == {"rule": "only", "races": ["malay"]})
     check("bare 'any' with nothing after -> any/no preference", ed.parse_ethnicity("any") == {"rule": "any", "races": []})
-    check("'no Indian' (no 'any' at all) -> exclude, unaffected by the any-guard",
+    check("'no Indian' (no 'any' at all) -> exclude, unaffected by the any check",
           ed.parse_ethnicity("no Indian") == {"rule": "exclude", "races": ["indian"]})
     check("empty/blank text -> any/no preference (unchanged default)", ed.parse_ethnicity("") == {"rule": "any", "races": []})
     check("'strictly' behaves like 'only'", ed.parse_ethnicity("strictly Chinese tenants") == {"rule": "only", "races": ["chinese"]})

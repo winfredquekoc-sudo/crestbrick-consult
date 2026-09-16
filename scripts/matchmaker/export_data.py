@@ -311,73 +311,139 @@ def parse_gender(txt):
 
 RACES = ["indian","chinese","malay","filipino","myanmar","burmese","korean","japanese","pakistani","caucasian","local"]
 
-# Ethnicity is an internal screening signal ONLY -- a landlord preference the
+# Ethnicity is an internal screening signal ONLY, a landlord preference the
 # app uses to sort/gate matches, never a tenant facing judgement made here.
 #
-# Rewritten TWICE now (Opus review of PR #133, 16 Sep 2026, two rounds):
+# Rewritten a THIRD time now (Opus HOLD review of PR 133, round 3, 16 Sep
+# 2026, on top of the two round 2 rewrites already documented in git
+# history):
 #
 # Round 1 made "only" and the exclusion scan clause scoped rather than a
 # fixed token window, which fixed the false hard blocks/discarded exclusions
 # from the first round but introduced a NEW, more serious bug: a clause
 # containing "only" collected every race word in that clause with no regard
 # for whether the race was ITSELF negated inside the same clause, and the
-# clause splitter did not respect brackets -- so "Chinese only (no
+# clause splitter did not respect brackets, so "Chinese only (no
 # Indian/Malay)" (an exclusion the landlord wrote as a parenthetical
 # clarification) inverted into "only": [indian, chinese, malay], i.e. Indian
 # and Malay tenants would score as the LANDLORD'S REQUIRED preference rather
-# than excluded. That is a polarity inversion, not just a missed signal, and
-# on live rental preference data it is a real fair-housing-adjacent risk on
-# top of being wrong.
+# than excluded.
 #
-# Round 2 (this version) fixes both root causes:
-#   - Bracketed text is split into its OWN clause(s), so "(no Indian/Malay)"
-#     or "(rejected Indian profile)" never shares a clause with the "only"
-#     sitting outside the brackets.
-#   - Race collection is now NEGATION AWARE within a clause: a race word is
-#     only added to an "only"/prefer/found set if no negation marker (no,
-#     not, non, exclude/excludes/excluding, without, reject/rejected/
-#     rejects, avoid -- "prefer not X"/"not keen on X" are covered by the
-#     plain "not" marker) appears EARLIER in that same clause. "no
-#     Indian/Malay" -- one negation marker, both races after it -- excludes
-#     both, matching the spec's own worked example.
-#   - "only"/"strictly" is ignored when it is just describing something else
-#     in the same breath ("screening only", "preference only", "1 pax
-#     only", "room only", "single only", "female/male only", "professionals/
-#     students only") -- it takes a genuine, non-negated race word in the
-#     SAME clause to fire the hard "only" rule at all.
-#   - "all welcome" / "open to all" / "open to all races" / "any race" /
-#     "no preference" all read as "any"; "all except X" behaves exactly like
-#     "any race except X" (X excluded, everyone else allowed).
+# Round 2 split brackets into their own clause and made race collection
+# negation aware, but a negation marker still counted against EVERY race
+# word anywhere later in the same clause, however far away. On the live
+# book that produced four false hard gates (exclude is a hard scoring.js
+# gate, so these silently blocked real matches):
+#   * "not just Chinese" (a relaxation, other nationalities now ALSO
+#     considered) read as an exclusion of Chinese.
+#   * "no ethnicity objection raised" (a question, not a gate) read as
+#     excluding every race mentioned later in the sentence.
+#   * "South Indians ... preferred; no ... Malaysian, no Mainland Chinese"
+#     discarded the preference entirely once the later negations fired.
+#   * "asked if tenants are non local" (a question) read as excluding
+#     "local".
 #
-# Five ordered passes, same shape as round 1:
-#   1. "only"/"strictly" (real ones, see above) -- the NON-negated race
-#      words in that clause become the hard allowed set.
-#   2. "except"/"other than" -- polarity from what precedes it in the same
-#      clause: "no one except X" / "none except X" (nobody, except X) makes
-#      X the entire allowed set; "any race except X" / "all except X"
-#      (everybody except X) excludes X. Ambiguous polarity falls through.
-#   3. Plain exclusions -- any race preceded by a negation marker anywhere
-#      earlier in its own clause.
-#   4. "any"/"no preference"/"all welcome"/"open to all" -- decisive now
-#      that pass 3 has already ruled out every race actually tied to a
-#      negation anywhere in the text.
-#   5. A plain mention/preference, or "note" with the raw text if nothing
-#      recognisable was found at all.
+# Round 3 (this version) makes negation ADJACENCY SCOPED instead of
+# clause scoped, because a hard gate must never be guessed past what the
+# text actually says right next to the race word:
+#   * A negation word (no, not, non, exclude/excludes/excluding, without,
+#     reject/rejected/rejects, avoid, "prefer not"/"not keen" are the
+#     same "not"/"keen" tokens) only negates a race word that sits at most
+#     two tokens after it, and every token in between must be one of a
+#     fixed set of modifiers (north, south, mainland, local, malaysian,
+#     indonesian, female, male, families, family, students, the, a, any,
+#     just). Anything else in between (an "and", a joined by a comma second
+#     race, an unrelated word) breaks the reach, "prefer not Indian and
+#     Malay" now only excludes Indian (Malay is 3 tokens from "not" through
+#     a non modifier "and"); under excluding a hard gate is far safer than
+#     guessing one that was never actually stated next to that race.
+#   * "not just X" / "not only X" is an explicit NON exclusion (the
+#     landlord is relaxing a prior restriction, not stating a new one):
+#     the sole allowed between token "just" is special cased so it
+#     never itself triggers the negation.
+#   * Country/demonym words that aren't literally in RACES (india, china,
+#     mainland) map to the race they imply ONLY inside an "except" clause's
+#     tail ("all except India" / "any race except Indian" both exclude
+#     indian), "malaysian" is deliberately never aliased this way (it is
+#     a nationality, not the "malay" race) even though the plain substring
+#     match used everywhere else in this file does still let "Malaysian"
+#     match the "malay" race, per the live book note on _clause_race_polarity
+#     below.
+#   * A landlord's stated preference survives: clauses containing prefer/
+#     preferred/prefers/preferably/ideally (but not immediately followed by
+#     "not", "prefer not X" is a negation, not a preference) collect their
+#     non negated race words into a separate prefer list; any race in both
+#     the exclude set and the prefer set is dropped from exclude (the
+#     landlord's positive statement wins) and the prefer list still rides
+#     along on the result so the app can show it and a human can double
+#     check the note.
+#   * Brackets stay their own clause (round 2) and now NEVER produce an
+#     exclude or an only, a parenthetical is commentary, not a gate,
+#     though it can still surface a plain mention/preference/note.
+#   * "local"/"non local" never gate at all (never appear in an exclude or
+#     only result), a landlord asking whether someone is local is not a
+#     race preference.
+#
+# Five ordered passes, same shape as rounds 1/2:
+#   1. "only"/"strictly" (real ones, see above; main clauses only), the
+#      NOT negated race words in that clause become the hard allowed set.
+#   2. "except"/"other than" (main clauses only), polarity from what
+#      precedes it in the same clause: "no one except X" / "none except X"
+#      makes X the entire allowed set; "any race except X" / "all except X"
+#      excludes X (aliasing country/demonym words to the race they imply).
+#      Ambiguous polarity falls through.
+#   3. Plain exclusions (main clauses only), any race word with an
+#      adjacency scoped negation marker before it in its own clause.
+#   4. "any"/"no preference"/"all welcome"/"open to all", decisive now
+#      that pass 3 has already ruled out every race actually tied to an
+#      adjacent negation.
+#   5. A landlord's survived preference, then a plain mention, or "note"
+#      with the raw text if nothing recognisable was found at all.
 _ETH_BRACKET_RE = re.compile(r"[\(\[]([^\)\]]*)[\)\]]")
 _ETH_PLAIN_SPLIT_RE = re.compile(r"[,;.]|\s[-–—]\s|\bbut\b|\band(?=\s+no\b)")
+_ETH_SEGMENT_SPLIT_RE = re.compile(r"[;.]")
 _ETH_EXCEPT_RE = re.compile(r"(?:except|other than)\s+(.*)")
 _ETH_NEGATION_BASE_RE = re.compile(r"\b(?:no\s+one|nobody|none|no\s+preference)\b")
-_ETH_NEGATION_WORDS = ("no", "not", "non", "exclude", "excludes", "excluding",
-                        "without", "reject", "rejected", "rejects", "avoid")
-_ETH_NEGATION_RE = re.compile(r"\b(?:" + "|".join(_ETH_NEGATION_WORDS) + r")\b")
 _ETH_ONLY_RE = re.compile(r"\b(?:only|strictly)\b")
-# "only"/"strictly" describing something OTHER than a race (item 3, round 2)
-# -- stripped out of a clause before checking whether a "real" only remains.
+# "only"/"strictly" describing something OTHER than a race (item 3, round 2),
+# stripped out of a clause before checking whether a "real" only remains.
 _ETH_GENERIC_ONLY_PRECEDERS = ("screening", "preference", "preferences", "pax", "room",
                                "single", "female", "male", "professionals", "students")
 _ETH_GENERIC_ONLY_RE = re.compile(
     r"\b(?:" + "|".join(_ETH_GENERIC_ONLY_PRECEDERS) + r")\s+(?:only|strictly)\b")
-_ETH_ANY_TRIGGERS = ("no pref", "no race", "any", "all welcome", "open to all")
+_ETH_ANY_TRIGGERS = ("no pref", "no race", "all welcome", "open to all")
+# Bare "any" needs a word boundary, not the plain substring match every other
+# trigger uses, "company prefers Germany based staff" must not read as an
+# "any race" signal just because "Germany" ends in "any" (round 3 fix).
+_ETH_ANY_WORD_RE = re.compile(r"\bany\b")
+
+_ETH_TOKEN_RE = re.compile(r"[a-z]+")
+# Round 3 negation words, adjacency (see _position_excluded), not clause
+# scope, decides whether one of these actually negates a given race word.
+_ETH_NEG_TOKENS = {"no", "not", "non", "exclude", "excludes", "excluding",
+                    "without", "reject", "rejected", "rejects", "avoid"}
+# Tokens allowed to sit between a negation word and the race word it negates
+# ("no North Indian" / "no Malaysian tenants" style modifiers) without
+# breaking adjacency.
+_ETH_MODIFIER_TOKENS = {"north", "south", "mainland", "local", "malaysian",
+                         "indonesian", "female", "male", "families", "family",
+                         "students", "the", "a", "any", "just"}
+# The one modifier that also CANCELS the negation it sits next to, "not
+# just X" / "no ... just X" is a stated relaxation, never an exclusion.
+_ETH_RELAX_TOKEN = "just"
+# Country/demonym words that are not themselves in RACES, mapped to the race
+# they imply, used ONLY inside an "except" clause's tail (item 2, round 3).
+# "malaysian" is deliberately absent: it is a nationality, and aliasing it to
+# "malay" inside an except tail would be guessing a race gate from a
+# citizenship question, exactly what this rewrite exists to stop.
+_ETH_EXCEPT_ALIASES = {"india": "indian", "china": "chinese", "mainland": "chinese"}
+_ETH_PREFER_WORDS = {"prefer", "preferred", "prefers", "preferably", "ideally"}
+_ETH_PREFER_RE = re.compile(r"\b(?:" + "|".join(_ETH_PREFER_WORDS) + r")\b")
+# "local"/"non local" are a residency question, never a race (item 4, round
+# 3), RACES keeps "local" for the general mention/prefer fallback below
+# (a landlord CAN volunteer "prefers local tenants"), but it must never be
+# the thing that fires a hard "only"/"exclude" gate.
+_ETH_NEVER_GATE = {"local"}
 
 
 def _split_plain(segment):
@@ -385,58 +451,154 @@ def _split_plain(segment):
 
 
 def _split_into_clauses(t):
-    """Bracketed text becomes its own independent clause group -- never
-    sharing a clause with anything outside the brackets -- and is itself
-    split the same way; the surrounding text is split normally. Fixes the
-    round 1 bug where an unrelated parenthetical ("(internal screening
-    only, never public)", "(no Indian/Malay)") leaked its "only" or its
-    negation into the main clause."""
+    """Bracketed text becomes its own independent clause group, never
+    sharing a clause with anything outside the brackets, and is itself
+    split the same way; the surrounding text is split normally. Returns
+    (clause, origin) pairs, origin "bracket" or "main", round 3 uses this
+    to keep a parenthetical from ever producing a hard "only"/"exclude"
+    (see module docstring, item on brackets)."""
     clauses, pos = [], 0
     for m in _ETH_BRACKET_RE.finditer(t):
-        clauses.extend(_split_plain(t[pos:m.start()]))
-        clauses.extend(_split_plain(m.group(1)))
+        clauses.extend((c, "main") for c in _split_plain(t[pos:m.start()]))
+        clauses.extend((c, "bracket") for c in _split_plain(m.group(1)))
         pos = m.end()
-    clauses.extend(_split_plain(t[pos:]))
+    clauses.extend((c, "main") for c in _split_plain(t[pos:]))
     return clauses
+
+
+def _split_into_segments(t):
+    """Coarser than _split_into_clauses: only breaks on ';'/'.', leaving
+    commas intact, so a comma joined list like "South Indians, Filipinos,
+    Myanmars preferred" stays ONE segment and the trailing keyword covers
+    the whole list, a fine, comma splitting clause would otherwise orphan
+    every list item before the keyword and lose the preference (round 3
+    "preferences survive" fix). Brackets are still split out on their own
+    so a keyword on one side of a bracket never reaches into it."""
+    segments, pos = [], 0
+    for m in _ETH_BRACKET_RE.finditer(t):
+        segments.extend(_ETH_SEGMENT_SPLIT_RE.split(t[pos:m.start()]))
+        segments.extend(_ETH_SEGMENT_SPLIT_RE.split(m.group(1)))
+        pos = m.end()
+    segments.extend(_ETH_SEGMENT_SPLIT_RE.split(t[pos:]))
+    return segments
 
 
 def _clause_has_real_only(clause):
     """True if "only"/"strictly" survives after stripping every generic,
-    non-race use of it (item 3, round 2)."""
+    non race use of it (item 3, round 2)."""
     stripped = _ETH_GENERIC_ONLY_RE.sub(" ", clause)
     return bool(_ETH_ONLY_RE.search(stripped))
 
 
-def _clause_race_polarity(clause):
-    """(included, excluded) race words in `clause`: a race is excluded if
-    any negation marker appears EARLIER in the same clause (anywhere
-    before it, not just immediately before -- "no Indian/Malay" excludes
-    both), included otherwise.
+def _clause_words(clause):
+    return [m.group(0) for m in _ETH_TOKEN_RE.finditer(clause)]
 
-    Plain substring match, deliberately NOT \\b-bounded (verified against
-    the real live book, 16 Sep 2026): a strict word boundary silently drops
-    "Indians"/"Chineses"-style plurals ("indian" no longer matches inside
-    "indians") and loses the common colloquial "Malaysian" for "malay" --
-    both real, current landlord phrasings that must keep matching. This
-    matches every other race lookup in this file, which has always been
-    plain substring."""
-    marker_positions = [m.start() for m in _ETH_NEGATION_RE.finditer(clause)]
+
+def _race_matches(word):
+    """Plain substring match, deliberately not anchored with a word
+    boundary (verified against the real live book, 16 Sep 2026): a strict
+    word boundary silently drops "Indians"/"Chineses" style plurals
+    ("indian" no longer matches inside "indians") and loses the common
+    colloquial "Malaysian" for "malay". Both are real, current landlord
+    phrasings that must keep matching. This matches every other race
+    lookup in this file, which has always been plain substring."""
+    return [r for r in RACES if r in word]
+
+
+def _is_negation_anchor(words, i):
+    if words[i] in _ETH_NEG_TOKENS:
+        return True
+    # "not keen", the phrase's own negation lands on "keen", not "not",
+    # so a race right after "keen" is in reach too ("not keen Chinese").
+    if words[i] == "keen" and i > 0 and words[i - 1] == "not":
+        return True
+    return False
+
+
+def _position_excluded(words, j):
+    """True if the race word at token index j has a negation word at most
+    two tokens before it (round 3 adjacency), with nothing but modifier
+    words in between, AND that reach doesn't pass through the one relaxing
+    modifier ("just") sitting alone right before the race word."""
+    for i in range(max(0, j - 3), j):
+        if not _is_negation_anchor(words, i):
+            continue
+        between = words[i + 1:j]
+        if not all(b in _ETH_MODIFIER_TOKENS for b in between):
+            continue
+        if len(between) == 1 and between[0] == _ETH_RELAX_TOKEN:
+            continue  # "not just X" / "no ... just X", explicit non exclusion
+        return True
+    return False
+
+
+def _clause_race_polarity(clause):
+    """(included, excluded) race words in `clause`. A race is excluded if
+    ANY of its occurrences in the clause has an adjacency scoped negation
+    (see _position_excluded), a real, stated exclusion must never be
+    dropped just because the same race was also mentioned neutrally
+    elsewhere in the same breath ("an Indian applicant was rejected: no
+    Indian")."""
+    words = _clause_words(clause)
+    positions = {}
+    for j, w in enumerate(words):
+        for r in _race_matches(w):
+            positions.setdefault(r, []).append(j)
     included, excluded = [], []
     for r in RACES:
-        positions = [i for i in range(len(clause)) if clause.startswith(r, i)]
-        if not positions:
+        js = positions.get(r)
+        if not js:
             continue
-        # If a race is mentioned more than once in the same clause with mixed
-        # polarity (e.g. "...an Indian applicant...rejected...'no Indian'" --
-        # a landlord noting they turned an Indian applicant away), ANY
-        # negated occurrence wins: a real, stated exclusion must never be
-        # dropped just because the same race was also mentioned neutrally
-        # earlier in the same breath.
-        if any(any(mp < pos for mp in marker_positions) for pos in positions):
+        if any(_position_excluded(words, j) for j in js):
             excluded.append(r)
         else:
             included.append(r)
     return included, excluded
+
+
+def _except_tail_races(tail):
+    """Races named after "except"/"other than", aliasing bare country/
+    demonym words that aren't themselves in RACES (item 2, round 3).
+    "malaysian" is skipped even though it contains "malay" as a substring:
+    inside an except tail specifically that would guess a race gate from a
+    nationality word, which this rewrite exists to stop (plain substring
+    matching elsewhere in this file is unaffected)."""
+    races = []
+    for tok in _clause_words(tail):
+        if tok == "malaysian":
+            continue
+        matched = _race_matches(tok)
+        if matched:
+            for r in matched:
+                if r not in races:
+                    races.append(r)
+            continue
+        alias = _ETH_EXCEPT_ALIASES.get(tok)
+        if alias and alias not in races:
+            races.append(alias)
+    return races
+
+
+def _collect_prefer_races(segments):
+    """Races from segments containing a prefer/preferred/prefers/
+    preferably/ideally keyword (item 3, round 3), "the landlord's
+    positive statement wins". A segment where the keyword is immediately
+    followed by "not" ("prefer not X") is a negation, not a preference, and
+    is skipped entirely rather than risk reading its non negated leftovers
+    as a preference."""
+    prefer = []
+    for seg in segments:
+        if not _ETH_PREFER_RE.search(seg):
+            continue
+        words = _clause_words(seg)
+        if any(w in _ETH_PREFER_WORDS and i + 1 < len(words) and words[i + 1] == "not"
+               for i, w in enumerate(words)):
+            continue
+        included, _ = _clause_race_polarity(seg)
+        for r in included:
+            if r not in prefer:
+                prefer.append(r)
+    return prefer
 
 
 def parse_ethnicity(txt):
@@ -444,46 +606,58 @@ def parse_ethnicity(txt):
     if not t:
         return {"rule": "any", "races": []}
     clauses = _split_into_clauses(t)
+    main_clauses = [c for c, origin in clauses if origin == "main"]
+    prefer = _collect_prefer_races(_split_into_segments(t))
 
     only_races = []
-    for clause in clauses:
+    for clause in main_clauses:
         if _clause_has_real_only(clause):
             included, _ = _clause_race_polarity(clause)
             for r in included:
-                if r not in only_races:
+                if r not in only_races and r not in _ETH_NEVER_GATE:
                     only_races.append(r)
     if only_races:
         return {"rule": "only", "races": only_races}
 
-    for clause in clauses:
+    for clause in main_clauses:
         m = _ETH_EXCEPT_RE.search(clause)
         if not m:
             continue
-        tail_races = [r for r in RACES if r in m.group(1)]
+        tail_races = [r for r in _except_tail_races(m.group(1)) if r not in _ETH_NEVER_GATE]
         if not tail_races:
             continue
         head = clause[:m.start()]
         if _ETH_NEGATION_BASE_RE.search(head):
             return {"rule": "only", "races": tail_races}
         if "any" in head or "all" in head:
-            return {"rule": "exclude", "races": tail_races}
-        # ambiguous polarity (no "any"/"all"/negation-base before it) -- fall
+            races = [r for r in tail_races if r not in prefer]
+            result = {"rule": "exclude", "races": races}
+            if prefer:
+                result["prefer"] = prefer
+            return result
+        # ambiguous polarity (no "any"/"all"/negation base before it), fall
         # through and let the plain exclusion scan below pick it up
 
     excl = []
-    for clause in clauses:
+    for clause in main_clauses:
         _, clause_excluded = _clause_race_polarity(clause)
         for r in clause_excluded:
-            if r not in excl:
+            if r not in excl and r not in _ETH_NEVER_GATE:
                 excl.append(r)
+    excl = [r for r in excl if r not in prefer]
     if excl:
-        return {"rule": "exclude", "races": excl}
+        result = {"rule": "exclude", "races": excl}
+        if prefer:
+            result["prefer"] = prefer
+        return result
 
-    if any(trigger in t for trigger in _ETH_ANY_TRIGGERS):
+    if any(trigger in t for trigger in _ETH_ANY_TRIGGERS) or _ETH_ANY_WORD_RE.search(t):
         return {"rule": "any", "races": []}
 
+    if prefer:
+        return {"rule": "prefer", "races": prefer}
+
     found = [r for r in RACES if r in t]
-    if "pref" in t and found: return {"rule":"prefer","races":found}
     if found: return {"rule":"prefer","races":found}
     return {"rule":"note","races":[], "raw":(txt or "")[:80]}
 def maps_query(addr, district, dist_area):
