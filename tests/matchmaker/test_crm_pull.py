@@ -102,8 +102,14 @@ class FakeServer:
         self.server_time = datetime.datetime.now(datetime.timezone.utc)
 
     def snapshot(self):
+        # Mirrors api/crm.js's own snapshot() where clause (PR #132 sixth
+        # review): a plain sent row stays out, same as before, but a sent
+        # row an operator confirmed (sent_confirmed) stays in so
+        # cleanup_resolved can see it and prune its queue item.
         return {
-            "dispatch": [dict(r) for r in self.dispatch.values() if r["status"] in ("queued", "pulled", "cancelled")],
+            "dispatch": [dict(r) for r in self.dispatch.values()
+                         if r["status"] in ("queued", "pulled", "cancelled")
+                         or (r["status"] == "sent" and r.get("sent_confirmed"))],
             "deals": [dict(d) for d in self.deals.values()],
             "server_time": self.server_time.isoformat().replace("+00:00", "Z"),
         }
@@ -251,7 +257,7 @@ class Fixture:
         crm_pull.fetch_snapshot = lambda user, pw: self.server.snapshot()
         crm_pull.post_ops = lambda user, pw, ops: self.server.apply_ops(ops)
         # A fixed, safe (well outside 07:45-08:45) Singapore time for every
-        # cleanup_cancelled call this fixture drives through main() — without
+        # cleanup_resolved call this fixture drives through main() — without
         # this, a test run happening to land inside the real send window
         # would make cleanup skip everywhere for a reason that has nothing to
         # do with the code under test.
@@ -518,7 +524,7 @@ def t_cleanup_skips_during_the_blackout_window():
         crm_pull.main(["--apply"])
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "cancelled"
         during_send_window = datetime.datetime(2026, 9, 16, 8, 10, tzinfo=datetime.timezone(datetime.timedelta(hours=8)))
-        summary = crm_pull.cleanup_cancelled(fx.server.snapshot()["dispatch"], True, now=during_send_window)
+        summary = crm_pull.cleanup_resolved(fx.server.snapshot()["dispatch"], True, now=during_send_window)
         assert summary["skipped_blackout"] is True
         assert any(i.get("dispatch_id") == "dispatch_L1_T1" for i in fx.queue_items()), \
             "cleanup must not touch the queue file at all between 07:45 and 08:45"
@@ -533,7 +539,7 @@ def t_cleanup_skips_when_the_queue_file_changed_since_the_fetch():
         crm_pull.main(["--apply"])
         fx.server.dispatch["dispatch_L1_T1"]["status"] = "cancelled"
         stale_mtime = os.path.getmtime(fx.queue_path) - 1000  # pretend it looked different at fetch time
-        summary = crm_pull.cleanup_cancelled(fx.server.snapshot()["dispatch"], True, mtime_at_fetch=stale_mtime)
+        summary = crm_pull.cleanup_resolved(fx.server.snapshot()["dispatch"], True, mtime_at_fetch=stale_mtime)
         assert summary["skipped_changed"] is True
         assert any(i.get("dispatch_id") == "dispatch_L1_T1" for i in fx.queue_items()), \
             "a queue file that changed since the fetch must be left alone this pass"
@@ -938,6 +944,52 @@ def t_ambiguous_resolved_not_sent_then_fresh_requeue_appended_once():
     finally:
         fx.restore()
 check("(m3) operator resolves ambiguous as Not sent, unblocking a fresh Mark Queued that is appended exactly once", t_ambiguous_resolved_not_sent_then_fresh_requeue_appended_once)
+
+
+# ---- (m4) operator resolves ambiguous as Sent: sent_confirmed prunes the --
+# ---- queue item, nothing is appended again (PR #132 sixth review round) ---
+def t_ambiguous_resolved_sent_prunes_queue_appends_nothing():
+    fx = Fixture()
+    try:
+        # Same queue-file-and-archive-at-once setup as (m) above — a row
+        # genuinely appended, then found ambiguous on the very next run.
+        fx.server.dispatch["dispatch_L1_T1"]["status"] = "pulled"
+        fx.server.dispatch["dispatch_L1_T1"]["pulled_at"] = pulled_at_from_server(fx, hours_ago=1)
+        queue_drafts.merge_into_queue(
+            [{"tenant_id": "T1", "jid": "6591111111@s.whatsapp.net", "message": "already appended",
+              "dispatch_id": "dispatch_L1_T1"}],
+            fx.queue_path)
+        fx.write_archive(archive_stamp(fx, hours_from_now=3), ["dispatch_L1_T1"])
+
+        crm_pull.main(["--apply"])
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "pulled"
+        assert fx.server.dispatch["dispatch_L1_T1"].get("ambiguous_since"), \
+            "the row in both the queue file and an archive must be flagged ambiguous first"
+        assert any(i.get("dispatch_id") == "dispatch_L1_T1" for i in fx.queue_items())
+
+        # Operator resolution in the app: "Sent" — the SAME row moves straight
+        # to sent, with sent_confirmed set (see app.js's resolveAmbiguousSent).
+        fx.server.apply_ops([{
+            "op": "dispatch", "id": "dispatch_L1_T1", "tenant_id": "T1", "listing_id": "L1",
+            "jid": None, "phone": "91111111", "text": fx.server.dispatch["dispatch_L1_T1"]["text"],
+            "viewing_slot": None, "status": "sent", "device": None, "sent_confirmed": True,
+        }])
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "sent"
+        assert fx.server.dispatch["dispatch_L1_T1"]["sent_confirmed"] is True
+
+        crm_pull.main(["--apply"])
+        items = fx.queue_items()
+        assert all(i.get("dispatch_id") != "dispatch_L1_T1" for i in items), \
+            "an operator confirmed Sent row's queue item must be pruned"
+        assert fx.server.dispatch["dispatch_L1_T1"]["status"] == "sent", \
+            "crm_pull.py must never re process an already sent row"
+
+        crm_pull.main(["--apply"])
+        assert all(i.get("dispatch_id") != "dispatch_L1_T1" for i in fx.queue_items()), \
+            "pruning again is a no op, not an error, and nothing is ever re appended for this id"
+    finally:
+        fx.restore()
+check("(m4) operator resolves ambiguous as Sent — sent_confirmed prunes the queue item, nothing appended again", t_ambiguous_resolved_sent_prunes_queue_appends_nothing)
 
 
 # ---- lock timeout (fifth review round): a busy queue lock is never worth --

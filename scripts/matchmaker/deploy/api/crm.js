@@ -61,19 +61,27 @@ async function snapshot(client) {
                          to_char(deal_date,'YYYY-MM-DD') as deal_date, notes,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at
                   from crm_deal order by created_at desc limit 2000`),
-    // queued, pulled and cancelled rows. A sent row has nothing left for
-    // either the app or crm_pull.py to act on, so that one status is left out
-    // of the payload the same way notes/tasks/activity are capped above,
-    // rather than growing this endpoint's response with a table that never
-    // gets pruned. cancelled has to stay in, even though nothing acts on most
-    // of them either: crm_pull.py's own cleanup step needs to see a row that
-    // was cancelled after already being pulled and appended, so it can remove
-    // the matching item from the real morning dispatch queue before 08:00.
+    // queued, pulled and cancelled rows. A plain sent row (crm_pull.py's own
+    // archive based guess, never an operator confirmation) has nothing left
+    // for either the app or crm_pull.py to act on, so it stays out of the
+    // payload the same way notes/tasks/activity are capped above, rather
+    // than growing this endpoint's response with a table that never gets
+    // pruned. cancelled has to stay in, even though nothing acts on most of
+    // them either: crm_pull.py's own cleanup step needs to see a row that
+    // was cancelled after already being pulled and appended, so it can
+    // remove the matching item from the real morning dispatch queue before
+    // 08:00. sent_confirmed sent rows stay in for exactly the same cleanup
+    // reason — an operator's own Sent resolution of an ambiguous row (see
+    // resolveAmbiguousSent in app.js) is just as terminal as a cancel from
+    // the queue's own point of view, and crm_pull.py's cleanup_resolved
+    // needs to see it to prune that row's queue item.
     client.query(`select id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device,
                          to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at,
                          to_char(pulled_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as pulled_at,
-                         to_char(ambiguous_since,'YYYY-MM-DD"T"HH24:MI:SSZ') as ambiguous_since
-                  from crm_dispatch where status in ('queued','pulled','cancelled')
+                         to_char(ambiguous_since,'YYYY-MM-DD"T"HH24:MI:SSZ') as ambiguous_since,
+                         sent_confirmed
+                  from crm_dispatch
+                  where status in ('queued','pulled','cancelled') or (status = 'sent' and sent_confirmed)
                   order by created_at desc limit 2000`),
     // crm_pull.py's 7 day expiry check on a stuck pulled row has to compare
     // against a clock neither side can skew relative to the other — the
@@ -267,8 +275,8 @@ async function applyOp(client, o) {
       const currentStatus = cur.rows[0] ? cur.rows[0].status : null;
       const nextStatus = nextDispatchStatus(currentStatus, d.status);
       await client.query(
-        `insert into crm_dispatch (id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device, pulled_at)
-         values ($1,$2,$3,$4,$5,$6,$7,$8,$9, case when $8 = 'pulled' then now() else null end)
+        `insert into crm_dispatch (id, tenant_id, listing_id, jid, phone, text, viewing_slot, status, device, pulled_at, sent_confirmed)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9, case when $8 = 'pulled' then now() else null end, $10)
          on conflict (id) do update set
            tenant_id = excluded.tenant_id, listing_id = excluded.listing_id, jid = excluded.jid,
            phone = excluded.phone, text = excluded.text, viewing_slot = excluded.viewing_slot,
@@ -283,8 +291,13 @@ async function applyOp(client, o) {
            -- of an already pulled row (crm_dispatch.status = 'pulled' here
            -- already), so a duplicate POST cannot quietly restart the clock.
            pulled_at = case when $8 = 'pulled' and crm_dispatch.status != 'pulled'
-                            then now() else crm_dispatch.pulled_at end`,
-        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device]
+                            then now() else crm_dispatch.pulled_at end,
+           -- OR, never overwrite — an operator's own Sent confirmation must
+           -- never be undone by a later, unrelated dispatch upsert for the
+           -- same row (there should not be one, since sent is terminal, but
+           -- this is the same defensive posture as pulled_at above).
+           sent_confirmed = crm_dispatch.sent_confirmed or excluded.sent_confirmed`,
+        [d.id, d.tenant_id, d.listing_id, d.jid, d.phone, d.text, d.viewing_slot, nextStatus, d.device, d.sent_confirmed]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
         [d.tenant_id, "dispatch:" + nextStatus, (d.viewing_slot || d.text || "dispatch").slice(0, 120)]);

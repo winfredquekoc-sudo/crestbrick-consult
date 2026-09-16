@@ -50,9 +50,13 @@ one needs a manual export from the app anymore:
      (imported, never shelled out to), and the import is recorded as a
      crm_activity row through the API.
 
-A separate cleanup step removes any queue item whose dispatch row has since
-been cancelled (only items that carry a dispatch_id), so cancelling a row
-before the real 08:00 send still stops it. This step takes its own
+A separate cleanup step (cleanup_resolved) removes any queue item whose
+dispatch row has since reached a resolved terminal state — cancelled, or
+sent with sent_confirmed set (an operator's own Sent resolution of an
+ambiguous row in the app's dispatch drawer, see app.js's
+resolveAmbiguousSent) — only items that carry a dispatch_id, so cancelling
+a row, or an operator confirming one really did send, before the real 08:00
+send both still stop it sitting in the real queue. This step takes its own
 exclusive lock on the queue file, re reads it under that lock, skips
 entirely if the file changed since this run first looked at it, and never
 runs at all between 07:45 and 08:45 Singapore time.
@@ -369,7 +373,7 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
     (d) the append phase below (c) — the one write that can race
         morning-dispatch.sh's own unlocked load then rename — never runs
         inside the 07:45 to 08:45 Singapore time send window, the same
-        blackout cleanup_cancelled already observes. Anything otherwise
+        blackout cleanup_resolved already observes. Anything otherwise
         ready to append is simply left for the next run outside the window.
     (e) every row still queued or pulled after all of the above: if its id
         is already in the current queue file, it is skipped (already
@@ -387,10 +391,12 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
     runs, on every run, and simply logged as still awaiting an operator's
     Sent / Not sent check in the app's dispatch drawer. Nothing here ever
     re evaluates it, expires it, or marks it sent from an archive on its
-    own; only that operator action (which flips status to sent or cancelled
-    through the app's existing dispatch/dispatch_cancel ops) changes it, and
-    a cancelled resolution unblocks a fresh Mark Queued for the same pair
-    exactly like any other cancelled row."""
+    own; only that operator action (which flips status to sent, stamping
+    sent_confirmed along with it, or cancelled — through the app's existing
+    dispatch/dispatch_cancel ops) changes it. A cancelled resolution
+    unblocks a fresh Mark Queued for the same pair exactly like any other
+    cancelled row; a sent_confirmed resolution instead gets its queue item
+    pruned by cleanup_resolved below, exactly like a cancelled row's."""
     summary = {"queued": 0, "pulled_seen": 0, "approved": 0, "cancelled": 0,
                "marked_sent": 0, "expired": 0, "ambiguous": 0, "ambiguous_pending": 0,
                "appended": 0, "already_appended": 0, "append_failed": 0,
@@ -478,7 +484,7 @@ def process_dispatch_locked(rows, server_now, user, pw, apply_, lockf, deadline=
 
     # The one write in this function that can race morning-dispatch.sh's own
     # unlocked load then rename (see the module docstring) — never during
-    # the real send window, matching cleanup_cancelled's own blackout.
+    # the real send window, matching cleanup_resolved's own blackout.
     if apply_ and _in_blackout(_now_sgt()):
         print("crm_pull: skipping dispatch queue append during the 07:45 to 08:45 send window")
         summary["append_blackout_skipped"] = True
@@ -592,30 +598,43 @@ def _in_blackout(now_sgt):
     return BLACKOUT_START <= hm <= BLACKOUT_END
 
 
-def cleanup_cancelled(dispatch_rows, apply_, mtime_at_fetch=_MTIME_UNSET, now=None):
+def cleanup_resolved(dispatch_rows, apply_, mtime_at_fetch=_MTIME_UNSET, now=None):
     """Removes any item from the real dispatch queue whose dispatch row has
-    since been cancelled — only items that carry a dispatch_id, so a manual
-    or another producer's item is never touched. Never runs between 07:45
-    and 08:45 Singapore time (the real send window), and otherwise takes its
-    own exclusive lock on <queue file>.lock (separate from, and after,
-    run_dispatch_locked's own lock above), re reads the queue file under
-    that lock, and skips the whole pass if the file's mtime has changed
-    since mtime_at_fetch — something else touched it since this run last
-    looked (most likely a concurrent process, since this run's own dispatch
-    processing has already fully finished and released its lock by the time
-    this is called), so this pass defers to the next run rather than read
-    modify write against a file it can no longer be sure it understands.
-    mtime_at_fetch left at its default disables that specific check, for a
-    caller (a test, most likely) that does not care about it.
+    since reached a resolved terminal state — only items that carry a
+    dispatch_id, so a manual or another producer's item is never touched.
+    Two ways a row gets here (PR #132 sixth review adds the second):
+      - cancelled: refused by a check, expired, unqueued in the app, or an
+        append failure recovery.
+      - sent with sent_confirmed set: an operator picked Sent on an ambiguous
+        row in the app's dispatch drawer (resolveAmbiguousSent in app.js) —
+        just as terminal, from the queue's own point of view, as a cancel.
+        A plain crm_pull.py archive based sent guess never sets sent_confirmed
+        and is not in dispatch_rows to begin with (the snapshot only returns
+        sent rows when sent_confirmed is set — see api/crm.js's snapshot()),
+        so this can never prune a row on crm_pull.py's own say so, only an
+        operator's.
+    Never runs between 07:45 and 08:45 Singapore time (the real send window),
+    and otherwise takes its own exclusive lock on <queue file>.lock (separate
+    from, and after, run_dispatch_locked's own lock above), re reads the
+    queue file under that lock, and skips the whole pass if the file's mtime
+    has changed since mtime_at_fetch — something else touched it since this
+    run last looked (most likely a concurrent process, since this run's own
+    dispatch processing has already fully finished and released its lock by
+    the time this is called), so this pass defers to the next run rather
+    than read modify write against a file it can no longer be sure it
+    understands. mtime_at_fetch left at its default disables that specific
+    check, for a caller (a test, most likely) that does not care about it.
 
     This lock is polled with LOCK_NB the same as run_dispatch_locked's own
     (see _acquire_lock) — a busy lock after LOCK_TIMEOUT_SECONDS logs "queue
     lock busy, skipping this run" and this pass is simply skipped, exactly
     like the blackout and changed-file skips already here, never a hang."""
-    cancelled_ids = {r.get("id") for r in dispatch_rows if r.get("status") == "cancelled"}
-    summary = {"cancelled_seen": len(cancelled_ids), "removed_from_queue": 0,
+    resolved_ids = {r.get("id") for r in dispatch_rows
+                     if r.get("status") == "cancelled"
+                     or (r.get("status") == "sent" and r.get("sent_confirmed"))}
+    summary = {"resolved_seen": len(resolved_ids), "removed_from_queue": 0,
                "skipped_blackout": False, "skipped_changed": False, "skipped_busy": False}
-    if not cancelled_ids or not apply_:
+    if not resolved_ids or not apply_:
         return summary
     now_sgt = now or _now_sgt()
     if _in_blackout(now_sgt):
@@ -645,7 +664,7 @@ def cleanup_cancelled(dispatch_rows, apply_, mtime_at_fetch=_MTIME_UNSET, now=No
             except (OSError, ValueError):
                 return summary
             items = q.get("items") or []
-            kept = [i for i in items if not (i.get("dispatch_id") and i.get("dispatch_id") in cancelled_ids)]
+            kept = [i for i in items if not (i.get("dispatch_id") and i.get("dispatch_id") in resolved_ids)]
             removed = len(items) - len(kept)
             if removed:
                 q["items"] = kept
@@ -776,17 +795,17 @@ def main(argv=None):
         if snap is None:
             # run_dispatch_locked already logged "queue lock busy, skipping
             # this run" — the lock is <queue file>.lock, the same one
-            # cleanup_cancelled needs, so there is nothing safe to do for
+            # cleanup_resolved needs, so there is nothing safe to do for
             # either dispatch or cleanup this run. Deal import does not
             # touch that lock at all, but skipping it too keeps one run's
             # behaviour simple to reason about: busy means nothing done,
             # picked up cleanly next run, same as every other guard here.
             return 0
         # Captured only now, after run_dispatch_locked has fully finished and
-        # released its own lock — see cleanup_cancelled's own docstring for
+        # released its own lock — see cleanup_resolved's own docstring for
         # why this is the right moment, not before dispatch processing.
         mtime_at_fetch = os.path.getmtime(queue_drafts.QUEUE_PATH) if os.path.exists(queue_drafts.QUEUE_PATH) else None
-        c_summary = cleanup_cancelled(snap.get("dispatch") or [], args.apply, mtime_at_fetch=mtime_at_fetch)
+        c_summary = cleanup_resolved(snap.get("dispatch") or [], args.apply, mtime_at_fetch=mtime_at_fetch)
         l_summary = process_deals(snap.get("deals") or [], user, pw, args.apply, deadline)
     except (urllib.error.URLError, OSError, ValueError) as e:
         print("crm_pull: failed (%s) — nothing done" % e, file=sys.stderr)

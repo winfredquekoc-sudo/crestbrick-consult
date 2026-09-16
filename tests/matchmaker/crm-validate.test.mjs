@@ -132,8 +132,15 @@ test("validateDispatchFields: a well formed dispatch row passes every field thro
   assert.deepEqual(d, {
     id: "dispatch_L1_T1", tenant_id: "T1", listing_id: "L1", jid: "6591234567@s.whatsapp.net",
     phone: "91234567", text: "Hi, this unit might suit you", viewing_slot: "Sat 2pm",
-    status: "pulled", device: "winfreds mac",
+    status: "pulled", device: "winfreds mac", sent_confirmed: false,
   });
+});
+
+test("validateDispatchFields: sent_confirmed defaults false, true only for true/'true'/1 (PR #132 sixth review)", () => {
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi" }).sent_confirmed, false);
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi", sent_confirmed: true }).sent_confirmed, true);
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi", sent_confirmed: "true" }).sent_confirmed, true);
+  assert.equal(validateDispatchFields({ id: "d1", tenant_id: "T1", text: "hi", sent_confirmed: "yes" }).sent_confirmed, false);
 });
 
 test("validateDispatchFields: id, tenant_id and text are all required — missing any means no usable row", () => {

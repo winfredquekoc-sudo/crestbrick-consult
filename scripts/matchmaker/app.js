@@ -1289,7 +1289,7 @@ const CRM = (function () {
       if (existing) {
         existing.tenant_id = op.tenant_id; existing.listing_id = op.listing_id; existing.jid = op.jid;
         existing.phone = op.phone; existing.text = op.text; existing.viewing_slot = op.viewing_slot;
-        existing.status = op.status; existing.device = op.device;
+        existing.status = op.status; existing.device = op.device; existing.sent_confirmed = op.sent_confirmed;
       }
       else { queue.push(op); dispatchOpIndex.set(op.id, op); }
     } else {
@@ -1420,11 +1420,18 @@ const CRM = (function () {
     else if (o.op === "deal_delete" && o.id) { delete S.deals[o.id]; }
     // Same full replace reasoning as the deal branch above — upsertDispatch always
     // sends the whole row, so replay overwrites S.dispatch[o.id] outright.
+    // ambiguous_since/sent_confirmed ride along too (PR #132 sixth review) — a
+    // "dispatch" op built from Object.assign({}, row, {...}) (see
+    // resolveAmbiguousSent) carries whatever the row already had for both, and a
+    // reload before that op's own flush confirms must rebuild the exact same row,
+    // not a stripped down one missing the very fields the "Needs a check" section
+    // and crm_pull.py's cleanup_resolved pruning both read.
     else if (o.op === "dispatch" && o.id) {
       S.dispatch[o.id] = {
         id: o.id, tenant_id: o.tenant_id, listing_id: o.listing_id, jid: o.jid, phone: o.phone,
         text: o.text, viewing_slot: o.viewing_slot, status: o.status, device: o.device,
         created_at: o.created_at, pulled_at: o.pulled_at,
+        ambiguous_since: o.ambiguous_since, sent_confirmed: o.sent_confirmed,
       };
     }
     else if (o.op === "dispatch_cancel" && o.id) {
@@ -1933,11 +1940,36 @@ function dispatchIsAmbiguous(lid, tid) {
 // straight to sent — pulled -> sent is the one transition nextDispatchStatus
 // already allows (crm-validate.js, unchanged this round) — so a message
 // that genuinely did go out is not left dangling as ambiguous forever.
+// sent_confirmed:true rides along on the same op (PR #132 sixth review) — an
+// OPERATOR's own Sent click, never crm_pull.py's own archive based guess
+// (which only ever writes plain status:"sent", no sent_confirmed) — so
+// crm_pull.py's cleanup_resolved can prune this row's queue item on its next
+// run exactly like a cancelled one, instead of leaving a message that really
+// did send sitting in the real morning dispatch queue forever.
 function resolveAmbiguousSent(lid, tid) {
   if (typeof CRM === "undefined") return;
   const row = CRM.dispatchFor(lid, tid);
   if (!row) return;
-  CRM.upsertDispatch(Object.assign({}, row, { status: "sent" }));
+  CRM.upsertDispatch(Object.assign({}, row, { status: "sent", sent_confirmed: true }));
+  // Also unqueue the LOCAL "Queued" mark for this pair — the row is now
+  // confirmed sent, so the worklist must stop showing it as still queued.
+  // This deliberately does NOT go through clearMarkV, which would also call
+  // cancelDispatchRow: the row above is already a real terminal sent state,
+  // not something to cancel. Guarded with typeof since this function is also
+  // unit tested in isolation (crm.test.mjs's DISPATCH_SRC slice), with no
+  // markKey/readMark/MARK_CACHE/mirrorMatchToCRM/localStorage in scope there
+  // — the guard is a no-op in that harness, and the real thing everywhere
+  // this file actually loads as a whole (those are all real top level
+  // declarations earlier in this same file).
+  if (typeof getMarkV !== "undefined" && typeof markKey !== "undefined" &&
+      typeof MARK_CACHE !== "undefined" && typeof mirrorMatchToCRM !== "undefined" &&
+      getMarkV(lid, tid) === "Queued") {
+    const key = markKey(lid, tid);
+    localStorage.removeItem(key);
+    MARK_CACHE.delete(key);
+    if (typeof MARK_GEN !== "undefined") MARK_GEN++;
+    mirrorMatchToCRM(lid, tid);
+  }
 }
 // "Not sent" cancels the row with a reason that reads as an operator's own
 // call, not an automated rule. Cancelled unblocks a fresh Mark Queued for
@@ -4766,6 +4798,32 @@ function renderRevival() {
 
 // ===================== dispatch / queued drawer =====================
 function queuedMatches() { return MATCHES.filter(m => { const mk = readMark(m.l.id, m.t.id); return mk && mk.v === "Queued"; }); }
+// Every pulled row crm_pull.py has flagged ambiguous_since on, straight off
+// the server snapshot (S.dispatch) — independent of the local "Queued" mark
+// and of MATCHES membership (PR #132 sixth review). A row like this must
+// stay visible even once its local mark is gone (a different device, a
+// cleared browser) or its listing/tenant has fallen out of MATCHES (the
+// listing went unavailable, the tenant got archived, a BLOCKED verdict) —
+// none of that changes whether Winfred still needs to answer Sent / Not sent
+// for a message crm_pull.py could not confirm.
+function ambiguousDispatchRows() {
+  if (typeof CRM === "undefined") return [];
+  return CRM.dispatchRows().filter(r => r.status === "pulled" && r.ambiguous_since);
+}
+// Best effort listing/tenant labels for an ambiguous row, resolved straight
+// from DATA (not MATCHES — see ambiguousDispatchRows above) since the pair
+// backing this row may no longer produce a MATCHES entry at all. Falls back
+// to the raw id when the listing or tenant is not found (archived, or from a
+// build that no longer carries it), so the row is still identifiable rather
+// than silently dropped.
+function labelForDispatchRow(row) {
+  const l = (DATA.listings || []).find(x => x.id === row.listing_id);
+  const t = ALL_TENANTS.find(x => x.id === row.tenant_id) || (DATA.all_tenants || []).find(x => x.id === row.tenant_id);
+  return {
+    tenant: t ? t.name : (row.tenant_id || "unknown tenant"),
+    listing: l ? (l.name + (l.district ? " · " + l.district : "")) : (row.listing_id || "unknown listing"),
+  };
+}
 // Status shown per row: the local mark says a draft was queued, but only the
 // server side crm_dispatch row (synced through the op queue above) knows
 // whether crm_pull.py has since taken it. "queued" is also the honest label
@@ -4783,8 +4841,26 @@ function dispatchRowStatusLabel(lid, tid) {
 function openDispatchDrawer() {
   const wrap = el("div", "drawer-wrap");
   const items = queuedMatches();
+  // Built straight from the server snapshot (S.dispatch via CRM.dispatchRows),
+  // not from items/MATCHES above — see ambiguousDispatchRows' own comment.
+  // This is the ONLY place these rows get their Sent / Not sent buttons now;
+  // the per-row block inside the items loop below was removed in favour of
+  // this one unconditional section, so an ambiguous row is never rendered
+  // (or actioned) twice just because it also happens to still be locally
+  // marked Queued and present in MATCHES.
+  const needsCheck = ambiguousDispatchRows();
   let html = '<div class="drawer"><h2>Dispatch (' + items.length + ')</h2>' +
     '<div class="mut" style="font-size:12px;margin-bottom:10px">send happens via your morning dispatch after crm_pull.py picks this up — nothing sends from this page</div>';
+  if (needsCheck.length) {
+    html += '<h3 style="margin:0 0 4px">Needs a check (' + needsCheck.length + ')</h3>' +
+      '<div class="mut" style="font-size:12px;margin-bottom:10px">crm_pull.py could not confirm whether these actually sent — shown here regardless of this device\'s own local marks</div>';
+    needsCheck.forEach((row, i) => {
+      const lbl = labelForDispatchRow(row);
+      html += '<div class="row"><div class="nm">' + esc(lbl.tenant) + '</div><div class="mut" style="font-size:12px">' + esc(lbl.listing) + '</div>' +
+        '<div class="mut" style="font-size:12px;color:#b45309">Needs a check: may or may not have sent</div>' +
+        '<div class="acts"><button class="btn" data-nsent="' + i + '">Sent</button><button class="btn" data-nnotsent="' + i + '">Not sent</button></div></div>';
+    });
+  }
   if (!items.length) html += '<div class="empty">Nothing queued yet. Mark a tenant Queued from the worklist or a listing panel.</div>';
   items.forEach((m, i) => {
     // Once crm_pull.py has pulled this row (or, eventually, sent it), the
@@ -4796,18 +4872,12 @@ function openDispatchDrawer() {
     const unqueueHtml = handedOff
       ? '<span class="btn disabled" title="Already pulled to the Mac, remove it from the morning queue there">Unqueue</span>'
       : '<button class="btn" data-dunq="' + i + '">Unqueue</button>';
-    // An ambiguous row (crm_pull.py found an archive it could not fully
-    // trust — see dispatchIsAmbiguous above) gets its own check block: the
-    // Sent / Not sent buttons are the only way this row is ever resolved,
-    // since crm_pull.py itself never touches it again on its own.
-    const ambiguous = dispatchIsAmbiguous(m.l.id, m.t.id);
-    const ambiguousHtml = ambiguous
-      ? '<div class="mut" style="font-size:12px;color:#b45309">Needs a check: may or may not have sent</div>' +
-        '<div class="acts"><button class="btn" data-dsent="' + i + '">Sent</button><button class="btn" data-dnotsent="' + i + '">Not sent</button></div>'
-      : '';
+    // dispatchRowStatusLabel already reads "needs a check — may or may not
+    // have sent" for an ambiguous row — the Sent / Not sent buttons for it
+    // live only in the "Needs a check" section above now, not duplicated here.
     html += '<div class="row"><div class="nm">' + esc(m.t.name) + '</div><div class="mut" style="font-size:12px">' + esc(m.l.name) + ' · ' + esc(m.l.district) +
       ' · status: ' + esc(dispatchRowStatusLabel(m.l.id, m.t.id)) + '</div>' +
-      '<div class="draftbox">' + esc(draftFor(m.l, m.t)) + '</div>' + ambiguousHtml +
+      '<div class="draftbox">' + esc(draftFor(m.l, m.t)) + '</div>' +
       '<div class="acts"><button class="btn" data-dcopy="' + i + '">Copy</button>' + unqueueHtml + '</div></div>';
   });
   html += '<div class="acts" style="margin-top:12px"><button class="btn full" data-closedrawer="1">Close</button></div></div>';
@@ -4819,14 +4889,14 @@ function openDispatchDrawer() {
     writeMarkClearUndoable(m.l.id, m.t.id, fname(m.t.name) + " unqueued");
     openDispatchDrawer();
   });
-  wrap.querySelectorAll("[data-dsent]").forEach(b => b.onclick = () => {
-    const m = items[+b.dataset.dsent]; wrap.remove();
-    resolveAmbiguousSent(m.l.id, m.t.id);
+  wrap.querySelectorAll("[data-nsent]").forEach(b => b.onclick = () => {
+    const row = needsCheck[+b.dataset.nsent]; wrap.remove();
+    resolveAmbiguousSent(row.listing_id, row.tenant_id);
     openDispatchDrawer();
   });
-  wrap.querySelectorAll("[data-dnotsent]").forEach(b => b.onclick = () => {
-    const m = items[+b.dataset.dnotsent]; wrap.remove();
-    resolveAmbiguousNotSent(m.l.id, m.t.id);
+  wrap.querySelectorAll("[data-nnotsent]").forEach(b => b.onclick = () => {
+    const row = needsCheck[+b.dataset.nnotsent]; wrap.remove();
+    resolveAmbiguousNotSent(row.listing_id, row.tenant_id);
     openDispatchDrawer();
   });
   wrap.querySelector("[data-closedrawer]").onclick = () => wrap.remove();

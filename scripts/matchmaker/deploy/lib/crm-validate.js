@@ -124,6 +124,12 @@ export function validateDispatchFields(o) {
     viewing_slot: str(o.viewing_slot, 200),
     status: DISPATCH_STATUSES.has(o.status) ? o.status : "queued",
     device: str(o.device, 80),
+    // Operator confirmation only — see db.js's own column comment. Only ever
+    // written true by resolveAmbiguousSent (app.js), never by crm_pull.py's
+    // own archive based sent guess. applyOp's "dispatch" case ORs this onto
+    // whatever the row already has, so once true it can never regress false
+    // through a later, unrelated dispatch upsert for the same row.
+    sent_confirmed: bool(o.sent_confirmed),
   };
 }
 

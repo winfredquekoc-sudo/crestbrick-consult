@@ -172,6 +172,16 @@ create index if not exists crm_dispatch_tenant_idx on crm_dispatch(tenant_id);
 -- inconclusive check forever. nextDispatchStatus's transition table is
 -- unchanged by this — the "ambiguous" op never writes crm_dispatch.status.
 alter table crm_dispatch add column if not exists ambiguous_since timestamptz;
+
+-- Operator confirmation (PR #132 sixth review). Set once, true forever, when
+-- Winfred picks Sent on an ambiguous row in the dispatch drawer (the same
+-- "dispatch" op that moves the row to status 'sent' — see resolveAmbiguousSent
+-- in app.js). A plain crm_pull.py sent guess (the archive based check above)
+-- never sets this — only an operator's own click does. Lets crm_pull.py's own
+-- cleanup pass (cleanup_resolved) prune that row's queue item exactly like a
+-- cancelled one, since an operator confirmed send is just as terminal as a
+-- cancel from the queue's own point of view.
+alter table crm_dispatch add column if not exists sent_confirmed boolean not null default false;
 `;
 
 // Idempotent, and run at most once per lambda instance rather than per request.
