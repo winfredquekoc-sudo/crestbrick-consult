@@ -32,6 +32,7 @@ MM_DIGEST = os.path.join(REPO, "_local", "matchmaker-digest.html")
 # scripts/ops/log_deal.py's `import_mm` degrade gracefully when it is absent.
 MM_CRM_SNAPSHOT = os.path.join(STATE, "matchmaker-crm-snapshot.json")
 MM_FRESHNESS_HOURS = 26  # item 2/44 -- matches spec item 44's own digest staleness window
+MM_BUILD_RECENCY_DAYS = 7  # item 6/48 -- below this, "digest missing" is a real warning
 MM_PIPELINE_STAGES = {"agreed", "otp", "signed"}
 
 def now():
@@ -337,14 +338,27 @@ def section_matchmaker():
             gen_dt = None
     if gen_dt is None or (now() - gen_dt).total_seconds() > MM_FRESHNESS_HOURS * 3600:
         stale_reasons.append("stats file")
+    # item 6/48 -- a machine that never runs build.py has no digest and never
+    # will: warning "digest missing" every week on a box that is not part of
+    # the build rotation is noise, not signal. Only treat a missing digest as
+    # a freshness problem when the stats file itself shows a build inside the
+    # last MM_BUILD_RECENCY_DAYS days (this machine is meant to be building);
+    # otherwise say plainly this machine is not one that builds, once, and
+    # leave it out of the freshness warning line entirely.
+    recent_build = gen_dt is not None and (now() - gen_dt).total_seconds() <= MM_BUILD_RECENCY_DAYS * 86400
+    not_built_here = False
     if os.path.isfile(MM_DIGEST):
         age_h = (now().timestamp() - os.path.getmtime(MM_DIGEST)) / 3600
         if age_h > MM_FRESHNESS_HOURS:
             stale_reasons.append("digest")
-    else:
+    elif recent_build:
         stale_reasons.append("digest missing")
+    else:
+        not_built_here = True
     lines.append(f"FRESHNESS WARNING: {', '.join(stale_reasons)} older than {MM_FRESHNESS_HOURS}h."
                  if stale_reasons else f"Freshness: within {MM_FRESHNESS_HOURS}h.")
+    if not_built_here:
+        lines.append("matchmaker not built on this machine")
     data["stale"] = stale_reasons
 
     if os.path.isfile(MM_CRM_SNAPSHOT):

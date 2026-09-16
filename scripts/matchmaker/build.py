@@ -146,6 +146,12 @@ def read_suites(path=SUITES_FILE):
         line = line.split("#", 1)[0].strip()
         if line:
             out.append(os.path.join(WORKTREE_ROOT, line))
+    if not out:
+        # Mirrors deploy.sh's own gate on the exact same file: a SUITES file
+        # that exists but parses to zero paths (every line blank or
+        # commented out) is a broken gate, not an empty one -- fail closed
+        # instead of silently skipping every test and shipping unverified.
+        fail(f"{path} parsed to zero test files")
     return out
 
 

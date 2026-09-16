@@ -20,7 +20,9 @@ is not part of the shipped matchmaker artifact build.py/deploy.sh gate.
 
     /usr/bin/python3 tests/matchmaker/test_deal_schema.py
 """
-import os, re, sys
+import glob, io, json, os, re, shutil, sys, tempfile
+from contextlib import redirect_stdout
+from types import SimpleNamespace
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
@@ -129,6 +131,48 @@ def main():
     check("two NULL matchmaker_import_id rows are both allowed (nullable column)",
           con.execute("SELECT COUNT(*) FROM deals WHERE matchmaker_import_id IS NULL").fetchone()[0] == 2)
     con.close()
+
+    section("cmd_import_mm: one backup for the whole batch, and a missing key counted as unlinked")
+    tmp = tempfile.mkdtemp()
+    orig_db_path, orig_backup_dir = log_deal.DB_PATH, log_deal.BACKUP_DIR
+    try:
+        db_path = os.path.join(tmp, "clients.db")
+        log_deal.DB_PATH = db_path
+        log_deal.BACKUP_DIR = os.path.join(tmp, "backups")
+        con = sqlite3.connect(db_path)
+        con.execute("CREATE TABLE deals (id INTEGER PRIMARY KEY, client_slug TEXT, deal_type TEXT, "
+                     "property_address TEXT, stage TEXT, closed_date TEXT, notes TEXT)")
+        con.commit()
+        con.close()
+
+        entities = [{"key": "crm:%d" % i, "stage": "offer", "kind": "tenant", "name": "unit %d" % i}
+                    for i in range(1, 13)]  # 12 valid, importable rows
+        entities.append({"stage": "offer", "kind": "tenant", "name": "no key on this one"})  # missing key
+        entities.append({"key": "crm:unmappedstage", "stage": "not_a_real_stage", "kind": "tenant"})
+        snapshot = os.path.join(tmp, "snapshot.json")
+        json.dump({"entities": entities}, open(snapshot, "w"))
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            log_deal.cmd_import_mm(SimpleNamespace(snapshot=snapshot))
+        out = buf.getvalue()
+
+        backups = glob.glob(os.path.join(log_deal.BACKUP_DIR, "clients.db.bak-*"))
+        check("importing 12 rows creates exactly one backup, not one per row",
+              len(backups) == 1, f"backups found: {backups}")
+
+        con = sqlite3.connect(db_path)
+        n = con.execute("SELECT COUNT(*) FROM deals").fetchone()[0]
+        con.close()
+        check("all 12 valid entities were actually imported", n == 12, f"deals row count: {n}")
+
+        check("the missing key entity is reported as unlinked, not unmapped stage",
+              "1 unlinked (no key)" in out, out)
+        check("the bad stage entity (a real key, unresolvable stage) still counts as unmapped stage",
+              "1 unmapped stage" in out, out)
+    finally:
+        log_deal.DB_PATH, log_deal.BACKUP_DIR = orig_db_path, orig_backup_dir
+        shutil.rmtree(tmp, ignore_errors=True)
 
     print(f"\n{'='*60}")
     if FAILURES:

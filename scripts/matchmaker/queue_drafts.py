@@ -144,6 +144,24 @@ def record_refused(refused, today, path=REFUSED_PATH):
     kept = [it for it in existing if isinstance(it, dict) and (it.get("date") or "") >= cutoff]
     for tid, name, reason in refused:
         kept.append({"tenant_id": tid, "name": name, "reason": reason, "date": today.isoformat()})
+    # One tenant refused across three separate runs used to leave three rows
+    # in this ledger forever (until REFUSED_RETENTION_DAYS finally aged the
+    # oldest ones out) -- export_data.py's build_enrichment_queue() then
+    # turned each into its own worklist row for the same tenant. Dedupe on
+    # write down to the single newest entry per tenant_id, comparing by date
+    # so the most recent refusal reason always wins; an entry with no
+    # tenant_id cannot be matched to any other so it always passes through.
+    newest_by_tenant = {}
+    passthrough = []
+    for it in kept:
+        tid = it.get("tenant_id")
+        if not tid:
+            passthrough.append(it)
+            continue
+        current = newest_by_tenant.get(tid)
+        if current is None or (it.get("date") or "") >= (current.get("date") or ""):
+            newest_by_tenant[tid] = it
+    kept = passthrough + list(newest_by_tenant.values())
     os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp = path + ".tmp"
     json.dump({"items": kept}, open(tmp, "w"), indent=1, ensure_ascii=False)

@@ -15,7 +15,7 @@ Usage:
 DB path overridable with CLIENTS_DB env var, backup dir with CLIENTS_DB_BACKUP_DIR
 (tests only — never the real db).
 """
-import argparse, glob, os, re, shutil, sqlite3, sys
+import argparse, glob, json, os, re, shutil, sqlite3, sys
 from datetime import datetime, timedelta, timezone
 
 SGT = timezone(timedelta(hours=8))
@@ -263,12 +263,25 @@ def cmd_import_mm(args):
     entities = entities or []
     con = connect()
     ensure_import_column(con)
-    imported = unmapped_stage = unmapped_kind = already = 0
+    # One backup for the whole batch, taken before the row loop starts --
+    # never inside it. A row by row backup_db() copies clients.db up to N
+    # times for one import_mm call (12 rows imported used to mean 12 backup
+    # files for a single command), which drowns KEEP_BACKUPS in one run and
+    # buys nothing: the loop is one commit at the end, so "before the batch"
+    # is exactly as recoverable as "before every row" and costs one copy.
+    backup_db()
+    imported = unmapped_stage = unmapped_kind = already = unlinked = 0
     for e in entities:
         key = e.get("key")
+        if not key:
+            # Distinct from unmapped_stage: this entity carries no CRM key at
+            # all, so it can never be linked back (or deduped via
+            # matchmaker_import_id) no matter what its stage/kind say.
+            unlinked += 1
+            continue
         stage = MM_STAGE_MAP.get(e.get("stage"))
         deal_type = MM_DEAL_TYPE_MAP.get(e.get("kind"))
-        if not key or not stage:
+        if not stage:
             unmapped_stage += 1
             continue
         if not deal_type:
@@ -280,7 +293,6 @@ def cmd_import_mm(args):
             already += 1
             continue
         notes = "[mm_import key=%s stage=%s]" % (key, e.get("stage"))
-        backup_db()
         con.execute(
             "INSERT INTO deals (client_slug, deal_type, property_address, stage, "
             "closed_date, notes, matchmaker_import_id) VALUES (?,?,?,?,?,?,?)",
@@ -289,8 +301,9 @@ def cmd_import_mm(args):
         imported += 1
     con.commit()
     con.close()
-    print("Imported %d deal(s) from %s (%d already imported, %d unmapped stage, %d unmapped kind)"
-          % (imported, args.snapshot, already, unmapped_stage, unmapped_kind))
+    print("Imported %d deal(s) from %s (%d already imported, %d unlinked (no key), "
+          "%d unmapped stage, %d unmapped kind)"
+          % (imported, args.snapshot, already, unlinked, unmapped_stage, unmapped_kind))
 
 def cmd_undo(args):
     con = connect()

@@ -115,6 +115,37 @@ def main():
         _restore(orig)
         shutil.rmtree(tmp, ignore_errors=True)
 
+    section("item 6/48: a machine that never builds does not warn 'digest missing' every week")
+    tmp = tempfile.mkdtemp()
+    try:
+        old_ts = (mb.now() - datetime.timedelta(days=30)).isoformat(timespec="seconds")
+        orig = _patch(tmp, stats={"generated_ts": old_ts, "counts": {}, "worklist_size": None, "health": {}})
+        res = mb.section_matchmaker()
+        warn = next(l for l in res["lines"] if l.startswith("FRESHNESS WARNING"))
+        check("stale stats file is still named", "stats file" in warn, warn)
+        check("'digest missing' is NOT named -- this machine never builds, so it is not a freshness problem",
+              "digest missing" not in warn, warn)
+        check("prints the one line explaining this machine is not part of the build rotation",
+              "matchmaker not built on this machine" in res["lines"], str(res["lines"]))
+    finally:
+        _restore(orig)
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    section("item 6/48: a build inside the last 7 days still gets the real 'digest missing' warning")
+    tmp = tempfile.mkdtemp()
+    try:
+        recent_ts = (mb.now() - datetime.timedelta(days=3)).isoformat(timespec="seconds")
+        orig = _patch(tmp, stats={"generated_ts": recent_ts, "counts": {}, "worklist_size": None, "health": {}})
+        res = mb.section_matchmaker()
+        warn = next(l for l in res["lines"] if l.startswith("FRESHNESS WARNING"))
+        check("'digest missing' still fires for a machine that builds regularly",
+              "digest missing" in warn, warn)
+        check("does not also print the not built on this machine line",
+              "matchmaker not built on this machine" not in res["lines"], str(res["lines"]))
+    finally:
+        _restore(orig)
+        shutil.rmtree(tmp, ignore_errors=True)
+
     section("last anomaly warning surfaces from the most recent build history entry that has one")
     tmp = tempfile.mkdtemp()
     try:

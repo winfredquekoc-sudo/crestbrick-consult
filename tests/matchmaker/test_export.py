@@ -1967,6 +1967,17 @@ def test_read_suites():
         parsed = bld.read_suites(custom)
         check("a minimal custom SUITES file parses to exactly the one real path",
               len(parsed) == 1 and parsed[0].endswith("scoring.test.mjs"), str(parsed))
+
+        zero_parsed = os.path.join(tmp, "SUITES_EMPTY")
+        open(zero_parsed, "w").write("# nothing but comments\n\n   \n# another comment\n")
+        ok_zero = True
+        try:
+            bld.read_suites(zero_parsed)
+            ok_zero = False
+        except SystemExit:
+            pass
+        check("a SUITES file that exists but parses to zero paths fails closed (mirrors deploy.sh), "
+              "never silently runs zero tests", ok_zero)
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -2468,6 +2479,26 @@ def test_refused_dispatch_ledger():
 
         check("a corrupt existing file is treated as empty, never raises",
               _no_raise(lambda: qd.record_refused([("T3", "X", "reason")], today, path=os.path.join(tmp, "does_not_exist.json"))))
+
+        # item 6/48: the SAME tenant refused across three separate runs (three
+        # separate record_refused calls, as morning-dispatch.sh's cron would
+        # produce) must collapse to exactly one ledger row -- the newest one
+        # -- not pile up three rows for one person.
+        dpath = os.path.join(tmp, "matchmaker-refused-dedupe.json")
+        day1, day2, day3 = (datetime.date(2026, 9, 14), datetime.date(2026, 9, 15), datetime.date(2026, 9, 16))
+        qd.record_refused([("T4", "Lim Ah Test", "no contact date on file"),
+                            ("T5", "Koh Ah Test", "no contact date on file")], day1, path=dpath)
+        qd.record_refused([("T4", "Lim Ah Test", "last activity 46d ago (>45d dead lead rule)")], day2, path=dpath)
+        qd.record_refused([("T4", "Lim Ah Test", "last activity 47d ago (>45d dead lead rule)")], day3, path=dpath)
+        d3 = json.load(open(dpath))
+        t4_rows = [it for it in d3["items"] if it["tenant_id"] == "T4"]
+        check("three refusals for one tenant across three runs collapse to one row",
+              len(t4_rows) == 1, str(d3["items"]))
+        check("the surviving row is the NEWEST refusal (day3's reason), not the first",
+              t4_rows and t4_rows[0]["reason"] == "last activity 47d ago (>45d dead lead rule)" and
+              t4_rows[0]["date"] == "2026-09-16", str(t4_rows))
+        check("dedupe is per tenant_id only -- a different tenant's row is untouched",
+              any(it["tenant_id"] == "T5" for it in d3["items"]), str(d3["items"]))
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
 
@@ -2503,6 +2534,23 @@ def test_enrichment_queue_folds_refused_dispatch():
           None not in by_id and len(rows) == 2, str(rows))
     check("without a `refused` argument, behaviour is unchanged (backward compatible)",
           {r["id"] for r in ed.build_enrichment_queue([t_with_gap, t_complete], listings)} == {"T900"})
+
+    # item 6/48: even if matchmaker-refused.json on disk somehow still carries
+    # more than one entry for the same tenant (an older ledger from before
+    # queue_drafts.record_refused deduped on write, or any future writer),
+    # this build must not turn that into more than one worklist row.
+    refused_dupes = [
+        {"tenant_id": "T902", "name": "Repeat Test", "reason": "no contact date on file", "date": "2026-09-14"},
+        {"tenant_id": "T902", "name": "Repeat Test", "reason": "last activity 46d ago (>45d dead lead rule)", "date": "2026-09-15"},
+        {"tenant_id": "T902", "name": "Repeat Test", "reason": "last activity 47d ago (>45d dead lead rule)", "date": "2026-09-16"},
+    ]
+    rows2 = ed.build_enrichment_queue([t_with_gap, t_complete], listings, refused_dupes)
+    t902_rows = [r for r in rows2 if r["id"] == "T902"]
+    check("three refusals for one tenant produce exactly one enrichment row",
+          len(t902_rows) == 1, str(rows2))
+    check("the surviving row reflects the newest (2026-09-16) refusal reason",
+          t902_rows and t902_rows[0]["reason"] == "refused by dispatch: last activity 47d ago (>45d dead lead rule)",
+          str(t902_rows))
 
 
 # ======================================================================= run

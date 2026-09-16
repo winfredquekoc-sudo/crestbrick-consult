@@ -1540,10 +1540,23 @@ def build_enrichment_queue(tenants, listings, refused=None):
 
     if refused:
         phone_by_id = {t.get("id"): t.get("phone") or "" for t in tenants}
+        # Collapse to the newest refusal per tenant_id before turning it into
+        # a row. queue_drafts.py's own ledger write already dedupes to one
+        # entry per tenant, but this build reads whatever is on disk right
+        # now -- an older ledger written before that fix existed, or any
+        # future writer of matchmaker-refused.json, can still hand this
+        # function three rows for one tenant, and three refused rows for the
+        # same person is exactly the noise item 4/34 introduced this queue to
+        # cut down on.
+        newest_by_tenant = {}
         for r in refused:
             tid = r.get("tenant_id")
             if not tid:
                 continue
+            current = newest_by_tenant.get(tid)
+            if current is None or (r.get("date") or "") >= (current.get("date") or ""):
+                newest_by_tenant[tid] = r
+        for tid, r in newest_by_tenant.items():
             rows.append({
                 "id": tid, "name": r.get("name") or "", "phone": phone_by_id.get(tid, ""),
                 "missing": [], "unlock_value": 0,
