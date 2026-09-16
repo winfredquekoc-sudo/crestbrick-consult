@@ -347,6 +347,37 @@ def test_parse_ethnicity_guards():
         ("all except India", "exclude", ["indian"], None),
         ("Chinese preferred; excludes Indian", "exclude", ["indian"], ["chinese"]),
         ("company prefers Germany based staff", "note", [], None),
+
+        # round 4: "required"/"must be"/"needs to be"/"has to be" are hard
+        # requirement triggers same as "only"/"strictly", main clauses only
+        # so a bracketed elaboration after one stays a plain aside
+        ("Indian required", "only", ["indian"], None),
+        ("must be chinese", "only", ["chinese"], None),
+        ("needs to be malay", "only", ["malay"], None),
+        ("has to be indian", "only", ["indian"], None),
+        ("Indian required (Indian family or Indian ladies only)", "only", ["indian"], None),
+        # LL121, live book (see PR body): the actual requirement text
+        ("Indian required (Indian family or Indian ladies only; landlord preference, "
+         "20 Aug 2026). No other restrictions stated.", "only", ["indian"], None),
+
+        # round 4: "not keen on X"/"not keen X"/"not open to X" are
+        # exclusions; "on"/"to"/"for" are allowed between these anchors (and
+        # "prefer not X") and the race word, on top of the usual modifiers
+        ("not keen on chinese", "exclude", ["chinese"], None),
+        ("not keen chinese", "exclude", ["chinese"], None),
+        ("not open to indian", "exclude", ["indian"], None),
+        ("not open indian", "exclude", ["indian"], None),
+        ("prefer not for indian", "exclude", ["indian"], None),
+        ("prefer not indian", "exclude", ["indian"], None),
+        # a bare "no"/"not" anchor does NOT gain the on/to/for reach, so
+        # "on" breaks adjacency here and chinese survives as a plain mention
+        ("no on chinese landlord unsure what this even means", "prefer", ["chinese"], None),
+
+        # round 4: a race named inside a bracket adjacent to a negation is
+        # dropped entirely (neither prefer nor exclude); the outer race
+        # remains a preference, unaffected
+        ("chinese (no indian)", "prefer", ["chinese"], None),
+        ("prefer chinese (no indian)", "prefer", ["chinese"], None),
     ]
     for raw, exp_rule, exp_races, exp_prefer in cases:
         got = ed.parse_ethnicity(raw)
@@ -362,6 +393,17 @@ def test_parse_ethnicity_guards():
           ed.parse_ethnicity("no Indian") == {"rule": "exclude", "races": ["indian"]})
     check("empty/blank text -> any/no preference (unchanged default)", ed.parse_ethnicity("") == {"rule": "any", "races": []})
     check("'strictly' behaves like 'only'", ed.parse_ethnicity("strictly Chinese tenants") == {"rule": "only", "races": ["chinese"]})
+
+    section("parse_ethnicity: round 4 (required trigger, not keen/not open, bracketed exclusion flagged)")
+    check("bracketed negation adjacent race is dropped and flags for a human",
+          ed.parse_ethnicity("chinese (no indian)") == {"rule": "prefer", "races": ["chinese"], "flag_human": True})
+    check("same drop still fires when the outer race is an explicit preference",
+          ed.parse_ethnicity("prefer chinese (no indian)") == {"rule": "prefer", "races": ["chinese"], "flag_human": True})
+    check("a plain 'only' result never carries flag_human (unaffected by round 4)",
+          "flag_human" not in ed.parse_ethnicity("Chinese only"))
+    check("a bracketed non local aside never flags (local is never a gateable race)",
+          "flag_human" not in ed.parse_ethnicity(
+              "Chinese preferred (landlord asked if tenants are non local; landlord preference)"))
 
 
 # ==================================================================== lang

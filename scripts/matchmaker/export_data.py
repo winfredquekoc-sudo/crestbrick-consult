@@ -384,6 +384,20 @@ RACES = ["indian","chinese","malay","filipino","myanmar","burmese","korean","jap
 #     only result), a landlord asking whether someone is local is not a
 #     race preference.
 #
+# Round 4 (16 Sep 2026, PR #133 follow up):
+#   * "required"/"must be"/"needs to be"/"has to be" are hard requirement
+#     triggers, same as "only"/"strictly" (main clauses only, so a
+#     bracketed elaboration after one never gates on its own).
+#   * "not keen on X"/"not keen X"/"not open to X" are exclusions; those
+#     two anchors plus "prefer not X" tolerate a bare "on"/"to"/"for"
+#     between the anchor and the race word, on top of the usual modifiers
+#     (a bare "no"/"not" anchor does not get this reach).
+#   * A race named inside a bracket that sits adjacent to a negation
+#     ("chinese (no indian)") is dropped entirely, neither prefer nor
+#     exclude, and the result carries flag_human so a human can check the
+#     source text; the outer race is unaffected and still survives as a
+#     preference.
+#
 # Five ordered passes, same shape as rounds 1/2:
 #   1. "only"/"strictly" (real ones, see above; main clauses only), the
 #      NOT negated race words in that clause become the hard allowed set.
@@ -404,7 +418,12 @@ _ETH_PLAIN_SPLIT_RE = re.compile(r"[,;.]|\s[-–—]\s|\bbut\b|\band(?=\s+no\b)"
 _ETH_SEGMENT_SPLIT_RE = re.compile(r"[;.]")
 _ETH_EXCEPT_RE = re.compile(r"(?:except|other than)\s+(.*)")
 _ETH_NEGATION_BASE_RE = re.compile(r"\b(?:no\s+one|nobody|none|no\s+preference)\b")
-_ETH_ONLY_RE = re.compile(r"\b(?:only|strictly)\b")
+# "required"/"must be"/"needs to be"/"has to be" are hard requirement triggers
+# same as "only"/"strictly" (round 4), but ONLY inside a main clause: a
+# bracketed elaboration after one of these ("Indian required (Indian family
+# or Indian ladies only)") stays a plain, non gating aside since only_races
+# scans main clauses, never bracket clauses (see parse_ethnicity).
+_ETH_ONLY_RE = re.compile(r"\b(?:only|strictly|required|must be|needs to be|has to be)\b")
 # "only"/"strictly" describing something OTHER than a race (item 3, round 2),
 # stripped out of a clause before checking whether a "real" only remains.
 _ETH_GENERIC_ONLY_PRECEDERS = ("screening", "preference", "preferences", "pax", "room",
@@ -508,9 +527,30 @@ def _race_matches(word):
 def _is_negation_anchor(words, i):
     if words[i] in _ETH_NEG_TOKENS:
         return True
-    # "not keen", the phrase's own negation lands on "keen", not "not",
-    # so a race right after "keen" is in reach too ("not keen Chinese").
-    if words[i] == "keen" and i > 0 and words[i - 1] == "not":
+    # "not keen"/"not open", the phrase's own negation lands on "keen"/
+    # "open", not "not", so a race right after either is in reach too
+    # ("not keen Chinese", "not open to Indian").
+    if words[i] in ("keen", "open") and i > 0 and words[i - 1] == "not":
+        return True
+    return False
+
+
+# Round 4: "not keen on X"/"not keen X", "not open to X" and "prefer not X"
+# are the three anchors that may also reach through a bare preposition
+# ("on"/"to"/"for") sitting between the anchor and the race word, on top of
+# the usual modifier tokens. Kept separate from _ETH_MODIFIER_TOKENS so a
+# bare "no"/"not" anchor never gains this reach (e.g. "no on chinese" must
+# not scope through a stray preposition the way "not keen on chinese" does).
+_ETH_PREP_BETWEEN_TOKENS = {"on", "to", "for"}
+
+
+def _is_extended_reach_anchor(words, i):
+    """True if the anchor at i is one of "not keen"/"not open"/"prefer not",
+    the three phrasings that also tolerate a preposition in between (round
+    4)."""
+    if words[i] in ("keen", "open") and i > 0 and words[i - 1] == "not":
+        return True
+    if words[i] == "not" and i > 0 and words[i - 1] == "prefer":
         return True
     return False
 
@@ -518,13 +558,18 @@ def _is_negation_anchor(words, i):
 def _position_excluded(words, j):
     """True if the race word at token index j has a negation word at most
     two tokens before it (round 3 adjacency), with nothing but modifier
-    words in between, AND that reach doesn't pass through the one relaxing
-    modifier ("just") sitting alone right before the race word."""
+    words in between (plus a preposition for the three anchors round 4
+    extends, see _is_extended_reach_anchor), AND that reach doesn't pass
+    through the one relaxing modifier ("just") sitting alone right before
+    the race word."""
     for i in range(max(0, j - 3), j):
         if not _is_negation_anchor(words, i):
             continue
         between = words[i + 1:j]
-        if not all(b in _ETH_MODIFIER_TOKENS for b in between):
+        allowed = _ETH_MODIFIER_TOKENS
+        if _is_extended_reach_anchor(words, i):
+            allowed = _ETH_MODIFIER_TOKENS | _ETH_PREP_BETWEEN_TOKENS
+        if not all(b in allowed for b in between):
             continue
         if len(between) == 1 and between[0] == _ETH_RELAX_TOKEN:
             continue  # "not just X" / "no ... just X", explicit non exclusion
@@ -607,7 +652,22 @@ def parse_ethnicity(txt):
         return {"rule": "any", "races": []}
     clauses = _split_into_clauses(t)
     main_clauses = [c for c, origin in clauses if origin == "main"]
+    bracket_clauses = [c for c, origin in clauses if origin == "bracket"]
     prefer = _collect_prefer_races(_split_into_segments(t))
+
+    # Round 4: a race named inside a bracket that sits adjacent to a
+    # negation ("chinese (no indian)") is neither a preference nor an
+    # exclusion, it is dropped entirely, since a bracketed aside never
+    # gates (see _split_into_clauses); a bare mention could otherwise leak
+    # back in through the raw substring fallback scan below, wrongly
+    # turning it into a preference. Flags the row for a human to double
+    # check the source text instead of guessing either way.
+    dropped = []
+    for clause in bracket_clauses:
+        _, clause_excluded = _clause_race_polarity(clause)
+        for r in clause_excluded:
+            if r not in dropped and r not in _ETH_NEVER_GATE:
+                dropped.append(r)
 
     only_races = []
     for clause in main_clauses:
@@ -655,11 +715,21 @@ def parse_ethnicity(txt):
         return {"rule": "any", "races": []}
 
     if prefer:
-        return {"rule": "prefer", "races": prefer}
+        result = {"rule": "prefer", "races": prefer}
+        if dropped:
+            result["flag_human"] = True
+        return result
 
-    found = [r for r in RACES if r in t]
-    if found: return {"rule":"prefer","races":found}
-    return {"rule":"note","races":[], "raw":(txt or "")[:80]}
+    found = [r for r in RACES if r in t and r not in dropped]
+    if found:
+        result = {"rule": "prefer", "races": found}
+        if dropped:
+            result["flag_human"] = True
+        return result
+    result = {"rule": "note", "races": [], "raw": (txt or "")[:80]}
+    if dropped:
+        result["flag_human"] = True
+    return result
 def maps_query(addr, district, dist_area):
     q = addr or dist_area.get(district, district or "")
     return (str(q).strip() + " Singapore") if q else ""
