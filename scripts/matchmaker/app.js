@@ -2647,6 +2647,10 @@ function matchRow(m, showListing, opts) {
   if (t.segment === 'URGENT') badges.push('<span class="badge urgent">URGENT · pays fee</span>');
   else if (t.segment === 'FEE WILLING') badges.push('<span class="badge urgent">pays fee</span>');
   else if (t.segment === 'INFO RICH') badges.push('<span class="badge inforich">full profile</span>');
+  // (wave 2 wiring) sparse is a display only flag from the data side (thin
+  // profile) — plain .badge with no tone class reads as small and muted
+  // already, and it never touches worklistRank()/scoring, only this badge row.
+  if (t.sparse) badges.push('<span class="badge">sparse</span>');
   if (t.persona) badges.push('<span class="badge persona">' + esc(t.persona) + '</span>');   // (#2) who-is-this tag
   if (t._scratch) badges.push('<span class="badge scratch">scratch</span>');
   if (eff.overridden) badges.push('<span class="badge overridden">overridden</span>');
@@ -2800,7 +2804,12 @@ function stampLabel() {
   return (+m[3]) + " " + MON[+m[2] - 1] + " " + m[1] + ", " + m[4] + ":" + m[5];
 }
 function dataAgeBannerHtml() {
-  const t = Scoring.dataAgeTier(DATA.generated_ts || DATA.generated, NOW_REAL_SGT);
+  // (wave 2 wiring) last_wa_update_ts is a third argument for a future
+  // scoring.js that can use it to gauge freshness off the actual WhatsApp
+  // read rather than the build timestamp. This branch's scoring.js still
+  // only takes two arguments and ignores the extra one, so passing it now
+  // is harmless and saves a second front end change once scoring.js catches up.
+  const t = Scoring.dataAgeTier(DATA.generated_ts || DATA.generated, NOW_REAL_SGT, DATA.last_wa_update_ts);
   const asOf = esc(stampLabel());
   if (t.tier === "red") {
     const live = AGE_BANNER_ANNOUNCED ? "" : ' role="alert" aria-live="assertive"';
@@ -3081,6 +3090,10 @@ function applyMoreFiltersOpenState() {
   const btn = $("#filterstoggle"); if (btn) btn.setAttribute("aria-expanded", PREFS.morefilters_open ? "true" : "false");
 }
 function toggleMoreFilters() {
+  // (streamline item 3) consistent with the disabled Filters button (review
+  // fix 5 above) — the f shortcut and the command palette entry must also
+  // no op on tabs with no facet controls, not just the button click.
+  if (NON_FILTER_VIEWS.indexOf(view) !== -1) return;
   PREFS.morefilters_open = !PREFS.morefilters_open;
   savePrefs();
   applyMoreFiltersOpenState();
@@ -3256,7 +3269,7 @@ const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
 // (item 3) views that never show the filter bar's option counts don't need
 // this sweep at all — Dashboard/Stats/Landlords/AllTenants/Sales/Revival never
 // call it. FACET_VIEWS mirrors render()'s own filtersActive set.
-const FACET_VIEWS = ["work", "listing", "tenant", "whole", "pipeline"];
+const FACET_VIEWS = ["work", "listing", "tenant", "whole"];
 // (item 2) the only two views that consume NEITHER search nor district — see
 // renderMapView()/renderStats(), neither reads F() at all — so the whole
 // .filters bar (and the search/filter debounce hook) is skipped only there;
@@ -3351,9 +3364,15 @@ function askStrip() {
     if (rows.length >= 6) break;
     const t = ALL_TENANTS.find(x => x.id === e.id);
     if (!t || Scoring.isDead(t, NOW_REAL_SGT)) continue;
+    if (!e.phone) continue;
     const field = (e.missing || [])[0];
-    if (!field || !ASK_Q[field] || !e.phone) continue;
-    const msg = "Hi " + fname(e.name || "") + ", quick question so I can match you to the right room faster: " + ASK_Q[field];
+    // (wave 2 wiring) a "reason" field, when present, is the specific
+    // question written on the data side — show it verbatim instead of the
+    // computed ASK_Q[field] line. Falls back to the computed line so this
+    // still works before the data side ships reason on this branch.
+    const question = e.reason || (field && ASK_Q[field]);
+    if (!question) continue;
+    const msg = "Hi " + fname(e.name || "") + ", quick question so I can match you to the right room faster: " + question;
     rows.push({ e, field, link: waPlain(e.phone, msg) });
   }
   const box = el("div", "askstrip");
@@ -3363,7 +3382,7 @@ function askStrip() {
   rows.forEach(r => {
     const a = document.createElement("a");
     a.className = "askchip"; a.href = r.link; a.target = "_blank"; a.rel = "noopener";
-    a.innerHTML = esc(fname(r.e.name || r.e.id)) + ' <span class="mut">' + esc(r.field.replace("_", " ")) +
+    a.innerHTML = esc(fname(r.e.name || r.e.id)) + ' <span class="mut">' + esc(r.field ? r.field.replace("_", " ") : "info") +
       ' · +' + esc(String(r.e.unlock_value)) + '</span>';
     wrap.appendChild(a);
   });
@@ -4956,7 +4975,7 @@ function openBulkActionModal() {
     '</div>' +
     '<div class="qfield" id="bulkreasonwrap" style="display:none;margin-top:10px"><label>Reason</label><select data-bulkreason="1">' +
     DECLINE_REASONS.map(r => '<option value="' + r[0] + '">' + r[1] + '</option>').join('') + '</select></div>' +
-    (needsTyped ? ('<div class="qfield" id="bulkconfirmwrap" style="display:none;margin-top:10px"><label>Type ' + set.length.toLocaleString() + ' to confirm — this touches a lot of pairs</label><input type="text" inputmode="numeric" data-bulkconfirm="1" placeholder="' + set.length + '"></div>') : '') +
+    (needsTyped ? ('<div class="qfield" id="bulkconfirmwrap" style="display:none;margin-top:10px"><label>Type ' + set.length.toLocaleString() + ' to confirm — this touches a lot of pairs</label><input type="text" inputmode="numeric" data-bulkconfirm="1" placeholder="' + set.length.toLocaleString() + '"></div>') : '') +
     '<div class="foot"><button class="btn" data-cancel="1">Cancel</button><button class="btn p" data-apply="1" disabled>' + bulkApplyButtonLabel(set.length) + '</button></div></div>';
   mountOverlay(wrap);
   let chosenV = null;
