@@ -58,21 +58,36 @@ def _load_geocache():
     """Returns (cache_dict, pending_list). item 6 -- the file now carries a
     "pending" list alongside the address cache (was a flat {query: result}
     dict); a plain older flat file is read as the cache with an empty pending
-    list, so an existing on-disk file upgrades in place on the next save."""
+    list, so an existing on-disk file upgrades in place on the next save.
+    Each pending entry is {"key": <query>, "attempts": <failed attempt
+    count>} (Opus review of PR #133, 16 Sep 2026 -- was a bare string with no
+    way to ever give up on a permanently unresolvable address); a pending
+    list saved before that change (a list of plain strings) is migrated in
+    place with attempts=0."""
     try:
         with open(GEOCACHE_PATH) as f: data = json.load(f)
     except (OSError, ValueError): return {}, []
     if not isinstance(data, dict): return {}, []
     if "cache" in data or "pending" in data:
         cache = data.get("cache")
-        pending = data.get("pending")
-        return (cache if isinstance(cache, dict) else {}), \
-               ([p for p in pending if isinstance(p, str)] if isinstance(pending, list) else [])
+        pending_raw = data.get("pending")
+        pending = []
+        for p in (pending_raw if isinstance(pending_raw, list) else []):
+            if isinstance(p, str) and p:
+                pending.append({"key": p, "attempts": 0})
+            elif isinstance(p, dict) and isinstance(p.get("key"), str) and p["key"]:
+                try:
+                    attempts = int(p.get("attempts") or 0)
+                except (TypeError, ValueError):
+                    attempts = 0
+                pending.append({"key": p["key"], "attempts": max(0, attempts)})
+        return (cache if isinstance(cache, dict) else {}), pending
     return data, []  # legacy flat shape, no pending list yet
 
 _GEOCACHE, _GEOCODE_PENDING = _load_geocache()
 _GEOCACHE_DIRTY = False
 _GEOCODE_BUDGET = 20   # max live lookups per export; the rest fall back to cache/centroid
+GEOCODE_PENDING_MAX_ATTEMPTS = 5  # give up on an address after this many failed live attempts
 
 def _live_geocode_attempt(key):
     """One live OneMap lookup for an already lowercased/stripped `key`,
@@ -126,20 +141,45 @@ def prime_pending_geocodes():
     couldn't resolve, was negative-cached (or simply forgotten) with no
     mechanism ever bringing it back for another try — an address could sit
     on a hollow centroid pin indefinitely. Call this once, before
-    build_listings(), never inside a test (it makes real network calls)."""
+    build_listings(), never inside a test (it makes real network calls).
+
+    Two refinements (Opus review of PR #133, 16 Sep 2026):
+      - An address still unresolved after GEOCODE_PENDING_MAX_ATTEMPTS live
+        attempts is dropped for good (logged once) instead of consuming a
+        budget slot on every future build forever.
+      - An entry that DID get a live attempt this run -- whether it resolved,
+        failed, or hit the cap -- is removed from (or re-appended to the
+        BACK of) the queue; an entry skipped only because the budget ran out
+        before reaching it keeps its place at the FRONT. Otherwise the same
+        stubborn address at the front would monopolise the budget on every
+        run and nothing behind it would ever get a turn."""
     global _GEOCACHE_DIRTY
     if not _GEOCODE_PENDING:
         return
-    still_pending = []
-    for key in _GEOCODE_PENDING:
+    skipped, rotated_to_back = [], []
+    for entry in _GEOCODE_PENDING:
+        key = entry.get("key")
+        attempts = entry.get("attempts", 0)
         if not key or _GEOCACHE.get(key):
             continue  # already resolved (e.g. a duplicate listing got there first) -- drop it
-        if _GEOCODE_BUDGET <= 0:
-            still_pending.append(key)
+        if attempts >= GEOCODE_PENDING_MAX_ATTEMPTS:
+            # Already exhausted (e.g. a hand edited file, or a lowered cap) --
+            # drop it WITHOUT spending a live attempt or a budget unit.
+            print(f"geocode: giving up on {key!r} after {attempts} failed OneMap attempts "
+                  "-- staying on its district centroid", file=sys.stderr)
             continue
-        if not _live_geocode_attempt(key):
-            still_pending.append(key)
-    _GEOCODE_PENDING[:] = still_pending
+        if _GEOCODE_BUDGET <= 0:
+            skipped.append(entry)  # never got a turn this run -- keep its place at the front
+            continue
+        if _live_geocode_attempt(key):
+            continue  # resolved this run -- drop
+        attempts += 1
+        if attempts >= GEOCODE_PENDING_MAX_ATTEMPTS:
+            print(f"geocode: giving up on {key!r} after {attempts} failed OneMap attempts "
+                  "-- staying on its district centroid", file=sys.stderr)
+            continue  # dropped for good
+        rotated_to_back.append({"key": key, "attempts": attempts})
+    _GEOCODE_PENDING[:] = skipped + rotated_to_back
     _GEOCACHE_DIRTY = True
 
 
@@ -158,8 +198,8 @@ def geocode(query, district):
         hit = _live_geocode_attempt(key)
         if hit:
             return hit["lat"], hit["lng"], "exact"
-    if key and key not in _GEOCODE_PENDING:
-        _GEOCODE_PENDING.append(key)
+    if key and not any(e.get("key") == key for e in _GEOCODE_PENDING):
+        _GEOCODE_PENDING.append({"key": key, "attempts": 0})
         _GEOCACHE_DIRTY = True
     lat, lng = DISTRICT_CENTROIDS.get(district or "", (1.352, 103.82))
     return lat, lng, "approx"
@@ -190,9 +230,21 @@ BUSY_BLOCKS_PATH = os.path.expanduser("~/.claude/state/busy-blocks.json")
 # confirm", or "to confirm" inside rooms_and_rent) until a human promotes it
 # -- see build.py's check_anomalies pending_review counter, which warns past
 # 5 of these outstanding at once.
+# Statuses availability() accepts as "the listing could be live" -- shared
+# by is_pending_review()/availability()/lifecycle() so all three agree on
+# which statuses are even in scope (Opus review of PR #133, 16 Sep 2026: the
+# pending-review gate originally checked status=="active" only, so a content
+# sweep stub sitting at "channel" or "active-verify" -- statuses Available
+# itself accepts -- slipped past the gate entirely).
+LIVE_STATUSES = ("active", "channel", "active-verify")
+
+
 def is_pending_review(l):
     src = (l.get("contact_label_source") or "").lower()
     if not src.startswith("content sweep"):
+        return False
+    st = (l.get("status") or "").lower()
+    if st not in LIVE_STATUSES:
         return False
     addr = (l.get("full_address") or "").strip().lower()
     rooms = (l.get("rooms_and_rent") or "").lower()
@@ -207,10 +259,10 @@ def availability(l):
     if st.startswith("closed (tenanted") or st.startswith("closed (unavailable"): return "Taken"
     if st.startswith("closed") or st.startswith("archived") or st.startswith("cold"): return "Off market"
     if l.get("offer_pending"): return "Offer pending"
-    if st == "active" and is_pending_review(l): return "Pending review"
+    if is_pending_review(l): return "Pending review"
     has_price = bool(l.get("rent_min") or l.get("rent_max"))
     cobroke = "co-broke" in (l.get("contact_label_source") or "").lower()
-    if st in ("active", "channel", "active-verify") and (has_price or cobroke): return "Available"
+    if st in LIVE_STATUSES and (has_price or cobroke): return "Available"
     return "Pending"
 
 def lifecycle(l):
@@ -223,8 +275,8 @@ def lifecycle(l):
     if st.startswith("cold"): return "renewal_watch"
     if st.startswith("closed") or st.startswith("archived"): return "paused"  # incl. "closed (unavailable..."
     if l.get("offer_pending"): return "offer_pending"
-    if st == "active" and is_pending_review(l): return "pending_review"
-    if st in ("active", "channel", "active-verify"): return "available"
+    if is_pending_review(l): return "pending_review"
+    if st in LIVE_STATUSES: return "available"
     return "unknown"
 
 def looking(t):
@@ -261,70 +313,81 @@ RACES = ["indian","chinese","malay","filipino","myanmar","burmese","korean","jap
 
 # Ethnicity is an internal screening signal ONLY -- a landlord preference the
 # app uses to sort/gate matches, never a tenant facing judgement made here.
-# Two guards on the raw text parse, both Winfred's fixes for a real symptom
-# on the live book:
+# Rewritten to work clause by clause (Opus review of PR #133, 16 Sep 2026 --
+# a 3 token proximity window for "only" was too narrow: "only looking for a
+# chinese tenant" and "we only accept chinese or malay tenants" have the race
+# word 4+ tokens from "only" and were wrongly falling through to "prefer").
+# Split on comma/semicolon/period/"but"/"and no" so each clause is judged on
+# its own, then five ordered passes:
 #
-#   item 13 -- a stray "only" ("small room only, prefers Chinese") used to
-#   apply the HARD block rule the moment "only" appeared ANYWHERE alongside
-#   any race word, silently dropping qualified tenants who never render in
-#   the worklist. Now "only" must sit within ETH_ONLY_PROXIMITY_TOKENS words
-#   of the race word, in the SAME clause (split on , ; . or "but") -- an
-#   unrelated "only" earlier in the sentence (room size, price, tenancy
-#   term) no longer creates a false hard gate; the race mention elsewhere
-#   in the sentence falls through to a soft "prefer" instead.
-#
-#   item 14 -- the bare substring "any" used to short circuit straight to
-#   "no preference" before ever scanning for a race word, so a real
-#   exclusion stated later in the SAME text ("any race except Indian", "not
-#   any particular race but no Indian") was silently discarded. "any" is now
-#   decisive only when no exclusion marker (no/not/except/exclude/without)
-#   appears anywhere after it in the text.
-ETH_ONLY_PROXIMITY_TOKENS = 3
-_ETH_EXCLUSION_MARKERS_RE = re.compile(r"\b(?:no|not|except|exclude|without)\b")
-_ETH_CLAUSE_SPLIT_RE = re.compile(r"[,;.]|\bbut\b")
-_ETH_WORD_RE = re.compile(r"[a-z]+")
-
-
-def _races_near_only(text, candidate_races):
-    """candidate_races found within ETH_ONLY_PROXIMITY_TOKENS words of "only",
-    scoped to the same clause -- see parse_ethnicity's item 13 note above."""
-    hits = []
-    for clause in _ETH_CLAUSE_SPLIT_RE.split(text):
-        words = _ETH_WORD_RE.findall(clause)
-        only_idxs = [i for i, w in enumerate(words) if w == "only"]
-        if not only_idxs:
-            continue
-        for r in candidate_races:
-            if r in hits:
-                continue
-            for i, w in enumerate(words):
-                if w == r and any(abs(i - oi) <= ETH_ONLY_PROXIMITY_TOKENS for oi in only_idxs):
-                    hits.append(r)
-                    break
-    return hits
+#   1. "only"/"strictly" -- every race word in the SAME CLAUSE becomes the
+#      hard allowed set (item 13). An "only" in a clause with no race word
+#      (room size, price) never reaches into a DIFFERENT clause's race
+#      mention, which falls through to a soft "prefer" instead (pass 5).
+#   2. "except"/"other than" -- polarity depends on what precedes it in the
+#      same clause: "no one except X" / "none except X" (nobody is accepted,
+#      with the one exception of X) makes X the entire allowed set; "any
+#      race except X" (everybody except X) excludes X and allows everyone
+#      else. Ambiguous polarity falls through to the plain exclusion scan.
+#   3. Plain exclusions -- "no X"/"not X"/"exclude X"/"without X"/"except X",
+#      scanned per clause so a negation can never reach across a clause
+#      boundary into an unrelated race mention.
+#   4. "any"/"no preference" -- decisive now that pass 3 has already ruled
+#      out every race actually tied to a negation anywhere in the text
+#      (item 14): an unrelated negation elsewhere ("any race ok but no
+#      pets" -- "pets" is not a race) can no longer block this and fall
+#      through to a bare "note".
+#   5. A plain mention/preference, or "note" with the raw text if nothing
+#      recognisable was found at all.
+_ETH_CLAUSE_SPLIT_RE = re.compile(r"[,;.]|\bbut\b|\band(?=\s+no\b)")
+_ETH_EXCEPT_RE = re.compile(r"(?:except|other than)\s+(.*)")
+_ETH_NEGATION_BASE_RE = re.compile(r"\b(?:no\s+one|nobody|none|no\s+preference)\b")
 
 
 def parse_ethnicity(txt):
     t = (txt or "").lower()
     if not t:
         return {"rule": "any", "races": []}
-    any_idx = t.find("any")
-    # "no pref"/"no race" stay unconditional shortcuts (they are not the "any"
-    # bug this guards against); the bare "any" substring is decisive only when
-    # no exclusion marker follows it anywhere in the text (item 14).
-    any_decisive = ("no pref" in t or "no race" in t or
-                    (any_idx != -1 and not _ETH_EXCLUSION_MARKERS_RE.search(t, any_idx + len("any"))))
-    if any_decisive:
+    clauses = _ETH_CLAUSE_SPLIT_RE.split(t)
+
+    only_races = []
+    for clause in clauses:
+        if "only" in clause or "strictly" in clause:
+            for r in RACES:
+                if r in clause and r not in only_races:
+                    only_races.append(r)
+    if only_races:
+        return {"rule": "only", "races": only_races}
+
+    for clause in clauses:
+        m = _ETH_EXCEPT_RE.search(clause)
+        if not m:
+            continue
+        tail_races = [r for r in RACES if r in m.group(1)]
+        if not tail_races:
+            continue
+        head = clause[:m.start()]
+        if _ETH_NEGATION_BASE_RE.search(head):
+            return {"rule": "only", "races": tail_races}
+        if "any" in head:
+            return {"rule": "exclude", "races": tail_races}
+        # ambiguous polarity (no "any"/negation-base before it) -- fall
+        # through and let the plain exclusion scan below pick it up
+
+    excl = []
+    for clause in clauses:
+        for r in RACES:
+            if r in excl:
+                continue
+            if re.search(r"(?:no[t]?|except|exclude|without)\s+" + r, clause) or ("no " + r in clause):
+                excl.append(r)
+    if excl:
+        return {"rule": "exclude", "races": excl}
+
+    if "no pref" in t or "no race" in t or "any" in t:
         return {"rule": "any", "races": []}
+
     found = [r for r in RACES if r in t]
-    if "no " in t or "not " in t or "except" in t or "exclude" in t:
-        excl = [r for r in RACES if re.search(r"(?:no[t]?|except|exclude|without)\s+" + r, t) or ("no " + r in t)]
-        if excl: return {"rule":"exclude","races":excl}
-    if "only" in t and found:
-        near = _races_near_only(t, found)
-        if near:
-            return {"rule": "only", "races": near}
-        return {"rule": "prefer", "races": found}  # "only" present but not about a race word (item 13)
     if "pref" in t and found: return {"rule":"prefer","races":found}
     if found: return {"rule":"prefer","races":found}
     return {"rule":"note","races":[], "raw":(txt or "")[:80]}
@@ -909,12 +972,14 @@ BUDGET_CONTRADICTION_MIN_DELTA = 50    # ...AND by >=$50, so a same-figure resta
                                         # "Budget:max 900") reads as rounding, not a real signal.
 
 # item 8 -- plausible SG monthly ROOM RENTAL budget band for a tenant's
-# budget/budget_min/budget_max fields at export. Deliberately wide (real room
-# rentals run roughly $600-$3,000) so this only screens obvious mis-parses or
-# a mixed-up field (a purchase price, a phone digit run) rather than
-# legitimate outliers.
-BUDGET_PLAUSIBLE_MIN = 300
-BUDGET_PLAUSIBLE_MAX = 15000
+# budget/budget_min/budget_max fields at export. BUDGET_PLAUSIBLE_MIN/MAX are
+# enrich.py's ONE shared pair (Opus review of PR #133, 16 Sep 2026 -- this
+# file used to keep its own separate 300..15000, drifting from enrich.py's
+# 300..20000 for the same concept); deliberately wide so this only screens
+# obvious mis-parses or a mixed-up field (a purchase price, a phone digit
+# run) rather than legitimate outliers.
+BUDGET_PLAUSIBLE_MIN = enrich.BUDGET_PLAUSIBLE_MIN
+BUDGET_PLAUSIBLE_MAX = enrich.BUDGET_PLAUSIBLE_MAX
 
 
 def find_budget_contradiction(conn, jid, stated_budget):
@@ -1445,7 +1510,14 @@ def unlock_value_for(missing, listings):
     not a property of how useful the ask actually is. Summing bounded 0..1
     fractions instead caps a single field's contribution at "gates the
     whole market" and keeps two builds with different inventory sizes
-    comparable on the same scale."""
+    comparable on the same scale.
+
+    Scaled to a rounded integer (fraction * 100) rather than returned as a
+    raw float (Opus review of PR #133, 16 Sep 2026): app.js's worklist chip
+    renders this verbatim as "+<unlock_value>" and a bare float would print
+    as "+0.6666666666666666" instead of the intended "+37" style count. The
+    scale is otherwise cosmetic -- it does not change the ranking, since
+    every candidate is scaled by the same factor."""
     if not missing:
         return 0
     avail = [l for l in listings if l.get("availability") == "Available"]
@@ -1460,7 +1532,8 @@ def unlock_value_for(missing, listings):
         if g.get("lease_min") is not None: gated["lease_months"] += 1
         if l.get("available_from") is not None: gated["move_in"] += 1
         if l.get("district"): gated["district"] += 1
-    return sum(gated[field] / total for field in missing if field in gated)
+    fraction_sum = sum(gated[field] / total for field in missing if field in gated)
+    return round(fraction_sum * 100)
 
 
 def build_enrichment_queue(tenants, listings):

@@ -241,7 +241,9 @@ def test_phone_normalize_idempotent():
 
 # =========================================== ethnicity parser [items 1/13/14]
 def test_parse_ethnicity_guards():
-    section("parse_ethnicity: 'only' proximity guard (item 13) and 'any' exclusion guard (item 14)")
+    section("parse_ethnicity: clause based 'only'/'except' parsing (item 13) and 'any' exclusion guard (item 14) "
+            "-- rewritten per Opus review of PR #133 (16 Sep 2026): a 3 token window was too narrow for "
+            "'only looking for a chinese tenant' style phrasing, so this is now clause scoped, not token scoped")
     cases = [
         # (raw text, expected rule, expected races)
         ("Chinese only", "only", ["chinese"]),
@@ -250,6 +252,16 @@ def test_parse_ethnicity_guards():
         ("any race except Indian", "exclude", ["indian"]),
         ("not any particular race but no Indian", "exclude", ["indian"]),
         ("prefer not Indian and Malay", "exclude", ["indian"]),
+        ("no Indian pls", "exclude", ["indian"]),
+        ("Chinese or Malay only", "only", ["chinese", "malay"]),
+        ("any race ok but no pets", "any", []),
+        ("not Indian and not Malay", "exclude", ["indian", "malay"]),
+        ("prefer chinese", "prefer", ["chinese"]),
+        ("no preference", "any", []),
+        ("any race except indian", "exclude", ["indian"]),
+        ("no one except chinese", "only", ["chinese"]),
+        ("only looking for a chinese tenant", "only", ["chinese"]),
+        ("we only accept chinese or malay tenants", "only", ["chinese", "malay"]),
     ]
     for raw, exp_rule, exp_races in cases:
         got = ed.parse_ethnicity(raw)
@@ -262,6 +274,7 @@ def test_parse_ethnicity_guards():
     check("'no Indian' (no 'any' at all) -> exclude, unaffected by the any-guard",
           ed.parse_ethnicity("no Indian") == {"rule": "exclude", "races": ["indian"]})
     check("empty/blank text -> any/no preference (unchanged default)", ed.parse_ethnicity("") == {"rule": "any", "races": []})
+    check("'strictly' behaves like 'only'", ed.parse_ethnicity("strictly Chinese tenants") == {"rule": "only", "races": ["chinese"]})
 
 
 # ==================================================================== lang
@@ -402,7 +415,11 @@ def test_missing_and_intake_complete():
 
 # ============================================= budget/date plausibility [item 8]
 def test_budget_and_move_in_plausibility():
-    section("budget plausibility bound (300..15000): outside the band -> treated as missing + flagged")
+    section("budget band is enrich.py's ONE shared constant pair (item 6 review fix), not a second local copy")
+    check("export_data.BUDGET_PLAUSIBLE_MIN is enrich's", ed.BUDGET_PLAUSIBLE_MIN == enrich.BUDGET_PLAUSIBLE_MIN == 300)
+    check("export_data.BUDGET_PLAUSIBLE_MAX is enrich's", ed.BUDGET_PLAUSIBLE_MAX == enrich.BUDGET_PLAUSIBLE_MAX == 20000)
+
+    section("budget plausibility bound (300..20000): outside the band -> treated as missing + flagged")
     sale_price_leak = fake_tenant(id="T950", budget=680000, budget_min="", budget_max=None)
     tenants, _ = ed.build_tenants([sale_price_leak], {"phones": [], "ids": [], "name_markers": []}, None, TODAY, [])
     t = tenants[0]
@@ -880,9 +897,12 @@ def test_geocode_pending_carryover():
     def _fake_miss(*_a, **_kw):
         raise OSError("simulated OneMap failure")
 
+    def _keys():
+        return [e["key"] for e in ed._GEOCODE_PENDING]
+
     try:
         _reset()
-        ed._GEOCODE_PENDING.append("1 test ave, singapore")
+        ed._GEOCODE_PENDING.append({"key": "1 test ave, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_hit), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
         check("a pending address resolved this run is dropped from the pending list",
@@ -892,30 +912,32 @@ def test_geocode_pending_carryover():
               f"got {ed._GEOCACHE.get('1 test ave, singapore')}")
 
         _reset()
-        ed._GEOCODE_PENDING.append("2 nowhere road, singapore")
+        ed._GEOCODE_PENDING.append({"key": "2 nowhere road, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_miss), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
-        check("an address OneMap still can't resolve stays pending for the next run",
-              ed._GEOCODE_PENDING == ["2 nowhere road, singapore"], f"got {ed._GEOCODE_PENDING}")
+        check("an address OneMap still can't resolve stays pending for the next run, attempt counted",
+              ed._GEOCODE_PENDING == [{"key": "2 nowhere road, singapore", "attempts": 1}],
+              f"got {ed._GEOCODE_PENDING}")
 
         _reset(budget=0)
-        ed._GEOCODE_PENDING.append("3 budget-exhausted ave, singapore")
+        ed._GEOCODE_PENDING.append({"key": "3 budget-exhausted ave, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_hit), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
-        check("pending is left untouched (never spends a budget it doesn't have)",
-              ed._GEOCODE_PENDING == ["3 budget-exhausted ave, singapore"], f"got {ed._GEOCODE_PENDING}")
+        check("pending is left untouched (never spends a budget it doesn't have, attempts unchanged)",
+              ed._GEOCODE_PENDING == [{"key": "3 budget-exhausted ave, singapore", "attempts": 0}],
+              f"got {ed._GEOCODE_PENDING}")
 
         section("geocode(): a fresh address that falls back to a centroid queues itself pending")
         _reset(budget=0)  # force the centroid fallback without a live attempt
         lat, lng, src = ed.geocode("4 somewhere street, singapore", "D15")
         check("budget exhausted -> centroid ('approx') fallback", src == "approx")
         check("that address is queued pending for the next run",
-              "4 somewhere street, singapore" in ed._GEOCODE_PENDING, f"got {ed._GEOCODE_PENDING}")
+              "4 somewhere street, singapore" in _keys(), f"got {ed._GEOCODE_PENDING}")
 
         section("prime_pending_geocodes() is called BEFORE build_listings() spends the same budget "
                 "-- pending gets first refusal of the live lookup budget")
         _reset()
-        ed._GEOCODE_PENDING.append("5 priority ave, singapore")
+        ed._GEOCODE_PENDING.append({"key": "5 priority ave, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_hit), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
             budget_after_priming = ed._GEOCODE_BUDGET
@@ -924,6 +946,40 @@ def test_geocode_pending_carryover():
               budget_after_priming == 19, f"got {budget_after_priming}")
         check("the brand new address still got a live attempt from what budget remained",
               src2 == "exact", f"got {src2}")
+
+        section("item 4 review fix: a permanently unresolvable address is dropped after "
+                "GEOCODE_PENDING_MAX_ATTEMPTS failures and stops consuming budget")
+        _reset()
+        ed._GEOCODE_PENDING.append({"key": "7 permanently broken ave, singapore",
+                                     "attempts": ed.GEOCODE_PENDING_MAX_ATTEMPTS - 1})
+        with mock.patch("urllib.request.urlopen", _fake_miss), mock.patch("time.sleep"):
+            ed.prime_pending_geocodes()
+        check("the address is dropped for good once it hits the attempt cap",
+              ed._GEOCODE_PENDING == [], f"got {ed._GEOCODE_PENDING}")
+        check("dropping it still spent exactly one budget unit on the final attempt",
+              ed._GEOCODE_BUDGET == 19, f"got {ed._GEOCODE_BUDGET}")
+
+        _reset()
+        ed._GEOCODE_PENDING.append({"key": "7 permanently broken ave, singapore",
+                                     "attempts": ed.GEOCODE_PENDING_MAX_ATTEMPTS})
+        def _fail_if_called(*_a, **_kw):
+            raise AssertionError("must not spend a live attempt on an already-capped address")
+        with mock.patch("urllib.request.urlopen", _fail_if_called), mock.patch("time.sleep"):
+            ed.prime_pending_geocodes()
+        check("already at the cap on load -- dropped without spending a live attempt or budget",
+              ed._GEOCODE_PENDING == [] and ed._GEOCODE_BUDGET == 20,
+              f"pending={ed._GEOCODE_PENDING} budget={ed._GEOCODE_BUDGET}")
+
+        section("item 4 review fix: an address that got a turn this run rotates to the BACK of the "
+                "queue; one only skipped for lack of budget keeps its place at the FRONT")
+        _reset(budget=1)
+        ed._GEOCODE_PENDING.append({"key": "8 gets a turn, singapore", "attempts": 0})
+        ed._GEOCODE_PENDING.append({"key": "9 budget ran out, singapore", "attempts": 0})
+        with mock.patch("urllib.request.urlopen", _fake_miss), mock.patch("time.sleep"):
+            ed.prime_pending_geocodes()
+        check("the entry that got a turn (and is still unresolved) is now at the back",
+              _keys() == ["9 budget ran out, singapore", "8 gets a turn, singapore"],
+              f"got {_keys()}")
     finally:
         _reset()  # never leave real module state dirty for tests that run after this one
 
@@ -958,11 +1014,20 @@ def test_pending_review_status():
                 "rent_min": 1200, "rent_max": 1200}
     own_landlord = {"status": "active", "contact_label_source": "own",
                      "full_address": "To confirm", "rooms_and_rent": ""}
+    stub_active_verify = {"status": "active-verify", "contact_label_source": "content sweep (contact not yet labelled)",
+                           "full_address": "To confirm", "rooms_and_rent": ""}
+    stub_channel = {"status": "channel", "contact_label_source": "content sweep (contact not yet labelled)",
+                     "full_address": "To confirm", "rooms_and_rent": ""}
     check("full_address == 'To confirm' -> pending review", ed.is_pending_review(stub_addr) is True)
     check("rooms_and_rent contains 'to confirm' -> pending review", ed.is_pending_review(stub_rooms) is True)
     check("promoted by a human (real address, real rooms) -> no longer pending review", ed.is_pending_review(reviewed) is False)
     check("an ordinary (non sweep) landlord with a placeholder address is NOT pending review "
           "-- this rule is scoped to the sweep only", ed.is_pending_review(own_landlord) is False)
+    check("status active-verify (item 5 review fix -- the same set availability() accepts) -> pending review",
+          ed.is_pending_review(stub_active_verify) is True)
+    check("status channel (item 5 review fix) -> pending review", ed.is_pending_review(stub_channel) is True)
+    check("availability() agrees: active-verify sweep stub -> 'Pending review'",
+          ed.availability(stub_active_verify) == "Pending review", f"got {ed.availability(stub_active_verify)}")
 
     section("availability(): pending review never reads as Available")
     check("sweep stub -> 'Pending review', not 'Available'", ed.availability(stub_addr) == "Pending review",
@@ -1156,18 +1221,18 @@ def test_enrichment_queue():
         {"id": "LL4", "name": "L4", "district": "D17", "rent_min": 1000, "available_from": "2026-09-15",
          "availability": "Offer pending", "gates": {"max_pax": 1, "lease_min": 12}},
     ]
-    # 3 Available listings (LL4 excluded): budget/district gate 2 of 3 (2/3), pax gates 1 of 3 (1/3)
+    # 3 Available listings (LL4 excluded): budget/district gate 2 of 3 (2/3), pax gates 1 of 3 (1/3).
+    # Scaled to a rounded 0..100 integer (Opus review of PR #133) so app.js's "+N" chip keeps working.
     check("no missing fields -> 0 unlock value", ed.unlock_value_for([], listings) == 0)
-    check("budget missing -> fraction of Available listings with a price floor (LL1, LL3 of 3; LL4 excluded)",
-          abs(ed.unlock_value_for(["budget"], listings) - 2 / 3) < 1e-9,
-          f"got {ed.unlock_value_for(['budget'], listings)}")
-    check("pax missing -> fraction of Available listings gating on max_pax (LL1 of 3)",
-          abs(ed.unlock_value_for(["pax"], listings) - 1 / 3) < 1e-9)
-    check("district missing -> fraction of Available listings that themselves have a district (LL1, LL2 of 3; LL3 excluded)",
-          abs(ed.unlock_value_for(["district"], listings) - 2 / 3) < 1e-9,
-          f"got {ed.unlock_value_for(['district'], listings)}")
-    check("missing fields SUM independently (item 3, unchanged) -- budget(2/3) + pax(1/3) = 1.0",
-          abs(ed.unlock_value_for(["budget", "pax"], listings) - 1.0) < 1e-9,
+    check("unlock_value_for always returns an int, never a float", isinstance(ed.unlock_value_for(["budget"], listings), int))
+    check("budget missing -> fraction of Available listings with a price floor (LL1, LL3 of 3; LL4 excluded), scaled to 67",
+          ed.unlock_value_for(["budget"], listings) == 67, f"got {ed.unlock_value_for(['budget'], listings)}")
+    check("pax missing -> fraction of Available listings gating on max_pax (LL1 of 3), scaled to 33",
+          ed.unlock_value_for(["pax"], listings) == 33, f"got {ed.unlock_value_for(['pax'], listings)}")
+    check("district missing -> fraction of Available listings that themselves have a district (LL1, LL2 of 3; LL3 excluded), scaled to 67",
+          ed.unlock_value_for(["district"], listings) == 67, f"got {ed.unlock_value_for(['district'], listings)}")
+    check("missing fields SUM independently (item 3, unchanged) -- budget(2/3) + pax(1/3) = 1.0, scaled to 100",
+          ed.unlock_value_for(["budget", "pax"], listings) == 100,
           f"got {ed.unlock_value_for(['budget', 'pax'], listings)}")
 
     section("the real degenerate case (item 3): missing several gated fields must outrank missing only district")
@@ -1181,6 +1246,8 @@ def test_enrichment_queue():
     all_four = ed.unlock_value_for(["budget", "pax", "lease_months", "move_in"], listings2)
     check("missing only district no longer automatically ties/outranks missing 4 gated fields",
           all_four > district_only, f"district_only={district_only} all_four={all_four}")
+    check("both listings fully gate every field here -> district_only=100, all_four=400",
+          district_only == 100 and all_four == 400, f"district_only={district_only} all_four={all_four}")
 
     section("item 16: weighting by fraction bounds a single field's contribution at 1.0, so "
             "district's score no longer grows (and its advantage over a narrower field no "
@@ -1190,12 +1257,12 @@ def test_enrichment_queue():
                  "availability": "Available", "gates": {"max_pax": None, "lease_min": None}}
                 for i in range(n)]
     small_pool, big_pool = all_district_listings(5), all_district_listings(50)
-    check("district alone scores 1.0 on a small pool (would have been raw count 5 before this fix)",
-          ed.unlock_value_for(["district"], small_pool) == 1.0,
+    check("district alone scores 100 on a small pool (would have been raw count 5 before this fix)",
+          ed.unlock_value_for(["district"], small_pool) == 100,
           f"got {ed.unlock_value_for(['district'], small_pool)}")
-    check("district alone STILL scores 1.0 on a 10x bigger pool (would have been raw count 50 before "
+    check("district alone STILL scores 100 on a 10x bigger pool (would have been raw count 50 before "
           "this fix, an ever widening gap against any narrower field) -- fraction weighting caps it",
-          ed.unlock_value_for(["district"], big_pool) == 1.0,
+          ed.unlock_value_for(["district"], big_pool) == 100,
           f"got {ed.unlock_value_for(['district'], big_pool)}")
 
     tenants = [
@@ -1209,8 +1276,8 @@ def test_enrichment_queue():
     check("tenant with no missing fields is excluded from the queue",
           "T4" not in {r["id"] for r in q}, f"got {[r['id'] for r in q]}")
     check("queue has exactly the 4 tenants with gaps", len(q) == 4, f"got {len(q)}")
-    check("highest unlock_value (T5, missing budget+pax, sums to 1.0) ranks first",
-          q[0]["id"] == "T5" and abs(q[0]["unlock_value"] - 1.0) < 1e-9, f"got {q[0]}")
+    check("highest unlock_value (T5, missing budget+pax, sums to 1.0 scaled to 100) ranks first",
+          q[0]["id"] == "T5" and q[0]["unlock_value"] == 100, f"got {q[0]}")
 
 
 # ==================================== live demand / zero-stock [4,23,25] ====
