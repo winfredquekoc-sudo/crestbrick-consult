@@ -18,18 +18,29 @@ TEMPLATE = os.path.join(HERE, "template.html")
 CSS = os.path.join(HERE, "styles.css")
 SCORING = os.path.join(HERE, "scoring.js")
 APPJS = os.path.join(HERE, "app.js")
-SCORING_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/scoring.test.mjs")
-STATE_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/state.test.mjs")
-FILTERS_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/filters.test.mjs")
-ROWS_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/rows.test.mjs")
-EXPORT_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/test_export.py")
-STATE_PY_TEST = os.path.join(WORKTREE_ROOT, "tests/matchmaker/test_state.py")
+# item 5/47 -- the ONE shared list of test files build.py and deploy.sh both
+# gate on (see read_suites()). Was two hardcoded tuples that drifted: deploy.sh
+# ran a 4 suite subset of build.py's 6 for months, so a by hand deploy of an
+# artifact built before a failing change on the 2 uncovered suites could still
+# ship. A plain text file, not another Python structure, so deploy.sh's bash
+# can read it with nothing fancier than a loop + case statement.
+SUITES_FILE = os.path.join(WORKTREE_ROOT, "tests", "matchmaker", "SUITES")
 STATS_PATH = os.path.expanduser("~/.claude/state/matchmaker-stats.json")
 BUILD_HISTORY_PATH = os.path.expanduser("~/.claude/state/matchmaker-build-history.jsonl")
 TELEGRAM_SEND = os.path.expanduser("~/.claude/bin/telegram_send.sh")
 TELEGRAM_ENV_PRIMARY = os.path.expanduser("~/.telegram-bot.env")
 TELEGRAM_ENV_FALLBACK = os.path.expanduser("~/.claude/.env")
 
+# item 6/37 -- soft ceiling only, matches item 37's own stated number. Never
+# fails the build (same "warn, never block" spirit as ANOMALY_THRESHOLD below):
+# this artifact is offline first by design (a single inlined PWA, see item
+# 45's own note), so blocking a build over size would trade a working app for
+# no app at all. The artifact was already ~1.9MB and growing with every new
+# landlord/tenant, with no visibility into which section was doing the
+# growing — check_payload_size() below turns "it's bigger again" into "it's
+# THIS section that's bigger", which is what a size regression needs to be
+# fixed without guessing.
+PAYLOAD_SIZE_WARN_MB = 2.5
 RING_SIZE = 3                                    # [61] artifacts kept in _local/
 # Accepts both widths on purpose: names are YYYYMMDD-HHMMSS now (two builds in
 # the same MINUTE used to write the same filename, so the second silently
@@ -124,18 +135,34 @@ def check_config_consistency():
         fail("config.json stale_days != dead_days — same rule seen from two sides, must stay equal")
 
 
+def read_suites(path=SUITES_FILE):
+    """[47] Parse the shared SUITES file: one path per line, relative to the
+    repo root, `#` starts a comment, blank lines ignored. Extension picks the
+    runner (.mjs -> node --test, .py -> python3) in run_tests() below."""
+    if not os.path.exists(path):
+        fail(f"{path} missing — the shared test suite list build.py and deploy.sh both read")
+    out = []
+    for line in open(path):
+        line = line.split("#", 1)[0].strip()
+        if line:
+            out.append(os.path.join(WORKTREE_ROOT, line))
+    return out
+
+
 def run_tests():
-    missing = [p for p in (SCORING_TEST, STATE_TEST, FILTERS_TEST, ROWS_TEST, EXPORT_TEST, STATE_PY_TEST) if not os.path.exists(p)]
+    suites = read_suites()
+    missing = [p for p in suites if not os.path.exists(p)]
     if missing:
         fail("required test file(s) missing, cannot verify before build:\n  " + "\n  ".join(missing))
     if not shutil.which("node"):
         fail("node not found on PATH — needed for the .mjs test suites")
-    for path in (SCORING_TEST, STATE_TEST, FILTERS_TEST, ROWS_TEST):
-        if subprocess.run(["node", "--test", path]).returncode != 0:
-            fail(f"tests/matchmaker/{os.path.basename(path)} failed — aborting, nothing written")
-    for pt in (EXPORT_TEST, STATE_PY_TEST):
-        if subprocess.run(["/usr/bin/python3", pt]).returncode != 0:
-            fail(f"tests/matchmaker/{os.path.basename(pt)} failed — aborting, nothing written")
+    for path in suites:
+        if path.endswith(".mjs"):
+            if subprocess.run(["node", "--test", path]).returncode != 0:
+                fail(f"tests/matchmaker/{os.path.basename(path)} failed — aborting, nothing written")
+        elif path.endswith(".py"):
+            if subprocess.run(["/usr/bin/python3", path]).returncode != 0:
+                fail(f"tests/matchmaker/{os.path.basename(path)} failed — aborting, nothing written")
 
 
 # ----------------------------------------------------- [2]/[3] export -----
@@ -197,9 +224,35 @@ def pct_swing(old, new):
 
 PENDING_REVIEW_WARN_THRESHOLD = 5  # item 4/43 -- unreviewed content-sweep stubs; absolute, not a swing
 
+# item 1/43 -- companion absolute threshold for export_data.py's new
+# health["tenants_sparse"] counter (fewer than SPARSE_PROFILE_MIN of 14
+# profile fields filled). Chosen at ~10% of the live still looking roster,
+# which per the 9 Sep 2026 business audit runs roughly 200-250 tenants: a
+# handful of genuinely sparse intakes (someone who just messaged in) is
+# normal noise below that; a jump past it is more consistent with something
+# upstream degrading intake quality across the WHOLE roster at once (a WA
+# bridge outage silently truncating fields, a parsing regression) than with
+# ordinary day to day variation in how complete new enquiries happen to be.
+SPARSE_TENANTS_WARN_THRESHOLD = 20
+
+# item 1/43 -- the pending_review absolute check above catches a SINGLE build
+# with too many unreviewed stubs, but the 22-stub incident it was written for
+# actually accumulated a few at a time across MANY builds, each individually
+# under the threshold. This catches that shape directly: pending_review
+# sitting above zero for this many consecutive builds (current build
+# included) means stubs are piling up faster than they are being reviewed,
+# regardless of how small each build's own count is. 5 consecutive daytime
+# refresh builds is roughly one calendar day at the 5-slot cadence (09/12/15/
+# 18/21 SGT) — enough time for Winfred to have reviewed a fresh stub the same day
+# if he were going to, so 5 in a row nonzero is a genuine "this is not being
+# cleared" signal, not noise from one busy afternoon.
+CONTENT_SWEEP_PERSIST_BUILDS = 5
+
 
 def check_anomalies(prev_counts, cur_counts, cur_health=None, threshold=ANOMALY_THRESHOLD,
-                     pending_review_threshold=PENDING_REVIEW_WARN_THRESHOLD):
+                     pending_review_threshold=PENDING_REVIEW_WARN_THRESHOLD,
+                     sparse_threshold=SPARSE_TENANTS_WARN_THRESHOLD,
+                     recent_pending_review=None, persist_builds=CONTENT_SWEEP_PERSIST_BUILDS):
     """Pure — no file I/O, so tests can feed fixture dicts directly. Returns a
     list of human readable warning strings (empty = nothing crossed the
     threshold). Never raises, never blocks the build — this is a smell
@@ -207,19 +260,34 @@ def check_anomalies(prev_counts, cur_counts, cur_health=None, threshold=ANOMALY_
     status mapping broke), not a hard gate; a real market swing is also
     allowed through, just noted.
 
-    The pending_review check (item 4/43) is an ABSOLUTE threshold, checked
-    even on a first run with no prev_counts at all: it exists because
-    refresh-rental-dbs.sh's own content sweep (running Haiku several times a
-    day) writes unconfirmed landlord stubs straight into the live database,
-    and 22 of them went unreviewed long enough to reach tenants as live
-    listings before 15 Sep 2026 — a swing-only check would never have caught
-    a slow accumulation like that, since each individual build's INCREASE
-    can be too small to cross a percentage threshold."""
+    The pending_review and tenants_sparse checks (item 1/4/43) are ABSOLUTE
+    thresholds, checked even on a first run with no prev_counts at all: they
+    exist because refresh-rental-dbs.sh's own content sweep (running Haiku
+    several times a day) writes unconfirmed landlord stubs straight into the
+    live database, and 22 of them went unreviewed long enough to reach
+    tenants as live listings before 15 Sep 2026 — a swing only check would
+    never have caught a slow accumulation like that, since each individual
+    build's INCREASE can be too small to cross a percentage threshold.
+
+    recent_pending_review (item 1/43), when given, is the pending_review
+    value from each of the last `persist_builds` builds INCLUDING this one,
+    oldest first — see build.py's anomaly_guard() for how it is assembled
+    from the build history file. A value of None for a build that predates
+    this counter is treated as "not persistently nonzero" (never falsely
+    triggers on old history alone)."""
     out = []
     pending_review = (cur_health or {}).get("pending_review")
     if pending_review is not None and pending_review > pending_review_threshold:
         out.append(f"pending_review stubs at {pending_review} (unreviewed content-sweep records), "
                     f"above {pending_review_threshold}")
+    sparse = (cur_health or {}).get("tenants_sparse")
+    if sparse is not None and sparse > sparse_threshold:
+        out.append(f"tenants_sparse at {sparse} (fewer than the minimum profile fields filled), "
+                    f"above {sparse_threshold}")
+    if recent_pending_review and len(recent_pending_review) >= persist_builds and \
+            all((v or 0) > 0 for v in recent_pending_review[-persist_builds:]):
+        out.append(f"pending_review stubs have stayed above zero for the last {persist_builds} "
+                    f"builds in a row (currently {pending_review}) — accumulating rather than being cleared")
     if not prev_counts:
         return out
     for key, label in (("available_listings", "listings"), ("still_looking_tenants", "tenants")):
@@ -240,17 +308,31 @@ def anomaly_guard(data):
             prev = json.load(open(PREV))
         except (OSError, ValueError):
             prev = None
-    warnings = check_anomalies((prev or {}).get("counts") or {}, data.get("counts") or {}, data.get("health") or {})
+    health = data.get("health") or {}
+    # item 1/43 -- the last (CONTENT_SWEEP_PERSIST_BUILDS - 1) SHIPPED builds'
+    # pending_review counts, plus this build's own (not yet appended to the
+    # history file at this point in main()), oldest first.
+    tail = read_build_history_tail(BUILD_HISTORY_PATH, CONTENT_SWEEP_PERSIST_BUILDS - 1)
+    recent_pending_review = [e.get("pending_review") for e in tail] + [health.get("pending_review")]
+    warnings = check_anomalies((prev or {}).get("counts") or {}, data.get("counts") or {}, health,
+                                recent_pending_review=recent_pending_review)
     for w in warnings:
         print("ANOMALY WARNING: " + w, file=sys.stderr)
     return warnings
 
 
 # ---------------------------------------------------- [62] build history --
-def build_history_entry(data, computed, now):
+def build_history_entry(data, computed, now, anomaly_lines=None):
     """Pure. computed is compute_scoring_stats()'s return value (may be None
     if scoring.js was unavailable/errored) — worklist_size degrades to None
-    rather than raising."""
+    rather than raising.
+
+    pending_review and anomalies (item 1/2/43) are carried per entry so two
+    later readers can use them without deriving them again: anomaly_guard()
+    reads back a short tail of pending_review values to detect a persistent
+    (not just a single build) stub pileup, and monday_brief.py's
+    section_matchmaker() reads the most recent non empty `anomalies` entry to
+    report the last anomaly warning without ever calling the network."""
     counts = data.get("counts") or {}
     health = data.get("health") or {}
     return {
@@ -259,6 +341,8 @@ def build_history_entry(data, computed, now):
         "tenants": counts.get("still_looking_tenants"),
         "worklist_size": None if not computed else computed.get("worklist_size"),
         "health_total": sum(v for v in health.values() if isinstance(v, (int, float))),
+        "pending_review": health.get("pending_review"),
+        "anomalies": list(anomaly_lines or []),
     }
 
 
@@ -353,6 +437,29 @@ def check_js_syntax():
             fail(f"{os.path.basename(path)} is not valid JavaScript, refusing to ship:\n" + (r.stderr or "").strip()[-800:])
 
 
+def check_payload_size(data, size_kb):
+    """[6/37] Pure — takes the already built size_kb rather than measuring
+    anything itself, so a test can drive it with a fixture and a fake size
+    with no real artifact on disk. Prints, never raises, never fails the
+    build (see PAYLOAD_SIZE_WARN_MB's own comment). Sizes each top level
+    payload key by its own JSON encoding — cheap (this is already a dict
+    built entirely in memory) and gives a genuinely per section breakdown
+    rather than a guess from field names."""
+    size_mb = size_kb / 1024
+    if size_mb <= PAYLOAD_SIZE_WARN_MB:
+        return
+    sizes = []
+    for k, v in data.items():
+        try:
+            sizes.append((k, len(json.dumps(v, ensure_ascii=False))))
+        except TypeError:
+            continue
+    sizes.sort(key=lambda kv: -kv[1])
+    top3 = ", ".join(f"{k} ({n / 1024:.0f}KB)" for k, n in sizes[:3])
+    print(f"PAYLOAD SIZE WARNING: artifact is {size_mb:.2f}MB, above the "
+          f"{PAYLOAD_SIZE_WARN_MB}MB soft ceiling. Largest sections: {top3}", file=sys.stderr)
+
+
 def inline_and_write(data, now):
     missing = [p for p in (TEMPLATE, CSS, SCORING, APPJS) if not os.path.exists(p)]
     if missing:
@@ -414,6 +521,7 @@ def inline_and_write(data, now):
     atomic_write_text(p, out)
     size_kb = round(len(out) / 1024, 1)
     print(f"built {p}  {size_kb} KB")
+    check_payload_size(data, size_kb)                                        # [6/37]
 
     kept, pruned = update_artifact_ring(outdir, now, out)                     # [61]
     print(f"artifact ring: kept {len(kept)}" + (f" (pruned {len(pruned)})" if pruned else ""))
@@ -720,7 +828,7 @@ def main():
 
         anomaly_lines = anomaly_guard(data)                          # [63]
         computed = compute_scoring_stats(data)
-        history_entry = build_history_entry(data, computed, now)     # [62]
+        history_entry = build_history_entry(data, computed, now, anomaly_lines)  # [62]/[1,2,43]
         # Same 7 rows the artifact used to show, assembled without touching the
         # file yet: the entry is appended only once the artifact is on disk, so
         # the history log never claims a build that was never shipped.

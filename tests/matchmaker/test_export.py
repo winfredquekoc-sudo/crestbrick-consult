@@ -16,6 +16,17 @@ sys.path.insert(0, SCRIPTS)
 import enrich          # noqa: E402
 import export_data as ed  # noqa: E402
 import build as bld    # noqa: E402
+# Eagerly cached here, same as enrich/export_data/build above: export_data.py's
+# build_revival() lazily `import revival_board`, whose own module level code
+# does `sys.path.insert(0, os.path.expanduser("~/crestbrick-consult") + "/scripts/matchmaker")`
+# (a hardcoded path back to the MAIN checkout, not this worktree). When this
+# suite runs from a git worktree, that insert lands ahead of this worktree's
+# own scripts/matchmaker on sys.path — harmless for modules already cached
+# above, but any module NOT yet imported (like this one) would resolve from
+# the main checkout's stale copy on its first `import queue_drafts` instead
+# of this worktree's. Importing it up front, before any test can trigger that
+# insert, keeps it pinned to the right file regardless of test order.
+import queue_drafts    # noqa: E402
 
 FAILURES = []
 TODAY = datetime.date(2026, 8, 11)
@@ -1439,6 +1450,50 @@ def test_price_check():
     check("a rent far below any plausible room rent -> no usable band value",
           ed._room_rent_for_band(out_of_bound) is None)
 
+    section("build_price_check [item 3]: widens to district + adjacency when the "
+            "same district sample alone is below min_n")
+    # D21 has only 1 close of its own; D21's DISTRICT_ADJ neighbours are D5/D10/D23.
+    # 1 (D21) + 2 (D5) = 3, clearing min_n=3 only via the pooled neighbours.
+    landlords_widen = [
+        fake_landlord(id="LLW1", status="closed (tenanted)", district="D21", rent_min=1600, rent_max=1600),
+        fake_landlord(id="LLW2", status="closed (tenanted)", district="D5", rent_min=1500, rent_max=1500),
+        fake_landlord(id="LLW3", status="closed (tenanted)", district="D5", rent_min=1400, rent_max=1400),
+    ]
+    listing_d21 = {"id": "LOW1", "name": "Widen Test", "district": "D21", "rent_min": 1550, "rent_max": 1550}
+    pc_widen = ed.build_price_check(landlords_widen, [listing_d21], min_n=3)
+    band_d21 = next((b for b in pc_widen["bands"] if b["district"] == "D21"), None)
+    check("D21 gets a band only by pooling in D5's closes via DISTRICT_ADJ",
+          band_d21 is not None and band_d21["n"] == 3, f"got {band_d21}")
+    check("a widened band is labelled widened: True", band_d21 is not None and band_d21["widened"] is True,
+          str(band_d21))
+    flag_d21 = next((f for f in pc_widen["flags"] if f["listing_id"] == "LOW1"), None)
+    check("a flag built off a widened band carries widened: True too (no flag expected here, "
+          "listing is inside the band — this only checks the key exists when a flag DOES fire)",
+          flag_d21 is None or flag_d21.get("widened") is True, str(flag_d21))
+
+    section("build_price_check [item 3]: a district that already clears min_n on its own "
+            "is never widened, even if it has adjacent closes too")
+    landlords_no_widen = landlords3 + [  # landlords3 already gives D19 n=3 natively (see above)
+        fake_landlord(id="LLW4", status="closed (tenanted)", district="D14", rent_min=1000, rent_max=1000)]
+    pc_no_widen = ed.build_price_check(landlords_no_widen, [], min_n=3)
+    band_d19_nw = next(b for b in pc_no_widen["bands"] if b["district"] == "D19")
+    check("D19 (already n=3 alone) stays widened: False and its own n unchanged even "
+          "though D14 is a real DISTRICT_ADJ neighbour with a close of its own",
+          band_d19_nw["widened"] is False and band_d19_nw["n"] == 3, str(band_d19_nw))
+
+    section("build_price_check [item 3]: DISTRICT_ADJ is ported VERBATIM from scoring.js's ADJ")
+    scoring_src = open(os.path.join(SCRIPTS, "scoring.js"), encoding="utf-8").read()
+    m = re.search(r"var ADJ = \{(.*?)\n\};", scoring_src, re.S)
+    check("scoring.js still declares `var ADJ = {...}`", m is not None)
+    if m:
+        body_json = re.sub(r"(\bD\d{1,2})\s*:", r'"\1":', "{" + m.group(1) + "}")
+        js_adj = json.loads(body_json)
+        check("DISTRICT_ADJ has the same 28 district keys as scoring.js's ADJ",
+              set(js_adj) == set(ed.DISTRICT_ADJ), f"diff: {set(js_adj) ^ set(ed.DISTRICT_ADJ)}")
+        check("every district's neighbour list matches scoring.js's ADJ exactly",
+              js_adj == ed.DISTRICT_ADJ,
+              str({d: (js_adj.get(d), ed.DISTRICT_ADJ.get(d)) for d in js_adj if js_adj.get(d) != ed.DISTRICT_ADJ.get(d)}))
+
 
 # ============================================ days-to-fill [idea 27] ========
 def test_days_to_fill():
@@ -1506,6 +1561,43 @@ def test_source_availability():
     check("bridge unavailable (None) -> wa_bridge False", ed.build_source_availability(None) == {"wa_bridge": False})
 
 
+def test_last_wa_update_marker():
+    section("item 1/42: load_last_wa_update_ts reads the LIVE refresh-rental-dbs.sh's own "
+            "success marker, read only")
+    tmp = tempfile.mkdtemp()
+    try:
+        good = os.path.join(tmp, "marker.json")
+        json.dump({"ok": True, "ran_at": "2026-09-15T12:00:25+0800", "landlords_scanned": 2}, open(good, "w"))
+        check("a genuine marker's ran_at is returned verbatim",
+              ed.load_last_wa_update_ts(good) == "2026-09-15T12:00:25+0800")
+
+        missing = os.path.join(tmp, "does_not_exist.json")
+        check("missing marker -> None, never guessed", ed.load_last_wa_update_ts(missing) is None)
+
+        corrupt = os.path.join(tmp, "corrupt.json")
+        open(corrupt, "w").write("{not json")
+        check("unreadable marker -> None, never raises", ed.load_last_wa_update_ts(corrupt) is None)
+
+        wrong_shape = os.path.join(tmp, "wrong.json")
+        json.dump(["not", "a", "dict"], open(wrong_shape, "w"))
+        check("a marker that isn't a JSON object -> None", ed.load_last_wa_update_ts(wrong_shape) is None)
+
+        no_ts = os.path.join(tmp, "no_ts.json")
+        json.dump({"ok": True}, open(no_ts, "w"))
+        check("a marker with no ran_at field -> None", ed.load_last_wa_update_ts(no_ts) is None)
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_health_tenants_sparse():
+    section("item 1/43: compute_health carries a tenants_sparse counter")
+    tenants = [{"missing": [], "sparse": True}, {"missing": [], "sparse": False}, {"missing": [], "sparse": True}]
+    health = ed.compute_health([], tenants)
+    check("tenants_sparse counts only the flagged tenants", health["tenants_sparse"] == 2, str(health))
+    check("no tenants flagged -> 0, not missing/None",
+          ed.compute_health([], [{"missing": [], "sparse": False}])["tenants_sparse"] == 0)
+
+
 def test_load_busy_blocks():
     section("load_busy_blocks: optional passthrough, never validated (68)")
     check("missing file -> None", ed.load_busy_blocks("/nonexistent/path/matchmaker-test-busy-blocks.json") is None)
@@ -1534,17 +1626,27 @@ def test_build_history_entry_shape():
     computed = {"worklist_size": 18, "top_matches": []}
     now = datetime.datetime(2026, 8, 11, 9, 0, 0)
     entry = bld.build_history_entry(data, computed, now)
-    check("exactly the 5 expected keys", set(entry.keys()) == {"ts", "listings", "tenants", "worklist_size", "health_total"},
+    check("exactly the 7 expected keys (item 1/2/43 added pending_review + anomalies)",
+          set(entry.keys()) == {"ts", "listings", "tenants", "worklist_size", "health_total",
+                                 "pending_review", "anomalies"},
           f"got {set(entry.keys())}")
     check("ts carried from generated_ts", entry["ts"] == "2026-08-11T09:00:00+08:00")
     check("listings from counts", entry["listings"] == 12)
     check("tenants from counts", entry["tenants"] == 30)
     check("worklist_size from computed", entry["worklist_size"] == 18)
     check("health_total sums the health dict", entry["health_total"] == 7, f"got {entry['health_total']}")
+    check("pending_review absent from this fixture's health -> None, never guessed", entry["pending_review"] is None)
+    check("anomalies defaults to an empty list when none are passed in", entry["anomalies"] == [])
     check("computed=None -> worklist_size None, never raises",
           bld.build_history_entry(data, None, now)["worklist_size"] is None)
+    entry_with_anomalies = bld.build_history_entry(
+        dict(data, health=dict(data["health"], pending_review=6)), computed, now, ["pending_review stubs at 6"])
+    check("pending_review carried through when present in health",
+          entry_with_anomalies["pending_review"] == 6, str(entry_with_anomalies))
+    check("anomaly_lines carried through verbatim",
+          entry_with_anomalies["anomalies"] == ["pending_review stubs at 6"], str(entry_with_anomalies))
     check("json serialisable (what actually gets appended to the jsonl)",
-          isinstance(json.dumps(entry), str))
+          isinstance(json.dumps(entry), str) and isinstance(json.dumps(entry_with_anomalies), str))
 
 
 def test_build_history_tail_roundtrip():
@@ -1805,6 +1907,77 @@ def test_anomaly_guard_math():
     check("prev 0, new 0 -> not flagged (nothing changed)",
           bld.check_anomalies({"available_listings": 0, "still_looking_tenants": 10},
                                {"available_listings": 0, "still_looking_tenants": 10}) == [])
+
+    section("item 1/43: tenants_sparse absolute threshold (companion to pending_review)")
+    warn3 = bld.check_anomalies({}, {}, {"tenants_sparse": 21})
+    check("sparse count above threshold (20) is flagged", any("tenants_sparse" in w for w in warn3), str(warn3))
+    check("sparse count at the threshold is NOT flagged (strictly greater than)",
+          bld.check_anomalies({}, {}, {"tenants_sparse": 20}) == [])
+    check("sparse count absent from health -> never flagged, never guessed",
+          bld.check_anomalies({}, {}, {}) == [])
+
+    section("item 1/43: content sweep pending_review PERSISTENCE check (5 consecutive builds nonzero)")
+    persistent = bld.check_anomalies({}, {}, {"pending_review": 2}, recent_pending_review=[2, 3, 1, 2, 2])
+    check("5 in a row nonzero pending_review is flagged as a persistence warning",
+          any("consecutive" in w or "builds in a row" in w for w in persistent), str(persistent))
+    check("a single zero anywhere in the trailing window breaks the streak, not flagged",
+          bld.check_anomalies({}, {}, {"pending_review": 2}, recent_pending_review=[2, 0, 1, 2, 2]) ==
+          bld.check_anomalies({}, {}, {"pending_review": 2}))  # only the ordinary >5 absolute check, if any
+    check("fewer than persist_builds entries available (early history) -> never flagged on persistence alone",
+          bld.check_anomalies({}, {}, {"pending_review": 2}, recent_pending_review=[2, 2]) ==
+          bld.check_anomalies({}, {}, {"pending_review": 2}))
+    check("None entries (builds that predate this counter) never count toward the streak",
+          bld.check_anomalies({}, {}, {"pending_review": 2}, recent_pending_review=[None, None, None, None, 2]) ==
+          bld.check_anomalies({}, {}, {"pending_review": 2}))
+
+
+def test_payload_size_guard():
+    section("item 6/37: check_payload_size warns past the soft ceiling and never raises")
+    small_data = {"listings": [1, 2, 3], "tenants": [1, 2]}
+    with contextlib.redirect_stderr(io.StringIO()) as err:
+        bld.check_payload_size(small_data, size_kb=100)
+    check("well under the ceiling -> no warning printed", err.getvalue() == "", err.getvalue())
+
+    big_data = {"listings": list(range(1000)), "tenants": [1], "all_landlords": list(range(200))}
+    with contextlib.redirect_stderr(io.StringIO()) as err2:
+        bld.check_payload_size(big_data, size_kb=3 * 1024)  # 3MB > 2.5MB ceiling
+    out = err2.getvalue()
+    check("over the ceiling -> a warning is printed", "PAYLOAD SIZE WARNING" in out, out)
+    check("the warning names the ceiling", "2.5MB" in out, out)
+    check("the warning lists the largest section first ('listings', the biggest key here)",
+          out.index("listings") < out.index("tenants") if "tenants" in out else True, out)
+
+    check("a value that cannot be encoded as JSON is skipped, never raises",
+          _no_raise(lambda: bld.check_payload_size({"ok": object()}, size_kb=3 * 1024)))
+
+
+def test_read_suites():
+    section("item 5/47: read_suites parses the shared SUITES file build.py and deploy.sh both consult")
+    suites = bld.read_suites()
+    check("every configured suite file actually exists",
+          all(os.path.exists(p) for p in suites), str([p for p in suites if not os.path.exists(p)]))
+    check("both node (.mjs) and python (.py) suites are present",
+          any(p.endswith(".mjs") for p in suites) and any(p.endswith(".py") for p in suites), str(suites))
+    check("comments and blank lines are ignored", all(p.strip() and not os.path.basename(p).startswith("#") for p in suites))
+
+    tmp = tempfile.mkdtemp()
+    try:
+        custom = os.path.join(tmp, "SUITES")
+        open(custom, "w").write("# a comment\n\ntests/matchmaker/scoring.test.mjs\n")
+        parsed = bld.read_suites(custom)
+        check("a minimal custom SUITES file parses to exactly the one real path",
+              len(parsed) == 1 and parsed[0].endswith("scoring.test.mjs"), str(parsed))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+    missing_path = os.path.join(tmp, "SUITES")
+    ok = True
+    try:
+        bld.read_suites(missing_path)
+        ok = False
+    except SystemExit:
+        pass
+    check("a missing SUITES file fails closed (SystemExit), never silently runs zero tests", ok)
 
 
 def test_ring_pruning():
@@ -2265,6 +2438,73 @@ def test_queue_format_fidelity():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_refused_dispatch_ledger():
+    section("item 4/34: queue_drafts.record_refused — atomic write, 30 day retention")
+    import queue_drafts as qd  # noqa: E402
+    tmp = tempfile.mkdtemp()
+    try:
+        rpath = os.path.join(tmp, "matchmaker-refused.json")
+        today = datetime.date(2026, 9, 16)
+        qd.record_refused([("T1", "Tan Ah Test", "last activity 47d ago (>45d dead lead rule)")], today, path=rpath)
+        d1 = json.load(open(rpath))
+        check("creates the file when absent", os.path.exists(rpath))
+        check("one item recorded with the 4 expected keys",
+              len(d1["items"]) == 1 and set(d1["items"][0]) == {"tenant_id", "name", "reason", "date"},
+              str(d1))
+        check("date stamped from the caller's `today`, never guessed",
+              d1["items"][0]["date"] == "2026-09-16", str(d1["items"][0]))
+
+        # A second run appends rather than replacing, and drops anything older
+        # than REFUSED_RETENTION_DAYS (30) relative to the NEW `today`.
+        stale_date = (today - datetime.timedelta(days=40)).isoformat()
+        d1["items"].append({"tenant_id": "TOLD", "name": "Old Test", "reason": "old", "date": stale_date})
+        json.dump(d1, open(rpath, "w"))
+        qd.record_refused([("T2", "Ong Ah Test", "no contact date on file")], today, path=rpath)
+        d2 = json.load(open(rpath))
+        ids = {it["tenant_id"] for it in d2["items"]}
+        check("new refusal appended", "T2" in ids, str(ids))
+        check("original refusal kept (well within 30 days)", "T1" in ids, str(ids))
+        check("an entry older than 30 days is pruned on the next write", "TOLD" not in ids, str(ids))
+
+        check("a corrupt existing file is treated as empty, never raises",
+              _no_raise(lambda: qd.record_refused([("T3", "X", "reason")], today, path=os.path.join(tmp, "does_not_exist.json"))))
+    finally:
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def _no_raise(fn):
+    try:
+        fn()
+        return True
+    except Exception:
+        return False
+
+
+def test_enrichment_queue_folds_refused_dispatch():
+    section("item 4/34: build_enrichment_queue folds queue_drafts' refused ledger in")
+    t_with_gap = {"id": "T900", "name": "Tan Ah Test", "phone": "90000001", "missing": ["budget"]}
+    t_complete = {"id": "T901", "name": "Complete Test", "phone": "90000002", "missing": []}
+    listings = []
+    refused = [{"tenant_id": "T901", "name": "Complete Test",
+                "reason": "last activity 47d ago (>45d dead lead rule)", "date": "2026-09-15"},
+               {"name": "no id on file"}]  # no tenant_id at all -- must be skipped, never a blank row
+    rows = ed.build_enrichment_queue([t_with_gap, t_complete], listings, refused)
+    by_id = {r["id"]: r for r in rows}
+    check("the tenant with a missing field still gets its normal row, no reason key",
+          "T900" in by_id and "reason" not in by_id["T900"], str(by_id.get("T900")))
+    check("a refused tenant with NO missing fields still surfaces as its own row",
+          "T901" in by_id, str(by_id))
+    check("the refused row's reason is prefixed exactly 'refused by dispatch: '",
+          by_id["T901"]["reason"] == "refused by dispatch: last activity 47d ago (>45d dead lead rule)",
+          str(by_id["T901"]))
+    check("the refused row carries the tenant's real phone from the tenants list",
+          by_id["T901"]["phone"] == "90000002", str(by_id["T901"]))
+    check("a refused entry with no tenant_id is skipped, never a blank row",
+          None not in by_id and len(rows) == 2, str(rows))
+    check("without a `refused` argument, behaviour is unchanged (backward compatible)",
+          {r["id"] for r in ed.build_enrichment_queue([t_with_gap, t_complete], listings)} == {"T900"})
+
+
 # ======================================================================= run
 def main():
     test_date_normalization()
@@ -2312,6 +2552,8 @@ def main():
     test_stale_landlord_chase()
     test_learning_block()
     test_source_availability()
+    test_last_wa_update_marker()
+    test_health_tenants_sparse()
     test_load_busy_blocks()
     test_build_history_entry_shape()
     test_build_history_tail_roundtrip()
@@ -2321,6 +2563,8 @@ def main():
     test_successful_build_history_is_unchanged()
     test_ring_same_minute_rebuild()
     test_anomaly_guard_math()
+    test_payload_size_guard()
+    test_read_suites()
     test_ring_pruning()
     test_digest_renders()
 
@@ -2333,6 +2577,8 @@ def main():
     test_deploy_auth_and_cache_posture()
     test_queue_no_double_send()
     test_queue_format_fidelity()
+    test_refused_dispatch_ledger()
+    test_enrichment_queue_folds_refused_dispatch()
 
     print(f"\n{'='*60}")
     if FAILURES:

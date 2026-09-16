@@ -819,8 +819,23 @@ function dataAgeDays(generatedTs, now) {
   if (!g || !now) return null;
   return Math.round((atMidnight(now) - atMidnight(g)) / 864e5);
 }
-function dataAgeTier(generatedTs, now) {
+// item 1/42 -- waUpdateTs is DATA.last_wa_update_ts, the timestamp of the last
+// genuine WhatsApp extraction the LIVE refresh-rental-dbs.sh actually
+// completed (stamped by that script, exported read only by export_data.py's
+// load_last_wa_update_ts()). A build can succeed on stale input (the retired
+// extraction model failed on every scheduled run for days while every build
+// kept reporting green, item 42's own symptom), so the banner's real age is
+// the OLDER of "when this artifact was built" and "when the data feeding it
+// last genuinely changed" -- never the newer one, since a fresh build over
+// stale WhatsApp input must not read as fresh. waUpdateTs is optional and
+// backward compatible: omitted or unparseable, this behaves exactly as
+// before (generatedTs alone).
+function dataAgeTier(generatedTs, now, waUpdateTs) {
   var d = dataAgeDays(generatedTs, now);
+  if (waUpdateTs) {
+    var dWa = dataAgeDays(waUpdateTs, now);
+    if (dWa != null && (d == null || dWa > d)) d = dWa;
+  }
   if (d == null) return { tier: "unknown", days: null };
   if (d > DATA_AGE_RED_DAYS) return { tier: "red", days: d };
   if (d > DATA_AGE_AMBER_DAYS) return { tier: "amber", days: d };

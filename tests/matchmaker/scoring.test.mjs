@@ -501,6 +501,27 @@ test("pass2: dataAgeTier — green <=3d, amber 4-14d, red >14d, unknown when unp
   assert.deepEqual(Scoring.dataAgeTier("2026-08-11", TODAY), { tier: "green", days: 0 });
 });
 
+test("item 1/42: dataAgeTier takes the OLDER of generatedTs and waUpdateTs", () => {
+  const gen = (n) => `2026-08-${String(n).padStart(2, "0")}T09:00:00+08:00`;
+  // build is fresh (today), but the last genuine WhatsApp extraction stalled
+  // 15 days ago -- the banner must read red off the STALE WA signal, not green
+  // off the fresh build timestamp.
+  assert.deepEqual(Scoring.dataAgeTier(gen(11), TODAY, "2026-07-27T09:00:00+08:00"),
+    { tier: "red", days: 15 });
+  // the reverse never happens in practice (a build cannot postdate the marker
+  // it just read), but the function must still report the OLDER (larger days)
+  // value either way, never silently prefer whichever argument came first.
+  assert.deepEqual(Scoring.dataAgeTier("2026-07-27T09:00:00+08:00", TODAY, gen(11)),
+    { tier: "red", days: 15 });
+  // waUpdateTs fresher than generatedTs -- generatedTs (the older one) still wins.
+  assert.deepEqual(Scoring.dataAgeTier(gen(7), TODAY, gen(11)), { tier: "amber", days: 4 });
+  // omitted / null / unparseable waUpdateTs -- falls back to generatedTs alone,
+  // identical byte for byte to the 2 arg call (backward compatible with every existing caller).
+  assert.deepEqual(Scoring.dataAgeTier(gen(8), TODAY, null), Scoring.dataAgeTier(gen(8), TODAY));
+  assert.deepEqual(Scoring.dataAgeTier(gen(8), TODAY, "garbage"), Scoring.dataAgeTier(gen(8), TODAY));
+  assert.deepEqual(Scoring.dataAgeTier(gen(8), TODAY, undefined), Scoring.dataAgeTier(gen(8), TODAY));
+});
+
 test("pass2: discountListing reduces every unit's rent by delta, floors at 0, leaves unit_type untouched", () => {
   const l = { units: [{ unit_type: "common", rent_min: 900, rent_max: 950 }, { unit_type: "master", rent_min: 30, rent_max: 40 }] };
   const d = Scoring.discountListing(l, 50);

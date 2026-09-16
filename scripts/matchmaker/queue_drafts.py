@@ -16,6 +16,12 @@ ROOT = os.path.expanduser("~/crestbrick-consult")
 TENANT_DB_PATH = os.path.join(ROOT, "_templates/tenant-db.json")
 WA_DB_PATH = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 QUEUE_PATH = os.path.expanduser("~/.claude/state/morning-dispatch-queue.json")
+# item 4/34 -- a rolling ledger of dead lead rule refusals, so export_data.py
+# can fold them into the app's enrichment queue (see its load_refused_dispatch()
+# / build_enrichment_queue()) instead of them existing only as terminal text
+# nobody rereads. This script OWNS the file; export_data.py only reads it.
+REFUSED_PATH = os.path.expanduser("~/.claude/state/matchmaker-refused.json")
+REFUSED_RETENTION_DAYS = 30
 # Named DEAD, not COLD, on purpose — mirroring scoring.js's split of the same two
 # ideas. Collapsing them onto one constant is a bug this codebase has already had
 # once: the app hard blocked outreach at the COLD value and gagged 155 of 218 tenants
@@ -122,6 +128,28 @@ def classify_items(items, tenants_by_id, wa_conn, today, queued_ids=None, queued
     return approved, refused, skipped, duplicates
 
 
+def record_refused(refused, today, path=REFUSED_PATH):
+    """item 4/34 -- append THIS run's refused (dead lead rule) items to the
+    rolling ledger export_data.py reads. Atomic write (tmp + os.replace, same
+    pattern as merge_into_queue below); entries older than
+    REFUSED_RETENTION_DAYS are dropped on every write so the file cannot grow
+    forever. A corrupt or unreadable existing file is treated as empty rather
+    than raising -- recording today's refusals must not depend on a clean
+    read of yesterday's, and the file heals itself on the next write either way."""
+    try:
+        existing = json.load(open(path)).get("items") or []
+    except (OSError, ValueError):
+        existing = []
+    cutoff = (today - datetime.timedelta(days=REFUSED_RETENTION_DAYS)).isoformat()
+    kept = [it for it in existing if isinstance(it, dict) and (it.get("date") or "") >= cutoff]
+    for tid, name, reason in refused:
+        kept.append({"tenant_id": tid, "name": name, "reason": reason, "date": today.isoformat()})
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    json.dump({"items": kept}, open(tmp, "w"), indent=1, ensure_ascii=False)
+    os.replace(tmp, path)
+
+
 def merge_into_queue(to_queue, queue_path):
     """Preserves an existing queue's 'created' timestamp when appending — that
     keeps morning-dispatch.sh's 'did the tenant reply since queued' check
@@ -186,20 +214,28 @@ def main():
     for a in approved:
         print(f"  READY   {a['name']}  {a['phone']}\n          {a['message']}\n")
 
-    if not approved:
-        print("nothing to queue."); return
-
     if args.dry_run:
-        # Never touches QUEUE_PATH and never calls input() — the whole point of
+        # Never touches QUEUE_PATH, REFUSED_PATH, or input() — the whole point of
         # --dry-run is a safe preview of exactly what a real run would append,
         # in the same per-item shape merge_into_queue() itself writes (see its
         # own q["items"].append(...) call below), without risking a stray
         # Enter keypress queuing something for real during a rehearsal.
+        if refused:
+            print(f"DRY RUN — would also record {len(refused)} refused item(s) to {REFUSED_PATH} (nothing written)")
+        if not approved:
+            print("nothing to queue."); return
         print(f"DRY RUN — would append {len(approved)} item(s) to {QUEUE_PATH} (nothing written, nothing sent):\n")
         for a in approved:
             would_append = {"jid": a["jid"], "tag": "matchmaker", "message": a["message"], "tenant_id": a["tenant_id"]}
             print("  WOULD APPEND " + json.dumps(would_append, ensure_ascii=False))
         return
+
+    if refused:
+        record_refused(refused, today)
+        print(f"recorded {len(refused)} refused item(s) to {REFUSED_PATH} for the app's enrichment queue")
+
+    if not approved:
+        print("nothing to queue."); return
 
     if args.yes:
         to_queue = approved

@@ -13,13 +13,13 @@
 // else. There is no second auth check here on purpose: a request that reached this
 // function already passed the wall, and a second scheme would be another thing to
 // get wrong. Never loosen middleware.js's matcher to exclude /api.
-import { db, ensureSchema, configured } from "../lib/db.js";
+import { db, ensureSchema, configured, CRM_STAGES, CRM_KINDS } from "../lib/db.js";
 
-const STAGES = new Set([
-  "new", "contacted", "qualified", "viewing_set", "viewed",
-  "offer", "closed_won", "closed_lost", "dormant",
-]);
-const KINDS = new Set(["tenant", "landlord", "listing", "sale", "person"]);
+// item 5/46 -- CRM_STAGES/CRM_KINDS now live in ../lib/db.js, single sourced
+// with scripts/ops/log_deal.py's MM_STAGE_MAP/MM_DEAL_TYPE_MAP (see that
+// file's own comment) instead of being redeclared here.
+const STAGES = new Set(CRM_STAGES);
+const KINDS = new Set(CRM_KINDS);
 const MAX_OPS = 200;
 
 const str = (v, max) => {
