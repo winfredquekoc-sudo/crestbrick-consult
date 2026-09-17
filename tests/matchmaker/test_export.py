@@ -1825,9 +1825,10 @@ def test_build_history_entry_shape():
     computed = {"worklist_size": 18, "top_matches": []}
     now = datetime.datetime(2026, 8, 11, 9, 0, 0)
     entry = bld.build_history_entry(data, computed, now)
-    check("exactly the 7 expected keys (item 1/2/43 added pending_review + anomalies)",
+    check("exactly the 8 expected keys (item 1/2/43 added pending_review + anomalies, "
+          "18 Sep 2026 revision added tenants_sparse)",
           set(entry.keys()) == {"ts", "listings", "tenants", "worklist_size", "health_total",
-                                 "pending_review", "anomalies"},
+                                 "pending_review", "tenants_sparse", "anomalies"},
           f"got {set(entry.keys())}")
     check("ts carried from generated_ts", entry["ts"] == "2026-08-11T09:00:00+08:00")
     check("listings from counts", entry["listings"] == 12)
@@ -1835,6 +1836,7 @@ def test_build_history_entry_shape():
     check("worklist_size from computed", entry["worklist_size"] == 18)
     check("health_total sums the health dict", entry["health_total"] == 7, f"got {entry['health_total']}")
     check("pending_review absent from this fixture's health -> None, never guessed", entry["pending_review"] is None)
+    check("tenants_sparse absent from this fixture's health -> None, never guessed", entry["tenants_sparse"] is None)
     check("anomalies defaults to an empty list when none are passed in", entry["anomalies"] == [])
     check("computed=None -> worklist_size None, never raises",
           bld.build_history_entry(data, None, now)["worklist_size"] is None)
@@ -1844,6 +1846,10 @@ def test_build_history_entry_shape():
           entry_with_anomalies["pending_review"] == 6, str(entry_with_anomalies))
     check("anomaly_lines carried through verbatim",
           entry_with_anomalies["anomalies"] == ["pending_review stubs at 6"], str(entry_with_anomalies))
+    entry_with_sparse = bld.build_history_entry(
+        dict(data, health=dict(data["health"], tenants_sparse=19)), computed, now)
+    check("tenants_sparse carried through when present in health",
+          entry_with_sparse["tenants_sparse"] == 19, str(entry_with_sparse))
     check("json serialisable (what actually gets appended to the jsonl)",
           isinstance(json.dumps(entry), str) and isinstance(json.dumps(entry_with_anomalies), str))
 
@@ -2107,13 +2113,20 @@ def test_anomaly_guard_math():
           bld.check_anomalies({"available_listings": 0, "still_looking_tenants": 10},
                                {"available_listings": 0, "still_looking_tenants": 10}) == [])
 
-    section("item 1/43: tenants_sparse absolute threshold (companion to pending_review)")
-    warn3 = bld.check_anomalies({}, {}, {"tenants_sparse": 21})
-    check("sparse count above threshold (20) is flagged", any("tenants_sparse" in w for w in warn3), str(warn3))
-    check("sparse count at the threshold is NOT flagged (strictly greater than)",
-          bld.check_anomalies({}, {}, {"tenants_sparse": 20}) == [])
+    section("item 1/43 (revised 18 Sep 2026): tenants_sparse is a SHARE swing, not an absolute count")
+    # 300/455 = ~66%, matching the normal shape of this book (299 of 455 tenants
+    # sparse per the 18 Sep 2026 first live build) that made the old absolute
+    # threshold fire on day one.
+    steady = bld.check_anomalies({}, {"still_looking_tenants": 455}, {"tenants_sparse": 300}, prev_sparse_share=300 / 455)
+    check("share steady at 66% (prev 66% -> cur 66%) does not warn", steady == [], str(steady))
+    jump = bld.check_anomalies({}, {"still_looking_tenants": 455}, {"tenants_sparse": 300}, prev_sparse_share=0.40)
+    check("share jumping from 40% to 66% (>10pp) is flagged", any("tenants_sparse" in w for w in jump), str(jump))
+    check("no prev_sparse_share (no previous build, or it predates this counter) -> skipped, never guessed",
+          bld.check_anomalies({}, {"still_looking_tenants": 455}, {"tenants_sparse": 300}) == [])
     check("sparse count absent from health -> never flagged, never guessed",
-          bld.check_anomalies({}, {}, {}) == [])
+          bld.check_anomalies({}, {"still_looking_tenants": 455}, {}, prev_sparse_share=0.1) == [])
+    check("still_looking_tenants missing/zero -> never divides by zero, never flagged",
+          bld.check_anomalies({}, {"still_looking_tenants": 0}, {"tenants_sparse": 300}, prev_sparse_share=0.1) == [])
 
     section("item 1/43: content sweep pending_review PERSISTENCE check (5 consecutive builds nonzero)")
     persistent = bld.check_anomalies({}, {}, {"pending_review": 2}, recent_pending_review=[2, 3, 1, 2, 2])

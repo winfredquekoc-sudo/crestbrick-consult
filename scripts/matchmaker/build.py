@@ -230,16 +230,20 @@ def pct_swing(old, new):
 
 PENDING_REVIEW_WARN_THRESHOLD = 5  # item 4/43 -- unreviewed content-sweep stubs; absolute, not a swing
 
-# item 1/43 -- companion absolute threshold for export_data.py's new
-# health["tenants_sparse"] counter (fewer than SPARSE_PROFILE_MIN of 14
-# profile fields filled). Chosen at ~10% of the live still looking roster,
-# which per the 9 Sep 2026 business audit runs roughly 200-250 tenants: a
-# handful of genuinely sparse intakes (someone who just messaged in) is
-# normal noise below that; a jump past it is more consistent with something
-# upstream degrading intake quality across the WHOLE roster at once (a WA
-# bridge outage silently truncating fields, a parsing regression) than with
-# ordinary day to day variation in how complete new enquiries happen to be.
-SPARSE_TENANTS_WARN_THRESHOLD = 20
+# item 1/43 (revised 18 Sep 2026) -- the original absolute threshold on
+# export_data.py's health["tenants_sparse"] counter (fewer than
+# SPARSE_PROFILE_MIN of 14 profile fields filled) fired on the very first
+# live build: 299 of 455 tenants in this book have fewer than 4 fields
+# filled, so a sparse count sits well past any single digit absolute number
+# as a matter of course. That is the normal shape of this roster, not a
+# fault -- an absolute threshold cannot tell "this book is naturally sparse"
+# from "something upstream just degraded intake quality", so it is useless
+# here. Same fix as the listings/tenants counts below: track the SPARSE
+# SHARE (tenants_sparse / still_looking_tenants) and warn only when it rises
+# more than this many percentage points versus the previous build's share,
+# which is what an intake regression (a WA bridge outage truncating fields,
+# a parsing bug) actually looks like -- a sudden jump, not a steady state.
+SPARSE_SHARE_SWING_THRESHOLD = 0.10
 
 # item 1/43 -- the pending_review absolute check above catches a SINGLE build
 # with too many unreviewed stubs, but the 22-stub incident it was written for
@@ -257,7 +261,7 @@ CONTENT_SWEEP_PERSIST_BUILDS = 5
 
 def check_anomalies(prev_counts, cur_counts, cur_health=None, threshold=ANOMALY_THRESHOLD,
                      pending_review_threshold=PENDING_REVIEW_WARN_THRESHOLD,
-                     sparse_threshold=SPARSE_TENANTS_WARN_THRESHOLD,
+                     sparse_swing_threshold=SPARSE_SHARE_SWING_THRESHOLD, prev_sparse_share=None,
                      recent_pending_review=None, persist_builds=CONTENT_SWEEP_PERSIST_BUILDS):
     """Pure — no file I/O, so tests can feed fixture dicts directly. Returns a
     list of human readable warning strings (empty = nothing crossed the
@@ -266,14 +270,23 @@ def check_anomalies(prev_counts, cur_counts, cur_health=None, threshold=ANOMALY_
     status mapping broke), not a hard gate; a real market swing is also
     allowed through, just noted.
 
-    The pending_review and tenants_sparse checks (item 1/4/43) are ABSOLUTE
-    thresholds, checked even on a first run with no prev_counts at all: they
-    exist because refresh-rental-dbs.sh's own content sweep (running Haiku
-    several times a day) writes unconfirmed landlord stubs straight into the
-    live database, and 22 of them went unreviewed long enough to reach
-    tenants as live listings before 15 Sep 2026 — a swing only check would
-    never have caught a slow accumulation like that, since each individual
-    build's INCREASE can be too small to cross a percentage threshold.
+    The pending_review check (item 4/43) is an ABSOLUTE threshold, checked
+    even on a first run with no prev_counts at all: it exists because
+    refresh-rental-dbs.sh's own content sweep (running Haiku several times a
+    day) writes unconfirmed landlord stubs straight into the live database,
+    and 22 of them went unreviewed long enough to reach tenants as live
+    listings before 15 Sep 2026 — a swing only check would never have caught
+    a slow accumulation like that, since each individual build's INCREASE
+    can be too small to cross a percentage threshold.
+
+    tenants_sparse (item 1/43, revised 18 Sep 2026) is instead a SHARE swing
+    check, same style as the listings/tenants counts below: cur_health's
+    tenants_sparse divided by cur_counts's still_looking_tenants is compared
+    against prev_sparse_share (the previous build's share, computed by
+    build.py's anomaly_guard() from the build history file's last shipped
+    entry) and flagged only if it rose by more than sparse_swing_threshold
+    percentage points. prev_sparse_share=None (no previous entry, or one
+    that predates this counter) skips the check entirely — never guessed.
 
     recent_pending_review (item 1/43), when given, is the pending_review
     value from each of the last `persist_builds` builds INCLUDING this one,
@@ -287,9 +300,14 @@ def check_anomalies(prev_counts, cur_counts, cur_health=None, threshold=ANOMALY_
         out.append(f"pending_review stubs at {pending_review} (unreviewed content-sweep records), "
                     f"above {pending_review_threshold}")
     sparse = (cur_health or {}).get("tenants_sparse")
-    if sparse is not None and sparse > sparse_threshold:
-        out.append(f"tenants_sparse at {sparse} (fewer than the minimum profile fields filled), "
-                    f"above {sparse_threshold}")
+    still_looking = (cur_counts or {}).get("still_looking_tenants")
+    if sparse is not None and still_looking and prev_sparse_share is not None:
+        cur_sparse_share = sparse / still_looking
+        share_delta = cur_sparse_share - prev_sparse_share
+        if share_delta > sparse_swing_threshold:
+            out.append(f"tenants_sparse share at {cur_sparse_share * 100:.0f}% of still looking tenants, "
+                        f"up {share_delta * 100:.0f}pp from the previous build's {prev_sparse_share * 100:.0f}% "
+                        f"(more than {sparse_swing_threshold * 100:.0f}pp)")
     if recent_pending_review and len(recent_pending_review) >= persist_builds and \
             all((v or 0) > 0 for v in recent_pending_review[-persist_builds:]):
         out.append(f"pending_review stubs have stayed above zero for the last {persist_builds} "
@@ -320,8 +338,19 @@ def anomaly_guard(data):
     # history file at this point in main()), oldest first.
     tail = read_build_history_tail(BUILD_HISTORY_PATH, CONTENT_SWEEP_PERSIST_BUILDS - 1)
     recent_pending_review = [e.get("pending_review") for e in tail] + [health.get("pending_review")]
+    # item 1/43 (revised 18 Sep 2026) -- the previous SHIPPED build's sparse
+    # share, derived from the build history's last entry rather than PREV
+    # (matchmaker-data.prev.json only carries counts, not health). Skipped
+    # (None) when there is no previous entry yet, or it predates this
+    # counter and never carried tenants_sparse.
+    prev_sparse_share = None
+    if tail:
+        prev_sparse, prev_tenants = tail[-1].get("tenants_sparse"), tail[-1].get("tenants")
+        if prev_sparse is not None and prev_tenants:
+            prev_sparse_share = prev_sparse / prev_tenants
     warnings = check_anomalies((prev or {}).get("counts") or {}, data.get("counts") or {}, health,
-                                recent_pending_review=recent_pending_review)
+                                recent_pending_review=recent_pending_review,
+                                prev_sparse_share=prev_sparse_share)
     for w in warnings:
         print("ANOMALY WARNING: " + w, file=sys.stderr)
     return warnings
@@ -333,10 +362,12 @@ def build_history_entry(data, computed, now, anomaly_lines=None):
     if scoring.js was unavailable/errored) — worklist_size degrades to None
     rather than raising.
 
-    pending_review and anomalies (item 1/2/43) are carried per entry so two
-    later readers can use them without deriving them again: anomaly_guard()
-    reads back a short tail of pending_review values to detect a persistent
-    (not just a single build) stub pileup, and monday_brief.py's
+    pending_review, tenants_sparse and anomalies (item 1/2/43) are carried
+    per entry so two later readers can use them without deriving them again:
+    anomaly_guard() reads back a short tail of pending_review values to
+    detect a persistent (not just a single build) stub pileup, plus the
+    previous entry's tenants_sparse (alongside tenants, already carried) to
+    compute the prior sparse share for the delta check, and monday_brief.py's
     section_matchmaker() reads the most recent non empty `anomalies` entry to
     report the last anomaly warning without ever calling the network."""
     counts = data.get("counts") or {}
@@ -348,6 +379,7 @@ def build_history_entry(data, computed, now, anomaly_lines=None):
         "worklist_size": None if not computed else computed.get("worklist_size"),
         "health_total": sum(v for v in health.values() if isinstance(v, (int, float))),
         "pending_review": health.get("pending_review"),
+        "tenants_sparse": health.get("tenants_sparse"),
         "anomalies": list(anomaly_lines or []),
     }
 
@@ -855,8 +887,15 @@ def main():
     stats = write_stats(data, computed)
     write_digest(data, ROOT)                                         # [64]
 
-    print(f"listings {data['counts']['available_listings']}  tenants {data['counts']['still_looking_tenants']}  "
-          f"stamp {data['generated']}  build_id {data['build_id']}")
+    # item 1/43 (revised 18 Sep 2026) -- sparse share is a delta warning now,
+    # not an absolute count, so it no longer shows up on its own unless it
+    # swings; print it plainly here every build so it stays visible either way.
+    sparse_count = (data.get("health") or {}).get("tenants_sparse")
+    still_looking = data['counts']['still_looking_tenants']
+    sparse_txt = (f"  sparse {sparse_count}/{still_looking} ({sparse_count / still_looking * 100:.0f}%)"
+                  if sparse_count is not None and still_looking else "")
+    print(f"listings {data['counts']['available_listings']}  tenants {still_looking}  "
+          f"stamp {data['generated']}  build_id {data['build_id']}{sparse_txt}")
     if anomaly_lines:
         print("ANOMALIES: " + " | ".join(anomaly_lines))
     if args.telegram:
