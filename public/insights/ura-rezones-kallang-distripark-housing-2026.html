@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kallang Distripark Rezoned for Housing: What It Means</title>
+    <meta name="description" content="URA proposed rezoning the 13 hectare Kallang Distripark site for housing on 14 August 2026. What is planned, the timeline, and the effect on nearby owners.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Kallang Distripark Rezoned for Housing: What It Means">
+    <meta property="og:description" content="URA proposed rezoning the 13 hectare Kallang Distripark site for housing on 14 August 2026. What is planned, the timeline, and the effect on nearby owners.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Kallang Distripark Rezoned for Housing: What It Means</h1>
+        <div class="article-meta">
+            <strong>Article ID:</strong> 745 · <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            URA published a proposed amendment to the Master Plan on 14 August 2026 to rezone the 13 hectare Kallang Distripark site from industrial to residential use. The proposal splits the former warehouse site into several housing plots, a new neighbourhood park and a road network, potentially bringing thousands of private homes to the area over time. Nothing is built yet, and this is a proposal stage, years before any launch.
+        </p>
+
+        <p>
+            For an owner living near Kallang today, the headline is easy to misread as an imminent construction project. It is not that. It is the planning step that has to happen years before a single unit goes on sale, and understanding that gap matters more than the raw numbers being floated around.
+        </p>
+
+        <h2>Timing: what was actually announced</h2>
+
+        <p>
+            The Urban Redevelopment Authority's proposed amendment, published 14 August 2026, reclassifies part of the Kallang Distripark site, a disused rubber factory turned warehouse complex, to support a private redevelopment proposal received for the land. This is a rezoning of use, not a launch. Before any home is built, the process still needs to go through gazetting, a land sale or a development agreement with the current site owner, detailed planning approval, and then construction, a sequence that routinely takes five to ten years from a rezoning announcement to units in the market.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>What to watch, not predict:</strong> the next markers to track are the amendment being formally gazetted, any land sale or joint venture announcement tied to the site, and eventually a launch date. None of those have happened yet as of this proposal.
+        </div>
+
+        <h2>What is proposed</h2>
+
+        <p>
+            Reporting on the proposed amendment describes three housing plots carved out of the 13 hectare site, alongside a new park and supporting road network. One of the larger plots, adjacent to Kallang Bahru, has been described as capable of supporting around 1,200 new condominium units on its own, with the full site potentially yielding roughly 2,550 private homes across all plots once fully built out. These are planning estimates tied to the proposed amendment, not confirmed unit counts for a specific launch, and they can change as the plan moves through gazetting and detailed design.
+        </p>
+
+        <ul>
+            <li>Several housing plots replacing the current industrial and warehouse use</li>
+            <li>A new neighbourhood park within the rezoned area</li>
+            <li>An updated road network to serve the new precinct</li>
+            <li>Part of the wider Kallang River and Kallang Alive precinct plans that URA has been developing for the area</li>
+        </ul>
+
+        <p>
+            Kallang Distripark itself sits within the broader Kallang Alive vision, a long running URA plan to turn the Kallang River corridor, historically industrial and light manufacturing land, into a mixed precinct of housing, sports facilities and waterfront parks. The site has technically carried a housing designation in planning documents since as early as 2003, so this amendment is better read as URA finally acting on a long standing intention because a private redevelopment proposal for the land has come forward, rather than a sudden new idea. That distinction matters for how much weight to put on the announcement: it reflects the site finally moving, not a change in what planners always intended for the area.
+        </p>
+
+        <h2>Safety: why rezoning precedes launches by years</h2>
+
+        <p>
+            A Master Plan amendment changes what a site is allowed to become. It does not, by itself, change who owns the site, whether the current owner intends to redevelop it, sell it, or hold it, or when construction will start. Between this proposal and any actual housing launch sits gazetting of the amendment, resolution of the land ownership and development rights, submission and approval of a detailed planning application, and a full construction period. Owners nearby who assume a launch is close, and price their own sale or purchase decisions around that assumption, are working from a timeline that does not match how these processes actually unfold in Singapore.
+        </p>
+
+        <h2>Money: the effect on nearby demand</h2>
+
+        <p>
+            Rezoning announcements like this one tend to lift interest in the surrounding area over time, because a future injection of new private homes, a park, and improved roads signals long term investment in a precinct, and buyers and agents alike start factoring future amenities into how they view nearby streets. This is a directional effect, not a guaranteed one, and it plays out over years rather than weeks. Nothing here should be read as a forecast of specific price movement for any particular block or condo near Kallang Distripark. What is reasonable to say is that the announcement adds another data point to the broader Kallang River precinct story, alongside transport upgrades like Circle Line Stage 6, which completed the loop with new stations including Kallang adjacent Prince Edward Road, opened 12 July 2026.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>No price predictions:</strong> this article describes what has been proposed and the planning process ahead, not what will happen to prices. Anyone using this rezoning to justify a specific price expectation should treat that as their own view, not a fact reported here.
+        </div>
+
+        <p>
+            For more on how Master Plan changes generally affect nearby property values, and how to read a URA amendment without overreacting to it, see this <a href="/insights/ura-master-plan-2025-property-impact.html">explainer on the URA Master Plan and property impact</a>. For the wider Kallang River precinct context, this <a href="/insights/kallang-river-district-property-2026.html">outlook on the Kallang River district</a> covers the other projects and transport upgrades shaping the area alongside this rezoning.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">When was the Kallang Distripark rezoning proposed?</div>
+            <div class="faq-answer">URA published the proposed Master Plan amendment on 14 August 2026, proposing to rezone the 13 hectare Kallang Distripark site from industrial to residential use, with housing plots, a park and a road network.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">How many homes could Kallang Distripark eventually have?</div>
+            <div class="faq-answer">Reporting on the proposal describes potential for up to around 2,550 private homes across several plots, with one larger plot near Kallang Bahru capable of supporting roughly 1,200 condominium units on its own. These are planning estimates, not confirmed figures for a specific launch.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Will housing at Kallang Distripark be built soon?</div>
+            <div class="faq-answer">Not soon. A Master Plan amendment is a planning proposal, not a launch. The site still needs to be gazetted, its development rights resolved, and detailed plans approved before construction, a process that typically takes five to ten years from a rezoning announcement to homes actually being available.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Own Property Near Kallang</h3>
+            <p>If you are weighing a sale or purchase near the rezoned area, message Winfred on WhatsApp for a grounded read on the timeline and what it does and does not mean for you.</p>
+            <div class="cta-buttons">
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed financial advisor or lawyer. Planning proposals, unit estimates and timelines are subject to change as the Master Plan amendment proceeds through gazetting and approval. Consult URA directly for the current status of any amendment before making a decision.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><a href="https://www.ura.gov.sg/land-planning/master-plan/amendments-to-master-plan/2025/list-of-gazetted-proposed-amendments-to-master-plan-2025/" target="_blank" rel="noopener noreferrer">URA: list of gazetted and proposed amendments to the Master Plan</a></li>
+                <li><a href="https://www.99.co/singapore/insider/kallang-distripark-redevelopment-private-homes/" target="_blank" rel="noopener noreferrer">99.co: up to 2,550 private homes could come to Kallang Distripark</a></li>
+                <li><a href="https://mothership.sg/2026/08/kallang-distripark-to-be-redeveloped-private-housing/" target="_blank" rel="noopener noreferrer">Mothership: Kallang Distripark set to be redeveloped for private homes</a></li>
+                <li><a href="https://thesmartlocal.com/read/circle-line-6-extension/" target="_blank" rel="noopener noreferrer">The Smart Local: Circle Line Stage 6 extension, opened 12 July 2026</a></li>
+                <li><a href="https://www.ura.gov.sg" target="_blank" rel="noopener noreferrer">URA: Master Plan overview</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Kallang Distripark Rezoned for Housing: What It Means",
+    "description": "URA proposed rezoning the 13 hectare Kallang Distripark site for housing on 14 August 2026. What is planned, the timeline, and the effect on nearby owners.",
+    "image": "https://winfredquek.com/og-kallang-distripark-rezoning.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "An explainer on URA's proposed 14 August 2026 Master Plan amendment rezoning the 13 hectare Kallang Distripark site from industrial to residential use, covering what is proposed, the years long planning to launch timeline, and the directional effect on nearby demand without price predictions.",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "When was the Kallang Distripark rezoning proposed?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "URA published the proposed Master Plan amendment on 14 August 2026, proposing to rezone the 13 hectare Kallang Distripark site from industrial to residential use, with housing plots, a park and a road network."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How many homes could Kallang Distripark eventually have?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Reporting on the proposal describes potential for up to around 2,550 private homes across several plots, with one larger plot near Kallang Bahru capable of supporting roughly 1,200 condominium units on its own. These are planning estimates, not confirmed figures for a specific launch."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Will housing at Kallang Distripark be built soon?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Not soon. A Master Plan amendment is a planning proposal, not a launch. The site still needs to be gazetted, its development rights resolved, and detailed plans approved before construction, a process that typically takes five to ten years from a rezoning announcement to homes actually being available."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>

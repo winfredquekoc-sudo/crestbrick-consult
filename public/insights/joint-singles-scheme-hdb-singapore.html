@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joint Singles Scheme: Buying a Flat With a Friend</title>
+    <meta name="description" content="How the HDB Joint Singles Scheme works for two single friends or siblings buying together: age rules, resale vs BTO, ownership and exit planning.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Joint Singles Scheme: Buying a Flat With a Friend">
+    <meta property="og:description" content="How the HDB Joint Singles Scheme works for two single friends or siblings buying together: age rules, resale vs BTO, ownership and exit planning.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Joint Singles Scheme: Buying a Flat With a Friend</h1>
+        <div class="article-meta">
+            <strong>Article ID:</strong> 741 · <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Yes. Under HDB's Joint Singles Scheme, two to four single Singapore citizens aged 35 and above can jointly apply for an eligible resale flat or a 2 room Flexi BTO flat, subject to the singles income ceiling. Each applicant becomes a coowner with an equal legal claim on the flat, so the arrangement only works cleanly if you agree the exit terms before you apply, not after.
+        </p>
+
+        <p>
+            Two friends buying together, or two siblings pooling savings, is one of the most common ways single Singapore citizens get onto the property ladder before 35 feels like a wait, or well after it. It sits alongside <a href="/answers/can-singles-buy-hdb.html">buying alone as a single</a>, and it becomes especially relevant given the <a href="/insights/absd-for-singles-singapore-2026.html">stamp duty rules that apply to single buyers</a>. The scheme itself is simple. The part people skip, agreeing what happens when one person wants out, is where most of the friction shows up later.
+        </p>
+
+        <h2>Eligibility: age and number of applicants</h2>
+
+        <p>
+            HDB's own eligibility page for singles lists two routes: buying alone, or buying with up to three other singles under the Joint Singles Scheme, for a maximum of four coapplicants. Every applicant must be an unmarried, divorced or widowed Singapore citizen, and the minimum age is 35. There is no upper age limit and no requirement that applicants be related, so two colleagues, two cousins or two old classmates all qualify on the same basis.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Worth knowing:</strong> the CPF Housing Grant for singles caps out at two applicants even when four singles coown a flat, so a group of four should work out grant sharing before the application, not during it.
+        </div>
+
+        <h2>Money: resale versus BTO availability</h2>
+
+        <p>
+            The two paths open to a joint singles group are not the same size. On the resale market, there is no income ceiling and you can buy almost any resale flat type except a 3Gen flat, so the whole HDB resale stock, four room, five room, executive, in any estate, is technically open to you. Pricing follows the open resale market, so a joint singles group competes with families, upgraders and other singles groups for the same units.
+        </p>
+
+        <p>
+            On the new flat side, singles are restricted to 2 room Flexi BTO units, whether applying alone or jointly, and a household income ceiling of $8,000 applies for singles under the ceiling raised on 24 August 2026. A 2 room Flexi flat is compact by design, built for one or two occupants, which suits a joint singles pair well if the goal is affordability rather than space. If you need three or four bedrooms, resale is the only route, since BTO does not offer singles anything larger. One exception worth flagging for singles eyeing a central location: <a href="/insights/hdb-prime-location-public-housing-plh-guide-2026.html">Prime Location Public Housing resale flats</a> can only be bought by Singapore citizens in a family nucleus or under the joint singles scheme, permanent residents are excluded entirely.
+        </p>
+
+        <table>
+            <tr>
+                <th>Route</th>
+                <th>Flat types open to singles</th>
+                <th>Income ceiling</th>
+            </tr>
+            <tr>
+                <td>Resale</td>
+                <td>Any type except 3Gen</td>
+                <td>None for the resale purchase itself</td>
+            </tr>
+            <tr>
+                <td>BTO</td>
+                <td>2 room Flexi only</td>
+                <td>$8,000 for singles</td>
+            </tr>
+        </table>
+
+        <h2>Ownership structure</h2>
+
+        <p>
+            A Joint Singles Scheme flat is registered with every coapplicant named on the title, most often as joint tenants, meaning each of you holds an equal, undivided share and the right of survivorship applies if one owner passes away. Some groups choose tenancy in common instead, which lets each person hold a defined, and possibly unequal, percentage share, useful when contributions to the down payment or mortgage are not 50/50 from the start.
+        </p>
+
+        <p>
+            This choice matters more than it looks. Joint tenancy is simple and assumes equal footing. Tenancy in common protects the person who pays more of the deposit, but requires a written agreement, ideally drawn up by a lawyer at the point of purchase, spelling out each party's share and what happens on a later sale. If you are unsure which structure fits your situation, this <a href="/answers/what-is-the-difference-between-joint-tenancy-and-tenancy-in-common.html">explainer on joint tenancy versus tenancy in common</a> walks through both in plain terms.
+        </p>
+
+        <h2>Timing: what an exit looks like later</h2>
+
+        <p>
+            Every joint singles purchase eventually reaches a decision point. Someone gets married, someone's job moves overseas, someone simply wants to cash out. HDB rules mean you cannot simply add a new coowner on a whim, and a full sale or a buyout both take time and paperwork, so the earlier you plan for this, the smoother it goes.
+        </p>
+
+        <ul>
+            <li><strong>Buyout:</strong> one owner sells their share to the other under HDB's transfer of flat ownership rules, subject to the remaining owner meeting eligibility alone and being able to refinance the outstanding loan in their own name.</li>
+            <li><strong>Joint sale:</strong> the flat is sold on the open resale market once the minimum occupation period is met, proceeds split per the ownership agreement, and CPF refunds with accrued interest returned to each owner's own CPF account.</li>
+            <li><strong>One party moves out, no ownership change:</strong> possible short term, but it does not resolve the underlying question of what happens at MOP or when a sale eventually becomes necessary.</li>
+        </ul>
+
+        <div class="callout callout-warning">
+            <strong>Safety point:</strong> agree the exit mechanism, buyout formula and minimum notice period in writing before you apply, not after the keys are collected. A friendship surviving a joint purchase depends more on this document than on how well you get along today.
+        </div>
+
+        <h2>Safety: protecting the relationship, not just the asset</h2>
+
+        <p>
+            A cotenancy or shareholding agreement between joint singles buyers is not legally required by HDB, but it is the single most useful document you can create. It should cover the down payment split, who pays what share of the monthly mortgage and maintenance, what happens if one party stops contributing, and the agreed buyout valuation method, whether that is an independent HDB valuation or an average of two bank valuations. Put it in writing while the relationship is good. That is precisely when both sides can negotiate fairly.
+        </p>
+
+        <p>
+            If you are weighing this route against buying alone, the deciding factor is usually simple: two incomes reach a bigger or better located flat sooner than one income can, but the flat now carries a second decision maker for as long as you both hold it. For many single Singaporeans in their late 20s and 30s, that trade is worth it. For others, waiting and buying solo removes the coownership question entirely.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <div class="faq-question">Can two single friends who are not related buy an HDB flat together?</div>
+            <div class="faq-answer">Yes. The Joint Singles Scheme has no requirement that coapplicants be related. Any two to four unmarried, divorced or widowed Singapore citizens aged 35 and above can jointly apply for an eligible resale flat, or a 2 room Flexi BTO flat within the singles income ceiling.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">What happens if one of us wants to sell our share later?</div>
+            <div class="faq-answer">The remaining owner can buy out the other owner's share under HDB's transfer of flat ownership rules, provided they meet eligibility alone and can refinance the loan in their own name. Alternatively, both owners can agree to sell the flat on the open market once the minimum occupation period is met and split the proceeds per their ownership agreement.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-question">Is the income ceiling different for a joint singles resale purchase versus a BTO application?</div>
+            <div class="faq-answer">Yes. There is no income ceiling to buy a resale flat as a joint singles applicant. For a 2 room Flexi BTO flat, the singles income ceiling of $8,000 applies, and CPF housing grants for singles are capped at two applicants even if four singles coown the flat.</div>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Thinking About Buying With a Friend or Sibling</h3>
+            <p>Before you apply under the Joint Singles Scheme, get the ownership structure and exit plan right. Message Winfred on WhatsApp for a straightforward walkthrough of your options.</p>
+            <div class="cta-buttons">
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed financial advisor or lawyer. Before entering a joint purchase with another single applicant, consult HDB directly on current eligibility, a lawyer on the ownership agreement, and your bank on financing. Rules, income ceilings and grant amounts are subject to change.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><a href="https://www.hdb.gov.sg/buying-a-flat/flat-grant-and-loan-eligibility/singles" target="_blank" rel="noopener noreferrer">HDB: flat and grant eligibility for singles</a></li>
+                <li><a href="https://www.hdb.gov.sg/hdb-pulse/news/2026/increase-in-income-ceilings-and-greater-support-for-families-with-children" target="_blank" rel="noopener noreferrer">HDB: increase in income ceilings, 24 August 2026</a></li>
+                <li><a href="https://propertynet.sg/joint-singles-scheme-single-buyer-hdb-options-unmarried-singaporeans-2026/" target="_blank" rel="noopener noreferrer">PropertyNet.SG: Joint Singles Scheme and Single Buyer options</a></li>
+                <li><a href="https://www.dbs.com.sg/personal/articles/nav/my-home/the-single-guide-to-buying-a-HDB-flat-in-singapore" target="_blank" rel="noopener noreferrer">DBS: Single's guide to buying an HDB flat</a></li>
+                <li><a href="https://www.cpf.gov.sg" target="_blank" rel="noopener noreferrer">CPF Board: housing and grant rules</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Joint Singles Scheme: Buying a Flat With a Friend",
+    "description": "How the HDB Joint Singles Scheme works for two single friends or siblings buying together: age rules, resale vs BTO, ownership and exit planning.",
+    "image": "https://winfredquek.com/og-joint-singles-scheme.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07",
+    "articleBody": "A guide for two single Singapore citizens or siblings on the HDB Joint Singles Scheme covering age eligibility, number of applicants, resale versus BTO availability, ownership structure and how to plan an exit.",
+    "mainEntity": {
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "Can two single friends who are not related buy an HDB flat together?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. The Joint Singles Scheme has no requirement that coapplicants be related. Any two to four unmarried, divorced or widowed Singapore citizens aged 35 and above can jointly apply for an eligible resale flat, or a 2 room Flexi BTO flat within the singles income ceiling."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What happens if one of us wants to sell our share later?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "The remaining owner can buy out the other owner's share under HDB's transfer of flat ownership rules, provided they meet eligibility alone and can refinance the loan in their own name. Alternatively, both owners can agree to sell the flat on the open market once the minimum occupation period is met and split the proceeds per their ownership agreement."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is the income ceiling different for a joint singles resale purchase versus a BTO application?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes. There is no income ceiling to buy a resale flat as a joint singles applicant. For a 2 room Flexi BTO flat, the singles income ceiling of $8,000 applies, and CPF housing grants for singles are capped at two applicants even if four singles coown the flat."
+                }
+            }
+        ]
+    }
+}
+        </script>
+    </article>
+</body>
+</html>

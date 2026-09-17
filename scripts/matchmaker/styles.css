@@ -247,14 +247,17 @@ body.has-triagebar main{padding-bottom:calc(64px + env(safe-area-inset-bottom))}
 
 /* header buttons: + tenant / Dispatch (N) / Snoozed (N) */
 .hbtn{padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-weight:600;font-size:12px;color:var(--ink);display:inline-flex;align-items:center;gap:5px;min-height:44px}
+/* (review fix 5) Filters is disabled (native attribute, not a class) on a tab
+   where it has no effect — visible dimming, same treatment .btn.disabled
+   already gives every other disabled control in this file. */
+.hbtn:disabled{opacity:.4;cursor:not-allowed}
 .hbtn .cnt{background:var(--acc);color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-weight:800}
 
 input[type=checkbox]{width:18px;height:18px;accent-color:var(--acc)}
 
 /* ===================== PASS 2 additions ===================== */
 
-/* (54) accessibility floor: every primary tap target >=44px, visible focus ring.
-   Compact density (below) trims padding/font, never the min-height floor. */
+/* (54) accessibility floor: every primary tap target >=44px, visible focus ring. */
 .btn{min-height:44px}
 .tab{min-height:44px;display:inline-flex;align-items:center}
 input,select{min-height:44px}
@@ -262,12 +265,6 @@ input,select{min-height:44px}
 :focus-visible{outline:2px solid var(--acc);outline-offset:2px}
 .pick{min-height:44px;display:inline-flex;align-items:center}
 
-/* (54) density toggle — compact trims padding/font only, tap targets stay >=44px */
-body.density-compact .row{padding:6px 8px}
-body.density-compact .panel{padding:9px}
-body.density-compact .btn{padding:4px 8px;font-size:11.5px}
-body.density-compact .rail{gap:5px}
-body.density-compact .lc{padding:7px 9px}
 
 /* (53) explicit day/night toggle — overrides prefers-color-scheme when a
    choice has been made in prefs.theme. High contrast light palette (not a
@@ -469,7 +466,11 @@ body.density-compact .lc{padding:7px 9px}
 .mmtownlbl{position:absolute;transform:translate(-50%,-165%);white-space:nowrap;background:rgba(11,23,48,.85);color:#e8edf7;border:1px solid #c8a24a;border-radius:11px;padding:1px 9px;font-size:11px;font-weight:700;letter-spacing:.2px;box-shadow:0 1px 4px rgba(0,0,0,.55);pointer-events:none}
 .mmtownlbl b{color:#c8a24a;margin-left:1px}
 @media(prefers-color-scheme:light){.mmmap .leaflet-tile-pane{filter:none}.mmmap .leaflet-control-attribution{background:rgba(255,255,255,.8);color:#5a6a88}.mmmap .leaflet-control-attribution a{color:#2f6bff}}
-.leaflet-container{background:#0b1730 !important;font:inherit}
+/* (item 6) the map container never established its own stacking context, so
+   Leaflet's internal panes (zoom controls, popups) escaped upward to compete
+   with app dialogs at the page root — a dialog opened over the map rendered
+   BEHIND it, visible only as a sliver at the bottom edge. */
+.leaflet-container{background:#0b1730 !important;font:inherit;position:relative;z-index:0;isolation:isolate}
 .leaflet-popup-content{font-size:13px;line-height:1.5}
 .leaflet-popup-content a{color:#1a4fd6;font-weight:700}
 .mapsea{fill:rgba(88,140,255,.07)}
@@ -651,23 +652,107 @@ body.density-compact .lc{padding:7px 9px}
   #work .askstrip{display:none}
   /* (item 2, folded back into item 1's clamp) row one's own controls each
      carry the 44px tap-target floor, so at three wrapped lines (search /
-     district+Filters+chips / result+clear+bulk) that alone was 132px+gaps —
-     the single largest remaining piece once tabs/buttons/hrow were trimmed.
+     district+Filters+chips / result+clear) that alone was 132px+gaps — the
+     single largest remaining piece once tabs/buttons/hrow were trimmed.
      Two lines instead of three: search takes its own full-width line, then
      district shrinks enough for district+Filters(n)+result count to share
-     the next one. Bulk action is a power-user action on an already-filtered
-     set, not one of the row one/row two controls item 2 defines, and it
-     does not fit a third control onto line two at this width — dropped from
-     the phone layout only, still on desktop and in the command palette. */
+     the next one. Bulk action moved into the Menu sheet entirely (item 3) —
+     it is no longer a control that has to fit into this row on any width. */
   .filters{margin-top:6px}
   input#q{min-width:0;flex:1 1 100%}
   #fd{max-width:130px;font-size:12px;padding:6px 8px}
   #filterstoggle{padding:5px 9px;font-size:11px}
   #resultcount{font-size:11px}
   #clr{padding:5px 9px;font-size:11px}
-  #bulkbtn{display:none}
   /* (fix 13) 26px is fine with a mouse; below the 44px tap floor on a phone
      is not — same breakpoint every other tap target on this page uses. */
   .btn.more{min-height:44px}
 }
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}
+
+/* ===================== streamline release additions ===================== */
+
+/* (item 6) a bare tel: link (roster tables' phone columns) rendered in the
+   browser's own default blue instead of the app's own link colour — scoped to
+   exclude .btn, which already sets its own explicit color. */
+a[href^="tel:"]:not(.btn){color:var(--acc)}
+
+/* (item 6) wide tables get a right edge fade once they actually overflow —
+   applied via JS toggling .has-hscroll (markScrollFades() in app.js) rather
+   than a permanent gradient, so a table that fits gets no fade at all. */
+.maptablewrap{position:relative}
+.maptablewrap.has-hscroll::after{content:"";position:absolute;top:0;right:0;bottom:0;width:26px;background:linear-gradient(to right,transparent,var(--panel));pointer-events:none}
+
+/* (item 6) New rooms → ready to message: chip list used to force the table
+   wide enough to need horizontal scroll instead of wrapping onto more lines
+   within the panel's own width. */
+.maptable.newrooms{table-layout:fixed;width:100%}
+.maptable.newrooms td{overflow-wrap:anywhere;white-space:normal}
+
+/* (item 1) 4 tabs fit the mobile header without a scrolling strip — the
+   scroll-snap machinery from the 12 tab era is no longer needed. */
+@media (max-width:700px){
+  .tabs{flex-wrap:wrap;overflow-x:visible;scroll-snap-type:none;gap:3px}
+  .tabs .tab{padding:6px 7px;font-size:11px}
+}
+
+/* (items 3/4) header sheets — Search and Filters. A small floating panel
+   anchored under the header, not a full modal backdrop: set filters/search
+   while still seeing the list underneath. */
+.sheet-wrap{position:fixed;top:var(--header-h,140px);left:12px;right:12px;z-index:45}
+@media(min-width:640px){.sheet-wrap{left:auto;right:16px;width:420px}}
+.sheet{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px;box-shadow:0 10px 30px rgba(0,0,0,.35);max-height:75vh;overflow:auto}
+.sheethead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.sheethead b{font-size:14px}
+.searchrow{display:flex;gap:6px}
+.searchrow input{flex:1;min-width:0}
+#filtersSheet .filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+
+/* (item 3) Menu sheet — reuses the existing drawer-wrap/drawer shell (same one
+   dispatch/snoozed already use). menuitem rows keep every relocated action a
+   single tap, same as it was as a header button.
+   .drawer-wrap sets its own display:flex unconditionally (same specificity as
+   the UA's [hidden]{display:none} — see the #clr[hidden] comment elsewhere in
+   this file for the identical collision), so #menuSheet needs the same named
+   override or it renders permanently open regardless of its hidden attribute. */
+#menuSheet[hidden]{display:none}
+.menuitem{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 4px;border-bottom:1px solid var(--line)}
+.menuitem:last-child{border-bottom:none}
+.menusec{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--mut);margin:14px 0 4px}
+.menusec:first-child{margin-top:0}
+
+/* (item 1) Directory kind switch — reuses the .dirchip look already used
+   elsewhere in this file for the map's own region/kind chips. */
+.dirkindrow{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+
+/* ===================== CRM tab (follow up queue, contacts, quick add, deals) =====================
+   Reuses .row/.chip/.pick/.acts/.btn/.section-hd/.help/.maptablewrap/.maptable.stack from
+   above wherever the shape already matches — only the four blocks' own layout (the
+   filter row, the two forms, the totals strip) needs anything new here. */
+.crmblock{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:12px}
+.crmfilters{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+/* Scoped to the search box only — a bare "input" here also matched #crmNeedsAction
+   (the "needs next action" checkbox, nested one level deeper inside a .tog label) and
+   stretched it to fill the row, so it rendered as a giant invisible hit target rather
+   than a normal sized checkbox. The > combinator already excludes the checkbox by
+   nesting depth; [type=text] is belt and suspenders for the one text input that is a
+   direct child. */
+.crmfilters > input[type=text]{width:100%}
+.crmform{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.crmform input,.crmform select{flex:1 1 170px;min-width:130px}
+.crmform textarea{flex:1 1 100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical;min-height:44px;outline:none}
+.crmform .acts{flex:1 1 100%}
+#crmDealContactResults{display:flex;flex-direction:column;gap:4px;width:100%}
+#crmDealContactResults:empty{display:none}
+#crmDealContactResults .pick{text-align:left;width:100%}
+.crmtotals{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+/* Mobile: the contacts/deals tables use the same .maptable.stack machinery the map sub
+   tabs already use (see the 860px breakpoint above) — below that width they do not
+   scroll at all, they STACK into label:value cards, one per row, reading top down.
+   .maptablewrap's own overflow-x:auto (its base rule, above) only matters at wider
+   widths where stack has not kicked in yet; either way the page itself never scrolls
+   sideways. */
+@media (max-width:700px){
+  .crmform input,.crmform select{flex:1 1 100%;min-width:0}
+  .crmfilters .stagerow{gap:4px}
+}
