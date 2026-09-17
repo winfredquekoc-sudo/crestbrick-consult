@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-17T00:30:05+08:00",
-  "count": 31,
+  "synced_at": "2026-09-18T00:30:01+08:00",
+  "count": 30,
   "listings": [
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
@@ -50,23 +50,6 @@
       ],
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%2093%20Paya%20Lebar%20Way."
-    },
-    {
-      "id": "common-room-blk-69-ll245",
-      "title": "Common Room, Blk 69 (Bedok)",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1100,
-      "price_label": "S$1,100 / mo",
-      "address": "Blk 69",
-      "district": "D16",
-      "highlights": [
-        "Furnished",
-        "Aircon",
-        "Available now"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2069.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%2069."
     },
     {
       "id": "master-room-66-bayshore-rd-ll173",
