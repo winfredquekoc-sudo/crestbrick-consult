@@ -475,10 +475,12 @@ test("pass2: weeklyFunnel counts contacted/viewings within the trailing 7 day wi
   assert.equal(r.conversionPct, 50);
 });
 
+// (streamline item 6) conversionPct changed from 0 to null when contacted is
+// zero, so a quiet week reads as a dash in the UI instead of a false "0%".
 test("pass2: weeklyFunnel guards divide by zero and null/empty input", () => {
-  assert.deepEqual(Scoring.weeklyFunnel([], TODAY), { contacted: 0, viewings: 0, conversionPct: 0 });
-  assert.deepEqual(Scoring.weeklyFunnel(null, TODAY), { contacted: 0, viewings: 0, conversionPct: 0 });
-  assert.deepEqual(Scoring.weeklyFunnel([{ v: "Viewing booked", ts: Date.now() }], null), { contacted: 0, viewings: 0, conversionPct: 0 });
+  assert.deepEqual(Scoring.weeklyFunnel([], TODAY), { contacted: 0, viewings: 0, conversionPct: null });
+  assert.deepEqual(Scoring.weeklyFunnel(null, TODAY), { contacted: 0, viewings: 0, conversionPct: null });
+  assert.deepEqual(Scoring.weeklyFunnel([{ v: "Viewing booked", ts: Date.now() }], null), { contacted: 0, viewings: 0, conversionPct: null });
 });
 
 test("pass2: dataAgeTier — green <=3d, amber 4-14d, red >14d, unknown when unparseable", () => {

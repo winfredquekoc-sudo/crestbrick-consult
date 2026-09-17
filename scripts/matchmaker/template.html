@@ -30,52 +30,68 @@
   </div>
   <div class="tabs" id="tabs" role="tablist" aria-label="Matchmaker views">
     <div class="tab on" data-v="mapview" role="tab" tabindex="0" aria-selected="true" aria-controls="mapview" id="tab-mapview" data-icon="🗺">Dashboard</div>
+    <div class="tab" data-v="work" role="tab" tabindex="0" aria-selected="false" aria-controls="work" id="tab-work" data-icon="⭐">Worklist</div>
     <div class="tab" data-v="crm" role="tab" tabindex="0" aria-selected="false" aria-controls="crm" id="tab-crm" data-icon="🗂">CRM</div>
-    <div class="tab" data-v="work" role="tab" tabindex="0" aria-selected="false" aria-controls="work" id="tab-work" data-icon="⭐">Today's Worklist</div>
-    <div class="tab" data-v="pipeline" role="tab" tabindex="0" aria-selected="false" aria-controls="pipeline" id="tab-pipeline" data-icon="📈">Pipeline</div>
-    <div class="tab" data-v="listing" role="tab" tabindex="0" aria-selected="false" aria-controls="listing" id="tab-listing" data-icon="🏠">By Listing</div>
-    <div class="tab" data-v="tenant" role="tab" tabindex="0" aria-selected="false" aria-controls="tenant" id="tab-tenant" data-icon="🙋">By Tenant</div>
-    <div class="tab" data-v="whole" role="tab" tabindex="0" aria-selected="false" aria-controls="whole" id="tab-whole" data-icon="🏘">Whole Unit</div>
-    <div class="tab" data-v="stats" role="tab" tabindex="0" aria-selected="false" aria-controls="stats" id="tab-stats" data-icon="📊">Stats</div>
-    <div class="tab" data-v="landlords" role="tab" tabindex="0" aria-selected="false" aria-controls="landlords" id="tab-landlords" data-icon="🏢">Landlords</div>
-    <div class="tab" data-v="alltenants" role="tab" tabindex="0" aria-selected="false" aria-controls="alltenants" id="tab-alltenants" data-icon="🙋‍♀️">All Tenants</div>
-    <div class="tab" data-v="sales" role="tab" tabindex="0" aria-selected="false" aria-controls="sales" id="tab-sales" data-icon="🏡">For Sale</div>
-    <div class="tab" data-v="revival" role="tab" tabindex="0" aria-selected="false" aria-controls="revival" id="tab-revival" data-icon="♻️">Revival</div>
+    <div class="tab" data-v="directory" role="tab" tabindex="0" aria-selected="false" aria-controls="directory" id="tab-directory" data-icon="📇">Directory</div>
   </div>
   <div class="hrow hbtnrow" style="margin-top:8px">
-    <button class="hbtn" id="addtenant" type="button">+ Tenant</button>
-    <button class="hbtn" id="dispatchchip" type="button">Dispatch <span class="cnt">0</span></button>
-    <button class="hbtn" id="snoozechip" type="button">Snoozed <span class="cnt">0</span></button>
-    <button class="hbtn" id="palettebtn" type="button" title="Command palette">⌘K Find</button>
-    <button class="hbtn" id="themebtn" type="button" title="Toggle day/night">🌙</button>
-    <button class="hbtn" id="densitybtn" type="button" title="Toggle density">☰ Density</button>
-    <!-- (fix 9) lives here, not in .filters, so it stays reachable on
-         mapview/stats where .filters is display:none. -->
-    <button class="hbtn" id="bulkbtn" type="button">☑ Bulk action</button>
+    <button class="hbtn" id="searchbtn" type="button">🔍 Search</button>
+    <button class="hbtn" id="filtersbtn" type="button">▤ Filters</button>
+    <button class="hbtn" id="menubtn" type="button">☰ Menu</button>
   </div>
-  <div class="filters">
-    <input id="q" placeholder="Search tenant, landlord, district, area, postal…" aria-label="Search tenant, landlord, district, area, or postal code">
-    <select id="fd" aria-label="Filter by district"><option value="">All districts</option></select>
-    <button id="filterstoggle" class="hbtn" type="button" aria-expanded="false" aria-controls="morefilters">Filters</button>
-    <div class="chipstrip" id="chipstrip" aria-live="polite"></div>
-    <span class="mut" id="resultcount" hidden></span>
-    <button id="clr" class="tab" type="button" hidden>↺ Clear filters</button>
-    <div id="morefilters" hidden>
-      <select id="fv" aria-label="Filter by verdict">
-        <option value="">All verdicts</option>
-        <option value="QUALIFIED">Qualified</option>
-        <option value="NEEDS_INFO">Needs info</option>
-        <option value="BLOCKED">Has conflict</option>
-      </select>
-      <input id="fr" type="number" placeholder="Max rent $" style="width:120px" aria-label="Maximum rent filter">
-      <label class="tog" id="fcwrap"><input type="checkbox" id="fc"> hide cold &gt;5d <span id="fccount" class="mut"></span></label>
-      <label class="tog" id="fhwrap"><input type="checkbox" id="fh"> hide actioned <span id="fhcount" class="mut"></span></label>
-      <select id="ft" aria-label="Filter by room type"><option value="">All room types</option></select>
-      <select id="fg" aria-label="Filter by gender preference"><option value="">Any gender preference</option></select>
-      <select id="fe" aria-label="Filter by race preference"><option value="">Any race preference</option></select>
-      <select id="fs" aria-label="Filter by status"><option value="">All statuses</option></select>
-      <select id="fk" aria-label="Filter by cooking rule"><option value="">Any cooking rule</option></select>
+  <!-- Search sheet (item 4): one box, its scope named in the placeholder, updated
+       per tab and cleared automatically on every tab change — see render()'s
+       LAST_ACTIVE_TAB check in app.js. Same #q element/oninput wiring that used
+       to sit inline in the header; only its container changed. -->
+  <div class="sheet-wrap" id="searchSheet" hidden>
+    <div class="sheet">
+      <div class="sheethead"><b>Search</b><button class="dclose" id="searchSheetClose" type="button" aria-label="Close">×</button></div>
+      <div class="searchrow">
+        <input id="q" placeholder="Search" aria-label="Search">
+        <button id="searchClearX" class="btn" type="button" aria-label="Clear search">✕</button>
+      </div>
     </div>
+  </div>
+  <!-- Filters sheet (item 3): the district/verdict/rent/cold/hide/room type/gender/
+       race/status/cooking controls this app already had, unchanged, just opened on
+       demand instead of sitting inline under every view. -->
+  <div class="sheet-wrap" id="filtersSheet" hidden>
+    <div class="sheet">
+      <div class="sheethead"><b>Filters</b><button class="dclose" id="filtersSheetClose" type="button" aria-label="Close">×</button></div>
+      <div class="filters">
+        <select id="fd" aria-label="Filter by district"><option value="">All districts</option></select>
+        <button id="filterstoggle" class="hbtn" type="button" aria-expanded="false" aria-controls="morefilters">More filters</button>
+        <span class="mut" id="resultcount" hidden></span>
+        <button id="clr" class="tab" type="button" hidden>↺ Clear filters</button>
+        <div class="chipstrip" id="chipstrip" aria-live="polite"></div>
+        <div id="morefilters" hidden>
+          <select id="fv" aria-label="Filter by verdict">
+            <option value="">All verdicts</option>
+            <option value="QUALIFIED">Qualified</option>
+            <option value="NEEDS_INFO">Needs info</option>
+            <option value="BLOCKED">Has conflict</option>
+          </select>
+          <input id="fr" type="number" placeholder="Max rent $" style="width:120px" aria-label="Maximum rent filter">
+          <label class="tog" id="fcwrap"><input type="checkbox" id="fc"> hide cold &gt;5d <span id="fccount" class="mut"></span></label>
+          <label class="tog" id="fhwrap"><input type="checkbox" id="fh"> hide actioned <span id="fhcount" class="mut"></span></label>
+          <select id="ft" aria-label="Filter by room type"><option value="">All room types</option></select>
+          <select id="fg" aria-label="Filter by gender preference"><option value="">Any gender preference</option></select>
+          <select id="fe" aria-label="Filter by race preference"><option value="">Any race preference</option></select>
+          <select id="fs" aria-label="Filter by status"><option value="">All statuses</option></select>
+          <select id="fk" aria-label="Filter by cooking rule"><option value="">Any cooking rule</option></select>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Menu sheet (item 3): everything that used to be its own header button
+       (add tenant, dispatch, snoozed, command palette, theme, bulk action) plus
+       settings that lived on the old Stats tab (device name, backup export/
+       restore). Density is gone entirely, not relocated — see app.js. -->
+  <div class="drawer-wrap" id="menuSheet" hidden>
+    <aside class="drawer" id="menuDrawer" role="dialog" aria-label="Menu">
+      <div class="dhead"><h2>Menu</h2><button class="dclose" id="menuSheetClose" type="button" aria-label="Close">×</button></div>
+      <div class="dbody" id="menuBody"></div>
+    </aside>
   </div>
 </header>
 <main>
@@ -84,24 +100,45 @@
        Sits right below the sticky header so scrolling a long roster never
        loses the active filters or the row count. -->
   <div id="filtersummary" class="sticky-ctx" hidden></div>
-  <div id="crm" style="display:none" role="tabpanel" aria-labelledby="tab-crm"></div>
-  <div id="work" role="tabpanel" aria-labelledby="tab-work"></div>
-  <div id="pipeline" style="display:none" role="tabpanel" aria-labelledby="tab-pipeline"></div>
-  <div id="listing" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-listing">
-    <div class="rail" id="lrail"></div>
-    <div class="panel" id="lpanel"><div class="empty">Pick a listing on the left to see ranked tenants.</div></div>
-  </div>
-  <div id="tenant" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-tenant">
-    <div class="rail" id="trail"></div>
-    <div class="panel" id="tpanel"><div class="empty">Pick a tenant on the left to see matching available listings.</div></div>
-  </div>
-  <div id="whole" style="display:none" role="tabpanel" aria-labelledby="tab-whole"></div>
+
   <div id="mapview" style="display:none" role="tabpanel" aria-labelledby="tab-mapview"></div>
-  <div id="stats" style="display:none" role="tabpanel" aria-labelledby="tab-stats"></div>
-  <div id="landlords" style="display:none" role="tabpanel" aria-labelledby="tab-landlords"></div>
-  <div id="alltenants" style="display:none" role="tabpanel" aria-labelledby="tab-alltenants"></div>
-  <div id="sales" style="display:none" role="tabpanel" aria-labelledby="tab-sales"></div>
-  <div id="revival" style="display:none" role="tabpanel" aria-labelledby="tab-revival"></div>
+  <!-- Dashboard absorbs Stats as a section at the bottom — shown/hidden together
+       with #mapview (see render() and GROUP_OF_VIEW in app.js), rendered
+       separately by renderStats() so renderMapView()'s own box.innerHTML=""
+       never wipes it. -->
+  <div id="stats" style="display:none" role="tabpanel" aria-labelledby="tab-mapview"></div>
+
+  <div id="work" role="tabpanel" aria-labelledby="tab-work"></div>
+  <!-- Revival is a filter chip on the Worklist, not its own tab — shown/hidden
+       together with #work, whichever the "Revival" chip currently selects. -->
+  <div id="revival" style="display:none" role="tabpanel" aria-labelledby="tab-work"></div>
+
+  <!-- Pipeline absorbs into CRM as a stage board section under the follow up
+       queue — renderCRM() builds its container fresh every render (see
+       renderPipeline() in app.js), there is no separate #pipeline element. -->
+  <div id="crm" style="display:none" role="tabpanel" aria-labelledby="tab-crm"></div>
+
+  <!-- Directory: one view, a kind switch (Rooms/Tenants/Landlords/Whole units/For
+       sale) selects which of the six existing rosters underneath is visible.
+       Nothing here was deleted — every render function that used to have its own
+       tab (listing/tenant/whole/landlords/alltenants/sales) still renders into the
+       exact same container id it always did. -->
+  <div id="directory" style="display:none" role="tabpanel" aria-labelledby="tab-directory">
+    <div class="dirkindrow" id="dirkindrow"></div>
+    <div id="listing" class="split" style="display:none">
+      <div class="rail" id="lrail"></div>
+      <div class="panel" id="lpanel"><div class="empty">Pick a listing on the left to see ranked tenants.</div></div>
+    </div>
+    <div id="tenant" class="split" style="display:none">
+      <div class="rail" id="trail"></div>
+      <div class="panel" id="tpanel"><div class="empty">Pick a tenant on the left to see matching available listings.</div></div>
+    </div>
+    <div id="whole" style="display:none"></div>
+    <div id="landlords" style="display:none"></div>
+    <div id="alltenants" style="display:none"></div>
+    <div id="sales" style="display:none"></div>
+  </div>
+
   <div class="legend" id="legend"></div>
 </main>
 <script>const DATA = __DATA__;</script>

@@ -212,6 +212,11 @@ const NOW_REAL_SGT_PARTS = Scoring.sgtParts(NOW_REAL);          // {y,mo,d,hh,mm
 const NOW_REAL_SGT = Scoring.sgtDay(NOW_REAL);                  // device-local midnight of NOW_REAL's SGT day
 const AREA = DATA.districts || {};
 let view = "mapview", curL = null, curT = null, triageIndex = 0, batchSelection = new Set();
+// (item 4) which of the 4 tabs the previous render() landed on — render()
+// compares this against the current tab every call and clears the shared
+// search box the moment it differs. Starts null so the very first render
+// counts as "a change" too (harmless: the box is already empty then).
+let LAST_ACTIVE_TAB = null;
 let ALL_TENANTS = [], MATCHES = [], byListing = {}, byTenant = {}, CURRENT_WORKLIST = [];
 // (item 2) "N rows" for whichever view is on screen — worklist prim length,
 // listing/tenant rail length, or roster length. Each render*() that has a
@@ -415,7 +420,7 @@ function markPillLabel(mk, now) {
 // district/rent to say WHICH room this row is about; the tenant's own area
 // preference keeps the same slot either way so the shape never changes.
 function rowFacts(t, l, showListing) {
-  const out = ["budget " + (t.budget || t.budget_max || "?"), "move " + (t.move_in || "?")];
+  const out = ["budget " + budgetTxt(t.budget, t.budget_max), "move " + (t.move_in || "?")];
   // (fix 12) two unlabelled districts on a showListing row read as one thing
   // repeated — "wants"/"room" says which is the tenant's preference and
   // which is the actual room being matched against.
@@ -1008,6 +1013,59 @@ function waLink(l, t) {
 }
 function waPlain(phone, msg) { const p = normPhone(phone); return p ? ("https://wa.me/" + p + (msg ? "?text=" + encodeURIComponent(msg) : "")) : ""; }
 function mapLink(l) { return "https://www.google.com/maps/search/?api=1&query=" + encodeURIComponent(l.map_query || areaName(l)); }
+
+// ===================== streamline: small shared pure helpers =====================
+// (item 28) "D10" sorted as a string lands before "D2" — parse the number after
+// the D everywhere a district needs a real order instead of a lexical one.
+// Unrecognised/blank districts sort last (999), same place "z"/"zzz" fallbacks
+// already pushed them under the old string sort.
+function districtNum(d) { const n = parseInt(String(d || "").replace(/\D/g, ""), 10); return isNaN(n) ? 999 : n; }
+function districtCompare(a, b) { return districtNum(a) - districtNum(b); }
+// (item 28) the fixed D1..D28 list — Quick add's district picker used to derive
+// its options from whatever districts current listings happened to cover,
+// silently narrowing every time inventory thinned. This never does.
+const ALL_DISTRICTS = Array.from({ length: 28 }, (_, i) => "D" + (i + 1));
+// (item 6) one "no budget yet" formatter, used everywhere a bare "?" used to
+// stand in for a missing budget — friendlier, and impossible to drift between
+// call sites now that there is only one of them.
+function budgetTxt(exact, max) {
+  const v = (exact != null && exact !== "") ? exact : max;
+  return (v == null || v === "") ? "TBC" : String(v);
+}
+// (item 5) bulk actions above this many rows require the operator to type the
+// exact count before Apply is enabled — see openBulkActionModal.
+const BULK_TYPED_CONFIRM_THRESHOLD = 200;
+function needsBulkTypedConfirm(count, threshold) { return count > (threshold != null ? threshold : BULK_TYPED_CONFIRM_THRESHOLD); }
+// (review fix 4) the label shows the count WITH thousands commas
+// ("Type 7,868 to confirm"), so typing it back exactly that way has to pass —
+// strip everything but digits from both sides before comparing.
+function bulkConfirmMatches(typed, count) {
+  const digitsOnly = s => String(s == null ? "" : s).replace(/[^0-9]/g, "");
+  const typedDigits = digitsOnly(typed);
+  return !!typedDigits && typedDigits === digitsOnly(count);
+}
+// (item 6) a route that simply does not exist (404) used to read identically
+// to a genuine outage and retried forever. After a few consecutive 404s, treat
+// it the same as a 501 (no backend configured) and settle into local mode.
+function shouldSyncGoLocal(status, consecutive404Count) { return status === 501 || (status === 404 && consecutive404Count >= 3); }
+// (item 4) the single search box's scope, named in its own placeholder —
+// updates on tab switch, and is cleared at the same time (see selectTab).
+function searchPlaceholderForTab(tab) {
+  if (tab === "work") return "Search worklist";
+  if (tab === "directory") return "Search directory";
+  if (tab === "crm") return "Search contacts";
+  return "Search";
+}
+// (item 6) a shared phone number is a normal pattern in this business (a
+// landlord who is also a tenant elsewhere, a shared family line) — "likely
+// duplicate" is reserved for two records of the SAME kind sharing one number.
+// owners are strings like "LL:Name"/"TN:Name" (export_data.py's own prefix).
+function dupOwnersSameKind(owners) {
+  const kinds = new Set((owners || []).map(o => String(o).split(":")[0]));
+  return kinds.size <= 1;
+}
+// ===================== end streamline shared helpers =====================
+
 function coldTitle() { return "quiet >" + Scoring.DEAD_DAYS_THRESHOLD + " days — dead per your rule"; }
 // The DEAD lead rule, in ONE place. Every tenant facing action (draft body,
 // copy, call, WhatsApp, queue) asks this and nothing else, so the badge on a row
@@ -1063,7 +1121,8 @@ function coldRefusalHtml(t) {
 // Single choke point for every WhatsApp/Call button in a modal or popover
 // (viewing pack, shortlist draft, reconfirm draft, ...) — keeps the dead lead
 // rule consistent everywhere a wa.me/tel: link is offered, not just the per
-// pair worklist rows (rowActionsHtml has its own equivalent check inline).
+// pair worklist rows (toggleDraftPreview/rowMoreMenuHtml have their own
+// equivalent check inline).
 function waButtonHtml(phone, msg, label, coldBlocked) {
   if (!phone) return "";
   if (coldBlocked) return '<span class="btn disabled" title="' + coldTitle() + '">' + esc(label) + '</span>';
@@ -1111,6 +1170,12 @@ const CRM = (function () {
   let S = { entities: {}, notes: [], tasks: [], match: {}, activity: [], deals: {} };
   let queue = [], mode = "local", lastErr = "", timer = null, retryTimer = null, backoff = 0, booted = false, nextTmp = -1;
   const RETRY_MIN = 5000, RETRY_MAX = 60000;
+  // (item 6) a route that plain does not exist (no /api/crm on this deployment
+  // at all, as opposed to a configured function refusing with 501) used to
+  // read identically to a genuine outage and retry forever. Count consecutive
+  // 404s across boot/resync/flush; after a few, shouldSyncGoLocal treats it
+  // like the 501 case and settles into local mode instead of retrying.
+  let consecutive404 = 0;
 
   const j = (k, d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } };
   const todayStr = () => new Date().toISOString().slice(0, 10);
@@ -1232,7 +1297,8 @@ const CRM = (function () {
   async function resync() {
     try {
       const r = await fetch(API, { headers: { "Accept": "application/json" } });
-      if (r.status === 501) { mode = "local"; paint(); return; }
+      if (r.status === 404) consecutive404++; else if (r.status !== 501) consecutive404 = 0;
+      if (shouldSyncGoLocal(r.status, consecutive404)) { mode = "local"; paint(); return; }
       if (!r.ok) throw new Error("HTTP " + r.status);
       adopt(await r.json()); mode = "cloud"; lastErr = ""; backoff = 0;
       saveSync(); paint(); if (window.render) render();
@@ -1252,8 +1318,10 @@ const CRM = (function () {
       // 501 = no DATABASE_URL on this deployment. Stop trying, but KEEP the queue —
       // if this is a misconfiguration rather than a deliberate local-only deploy,
       // discarding it here would throw away real writes the next correct deploy
-      // would otherwise pick up.
-      if (r.status === 501) { mode = "local"; saveSync(); paint(); return; }
+      // would otherwise pick up. A 404 (route does not exist at all) gets the
+      // same treatment once it has happened 3 times in a row (shouldSyncGoLocal).
+      if (r.status === 404) consecutive404++; else if (r.status !== 501) consecutive404 = 0;
+      if (shouldSyncGoLocal(r.status, consecutive404)) { mode = "local"; saveSync(); paint(); return; }
       if (!r.ok) throw new Error("HTTP " + r.status);
       adopt(await r.json());
       queue = queue.slice(sending.length); reindexQueue(); mode = "cloud"; lastErr = ""; backoff = 0; clearTimeout(retryTimer);
@@ -1423,7 +1491,8 @@ const CRM = (function () {
       paint();
       try {
         const r = await fetch(API, { headers: { "Accept": "application/json" } });
-        if (r.status === 501) { mode = "local"; }
+        if (r.status === 404) consecutive404++; else if (r.status !== 501) consecutive404 = 0;
+        if (shouldSyncGoLocal(r.status, consecutive404)) { mode = "local"; }
         else if (r.ok) { adopt(await r.json()); mode = "cloud"; saveSync(); }
         else throw new Error("HTTP " + r.status);
       } catch (e) { mode = "offline"; lastErr = String(e && e.message || e); }
@@ -1834,7 +1903,12 @@ const OFFER_STAGES = ["Holding deposit", "LOI", "Intake form complete", "Tenancy
 // user, the app is already behind Basic Auth, and masking was only ever
 // display-only — the numbers sat in the payload either way. The masking and
 // assistant-mode toggles were removed entirely, not just disabled.
-const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, lock_code_hash: null, last_active: Date.now(), morefilters_open: false };
+// (item 6) device_name_skipped — Skip on the device name prompt used to only
+// remove the dialog; the prompt then came straight back on reload because
+// nothing but Save ever persisted a decision. density is read here purely for
+// backward compatibility with prefs written before the density toggle was
+// removed (item 3) — nothing writes or acts on it any more.
+const PREFS_DEFAULTS = { theme: null, density: "card", device_name: null, device_name_skipped: false, lock_code_hash: null, last_active: Date.now(), morefilters_open: false };
 
 function loadPrefs() {
   try {
@@ -2356,6 +2430,12 @@ function toggleDraftPreview(row, l, t) {
     return;
   }
   const en = draftFor(l, t);
+  // (streamline item 2) Draft is now the row's ONE primary action ("the
+  // WhatsApp draft") — its preview carries the actual send link that used to
+  // be its own separate always visible button, so opening the draft still
+  // leads all the way to WhatsApp in the same place.
+  const waHref = waLink(l, t);
+  const waLabel = isCobroke(l) ? "WhatsApp co-broke agent" : "WhatsApp draft";
   const panel = swapRowPanel(row, "paneldraft", () => {
     let html = '<div class="draftlabel">EN</div><div class="draftbox">' + esc(en) + '</div>';
     if (t.lang === "zh") {
@@ -2363,7 +2443,9 @@ function toggleDraftPreview(row, l, t) {
       html += '<div class="draftlabel">中文</div><div class="draftbox">' + esc(zh) + '</div>';
     }
     html += '<div class="acts" style="margin-top:6px"><button class="btn" data-cpen="1">Copy EN</button>' +
-      (t.lang === "zh" ? '<button class="btn" data-cpzh="1">Copy 中文</button>' : '') + '</div>';
+      (t.lang === "zh" ? '<button class="btn" data-cpzh="1">Copy 中文</button>' : '') +
+      (waHref ? ('<a class="btn w" target="_blank" rel="noopener noreferrer" href="' + escUrl(waHref) + '">' + esc(waLabel) + '</a>')
+              : '<span class="btn mut">no phone on file</span>') + '</div>';
     return el("div", "explain draftpreview", html);
   });
   if (!panel) return;
@@ -2458,75 +2540,63 @@ function openViewingPack(l, t, dateStr, timeStr) {
   wrap.querySelector("[data-cancel]").onclick = () => wrap.remove();
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
-// (item 7) Mark…, one tap. Two always visible buttons cover the two actions
-// Winfred takes on almost every row; the rest (Not interested, Queued, Clear)
-// move into a small "⋯" popover instead of a native select he had to open,
-// scroll and pick inside. Every option here still routes through the exact
-// same writeMarkUndoable / openDeclineModal / openViewingBookedFlow /
-// writeMarkClearUndoable calls the old select used — the undo toast and the
-// CRM mirror (patchMark's own job) never see a difference.
-function oneTapMarkButtonsHtml() {
-  return '<button class="btn" data-mk1="Contacted">✓ Contacted</button>' +
-    '<button class="btn" data-mk1="Viewing booked">📅 Viewing</button>' +
-    '<button class="btn" data-mkmore="1" aria-label="More">⋯</button>';
+// (streamline item 2) exactly two visible controls on a worklist row: the
+// primary "Draft" action (gold, class="btn w" — the same colour the old
+// WhatsApp button used) and one "More" overflow. Contacted/Viewing/Snooze/
+// Decline/Call/Map/Mark queued/verdict override all move into the overflow;
+// every one of them still calls the exact same function the old always
+// visible buttons and keyboard shortcuts called (writeMarkUndoable,
+// openViewingBookedFlow, openSnoozeModal, openDeclineModal, toggleExplain,
+// writeMarkClearUndoable) — only which control reaches it changed.
+function primaryDraftButtonHtml(cold, blocked) {
+  if (blocked) return '<span class="btn w disabled" title="Landlord requirement conflict — see More for other actions">Draft</span>';
+  if (cold) return '<span class="btn w disabled" title="' + coldTitle() + '">Draft</span>';
+  return '<button class="btn w" data-draft="1">Draft</button>';
 }
-// `cold` drops "Queued": queueing is an outbound send action (it feeds the
-// morning dispatch export), so the dead lead rule applies to it the same way
-// it applies to WhatsApp, Call and Draft. `st` adds "Clear" only once a mark
-// exists — matches the old select's behaviour exactly.
-function markPopoverOptionsHtml(st, cold) {
-  const opts = ["Not interested"].concat(cold ? [] : ["Queued"]).concat(st ? ["Clear"] : []);
-  return opts.map(o => '<button class="btn" data-mk2="' + (o === "Clear" ? "__clr" : esc(o)) + '">' + esc(o) + '</button>').join('');
-}
-function toggleMarkPopover(row, l, t, cold, st) {
-  const existing = row.querySelector('.markpop');
-  if (existing) { existing.remove(); return; }
-  const box = el("div", "markpop", markPopoverOptionsHtml(st, cold));
-  row.appendChild(box);
-  box.querySelectorAll('[data-mk2]').forEach(b => b.onclick = () => {
-    const v = b.dataset.mk2;
-    box.remove();
-    if (v === "__clr") { writeMarkClearUndoable(l.id, t.id, fname(t.name) + " mark cleared"); return; }
-    if (v === "Not interested") { openDeclineModal(l, t); return; }
-    writeMarkUndoable(l.id, t.id, { v }, fname(t.name) + " marked " + v);
-  });
-}
-function rowActionsHtml(l, t, cold) {
+// (item 2) the overflow menu content — one popover, everything else on the
+// row used to offer. `cold` drops Mark queued (an outbound action, same dead
+// lead rule as Draft/Call); `st` adds Clear only once a mark exists, exactly
+// like the old select did.
+function rowMoreMenuHtml(l, t, cold, st) {
   const cobroke = isCobroke(l);
-  const hasTarget = cobroke ? !!l.phone : !!t.phone;
-  const label = cobroke ? "WhatsApp co-broke agent" : "WhatsApp draft";
-  // One source of truth for the rule — matchRow passes what coldBlocked() said,
-  // and this function must not re-derive it differently.
-  const blocked = cold && !cobroke;
-  let waBtn;
-  if (!hasTarget) waBtn = '<span class="btn mut">' + (cobroke ? "no phone on file for the co-broke agent" : "no phone on file") + '</span>';
-  else if (blocked) waBtn = '<span class="btn disabled" title="' + coldTitle() + '">' + esc(label) + '</span>';
-  else waBtn = '<a class="btn w" target="_blank" rel="noopener noreferrer" href="' + escUrl(waLink(l, t)) + '">' + esc(label) + '</a>';
-  // Draft is an outbound action too: greyed for a cold tenant, exactly like
-  // WhatsApp and Call beside it. toggleDraftPreview() refuses independently so
-  // the keyboard d / swipe right routes are covered even though they never
-  // touch this button.
-  const draftBtn = blocked
-    ? '<span class="btn disabled" title="' + coldTitle() + '">Draft</span>'
-    : '<button class="btn" data-draft="1">Draft</button>';
   const callTarget = cobroke ? l.phone : t.phone;
-  let callBtn = "";
+  const parts = [
+    '<button class="btn" data-mo="contacted">✓ Contacted</button>',
+    '<button class="btn" data-mo="viewing">📅 Viewing</button>',
+    '<button class="btn" data-mo="snooze">⏰ Snooze</button>',
+    '<button class="btn" data-mo="decline">✕ Decline</button>',
+  ];
   if (callTarget) {
-    if (blocked) callBtn = '<span class="btn disabled" title="' + coldTitle() + '">Call</span>';
-    else callBtn = '<a class="btn" href="' + escUrl("tel:" + normPhone(callTarget)) + '">Call</a>';
+    parts.push(cold && !cobroke
+      ? ('<span class="btn disabled" title="' + coldTitle() + '">Call</span>')
+      : ('<a class="btn" href="' + escUrl("tel:" + normPhone(callTarget)) + '">Call</a>'));
   }
-  return waBtn + draftBtn + callBtn + '<a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>';
+  parts.push('<a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>');
+  if (!cold) parts.push('<button class="btn" data-mo="queued">Mark queued</button>');
+  parts.push('<button class="btn" data-mo="override">Verdict override</button>');
+  parts.push(crmBtn("tenant", t));
+  if (st) parts.push('<button class="btn" data-mo="clear">Clear mark</button>');
+  return parts.join('');
+}
+function toggleRowMoreMenu(row, l, t, m, eff, cold, st) {
+  const existing = row.querySelector('.morepop');
+  if (existing) { existing.remove(); return; }
+  const box = el("div", "morepop", rowMoreMenuHtml(l, t, cold, st));
+  row.appendChild(box);
+  const wire = (key, fn) => { const b = box.querySelector('[data-mo="' + key + '"]'); if (b) b.onclick = () => { box.remove(); fn(); }; };
+  wire("contacted", () => writeMarkUndoable(l.id, t.id, { v: "Contacted" }, fname(t.name) + " marked Contacted"));
+  wire("viewing", () => openViewingBookedFlow(l, t));
+  wire("snooze", () => openSnoozeModal(l, t));
+  wire("decline", () => openDeclineModal(l, t));
+  wire("queued", () => writeMarkUndoable(l.id, t.id, { v: "Queued" }, fname(t.name) + " marked Queued"));
+  wire("override", () => toggleExplain(row, l, t, m, eff));
+  wire("clear", () => writeMarkClearUndoable(l.id, t.id, fname(t.name) + " mark cleared"));
 }
 function wireRowEvents(row, l, t, m, eff, cold, st) {
-  row.querySelectorAll('[data-mk1]').forEach(b => b.onclick = () => {
-    const v = b.dataset.mk1;
-    if (v === "Viewing booked") { openViewingBookedFlow(l, t); return; }
-    writeMarkUndoable(l.id, t.id, { v }, fname(t.name) + " marked " + v);
-  });
-  const moreMk = row.querySelector('[data-mkmore]');
-  if (moreMk) moreMk.onclick = (e) => { e.stopPropagation(); toggleMarkPopover(row, l, t, cold, st); };
   const draftBtn = row.querySelector('[data-draft]');
   if (draftBtn) draftBtn.onclick = () => toggleDraftPreview(row, l, t);
+  const moreBtn = row.querySelector('[data-mkmore]');
+  if (moreBtn) moreBtn.onclick = (e) => { e.stopPropagation(); toggleRowMoreMenu(row, l, t, m, eff, cold, st); };
   const cb = row.querySelector('[data-batch]');
   if (cb) cb.onchange = () => toggleBatchSelect(t.id, cb.checked);
   const explainTrigger = row.querySelector('[data-explain]');
@@ -2577,6 +2647,10 @@ function matchRow(m, showListing, opts) {
   if (t.segment === 'URGENT') badges.push('<span class="badge urgent">URGENT · pays fee</span>');
   else if (t.segment === 'FEE WILLING') badges.push('<span class="badge urgent">pays fee</span>');
   else if (t.segment === 'INFO RICH') badges.push('<span class="badge inforich">full profile</span>');
+  // (wave 2 wiring) sparse is a display only flag from the data side (thin
+  // profile) — plain .badge with no tone class reads as small and muted
+  // already, and it never touches worklistRank()/scoring, only this badge row.
+  if (t.sparse) badges.push('<span class="badge">sparse</span>');
   if (t.persona) badges.push('<span class="badge persona">' + esc(t.persona) + '</span>');   // (#2) who-is-this tag
   if (t._scratch) badges.push('<span class="badge scratch">scratch</span>');
   if (eff.overridden) badges.push('<span class="badge overridden">overridden</span>');
@@ -2648,11 +2722,9 @@ function matchRow(m, showListing, opts) {
   const buildExtrasHtml = () => (extraChips.length ? ('<div class="rtop" style="margin-top:5px">' + extraChips.join(' ') + '</div>') : '') + extraLines.join('');
   const moreToggle = extrasCount ? ('<div class="rtop line3"><button class="btn more" data-more="1">+' + extrasCount + ' more</button></div>') : '';
 
-  // ---- actions (item 7): one tap Contacted/Viewing, ⋯ for the rest ----
-  const oneTap = oneTapMarkButtonsHtml();
-  const actsHtml = blocked
-    ? ('<div class="acts"><a class="btn" target="_blank" rel="noopener" href="' + escUrl(mapLink(l)) + '">Map</a>' + oneTap + crmBtn("tenant", t) + '</div>')
-    : ('<div class="acts">' + rowActionsHtml(l, t, cold) + oneTap + crmBtn("tenant", t) + '</div>');
+  // ---- actions (streamline item 2): Draft (primary, gold) + one More overflow ----
+  const actsHtml = '<div class="acts">' + primaryDraftButtonHtml(cold, blocked) +
+    '<button class="btn" data-mkmore="1" aria-label="More actions">⋯ More</button></div>';
 
   row.innerHTML = line1 + line2 + moreToggle + actsHtml;
 
@@ -2732,7 +2804,12 @@ function stampLabel() {
   return (+m[3]) + " " + MON[+m[2] - 1] + " " + m[1] + ", " + m[4] + ":" + m[5];
 }
 function dataAgeBannerHtml() {
-  const t = Scoring.dataAgeTier(DATA.generated_ts || DATA.generated, NOW_REAL_SGT);
+  // (wave 2 wiring) last_wa_update_ts is a third argument for a future
+  // scoring.js that can use it to gauge freshness off the actual WhatsApp
+  // read rather than the build timestamp. This branch's scoring.js still
+  // only takes two arguments and ignores the extra one, so passing it now
+  // is harmless and saves a second front end change once scoring.js catches up.
+  const t = Scoring.dataAgeTier(DATA.generated_ts || DATA.generated, NOW_REAL_SGT, DATA.last_wa_update_ts);
   const asOf = esc(stampLabel());
   if (t.tier === "red") {
     const live = AGE_BANNER_ANNOUNCED ? "" : ' role="alert" aria-live="assertive"';
@@ -2767,6 +2844,15 @@ function measureHeaderHeight() {
   const clamped = Math.min(h.offsetHeight, innerHeight);
   document.documentElement.style.setProperty("--header-h", clamped + "px");
 }
+// (item 6) a right edge fade only where a wide table actually overflows —
+// toggles .has-hscroll, which styles.css turns into a gradient mask. Cheap
+// (layout reads only, no work when nothing changed) so it is safe to call on
+// every render/resize alongside measureHeaderHeight.
+function markScrollFades() {
+  document.querySelectorAll(".maptablewrap").forEach(w => {
+    w.classList.toggle("has-hscroll", w.scrollWidth > w.clientWidth + 1);
+  });
+}
 // (item 6) panels heavy enough to be worth releasing on exit — each one
 // rebuilds fully from box.innerHTML = "" on entry (see render() below).
 const HEAVY_PANELS = ["alltenants", "landlords", "stats", "sales", "revival", "whole", "crm"];
@@ -2786,13 +2872,46 @@ function renderCountsSweep() {
   }
   return { qualified, snoozed, queued };
 }
+// (streamline item 1) which of the 4 visible tabs a given `view` belongs
+// under. Every internal view name from the 12 tab era still exists — this
+// just says which tab highlights while it is showing.
+const GROUP_OF_VIEW = {
+  mapview: "mapview", stats: "mapview",
+  work: "work", revival: "work",
+  crm: "crm", pipeline: "crm",
+  listing: "directory", tenant: "directory", whole: "directory",
+  landlords: "directory", alltenants: "directory", sales: "directory", directory: "directory",
+};
+function tabOfView(v) { return GROUP_OF_VIEW[v] || "directory"; }
+// (item 1) Directory's kind switch — Rooms/Tenants/Landlords/Whole units/For
+// sale, in the order Winfred specified. "Tenants" covers both the old By
+// Tenant (ranked matches for one person) and All Tenants (the full roster):
+// the roster is the kind's default landing view, and each row's own "Ranked
+// matches" (see allTenantRow) drills into the same split view By Tenant used,
+// still reachable, still the same renderTenantRail()/renderTenantPanel().
+const DIR_KINDS = [
+  { key: "listing", label: "Rooms", views: ["listing"] },
+  { key: "tenant", label: "Tenants", views: ["tenant", "alltenants"], defaultView: "alltenants" },
+  { key: "landlords", label: "Landlords", views: ["landlords"] },
+  { key: "whole", label: "Whole units", views: ["whole"] },
+  { key: "sales", label: "For sale", views: ["sales"] },
+];
+function dirKindOfView(v) { const k = DIR_KINDS.find(k => k.views.indexOf(v) !== -1); return k ? k.key : "listing"; }
+function renderDirectoryKindRow() {
+  const row = $("#dirkindrow"); if (!row) return;
+  const curKind = dirKindOfView(view);
+  row.innerHTML = DIR_KINDS.map(k => '<button class="dirchip' + (k.key === curKind ? " on" : "") + '" data-dirkind="' + esc(k.key) + '">' + esc(k.label) + '</button>').join("");
+  row.querySelectorAll("[data-dirkind]").forEach(b => b.onclick = () => {
+    const k = DIR_KINDS.find(x => x.key === b.dataset.dirkind);
+    view = k.defaultView || k.views[0];
+    render();
+  });
+}
 function render() {
   $("#sub").innerHTML = "Priority: availability → location → price → landlord requirements   ·   data " + esc(DATA.generated) + " " + dataAgeBannerHtml();
   const counts = renderCountsSweep();
-  $("#kpis").innerHTML =
-    '<div class="kpi"><b>' + (DATA.listings || []).length + '</b> available listings</div>' +
-    '<div class="kpi"><b>' + ALL_TENANTS.length + '</b> still looking</div>' +
-    '<div class="kpi"><b>' + counts.qualified + '</b> qualified matches</div>';
+  // (item 3) the three stat chips collapse into one wrapping line of text.
+  $("#kpis").innerHTML = '<span class="kpiline">' + (DATA.listings || []).length + ' rooms · ' + ALL_TENANTS.length + ' looking · ' + counts.qualified.toLocaleString() + ' matches</span>';
   // (item 6) alltenants/landlords/stats/sales/revival/whole are each fully
   // rebuilt from box.innerHTML = "" on entry (renderAllTenantsRoster etc.),
   // so releasing their DOM on exit changes nothing observable but stops
@@ -2802,41 +2921,72 @@ function render() {
   // deliberately left alone: the Leaflet instance (_mmMap) is attached to
   // live DOM inside it, and renderMapView()/initMatchmakerMap() already
   // manage that instance's lifecycle themselves.
-  ["work", "pipeline", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival", "crm"].forEach(v => {
+  // stats is treated as a permanently attached section of mapview (item 1:
+  // Dashboard absorbs Stats) — it shows whenever mapview does, not on its own
+  // `view` value. Pipeline (CRM absorbs Pipeline) has no top level element of
+  // its own at all any more — see renderCRM()/renderPipeline() (review fix 1).
+  ["work", "listing", "tenant", "whole", "mapview", "stats", "landlords", "alltenants", "sales", "revival", "crm"].forEach(v => {
     const e = $("#" + v);
     if (!e) return;
-    if (v === view) { e.style.display = (v === "listing" || v === "tenant") ? "grid" : "block"; return; }
+    const show = (v === view) || (v === "stats" && view === "mapview");
+    if (show) { e.style.display = (v === "listing" || v === "tenant") ? "grid" : "block"; return; }
     e.style.display = "none";
     if (HEAVY_PANELS.indexOf(v) !== -1) e.innerHTML = "";
   });
+  const dirWrap = $("#directory");
+  if (dirWrap) dirWrap.style.display = (tabOfView(view) === "directory") ? "block" : "none";
+  const activeTab = tabOfView(view);
   document.querySelectorAll("#tabs .tab").forEach(tb => {
-    const on = tb.dataset.v === view;
+    const on = tb.dataset.v === activeTab;
     tb.classList.toggle("on", on);
     tb.setAttribute("aria-selected", on ? "true" : "false");
   });
+  // (item 4) one search box, cleared automatically on every actual tab
+  // change (not on a kind switch within Directory or a mode switch within
+  // Worklist, since those keep the same activeTab) — this fires from EVERY
+  // code path that lands on a different tab, not just an explicit tab click,
+  // because they all funnel through render().
+  if (activeTab !== LAST_ACTIVE_TAB) {
+    LAST_ACTIVE_TAB = activeTab;
+    const qEl = $("#q"); if (qEl) qEl.value = "";
+    CRM_UI.q = ""; CRM_UI.showAll = false;
+  }
+  const qEl2 = $("#q"); if (qEl2) qEl2.placeholder = searchPlaceholderForTab(activeTab);
+  // (review fix 5) Dashboard/Stats and CRM have no facet controls that do
+  // anything (NON_FILTER_VIEWS) — disable the Filters button there instead of
+  // letting it open a sheet with nothing useful in it. Also closes the sheet
+  // if it happened to be open while navigating onto one of these tabs.
+  const filtersBtn = $("#filtersbtn");
+  if (filtersBtn) {
+    const filtersUseless = NON_FILTER_VIEWS.indexOf(view) !== -1;
+    filtersBtn.disabled = filtersUseless;
+    filtersBtn.title = filtersUseless ? "No filters on this tab" : "";
+    if (filtersUseless) closeFiltersSheet();
+  }
+  renderDirectoryKindRow();
   VIEW_RESULT_COUNT = null;   // (item 2) each render*() below sets its own row count; views with none leave #resultcount hidden
   if (view === "work") renderWork(); else renderTriageBar(null);
-  if (view === "pipeline") renderPipeline();
   if (view === "listing") renderListingRail();
   if (view === "tenant") renderTenantRail();
   if (view === "whole") renderWholeUnit();
-  if (view === "mapview") renderMapView();
-  if (view === "stats") renderStats();
+  if (view === "mapview") { renderMapView(); renderStats(); }
   if (view === "landlords") renderLandlordsRoster();
   if (view === "alltenants") renderAllTenantsRoster();
   if (view === "sales") renderSalesRoster();
   if (view === "revival") renderRevival();
-  if (view === "crm") renderCRM();
+  if (view === "crm") renderCRM();   // renderCRM() itself builds and repaints the pipeline board as its own section
   CRM.paint();
   $("#legend").innerHTML = "Score = budget 30 + location 25 + lease 15 + move in 15 + freshness 15 (urgency and MRT adjacency can add a little more, capped at 100). ⚑ flags are landlord preference gates (gender, ethnicity, pax) or budget/lease gaps — a red conflict still shows so you can judge, it is not auto hidden. " +
     "WhatsApp opens a pre filled draft you send yourself (never auto sent). Tenants quiet over " + Scoring.DEAD_DAYS_THRESHOLD + " days have WhatsApp, draft copy and call turned off — landlord and co-broke contact is never turned off. Mark status is saved on this device only and never edits the databases. " +
     (CRM.mode === "local" ? "The 🗂 CRM drawer and Pipeline tab are saved on this device only — no cloud backend is configured." : "The 🗂 CRM drawer and Pipeline tab sync to your private CRM database and survive a rebuild.") +
     " PDPA: keep this file private.";
-  const sc = $("#snoozechip"); if (sc) sc.innerHTML = 'Snoozed <span class="cnt">' + counts.snoozed + '</span>';
-  const dc = $("#dispatchchip"); if (dc) dc.innerHTML = 'Dispatch <span class="cnt">' + counts.queued + '</span>';
+  // (item 3) dispatch/snoozed counts now live inside the Menu sheet, rebuilt
+  // fresh each time it opens (see openMenuSheet) — nothing to update here
+  // while it is closed.
   renderFilterBar();   // (item 2) chip strip, result count, More filters gating — after the view render so VIEW_RESULT_COUNT is current
   updateFacetedCounts();
   measureHeaderHeight();   // (56)/(item 4) re-measure after every header content change, not just window resize
+  markScrollFades();       // (item 6) right edge fade on any table that actually overflows
 }
 
 // ===================== item 2: filter bar (chip strip, More filters, result count) =====================
@@ -2940,6 +3090,10 @@ function applyMoreFiltersOpenState() {
   const btn = $("#filterstoggle"); if (btn) btn.setAttribute("aria-expanded", PREFS.morefilters_open ? "true" : "false");
 }
 function toggleMoreFilters() {
+  // (streamline item 3) consistent with the disabled Filters button (review
+  // fix 5 above) — the f shortcut and the command palette entry must also
+  // no op on tabs with no facet controls, not just the button click.
+  if (NON_FILTER_VIEWS.indexOf(view) !== -1) return;
   PREFS.morefilters_open = !PREFS.morefilters_open;
   savePrefs();
   applyMoreFiltersOpenState();
@@ -3115,7 +3269,7 @@ const FACET_KEYS = ["d", "v", "cold", "hide", "rt", "gp", "rp", "st", "ck"];
 // (item 3) views that never show the filter bar's option counts don't need
 // this sweep at all — Dashboard/Stats/Landlords/AllTenants/Sales/Revival never
 // call it. FACET_VIEWS mirrors render()'s own filtersActive set.
-const FACET_VIEWS = ["work", "listing", "tenant", "whole", "pipeline"];
+const FACET_VIEWS = ["work", "listing", "tenant", "whole"];
 // (item 2) the only two views that consume NEITHER search nor district — see
 // renderMapView()/renderStats(), neither reads F() at all — so the whole
 // .filters bar (and the search/filter debounce hook) is skipped only there;
@@ -3172,18 +3326,22 @@ function updateFacetedCounts() {
   // populate loop) and never touched here. Every other select's DEFAULT
   // option ("All verdicts", "All room types", ...) stays count free for the
   // same reason — only the specific options inside More filters keep counts.
+  // (item 4) these counts are over MATCHES — listing/tenant PAIRS — while the
+  // row count beside them (VIEW_RESULT_COUNT) is per tenant. Rather than
+  // rebuild this sweep to match that unit, every one of these counts is
+  // labelled "pairs" so the two numbers never look like they contradict.
   const fv = $("#fv");
   if (fv) [...fv.options].forEach(opt => {
     const label = VERDICT_LABELS[opt.value] || opt.textContent;
-    opt.textContent = opt.value ? (label + " (" + (verdCounts[opt.value] || 0) + ")") : label;
+    opt.textContent = opt.value ? (label + " (" + (verdCounts[opt.value] || 0) + " pairs)") : label;
   });
-  const fc = $("#fccount"); if (fc) fc.textContent = "(" + coldCount + ")";
-  const fh = $("#fhcount"); if (fh) fh.textContent = "(" + hideCount + ")";
+  const fc = $("#fccount"); if (fc) fc.textContent = "(" + coldCount + " pairs)";
+  const fh = $("#fhcount"); if (fh) fh.textContent = "(" + hideCount + " pairs)";
   [["ft", rtCounts], ["fg", gpCounts], ["fe", rpCounts], ["fs", stCounts], ["fk", ckCounts]].forEach(([id, counts]) => {
     const sel = $("#" + id);
     if (sel) [...sel.options].forEach(opt => {
       if (!opt._label) opt._label = opt.textContent;
-      opt.textContent = opt.value ? (opt._label + " (" + (counts[opt.value] || 0) + ")") : opt._label;
+      opt.textContent = opt.value ? (opt._label + " (" + (counts[opt.value] || 0) + " pairs)") : opt._label;
     });
   });
 }
@@ -3206,9 +3364,15 @@ function askStrip() {
     if (rows.length >= 6) break;
     const t = ALL_TENANTS.find(x => x.id === e.id);
     if (!t || Scoring.isDead(t, NOW_REAL_SGT)) continue;
+    if (!e.phone) continue;
     const field = (e.missing || [])[0];
-    if (!field || !ASK_Q[field] || !e.phone) continue;
-    const msg = "Hi " + fname(e.name || "") + ", quick question so I can match you to the right room faster: " + ASK_Q[field];
+    // (wave 2 wiring) a "reason" field, when present, is the specific
+    // question written on the data side — show it verbatim instead of the
+    // computed ASK_Q[field] line. Falls back to the computed line so this
+    // still works before the data side ships reason on this branch.
+    const question = e.reason || (field && ASK_Q[field]);
+    if (!question) continue;
+    const msg = "Hi " + fname(e.name || "") + ", quick question so I can match you to the right room faster: " + question;
     rows.push({ e, field, link: waPlain(e.phone, msg) });
   }
   const box = el("div", "askstrip");
@@ -3218,15 +3382,27 @@ function askStrip() {
   rows.forEach(r => {
     const a = document.createElement("a");
     a.className = "askchip"; a.href = r.link; a.target = "_blank"; a.rel = "noopener";
-    a.innerHTML = esc(fname(r.e.name || r.e.id)) + ' <span class="mut">' + esc(r.field.replace("_", " ")) +
+    a.innerHTML = esc(fname(r.e.name || r.e.id)) + ' <span class="mut">' + esc(r.field ? r.field.replace("_", " ") : "info") +
       ' · +' + esc(String(r.e.unlock_value)) + '</span>';
     wrap.appendChild(a);
   });
   box.appendChild(wrap);
   return box;
 }
+// (streamline item 1) Revival is a filter chip on the Worklist, not its own
+// tab — "Today"/"Revival" both just set `view` to the value they always used
+// (work/revival unchanged), so every filter or keyboard shortcut gate keyed off
+// `view` elsewhere in the file keeps working exactly as it did as tabs.
+function worklistModeChipRow() {
+  const row = el("div", "dirkindrow");
+  row.innerHTML = '<button class="dirchip' + (view === "work" ? " on" : "") + '" data-wm="work">Today</button>' +
+    '<button class="dirchip' + (view === "revival" ? " on" : "") + '" data-wm="revival">♻️ Revival</button>';
+  row.querySelectorAll('[data-wm]').forEach(b => b.onclick = () => { view = b.dataset.wm; render(); });
+  return row;
+}
 function renderWork() {
   const box = $("#work"); box.innerHTML = "";
+  box.appendChild(worklistModeChipRow());
   box.appendChild(helpStrip());
   box.appendChild(askStrip());
   const seen = new Set();
@@ -3374,16 +3550,28 @@ function moveTriage(nextIndex) {
 // (item 10) 1-9/0 switch tabs "in order" — read straight off the tab strip's
 // own DOM order (set once at init, see the bottom of this file) rather than
 // a hardcoded list, so it can never silently drift from the actual tabs.
-let TAB_ORDER = [];
+// (item 1) fixed 4 tab order — Dashboard, Worklist, CRM, Directory, exactly
+// the DOM order in template.html. Number keys 1-4 select these and nothing
+// else (see onKeydown).
+const TAB_ORDER = ["mapview", "work", "crm", "directory"];
+// Switching TO a tab resumes whatever sub view it last showed (still on
+// Revival if that was open, still on the same Directory kind) rather than
+// always resetting to that tab's first sub view.
+function defaultViewForTab(tabName) {
+  if (tabName === "work") return (view === "work" || view === "revival") ? view : "work";
+  if (tabName === "crm") return "crm";
+  if (tabName === "directory") return (tabOfView(view) === "directory") ? view : "listing";
+  return "mapview";
+}
 function selectTabByIndex(i) {
   if (i < 0 || i >= TAB_ORDER.length) return;
-  view = TAB_ORDER[i];
+  view = defaultViewForTab(TAB_ORDER[i]);
   render();
 }
 function shortcutsSheetHtml() {
   return '<div class="triage-legend">' +
-    '<div><span class="key">1</span>-<span class="key">9</span>/<span class="key">0</span> switch tabs, in the order they appear</div>' +
-    '<div><span class="key">/</span> focus search</div>' +
+    '<div><span class="key">1</span> to <span class="key">4</span> switch tabs, in the order they appear</div>' +
+    '<div><span class="key">/</span> open search</div>' +
     '<div><span class="key">Esc</span> blur search, then (search already empty) clear all filters</div>' +
     '<div><span class="key">f</span> toggle More filters</div>' +
     '<div><span class="key">?</span> this list</div>' +
@@ -3432,9 +3620,13 @@ function onKeydown(e) {
   // are these app shortcuts.
   const noMod = !e.metaKey && !e.ctrlKey && !e.altKey;
   if (!typing && noMod) {
-    if (e.key >= "1" && e.key <= "9") { selectTabByIndex(Number(e.key) - 1); return; }
-    if (e.key === "0") { selectTabByIndex(9); return; }
-    if (e.key === "/") { e.preventDefault(); if (q) q.focus(); return; }
+    // (item 1) 1-4 select the 4 tabs and nothing else — 5-9/0 used to reach
+    // tabs that no longer exist as separate tabs.
+    if (e.key >= "1" && e.key <= "4") { selectTabByIndex(Number(e.key) - 1); return; }
+    // (review fix 2) #q now lives inside the Search sheet, hidden by default —
+    // focusing it directly did nothing visible. openSearchSheet() reveals the
+    // sheet and focuses the box itself, same as clicking the Search button.
+    if (e.key === "/") { e.preventDefault(); openSearchSheet(); return; }
     if (e.key === "f") { toggleMoreFilters(); return; }
     if (e.key === "?") { openShortcutsSheet(); return; }
   }
@@ -3477,7 +3669,7 @@ function sortListings(arr, mode) {
   if (mode === "waitlist") arr.sort((a, b) => qualifiedCount(b) - qualifiedCount(a));
   else if (mode === "thin") arr.sort((a, b) => qualifiedCount(a) - qualifiedCount(b));
   else if (mode === "demand") arr.sort((a, b) => demandFor(b.district) - demandFor(a.district));
-  else arr.sort((a, b) => (a.district || "z").localeCompare(b.district || "z") || (a.rent_min || 9999) - (b.rent_min || 9999));
+  else arr.sort((a, b) => districtCompare(a.district, b.district) || (a.rent_min || 9999) - (b.rent_min || 9999));
   return arr;
 }
 function listingSortBar() {
@@ -3832,7 +4024,7 @@ function renderTenantRail() {
     const c = el("div", "lc" + (curT === t.id ? " on" : ""));
     const nba = best ? nbaChipHtml(best) : ""; // (60)
     c.innerHTML = '<div class="t">' + esc(t.name) + (t._scratch ? ' <span class="badge scratch">scratch</span>' : '') + (t.dup_group != null ? dupGroupBadgeHtml(t) : '') + '</div>' +
-      '<div class="m">' + esc(t.district || t.preferred_location || '?') + ' · budget ' + esc(t.budget || t.budget_max || '?') + ' · ' + esc(t.pax || '?') + 'pax</div>' +
+      '<div class="m">' + esc(t.district || t.preferred_location || '?') + ' · budget ' + esc(budgetTxt(t.budget, t.budget_max)) + ' · ' + esc(t.pax || '?') + 'pax</div>' +
       '<div class="m">' + genderChip(t) + '</div>' +
       '<div class="m">' + esc(lastContactLine(t)) + '</div>' +                                  // (46)
       '<div class="m"><span class="chip g">' + esc(nq) + ' fit</span> ' + (best ? ('<span class="chip">top ' + esc(best.s.total) + '</span>') : '') + (nba ? (' ' + nba) : '') + '</div>';
@@ -3866,7 +4058,7 @@ function renderTenantPanel(t) {
   const p = $("#tpanel");
   const dupBadge = t.dup_group != null ? dupGroupBadgeHtml(t) : "";
   p.innerHTML = '<div class="phead"><div><div class="big">' + esc(t.name) + (t._scratch ? ' <span class="badge scratch">scratch — rebuild to make permanent</span>' : '') + ' ' + dupBadge + '</div>' +
-    '<div class="mut">' + esc(t.preferred_location || t.district || '') + ' · budget ' + esc(t.budget || t.budget_max || '?') + ' · ' + esc(t.pax || '?') + 'pax · lease ' + esc(t.lease_months || '?') + 'mo · move ' + esc(t.move_in || '?') + '</div>' +
+    '<div class="mut">' + esc(t.preferred_location || t.district || '') + ' · budget ' + esc(budgetTxt(t.budget, t.budget_max)) + ' · ' + esc(t.pax || '?') + 'pax · lease ' + esc(t.lease_months || '?') + 'mo · move ' + esc(t.move_in || '?') + '</div>' +
     '<div class="mut" style="margin-top:2px">' + esc(lastContactLine(t)) + '</div>' +
     '<div class="chips"><span class="chip">' + esc(t.gender || '?') + '</span><span class="chip">' + esc(t.ethnicity || '?') + '</span><span class="chip">' + esc(t.nationality || '?') + '</span><span class="chip">' + esc(t.pass_type || '?') + '</span><span class="chip">' + esc(t.occupation || '?') + '</span>' + coldChip(coldDaysOf(t)) + '</div>' +
     tenantToolsHtml(t) + '</div></div>';
@@ -4103,11 +4295,15 @@ function ceaChip(r) {
   return '<span class="chip a" title="Register lookup unavailable at build time">CEA unchecked</span>';
 }
 
+// (item 6) "likely duplicate" only for two records of the SAME kind sharing a
+// number — a landlord who is also a tenant elsewhere, or a shared family
+// line, is a normal, documented pattern in this business and gets neutral
+// wording instead of an accusation.
 function dupBanner() {
   const dups = DATA.duplicate_phones || [];
   if (!dups.length) return "";
-  return '<div class="wm">⚠ ' + dups.length + ' phone number(s) shared across more than one record — likely a duplicate or data entry collision: ' +
-    dups.map(d => esc((d.owners || []).join(" = "))).join(" · ") + '</div>';
+  return '<div class="wm">⚠ ' + dups.length + ' phone number(s) shared across more than one record: ' +
+    dups.map(d => esc((d.owners || []).join(" = ")) + ' (' + (dupOwnersSameKind(d.owners) ? "likely duplicate" : "shared across record kinds — may be normal") + ')').join(" · ") + '</div>';
 }
 function copyBtn(label, rows, box) {
   const b = el("button", "btn", label);
@@ -4219,14 +4415,20 @@ function allTenantRow(t) {
   const looking = t.looking === "Still looking";
   const row = el("div", "row");
   const areaHtml = '<a class="btn" target="_blank" rel="noopener noreferrer" href="' + escUrl(mapLink({ address: t.preferred_location, district: t.district })) + '">📍 Area</a>';
+  // (item 1) Directory's Tenants kind defaults to this full roster; a tenant
+  // who is actually scored (in ALL_TENANTS) can still drill into the same
+  // ranked-matches view the old By Tenant tab showed — nothing lost, just
+  // reached from the row instead of a separate tab.
+  const hasMatches = ALL_TENANTS.some(x => x.id === t.id);
+  const matchesHtml = hasMatches ? '<button class="btn" data-viewmatches="1">🎯 Matches</button>' : '';
   const actsHtml = looking
     // coldBlocked(null, t), NOT false. This row builder was copied from the landlord
     // one, where a hardcoded false is correct because landlords are exempt. Carried onto
     // a TENANT row it bypassed the dead-lead rule entirely: 154 live wa.me links, 72 of
     // them to tenants over 45 days quiet, each with the message body already composed.
-    ? '<div class="acts">' + areaHtml + ' ' + waButtonHtml(t.phone, coldBlocked(null, t) ? "" : tenantCheckInDraft(t), "WhatsApp", coldBlocked(null, t)) + callButtonHtml(t.phone, "Call", coldBlocked(null, t)) +
+    ? '<div class="acts">' + matchesHtml + areaHtml + ' ' + waButtonHtml(t.phone, coldBlocked(null, t) ? "" : tenantCheckInDraft(t), "WhatsApp", coldBlocked(null, t)) + callButtonHtml(t.phone, "Call", coldBlocked(null, t)) +
         (!t.phone ? '<span class="btn mut">no phone on file</span>' : '') + crmBtn("tenant", t) + '</div>'
-    : '<div class="acts"><span class="btn mut">' + esc(String(t.looking || "").toLowerCase()) + ' — no contact action</span>' + crmBtn("tenant", t) + '</div>';
+    : '<div class="acts">' + matchesHtml + '<span class="btn mut">' + esc(String(t.looking || "").toLowerCase()) + ' — no contact action</span>' + crmBtn("tenant", t) + '</div>';
   row.innerHTML =
     '<div class="rtop"><span class="nm">' + esc(t.name || "?") + '</span> ' + tenantLookingChip(t.looking) +
       (missing.length ? '<span class="chip a">⚠ missing ' + esc(missing.join("/")) + '</span>' : '') +
@@ -4234,7 +4436,7 @@ function allTenantRow(t) {
     '</div>' +
     '<div class="rtop" style="margin-top:5px">' +
       '<span class="chip">' + esc(tenantWhere(t)) + '</span>' +
-      '<span class="chip">budget ' + esc(t.budget != null ? t.budget : "?") + '</span>' +
+      '<span class="chip">budget ' + esc(budgetTxt(t.budget, t.budget_max)) + '</span>' +
       genderChip(t) +
       '<span class="chip">' + esc(t.pax != null ? t.pax : "?") + 'pax</span>' +
       '<span class="chip">move ' + esc(t.move_in || "?") + '</span>' +
@@ -4243,6 +4445,8 @@ function allTenantRow(t) {
     '</div>' +
     (t.listing_enquired ? '<div class="gap">enquired: ' + esc(t.listing_enquired) + '</div>' : '') +
     actsHtml;
+  const matchesBtn = row.querySelector('[data-viewmatches]');
+  if (matchesBtn) matchesBtn.onclick = () => { curT = t.id; view = "tenant"; render(); };
   return row;
 }
 function renderAllTenantsRoster() {
@@ -4261,7 +4465,7 @@ function renderAllTenantsRoster() {
   box.appendChild(el("div", "mut", (f.d || f.q ? "Showing " + ts.length + " of " + allTCount : ts.length) + " tenants"));
   if (!ts.length) { box.appendChild(el("div", "empty", "No tenants match the current search/district filter.")); return; }
 
-  ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || String(a.primary_district || "zzz").localeCompare(String(b.primary_district || "zzz")) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
+  ts.sort((a, b) => ((b.pinned ? 1 : 0) - (a.pinned ? 1 : 0)) || districtCompare(a.primary_district, b.primary_district) || ((a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99)));
 
   let shown = 0, curGroup = null;
   for (const t of ts) {
@@ -4326,6 +4530,7 @@ function renderSalesRoster() {
 // good/weak/none match tier, so rows are ranked in whatever order DATA.revival provides.
 function renderRevival() {
   const box = $("#revival"); box.innerHTML = "";
+  box.appendChild(worklistModeChipRow());
   box.appendChild(el("div", "help", "♻️ <b>Revival board</b> — still looking tenants past the lead cutoff, cross checked against currently available listings. This reuses revival_board.py's own matching (not the main score engine above), so there is no 0 to 100 score here, only a good/weak/none match tier. Review list only, nothing sends itself."));
 
   const rows = DATA.revival || [];
@@ -4349,7 +4554,7 @@ function renderRevival() {
       '<div class="rtop"><span class="sc" style="min-width:24px">#' + (i + 1) + '</span><span class="nm">' + esc(r.name || "?") + '</span>' + revivalTierChip(r.tier) + '</div>' +
       '<div class="rtop" style="margin-top:5px">' +
         '<span class="chip">' + esc(r.district || "?") + '</span>' +
-        '<span class="chip">budget ' + esc(r.budget != null ? r.budget : "?") + '</span>' +
+        '<span class="chip">budget ' + esc(budgetTxt(r.budget)) + '</span>' +
         '<span class="chip">' + esc(r.pax != null ? r.pax : "?") + 'pax</span>' +
         (r.phone ? '<span class="chip">' + phoneSpanHtml("revival", r.phone, r.phone) + '</span>' : '') +
         (r.days_quiet != null ? '<span class="chip r">quiet ' + esc(r.days_quiet) + 'd</span>' : '<span class="chip">no contact date</span>') +
@@ -4516,7 +4721,10 @@ function openSnoozedList() {
 // ===================== quick add scratch tenant =====================
 function field(key, label, type) { return '<div class="qfield"><label>' + label + '</label><input type="' + type + '" data-f="' + key + '"></div>'; }
 function openQuickAddTenant() {
-  const districts = [...new Set((DATA.listings || []).map(l => l.district).filter(Boolean))].sort();
+  // (item 28) the full D1..D28 list, not just whatever districts current
+  // listings happen to cover — a thin inventory day used to silently narrow
+  // this picker.
+  const districts = ALL_DISTRICTS;
   const wrap = el("div", "modal-wrap");
   wrap.innerHTML = '<div class="modal"><h3>Add tenant (scratch)</h3>' +
     field("name", "Name", "text") + field("phone", "Phone", "tel") +
@@ -4590,15 +4798,19 @@ function paletteActions() {
     { label: "Open Listings", run: () => { view = "listing"; render(); } },
     { label: "Open Tenants", run: () => { view = "tenant"; render(); } },
     { label: "Open Whole unit", run: () => { view = "whole"; render(); } },
-    { label: "Open Stats", run: () => { view = "stats"; render(); } },
+    // (item 1) Stats is a section at the bottom of Dashboard now, not its own
+    // view — land on Dashboard and scroll to it.
+    { label: "Open Stats", run: () => { view = "mapview"; render(); setTimeout(() => { const e = document.getElementById("stats"); if (e) e.scrollIntoView({ behavior: "smooth", block: "start" }); }, 0); } },
+    { label: "Open CRM", run: () => { view = "crm"; render(); } },
+    { label: "Open Directory", run: () => { view = defaultViewForTab("directory"); render(); } },
     { label: "Add tenant", run: () => openQuickAddTenant() },
     { label: "Open Dispatch", run: () => openDispatchDrawer() },
     { label: "Open Snoozed", run: () => openSnoozedList() },
     { label: "Bulk action on filtered set", run: () => openBulkActionModal() },
     { label: "Export state", run: () => downloadJSON(exportBlob(), "matchmaker-state-" + DATA.generated + ".json") },
     { label: "Toggle day/night", run: () => toggleTheme() },
-    { label: "Toggle density", run: () => toggleDensity() },
     { label: "Toggle More filters", run: () => toggleMoreFilters() },
+    { label: "Open Menu", run: () => openMenuSheet() },
     { label: "Keyboard shortcuts", run: () => openShortcutsSheet() }
   ];
 }
@@ -4663,7 +4875,11 @@ function openCommandPalette() {
   // mountOverlay above.
 }
 
-// ===================== theme (53) / density (54) =====================
+// ===================== theme (53) =====================
+// (item 3) the density toggle (54) is deleted outright, not relocated — its
+// CSS and header button are gone, and toggleDensity/applyDensityClass no
+// longer exist. PREFS.density stays in PREFS_DEFAULTS purely so an old
+// stored value reads back harmlessly; nothing here acts on it any more.
 function applyThemeClass() {
   document.documentElement.setAttribute("data-theme", PREFS.theme || "");
   const btn = $("#themebtn");
@@ -4676,18 +4892,6 @@ function applyThemeClass() {
 function toggleTheme() {
   PREFS.theme = PREFS.theme === "dark" ? "light" : (PREFS.theme === "light" ? null : "dark");
   savePrefs(); applyThemeClass();
-}
-function applyDensityClass() {
-  document.body.classList.toggle("density-compact", PREFS.density === "compact");
-  const btn = $("#densitybtn");
-  if (btn) {
-    btn.textContent = PREFS.density === "compact" ? "☰ Compact" : "☰ Card";
-    btn.setAttribute("aria-label", "Density: " + (PREFS.density === "compact" ? "compact" : "card") + " — tap to change");
-  }
-}
-function toggleDensity() {
-  PREFS.density = PREFS.density === "compact" ? "card" : "compact";
-  savePrefs(); applyDensityClass();
 }
 
 // ===================== idle lock (20)/(49) =====================
@@ -4753,10 +4957,16 @@ function currentFilteredWorklistSet() {
   const f = F();
   return MATCHES.filter(m => effective(m).verdict !== "BLOCKED" && m.l.availability !== "Offer pending").filter(m => !isSnoozedNow(m)).filter(m => passFilter(m, f));
 }
+// (item 5) the Apply button names the exact count it will touch, and above
+// BULK_TYPED_CONFIRM_THRESHOLD rows the operator must type that exact number
+// before it enables — a single click used to be enough to touch the entire
+// unfiltered match universe (thousands of pairs) with no scaled confirmation.
+function bulkApplyButtonLabel(count) { return "Apply to " + count.toLocaleString() + " pair" + (count === 1 ? "" : "s"); }
 function openBulkActionModal() {
   const set = currentFilteredWorklistSet();
+  const needsTyped = needsBulkTypedConfirm(set.length);
   const wrap = el("div", "modal-wrap");
-  wrap.innerHTML = '<div class="modal"><h3>Bulk action — ' + set.length + ' filtered rows</h3>' +
+  wrap.innerHTML = '<div class="modal"><h3>Bulk action — ' + set.length.toLocaleString() + ' filtered pairs</h3>' +
     (set.length ? '' : '<div class="empty">Nothing matches the current filters. Adjust a filter above first.</div>') +
     '<div class="row-x">' +
     '<button class="pick" data-v="Contacted">Mark Contacted</button>' +
@@ -4765,16 +4975,25 @@ function openBulkActionModal() {
     '</div>' +
     '<div class="qfield" id="bulkreasonwrap" style="display:none;margin-top:10px"><label>Reason</label><select data-bulkreason="1">' +
     DECLINE_REASONS.map(r => '<option value="' + r[0] + '">' + r[1] + '</option>').join('') + '</select></div>' +
-    '<div class="foot"><button class="btn" data-cancel="1">Cancel</button><button class="btn p" data-apply="1" disabled>Apply</button></div></div>';
+    (needsTyped ? ('<div class="qfield" id="bulkconfirmwrap" style="display:none;margin-top:10px"><label>Type ' + set.length.toLocaleString() + ' to confirm — this touches a lot of pairs</label><input type="text" inputmode="numeric" data-bulkconfirm="1" placeholder="' + set.length.toLocaleString() + '"></div>') : '') +
+    '<div class="foot"><button class="btn" data-cancel="1">Cancel</button><button class="btn p" data-apply="1" disabled>' + bulkApplyButtonLabel(set.length) + '</button></div></div>';
   mountOverlay(wrap);
   let chosenV = null;
+  const applyBtn = wrap.querySelector("[data-apply]");
+  const confirmInput = wrap.querySelector("[data-bulkconfirm]");
+  function refreshApplyEnabled() {
+    const typedOk = !needsTyped || bulkConfirmMatches(confirmInput.value, set.length);
+    applyBtn.disabled = !chosenV || !set.length || !typedOk;
+  }
+  if (confirmInput) confirmInput.addEventListener("input", refreshApplyEnabled);
   wrap.querySelectorAll("[data-v]").forEach(b => b.onclick = () => {
     wrap.querySelectorAll("[data-v]").forEach(x => x.classList.remove("sel"));
     b.classList.add("sel"); chosenV = b.dataset.v;
     wrap.querySelector("#bulkreasonwrap").style.display = chosenV === "Not interested" ? "block" : "none";
-    wrap.querySelector("[data-apply]").disabled = false;
+    const cw = wrap.querySelector("#bulkconfirmwrap"); if (cw) cw.style.display = "block";
+    refreshApplyEnabled();
   });
-  wrap.querySelector("[data-apply]").onclick = () => {
+  applyBtn.onclick = () => {
     if (!chosenV || !set.length) { wrap.remove(); return; }
     const patch = { v: chosenV };
     if (chosenV === "Not interested") patch.reason = wrap.querySelector("[data-bulkreason]").value;
@@ -4840,7 +5059,7 @@ function funnelHtml() {
   return '<div class="stats-grid">' +
     '<div class="stat-card"><b>' + f.contacted + '</b><div class="mut">contacted this week</div></div>' +
     '<div class="stat-card"><b>' + f.viewings + '</b><div class="mut">viewings booked this week</div></div>' +
-    '<div class="stat-card"><b>' + f.conversionPct + '%</b><div class="mut">conversion</div></div>' +
+    '<div class="stat-card"><b>' + (f.conversionPct == null ? "—" : (f.conversionPct + "%")) + '</b><div class="mut">conversion</div></div>' +
     '</div>';
 }
 // (27) per listing decline reason histogram. Deliberately reason CODES only
@@ -5009,8 +5228,11 @@ function wireExportImport(container) {
   });
 }
 // (70) asked once on first load; every mark stamps by:<name> (see patchMark).
+// (item 6) Skip now persists device_name_skipped so the "asked once" promise
+// in the copy actually holds — it used to only remove the dialog, and the
+// prompt came straight back on the very next reload.
 function promptDeviceName(force) {
-  if (PREFS.device_name && !force) return;
+  if ((PREFS.device_name || PREFS.device_name_skipped) && !force) return;
   const wrap = el("div", "modal-wrap");
   wrap.innerHTML = '<div class="modal"><h3>What should we call this device?</h3>' +
     '<div class="mut" style="margin-bottom:8px">Every mark you make gets stamped with this name, for example "phone". Asked once.</div>' +
@@ -5022,9 +5244,69 @@ function promptDeviceName(force) {
     if (v) { PREFS.device_name = v; savePrefs(); }
     wrap.remove(); render();
   };
-  wrap.querySelector("[data-skip]").onclick = () => wrap.remove();
+  wrap.querySelector("[data-skip]").onclick = () => { PREFS.device_name_skipped = true; savePrefs(); wrap.remove(); };
   wrap.onclick = (e) => { if (e.target === wrap) wrap.remove(); };
 }
+
+// ===================== streamline: header sheets (items 3/4) =====================
+// Search and Filters both float a small panel under the header instead of a
+// full mountOverlay() dialog, DELIBERATELY reusing the exact same persistent
+// #q/#fd/#morefilters elements init() already wired once at boot — opening
+// them never rebuilds that markup, so no listener is ever rewired or lost.
+function openSearchSheet() {
+  const wrap = $("#searchSheet"); if (!wrap) return;
+  closeFiltersSheet(); closeMenuSheet();
+  wrap.hidden = false;
+  setTimeout(() => { const q = $("#q"); if (q) q.focus(); }, 0);
+}
+function closeSearchSheet() { const wrap = $("#searchSheet"); if (wrap) wrap.hidden = true; }
+// (review fix 5) the Filters button itself is disabled on a tab where these
+// controls have no effect (see render()'s own filtersBtn.disabled block), but
+// this guards the function directly too — belt and suspenders against any
+// other path that might still call it (keyboard, command palette, a future
+// caller) opening a sheet with nothing useful in it.
+function openFiltersSheet() {
+  if (NON_FILTER_VIEWS.indexOf(view) !== -1) return;
+  const wrap = $("#filtersSheet"); if (!wrap) return;
+  closeSearchSheet(); closeMenuSheet();
+  wrap.hidden = false;
+}
+function closeFiltersSheet() { const wrap = $("#filtersSheet"); if (wrap) wrap.hidden = true; }
+// (item 3) Menu — everything relocated off the header (add tenant, dispatch,
+// snoozed, command palette, theme, bulk action) plus the settings that used
+// to live on the old Stats tab (device name, backup export/restore). Density
+// is not here — item 3 deletes it outright, it is not relocated anywhere.
+function menuBodyHtml(counts) {
+  return '<div class="menusec">Quick actions</div>' +
+    '<div class="menuitem"><span>Add a scratch tenant</span><button class="btn" id="menuAddTenant" type="button">+ Add tenant</button></div>' +
+    '<div class="menuitem"><span>Dispatch queue</span><button class="hbtn" id="menuDispatch" type="button">Open <span class="cnt">' + counts.queued + '</span></button></div>' +
+    '<div class="menuitem"><span>Snoozed matches</span><button class="hbtn" id="menuSnoozed" type="button">Open <span class="cnt">' + counts.snoozed + '</span></button></div>' +
+    '<div class="menuitem"><span>Command palette</span><button class="btn" id="menuPalette" type="button">⌘K Find</button></div>' +
+    '<div class="menuitem"><span>Bulk action</span><button class="btn" id="menuBulk" type="button">☑ Open</button></div>' +
+    '<div class="menusec">Appearance</div>' +
+    '<div class="menuitem"><span>Theme</span><button class="btn" id="themebtn" type="button">🌓</button></div>' +
+    '<div class="menusec">Device</div>' +
+    '<div class="menuitem"><span>Marks on this device are stamped as</span><span><b>' + esc(PREFS.device_name || "not set") + '</b> <button class="btn" data-changedevice="1" type="button">Change</button></span></div>' +
+    '<div class="menusec">Backup</div>' +
+    exportImportHtml();
+}
+function openMenuSheet() {
+  const wrap = $("#menuSheet"); if (!wrap) return;
+  closeSearchSheet(); closeFiltersSheet();
+  const body = $("#menuBody");
+  body.innerHTML = menuBodyHtml(renderCountsSweep());
+  wrap.hidden = false;
+  applyThemeClass();   // paints #themebtn's current icon now that it exists again
+  const addBtn = body.querySelector("#menuAddTenant"); if (addBtn) addBtn.onclick = () => { closeMenuSheet(); openQuickAddTenant(); };
+  const dispatchBtn = body.querySelector("#menuDispatch"); if (dispatchBtn) dispatchBtn.onclick = () => { closeMenuSheet(); openDispatchDrawer(); };
+  const snoozeBtn = body.querySelector("#menuSnoozed"); if (snoozeBtn) snoozeBtn.onclick = () => { closeMenuSheet(); openSnoozedList(); };
+  const paletteBtn = body.querySelector("#menuPalette"); if (paletteBtn) paletteBtn.onclick = () => { closeMenuSheet(); openCommandPalette(); };
+  const bulkBtn = body.querySelector("#menuBulk"); if (bulkBtn) bulkBtn.onclick = () => { closeMenuSheet(); openBulkActionModal(); };
+  const themeBtn = body.querySelector("#themebtn"); if (themeBtn) themeBtn.onclick = () => { toggleTheme(); openMenuSheet(); };
+  const cd = body.querySelector('[data-changedevice]'); if (cd) cd.onclick = () => { closeMenuSheet(); promptDeviceName(true); };
+  wireExportImport(body);
+}
+function closeMenuSheet() { const wrap = $("#menuSheet"); if (wrap) wrap.hidden = true; }
 
 // ---------- 🗺 Map dashboard (20 Aug 2026) ----------
 // One connected surface: pin -> landlord details + scored tenant table -> tenant profile
@@ -5461,7 +5743,7 @@ function renderNewRooms(panel) {
   panel.appendChild(el("div", "maphead",
     '<b>🆕 New rooms → ready to message (' + groups.length + ')</b><div class="mut" style="margin:4px 0 8px">' +
     'Rooms added in the last 3 days that already have qualified tenants. Tap a name to send the draft while it is fresh — new rooms fill fastest in the first 48 hours.</div>' +
-    '<table class="maptable"><thead><tr><th>New room</th><th>Top matches — tap to message</th></tr></thead><tbody>' + rows + '</tbody></table>'));
+    '<table class="maptable newrooms"><thead><tr><th>New room</th><th>Top matches — tap to message</th></tr></thead><tbody>' + rows + '</tbody></table>'));
 }
 function renderMapOverview(panel, demand) {
   renderVerdictCards(panel);  // (#4) viewed, date passed — collect the outcome, right on the dashboard
@@ -5698,9 +5980,8 @@ function renderMapDirectory(box) {
   box.appendChild(ctrl);
   const host = el("div");
   box.appendChild(host);
-  const dnum = d => { const n = parseInt(String(d || "").replace(/\D/g, ""), 10); return isNaN(n) ? 99 : n; };
   const cmp = {
-    district: (a, b) => dnum(a.primary_district || a.district) - dnum(b.primary_district || b.district) || String(a.name || "").localeCompare(String(b.name || "")),
+    district: (a, b) => districtCompare(a.primary_district || a.district, b.primary_district || b.district) || String(a.name || "").localeCompare(String(b.name || "")),
     last: (a, b) => String(b.last_contact || "").localeCompare(String(a.last_contact || "")),
     rent: (a, b) => (a.rent_min || a.rent_max || 99999) - (b.rent_min || b.rent_max || 99999),
     status: (a, b) => (a.sort != null ? a.sort : 99) - (b.sort != null ? b.sort : 99),
@@ -5794,7 +6075,7 @@ function renderMatchBoard(box, demand) {
     const demItems = dem.slice(0, 6).map(t =>
       '<div class="mbitem" data-t="' + esc(t.id) + '"><span class="mbmain">' + esc(fname(t.name) || t.id) +
       (t.pinned ? ' <span class="badge urgent">priority</span>' : '') + '</span>' +
-      '<span class="mbsub">' + esc(t.budget || t.budget_max || "?") + ' · ' + esc(t.pax || "?") + ' pax</span></div>').join("") +
+      '<span class="mbsub">' + esc(budgetTxt(t.budget, t.budget_max)) + ' · ' + esc(t.pax || "?") + ' pax</span></div>').join("") +
       (dem.length > 6 ? '<div class="mbmore">+' + (dem.length - 6) + ' more</div>' : "") ||
       '<div class="mbempty">nobody asking yet</div>';
     const card = el("div", "mbcard",
@@ -5813,7 +6094,7 @@ function renderMatchBoard(box, demand) {
   });
 }
 function renderMapLLTable(box, demand) {
-  const ls = [...(DATA.listings || [])].sort((a, b) => (a.district || "").localeCompare(b.district || "") || (a.id || "").localeCompare(b.id || ""));
+  const ls = [...(DATA.listings || [])].sort((a, b) => districtCompare(a.district, b.district) || (a.id || "").localeCompare(b.id || ""));
   box.appendChild(el("div", "mapsec", "🏢 Live landlord supply (" + ls.length + ") — click a row for details and the same actions as Today's Worklist"));
   const rows = ls.map(l =>
     '<tr class="mrow' + (mapLLExpand === l.id ? " selrow" : "") + '" data-l="' + esc(l.id) + '">' +
@@ -5866,7 +6147,7 @@ function renderMapTNTable(box, demand) {
     '<td data-label="Phone">' + (t.phone ? ('<a href="tel:' + esc(t.phone) + '" onclick="event.stopPropagation()">' + esc(t.phone) + '</a>' +
       (waT ? ' · <a href="' + esc(waT) + '" target="_blank" rel="noopener" onclick="event.stopPropagation()">WA</a>'
            : (cold ? ' <span class="chip mut">cold</span>' : ""))) : "—") + '</td>' +
-    '<td data-label="Budget">' + esc(t.budget || t.budget_max || "?") + '</td>' +
+    '<td data-label="Budget">' + esc(budgetTxt(t.budget, t.budget_max)) + '</td>' +
     '<td data-label="Pax">' + esc(t.pax || "?") + '</td>' +
     '<td data-label="Pass">' + esc([t.pass_type, t.nationality].filter(Boolean).join(" ")) + '</td>' +
     '<td data-label="Move in">' + esc(t.move_in || "?") + '</td>' +
@@ -5956,7 +6237,7 @@ function mapMatchCells(m) {
     fit: m.s.total, verdict: lab[0], vcls: lab[1], dq: eff.verdict === "BLOCKED",
     tenant: (t.name || t.id) + " " + (t.segment || ""),
     budget: (t.budget && t.budget_max && String(t.budget) !== String(t.budget_max))
-      ? (t.budget + " to " + t.budget_max) : String(t.budget || t.budget_max || "?"),
+      ? (t.budget + " to " + t.budget_max) : budgetTxt(t.budget, t.budget_max),
     budgetNum: (() => { const ns = String(t.budget_max || t.budget || "").match(/\d{3,5}/g); return ns ? Math.max(...ns.map(Number)) : null; })(),
     pax: String(t.pax || "?"), movein: String(t.move_in || "?"),
     gender: String(t.gender || "?"),
@@ -6093,9 +6374,13 @@ function renderMapProfile(t, l, box) {
   }
 }
 
+// (item 1) Stats is now a section at the bottom of Dashboard, not its own
+// tab. Backup export/import and the device name section moved into the Menu
+// sheet (item 3) — see menuBodyHtml() — since those are settings, not stats.
 function renderStats() {
   const box = $("#stats"); box.innerHTML = "";
-  box.appendChild(el("div", "help", "Everything on this tab lives only on this device — nothing is sent anywhere. Export state before switching devices, or before clearing browser data."));
+  box.appendChild(el("div", "section-hd", "📊 Stats"));
+  box.appendChild(el("div", "help", "Everything below lives only on this device — nothing is sent anywhere. Back up from the Menu before switching devices, or before clearing browser data."));
   box.appendChild(el("div", "section-hd", "Weekly funnel"));
   box.appendChild(el("div", "", funnelHtml()));
   box.appendChild(el("div", "section-hd", "Decline reasons by listing"));
@@ -6103,12 +6388,6 @@ function renderStats() {
   renderHealthSection(box);
   const bh = buildHistoryHtml();
   if (bh) box.appendChild(el("div", "", bh));
-  const eiBox = el("div", "", exportImportHtml());
-  box.appendChild(eiBox);
-  wireExportImport(eiBox);
-  const deviceBox = el("div", "", '<div class="section-hd">Device</div><div class="mut">Marks on this device are stamped as: <b>' + esc(PREFS.device_name || "not set") + '</b> <button class="btn" data-changedevice="1">Change</button></div>');
-  box.appendChild(deviceBox);
-  const cd = deviceBox.querySelector('[data-changedevice]'); if (cd) cd.onclick = () => promptDeviceName(true);
 }
 
 // ===================== CRM drawer + Pipeline tab =====================
@@ -6190,8 +6469,14 @@ function renderDrawer() {
 
 // Deliberately shows only records Winfred has actually touched — a column per stage
 // over the whole tenant/landlord database would just be the roster tabs again.
-function renderPipeline() {
-  const box = $("#pipeline"); box.innerHTML = "";
+// (review fix 1) takes its own container instead of hardcoding a persistent
+// #pipeline id — renderCRM() below creates a fresh div every render and hands
+// it here. #crm sits in HEAVY_PANELS, so on every render() that leaves the
+// CRM tab, #crm itself gets innerHTML="" — a #pipeline node that had been
+// re homed inside #crm (the previous approach) was destroyed by that wipe the
+// first time you left the tab, and never came back on return.
+function renderPipeline(box) {
+  box.innerHTML = "";
   box.appendChild(el("div", "help", "📈 <b>Pipeline</b> — every record you have given a stage, a note or a task via the 🗂 CRM button. " +
     (CRM.mode === "local"
       ? "⚠️ No cloud backend is configured, so this is saved on <b>this device only</b> — it will not appear on your phone and is lost if you clear this browser."
@@ -6445,6 +6730,12 @@ function crmSubjFromKey(key) {
   return c ? { kind: c.kind, id: c.ref_id, name: c.name, phone: c.phone } : null;
 }
 
+// (streamline item 1) CRM absorbs Pipeline as a stage board section under the
+// follow up queue. box.innerHTML="" below runs every render() this tab is
+// active for, so the pipeline's own container is built fresh here each time
+// (review fix 1) rather than re homing a persistent #pipeline node — that
+// node lived as a sibling of #crm, and #crm is in HEAVY_PANELS, so leaving
+// the tab wiped it via render()'s own hide loop and it never came back.
 function renderCRM() {
   const box = $("#crm"); box.innerHTML = "";
   box.appendChild(el("div", "help", "🗂 <b>CRM</b> — follow up queue, every contact merged with the databases, quick add and deals. " +
@@ -6452,6 +6743,9 @@ function renderCRM() {
       ? "⚠️ No cloud backend is configured, so this is saved on <b>this device only</b> — it will not appear on your phone."
       : "This syncs to your CRM database and survives a nightly rebuild.")));
   renderCRMFollowUp(box);
+  const pipelineBox = el("div");
+  box.appendChild(pipelineBox);
+  renderPipeline(pipelineBox);
   renderCRMContacts(box);
   renderCRMQuickAdd(box);
   renderCRMDeals(box);
@@ -6509,8 +6803,11 @@ function renderCRMFollowUp(box) {
 
 function renderCRMContacts(box) {
   const wrap = el("div", "crmblock", '<div class="section-hd">👥 Contacts</div>');
+  // (item 4) one search box app wide, opened from the header Search button —
+  // CRM_UI.q is now written there (placeholder "Search contacts") instead of
+  // this section owning its own separate input.
   const filterRow = el("div", "crmfilters",
-    '<input id="crmQ" type="text" placeholder="Search name, phone or address" value="' + esc(CRM_UI.q) + '">' +
+    (CRM_UI.q ? ('<div class="mut">Searching "' + esc(CRM_UI.q) + '" — clear from the Search button above</div>') : "") +
     '<div class="stagerow" id="crmKindChips">' +
       ["", "tenant", "landlord", "sale", "buyer", "person"].map(k =>
         '<span class="pick' + (CRM_UI.kind === k ? " sel" : "") + '" data-kind="' + esc(k) + '">' + esc(k ? CRM_KIND_LABELS[k] : "All kinds") + '</span>').join("") +
@@ -6576,8 +6873,6 @@ function renderCRMContacts(box) {
   });
 }
 function wireCRMFilterEvents(wrap) {
-  const qEl = wrap.querySelector("#crmQ");
-  if (qEl) qEl.oninput = () => { CRM_UI.q = qEl.value; CRM_UI.showAll = false; scheduleCRMRerender(); };
   wrap.querySelectorAll("#crmKindChips [data-kind]").forEach(c => c.onclick = () => { CRM_UI.kind = c.dataset.kind; CRM_UI.showAll = false; renderCRM(); });
   wrap.querySelectorAll("#crmStageChips [data-stage]").forEach(c => c.onclick = () => { CRM_UI.stage = c.dataset.stage; CRM_UI.showAll = false; renderCRM(); });
   const na = wrap.querySelector("#crmNeedsAction");
@@ -6812,7 +7107,7 @@ function crmExportDealsJSON() {
 
 // ===================== init =====================
 (function () {
-  const ds = [...new Set((DATA.listings || []).map(l => l.district).filter(Boolean))].sort();
+  const ds = [...new Set((DATA.listings || []).map(l => l.district).filter(Boolean))].sort(districtCompare);
   ds.forEach(d => { const o = el("option"); o.value = d; o.textContent = d + " " + (AREA[d] || ""); $("#fd").appendChild(o); });
   // Room type/gender/race/status/cooking selects: populate from whatever
   // buckets actually occur in this data, then hide the whole control when
@@ -6828,21 +7123,10 @@ function crmExportDealsJSON() {
   // makes them reachable by Tab, and the keydown handler gives Enter/Space
   // the click-equivalent activation a real <button> gets for free.
   document.querySelectorAll("#tabs .tab").forEach(t => {
-    const activate = () => { view = t.dataset.v; render(); };
+    const activate = () => { view = defaultViewForTab(t.dataset.v); render(); };
     t.onclick = activate;
     t.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); activate(); } });
   });
-  // (item 10) 1-9/0 select tabs "in order" — the tab strip's own DOM order,
-  // read once here rather than hardcoded, so it can never drift from what
-  // is actually on screen if a tab is ever added/reordered/removed.
-  // "crm" is filtered out on purpose: it sits in position 2 of the visible tab strip
-  // (right after Dashboard, still clickable there), but folding it into the digit
-  // shortcuts as well would push every tab after it one slot down — Sales, on "0"
-  // before CRM existed, would fall off the end of the 1-9/0 range entirely, and
-  // Revival (already unreachable by number, being the 12th tab) would only get
-  // further out of reach. Excluding CRM keeps 1-9/0 mapped to exactly what they
-  // mapped to before this tab was added, and CRM itself gets no number shortcut.
-  TAB_ORDER = [...document.querySelectorAll("#tabs .tab")].map(t => t.dataset.v).filter(v => v !== "crm");
   // #q fires on every keystroke, unlike the select/checkbox filters (one
   // event per discrete choice) — a render() here also recomputes faceted
   // counts across every match plus rebuilds up to 120+ tenant/listing cards,
@@ -6857,27 +7141,43 @@ function crmExportDealsJSON() {
   // view — it never sweeps MATCHES, so it costs nothing to keep the chip
   // strip/Filters(n) badge/Clear button current even while the expensive
   // half (the actual render) is skipped or still debouncing.
-  // (item 2 fix) NON_FILTER_VIEWS, not FACET_VIEWS, gates the render itself:
-  // mapview/stats consume neither q nor d and are the only views where a
-  // stray keystroke should do nothing at all — landlords/alltenants/sales/
-  // revival sit outside FACET_VIEWS too but DO filter by q/d (see their own
-  // render*Roster functions), so skipping them here silently broke search
-  // and district on those four tabs.
-  function onFilterInput() { updateChipsAndCount(); if (NON_FILTER_VIEWS.indexOf(view) === -1) render(); }
-  function onDebouncedFilterInput() { updateChipsAndCount(); if (NON_FILTER_VIEWS.indexOf(view) === -1) scheduleFilteredRender(); }
+  // (item 4) CRM has no facet controls of its own — #q on that tab writes
+  // straight into CRM_UI.q (the same state the Contacts section always
+  // filtered on) instead of the shared F() used by every other tab.
+  function onFilterInput() {
+    if (view === "crm") { CRM_UI.q = $("#q").value; CRM_UI.showAll = false; scheduleCRMRerender(); return; }
+    updateChipsAndCount();
+    if (NON_FILTER_VIEWS.indexOf(view) === -1) render();
+  }
+  function onDebouncedFilterInput() {
+    if (view === "crm") { CRM_UI.q = $("#q").value; CRM_UI.showAll = false; scheduleCRMRerender(); return; }
+    updateChipsAndCount();
+    if (NON_FILTER_VIEWS.indexOf(view) === -1) scheduleFilteredRender();
+  }
   $("#q").addEventListener("input", onDebouncedFilterInput);
   $("#fr").addEventListener("input", onDebouncedFilterInput);
   ["fd", "fv", "fc", "fh", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).addEventListener("input", onFilterInput));
-  $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; render(); };
+  // (review fix 3) CRM_UI.q is a second, separate search value #q feeds while
+  // on the CRM tab (see onFilterInput above) — clearing #q's own value here
+  // never touched it, so a search left active on Contacts survived a Clear
+  // filters tap. The render() call below already runs renderCRM() again when
+  // the CRM tab is active, which is enough to repaint Contacts unfiltered
+  // once CRM_UI.q is reset alongside it.
+  $("#clr").onclick = () => { clearTimeout(filterDebounceTimer); ["q", "fr", "fd", "fv", "ft", "fg", "fe", "fs", "fk"].forEach(id => $("#" + id).value = ""); $("#fc").checked = false; $("#fh").checked = false; CRM_UI.q = ""; CRM_UI.showAll = false; render(); };
   const filterToggleBtn = $("#filterstoggle"); if (filterToggleBtn) filterToggleBtn.onclick = toggleMoreFilters;
   applyMoreFiltersOpenState();   // (item 2) restore the panel's remembered open/closed state before first paint
-  const addBtn = $("#addtenant"); if (addBtn) addBtn.onclick = openQuickAddTenant;
-  const snoozeBtn = $("#snoozechip"); if (snoozeBtn) snoozeBtn.onclick = openSnoozedList;
-  const dispatchBtn = $("#dispatchchip"); if (dispatchBtn) dispatchBtn.onclick = openDispatchDrawer;
-  const paletteBtn = $("#palettebtn"); if (paletteBtn) paletteBtn.onclick = openCommandPalette;
-  const themeBtn = $("#themebtn"); if (themeBtn) themeBtn.onclick = toggleTheme;
-  const densityBtn = $("#densitybtn"); if (densityBtn) densityBtn.onclick = toggleDensity;
-  const bulkBtn = $("#bulkbtn"); if (bulkBtn) bulkBtn.onclick = openBulkActionModal;
+
+  // (item 3) three header buttons only: Search, Filters, Menu. Everything
+  // else that used to be its own header button now lives inside the Menu
+  // sheet (see openMenuSheet) or the Filters sheet (unchanged content, just
+  // opened on demand instead of sitting inline under every view).
+  const searchBtn = $("#searchbtn"); if (searchBtn) searchBtn.onclick = openSearchSheet;
+  const searchClose = $("#searchSheetClose"); if (searchClose) searchClose.onclick = closeSearchSheet;
+  const searchClearX = $("#searchClearX"); if (searchClearX) searchClearX.onclick = () => { $("#q").value = ""; onDebouncedFilterInput(); $("#q").focus(); };
+  const filtersBtn = $("#filtersbtn"); if (filtersBtn) filtersBtn.onclick = openFiltersSheet;
+  const filtersClose = $("#filtersSheetClose"); if (filtersClose) filtersClose.onclick = closeFiltersSheet;
+  const menuBtn = $("#menubtn"); if (menuBtn) menuBtn.onclick = openMenuSheet;
+  const menuClose = $("#menuSheetClose"); if (menuClose) menuClose.onclick = closeMenuSheet;
   document.addEventListener("keydown", onKeydown);
   document.addEventListener("keydown", (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
@@ -6895,10 +7195,11 @@ function crmExportDealsJSON() {
     ["touchend", "touchmove"].forEach(ev => qInput.addEventListener(ev, () => clearTimeout(pressTimer), { passive: true }));
   }
 
-  applyThemeClass(); applyDensityClass(); // (53)/(54) restore before first paint
+  applyThemeClass(); // (53) restore before first paint
 
   measureHeaderHeight();
   window.addEventListener("resize", measureHeaderHeight);
+  window.addEventListener("resize", markScrollFades);
   // (item 4, cycle 8) — see ensureFocusVisible's own comment above. focusin
   // bubbles (plain focus does not), so one listener on document covers every
   // tab and every row without having to re-wire it after each render().
