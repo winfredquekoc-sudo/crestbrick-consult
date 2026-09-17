@@ -24,7 +24,9 @@ import tempfile
 TENANT_DB = os.path.expanduser("~/crestbrick-consult/_templates/tenant-db.json")
 MSG_DB = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 
-# a tenant is a backfill candidate when >= 2 of these are missing
+# a tenant is a backfill candidate when >= 1 of these is missing (loosened from
+# >=2, tests/test_tenant_profile_backfill.py: a single confidently re-parsed gap
+# is still worth filling, the >=2 floor was only ever an arbitrary noise filter)
 GAP_FIELDS = ["name", "nationality", "pass_type", "no_of_pax", "move_in_date", "budget"]
 # everything the parser can fill
 FILLABLE = ["name", "nationality", "ethnicity", "gender", "age", "pass_type",
@@ -229,7 +231,7 @@ def main():
     tenants = db["tenants"] if isinstance(db, dict) else db
     candidates = [t for t in tenants
                   if t.get("status") in ("profile-received", "open")
-                  and sum(1 for f in GAP_FIELDS if _is_missing(f, t.get(f))) >= 2]
+                  and sum(1 for f in GAP_FIELDS if _is_missing(f, t.get(f))) >= 1]
 
     updated = {}
     for t in candidates:
