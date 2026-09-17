@@ -12,8 +12,10 @@ import json
 import os
 import sys
 
-ROOT = os.path.expanduser("~/crestbrick-consult")
-sys.path.insert(0, os.path.join(ROOT, "scripts", "matchmaker"))
+HERE = os.path.dirname(os.path.abspath(__file__))
+ROOT = os.path.normpath(os.path.join(HERE, "..", ".."))
+if HERE not in sys.path:
+    sys.path.insert(0, HERE)
 from export_data import availability, build_area_keywords, infer_district, looking, num  # noqa: E402
 
 # feedback_lead_cutoff.md — leads quieter than this are not revival candidates.
