@@ -58,21 +58,36 @@ def _load_geocache():
     """Returns (cache_dict, pending_list). item 6 -- the file now carries a
     "pending" list alongside the address cache (was a flat {query: result}
     dict); a plain older flat file is read as the cache with an empty pending
-    list, so an existing on-disk file upgrades in place on the next save."""
+    list, so an existing on-disk file upgrades in place on the next save.
+    Each pending entry is {"key": <query>, "attempts": <failed attempt
+    count>} (Opus review of PR #133, 16 Sep 2026 -- was a bare string with no
+    way to ever give up on a permanently unresolvable address); a pending
+    list saved before that change (a list of plain strings) is migrated in
+    place with attempts=0."""
     try:
         with open(GEOCACHE_PATH) as f: data = json.load(f)
     except (OSError, ValueError): return {}, []
     if not isinstance(data, dict): return {}, []
     if "cache" in data or "pending" in data:
         cache = data.get("cache")
-        pending = data.get("pending")
-        return (cache if isinstance(cache, dict) else {}), \
-               ([p for p in pending if isinstance(p, str)] if isinstance(pending, list) else [])
+        pending_raw = data.get("pending")
+        pending = []
+        for p in (pending_raw if isinstance(pending_raw, list) else []):
+            if isinstance(p, str) and p:
+                pending.append({"key": p, "attempts": 0})
+            elif isinstance(p, dict) and isinstance(p.get("key"), str) and p["key"]:
+                try:
+                    attempts = int(p.get("attempts") or 0)
+                except (TypeError, ValueError):
+                    attempts = 0
+                pending.append({"key": p["key"], "attempts": max(0, attempts)})
+        return (cache if isinstance(cache, dict) else {}), pending
     return data, []  # legacy flat shape, no pending list yet
 
 _GEOCACHE, _GEOCODE_PENDING = _load_geocache()
 _GEOCACHE_DIRTY = False
 _GEOCODE_BUDGET = 20   # max live lookups per export; the rest fall back to cache/centroid
+GEOCODE_PENDING_MAX_ATTEMPTS = 5  # give up on an address after this many failed live attempts
 
 def _live_geocode_attempt(key):
     """One live OneMap lookup for an already lowercased/stripped `key`,
@@ -126,20 +141,45 @@ def prime_pending_geocodes():
     couldn't resolve, was negative-cached (or simply forgotten) with no
     mechanism ever bringing it back for another try — an address could sit
     on a hollow centroid pin indefinitely. Call this once, before
-    build_listings(), never inside a test (it makes real network calls)."""
+    build_listings(), never inside a test (it makes real network calls).
+
+    Two refinements (Opus review of PR #133, 16 Sep 2026):
+      - An address still unresolved after GEOCODE_PENDING_MAX_ATTEMPTS live
+        attempts is dropped for good (logged once) instead of consuming a
+        budget slot on every future build forever.
+      - An entry that DID get a live attempt this run -- whether it resolved,
+        failed, or hit the cap -- is removed from (or re-appended to the
+        BACK of) the queue; an entry skipped only because the budget ran out
+        before reaching it keeps its place at the FRONT. Otherwise the same
+        stubborn address at the front would monopolise the budget on every
+        run and nothing behind it would ever get a turn."""
     global _GEOCACHE_DIRTY
     if not _GEOCODE_PENDING:
         return
-    still_pending = []
-    for key in _GEOCODE_PENDING:
+    skipped, rotated_to_back = [], []
+    for entry in _GEOCODE_PENDING:
+        key = entry.get("key")
+        attempts = entry.get("attempts", 0)
         if not key or _GEOCACHE.get(key):
             continue  # already resolved (e.g. a duplicate listing got there first) -- drop it
-        if _GEOCODE_BUDGET <= 0:
-            still_pending.append(key)
+        if attempts >= GEOCODE_PENDING_MAX_ATTEMPTS:
+            # Already exhausted (e.g. a hand edited file, or a lowered cap) --
+            # drop it WITHOUT spending a live attempt or a budget unit.
+            print(f"geocode: giving up on {key!r} after {attempts} failed OneMap attempts "
+                  "-- staying on its district centroid", file=sys.stderr)
             continue
-        if not _live_geocode_attempt(key):
-            still_pending.append(key)
-    _GEOCODE_PENDING[:] = still_pending
+        if _GEOCODE_BUDGET <= 0:
+            skipped.append(entry)  # never got a turn this run -- keep its place at the front
+            continue
+        if _live_geocode_attempt(key):
+            continue  # resolved this run -- drop
+        attempts += 1
+        if attempts >= GEOCODE_PENDING_MAX_ATTEMPTS:
+            print(f"geocode: giving up on {key!r} after {attempts} failed OneMap attempts "
+                  "-- staying on its district centroid", file=sys.stderr)
+            continue  # dropped for good
+        rotated_to_back.append({"key": key, "attempts": attempts})
+    _GEOCODE_PENDING[:] = skipped + rotated_to_back
     _GEOCACHE_DIRTY = True
 
 
@@ -158,8 +198,8 @@ def geocode(query, district):
         hit = _live_geocode_attempt(key)
         if hit:
             return hit["lat"], hit["lng"], "exact"
-    if key and key not in _GEOCODE_PENDING:
-        _GEOCODE_PENDING.append(key)
+    if key and not any(e.get("key") == key for e in _GEOCODE_PENDING):
+        _GEOCODE_PENDING.append({"key": key, "attempts": 0})
         _GEOCACHE_DIRTY = True
     lat, lng = DISTRICT_CENTROIDS.get(district or "", (1.352, 103.82))
     return lat, lng, "approx"
@@ -230,9 +270,21 @@ def load_refused_dispatch(path=REFUSED_DISPATCH_PATH):
 # confirm", or "to confirm" inside rooms_and_rent) until a human promotes it
 # -- see build.py's check_anomalies pending_review counter, which warns past
 # 5 of these outstanding at once.
+# Statuses availability() accepts as "the listing could be live" -- shared
+# by is_pending_review()/availability()/lifecycle() so all three agree on
+# which statuses are even in scope (Opus review of PR #133, 16 Sep 2026: the
+# pending-review gate originally checked status=="active" only, so a content
+# sweep stub sitting at "channel" or "active-verify" -- statuses Available
+# itself accepts -- slipped past the gate entirely).
+LIVE_STATUSES = ("active", "channel", "active-verify")
+
+
 def is_pending_review(l):
     src = (l.get("contact_label_source") or "").lower()
     if not src.startswith("content sweep"):
+        return False
+    st = (l.get("status") or "").lower()
+    if st not in LIVE_STATUSES:
         return False
     addr = (l.get("full_address") or "").strip().lower()
     rooms = (l.get("rooms_and_rent") or "").lower()
@@ -247,10 +299,10 @@ def availability(l):
     if st.startswith("closed (tenanted") or st.startswith("closed (unavailable"): return "Taken"
     if st.startswith("closed") or st.startswith("archived") or st.startswith("cold"): return "Off market"
     if l.get("offer_pending"): return "Offer pending"
-    if st == "active" and is_pending_review(l): return "Pending review"
+    if is_pending_review(l): return "Pending review"
     has_price = bool(l.get("rent_min") or l.get("rent_max"))
     cobroke = "co-broke" in (l.get("contact_label_source") or "").lower()
-    if st in ("active", "channel", "active-verify") and (has_price or cobroke): return "Available"
+    if st in LIVE_STATUSES and (has_price or cobroke): return "Available"
     return "Pending"
 
 def lifecycle(l):
@@ -263,8 +315,8 @@ def lifecycle(l):
     if st.startswith("cold"): return "renewal_watch"
     if st.startswith("closed") or st.startswith("archived"): return "paused"  # incl. "closed (unavailable..."
     if l.get("offer_pending"): return "offer_pending"
-    if st == "active" and is_pending_review(l): return "pending_review"
-    if st in ("active", "channel", "active-verify"): return "available"
+    if is_pending_review(l): return "pending_review"
+    if st in LIVE_STATUSES: return "available"
     return "unknown"
 
 def looking(t):
@@ -299,76 +351,425 @@ def parse_gender(txt):
 
 RACES = ["indian","chinese","malay","filipino","myanmar","burmese","korean","japanese","pakistani","caucasian","local"]
 
-# Ethnicity is an internal screening signal ONLY -- a landlord preference the
+# Ethnicity is an internal screening signal ONLY, a landlord preference the
 # app uses to sort/gate matches, never a tenant facing judgement made here.
-# Two guards on the raw text parse, both Winfred's fixes for a real symptom
-# on the live book:
 #
-#   item 13 -- a stray "only" ("small room only, prefers Chinese") used to
-#   apply the HARD block rule the moment "only" appeared ANYWHERE alongside
-#   any race word, silently dropping qualified tenants who never render in
-#   the worklist. Now "only" must sit within ETH_ONLY_PROXIMITY_TOKENS words
-#   of the race word, in the SAME clause (split on , ; . or "but") -- an
-#   unrelated "only" earlier in the sentence (room size, price, tenancy
-#   term) no longer creates a false hard gate; the race mention elsewhere
-#   in the sentence falls through to a soft "prefer" instead.
+# Rewritten a THIRD time now (Opus HOLD review of PR 133, round 3, 16 Sep
+# 2026, on top of the two round 2 rewrites already documented in git
+# history):
 #
-#   item 14 -- the bare substring "any" used to short circuit straight to
-#   "no preference" before ever scanning for a race word, so a real
-#   exclusion stated later in the SAME text ("any race except Indian", "not
-#   any particular race but no Indian") was silently discarded. "any" is now
-#   decisive only when no exclusion marker (no/not/except/exclude/without)
-#   appears anywhere after it in the text.
-ETH_ONLY_PROXIMITY_TOKENS = 3
-_ETH_EXCLUSION_MARKERS_RE = re.compile(r"\b(?:no|not|except|exclude|without)\b")
-_ETH_CLAUSE_SPLIT_RE = re.compile(r"[,;.]|\bbut\b")
-_ETH_WORD_RE = re.compile(r"[a-z]+")
+# Round 1 made "only" and the exclusion scan clause scoped rather than a
+# fixed token window, which fixed the false hard blocks/discarded exclusions
+# from the first round but introduced a NEW, more serious bug: a clause
+# containing "only" collected every race word in that clause with no regard
+# for whether the race was ITSELF negated inside the same clause, and the
+# clause splitter did not respect brackets, so "Chinese only (no
+# Indian/Malay)" (an exclusion the landlord wrote as a parenthetical
+# clarification) inverted into "only": [indian, chinese, malay], i.e. Indian
+# and Malay tenants would score as the LANDLORD'S REQUIRED preference rather
+# than excluded.
+#
+# Round 2 split brackets into their own clause and made race collection
+# negation aware, but a negation marker still counted against EVERY race
+# word anywhere later in the same clause, however far away. On the live
+# book that produced four false hard gates (exclude is a hard scoring.js
+# gate, so these silently blocked real matches):
+#   * "not just Chinese" (a relaxation, other nationalities now ALSO
+#     considered) read as an exclusion of Chinese.
+#   * "no ethnicity objection raised" (a question, not a gate) read as
+#     excluding every race mentioned later in the sentence.
+#   * "South Indians ... preferred; no ... Malaysian, no Mainland Chinese"
+#     discarded the preference entirely once the later negations fired.
+#   * "asked if tenants are non local" (a question) read as excluding
+#     "local".
+#
+# Round 3 (this version) makes negation ADJACENCY SCOPED instead of
+# clause scoped, because a hard gate must never be guessed past what the
+# text actually says right next to the race word:
+#   * A negation word (no, not, non, exclude/excludes/excluding, without,
+#     reject/rejected/rejects, avoid, "prefer not"/"not keen" are the
+#     same "not"/"keen" tokens) only negates a race word that sits at most
+#     two tokens after it, and every token in between must be one of a
+#     fixed set of modifiers (north, south, mainland, local, malaysian,
+#     indonesian, female, male, families, family, students, the, a, any,
+#     just). Anything else in between (an "and", a joined by a comma second
+#     race, an unrelated word) breaks the reach, "prefer not Indian and
+#     Malay" now only excludes Indian (Malay is 3 tokens from "not" through
+#     a non modifier "and"); under excluding a hard gate is far safer than
+#     guessing one that was never actually stated next to that race.
+#   * "not just X" / "not only X" is an explicit NON exclusion (the
+#     landlord is relaxing a prior restriction, not stating a new one):
+#     the sole allowed between token "just" is special cased so it
+#     never itself triggers the negation.
+#   * Country/demonym words that aren't literally in RACES (india, china,
+#     mainland) map to the race they imply ONLY inside an "except" clause's
+#     tail ("all except India" / "any race except Indian" both exclude
+#     indian), "malaysian" is deliberately never aliased this way (it is
+#     a nationality, not the "malay" race) even though the plain substring
+#     match used everywhere else in this file does still let "Malaysian"
+#     match the "malay" race, per the live book note on _clause_race_polarity
+#     below.
+#   * A landlord's stated preference survives: clauses containing prefer/
+#     preferred/prefers/preferably/ideally (but not immediately followed by
+#     "not", "prefer not X" is a negation, not a preference) collect their
+#     non negated race words into a separate prefer list; any race in both
+#     the exclude set and the prefer set is dropped from exclude (the
+#     landlord's positive statement wins) and the prefer list still rides
+#     along on the result so the app can show it and a human can double
+#     check the note.
+#   * Brackets stay their own clause (round 2) and now NEVER produce an
+#     exclude or an only, a parenthetical is commentary, not a gate,
+#     though it can still surface a plain mention/preference/note.
+#   * "local"/"non local" never gate at all (never appear in an exclude or
+#     only result), a landlord asking whether someone is local is not a
+#     race preference.
+#
+# Round 4 (16 Sep 2026, PR #133 follow up):
+#   * "required"/"must be"/"needs to be"/"has to be" are hard requirement
+#     triggers, same as "only"/"strictly" (main clauses only, so a
+#     bracketed elaboration after one never gates on its own).
+#   * "not keen on X"/"not keen X"/"not open to X" are exclusions; those
+#     two anchors plus "prefer not X" tolerate a bare "on"/"to"/"for"
+#     between the anchor and the race word, on top of the usual modifiers
+#     (a bare "no"/"not" anchor does not get this reach).
+#   * A race named inside a bracket that sits adjacent to a negation
+#     ("chinese (no indian)") is dropped entirely, neither prefer nor
+#     exclude, and the result carries flag_human so a human can check the
+#     source text; the outer race is unaffected and still survives as a
+#     preference.
+#
+# Five ordered passes, same shape as rounds 1/2:
+#   1. "only"/"strictly" (real ones, see above; main clauses only), the
+#      NOT negated race words in that clause become the hard allowed set.
+#   2. "except"/"other than" (main clauses only), polarity from what
+#      precedes it in the same clause: "no one except X" / "none except X"
+#      makes X the entire allowed set; "any race except X" / "all except X"
+#      excludes X (aliasing country/demonym words to the race they imply).
+#      Ambiguous polarity falls through.
+#   3. Plain exclusions (main clauses only), any race word with an
+#      adjacency scoped negation marker before it in its own clause.
+#   4. "any"/"no preference"/"all welcome"/"open to all", decisive now
+#      that pass 3 has already ruled out every race actually tied to an
+#      adjacent negation.
+#   5. A landlord's survived preference, then a plain mention, or "note"
+#      with the raw text if nothing recognisable was found at all.
+_ETH_BRACKET_RE = re.compile(r"[\(\[]([^\)\]]*)[\)\]]")
+_ETH_PLAIN_SPLIT_RE = re.compile(r"[,;.]|\s[-–—]\s|\bbut\b|\band(?=\s+no\b)")
+_ETH_SEGMENT_SPLIT_RE = re.compile(r"[;.]")
+_ETH_EXCEPT_RE = re.compile(r"(?:except|other than)\s+(.*)")
+_ETH_NEGATION_BASE_RE = re.compile(r"\b(?:no\s+one|nobody|none|no\s+preference)\b")
+# "required"/"must be"/"needs to be"/"has to be" are hard requirement triggers
+# same as "only"/"strictly" (round 4), but ONLY inside a main clause: a
+# bracketed elaboration after one of these ("Indian required (Indian family
+# or Indian ladies only)") stays a plain, non gating aside since only_races
+# scans main clauses, never bracket clauses (see parse_ethnicity).
+_ETH_ONLY_RE = re.compile(r"\b(?:only|strictly|required|must be|needs to be|has to be)\b")
+# "only"/"strictly" describing something OTHER than a race (item 3, round 2),
+# stripped out of a clause before checking whether a "real" only remains.
+_ETH_GENERIC_ONLY_PRECEDERS = ("screening", "preference", "preferences", "pax", "room",
+                               "single", "female", "male", "professionals", "students")
+_ETH_GENERIC_ONLY_RE = re.compile(
+    r"\b(?:" + "|".join(_ETH_GENERIC_ONLY_PRECEDERS) + r")\s+(?:only|strictly)\b")
+_ETH_ANY_TRIGGERS = ("no pref", "no race", "all welcome", "open to all")
+# Bare "any" needs a word boundary, not the plain substring match every other
+# trigger uses, "company prefers Germany based staff" must not read as an
+# "any race" signal just because "Germany" ends in "any" (round 3 fix).
+_ETH_ANY_WORD_RE = re.compile(r"\bany\b")
+
+_ETH_TOKEN_RE = re.compile(r"[a-z]+")
+# Round 3 negation words, adjacency (see _position_excluded), not clause
+# scope, decides whether one of these actually negates a given race word.
+_ETH_NEG_TOKENS = {"no", "not", "non", "exclude", "excludes", "excluding",
+                    "without", "reject", "rejected", "rejects", "avoid"}
+# Tokens allowed to sit between a negation word and the race word it negates
+# ("no North Indian" / "no Malaysian tenants" style modifiers) without
+# breaking adjacency.
+_ETH_MODIFIER_TOKENS = {"north", "south", "mainland", "local", "malaysian",
+                         "indonesian", "female", "male", "families", "family",
+                         "students", "the", "a", "any", "just"}
+# The one modifier that also CANCELS the negation it sits next to, "not
+# just X" / "no ... just X" is a stated relaxation, never an exclusion.
+_ETH_RELAX_TOKEN = "just"
+# Country/demonym words that are not themselves in RACES, mapped to the race
+# they imply, used ONLY inside an "except" clause's tail (item 2, round 3).
+# "malaysian" is deliberately absent: it is a nationality, and aliasing it to
+# "malay" inside an except tail would be guessing a race gate from a
+# citizenship question, exactly what this rewrite exists to stop.
+_ETH_EXCEPT_ALIASES = {"india": "indian", "china": "chinese", "mainland": "chinese"}
+_ETH_PREFER_WORDS = {"prefer", "preferred", "prefers", "preferably", "ideally"}
+_ETH_PREFER_RE = re.compile(r"\b(?:" + "|".join(_ETH_PREFER_WORDS) + r")\b")
+# "local"/"non local" are a residency question, never a race (item 4, round
+# 3), RACES keeps "local" for the general mention/prefer fallback below
+# (a landlord CAN volunteer "prefers local tenants"), but it must never be
+# the thing that fires a hard "only"/"exclude" gate.
+_ETH_NEVER_GATE = {"local"}
 
 
-def _races_near_only(text, candidate_races):
-    """candidate_races found within ETH_ONLY_PROXIMITY_TOKENS words of "only",
-    scoped to the same clause -- see parse_ethnicity's item 13 note above."""
-    hits = []
-    for clause in _ETH_CLAUSE_SPLIT_RE.split(text):
-        words = _ETH_WORD_RE.findall(clause)
-        only_idxs = [i for i, w in enumerate(words) if w == "only"]
-        if not only_idxs:
+def _split_plain(segment):
+    return _ETH_PLAIN_SPLIT_RE.split(segment)
+
+
+def _split_into_clauses(t):
+    """Bracketed text becomes its own independent clause group, never
+    sharing a clause with anything outside the brackets, and is itself
+    split the same way; the surrounding text is split normally. Returns
+    (clause, origin) pairs, origin "bracket" or "main", round 3 uses this
+    to keep a parenthetical from ever producing a hard "only"/"exclude"
+    (see module docstring, item on brackets)."""
+    clauses, pos = [], 0
+    for m in _ETH_BRACKET_RE.finditer(t):
+        clauses.extend((c, "main") for c in _split_plain(t[pos:m.start()]))
+        clauses.extend((c, "bracket") for c in _split_plain(m.group(1)))
+        pos = m.end()
+    clauses.extend((c, "main") for c in _split_plain(t[pos:]))
+    return clauses
+
+
+def _split_into_segments(t):
+    """Coarser than _split_into_clauses: only breaks on ';'/'.', leaving
+    commas intact, so a comma joined list like "South Indians, Filipinos,
+    Myanmars preferred" stays ONE segment and the trailing keyword covers
+    the whole list, a fine, comma splitting clause would otherwise orphan
+    every list item before the keyword and lose the preference (round 3
+    "preferences survive" fix). Brackets are still split out on their own
+    so a keyword on one side of a bracket never reaches into it."""
+    segments, pos = [], 0
+    for m in _ETH_BRACKET_RE.finditer(t):
+        segments.extend(_ETH_SEGMENT_SPLIT_RE.split(t[pos:m.start()]))
+        segments.extend(_ETH_SEGMENT_SPLIT_RE.split(m.group(1)))
+        pos = m.end()
+    segments.extend(_ETH_SEGMENT_SPLIT_RE.split(t[pos:]))
+    return segments
+
+
+def _clause_has_real_only(clause):
+    """True if "only"/"strictly" survives after stripping every generic,
+    non race use of it (item 3, round 2)."""
+    stripped = _ETH_GENERIC_ONLY_RE.sub(" ", clause)
+    return bool(_ETH_ONLY_RE.search(stripped))
+
+
+def _clause_words(clause):
+    return [m.group(0) for m in _ETH_TOKEN_RE.finditer(clause)]
+
+
+def _race_matches(word):
+    """Plain substring match, deliberately not anchored with a word
+    boundary (verified against the real live book, 16 Sep 2026): a strict
+    word boundary silently drops "Indians"/"Chineses" style plurals
+    ("indian" no longer matches inside "indians") and loses the common
+    colloquial "Malaysian" for "malay". Both are real, current landlord
+    phrasings that must keep matching. This matches every other race
+    lookup in this file, which has always been plain substring."""
+    return [r for r in RACES if r in word]
+
+
+def _is_negation_anchor(words, i):
+    if words[i] in _ETH_NEG_TOKENS:
+        return True
+    # "not keen"/"not open", the phrase's own negation lands on "keen"/
+    # "open", not "not", so a race right after either is in reach too
+    # ("not keen Chinese", "not open to Indian").
+    if words[i] in ("keen", "open") and i > 0 and words[i - 1] == "not":
+        return True
+    return False
+
+
+# Round 4: "not keen on X"/"not keen X", "not open to X" and "prefer not X"
+# are the three anchors that may also reach through a bare preposition
+# ("on"/"to"/"for") sitting between the anchor and the race word, on top of
+# the usual modifier tokens. Kept separate from _ETH_MODIFIER_TOKENS so a
+# bare "no"/"not" anchor never gains this reach (e.g. "no on chinese" must
+# not scope through a stray preposition the way "not keen on chinese" does).
+_ETH_PREP_BETWEEN_TOKENS = {"on", "to", "for"}
+
+
+def _is_extended_reach_anchor(words, i):
+    """True if the anchor at i is one of "not keen"/"not open"/"prefer not",
+    the three phrasings that also tolerate a preposition in between (round
+    4)."""
+    if words[i] in ("keen", "open") and i > 0 and words[i - 1] == "not":
+        return True
+    if words[i] == "not" and i > 0 and words[i - 1] == "prefer":
+        return True
+    return False
+
+
+def _position_excluded(words, j):
+    """True if the race word at token index j has a negation word at most
+    two tokens before it (round 3 adjacency), with nothing but modifier
+    words in between (plus a preposition for the three anchors round 4
+    extends, see _is_extended_reach_anchor), AND that reach doesn't pass
+    through the one relaxing modifier ("just") sitting alone right before
+    the race word."""
+    for i in range(max(0, j - 3), j):
+        if not _is_negation_anchor(words, i):
             continue
-        for r in candidate_races:
-            if r in hits:
-                continue
-            for i, w in enumerate(words):
-                if w == r and any(abs(i - oi) <= ETH_ONLY_PROXIMITY_TOKENS for oi in only_idxs):
-                    hits.append(r)
-                    break
-    return hits
+        between = words[i + 1:j]
+        allowed = _ETH_MODIFIER_TOKENS
+        if _is_extended_reach_anchor(words, i):
+            allowed = _ETH_MODIFIER_TOKENS | _ETH_PREP_BETWEEN_TOKENS
+        if not all(b in allowed for b in between):
+            continue
+        if len(between) == 1 and between[0] == _ETH_RELAX_TOKEN:
+            continue  # "not just X" / "no ... just X", explicit non exclusion
+        return True
+    return False
+
+
+def _clause_race_polarity(clause):
+    """(included, excluded) race words in `clause`. A race is excluded if
+    ANY of its occurrences in the clause has an adjacency scoped negation
+    (see _position_excluded), a real, stated exclusion must never be
+    dropped just because the same race was also mentioned neutrally
+    elsewhere in the same breath ("an Indian applicant was rejected: no
+    Indian")."""
+    words = _clause_words(clause)
+    positions = {}
+    for j, w in enumerate(words):
+        for r in _race_matches(w):
+            positions.setdefault(r, []).append(j)
+    included, excluded = [], []
+    for r in RACES:
+        js = positions.get(r)
+        if not js:
+            continue
+        if any(_position_excluded(words, j) for j in js):
+            excluded.append(r)
+        else:
+            included.append(r)
+    return included, excluded
+
+
+def _except_tail_races(tail):
+    """Races named after "except"/"other than", aliasing bare country/
+    demonym words that aren't themselves in RACES (item 2, round 3).
+    "malaysian" is skipped even though it contains "malay" as a substring:
+    inside an except tail specifically that would guess a race gate from a
+    nationality word, which this rewrite exists to stop (plain substring
+    matching elsewhere in this file is unaffected)."""
+    races = []
+    for tok in _clause_words(tail):
+        if tok == "malaysian":
+            continue
+        matched = _race_matches(tok)
+        if matched:
+            for r in matched:
+                if r not in races:
+                    races.append(r)
+            continue
+        alias = _ETH_EXCEPT_ALIASES.get(tok)
+        if alias and alias not in races:
+            races.append(alias)
+    return races
+
+
+def _collect_prefer_races(segments):
+    """Races from segments containing a prefer/preferred/prefers/
+    preferably/ideally keyword (item 3, round 3), "the landlord's
+    positive statement wins". A segment where the keyword is immediately
+    followed by "not" ("prefer not X") is a negation, not a preference, and
+    is skipped entirely rather than risk reading its non negated leftovers
+    as a preference."""
+    prefer = []
+    for seg in segments:
+        if not _ETH_PREFER_RE.search(seg):
+            continue
+        words = _clause_words(seg)
+        if any(w in _ETH_PREFER_WORDS and i + 1 < len(words) and words[i + 1] == "not"
+               for i, w in enumerate(words)):
+            continue
+        included, _ = _clause_race_polarity(seg)
+        for r in included:
+            if r not in prefer:
+                prefer.append(r)
+    return prefer
 
 
 def parse_ethnicity(txt):
     t = (txt or "").lower()
     if not t:
         return {"rule": "any", "races": []}
-    any_idx = t.find("any")
-    # "no pref"/"no race" stay unconditional shortcuts (they are not the "any"
-    # bug this guards against); the bare "any" substring is decisive only when
-    # no exclusion marker follows it anywhere in the text (item 14).
-    any_decisive = ("no pref" in t or "no race" in t or
-                    (any_idx != -1 and not _ETH_EXCLUSION_MARKERS_RE.search(t, any_idx + len("any"))))
-    if any_decisive:
-        return {"rule": "any", "races": []}
-    found = [r for r in RACES if r in t]
-    if "no " in t or "not " in t or "except" in t or "exclude" in t:
-        excl = [r for r in RACES if re.search(r"(?:no[t]?|except|exclude|without)\s+" + r, t) or ("no " + r in t)]
-        if excl: return {"rule":"exclude","races":excl}
-    if "only" in t and found:
-        near = _races_near_only(t, found)
-        if near:
-            return {"rule": "only", "races": near}
-        return {"rule": "prefer", "races": found}  # "only" present but not about a race word (item 13)
-    if "pref" in t and found: return {"rule":"prefer","races":found}
-    if found: return {"rule":"prefer","races":found}
-    return {"rule":"note","races":[], "raw":(txt or "")[:80]}
+    clauses = _split_into_clauses(t)
+    main_clauses = [c for c, origin in clauses if origin == "main"]
+    bracket_clauses = [c for c, origin in clauses if origin == "bracket"]
+    prefer = _collect_prefer_races(_split_into_segments(t))
 
+    # Round 4: a race named inside a bracket that sits adjacent to a
+    # negation ("chinese (no indian)") is neither a preference nor an
+    # exclusion, it is dropped entirely, since a bracketed aside never
+    # gates (see _split_into_clauses); a bare mention could otherwise leak
+    # back in through the raw substring fallback scan below, wrongly
+    # turning it into a preference. Flags the row for a human to double
+    # check the source text instead of guessing either way.
+    dropped = []
+    for clause in bracket_clauses:
+        _, clause_excluded = _clause_race_polarity(clause)
+        for r in clause_excluded:
+            if r not in dropped and r not in _ETH_NEVER_GATE:
+                dropped.append(r)
+
+    only_races = []
+    for clause in main_clauses:
+        if _clause_has_real_only(clause):
+            included, _ = _clause_race_polarity(clause)
+            for r in included:
+                if r not in only_races and r not in _ETH_NEVER_GATE:
+                    only_races.append(r)
+    if only_races:
+        return {"rule": "only", "races": only_races}
+
+    for clause in main_clauses:
+        m = _ETH_EXCEPT_RE.search(clause)
+        if not m:
+            continue
+        tail_races = [r for r in _except_tail_races(m.group(1)) if r not in _ETH_NEVER_GATE]
+        if not tail_races:
+            continue
+        head = clause[:m.start()]
+        if _ETH_NEGATION_BASE_RE.search(head):
+            return {"rule": "only", "races": tail_races}
+        if "any" in head or "all" in head:
+            races = [r for r in tail_races if r not in prefer]
+            result = {"rule": "exclude", "races": races}
+            if prefer:
+                result["prefer"] = prefer
+            return result
+        # ambiguous polarity (no "any"/"all"/negation base before it), fall
+        # through and let the plain exclusion scan below pick it up
+
+    excl = []
+    for clause in main_clauses:
+        _, clause_excluded = _clause_race_polarity(clause)
+        for r in clause_excluded:
+            if r not in excl and r not in _ETH_NEVER_GATE:
+                excl.append(r)
+    excl = [r for r in excl if r not in prefer]
+    if excl:
+        result = {"rule": "exclude", "races": excl}
+        if prefer:
+            result["prefer"] = prefer
+        return result
+
+    if any(trigger in t for trigger in _ETH_ANY_TRIGGERS) or _ETH_ANY_WORD_RE.search(t):
+        return {"rule": "any", "races": []}
+
+    if prefer:
+        result = {"rule": "prefer", "races": prefer}
+        if dropped:
+            result["flag_human"] = True
+        return result
+
+    found = [r for r in RACES if r in t and r not in dropped]
+    if found:
+        result = {"rule": "prefer", "races": found}
+        if dropped:
+            result["flag_human"] = True
+        return result
+    result = {"rule": "note", "races": [], "raw": (txt or "")[:80]}
+    if dropped:
+        result["flag_human"] = True
+    return result
 def maps_query(addr, district, dist_area):
     q = addr or dist_area.get(district, district or "")
     return (str(q).strip() + " Singapore") if q else ""
@@ -949,12 +1350,14 @@ BUDGET_CONTRADICTION_MIN_DELTA = 50    # ...AND by >=$50, so a same-figure resta
                                         # "Budget:max 900") reads as rounding, not a real signal.
 
 # item 8 -- plausible SG monthly ROOM RENTAL budget band for a tenant's
-# budget/budget_min/budget_max fields at export. Deliberately wide (real room
-# rentals run roughly $600-$3,000) so this only screens obvious mis-parses or
-# a mixed-up field (a purchase price, a phone digit run) rather than
-# legitimate outliers.
-BUDGET_PLAUSIBLE_MIN = 300
-BUDGET_PLAUSIBLE_MAX = 15000
+# budget/budget_min/budget_max fields at export. BUDGET_PLAUSIBLE_MIN/MAX are
+# enrich.py's ONE shared pair (Opus review of PR #133, 16 Sep 2026 -- this
+# file used to keep its own separate 300..15000, drifting from enrich.py's
+# 300..20000 for the same concept); deliberately wide so this only screens
+# obvious mis-parses or a mixed-up field (a purchase price, a phone digit
+# run) rather than legitimate outliers.
+BUDGET_PLAUSIBLE_MIN = enrich.BUDGET_PLAUSIBLE_MIN
+BUDGET_PLAUSIBLE_MAX = enrich.BUDGET_PLAUSIBLE_MAX
 
 
 def find_budget_contradiction(conn, jid, stated_budget):
@@ -1458,6 +1861,9 @@ def compute_health(listings, tenants, landlords=None):
 
 
 # ------------------------------------------- enrichment queue [ideas 5-7] --
+UNLOCK_VALUE_GATE_FIELD_COUNT = 5  # budget, pax, lease_months, move_in, district -- see unlock_value_for's own docstring
+
+
 def unlock_value_for(missing, listings):
     """Sum, across the tenant's own missing intake fields, of how many CURRENTLY
     AVAILABLE listings that specific field's gate applies to -- filtered here to
@@ -1490,7 +1896,26 @@ def unlock_value_for(missing, listings):
     not a property of how useful the ask actually is. Summing bounded 0..1
     fractions instead caps a single field's contribution at "gates the
     whole market" and keeps two builds with different inventory sizes
-    comparable on the same scale."""
+    comparable on the same scale.
+
+    Scaled to a rounded 0..100 integer rather than returned as a raw float
+    (Opus review of PR #133, 16 Sep 2026, round 1): app.js's worklist chip
+    renders this verbatim as "+<unlock_value>" and a bare float would print
+    as "+0.6666666666666666" instead of the intended "+37" style count.
+
+    The scale (round 2 review) divides the fraction sum by
+    UNLOCK_VALUE_GATE_FIELD_COUNT -- the fixed number of fields this function
+    tracks (budget/pax/lease_months/move_in/district = 5), NOT by how many of
+    them a given tenant happens to be missing. Dividing by the fixed count
+    keeps this a genuine 0..100 scale (100 only when a tenant is missing
+    every field AND every one of them gates the whole market) while
+    preserving the SUM semantics item 16 needs: missing several gated fields
+    still adds up to a higher score than missing only district, exactly as
+    before -- dividing every candidate by the same constant cannot change
+    their relative order. Dividing by the PER-TENANT missing-field count
+    instead would average rather than sum, which reintroduces the item
+    3/16 problem from the other direction (a single near-universal field
+    could tie or beat several genuinely rarer ones)."""
     if not missing:
         return 0
     avail = [l for l in listings if l.get("availability") == "Available"]
@@ -1505,7 +1930,8 @@ def unlock_value_for(missing, listings):
         if g.get("lease_min") is not None: gated["lease_months"] += 1
         if l.get("available_from") is not None: gated["move_in"] += 1
         if l.get("district"): gated["district"] += 1
-    return sum(gated[field] / total for field in missing if field in gated)
+    fraction_sum = sum(gated[field] / total for field in missing if field in gated)
+    return round(fraction_sum / UNLOCK_VALUE_GATE_FIELD_COUNT * 100)
 
 
 def build_enrichment_queue(tenants, listings, refused=None):

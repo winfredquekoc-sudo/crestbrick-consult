@@ -252,27 +252,169 @@ def test_phone_normalize_idempotent():
 
 # =========================================== ethnicity parser [items 1/13/14]
 def test_parse_ethnicity_guards():
-    section("parse_ethnicity: 'only' proximity guard (item 13) and 'any' exclusion guard (item 14)")
+    section("parse_ethnicity: adjacency scoped negation rewrite (Opus HOLD review of PR #133, round 3, "
+            "16 Sep 2026), round 2's clause scoped negation let a marker anywhere earlier in a clause "
+            "negate every race after it, which on the live book produced 4 false hard gates: 'not just "
+            "Chinese' read as excluding Chinese, 'no ethnicity objection raised' read as excluding every "
+            "race mentioned later in the sentence, a preferred race got discarded once a later negation "
+            "fired, and a residency question ('non local') read as a race gate. Round 3 only lets a "
+            "negation word negate a race at most two (modifier only) tokens away, treats 'not just X'/'not "
+            "only X' as an explicit non exclusion, aliases bare country words (India, China, mainland) to "
+            "the race they imply inside an except clause only, lets a landlord's stated preference survive "
+            "and drop the same race from exclude, and never lets a bracket or 'local'/'non local' produce "
+            "a hard gate. This corpus covers every phrasing from all three review rounds plus the 4 "
+            "confirmed live book regressions (see PR body 'Live book comparison').")
     cases = [
-        # (raw text, expected rule, expected races)
-        ("Chinese only", "only", ["chinese"]),
-        ("small room only, prefers Chinese", "prefer", ["chinese"]),
-        ("no preference", "any", []),
-        ("any race except Indian", "exclude", ["indian"]),
-        ("not any particular race but no Indian", "exclude", ["indian"]),
-        ("prefer not Indian and Malay", "exclude", ["indian"]),
+        # (raw text, expected rule, expected races, expected prefer list or None if not asserted)
+
+        # round 2: the 4 confirmed polarity inversion bug reports
+        ("Chinese only (no Indian/Malay)", "only", ["chinese"], None),
+        # round 3: "and" breaks adjacency, "not" only reaches Indian (0
+        # tokens away); Malay is 3 tokens from "not" through a non modifier
+        # "and" and is no longer guessed as excluded (was exclude:[indian,
+        # malay] under round 2's clause wide negation scan)
+        ("prefer not Indian and Malay (internal screening only, never public)", "exclude", ["indian"], None),
+        ("Excludes Indian, INTERNAL screening preference only, never in public listing", "exclude", ["indian"], None),
+        ("Chinese only (confirmed 27 Jun: rejected Indian profile)", "only", ["chinese"], None),
+
+        # round 2: "all welcome" / "open to all" / "all except X" (item 4)
+        ("all welcome", "any", [], None),
+        ("open to all", "any", [], None),
+        ("open to all races", "any", [], None),
+        ("all except indian", "exclude", ["indian"], None),
+
+        # round 2: negation words beyond plain no/not (item 2)
+        ("excludes indian tenants", "exclude", ["indian"], None),
+        ("excluding malay applicants", "exclude", ["malay"], None),
+        ("we reject indian tenants", "exclude", ["indian"], None),
+        ("avoid indian tenants", "exclude", ["indian"], None),
+        ("non chinese tenants preferred", "exclude", ["chinese"], None),
+
+        # round 2: generic "only" that is NOT about race (item 3), must never
+        # hard block on a word like "screening"/"pax"/"room" etc.
+        ("1 pax only, Chinese preferred", "prefer", ["chinese"], None),
+        ("female only, Chinese preferred", "prefer", ["chinese"], None),
+        ("professionals only, no Indian", "exclude", ["indian"], None),
+
+        # found live book cases (via the local, uncommitted regression script
+        # comparing every real ethnicity string old vs new, see PR body):
+        # plural/derived forms and a race mentioned twice with mixed polarity
+        # in the same clause must not silently drop a real exclusion
+        ("no Indians allowed", "exclude", ["indian"], None),
+        ("no Malaysian tenants", "exclude", ["malay"], None),
+        ("an Indian applicant was rejected: no Indian", "exclude", ["indian"], None),
+
+        # round 1 (unchanged behavior, still must hold)
+        ("Chinese only", "only", ["chinese"], None),
+        ("small room only, prefers Chinese", "prefer", ["chinese"], None),
+        ("no preference", "any", [], None),
+        ("any race except Indian", "exclude", ["indian"], None),
+        ("not any particular race but no Indian", "exclude", ["indian"], None),
+        # round 3: same "and" adjacency break as above (was exclude:[indian,
+        # malay] in round 2)
+        ("prefer not Indian and Malay", "exclude", ["indian"], None),
+        ("no Indian pls", "exclude", ["indian"], None),
+        ("Chinese or Malay only", "only", ["chinese", "malay"], None),
+        ("any race ok but no pets", "any", [], None),
+        ("not Indian and not Malay", "exclude", ["indian", "malay"], None),
+        ("prefer chinese", "prefer", ["chinese"], None),
+        ("any race except indian", "exclude", ["indian"], None),
+        ("no one except chinese", "only", ["chinese"], None),
+        ("only looking for a chinese tenant", "only", ["chinese"], None),
+        ("we only accept chinese or malay tenants", "only", ["chinese", "malay"], None),
+        ("Malay only", "only", ["malay"], None),
+        ("any", "any", [], None),
+        ("no Indian", "exclude", ["indian"], None),
+        ("", "any", [], None),
+        ("strictly Chinese tenants", "only", ["chinese"], None),
+
+        # round 3: the 4 confirmed live book HOLD findings (PR #133 third
+        # review, 16 Sep 2026), see PR body "Live book comparison" table
+        # LL110: "not just Chinese" is a relaxation (other nationalities now
+        # ALSO considered), never an exclusion of Chinese
+        ("Widened 22 Aug 2026: male tenants of other nationalities now considered "
+         "(not just Chinese from MY/PH/TW). Indian male students ... approved for "
+         "viewing. Landlord preference, not a fixed gate.", "prefer", ["indian", "chinese"], None),
+        # LL112: "no ethnicity objection raised" negates nothing (no race sits
+        # within 2 tokens of "no"); only the "except India" clause gates
+        ("All except India per intake form (13 Aug 2026); in practice no ethnicity "
+         "objection raised when viewing a Malaysian Chinese couple, a Malaysian "
+         "Indian candidate, or a Filipino candidate", "exclude", ["indian"], None),
+        # LL065: South Indians are a stated preference, indian survives and
+        # is dropped from exclude even though "no ... Malaysian, no Mainland
+        # Chinese" still hard gates malay/chinese
+        ("South Indians, Filipinos, Myanmars preferred; no North Indian female, "
+         "no Malaysian, no Mainland Chinese", "exclude", ["malay", "chinese"], ["indian", "filipino", "myanmar"]),
+        # LL125: "asked if tenants are non local" is a question in a bracket,
+        # never a gate, and "local" itself never gates (item 4)
+        ("Chinese preferred (landlord asked if tenants are non local; landlord preference)",
+         "prefer", ["chinese"], None),
+
+        # round 3: additional required corpus (item 5)
+        ("not just Chinese", "prefer", ["chinese"], None),
+        ("no ethnicity objection raised", "note", [], None),
+        ("no North Indian female", "exclude", ["indian"], None),
+        ("no Mainland Chinese", "exclude", ["chinese"], None),
+        ("all except India", "exclude", ["indian"], None),
+        ("Chinese preferred; excludes Indian", "exclude", ["indian"], ["chinese"]),
+        ("company prefers Germany based staff", "note", [], None),
+
+        # round 4: "required"/"must be"/"needs to be"/"has to be" are hard
+        # requirement triggers same as "only"/"strictly", main clauses only
+        # so a bracketed elaboration after one stays a plain aside
+        ("Indian required", "only", ["indian"], None),
+        ("must be chinese", "only", ["chinese"], None),
+        ("needs to be malay", "only", ["malay"], None),
+        ("has to be indian", "only", ["indian"], None),
+        ("Indian required (Indian family or Indian ladies only)", "only", ["indian"], None),
+        # LL121, live book (see PR body): the actual requirement text
+        ("Indian required (Indian family or Indian ladies only; landlord preference, "
+         "20 Aug 2026). No other restrictions stated.", "only", ["indian"], None),
+
+        # round 4: "not keen on X"/"not keen X"/"not open to X" are
+        # exclusions; "on"/"to"/"for" are allowed between these anchors (and
+        # "prefer not X") and the race word, on top of the usual modifiers
+        ("not keen on chinese", "exclude", ["chinese"], None),
+        ("not keen chinese", "exclude", ["chinese"], None),
+        ("not open to indian", "exclude", ["indian"], None),
+        ("not open indian", "exclude", ["indian"], None),
+        ("prefer not for indian", "exclude", ["indian"], None),
+        ("prefer not indian", "exclude", ["indian"], None),
+        # a bare "no"/"not" anchor does NOT gain the on/to/for reach, so
+        # "on" breaks adjacency here and chinese survives as a plain mention
+        ("no on chinese landlord unsure what this even means", "prefer", ["chinese"], None),
+
+        # round 4: a race named inside a bracket adjacent to a negation is
+        # dropped entirely (neither prefer nor exclude); the outer race
+        # remains a preference, unaffected
+        ("chinese (no indian)", "prefer", ["chinese"], None),
+        ("prefer chinese (no indian)", "prefer", ["chinese"], None),
     ]
-    for raw, exp_rule, exp_races in cases:
+    for raw, exp_rule, exp_races, exp_prefer in cases:
         got = ed.parse_ethnicity(raw)
         check(f"{raw!r} -> rule {exp_rule!r}", got["rule"] == exp_rule, f"got {got}")
         check(f"{raw!r} -> races {exp_races!r}", got["races"] == exp_races, f"got {got}")
+        if exp_prefer is not None:
+            check(f"{raw!r} -> prefer {exp_prefer!r}", got.get("prefer") == exp_prefer, f"got {got}")
 
     section("parse_ethnicity: a few more guard edge cases")
     check("'Malay only' (adjacent) -> hard only", ed.parse_ethnicity("Malay only") == {"rule": "only", "races": ["malay"]})
     check("bare 'any' with nothing after -> any/no preference", ed.parse_ethnicity("any") == {"rule": "any", "races": []})
-    check("'no Indian' (no 'any' at all) -> exclude, unaffected by the any-guard",
+    check("'no Indian' (no 'any' at all) -> exclude, unaffected by the any check",
           ed.parse_ethnicity("no Indian") == {"rule": "exclude", "races": ["indian"]})
     check("empty/blank text -> any/no preference (unchanged default)", ed.parse_ethnicity("") == {"rule": "any", "races": []})
+    check("'strictly' behaves like 'only'", ed.parse_ethnicity("strictly Chinese tenants") == {"rule": "only", "races": ["chinese"]})
+
+    section("parse_ethnicity: round 4 (required trigger, not keen/not open, bracketed exclusion flagged)")
+    check("bracketed negation adjacent race is dropped and flags for a human",
+          ed.parse_ethnicity("chinese (no indian)") == {"rule": "prefer", "races": ["chinese"], "flag_human": True})
+    check("same drop still fires when the outer race is an explicit preference",
+          ed.parse_ethnicity("prefer chinese (no indian)") == {"rule": "prefer", "races": ["chinese"], "flag_human": True})
+    check("a plain 'only' result never carries flag_human (unaffected by round 4)",
+          "flag_human" not in ed.parse_ethnicity("Chinese only"))
+    check("a bracketed non local aside never flags (local is never a gateable race)",
+          "flag_human" not in ed.parse_ethnicity(
+              "Chinese preferred (landlord asked if tenants are non local; landlord preference)"))
 
 
 # ==================================================================== lang
@@ -413,7 +555,11 @@ def test_missing_and_intake_complete():
 
 # ============================================= budget/date plausibility [item 8]
 def test_budget_and_move_in_plausibility():
-    section("budget plausibility bound (300..15000): outside the band -> treated as missing + flagged")
+    section("budget band is enrich.py's ONE shared constant pair (item 6 review fix), not a second local copy")
+    check("export_data.BUDGET_PLAUSIBLE_MIN is enrich's", ed.BUDGET_PLAUSIBLE_MIN == enrich.BUDGET_PLAUSIBLE_MIN == 300)
+    check("export_data.BUDGET_PLAUSIBLE_MAX is enrich's", ed.BUDGET_PLAUSIBLE_MAX == enrich.BUDGET_PLAUSIBLE_MAX == 20000)
+
+    section("budget plausibility bound (300..20000): outside the band -> treated as missing + flagged")
     sale_price_leak = fake_tenant(id="T950", budget=680000, budget_min="", budget_max=None)
     tenants, _ = ed.build_tenants([sale_price_leak], {"phones": [], "ids": [], "name_markers": []}, None, TODAY, [])
     t = tenants[0]
@@ -891,9 +1037,12 @@ def test_geocode_pending_carryover():
     def _fake_miss(*_a, **_kw):
         raise OSError("simulated OneMap failure")
 
+    def _keys():
+        return [e["key"] for e in ed._GEOCODE_PENDING]
+
     try:
         _reset()
-        ed._GEOCODE_PENDING.append("1 test ave, singapore")
+        ed._GEOCODE_PENDING.append({"key": "1 test ave, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_hit), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
         check("a pending address resolved this run is dropped from the pending list",
@@ -903,30 +1052,32 @@ def test_geocode_pending_carryover():
               f"got {ed._GEOCACHE.get('1 test ave, singapore')}")
 
         _reset()
-        ed._GEOCODE_PENDING.append("2 nowhere road, singapore")
+        ed._GEOCODE_PENDING.append({"key": "2 nowhere road, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_miss), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
-        check("an address OneMap still can't resolve stays pending for the next run",
-              ed._GEOCODE_PENDING == ["2 nowhere road, singapore"], f"got {ed._GEOCODE_PENDING}")
+        check("an address OneMap still can't resolve stays pending for the next run, attempt counted",
+              ed._GEOCODE_PENDING == [{"key": "2 nowhere road, singapore", "attempts": 1}],
+              f"got {ed._GEOCODE_PENDING}")
 
         _reset(budget=0)
-        ed._GEOCODE_PENDING.append("3 budget-exhausted ave, singapore")
+        ed._GEOCODE_PENDING.append({"key": "3 budget-exhausted ave, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_hit), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
-        check("pending is left untouched (never spends a budget it doesn't have)",
-              ed._GEOCODE_PENDING == ["3 budget-exhausted ave, singapore"], f"got {ed._GEOCODE_PENDING}")
+        check("pending is left untouched (never spends a budget it doesn't have, attempts unchanged)",
+              ed._GEOCODE_PENDING == [{"key": "3 budget-exhausted ave, singapore", "attempts": 0}],
+              f"got {ed._GEOCODE_PENDING}")
 
         section("geocode(): a fresh address that falls back to a centroid queues itself pending")
         _reset(budget=0)  # force the centroid fallback without a live attempt
         lat, lng, src = ed.geocode("4 somewhere street, singapore", "D15")
         check("budget exhausted -> centroid ('approx') fallback", src == "approx")
         check("that address is queued pending for the next run",
-              "4 somewhere street, singapore" in ed._GEOCODE_PENDING, f"got {ed._GEOCODE_PENDING}")
+              "4 somewhere street, singapore" in _keys(), f"got {ed._GEOCODE_PENDING}")
 
         section("prime_pending_geocodes() is called BEFORE build_listings() spends the same budget "
                 "-- pending gets first refusal of the live lookup budget")
         _reset()
-        ed._GEOCODE_PENDING.append("5 priority ave, singapore")
+        ed._GEOCODE_PENDING.append({"key": "5 priority ave, singapore", "attempts": 0})
         with mock.patch("urllib.request.urlopen", _fake_hit), mock.patch("time.sleep"):
             ed.prime_pending_geocodes()
             budget_after_priming = ed._GEOCODE_BUDGET
@@ -935,6 +1086,40 @@ def test_geocode_pending_carryover():
               budget_after_priming == 19, f"got {budget_after_priming}")
         check("the brand new address still got a live attempt from what budget remained",
               src2 == "exact", f"got {src2}")
+
+        section("item 4 review fix: a permanently unresolvable address is dropped after "
+                "GEOCODE_PENDING_MAX_ATTEMPTS failures and stops consuming budget")
+        _reset()
+        ed._GEOCODE_PENDING.append({"key": "7 permanently broken ave, singapore",
+                                     "attempts": ed.GEOCODE_PENDING_MAX_ATTEMPTS - 1})
+        with mock.patch("urllib.request.urlopen", _fake_miss), mock.patch("time.sleep"):
+            ed.prime_pending_geocodes()
+        check("the address is dropped for good once it hits the attempt cap",
+              ed._GEOCODE_PENDING == [], f"got {ed._GEOCODE_PENDING}")
+        check("dropping it still spent exactly one budget unit on the final attempt",
+              ed._GEOCODE_BUDGET == 19, f"got {ed._GEOCODE_BUDGET}")
+
+        _reset()
+        ed._GEOCODE_PENDING.append({"key": "7 permanently broken ave, singapore",
+                                     "attempts": ed.GEOCODE_PENDING_MAX_ATTEMPTS})
+        def _fail_if_called(*_a, **_kw):
+            raise AssertionError("must not spend a live attempt on an already-capped address")
+        with mock.patch("urllib.request.urlopen", _fail_if_called), mock.patch("time.sleep"):
+            ed.prime_pending_geocodes()
+        check("already at the cap on load -- dropped without spending a live attempt or budget",
+              ed._GEOCODE_PENDING == [] and ed._GEOCODE_BUDGET == 20,
+              f"pending={ed._GEOCODE_PENDING} budget={ed._GEOCODE_BUDGET}")
+
+        section("item 4 review fix: an address that got a turn this run rotates to the BACK of the "
+                "queue; one only skipped for lack of budget keeps its place at the FRONT")
+        _reset(budget=1)
+        ed._GEOCODE_PENDING.append({"key": "8 gets a turn, singapore", "attempts": 0})
+        ed._GEOCODE_PENDING.append({"key": "9 budget ran out, singapore", "attempts": 0})
+        with mock.patch("urllib.request.urlopen", _fake_miss), mock.patch("time.sleep"):
+            ed.prime_pending_geocodes()
+        check("the entry that got a turn (and is still unresolved) is now at the back",
+              _keys() == ["9 budget ran out, singapore", "8 gets a turn, singapore"],
+              f"got {_keys()}")
     finally:
         _reset()  # never leave real module state dirty for tests that run after this one
 
@@ -969,11 +1154,20 @@ def test_pending_review_status():
                 "rent_min": 1200, "rent_max": 1200}
     own_landlord = {"status": "active", "contact_label_source": "own",
                      "full_address": "To confirm", "rooms_and_rent": ""}
+    stub_active_verify = {"status": "active-verify", "contact_label_source": "content sweep (contact not yet labelled)",
+                           "full_address": "To confirm", "rooms_and_rent": ""}
+    stub_channel = {"status": "channel", "contact_label_source": "content sweep (contact not yet labelled)",
+                     "full_address": "To confirm", "rooms_and_rent": ""}
     check("full_address == 'To confirm' -> pending review", ed.is_pending_review(stub_addr) is True)
     check("rooms_and_rent contains 'to confirm' -> pending review", ed.is_pending_review(stub_rooms) is True)
     check("promoted by a human (real address, real rooms) -> no longer pending review", ed.is_pending_review(reviewed) is False)
     check("an ordinary (non sweep) landlord with a placeholder address is NOT pending review "
           "-- this rule is scoped to the sweep only", ed.is_pending_review(own_landlord) is False)
+    check("status active-verify (item 5 review fix -- the same set availability() accepts) -> pending review",
+          ed.is_pending_review(stub_active_verify) is True)
+    check("status channel (item 5 review fix) -> pending review", ed.is_pending_review(stub_channel) is True)
+    check("availability() agrees: active-verify sweep stub -> 'Pending review'",
+          ed.availability(stub_active_verify) == "Pending review", f"got {ed.availability(stub_active_verify)}")
 
     section("availability(): pending review never reads as Available")
     check("sweep stub -> 'Pending review', not 'Available'", ed.availability(stub_addr) == "Pending review",
@@ -1167,18 +1361,21 @@ def test_enrichment_queue():
         {"id": "LL4", "name": "L4", "district": "D17", "rent_min": 1000, "available_from": "2026-09-15",
          "availability": "Offer pending", "gates": {"max_pax": 1, "lease_min": 12}},
     ]
-    # 3 Available listings (LL4 excluded): budget/district gate 2 of 3 (2/3), pax gates 1 of 3 (1/3)
+    # 3 Available listings (LL4 excluded): budget/district gate 2 of 3 (2/3), pax gates 1 of 3 (1/3).
+    # Scaled to a rounded 0..100 integer by dividing by the FIXED gate field
+    # count (5), not by how many fields this tenant is missing (Opus review
+    # of PR #133, round 2) -- so app.js's "+N" chip keeps working AND the sum
+    # semantics (item 16) survive: 2/3 / 5 * 100 = 13.33 -> 13, etc.
     check("no missing fields -> 0 unlock value", ed.unlock_value_for([], listings) == 0)
-    check("budget missing -> fraction of Available listings with a price floor (LL1, LL3 of 3; LL4 excluded)",
-          abs(ed.unlock_value_for(["budget"], listings) - 2 / 3) < 1e-9,
-          f"got {ed.unlock_value_for(['budget'], listings)}")
-    check("pax missing -> fraction of Available listings gating on max_pax (LL1 of 3)",
-          abs(ed.unlock_value_for(["pax"], listings) - 1 / 3) < 1e-9)
-    check("district missing -> fraction of Available listings that themselves have a district (LL1, LL2 of 3; LL3 excluded)",
-          abs(ed.unlock_value_for(["district"], listings) - 2 / 3) < 1e-9,
-          f"got {ed.unlock_value_for(['district'], listings)}")
-    check("missing fields SUM independently (item 3, unchanged) -- budget(2/3) + pax(1/3) = 1.0",
-          abs(ed.unlock_value_for(["budget", "pax"], listings) - 1.0) < 1e-9,
+    check("unlock_value_for always returns an int, never a float", isinstance(ed.unlock_value_for(["budget"], listings), int))
+    check("budget missing -> fraction of Available listings with a price floor (LL1, LL3 of 3; LL4 excluded), scaled to 13",
+          ed.unlock_value_for(["budget"], listings) == 13, f"got {ed.unlock_value_for(['budget'], listings)}")
+    check("pax missing -> fraction of Available listings gating on max_pax (LL1 of 3), scaled to 7",
+          ed.unlock_value_for(["pax"], listings) == 7, f"got {ed.unlock_value_for(['pax'], listings)}")
+    check("district missing -> fraction of Available listings that themselves have a district (LL1, LL2 of 3; LL3 excluded), scaled to 13",
+          ed.unlock_value_for(["district"], listings) == 13, f"got {ed.unlock_value_for(['district'], listings)}")
+    check("missing fields SUM independently (item 3, unchanged) -- budget(2/3) + pax(1/3) = 1.0, scaled to 20",
+          ed.unlock_value_for(["budget", "pax"], listings) == 20,
           f"got {ed.unlock_value_for(['budget', 'pax'], listings)}")
 
     section("the real degenerate case (item 3): missing several gated fields must outrank missing only district")
@@ -1192,6 +1389,8 @@ def test_enrichment_queue():
     all_four = ed.unlock_value_for(["budget", "pax", "lease_months", "move_in"], listings2)
     check("missing only district no longer automatically ties/outranks missing 4 gated fields",
           all_four > district_only, f"district_only={district_only} all_four={all_four}")
+    check("both listings fully gate every field here -> district_only=20 (1/5*100), all_four=80 (4/5*100)",
+          district_only == 20 and all_four == 80, f"district_only={district_only} all_four={all_four}")
 
     section("item 16: weighting by fraction bounds a single field's contribution at 1.0, so "
             "district's score no longer grows (and its advantage over a narrower field no "
@@ -1201,12 +1400,12 @@ def test_enrichment_queue():
                  "availability": "Available", "gates": {"max_pax": None, "lease_min": None}}
                 for i in range(n)]
     small_pool, big_pool = all_district_listings(5), all_district_listings(50)
-    check("district alone scores 1.0 on a small pool (would have been raw count 5 before this fix)",
-          ed.unlock_value_for(["district"], small_pool) == 1.0,
+    check("district alone scores 20 on a small pool (would have been raw count 5 before this fix)",
+          ed.unlock_value_for(["district"], small_pool) == 20,
           f"got {ed.unlock_value_for(['district'], small_pool)}")
-    check("district alone STILL scores 1.0 on a 10x bigger pool (would have been raw count 50 before "
+    check("district alone STILL scores 20 on a 10x bigger pool (would have been raw count 50 before "
           "this fix, an ever widening gap against any narrower field) -- fraction weighting caps it",
-          ed.unlock_value_for(["district"], big_pool) == 1.0,
+          ed.unlock_value_for(["district"], big_pool) == 20,
           f"got {ed.unlock_value_for(['district'], big_pool)}")
 
     tenants = [
@@ -1220,8 +1419,8 @@ def test_enrichment_queue():
     check("tenant with no missing fields is excluded from the queue",
           "T4" not in {r["id"] for r in q}, f"got {[r['id'] for r in q]}")
     check("queue has exactly the 4 tenants with gaps", len(q) == 4, f"got {len(q)}")
-    check("highest unlock_value (T5, missing budget+pax, sums to 1.0) ranks first",
-          q[0]["id"] == "T5" and abs(q[0]["unlock_value"] - 1.0) < 1e-9, f"got {q[0]}")
+    check("highest unlock_value (T5, missing budget+pax, sums to 1.0 scaled to 20) ranks first",
+          q[0]["id"] == "T5" and q[0]["unlock_value"] == 20, f"got {q[0]}")
 
 
 # ==================================== live demand / zero-stock [4,23,25] ====

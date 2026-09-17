@@ -205,6 +205,15 @@ def normalize_phone(raw):
 
 
 # --------------------------------------------------------------- budget ----
+# Single shared plausible SG monthly ROOM RENTAL budget band (Opus review of
+# PR #133, 16 Sep 2026 -- export_data.py had grown its own separate 300..15000
+# pair for the same concept, drifting from this file's own 300..20000). Every
+# reader of a rental budget figure -- the free text recovery below and
+# export_data.py's own export-time plausibility bound -- imports this ONE
+# pair rather than hand keeping a second copy.
+BUDGET_PLAUSIBLE_MIN = 300
+BUDGET_PLAUSIBLE_MAX = 20000
+
 _NUM = r"S?\$\s?([\d,]+(?:\.\d+)?\s?k?)"
 RANGE_RE = re.compile(_NUM + r"\s*(?:to|-|–|~)\s*S?\$?\s?([\d,]+(?:\.\d+)?\s?k?)", re.I)
 SINGLE_RE = re.compile(_NUM, re.I)
@@ -230,13 +239,15 @@ def recover_budget(texts):
         m = RANGE_RE.search(text)
         if m:
             a, b = _tok_to_num(m.group(1)), _tok_to_num(m.group(2))
-            if a is not None and b is not None and 300 <= a <= 20000 and 300 <= b <= 20000:
+            if (a is not None and b is not None
+                    and BUDGET_PLAUSIBLE_MIN <= a <= BUDGET_PLAUSIBLE_MAX
+                    and BUDGET_PLAUSIBLE_MIN <= b <= BUDGET_PLAUSIBLE_MAX):
                 lo, hi = min(a, b), max(a, b)
                 return lo, hi, "parsed from " + m.group(1).strip() + " to " + m.group(2).strip()
         m = SINGLE_RE.search(text)
         if m:
             n = _tok_to_num(m.group(1))
-            if n is not None and 300 <= n <= 20000:
+            if n is not None and BUDGET_PLAUSIBLE_MIN <= n <= BUDGET_PLAUSIBLE_MAX:
                 return n, n, "parsed from $" + m.group(1).strip()
     return None, None, None
 
