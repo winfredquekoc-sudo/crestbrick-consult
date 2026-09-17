@@ -4,8 +4,8 @@ gen-website-listings.py — builds public/listings.json for winfredquek.com from
 Winfred's OWN rental inventory (landlord database), not from PropertyGuru/99.co.
 His PropertyGuru agent profile currently shows 0 active listings and portal
 scraping hits bot walls, so the landlord DB — refreshed nightly by the WhatsApp
-intake pipeline (see scripts/build_landlord_db.py, the refresh-rental-dbs skill,
-and scripts/build-listing-index.py) — is the reliable source of truth.
+intake pipeline (see the refresh-rental-dbs skill and scripts/build-listing-index.py)
+— is the reliable source of truth.
 
 SOURCE: ~/crestbrick-consult/_templates/landlord-db.json
   This file holds landlord names, phone numbers, and free-text WhatsApp notes.

@@ -361,7 +361,6 @@ cat message-queue-tenant.json | jq '.[0]'  # First message
 - `/public/tenant.html` - Tenant landing page
 - `/api/tenant-interest.js` - Form submission handler
 - `/tenant-db.json` - Tenant database (master source)
-- `/scripts/build_landlord_db.py` - Landlord DB builder (reference)
 - `/scripts/landlord-scraper/` - Landlord scraper (mirror pattern)
 
 ---

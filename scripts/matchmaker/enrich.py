@@ -40,7 +40,7 @@ def norm_date(raw):
     return None
 
 
-IMMEDIATE_RE = re.compile(r"^(?:immediately|asap|now|anytime)\b", re.I)
+IMMEDIATE_RE = re.compile(r"^(?:immediately|immediate|asap|now|anytime)\b", re.I)
 # "start"/"middle"/"end" accepted as everyday synonyms for early/mid/late —
 # real tenant-db data uses "End of September 2026" and "end aug", not the
 # word "late" itself.
@@ -185,14 +185,35 @@ def find_available_from(texts, today):
 
 
 # --------------------------------------------------------------- phones ----
+# The ONE shared phone normalizer for the matchmaker data lane -- every other
+# script under scripts/ that reads or writes a landlord/tenant phone number
+# imports this instead of reimplementing its own version (Winfred, item 3):
+# export_data.py already did; discovery_candidates.py now does too. A value
+# that already went through this function once (or arrived pre-normalized
+# from an upstream writer) can otherwise pick up a DOUBLED country code on a
+# second pass -- "6565XXXXXXXX" instead of "65XXXXXXXX" -- which breaks the
+# exclusion-list and priority-list phone matches that compare on the
+# normalized value. Stripping one leading "65" first makes this idempotent:
+# normalize_phone(normalize_phone(x)) == normalize_phone(x) for every input.
 def normalize_phone(raw):
     p = re.sub(r"[^0-9]", "", raw or "")
+    if len(p) == 12 and p.startswith("6565") and p[4] in "89":
+        p = p[2:]
     if len(p) == 8 and p[0] in "89":
         p = "65" + p
     return p
 
 
 # --------------------------------------------------------------- budget ----
+# Single shared plausible SG monthly ROOM RENTAL budget band (Opus review of
+# PR #133, 16 Sep 2026 -- export_data.py had grown its own separate 300..15000
+# pair for the same concept, drifting from this file's own 300..20000). Every
+# reader of a rental budget figure -- the free text recovery below and
+# export_data.py's own export-time plausibility bound -- imports this ONE
+# pair rather than hand keeping a second copy.
+BUDGET_PLAUSIBLE_MIN = 300
+BUDGET_PLAUSIBLE_MAX = 20000
+
 _NUM = r"S?\$\s?([\d,]+(?:\.\d+)?\s?k?)"
 RANGE_RE = re.compile(_NUM + r"\s*(?:to|-|–|~)\s*S?\$?\s?([\d,]+(?:\.\d+)?\s?k?)", re.I)
 SINGLE_RE = re.compile(_NUM, re.I)
@@ -218,13 +239,15 @@ def recover_budget(texts):
         m = RANGE_RE.search(text)
         if m:
             a, b = _tok_to_num(m.group(1)), _tok_to_num(m.group(2))
-            if a is not None and b is not None and 300 <= a <= 20000 and 300 <= b <= 20000:
+            if (a is not None and b is not None
+                    and BUDGET_PLAUSIBLE_MIN <= a <= BUDGET_PLAUSIBLE_MAX
+                    and BUDGET_PLAUSIBLE_MIN <= b <= BUDGET_PLAUSIBLE_MAX):
                 lo, hi = min(a, b), max(a, b)
                 return lo, hi, "parsed from " + m.group(1).strip() + " to " + m.group(2).strip()
         m = SINGLE_RE.search(text)
         if m:
             n = _tok_to_num(m.group(1))
-            if n is not None and 300 <= n <= 20000:
+            if n is not None and BUDGET_PLAUSIBLE_MIN <= n <= BUDGET_PLAUSIBLE_MAX:
                 return n, n, "parsed from $" + m.group(1).strip()
     return None, None, None
 

@@ -1,8 +1,14 @@
 # Proposed fix: deterministic step 5b discovery for refresh-rental-dbs
 
-Status: PROPOSED PATCH ONLY. Nothing in `~/.claude/bin/refresh-rental-dbs.sh` (the live,
-5x/day script, outside this repo) has been touched. Apply the two snippets below by hand
-when the pipeline is quiescent (between slots), then watch the next run's log.
+Status: APPLIED (16 Sep 2026). Patch 1 and Patch 2 below are already live in
+`~/.claude/bin/refresh-rental-dbs.sh` — step 5b runs `discovery_candidates.py`
+deterministically and the headless model only classifies. Kept below as
+reference for what changed and why.
+
+<!-- Original status, superseded above: PROPOSED PATCH ONLY. Nothing in
+~/.claude/bin/refresh-rental-dbs.sh (the live, 5x/day script, outside this
+repo) has been touched. Apply the two snippets below by hand when the
+pipeline is quiescent (between slots), then watch the next run's log. -->
 
 ## What this fixes
 

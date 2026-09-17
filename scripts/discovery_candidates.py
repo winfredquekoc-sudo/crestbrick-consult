@@ -37,6 +37,10 @@ import re
 import sqlite3
 import sys
 
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "matchmaker"))
+from enrich import normalize_phone  # noqa: E402 -- the ONE shared phone normalizer (item 3);
+# this file used to carry its own last-8-digit reimplementation
+
 DEFAULT_MESSAGES_DB = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 DEFAULT_WHATSAPP_DB = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/whatsapp.db")
 DEFAULT_LANDLORD_DB = os.path.expanduser("~/crestbrick-consult/_templates/landlord-db.json")
@@ -82,13 +86,6 @@ def _ro(path):
     if not os.path.exists(path):
         raise FileNotFoundError(path)
     return sqlite3.connect("file:" + path + "?mode=ro", uri=True, timeout=20)
-
-
-def normalize_phone(raw):
-    """Same convention as merge_duplicate_landlords.py / merge_duplicate_tenants.py /
-    guard_db_ids.py: digits only, last 8 (SG local number length)."""
-    digits = re.sub(r"\D", "", str(raw or ""))
-    return digits[-8:] if len(digits) >= 8 else digits
 
 
 def _bare_id(jid):

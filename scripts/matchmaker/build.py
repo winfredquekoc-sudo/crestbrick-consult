@@ -81,20 +81,47 @@ def atomic_copy(src, dst):
 
 
 # --------------------------------------------------------- [1] run tests --
+# item 5 -- EVERY tunable threshold scoring.js declares at its own top now has
+# a matching config.json entry (was 3 of ~12); INT_PAIRS/FLOAT_PAIRS/ARRAY_PAIRS
+# below are checked exhaustively so a threshold added later only needs an
+# entry here to be covered, instead of silently drifting unnoticed like the
+# other ~9 did before this. WHOLE_UNIT_FLAG/SGT_TZ/DIMENSION_MAX/ADJ/MRT_LINES
+# are deliberately not here: they are not tunable numeric thresholds (a
+# string, a map, or a fixed geography table), so config.json is not the
+# right home for them.
+INT_PAIRS = (("DEAD_DAYS_THRESHOLD", "dead_days"), ("COLD_DAYS_THRESHOLD", "cold_days"),
+             ("DAYS_LISTED_ELASTICITY_THRESHOLD", "days_listed_elasticity"),
+             ("LOOKALIKE_PENALTY", "lookalike_penalty"), ("NUDGE_AFTER_DAYS", "nudge_after_days"),
+             ("DATA_AGE_AMBER_DAYS", "data_age_amber_days"), ("DATA_AGE_RED_DAYS", "data_age_red_days"))
+FLOAT_PAIRS = (("NEAR_MISS_CLEARANCE", "near_miss_clearance"), ("BUDGET_HARD_BLOCK_RATIO", "budget_hard_block_ratio"))
+ARRAY_PAIRS = (("PRICE_ELASTICITY_DELTAS", "price_elasticity_deltas"),)
+
+
 def check_config_consistency():
     """config.json is the single home for thresholds; scoring.js keeps mirror
     literals because it runs in the browser. A drifted mirror ships wrong
     behavior silently, so drift fails the build (Winfred, 21 Aug 2026)."""
     cfg = json.load(open(os.path.join(HERE, "config.json")))
     src = open(SCORING, encoding="utf-8").read()
-    pairs = (("DEAD_DAYS_THRESHOLD", "dead_days"), ("COLD_DAYS_THRESHOLD", "cold_days"),
-             ("DAYS_LISTED_ELASTICITY_THRESHOLD", "days_listed_elasticity"))
-    for js_name, cfg_key in pairs:
+    for js_name, cfg_key in INT_PAIRS:
         m = re.search(r"var %s = (\d+)" % js_name, src)
         if not m:
             fail(f"scoring.js no longer declares {js_name} — cannot verify against config.json")
         if int(m.group(1)) != int(cfg[cfg_key]):
             fail(f"threshold drift: scoring.js {js_name}={m.group(1)} but config.json {cfg_key}={cfg[cfg_key]} — fix one, they must match")
+    for js_name, cfg_key in FLOAT_PAIRS:
+        m = re.search(r"var %s = ([0-9.]+)" % js_name, src)
+        if not m:
+            fail(f"scoring.js no longer declares {js_name} — cannot verify against config.json")
+        if float(m.group(1)) != float(cfg[cfg_key]):
+            fail(f"threshold drift: scoring.js {js_name}={m.group(1)} but config.json {cfg_key}={cfg[cfg_key]} — fix one, they must match")
+    for js_name, cfg_key in ARRAY_PAIRS:
+        m = re.search(r"var %s = \[([0-9,\s]+)\]" % js_name, src)
+        if not m:
+            fail(f"scoring.js no longer declares {js_name} — cannot verify against config.json")
+        js_vals = [int(x.strip()) for x in m.group(1).split(",") if x.strip()]
+        if js_vals != [int(x) for x in cfg[cfg_key]]:
+            fail(f"threshold drift: scoring.js {js_name}={js_vals} but config.json {cfg_key}={cfg[cfg_key]} — fix one, they must match")
     if int(cfg["stale_days"]) != int(cfg["dead_days"]):
         fail("config.json stale_days != dead_days — same rule seen from two sides, must stay equal")
 
@@ -170,16 +197,33 @@ def pct_swing(old, new):
     return abs(new - old) / old
 
 
-def check_anomalies(prev_counts, cur_counts, threshold=ANOMALY_THRESHOLD):
+PENDING_REVIEW_WARN_THRESHOLD = 5  # item 4/43 -- unreviewed content-sweep stubs; absolute, not a swing
+
+
+def check_anomalies(prev_counts, cur_counts, cur_health=None, threshold=ANOMALY_THRESHOLD,
+                     pending_review_threshold=PENDING_REVIEW_WARN_THRESHOLD):
     """Pure — no file I/O, so tests can feed fixture dicts directly. Returns a
     list of human readable warning strings (empty = nothing crossed the
-    threshold, or prev_counts is falsy meaning first run / no prior snapshot).
-    Never raises, never blocks the build — this is a smell detector (a source
-    file truncated, exclusions got too aggressive, a status mapping broke),
-    not a hard gate; a real market swing is also allowed through, just noted."""
-    if not prev_counts:
-        return []
+    threshold). Never raises, never blocks the build — this is a smell
+    detector (a source file truncated, exclusions got too aggressive, a
+    status mapping broke), not a hard gate; a real market swing is also
+    allowed through, just noted.
+
+    The pending_review check (item 4/43) is an ABSOLUTE threshold, checked
+    even on a first run with no prev_counts at all: it exists because
+    refresh-rental-dbs.sh's own content sweep (running Haiku several times a
+    day) writes unconfirmed landlord stubs straight into the live database,
+    and 22 of them went unreviewed long enough to reach tenants as live
+    listings before 15 Sep 2026 — a swing-only check would never have caught
+    a slow accumulation like that, since each individual build's INCREASE
+    can be too small to cross a percentage threshold."""
     out = []
+    pending_review = (cur_health or {}).get("pending_review")
+    if pending_review is not None and pending_review > pending_review_threshold:
+        out.append(f"pending_review stubs at {pending_review} (unreviewed content-sweep records), "
+                    f"above {pending_review_threshold}")
+    if not prev_counts:
+        return out
     for key, label in (("available_listings", "listings"), ("still_looking_tenants", "tenants")):
         old, new = prev_counts.get(key), cur_counts.get(key)
         if old is None or new is None:
@@ -198,7 +242,7 @@ def anomaly_guard(data):
             prev = json.load(open(PREV))
         except (OSError, ValueError):
             prev = None
-    warnings = check_anomalies((prev or {}).get("counts") or {}, data.get("counts") or {})
+    warnings = check_anomalies((prev or {}).get("counts") or {}, data.get("counts") or {}, data.get("health") or {})
     for w in warnings:
         print("ANOMALY WARNING: " + w, file=sys.stderr)
     return warnings
@@ -410,7 +454,13 @@ def render_digest_html(data):
     health = data.get("health") or {}
     delta = data.get("delta")
     area_demand = data.get("area_demand") or []
-    supply = data.get("supply_overview") or []
+    # item 7 -- supply_overview was dropped from the shipped payload on 22 Aug
+    # 2026 (the app now derives the same view from all_landlords via
+    # lifecycle()), but this digest kept reading the now-absent field, so the
+    # lifecycle table below has rendered "No data" silently for about three
+    # weeks. all_landlords carries the same lifecycle key on every record
+    # regardless of status, same as supply_overview did.
+    supply = data.get("all_landlords") or []
     listings = data.get("listings") or []
 
     stale = sorted((l for l in listings if l.get("reconfirm_due")), key=lambda l: -(l.get("days_listed") or 0))
