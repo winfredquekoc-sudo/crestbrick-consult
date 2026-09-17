@@ -123,6 +123,53 @@ create index if not exists crm_deal_stage_idx on crm_deal(stage);
 -- not when Winfred wants the deal counted.
 alter table crm_deal add column if not exists deal_date date;
 create index if not exists crm_deal_date_idx on crm_deal(deal_date);
+
+-- CRM pull bridge (Sep 2026). One row per drafted WhatsApp message the app has
+-- marked ready to send. Nothing here ever sends anything: crm_pull.py (run on
+-- Winfred's own Mac, never on Vercel) is the only thing that reads a queued row,
+-- runs it through queue_drafts.py's own checks, and appends it to the real
+-- morning dispatch queue file. id is client generated the same way crm_deal.id
+-- is, so the app can upsert without a round trip. status starts queued, moves to
+-- pulled once crm_pull.py has taken it, sent once the morning dispatch job has
+-- actually sent it (nothing in this repo sets that today), or cancelled when a
+-- check refuses it or the app unqueues the row.
+create table if not exists crm_dispatch (
+  id            text primary key,
+  tenant_id     text,
+  listing_id    text,
+  jid           text,
+  phone         text,
+  text          text,
+  viewing_slot  text,
+  status        text not null default 'queued'
+                  check (status in ('queued','pulled','sent','cancelled')),
+  created_at    timestamptz not null default now(),
+  pulled_at     timestamptz,
+  device        text
+);
+create index if not exists crm_dispatch_status_idx on crm_dispatch(status);
+create index if not exists crm_dispatch_tenant_idx on crm_dispatch(tenant_id);
+
+-- Ambiguous row resolution (PR #132 fifth review). A pulled row crm_pull.py
+-- could not confidently resolve from the archive (an archive stamp too close
+-- to pulled_at to trust, or the row sitting in both the live queue file and
+-- an archive at once — see crm_pull.py's own docstring) is left status
+-- 'pulled' but gets this stamped once, via the "ambiguous" op, so it is not
+-- a permanent dead end: the app's dispatch drawer surfaces it to Winfred as
+-- a Sent / Not sent check instead of crm_pull.py re running the same
+-- inconclusive check forever. nextDispatchStatus's transition table is
+-- unchanged by this — the "ambiguous" op never writes crm_dispatch.status.
+alter table crm_dispatch add column if not exists ambiguous_since timestamptz;
+
+-- Operator confirmation (PR #132 sixth review). Set once, true forever, when
+-- Winfred picks Sent on an ambiguous row in the dispatch drawer (the same
+-- "dispatch" op that moves the row to status 'sent' — see resolveAmbiguousSent
+-- in app.js). A plain crm_pull.py sent guess (the archive based check above)
+-- never sets this — only an operator's own click does. Lets crm_pull.py's own
+-- cleanup pass (cleanup_resolved) prune that row's queue item exactly like a
+-- cancelled one, since an operator confirmed send is just as terminal as a
+-- cancel from the queue's own point of view.
+alter table crm_dispatch add column if not exists sent_confirmed boolean not null default false;
 `;
 
 // Idempotent, and run at most once per lambda instance rather than per request.
