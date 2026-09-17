@@ -45,15 +45,74 @@ import sys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, "matchmaker"))
 import enrich  # noqa: E402
+import tenant_profile_backfill  # noqa: E402
 
 ROOT = os.path.expanduser("~/crestbrick-consult")
 DEFAULT_TENANT_DB = os.path.join(ROOT, "_templates/tenant-db.json")
 DEFAULT_INTAKE_STATE = os.path.expanduser("~/.claude/state/listing-templates/intake-state.json")
 
-# Simple string/number fields: fill verbatim (trimmed) only when the tenant-db
-# row has nothing there yet. age/email are new columns tenant-db.json doesn't
-# carry today; see module docstring for why that's safe.
+# Simple string/number fields: fill verbatim (trimmed, sanitized — see
+# sanitize_value()) only when the tenant-db row has nothing there yet.
+# age/email are new columns tenant-db.json doesn't carry today; see module
+# docstring for why that's safe.
 SIMPLE_FIELDS = ["nationality", "gender", "ethnicity", "occupation", "pass_type", "age", "email", "name"]
+
+# blank() also treats these (case insensitive, stripped) as never-filled-in
+# placeholders, on top of None/"" — so a tenant-db row that already holds the
+# literal text "TBC" or "unknown" is still fair game to fill, not a real value.
+_BLANK_TOKENS = {"tbc", "unknown", "to confirm", "null", "na", "n/a", "-", "?"}
+
+# sanitize_value() rejects a verbatim string write when its stripped lowercase
+# is one of these junk answers (tenant_profile_backfill's own NA vocabulary,
+# widened with a few more intake-form non-answers that aren't "not answered"
+# shaped enough for _NA_VALUES but are still not a real value).
+_JUNK_VALUES = tenant_profile_backfill._NA_VALUES | {
+    "?", "null", "unknown", "no", "yes", "-", "na", "n/a", "tbc", "as well",
+}
+
+_LEADING_JUNK_RE = re.compile(r"^[\[.*]")
+# CJK Unified Ideographs + Hiragana/Katakana + Hangul syllables — broad "any
+# CJK script" match, not a specific-language check.
+_CJK_RE = re.compile(r"[぀-ヿ㐀-䶿一-鿿豈-﫿가-힣]")
+
+_LEN_CAP = 40
+_LEN_CAP_FIELDS = {"gender", "ethnicity", "nationality", "pass_type", "name", "occupation"}
+
+_MALE_WORDS = {"male", "m", "man", "boy", "guy"}
+_FEMALE_WORDS = {"female", "f", "woman", "girl", "lady"}
+
+
+def _norm_gender_value(s):
+    sl = s.strip().lower()
+    if sl in _MALE_WORDS:
+        return "Male"
+    if sl in _FEMALE_WORDS:
+        return "Female"
+    return None
+
+
+def sanitize_value(field, raw):
+    """Verbatim-write guard shared by every SIMPLE_FIELDS + preferred_location
+    write. `raw` is already known to be a non-empty stripped-truthy string.
+    Returns the cleaned value to write, or None to reject as junk (the caller
+    counts the rejection in `rejected_junk`). Never called on numeric
+    (int/float) profile values — those bypass sanitization entirely."""
+    v = raw.strip()
+    if v.lower() in _JUNK_VALUES:
+        return None
+    if _LEADING_JUNK_RE.match(v):
+        return None
+    if "?" in v:
+        return None
+    if _CJK_RE.search(v):
+        return None
+    if field == "gender":
+        return _norm_gender_value(v)
+    if field in _LEN_CAP_FIELDS and len(v) > _LEN_CAP:
+        return None
+    if field == "name" and len(v) < 3:
+        return None
+    return v
 
 _DATE_LABEL_RE = re.compile(r"^\s*(in\s+)?date\s*[:\-]?\s*", re.I)
 _RANGE_RE = re.compile(r"([\d,]+\.?\d*\s?k?)\s*(?:to|-|~|–)\s*\$?\s?([\d,]+\.?\d*\s?k?)", re.I)
@@ -72,7 +131,12 @@ def phone_key(raw):
 
 
 def blank(v):
-    return v is None or v == ""
+    if v is None:
+        return True
+    if isinstance(v, str):
+        s = v.strip()
+        return s == "" or s.lower() in _BLANK_TOKENS
+    return False
 
 
 def budget_blank(t):
@@ -175,9 +239,34 @@ def match_profile(t, intake_idx):
     return None
 
 
-def join_tenant(t, profile, ts):
+def tenant_phone_keys(t):
+    keys = set()
+    for raw in (t.get("phone"), t.get("jid")):
+        k = phone_key(raw)
+        if k:
+            keys.add(k)
+    return keys
+
+
+def build_phone_owner_counts(tenants):
+    """normalised phone key -> number of DISTINCT non protected tenant rows
+    carrying it. Two records legitimately sharing one phone (a couple, a
+    family) must never be merged or cross filled from one intake profile, so
+    any key with count > 1 is a signal to skip, not a match to resolve."""
+    counts = collections.Counter()
+    for t in tenants:
+        if is_protected(t):
+            continue
+        for k in tenant_phone_keys(t):
+            counts[k] += 1
+    return counts
+
+
+def join_tenant(t, profile, ts, rejected):
     """Mutates t in place with whatever null/blank fields profile can fill.
-    Returns the list of field names actually filled (empty if none)."""
+    `rejected` is a collections.Counter mutated in place with per-field junk
+    rejections (sanitize_value() returning None). Returns the list of field
+    names actually filled (empty if none)."""
     filled = []
     changes = {}
 
@@ -212,15 +301,23 @@ def join_tenant(t, profile, ts):
     if blank(t.get("preferred_location")):
         v = profile.get("preferred_location")
         if isinstance(v, str) and v.strip():
-            t["preferred_location"] = v.strip()
-            changes["preferred_location"] = {"src": "intake", "ts": ts}
-            filled.append("preferred_location")
+            cleaned = sanitize_value("preferred_location", v)
+            if cleaned is None:
+                rejected["preferred_location"] += 1
+            else:
+                t["preferred_location"] = cleaned
+                changes["preferred_location"] = {"src": "intake", "ts": ts}
+                filled.append("preferred_location")
 
     for f in SIMPLE_FIELDS:
         if blank(t.get(f)):
             v = profile.get(f)
             if isinstance(v, str) and v.strip():
-                t[f] = v.strip()
+                cleaned = sanitize_value(f, v)
+                if cleaned is None:
+                    rejected[f] += 1
+                    continue
+                t[f] = cleaned
                 changes[f] = {"src": "intake", "ts": ts}
                 filled.append(f)
             elif isinstance(v, (int, float)) and not isinstance(v, bool):
@@ -237,37 +334,35 @@ def run_join(tenant_db, intake_state):
     ts = datetime.datetime.now(datetime.timezone(datetime.timedelta(hours=8))).isoformat(timespec="seconds")
     intake_idx = build_intake_index(intake_state)
     field_counts = collections.Counter()
+    rejected_junk = collections.Counter()
     rows_matched = 0
     rows_filled = 0
     skipped_status = 0
+    skipped_shared_phone = 0
     no_match = 0
     sample = []
-    new_columns = set()
 
     tenants = tenant_db.get("tenants", [])
+    phone_owner_counts = build_phone_owner_counts(tenants)
     for t in tenants:
         if is_protected(t):
             skipped_status += 1
+            continue
+        if any(phone_owner_counts[k] > 1 for k in tenant_phone_keys(t)):
+            skipped_shared_phone += 1
             continue
         profile = match_profile(t, intake_idx)
         if profile is None:
             no_match += 1
             continue
         rows_matched += 1
-        filled = join_tenant(t, profile, ts)
+        filled = join_tenant(t, profile, ts, rejected_junk)
         if filled:
             rows_filled += 1
             for f in filled:
                 field_counts[f] += 1
-                if f in ("age", "email"):
-                    new_columns.add(f)
             if len(sample) < 5:
                 sample.append({"id": t.get("id"), "fields": filled})
-
-    cols = tenant_db.setdefault("columns", [])
-    for c in sorted(new_columns):
-        if c not in cols:
-            cols.append(c)
 
     return {
         "rows_total": len(tenants),
@@ -275,7 +370,9 @@ def run_join(tenant_db, intake_state):
         "rows_filled": rows_filled,
         "rows_no_match": no_match,
         "rows_skipped_status": skipped_status,
+        "rows_skipped_shared_phone": skipped_shared_phone,
         "fields_filled": dict(field_counts),
+        "rejected_junk": dict(rejected_junk),
         "sample": sample,
     }
 
@@ -292,6 +389,7 @@ def atomic_write_with_backup(path, data):
     tmp = path + ".tmp"
     with open(tmp, "w") as f:
         json.dump(data, f, indent=1, ensure_ascii=False)
+        f.write("\n")
     os.replace(tmp, path)
     return backup
 
@@ -300,8 +398,9 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--tenant-db", default=DEFAULT_TENANT_DB)
     ap.add_argument("--intake-state", default=DEFAULT_INTAKE_STATE)
-    ap.add_argument("--apply", action="store_true", help="write the join; default is dry run")
-    ap.add_argument("--dry-run", action="store_true", help="explicit flag with no extra effect; this is already the default")
+    mode = ap.add_mutually_exclusive_group()
+    mode.add_argument("--apply", action="store_true", help="write the join; default is dry run")
+    mode.add_argument("--dry-run", action="store_true", help="explicit flag with no extra effect; this is already the default")
     ap.add_argument("--json", action="store_true", help="machine readable summary")
     args = ap.parse_args()
 
@@ -333,10 +432,15 @@ def main():
     else:
         print(f"mode: {summary['mode']}")
         print(f"rows total: {summary['rows_total']}  matched: {summary['rows_matched']}  filled: {summary['rows_filled']}")
-        print(f"skipped closed/excluded/do_not_contact/agent: {summary['rows_skipped_status']}  no intake match: {summary['rows_no_match']}")
+        print(f"skipped closed/excluded/do_not_contact/agent: {summary['rows_skipped_status']}  "
+              f"skipped shared phone: {summary['rows_skipped_shared_phone']}  no intake match: {summary['rows_no_match']}")
         print("fields filled:")
         for k, v in sorted(summary["fields_filled"].items()):
             print(f"  {k}: {v}")
+        if summary["rejected_junk"]:
+            print("rejected as junk:")
+            for k, v in sorted(summary["rejected_junk"].items()):
+                print(f"  {k}: {v}")
         print("sample rows that would change (id + field names, no values):")
         for s in summary["sample"]:
             print(f"  {s['id']}: {', '.join(s['fields'])}")

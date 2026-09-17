@@ -70,13 +70,19 @@ jobs:
       # sqlite3, functools, tempfile, datetime, importlib) — nothing to pip install or cache.
       - name: Run hermetic wa-pipeline tests
         run: |
-          # Only these two files run clean with no production state present (verified by
+          # Only these files run clean with no production state present (verified by
           # running the whole suite under an empty HOME). The rest need real
           # ~/.claude/state, ~/whatsapp-mcp or a checkout literally at ~/crestbrick-consult
           # and are excluded here — see scripts/ci/README.md and the PR description for
           # the excluded files and why each one is excluded.
           python3 tests/wa-pipeline/eval_withdrawal_corpus.py
           python3 src/wa-pipeline/test_landlord_matcher.py
+          # tenant_intake_join / tenant_profile_backfill / tenant_sale_lead_report tests
+          # are hermetic too: synthetic fixtures + tempfile paths only, no real
+          # ~/.claude/state or ~/whatsapp-mcp read (see each file's own docstring).
+          python3 tests/test_tenant_intake_join.py
+          python3 tests/test_tenant_profile_backfill.py
+          python3 tests/test_tenant_sale_lead_report.py
 
   content-qa:
     name: content-qa
