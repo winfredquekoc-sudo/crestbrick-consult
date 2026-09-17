@@ -17,6 +17,18 @@ import pg from "pg";
 const URL_ = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || "";
 export const configured = !!URL_;
 
+// item 5/46 -- the CRM's own stage/kind vocabulary, single sourced here so
+// deploy/api/crm.js (which enforces them) and scripts/ops/log_deal.py's
+// MM_STAGE_MAP/MM_DEAL_TYPE_MAP (which bridge them into clients.db's
+// deal_stage_t/deal_type_t) can never silently diverge on what a stage or
+// kind IS. tests/matchmaker/test_deal_schema.py parses this file with a
+// regex to check log_deal.py's maps against these exact arrays.
+export const CRM_STAGES = [
+  "new", "contacted", "qualified", "viewing_set", "viewed",
+  "offer", "closed_won", "closed_lost", "dormant",
+];
+export const CRM_KINDS = ["tenant", "landlord", "listing", "sale", "buyer", "person"];
+
 let pool = null;
 export function db() {
   if (!configured) throw new Error("DATABASE_URL is not set");

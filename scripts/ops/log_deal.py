@@ -32,6 +32,40 @@ ROLE_CHOICES = ["buyer", "seller", "landlord", "tenant", "cobroke"]
 SOURCE_CHOICES = ["portal", "website", "sunfacing", "instagram", "referral",
                    "carousell", "fsbo", "walkin", "other", "unknown"]
 UNLINKED_SLUG = "unlinked-deal"
+# Same file scripts/ops/monday_brief.py's section_matchmaker() reads for the
+# "pipeline (not yet counted)" line -- a bridge script (not yet built) is
+# expected to write it; both readers degrade gracefully when it is absent.
+MM_CRM_SNAPSHOT_PATH = os.path.join(HOME, ".claude", "state", "matchmaker-crm-snapshot.json")
+
+# ---- Matchmaker CRM deal vocabulary bridge (item 5/46, 16 Sep 2026) --------
+# Three vocabularies describe "how far along is this deal": this file's own
+# --type/--role CLI flags, clients.db's deal_type_t/deal_stage_t CHECK
+# constraint value sets (Postgres ENUM in db/schema.sql -- the canonical
+# schema this script's live SQLite copy mirrors), and the Matchmaker CRM's
+# own stage/kind vocabulary (CRM_STAGES/CRM_KINDS, exported from
+# scripts/matchmaker/deploy/lib/db.js and imported by deploy/api/crm.js so
+# the CRM layer itself can never silently diverge on what a stage or kind
+# IS). MM_STAGE_MAP and MM_DEAL_TYPE_MAP below are the two hand maintained
+# dictionaries that reconcile CRM vocab into clients.db vocab for `import_mm`
+# below. tests/matchmaker/test_deal_schema.py parses both real sources and
+# asserts every key here is a real CRM value and every value a real
+# clients.db value -- a rename on either side now fails a test instead of
+# failing silently (or worse, succeeding with the wrong stage) at import time.
+MM_STAGE_MAP = {
+    # CRM crm_entity.stage (CRM_STAGES) -> clients.db deal_stage_t
+    "offer": "otp",
+    "closed_won": "closed",
+    "closed_lost": "dead",
+}
+MM_DEAL_TYPE_MAP = {
+    # CRM crm_entity.kind (CRM_KINDS) -> clients.db deal_type_t. Matchmaker is
+    # a rental app, so every kind it tracks maps to rent_out except a "sale"
+    # record (the app's own For Sale roster), which is a sell.
+    "tenant": "rent_out",
+    "landlord": "rent_out",
+    "listing": "rent_out",
+    "sale": "sell",
+}
 
 def backup_db():
     if not os.path.isfile(DB_PATH):
@@ -210,6 +244,83 @@ def cmd_list(args):
     if in_progress:
         print("in progress (not counted): %s" % ", ".join(str(i) for i in in_progress))
 
+def ensure_import_column(con):
+    """item 5/46 -- idempotent: add the nullable matchmaker_import_id column
+    (+ a unique index over its non null values) if this copy of clients.db
+    predates it. Safe to call on every invocation: PRAGMA table_info is cheap
+    and the ALTER TABLE only runs when the column is genuinely missing, never
+    a try/except swallow. This replaces scanning `notes` with `instr()` for
+    import dedupe (the original plan item 46 reacts to) with an indexed exact
+    lookup that stays fast as deal volume grows."""
+    cols = {r[1] for r in con.execute("PRAGMA table_info(deals)").fetchall()}
+    if "matchmaker_import_id" not in cols:
+        con.execute("ALTER TABLE deals ADD COLUMN matchmaker_import_id TEXT")
+    con.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_deals_matchmaker_import_id "
+        "ON deals(matchmaker_import_id) WHERE matchmaker_import_id IS NOT NULL")
+    con.commit()
+
+def cmd_import_mm(args):
+    """Import CRM 'deal shaped' entities (stage in MM_STAGE_MAP, kind in
+    MM_DEAL_TYPE_MAP) from a matchmaker CRM snapshot into clients.db, deduped
+    on the indexed matchmaker_import_id (item 46) -- never by scanning
+    notes text, which only gets slower and more fragile as volume grows. The
+    notes tag is still written on every imported row so a human reading
+    clients.db by hand can see where it came from."""
+    try:
+        snap = json.load(open(args.snapshot))
+    except FileNotFoundError:
+        print("No snapshot at %s -- nothing to import (see monday_brief.py's "
+              "'pipeline (not yet counted)' line for the same file)." % args.snapshot)
+        return
+    except (OSError, ValueError) as e:
+        raise ValueError("%s is unreadable (%s)" % (args.snapshot, e))
+    entities = snap.get("entities") if isinstance(snap, dict) else snap
+    entities = entities or []
+    con = connect()
+    ensure_import_column(con)
+    # One backup for the whole batch, taken before the row loop starts --
+    # never inside it. A row by row backup_db() copies clients.db up to N
+    # times for one import_mm call (12 rows imported used to mean 12 backup
+    # files for a single command), which drowns KEEP_BACKUPS in one run and
+    # buys nothing: the loop is one commit at the end, so "before the batch"
+    # is exactly as recoverable as "before every row" and costs one copy.
+    backup_db()
+    imported = unmapped_stage = unmapped_kind = already = unlinked = 0
+    for e in entities:
+        key = e.get("key")
+        if not key:
+            # Distinct from unmapped_stage: this entity carries no CRM key at
+            # all, so it can never be linked back (or deduped via
+            # matchmaker_import_id) no matter what its stage/kind say.
+            unlinked += 1
+            continue
+        stage = MM_STAGE_MAP.get(e.get("stage"))
+        deal_type = MM_DEAL_TYPE_MAP.get(e.get("kind"))
+        if not stage:
+            unmapped_stage += 1
+            continue
+        if not deal_type:
+            unmapped_kind += 1
+            continue
+        existing = con.execute(
+            "SELECT id FROM deals WHERE matchmaker_import_id = ?", (key,)).fetchone()
+        if existing:
+            already += 1
+            continue
+        notes = "[mm_import key=%s stage=%s]" % (key, e.get("stage"))
+        con.execute(
+            "INSERT INTO deals (client_slug, deal_type, property_address, stage, "
+            "closed_date, notes, matchmaker_import_id) VALUES (?,?,?,?,?,?,?)",
+            (UNLINKED_SLUG, deal_type, e.get("name") or e.get("ref_id") or "",
+             stage, datetime.now(SGT).date().isoformat(), notes, key))
+        imported += 1
+    con.commit()
+    con.close()
+    print("Imported %d deal(s) from %s (%d already imported, %d unlinked (no key), "
+          "%d unmapped stage, %d unmapped kind)"
+          % (imported, args.snapshot, already, unlinked, unmapped_stage, unmapped_kind))
+
 def cmd_undo(args):
     con = connect()
     row = con.execute("SELECT id, property_address, commission_gross FROM deals WHERE id = ?",
@@ -242,8 +353,8 @@ def cmd_undo(args):
 # Matchmaker deal still at "agreed" has no equivalent yet — it has not reached OTP,
 # so there is nothing honest to write, and it is skipped rather than mapped to a
 # stage that would make it look further along than it is.
-MM_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
-MM_STAGE_MAP = {"otp": "otp", "signed": "exercise", "completed": "completion", "fell_through": "dead"}
+JSON_DEAL_TYPE_MAP = {"rental": "rent_out", "sale": "sell"}
+JSON_STAGE_MAP = {"otp": "otp", "signed": "exercise", "completed": "completion", "fell_through": "dead"}
 
 def table_has_column(con, table, column):
     return any(row[1] == column for row in con.execute("PRAGMA table_info(%s)" % table))
@@ -272,7 +383,7 @@ def cmd_import_json(args):
             print("skipped (not yet at OTP): %s" % import_id)
             skipped_agreed += 1
             continue
-        stage = MM_STAGE_MAP.get(r.get("stage"))
+        stage = JSON_STAGE_MAP.get(r.get("stage"))
         if not stage:
             print("skipped (unknown stage %r): %s" % (r.get("stage"), import_id))
             skipped_bad += 1
@@ -289,7 +400,7 @@ def cmd_import_json(args):
         if existing:
             skipped_dupe += 1
             continue
-        deal_type = MM_DEAL_TYPE_MAP.get(r.get("deal_type"))
+        deal_type = JSON_DEAL_TYPE_MAP.get(r.get("deal_type"))
         gross, net = r.get("commission_gross"), r.get("commission_net")
         # cmd_add's own cobroke_amount = gross - net (see cmd_add above); mirrored
         # here so an imported row reads the same way in v_commission_attribution.
@@ -359,9 +470,13 @@ def main():
     p_undo.add_argument("id", type=int)
     p_undo.add_argument("--yes", action="store_true")
     p_undo.set_defaults(fn=cmd_undo)
-    p_import = sub.add_parser("import-json", help="load deals exported from the Matchmaker CRM tab")
-    p_import.add_argument("file", help="path to the JSON file from CRM tab's Export deals JSON button")
-    p_import.set_defaults(fn=cmd_import_json)
+    p_import_mm = sub.add_parser("import_mm", help="import matchmaker CRM deals (item 5/46) from a JSON snapshot")
+    p_import_mm.add_argument("--snapshot", default=MM_CRM_SNAPSHOT_PATH,
+                              help="path to the matchmaker CRM snapshot JSON (default: %(default)s)")
+    p_import_mm.set_defaults(fn=cmd_import_mm)
+    p_import_json = sub.add_parser("import-json", help="load deals exported from the Matchmaker CRM tab")
+    p_import_json.add_argument("file", help="path to the JSON file from CRM tab's Export deals JSON button")
+    p_import_json.set_defaults(fn=cmd_import_json)
     args = ap.parse_args()
     try:
         args.fn(args)

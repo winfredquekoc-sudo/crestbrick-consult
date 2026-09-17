@@ -1,0 +1,18 @@
+# Matchmaker test suites that gate BOTH scripts/matchmaker/build.py (before it
+# writes a new artifact) and scripts/matchmaker/deploy/deploy.sh (before it
+# ships one). One shared list so the two can never drift again (item 5/47,
+# 16 Sep 2026) -- deploy.sh used to hardcode a 2-of-6 subset.
+#
+# One path per line, relative to the repo root. `#` starts a comment. The
+# extension picks the runner: .mjs -> `node --test`, .py -> the system
+# python3 (/usr/bin/python3). tests/matchmaker/test_deal_schema.py is
+# intentionally NOT here: it checks scripts/ops/log_deal.py, which is not
+# part of the shipped matchmaker artifact, so it is run separately.
+tests/matchmaker/scoring.test.mjs
+tests/matchmaker/state.test.mjs
+tests/matchmaker/filters.test.mjs
+tests/matchmaker/rows.test.mjs
+tests/matchmaker/crm.test.mjs
+tests/matchmaker/crm-validate.test.mjs
+tests/matchmaker/test_export.py
+tests/matchmaker/test_state.py

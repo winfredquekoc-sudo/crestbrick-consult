@@ -78,20 +78,51 @@ if ! grep -q "401" "$HERE/middleware.js"; then
   exit 1
 fi
 
-# --- test gate (21 Aug 2026): build.py runs these same suites before writing
-# $SRC, but nothing stops a by-hand deploy of a stale artifact built before a
-# failing change. Cheap (~3s), so run them here too and refuse to ship red.
+# --- test gate (21 Aug 2026, item 5/47 16 Sep 2026): build.py runs these same
+# suites before writing $SRC, but nothing stops a by hand deploy of a stale
+# artifact built before a failing change. Cheap (~3s), so run them here too
+# and refuse to ship red. The list itself lives in ONE shared file
+# (tests/matchmaker/SUITES) that build.py's read_suites() also reads — this
+# used to hardcode its own 2 of 6 subset that nobody updated as build.py's
+# own list grew, so a stale artifact could ship past a failure in the 4
+# suites this gate never ran.
 REPO="$HOME/crestbrick-consult"
-echo "deploy.sh: running matchmaker test suites (scoring/state/export)..."
-if ! (cd "$REPO" && node --test tests/matchmaker/scoring.test.mjs tests/matchmaker/state.test.mjs >/tmp/mm-test-gate.log 2>&1); then
-  tail -20 /tmp/mm-test-gate.log >&2
-  echo "deploy.sh: ABORTED — scoring/state tests failed (full log: /tmp/mm-test-gate.log). Fix or explicitly revert before deploying." >&2
+SUITES_FILE="$REPO/tests/matchmaker/SUITES"
+if [ ! -f "$SUITES_FILE" ]; then
+  echo "deploy.sh: ABORTED — $SUITES_FILE missing (the shared test suite list build.py also reads)." >&2
   exit 1
 fi
-if ! (cd "$REPO" && /usr/bin/python3 tests/matchmaker/test_export.py >/tmp/mm-test-gate.log 2>&1 && /usr/bin/python3 tests/matchmaker/test_state.py >>/tmp/mm-test-gate.log 2>&1); then
-  tail -20 /tmp/mm-test-gate.log >&2
-  echo "deploy.sh: ABORTED — export tests failed (full log: /tmp/mm-test-gate.log)." >&2
+NODE_SUITES=()
+PY_SUITES=()
+while IFS= read -r line; do
+  line="${line%%#*}"
+  # trim leading/trailing whitespace without invoking another process
+  line="${line#"${line%%[![:space:]]*}"}"
+  line="${line%"${line##*[![:space:]]}"}"
+  [ -z "$line" ] && continue
+  case "$line" in
+    *.mjs) NODE_SUITES+=("$REPO/$line") ;;
+    *.py)  PY_SUITES+=("$REPO/$line") ;;
+  esac
+done < "$SUITES_FILE"
+if [ "${#NODE_SUITES[@]}" -eq 0 ] && [ "${#PY_SUITES[@]}" -eq 0 ]; then
+  echo "deploy.sh: ABORTED — $SUITES_FILE parsed to zero test files." >&2
   exit 1
+fi
+echo "deploy.sh: running matchmaker test suites from $SUITES_FILE (${#NODE_SUITES[@]} node, ${#PY_SUITES[@]} python)..."
+if [ "${#NODE_SUITES[@]}" -gt 0 ] && ! (cd "$REPO" && node --test "${NODE_SUITES[@]}" >/tmp/mm-test-gate.log 2>&1); then
+  tail -20 /tmp/mm-test-gate.log >&2
+  echo "deploy.sh: ABORTED — a node test suite failed (full log: /tmp/mm-test-gate.log). Fix or explicitly revert before deploying." >&2
+  exit 1
+fi
+if [ "${#PY_SUITES[@]}" -gt 0 ]; then
+  for pt in "${PY_SUITES[@]}"; do
+    if ! (cd "$REPO" && /usr/bin/python3 "$pt" >/tmp/mm-test-gate.log 2>&1); then
+      tail -20 /tmp/mm-test-gate.log >&2
+      echo "deploy.sh: ABORTED — $pt failed (full log: /tmp/mm-test-gate.log)." >&2
+      exit 1
+    fi
+  done
 fi
 echo "deploy.sh: test gate passed."
 

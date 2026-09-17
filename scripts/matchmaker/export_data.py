@@ -216,6 +216,46 @@ LISTING_INDEX_PATH = os.path.expanduser("~/.claude/state/listing-templates/listi
 LISTINGS_JSON_PATH = os.path.join(ROOT, "public/listings.json")
 WA_DB_PATH = os.path.expanduser("~/whatsapp-mcp/whatsapp-bridge/store/messages.db")
 BUSY_BLOCKS_PATH = os.path.expanduser("~/.claude/state/busy-blocks.json")
+REFRESH_MARKER_PATH = os.path.expanduser("~/.claude/state/refresh-rental-dbs-last.json")
+REFUSED_DISPATCH_PATH = os.path.expanduser("~/.claude/state/matchmaker-refused.json")
+
+
+def load_last_wa_update_ts(path=REFRESH_MARKER_PATH):
+    """item 1/42 -- the live refresh-rental-dbs.sh (READ ONLY here, never
+    edited by this repo) stamps this marker on every slot that finished a
+    genuine WhatsApp extraction pass: {"ok": true, "ran_at": "<SGT ISO8601>",
+    ...}. Exported next to generated_ts so the app's data age banner can tell
+    "a build ran" apart from "the extraction feeding it actually produced new
+    information" -- item 42's own symptom was the banner reading green for
+    days while the retired extraction model failed on every scheduled run
+    and every build kept succeeding on stale input regardless. Missing,
+    unreadable, or ok!=true (a failed run leaves the PREVIOUS marker in place
+    on disk, which is still a genuine past success and fine to report) ->
+    still read if present; only a structurally wrong file yields None. Never
+    raises, never blocks the build -- this is an additional freshness signal,
+    not a required one."""
+    try:
+        m = json.load(open(path))
+    except (OSError, ValueError):
+        return None
+    if not isinstance(m, dict):
+        return None
+    ts = m.get("ran_at")
+    return ts if isinstance(ts, str) and ts else None
+
+
+def load_refused_dispatch(path=REFUSED_DISPATCH_PATH):
+    """item 4/34 -- queue_drafts.py's own rolling ledger of dead lead rule
+    refusals (queue_drafts.py owns writing this file; read only here). Each
+    entry is {"tenant_id","name","reason","date"}. Missing, unreadable, or the
+    wrong shape -> [], never blocks the build -- an empty human review queue
+    today is not a failure."""
+    try:
+        d = json.load(open(path))
+    except (OSError, ValueError):
+        return []
+    items = d.get("items") if isinstance(d, dict) else None
+    return items if isinstance(items, list) else []
 
 
 # ---------------------------------------------------------- field parsing --
@@ -1812,6 +1852,11 @@ def compute_health(listings, tenants, landlords=None):
         "tenants_missing_district": sum(1 for t in tenants if "district" in t["missing"]),
         "listings_unparsed_req_raw": sum(1 for l in listings if unparsed(l)),
         "pending_review": pending_review,
+        # item 1/43 -- companion counter to pending_review so build.py's anomaly
+        # guard can also warn on a sparse profile pileup (a WA bridge outage or a
+        # parsing regression silently degrading intake quality across the whole
+        # roster), not only on unreviewed content sweep stubs.
+        "tenants_sparse": sum(1 for t in tenants if t.get("sparse")),
     }
 
 
@@ -1889,10 +1934,25 @@ def unlock_value_for(missing, listings):
     return round(fraction_sum / UNLOCK_VALUE_GATE_FIELD_COUNT * 100)
 
 
-def build_enrichment_queue(tenants, listings):
+def build_enrichment_queue(tenants, listings, refused=None):
     """Ranked "which 5 minutes of asking unlocks the most" list: every still-looking
     tenant with >=1 missing intake field, sorted by unlock_value descending (ties
-    broken by fewest missing fields first -- the quicker ask)."""
+    broken by fewest missing fields first -- the quicker ask).
+
+    item 4/34 -- also folds in queue_drafts.py's own dead lead refusals (read
+    from matchmaker-refused.json via load_refused_dispatch(), passed in as
+    `refused`): a tenant the app wanted to queue but the dispatch script
+    refused (no contact date on file, or quiet too long) used to exist only as
+    terminal text nobody reread. Each refused entry becomes its own row with
+    reason "refused by dispatch: <reason>" so it surfaces as an actionable
+    item in the same list Winfred already checks, rather than a second place
+    to remember to look. A tenant already present in `rows` (has missing
+    intake fields too) still gets its own refused row -- the two signals are
+    different asks (fill in a field vs "this queued message never went
+    anywhere") and neither should hide the other. Front end note: these rows
+    carry a `reason` key the missing field rows never have -- the worklist
+    just needs to render `row.reason` verbatim when present instead of
+    computing the usual "ask about X" line from `missing`."""
     rows = []
     for t in tenants:
         missing = t.get("missing") or []
@@ -1903,6 +1963,31 @@ def build_enrichment_queue(tenants, listings):
             "missing": missing, "unlock_value": unlock_value_for(missing, listings),
         })
     rows.sort(key=lambda r: (-r["unlock_value"], len(r["missing"])))
+
+    if refused:
+        phone_by_id = {t.get("id"): t.get("phone") or "" for t in tenants}
+        # Collapse to the newest refusal per tenant_id before turning it into
+        # a row. queue_drafts.py's own ledger write already dedupes to one
+        # entry per tenant, but this build reads whatever is on disk right
+        # now -- an older ledger written before that fix existed, or any
+        # future writer of matchmaker-refused.json, can still hand this
+        # function three rows for one tenant, and three refused rows for the
+        # same person is exactly the noise item 4/34 introduced this queue to
+        # cut down on.
+        newest_by_tenant = {}
+        for r in refused:
+            tid = r.get("tenant_id")
+            if not tid:
+                continue
+            current = newest_by_tenant.get(tid)
+            if current is None or (r.get("date") or "") >= (current.get("date") or ""):
+                newest_by_tenant[tid] = r
+        for tid, r in newest_by_tenant.items():
+            rows.append({
+                "id": tid, "name": r.get("name") or "", "phone": phone_by_id.get(tid, ""),
+                "missing": [], "unlock_value": 0,
+                "reason": "refused by dispatch: " + (r.get("reason") or "unknown"),
+            })
     return rows
 
 
@@ -2142,6 +2227,26 @@ MULTI_ROOM_PROPERTY_RE = re.compile(r"\bmulti[- ]?room\b|\bwhole\s*(?:flat|unit|
 
 CLOSED_PRICE_MIN_N = 3
 
+# item 3 -- ported VERBATIM from scoring.js's own `var ADJ = {...}` (district
+# adjacency, legacy template). Two copies is the same drift risk config.json's
+# own comment warns about for thresholds, so tests/matchmaker/test_export.py's
+# test_price_check_district_adjacency_parity() parses scoring.js and asserts
+# this dict is byte for byte the same set of keys/values -- a future edit to
+# one side without the other fails a test instead of the two tables silently
+# disagreeing about which districts count as neighbours.
+DISTRICT_ADJ = {
+    "D1": ["D2", "D4", "D6", "D7"], "D2": ["D1", "D3", "D4"], "D3": ["D2", "D4", "D5", "D10"],
+    "D4": ["D1", "D2", "D3", "D5"], "D5": ["D3", "D4", "D10", "D21", "D22"], "D6": ["D1", "D7", "D9"],
+    "D7": ["D1", "D6", "D8", "D14"], "D8": ["D7", "D9", "D11", "D12", "D13"], "D9": ["D6", "D8", "D10", "D11"],
+    "D10": ["D3", "D5", "D9", "D11", "D21"], "D11": ["D8", "D9", "D10", "D12", "D20"], "D12": ["D8", "D11", "D13", "D20"],
+    "D13": ["D8", "D12", "D14", "D19", "D20"], "D14": ["D7", "D13", "D15", "D16", "D19"], "D15": ["D14", "D16"],
+    "D16": ["D14", "D15", "D17", "D18"], "D17": ["D16", "D18"], "D18": ["D16", "D17", "D19"],
+    "D19": ["D13", "D14", "D18", "D20", "D28"], "D20": ["D11", "D12", "D13", "D19", "D26", "D28"], "D21": ["D5", "D10", "D23"],
+    "D22": ["D5", "D21", "D23"], "D23": ["D22", "D24", "D25", "D26"], "D24": ["D23", "D25"],
+    "D25": ["D23", "D24", "D26", "D27"], "D26": ["D20", "D23", "D25", "D28"], "D27": ["D25", "D26", "D28"],
+    "D28": ["D19", "D20", "D26", "D27"],
+}
+
 
 def _room_rent_for_band(l):
     """Best-effort single ROOM rent for build_price_check()'s same-district
@@ -2175,7 +2280,17 @@ def build_price_check(landlords, listings, min_n=CLOSED_PRICE_MIN_N):
     from _room_rent_for_band() (see its own docstring) rather than raw rent_max/
     rent_min, which can silently mix a room price with an unrelated whole-unit
     or multi-room price for the SAME record; closes with no sane per-room price
-    at all are skipped, never guessed."""
+    at all are skipped, never guessed.
+
+    item 3 -- a district whose OWN close count is still below min_n (or has zero
+    closes of its own) now falls back to district + DISTRICT_ADJ neighbours
+    before giving up: most of the ~28 districts sit at n=1 or n=2 alone, which
+    used to suppress the band and any flag on it outright. Pooling in adjacent
+    districts' closes gives a genuinely wider, still real sample instead of no
+    signal at all; a band built this way is labelled "widened": True so a
+    reader can tell it from a band built only on its own district and weight
+    it accordingly. A district that ALREADY clears min_n on its own is never
+    widened -- adjacency is a fallback, not a blend applied unconditionally."""
     closed_by_district = {}
     for l in landlords:
         if lifecycle(l) != "tenanted":
@@ -2191,7 +2306,21 @@ def build_price_check(landlords, listings, min_n=CLOSED_PRICE_MIN_N):
         if len(vals) < min_n:
             continue
         bands[d] = {"district": d, "n": len(vals), "min": min(vals), "max": max(vals),
-                    "median": statistics.median(vals)}
+                    "median": statistics.median(vals), "widened": False}
+
+    candidate_districts = set(closed_by_district) | {l.get("district") or "" for l in listings}
+    candidate_districts.discard("")
+    for d in sorted(candidate_districts):
+        if d in bands:
+            continue
+        widened_vals = list(closed_by_district.get(d, []))
+        for adj_d in DISTRICT_ADJ.get(d, []):
+            widened_vals.extend(closed_by_district.get(adj_d, []))
+        if len(widened_vals) < min_n:
+            continue
+        bands[d] = {"district": d, "n": len(widened_vals), "min": min(widened_vals),
+                    "max": max(widened_vals), "median": statistics.median(widened_vals),
+                    "widened": True}
 
     flags = []
     for l in listings:
@@ -2209,7 +2338,7 @@ def build_price_check(landlords, listings, min_n=CLOSED_PRICE_MIN_N):
             continue
         flags.append({"listing_id": l["id"], "name": l["name"], "district": l["district"],
                        "listing_rent": rep, "band_median": band["median"], "band_n": band["n"],
-                       "direction": direction})
+                       "direction": direction, "widened": band["widened"]})
     return {"min_n": min_n, "bands": sorted(bands.values(), key=lambda b: b["district"]), "flags": flags}
 
 
@@ -2486,6 +2615,7 @@ def main():
     today = now.date()
     generated_ts = now.isoformat(timespec="seconds")
     build_id = hashlib.sha256(generated_ts.encode()).hexdigest()[:8]
+    last_wa_update_ts = load_last_wa_update_ts()  # item 1/42
 
     land = json.load(open(os.path.join(ROOT, "_templates/landlord-db.json")))
     ten = json.load(open(os.path.join(ROOT, "_templates/tenant-db.json")))
@@ -2549,7 +2679,8 @@ def main():
         try: prev = json.load(open(PREV))
         except (OSError, ValueError): prev = None
 
-    enrichment_queue = build_enrichment_queue(tenants, listings)  # [ideas 5,6]
+    refused_dispatch = load_refused_dispatch()  # item 4/34
+    enrichment_queue = build_enrichment_queue(tenants, listings, refused_dispatch)  # [ideas 5,6; item 4/34]
     live_area_demand = build_live_area_demand(adem["districts"], listings, tenants)  # [ideas 4,23]
     zero_stock_alert = build_zero_stock_alert(live_area_demand)  # [idea 25]
     supply_gap_chase = build_supply_gap_chase(land["landlords"], listings, tenants, exclusions_cfg)
@@ -2577,6 +2708,7 @@ def main():
     data = {
         "schema_version": 2,
         "generated": today.isoformat(), "generated_ts": generated_ts, "build_id": build_id,
+        "last_wa_update_ts": last_wa_update_ts,
         "priority": ["availability","location","price","landlord requirements"],
         "counts": {"available_listings": len(listings), "still_looking_tenants": len(tenants)},
         "source_counts": source_counts, "source_availability": source_availability,
@@ -2623,7 +2755,9 @@ def main():
           f"{len(delta['new_tenant_ids'])} new tenants, {len(delta['new_listing_ids'])} new listings, "
           f"{len(delta['gone_listings'])} gone, {len(delta['availability_changes'])} availability changes")
     print(f"districts recovered by inference: {districts_recovered}")
-    print(f"enrichment_queue: {len(enrichment_queue)} | budget_contradictions: {len(budget_contradictions)} "
+    print(f"last_wa_update_ts: {last_wa_update_ts or 'unknown (no marker read)'}")
+    print(f"enrichment_queue: {len(enrichment_queue)} (incl. {len(refused_dispatch)} refused by dispatch) "
+          f"| budget_contradictions: {len(budget_contradictions)} "
           f"| zero_stock_alert: {len(zero_stock_alert)} | landlord_responsiveness: {len(landlord_responsiveness)}")
     print(f"price_check bands: {len(price_check['bands'])} | flags: {len(price_check['flags'])} "
           f"| days_to_fill: {days_to_fill['overall']} | stale_landlord_chase: {len(stale_landlord_chase)}")

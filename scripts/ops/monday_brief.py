@@ -25,6 +25,15 @@ GSC_SUMMARY = os.path.join(STATE, "gsc-briefs", "brief_summary.json")
 GSC_HISTORY = os.path.join(STATE, "gsc-briefs", "history")
 HEALTH_HISTORY = os.path.join(STATE, "health-watchdog-history.json")
 LAUNCHD_SNAPSHOTS = os.path.join(STATE, "launchd-snapshots")
+MM_STATS = os.path.join(STATE, "matchmaker-stats.json")
+MM_BUILD_HISTORY = os.path.join(STATE, "matchmaker-build-history.jsonl")
+MM_DIGEST = os.path.join(REPO, "_local", "matchmaker-digest.html")
+# Bridge script (not yet built) is expected to write this; both this brief and
+# scripts/ops/log_deal.py's `import_mm` degrade gracefully when it is absent.
+MM_CRM_SNAPSHOT = os.path.join(STATE, "matchmaker-crm-snapshot.json")
+MM_FRESHNESS_HOURS = 26  # item 2/44 -- matches spec item 44's own digest staleness window
+MM_BUILD_RECENCY_DAYS = 7  # item 6/48 -- below this, "digest missing" is a real warning
+MM_PIPELINE_STAGES = {"agreed", "otp", "signed"}
 
 def now():
     return datetime.now(SGT)
@@ -254,6 +263,124 @@ def section_health():
         data["health_watchdog"] = None
     return {"ok": True, "lines": lines, "data": data}
 
+def _mm_build_history_lines(path):
+    """Yields each parsed jsonl entry, corrupt lines skipped -- a build history
+    file heals itself one bad line at a time (see build.py's own
+    append_build_history() docstring on recovering a truncated tail)."""
+    if not os.path.isfile(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                yield json.loads(line)
+            except ValueError:
+                continue
+
+
+def section_matchmaker():
+    """item 2/44 -- read only, never calls the network: matchmaker-stats.json
+    (build.py's own write_stats() output) + the tail of
+    matchmaker-build-history.jsonl (build.py's build_history_entry(), item
+    1/43 now carries pending_review + anomalies per entry) + an optional CRM
+    snapshot bridge file for a forward looking pipeline line."""
+    lines, data = [], {}
+    try:
+        stats = load_json(MM_STATS)
+    except Exception as e:
+        return na(f"{MM_STATS} unreadable: {e}")
+
+    counts = stats.get("counts") or {}
+    worklist_size = stats.get("worklist_size")
+    lines.append(f"Listings {counts.get('available_listings', '?')}, tenants looking "
+                 f"{counts.get('still_looking_tenants', '?')}, worklist size "
+                 f"{worklist_size if worklist_size is not None else 'n/a'}.")
+    data["counts"] = counts
+    data["worklist_size"] = worklist_size
+
+    history = list(_mm_build_history_lines(MM_BUILD_HISTORY))
+    week_cutoff = (now() - timedelta(days=7)).isoformat()
+    week_entries = [e for e in history if (e.get("ts") or "") >= week_cutoff]
+    sizes = [e.get("worklist_size") for e in (week_entries or history[-7:])
+             if isinstance(e.get("worklist_size"), int)]
+    if sizes:
+        direction = "up" if sizes[-1] > sizes[0] else "down" if sizes[-1] < sizes[0] else "flat"
+        lines.append(f"Worklist size trend over the last {len(sizes)} build(s) this week: "
+                     f"{sizes[0]} -> {sizes[-1]} ({direction}).")
+        data["worklist_trend"] = {"first": sizes[0], "last": sizes[-1], "n": len(sizes)}
+    else:
+        lines.append("Worklist size trend: n/a (no build history yet).")
+        data["worklist_trend"] = None
+
+    last_anomaly = None
+    for e in reversed(history):
+        if e.get("anomalies"):
+            last_anomaly = {"ts": e.get("ts"), "warnings": e["anomalies"]}
+            break
+    lines.append("Last anomaly warning: " +
+                 (f"{last_anomaly['ts']} — {'; '.join(last_anomaly['warnings'])}"
+                  if last_anomaly else "none found in build history"))
+    data["last_anomaly"] = last_anomaly
+
+    pending_review = (stats.get("health") or {}).get("pending_review")
+    lines.append(f"Pending review stubs: {pending_review if pending_review is not None else 'n/a'}.")
+    data["pending_review"] = pending_review
+
+    stale_reasons = []
+    gen_ts = stats.get("generated_ts")
+    gen_dt = None
+    if gen_ts:
+        try:
+            gen_dt = datetime.fromisoformat(gen_ts)
+        except ValueError:
+            gen_dt = None
+    if gen_dt is None or (now() - gen_dt).total_seconds() > MM_FRESHNESS_HOURS * 3600:
+        stale_reasons.append("stats file")
+    # item 6/48 -- a machine that never runs build.py has no digest and never
+    # will: warning "digest missing" every week on a box that is not part of
+    # the build rotation is noise, not signal. Only treat a missing digest as
+    # a freshness problem when the stats file itself shows a build inside the
+    # last MM_BUILD_RECENCY_DAYS days (this machine is meant to be building);
+    # otherwise say plainly this machine is not one that builds, once, and
+    # leave it out of the freshness warning line entirely.
+    recent_build = gen_dt is not None and (now() - gen_dt).total_seconds() <= MM_BUILD_RECENCY_DAYS * 86400
+    not_built_here = False
+    if os.path.isfile(MM_DIGEST):
+        age_h = (now().timestamp() - os.path.getmtime(MM_DIGEST)) / 3600
+        if age_h > MM_FRESHNESS_HOURS:
+            stale_reasons.append("digest")
+    elif recent_build:
+        stale_reasons.append("digest missing")
+    else:
+        not_built_here = True
+    lines.append(f"FRESHNESS WARNING: {', '.join(stale_reasons)} older than {MM_FRESHNESS_HOURS}h."
+                 if stale_reasons else f"Freshness: within {MM_FRESHNESS_HOURS}h.")
+    if not_built_here:
+        lines.append("matchmaker not built on this machine")
+    data["stale"] = stale_reasons
+
+    if os.path.isfile(MM_CRM_SNAPSHOT):
+        try:
+            snap = load_json(MM_CRM_SNAPSHOT)
+            deals = snap.get("deals") if isinstance(snap, dict) else snap
+            deals = deals or []
+            pipe = [d for d in deals if (d.get("stage") or "").lower() in MM_PIPELINE_STAGES]
+            gross = sum(d.get("commission_gross") or d.get("gross") or 0 for d in pipe)
+            gross_txt = f", potential gross ${gross:,.0f}" if gross else ""
+            lines.append(f"Pipeline (not yet counted): {len(pipe)} deal(s) at agreed/otp/signed{gross_txt}.")
+            data["pipeline_not_counted"] = {"count": len(pipe), "gross": gross}
+        except Exception as e:
+            lines.append(f"Pipeline (not yet counted): n/a ({MM_CRM_SNAPSHOT} unreadable: {e})")
+            data["pipeline_not_counted"] = {"error": str(e)}
+    else:
+        lines.append("Pipeline (not yet counted): no CRM snapshot")
+        data["pipeline_not_counted"] = None
+
+    return {"ok": True, "lines": lines, "data": data}
+
+
 SECTIONS = [
     ("Closes and commission", section_commission, "clients.db (deals table) + matchmaker-closes.json"),
     ("Portal coverage", section_portal_coverage, "scripts/listing_coverage.py --json (reused, read only)"),
@@ -261,6 +388,8 @@ SECTIONS = [
     ("Rental funnel (last 30 days)", section_rental_funnel, "listing-templates/intake-state.json diffed against its own backups; tenant-db.json"),
     ("Commercial intent", section_commercial_intent, "gsc-briefs/brief_summary.json (latest available Search Console pull)"),
     ("Health", section_health, "launchctl, gh pr list, launchd-snapshots/, health-watchdog-history.json"),
+    ("Matchmaker", section_matchmaker,
+     "matchmaker-stats.json + matchmaker-build-history.jsonl + matchmaker-crm-snapshot.json (bridge, optional)"),
 ]
 
 def build_report():
