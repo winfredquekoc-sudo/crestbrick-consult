@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Town Council vs MCST: Who Manages What</title>
+    <meta name="description" content="Moving from an HDB flat to your first condo means a new manager for shared spaces. Here is how a Town Council and an MCST actually differ, side by side.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-07">
+    <meta property="og:title" content="Town Council vs MCST: Who Manages What">
+    <meta property="og:description" content="Moving from an HDB flat to your first condo means a new manager for shared spaces. Here is how a Town Council and an MCST actually differ, side by side.">
+    <meta property="og:type" content="article">
+    <meta property="og:image" content="https://winfredquek.com/img/og-image.jpg">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+        body { padding: 0; margin: 0; }
+        article { max-width: 800px; margin: 0 auto; padding: 60px 20px; }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.2; color: var(--text-primary); }
+        .article-meta { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 40px; padding-bottom: 20px; border-bottom: 1px solid var(--border-color); }
+        h2 { font-size: 1.6rem; font-weight: 700; margin-top: 40px; margin-bottom: 20px; color: var(--accent-gold); }
+        h3 { font-size: 1.2rem; font-weight: 600; margin-top: 28px; margin-bottom: 12px; color: var(--text-primary); }
+        p { margin-bottom: 16px; color: var(--text-primary); }
+        strong { font-weight: 600; color: var(--text-primary); }
+        em { font-style: italic; color: var(--text-secondary); }
+        .callout { background-color: var(--bg-tertiary); border-left: 4px solid var(--accent-gold); padding: 20px; margin: 24px 0; border-radius: 4px; }
+        .callout-warning { border-left-color: var(--warning); }
+        .callout-info { border-left-color: var(--accent-light); }
+        table { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 0.95rem; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background-color: var(--bg-tertiary); font-weight: 600; color: var(--accent-gold); }
+        tr:hover { background-color: var(--bg-tertiary); }
+        ul, ol { margin-left: 24px; margin-bottom: 16px; }
+        li { margin-bottom: 8px; }
+        .highlight-box { background-color: var(--bg-secondary); border: 1px solid var(--border-color); padding: 20px; margin: 24px 0; border-radius: 6px; }
+        .faq-question { font-weight: 600; font-size: 1.05rem; margin-bottom: 12px; color: var(--accent-gold); }
+        .faq-answer { color: var(--text-primary); line-height: 1.7; margin-bottom: 24px; }
+        .cta-box { background-color: var(--bg-tertiary); border: 2px solid var(--accent-gold); padding: 28px; margin: 40px 0; border-radius: 8px; text-align: center; }
+        .cta-box h3 { margin-top: 0; color: var(--accent-gold); }
+        .cta-buttons { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+        .cta-btn { padding: 12px 24px; font-size: 1rem; font-weight: 600; border-radius: 6px; text-decoration: none; transition: all 0.3s ease; border: 2px solid; cursor: pointer; display: inline-block; }
+        .cta-btn-primary { background-color: var(--accent-gold); color: var(--bg-primary); border-color: var(--accent-gold); }
+        .cta-btn-primary:hover { opacity: 0.9; }
+        .cta-btn-secondary { background-color: transparent; color: var(--accent-light); border-color: var(--accent-light); }
+        .cta-btn-secondary:hover { background-color: var(--accent-light); color: var(--bg-primary); }
+        .disclaimer { font-size: 0.85rem; color: var(--text-secondary); margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); line-height: 1.6; }
+        .sources { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border-color); }
+        .sources h3 { color: var(--accent-gold); }
+        .sources ul { font-size: 0.9rem; color: var(--text-secondary); }
+        .sources li { margin-bottom: 6px; }
+        table.comparison-table { width: 100%; margin: 24px 0; }
+        .comparison-table th { background-color: var(--bg-tertiary); }
+        .comparison-table td { padding: 14px; }
+        .comparison-table tr:nth-child(even) { background-color: var(--bg-secondary); }
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Town Council vs MCST: Who Manages What</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 7 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            A Town Council runs an HDB estate's shared spaces and collects Service and Conservancy Charges under its own law. An MCST runs a condo's shared property and collects maintenance fees and a sinking fund under the Building Maintenance and Strata Management Act. Your first condo means dealing with an MCST, a different body, for the first time.
+        </p>
+
+        <h2>Timing: two different systems for two different property types</h2>
+
+        <p>
+            If you have only ever lived in an HDB flat, your experience of estate management has been shaped entirely by your Town Council, an elected body of grassroots representatives responsible for the common areas, lifts, corridors and grounds of your block and estate. A condo works on an entirely separate system. Each condo development has its own MCST, formed automatically once the development is completed and units are sold, made up of all the unit owners collectively, who then elect a Management Council to run day to day matters.
+        </p>
+
+        <p>
+            There is no overlap between the two. Your Town Council has no authority over your future condo, and an MCST has no authority over an HDB estate. When you upgrade, you are not dealing with a bigger or fancier version of the Town Council. You are dealing with a completely different structure, with different rules, different meetings and a different by laws framework.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>The core distinction:</strong> A Town Council is a public, elected body covering a whole estate under HDB and Ministry of National Development oversight. An MCST is a private body made up only of the owners in that one development, governed by the Building Maintenance and Strata Management Act.
+        </div>
+
+        <h2>Money: S&amp;CC versus maintenance fees and the sinking fund</h2>
+
+        <p>
+            Both systems collect money from residents for upkeep, but the structure is different. Your Town Council sets Service and Conservancy Charges, commonly called S&amp;CC, which fund the maintenance of lifts, common lighting, cleaning, and other shared upkeep across the estate. S&amp;CC rates are set by the Town Council covering your block and can vary between estates and flat types.
+        </p>
+
+        <p>
+            An MCST collects two separate pools of money from owners. Monthly maintenance fees cover the day to day running of the development, such as security, cleaning, landscaping and utilities for common areas. A separate sinking fund, contributed to on top of maintenance fees, is built up over years specifically for large, infrequent works such as repainting the facade, replacing lifts, or major structural repairs. HDB estates do not have an equivalent sinking fund structure sitting alongside S&amp;CC in the same way.
+        </p>
+
+        <h3>Quick comparison</h3>
+
+        <table class="comparison-table">
+            <tr>
+                <th>Area</th>
+                <th>HDB Town Council</th>
+                <th>Condo MCST</th>
+            </tr>
+            <tr>
+                <td>Governing law</td>
+                <td>Town Councils Act</td>
+                <td>Building Maintenance and Strata Management Act</td>
+            </tr>
+            <tr>
+                <td>Who runs it</td>
+                <td>Elected Members of Parliament and appointed councillors</td>
+                <td>Management Council elected by unit owners</td>
+            </tr>
+            <tr>
+                <td>Main charge</td>
+                <td>Service and Conservancy Charges</td>
+                <td>Monthly maintenance fee plus sinking fund contribution</td>
+            </tr>
+            <tr>
+                <td>Annual meeting</td>
+                <td>No equivalent owner AGM structure</td>
+                <td>Annual General Meeting, or AGM, of all unit owners</td>
+            </tr>
+            <tr>
+                <td>Rules for residents</td>
+                <td>Estate rules set by the Town Council</td>
+                <td>By laws set and amended by the MCST at general meetings</td>
+            </tr>
+        </table>
+
+        <h2>Safety: AGMs, by laws and what each body can actually do about a dispute</h2>
+
+        <p>
+            An MCST's Annual General Meeting is where owners approve the budget, elect the Management Council, and vote on by law changes that affect everyone in the development, from pet policies to renovation rules. Attending your first AGM as a new condo owner is worth doing, since decisions made there directly affect your monthly costs and what you are and are not allowed to do in your own unit. There is no direct HDB equivalent to this owner voting structure, since Town Councils are run by elected public representatives rather than a meeting of all flat owners.
+        </p>
+
+        <p>
+            When something goes wrong, the two systems also differ in what they can do. A Town Council can act on estate wide maintenance issues and enforce estate rules, but disputes between individual flat owners, such as noise or renovation disagreements, generally go through mediation or other channels rather than the Town Council itself. An MCST has somewhat broader powers over its own development, including the ability to enforce by laws against a specific owner, but for disputes between owners that the MCST cannot resolve, the Strata Titles Boards are the specialist forum set up specifically to handle strata disputes.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Know where to escalate:</strong> A Town Council dispute usually starts with the Town Council office or an MP's Meet the People session. An MCST dispute usually starts with the Management Council, then the Strata Titles Boards if it cannot be resolved internally. They are not interchangeable.
+        </div>
+
+        <h2>Safety: what neither body can do</h2>
+
+        <p>
+            Neither a Town Council nor an MCST can resolve a private tenancy dispute between a landlord and tenant, and neither sets property prices or approves individual sale transactions. Both are focused on shared property and common charges, not on the private legal relationships between residents or owners. If your dispute is actually about a lease, a sale contract, or money owed between two private parties, you will need a different avenue, such as the Small Claims Tribunal or a lawyer, rather than expecting the Town Council or MCST to step in.
+        </p>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <h3 class="faq-question">Does my Town Council have any authority over my new condo?</h3>
+        <p class="faq-answer">No. A Town Council only manages HDB estates. Once you move into a condo, your shared property is managed entirely by that development's MCST under the Building Maintenance and Strata Management Act, a completely separate system.</p>
+
+        <h3 class="faq-question">Why does my condo have both a maintenance fee and a sinking fund, when my old flat only had S&amp;CC?</h3>
+        <p class="faq-answer">The maintenance fee covers day to day running costs, while the sinking fund is built up over years for large, infrequent works like lift replacement or facade repainting. HDB's S&amp;CC funds ongoing estate upkeep but does not run a parallel sinking fund structure the way an MCST does.</p>
+
+        <h3 class="faq-question">Where do I go if I have a dispute my condo's MCST will not resolve?</h3>
+        <p class="faq-answer">The Strata Titles Boards are the specialist forum for strata related disputes an MCST cannot resolve internally, such as disagreements over by laws or common property. This is different from an HDB estate, where estate level issues are generally handled through the Town Council or an MP's Meet the People session instead.</p>
+
+        <div class="cta-box article-cta">
+            <h3>First time dealing with an MCST</h3>
+            <p>If you are moving from HDB into your first condo and want a clear read on the maintenance fees, sinking fund and by laws before you commit, book a call and bring your questions.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is for general educational purposes only and does not constitute financial, legal, property or investment advice. Winfred Quek is a licensed real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a lawyer. Town Council and MCST rules, charges and procedures vary by estate and development and can change over time. Consult the relevant Town Council, your MCST's Management Council, or a qualified lawyer for a specific dispute.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Building and Construction Authority:</strong> MCST and strata management framework under the Building Maintenance and Strata Management Act, <a href="https://www1.bca.gov.sg/home-and-building-owners/condo-strata/mcst-strata-management/" target="_blank" rel="noopener noreferrer">bca.gov.sg</a></li>
+                <li><strong>Strata Titles Boards:</strong> the forum for resolving strata title disputes, <a href="https://www.stratatb.gov.sg/resources/useful-links/" target="_blank" rel="noopener noreferrer">stratatb.gov.sg</a></li>
+                <li><strong>Ministry of National Development:</strong> oversight of Town Councils and housing policy, <a href="https://www.mnd.gov.sg/" target="_blank" rel="noopener noreferrer">mnd.gov.sg</a></li>
+                <li><strong>HDB:</strong> Service and Conservancy Charges information, <a href="https://www.hdb.gov.sg/view-service--conservancy-charges-scc-rebate/get-help" target="_blank" rel="noopener noreferrer">hdb.gov.sg</a></li>
+                <li><strong>Related reading on this site:</strong> <a href="/insights/service-conservancy-charges-hdb-singapore.html">what HDB S&amp;CC actually pays for</a>, <a href="/insights/mcst-agm-how-it-works-singapore.html">how an MCST AGM works</a> and <a href="/insights/mcst-council-election-guide-singapore.html">running for or voting in your MCST council</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Town Council vs MCST: Who Manages What",
+    "description": "Moving from an HDB flat to your first condo means a new manager for shared spaces. Here is how a Town Council and an MCST actually differ, side by side.",
+    "image": "https://winfredquek.com/img/og-image.jpg",
+    "author": { "@type": "Person", "name": "Winfred Quek", "url": "https://winfredquek.com" },
+    "publisher": { "@type": "Organization", "name": "Crestbrick Pte Ltd", "url": "https://winfredquek.com" },
+    "datePublished": "2026-09-07",
+    "dateModified": "2026-09-07"
+}
+        </script>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Does my Town Council have any authority over my new condo?",
+            "acceptedAnswer": { "@type": "Answer", "text": "No. A Town Council only manages HDB estates. Once you move into a condo, your shared property is managed entirely by that development's MCST under the Building Maintenance and Strata Management Act, a completely separate system." }
+        },
+        {
+            "@type": "Question",
+            "name": "Why does my condo have both a maintenance fee and a sinking fund, when my old flat only had S&CC?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The maintenance fee covers day to day running costs, while the sinking fund is built up over years for large, infrequent works like lift replacement or facade repainting. HDB's S&CC funds ongoing estate upkeep but does not run a parallel sinking fund structure the way an MCST does." }
+        },
+        {
+            "@type": "Question",
+            "name": "Where do I go if I have a dispute my condo's MCST will not resolve?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The Strata Titles Boards are the specialist forum for strata related disputes an MCST cannot resolve internally, such as disagreements over by laws or common property. This is different from an HDB estate, where estate level issues are generally handled through the Town Council or an MP's Meet the People session instead." }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>
