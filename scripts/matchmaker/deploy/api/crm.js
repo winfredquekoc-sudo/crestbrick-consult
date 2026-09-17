@@ -14,31 +14,9 @@
 // function already passed the wall, and a second scheme would be another thing to
 // get wrong. Never loosen middleware.js's matcher to exclude /api.
 import { db, ensureSchema, configured } from "../lib/db.js";
+import { STAGES, KINDS, str, date, bool, validateDealFields } from "../lib/crm-validate.js";
 
-const STAGES = new Set([
-  "new", "contacted", "qualified", "viewing_set", "viewed",
-  "offer", "closed_won", "closed_lost", "dormant",
-]);
-const KINDS = new Set(["tenant", "landlord", "listing", "sale", "person"]);
 const MAX_OPS = 200;
-
-const str = (v, max) => {
-  if (v == null) return null;
-  const s = String(v).trim();
-  return s ? s.slice(0, max) : null;
-};
-// Dates arrive as YYYY-MM-DD from the client. Anything else becomes null rather than
-// reaching Postgres, where a malformed date aborts the whole transaction — and since the
-// batch is transactional, one bad date would discard every good write sent with it.
-// The shape check alone is not enough: "2026-13-99" matches the pattern and is still
-// rejected by Postgres, so the calendar itself has to agree the day exists.
-const date = (v) => {
-  const s = String(v || "");
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(s)) return null;
-  const d = new Date(s + "T00:00:00Z");
-  return !isNaN(d) && d.toISOString().slice(0, 10) === s ? s : null;
-};
-const bool = (v) => v === true || v === "true" || v === 1;
 
 async function readBody(req) {
   if (req.body && typeof req.body === "object") return req.body;
@@ -51,7 +29,7 @@ async function readBody(req) {
 }
 
 async function snapshot(client) {
-  const [entities, notes, tasks, match, activity] = await Promise.all([
+  const [entities, notes, tasks, match, activity, deals] = await Promise.all([
     // crm_entity was the only one of these five queries with no LIMIT — notes/tasks/
     // activity are capped below at 2000/1000/300. This table holds every tenant,
     // landlord and listing key ever seen, all with names and phone numbers, so an
@@ -71,6 +49,13 @@ async function snapshot(client) {
     client.query(`select listing_id, tenant_id, status from crm_match_status`),
     client.query(`select id, key, verb, detail, to_char(at,'YYYY-MM-DD"T"HH24:MI:SSZ') as at
                   from crm_activity order by at desc, id desc limit 300`),
+    client.query(`select id, key, deal_type, property, price, commission_gross, commission_net,
+                         cobroke_agent, cobroke_split_pct, stage,
+                         to_char(otp_date,'YYYY-MM-DD') as otp_date,
+                         to_char(completion_date,'YYYY-MM-DD') as completion_date,
+                         to_char(deal_date,'YYYY-MM-DD') as deal_date, notes,
+                         to_char(created_at,'YYYY-MM-DD"T"HH24:MI:SSZ') as created_at
+                  from crm_deal order by created_at desc limit 2000`),
   ]);
   return {
     ok: true,
@@ -79,6 +64,7 @@ async function snapshot(client) {
     tasks: tasks.rows,
     match: match.rows,
     activity: activity.rows,
+    deals: deals.rows,
   };
 }
 
@@ -145,19 +131,38 @@ async function applyOp(client, o) {
       const key = o.key ? await upsertEntity(client, o) : null;
       const id = parseInt(o.id, 10);
       if (Number.isFinite(id)) {
-        await client.query(
+        // "returning key" is what lets the follow up queue's one tap Done/Snooze log an
+        // activity row without the client having to know the task's entity key — a
+        // standalone task op only ever carries id/title/due/done (see app.js CRM.snoozeTask/
+        // completeTask), never the key of whatever it is linked to.
+        const upd = await client.query(
           `update crm_task set title = coalesce($2, title), due = coalesce($3, due), done = $4,
                                done_at = case when $4 then now() else null end
-           where id = $1`,
+           where id = $1
+           returning key, title, due`,
           [id, str(o.title, 300), date(o.due), bool(o.done)]
         );
+        const row = upd.rows[0];
+        if (row && row.key) {
+          const verb = bool(o.done) ? "task:done" : (o.due ? "task:snooze" : "task:updated");
+          const detail = (row.title || "").slice(0, 100) + (o.due ? (" -> " + row.due) : "");
+          await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+            [row.key, verb, detail]);
+        }
         return 1;
       }
       const title = str(o.title, 300);
       if (!title) return 0;
+      // done must ride along on the INSERT itself, not just the UPDATE branch above — a
+      // task can be marked done (via CRM.completeTask/snoozeTask mutating the still
+      // queued add op, see app.js) before it has ever reached the server, and without
+      // this the very first snapshot after that sync would show it undone again.
+      // done_at mirrors the UPDATE branch's own case/when — a task created already
+      // done must not read as done with no completion timestamp.
       const r = await client.query(
-        `insert into crm_task (key, title, due) values ($1,$2,$3) returning id`,
-        [key, title, date(o.due)]
+        `insert into crm_task (key, title, due, done, done_at)
+         values ($1,$2,$3,$4, case when $4 then now() else null end) returning id`,
+        [key, title, date(o.due), bool(o.done)]
       );
       await client.query(`insert into crm_activity (key, verb, detail) values ($1,'task',$2)`,
         [key, title.slice(0, 120)]);
@@ -182,6 +187,40 @@ async function applyOp(client, o) {
            set status = excluded.status, updated_at = now()`,
         [lid, tid, str(o.status, 60)]
       );
+      return 1;
+    }
+    case "deal": {
+      const d = validateDealFields(o);
+      if (!d) return 0;
+      // A deal can arrive with a linked contact that has never had its own crm_entity row
+      // yet (a merged in but never touched tenant/landlord/sale from DATA) — upsertEntity
+      // it first, same as note/task above, or the foreign key on crm_deal.key rejects the
+      // insert outright.
+      const key = o.key ? await upsertEntity(client, o) : null;
+      await client.query(
+        `insert into crm_deal (id, key, deal_type, property, price, commission_gross,
+                                commission_net, cobroke_agent, cobroke_split_pct, stage,
+                                otp_date, completion_date, deal_date, notes, updated_at)
+         values ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14, now())
+         on conflict (id) do update set
+           key = excluded.key, deal_type = excluded.deal_type, property = excluded.property,
+           price = excluded.price, commission_gross = excluded.commission_gross,
+           commission_net = excluded.commission_net, cobroke_agent = excluded.cobroke_agent,
+           cobroke_split_pct = excluded.cobroke_split_pct, stage = excluded.stage,
+           otp_date = excluded.otp_date, completion_date = excluded.completion_date,
+           deal_date = excluded.deal_date, notes = excluded.notes, updated_at = now()`,
+        [d.id, key, d.deal_type, d.property, d.price, d.commission_gross, d.commission_net,
+         d.cobroke_agent, d.cobroke_split_pct, d.stage, d.otp_date, d.completion_date,
+         d.deal_date, d.notes]
+      );
+      await client.query(`insert into crm_activity (key, verb, detail) values ($1,$2,$3)`,
+        [key, "deal:" + d.stage, (d.property || "deal").slice(0, 120)]);
+      return 1;
+    }
+    case "deal_delete": {
+      const id = str(o.id, 60);
+      if (!id) return 0;
+      await client.query(`delete from crm_deal where id = $1`, [id]);
       return 1;
     }
     default:

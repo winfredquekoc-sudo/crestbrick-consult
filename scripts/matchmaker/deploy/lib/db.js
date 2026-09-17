@@ -10,7 +10,11 @@
 // CRM write in localStorage exactly as it did before the backend existed.
 import pg from "pg";
 
-const URL_ = process.env.DATABASE_URL || "";
+// DATABASE_URL is the project's own convention (see api/crm.js's header comment), but
+// Vercel's Neon integration injects POSTGRES_URL instead, and some Prisma flavoured
+// setups only give POSTGRES_PRISMA_URL — accept whichever one is actually there rather
+// than making Winfred rename an env var Vercel set for him.
+const URL_ = process.env.DATABASE_URL || process.env.POSTGRES_URL || process.env.POSTGRES_PRISMA_URL || "";
 export const configured = !!URL_;
 
 let pool = null;
@@ -86,6 +90,39 @@ create table if not exists crm_activity (
 );
 create index if not exists crm_activity_at_idx  on crm_activity(at desc);
 create index if not exists crm_activity_key_idx on crm_activity(key, at desc);
+
+-- Deals block of the CRM tab. id is client generated (same pattern as a note/task
+-- tempId) so the client can upsert without a round trip; "on delete set null" means
+-- a deal survives its linked contact ever being purged, it just loses the link.
+create table if not exists crm_deal (
+  id                 text primary key,
+  key                text references crm_entity(key) on delete set null,
+  deal_type          text check (deal_type in ('rental','sale')),
+  property           text,
+  price              numeric,
+  commission_gross   numeric,
+  commission_net     numeric,
+  cobroke_agent      text,
+  cobroke_split_pct  numeric,
+  stage              text not null default 'agreed'
+                       check (stage in ('agreed','otp','signed','completed','fell_through')),
+  otp_date           date,
+  completion_date    date,
+  notes              text,
+  created_at         timestamptz not null default now(),
+  updated_at         timestamptz not null default now()
+);
+create index if not exists crm_deal_key_idx   on crm_deal(key);
+create index if not exists crm_deal_stage_idx on crm_deal(stage);
+
+-- Added after crm_deal's first ship — "add column if not exists" (not baked into the
+-- create table above) so a deployment that already has crm_deal without this column
+-- picks it up idempotently instead of needing a one off migration step. This is the
+-- date month/year to date totals bucket by (see dealTotals() in app.js) — deliberately
+-- separate from completion_date/otp_date, which track the property transaction itself,
+-- not when Winfred wants the deal counted.
+alter table crm_deal add column if not exists deal_date date;
+create index if not exists crm_deal_date_idx on crm_deal(deal_date);
 `;
 
 // Idempotent, and run at most once per lambda instance rather than per request.

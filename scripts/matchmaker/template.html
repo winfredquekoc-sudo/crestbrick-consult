@@ -30,6 +30,7 @@
   </div>
   <div class="tabs" id="tabs" role="tablist" aria-label="Matchmaker views">
     <div class="tab on" data-v="mapview" role="tab" tabindex="0" aria-selected="true" aria-controls="mapview" id="tab-mapview" data-icon="🗺">Dashboard</div>
+    <div class="tab" data-v="crm" role="tab" tabindex="0" aria-selected="false" aria-controls="crm" id="tab-crm" data-icon="🗂">CRM</div>
     <div class="tab" data-v="work" role="tab" tabindex="0" aria-selected="false" aria-controls="work" id="tab-work" data-icon="⭐">Today's Worklist</div>
     <div class="tab" data-v="pipeline" role="tab" tabindex="0" aria-selected="false" aria-controls="pipeline" id="tab-pipeline" data-icon="📈">Pipeline</div>
     <div class="tab" data-v="listing" role="tab" tabindex="0" aria-selected="false" aria-controls="listing" id="tab-listing" data-icon="🏠">By Listing</div>
@@ -83,6 +84,7 @@
        Sits right below the sticky header so scrolling a long roster never
        loses the active filters or the row count. -->
   <div id="filtersummary" class="sticky-ctx" hidden></div>
+  <div id="crm" style="display:none" role="tabpanel" aria-labelledby="tab-crm"></div>
   <div id="work" role="tabpanel" aria-labelledby="tab-work"></div>
   <div id="pipeline" style="display:none" role="tabpanel" aria-labelledby="tab-pipeline"></div>
   <div id="listing" class="split" style="display:none" role="tabpanel" aria-labelledby="tab-listing">

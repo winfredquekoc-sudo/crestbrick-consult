@@ -671,3 +671,35 @@ body.density-compact .lc{padding:7px 9px}
   .btn.more{min-height:44px}
 }
 .mfil input,.mfil select{width:100%;min-width:52px;box-sizing:border-box;background:var(--panel2);border:1px solid var(--line);border-radius:6px;color:var(--ink);font-size:12px;padding:3px 6px}
+
+/* ===================== CRM tab (follow up queue, contacts, quick add, deals) =====================
+   Reuses .row/.chip/.pick/.acts/.btn/.section-hd/.help/.maptablewrap/.maptable.stack from
+   above wherever the shape already matches — only the four blocks' own layout (the
+   filter row, the two forms, the totals strip) needs anything new here. */
+.crmblock{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:11px 12px;margin-bottom:12px}
+.crmfilters{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+/* Scoped to the search box only — a bare "input" here also matched #crmNeedsAction
+   (the "needs next action" checkbox, nested one level deeper inside a .tog label) and
+   stretched it to fill the row, so it rendered as a giant invisible hit target rather
+   than a normal sized checkbox. The > combinator already excludes the checkbox by
+   nesting depth; [type=text] is belt and suspenders for the one text input that is a
+   direct child. */
+.crmfilters > input[type=text]{width:100%}
+.crmform{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-start}
+.crmform input,.crmform select{flex:1 1 170px;min-width:130px}
+.crmform textarea{flex:1 1 100%;background:var(--panel2);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:8px 10px;font:inherit;resize:vertical;min-height:44px;outline:none}
+.crmform .acts{flex:1 1 100%}
+#crmDealContactResults{display:flex;flex-direction:column;gap:4px;width:100%}
+#crmDealContactResults:empty{display:none}
+#crmDealContactResults .pick{text-align:left;width:100%}
+.crmtotals{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+/* Mobile: the contacts/deals tables use the same .maptable.stack machinery the map sub
+   tabs already use (see the 860px breakpoint above) — below that width they do not
+   scroll at all, they STACK into label:value cards, one per row, reading top down.
+   .maptablewrap's own overflow-x:auto (its base rule, above) only matters at wider
+   widths where stack has not kicked in yet; either way the page itself never scrolls
+   sideways. */
+@media (max-width:700px){
+  .crmform input,.crmform select{flex:1 1 100%;min-width:0}
+  .crmfilters .stagerow{gap:4px}
+}
