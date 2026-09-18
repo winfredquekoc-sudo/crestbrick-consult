@@ -638,6 +638,12 @@
 
 ## Property guides (2026)
 <!-- undefined -->
+- [MSR and TDSR Affordability Checklist for HDB Buyers](https://winfredquek.com/insights/msr-tdsr-affordability-checklist): Work out your maximum HDB loan using the real MSR 30 percent and TDSR 55 percent limits, with a full worked example and a quick income reference table.
+- [Foreign Buyer ABSD in Singapore, and What It Changes](https://winfredquek.com/insights/foreign-investor-absd-hedging): Foreigner ABSD is 60 percent since April 2023, with a small list of treaty nationalities treated as citizens.
+- [BTO vs Resale vs EC: How the Long Term Choice Compares](https://winfredquek.com/insights/bto-vs-resale-vs-ec-30-year-comparison): Compare BTO, resale HDB and Executive Condominium on eligibility, income ceiling, subsidy, loan type and holding period, using current rules only.
+- [How the CPF Refund Works When You Sell Your HDB Flat](https://winfredquek.com/insights/cpf-refund-case-study): What actually happens to your CPF when you sell an HDB flat: the refund order, accrued interest, the retirement sum rule and why no capital gains tax applies.
+- [HDB Ownership Decision Framework for First Timer Buyers](https://winfredquek.com/insights/hdb-ownership-decision-framework): A gate by gate checklist for first timer HDB buyers: eligibility, the new income ceiling, CPF rules, MSR, TDSR and the BTO versus resale choice.
+- [Viewing a Unit at the Wrong Time of Day: Check the Sun First](https://winfredquek.com/insights/viewing-wrong-time-of-day-sun-check): A single viewing at one hour hides afternoon west sun and shadow from neighbouring blocks.
 - [Executive Maisonette vs Jumbo vs 5 Room: Value Guide](https://winfredquek.com/insights/executive-maisonette-vs-jumbo-vs-5-room): Executive maisonettes, jumbo flats and 5 room flats look similar in size but hold value very differently.
 - [Town Council vs MCST: Who Manages What](https://winfredquek.com/insights/town-council-vs-mcst-who-manages-what): Moving from an HDB flat to your first condo means a new manager for shared spaces.
 - [HLE vs HFE Letter: Is There Still a Difference](https://winfredquek.com/insights/hle-vs-hfe-letter-difference-2026): The HLE letter you read about in an old forum post no longer exists.

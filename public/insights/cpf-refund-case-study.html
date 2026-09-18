@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How the CPF Refund Works When You Sell Your HDB Flat</title>
+    <meta name="description" content="What actually happens to your CPF when you sell an HDB flat: the refund order, accrued interest, the retirement sum rule and why no capital gains tax applies.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="How the CPF Refund Works When You Sell Your HDB Flat">
+    <meta property="og:description" content="What actually happens to your CPF when you sell an HDB flat: the refund order, accrued interest, the retirement sum rule and why no capital gains tax applies.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+</style>
+</head>
+<body>
+    <article>
+        <h1>How the CPF Refund Works When You Sell Your HDB Flat</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+
+        <p>
+            Selling your HDB flat does not hand you your CPF back as cash. In short: the sale proceeds first repay your outstanding loan, then refund the CPF Ordinary Account money you used plus accrued interest back into your CPF account, and only what is left after that becomes cash in your bank. Below age 55, that refund mostly stays in CPF rather than becoming spendable money.
+        </p>
+
+        <h2>Safety: Only Your Ordinary Account Was Ever at Risk</h2>
+
+        <p>
+            Money used to buy an HDB flat comes from your CPF Ordinary Account, whether for the down payment or your monthly loan instalments. Your Special Account and Medisave Account are not used for a housing purchase and are not part of the refund mechanism. If you have been tracking a much larger combined CPF balance and assuming all of it is tied up in your flat, that is not how the scheme works, only the Ordinary Account sums used for the flat, plus interest, need to be accounted for at sale.
+        </p>
+
+        <h2>Money: The Order Sale Proceeds Actually Follow</h2>
+
+        <p>
+            When your HDB flat sells, the proceeds are applied in a fixed order. First, any outstanding HDB or bank loan on the flat is repaid in full. Second, the CPF principal you withdrew for the flat, plus accrued interest, is refunded back into your CPF account. Third, agent commission, legal fees and any other transaction costs are settled. Whatever remains after all three steps is the cash that lands in your bank account.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Accrued interest:</strong> CPF charges interest on the Ordinary Account money you used for your flat, at the same rate your Ordinary Account would otherwise have earned, currently 2.5 percent a year. This is not a penalty, it is the interest your own CPF savings would have accumulated had you left the money untouched.
+        </div>
+
+        <h2>Safety: Where the Refund Actually Goes</h2>
+
+        <p>
+            Here is the part many sellers get wrong. If you are below 55, your CPF refund does not become cash you can spend, it goes back into your CPF Ordinary Account. You can use it again for another property, keep it earning CPF interest, or leave it until you turn 55.
+        </p>
+
+        <p>
+            If you are 55 or older, CPF first uses the refund to top up your Retirement Account to meet the prevailing retirement sum for your cohort, whether the Basic Retirement Sum or Full Retirement Sum, depending on whether you have pledged property value against a lower sum. Only the amount above that requirement can be withdrawn as cash. The exact retirement sum changes for each birth cohort, so check your applicable figure on the CPF website rather than relying on a number you saw for a different age group or an earlier year.
+        </p>
+
+        <h2>Money: No Capital Gains Tax, But Check Rental History</h2>
+
+        <p>
+            Singapore does not have a general capital gains tax, so there is no tax on the gain from selling your owner occupied HDB flat, regardless of how much it has appreciated since purchase. This applies to the sale itself. If the flat was ever rented out, the rental income you collected while renting was separately taxable as income each year under IRAS rules, but that is a tax on rent received, not a tax on the sale gain. If IRAS considers a seller to be running a property trading business rather than a normal sale, different rules can apply, which is a narrow and specific situation, not the default for an ordinary owner occupier.
+        </p>
+
+        <h2>Timing: Buying Again After You Sell</h2>
+
+        <p>
+            If you plan to buy another HDB flat, your net cash and CPF refund fund the new down payment, subject to the same MSR and TDSR gates as any other buyer. If you plan to upgrade to private property and you already own, or have owned, another residential property, Additional Buyer's Stamp Duty applies to the new purchase at the current IRAS rate for your citizenship and property count, on top of the normal Buyer's Stamp Duty. Model that stamp duty cost against your actual net cash and CPF position before you commit, rather than assuming your full sale proceeds are available for the next down payment.
+        </p>
+
+        <h2>Timing: Age Changes the Whole Picture</h2>
+
+        <p>
+            A seller aged 50 and a seller aged 65 experience the same refund mechanism very differently. Below 55, there is no concept of a personal retirement sum test yet, since that only forms at 55, so the entire CPF refund simply returns to your Ordinary Account and continues earning CPF interest until you reach that milestone. At 55 and beyond, CPF automatically forms your Retirement Account from your Ordinary and Special Account balances, and any further refund from a property sale is applied against the prevailing retirement sum for your cohort before any excess becomes withdrawable. A seller past 65 who has already met the retirement sum in earlier years may find most or all of a later refund is immediately withdrawable, subject to the rules current at the time.
+        </p>
+
+        <p>
+            This means the same sale price and the same CPF principal used can produce very different cash outcomes depending purely on the seller's age and prior CPF history. Do not assume a friend's experience selling at a different age applies to your own situation without checking your own CPF statement.
+        </p>
+
+        <h2>Money: Renting Instead of Selling Is a Separate Decision</h2>
+
+        <p>
+            An owner who keeps the flat and rents it out instead of selling does not trigger any CPF refund at all, since no sale has occurred. Rental income collected is taxable each year it is earned under IRAS rules, after allowable deductions, and the CPF principal used to buy the flat continues accruing interest obligations that only come due if and when the flat is eventually sold. Comparing a sale now against continued rental requires weighing immediate liquidity against ongoing rental cash flow and continued exposure to future CPF and stamp duty rules, rather than assuming either path is automatically better.
+        </p>
+
+        <h2>Your Takeaway Checklist</h2>
+
+        <ul>
+            <li>Get a written cost estimate from your lawyer covering commission, legal fees and any levy</li>
+            <li>Check your CPF Ordinary Account balance and the accrued interest owed via your CPF statement</li>
+            <li>If you are 55 or older, check your applicable retirement sum on the CPF website before assuming a cash figure</li>
+            <li>Remember rental income was taxed annually if the flat was ever rented, the sale itself is not taxed</li>
+            <li>If buying again, check Additional Buyer's Stamp Duty exposure before assuming full proceeds are free cash</li>
+        </ul>
+
+        <p>
+            The mechanism is simple once you see the order of operations: loan first, CPF refund second, costs third, cash last. Confirm your own numbers against your actual CPF statement rather than a rule of thumb, since your Ordinary Account balance, accrued interest and age all change the outcome.
+        </p>
+
+        <p>
+            <a href="/insights/cpf-accrued-interest.html">Read how accrued interest is calculated</a>, use the <a href="/insights/how-to-read-your-cpf-property-statement-singapore.html">guide to reading your CPF property statement</a>, check <a href="/insights/cpf-retirement-sum-and-your-property-singapore.html">how the retirement sum interacts with a property sale</a>, or estimate your numbers with the <a href="/tools/net-proceeds.html">net proceeds tool</a>.
+        </p>
+
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3 class="faq-question">Does the CPF refund at HDB sale count as cash I can spend?</h3>
+            <p class="faq-answer">Not automatically. If you are below 55, the CPF principal and accrued interest refunded at sale goes back into your CPF Ordinary Account, not your bank account. If you are 55 or older, the refund first tops up your Retirement Account to meet the prevailing retirement sum, and only the amount above that can be withdrawn as cash.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Can I use my CPF Special Account for my HDB down payment?</h3>
+            <p class="faq-answer">No. CPF housing withdrawals for an HDB flat purchase come only from your Ordinary Account. Your Special Account and Medisave Account are not used to fund a flat purchase and are not part of the refund calculation when you sell.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Is there capital gains tax when I sell my HDB flat in Singapore?</h3>
+            <p class="faq-answer">No. Singapore does not have a general capital gains tax, so the gain on an owner occupied HDB sale is not taxed. If the flat was rented out at any point, the rental income itself was taxable each year it was earned, which is separate from the sale transaction.</p>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Know what lands in your bank account</h3>
+            <p>Bring your CPF statement and Winfred will walk through your actual refund order and net cash before you list your flat.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a licensed financial advisor. Consult a licensed professional (banker, lawyer or accountant) before making any property decision. Rules, rates and figures are subject to change; always verify against the primary source before relying on them.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>CPF Board, using your CPF for housing:</strong> <a href="https://www.cpf.gov.sg" target="_blank" rel="noopener noreferrer">www.cpf.gov.sg</a></li>
+                <li><strong>HDB, selling your flat:</strong> <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">www.hdb.gov.sg</a></li>
+                <li><strong>IRAS, stamp duty for property:</strong> <a href="https://www.iras.gov.sg" target="_blank" rel="noopener noreferrer">www.iras.gov.sg</a></li>
+                <li><strong>Monetary Authority of Singapore, housing loan rules:</strong> <a href="https://www.mas.gov.sg" target="_blank" rel="noopener noreferrer">www.mas.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "How the CPF Refund Works When You Sell Your HDB Flat",
+    "description": "What actually happens to your CPF when you sell an HDB flat: the refund order, accrued interest, the retirement sum rule and why no capital gains tax applies.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "Does the CPF refund at HDB sale count as cash I can spend?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Not automatically. If you are below 55, the CPF principal and accrued interest refunded at sale goes back into your CPF Ordinary Account, not your bank account. If you are 55 or older, the refund first tops up your Retirement Account to meet the prevailing retirement sum, and only the amount above that can be withdrawn as cash."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Can I use my CPF Special Account for my HDB down payment?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. CPF housing withdrawals for an HDB flat purchase come only from your Ordinary Account. Your Special Account and Medisave Account are not used to fund a flat purchase and are not part of the refund calculation when you sell."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Is there capital gains tax when I sell my HDB flat in Singapore?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "No. Singapore does not have a general capital gains tax, so the gain on an owner occupied HDB sale is not taxed. If the flat was rented out at any point, the rental income itself was taxable each year it was earned, which is separate from the sale transaction."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

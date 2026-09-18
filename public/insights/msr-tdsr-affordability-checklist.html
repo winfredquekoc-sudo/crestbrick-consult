@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSR and TDSR Affordability Checklist for HDB Buyers</title>
+    <meta name="description" content="Work out your maximum HDB loan using the real MSR 30 percent and TDSR 55 percent limits, with a full worked example and a quick income reference table.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="MSR and TDSR Affordability Checklist for HDB Buyers">
+    <meta property="og:description" content="Work out your maximum HDB loan using the real MSR 30 percent and TDSR 55 percent limits, with a full worked example and a quick income reference table.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+</style>
+</head>
+<body>
+    <article>
+        <h1>MSR and TDSR Affordability Checklist for HDB Buyers</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+
+        <p>
+            Two ratios decide how much HDB loan you can actually get, not what a flat costs on paper. In short: your monthly HDB loan repayment cannot exceed 30 percent of gross income under MSR, and all your monthly debt repayments together cannot exceed 55 percent of gross income under TDSR. Both must pass at the same time.
+        </p>
+
+        <h2>Money: MSR, the 30 Percent Rule</h2>
+
+        <p>
+            The Mortgage Servicing Ratio caps your monthly HDB or Executive Condominium loan repayment at 30 percent of your gross monthly income. If your household earns 6,000 dollars a month, your HDB loan repayment cannot exceed 1,800 dollars a month under this test alone.
+        </p>
+
+        <h2>Money: TDSR, the 55 Percent Rule</h2>
+
+        <p>
+            The Total Debt Servicing Ratio caps all your monthly debt repayments, including the home loan, car loan, credit card minimums and any other personal loan, at 55 percent of gross monthly income. For the same 6,000 dollar household, total debt repayments cannot exceed 3,300 dollars a month. Note that TDSR is a national rule set by the Monetary Authority of Singapore and applies at 55 percent, not 60 percent, so check any older material carefully before relying on it.
+        </p>
+
+        <h2>Worked Example, Using the Current HDB Rate</h2>
+
+        <p>
+            HDB's concessionary loan rate has long been pegged at 0.1 percentage point above the CPF Ordinary Account rate, published as 2.6 percent a year. Take a household earning 6,000 dollars a month, with an existing car loan of 800 dollars a month, targeting a 500,000 dollar flat with a 75,000 dollar down payment, leaving a 425,000 dollar loan over 25 years.
+        </p>
+
+        <p>
+            At 2.6 percent over 25 years, a 425,000 dollar loan works out to roughly 1,930 dollars a month. Checking MSR: 1,930 divided by 6,000 is about 32 percent, which fails the 30 percent limit. To pass, the loan needs to shrink to around 397,000 dollars, meaning a down payment near 103,000 dollars, about 21 percent of the price, to bring the monthly repayment down to about 1,800 dollars and MSR to 30 percent.
+        </p>
+
+        <p>
+            Checking TDSR at that adjusted loan: 1,800 dollars home loan plus 800 dollars car loan is 2,600 dollars, divided by 6,000 dollars income is about 43 percent, comfortably under the 55 percent limit. In this example, MSR is the binding constraint, not TDSR, which is common for HDB buyers with a modest home loan and few other debts.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Key takeaway:</strong> raising your down payment to fix a failed MSR test usually also improves your TDSR position, since both ratios shrink together as the loan amount falls.
+        </div>
+
+        <h2>Money: Quick Reference by Income</h2>
+
+        <table class="comparison-table">
+            <tr>
+                <th>Monthly gross income</th>
+                <th>MSR ceiling, 30 percent</th>
+                <th>TDSR ceiling, 55 percent</th>
+            </tr>
+            <tr><td>4,000 dollars</td><td>1,200 dollars</td><td>2,200 dollars</td></tr>
+            <tr><td>5,000 dollars</td><td>1,500 dollars</td><td>2,750 dollars</td></tr>
+            <tr><td>6,000 dollars</td><td>1,800 dollars</td><td>3,300 dollars</td></tr>
+            <tr><td>7,000 dollars</td><td>2,100 dollars</td><td>3,850 dollars</td></tr>
+            <tr><td>8,000 dollars</td><td>2,400 dollars</td><td>4,400 dollars</td></tr>
+        </table>
+
+        <p>
+            Use the MSR column as your starting monthly repayment ceiling, then check the TDSR column against your MSR figure plus every other monthly debt you carry. If total debt would exceed the TDSR ceiling, you must either reduce other debt or lower the home loan further, even if MSR alone would have allowed a larger loan.
+        </p>
+
+        <h2>Safety: What Counts as Income</h2>
+
+        <p>
+            Lenders generally count base salary in full, a co borrowing spouse's salary, and a portion of rental income after a vacancy allowance. Guaranteed bonuses may be counted at a discount, while variable or discretionary bonuses, investment returns and income from a job held less than a year are usually excluded or heavily discounted. If a spouse only contributes to the down payment without being a co borrower, their income generally does not count toward your MSR or TDSR calculation, but their existing debt does not count against you either.
+        </p>
+
+        <h2>Timing: Loan Tenure Changes the Trade Off</h2>
+
+        <p>
+            Stretching your loan tenure lowers the monthly repayment and can help a loan pass MSR, but it raises total interest paid over the life of the loan and can leave a balance outstanding well into retirement. The maximum HDB loan tenure is 25 years, or shorter if it would extend past age 65 for any borrower on the loan. A younger buyer has more room to choose a shorter tenure and pay less total interest, while a buyer closer to the age ceiling faces a shorter maximum tenure regardless of preference, which can push the monthly repayment higher and make MSR harder to clear on the same loan amount.
+        </p>
+
+        <h2>Safety: Loan to Value Sets the Other Boundary</h2>
+
+        <p>
+            Separately from MSR and TDSR, the loan to value limit caps how large a loan you can take relative to the flat price. An HDB concessionary loan allows up to 80 percent loan to value, so at least 20 percent must come from down payment. A bank loan for an HDB flat typically allows up to 75 percent loan to value for a first housing loan, with a lower limit if you already have an existing housing loan or if the loan tenure or your age pushes past certain thresholds. Even if MSR and TDSR would allow a larger loan, the loan to value ceiling can independently cap what you actually receive, so check all three limits together rather than assuming clearing MSR and TDSR is sufficient.
+        </p>
+
+        <h2>Common Mistakes to Avoid</h2>
+
+        <ul>
+            <li>Forgetting an existing car loan or credit card balance when estimating TDSR headroom</li>
+            <li>Assuming a discretionary bonus counts as guaranteed income</li>
+            <li>Planning around today's HDB concessionary rate without checking it has not changed at application time</li>
+            <li>Assuming your full CPF Ordinary Account balance is available for the down payment before checking the CPF withdrawal limit</li>
+            <li>Treating passing MSR as the finish line without separately checking TDSR against all household debt</li>
+        </ul>
+
+        <p>
+            Run both ratios before you fall in love with a specific flat. A price that clears MSR on paper can still fail TDSR once existing debt is added, and the fix, whether a larger down payment or clearing debt first, is far easier to do before you commit than after you have signed an Option to Purchase.
+        </p>
+
+        <p>
+            Read the full breakdown of <a href="/insights/tdsr-msr-ltv-how-they-work-together.html">how MSR, TDSR and loan to value work together</a>, see <a href="/insights/tdsr-stress-test-explained.html">how banks stress test your loan</a>, try the <a href="/insights/tdsr-calculator.html">TDSR calculator</a>, or check your overall budget with the <a href="/tools/affordability.html">affordability tool</a>.
+        </p>
+
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3 class="faq-question">What is the difference between MSR and TDSR for an HDB purchase?</h3>
+            <p class="faq-answer">MSR, the Mortgage Servicing Ratio, caps your monthly HDB or EC loan repayment at 30 percent of gross monthly income. TDSR, the Total Debt Servicing Ratio, caps all your monthly debt repayments together, including the home loan, at 55 percent of gross monthly income. Both limits must be satisfied at the same time for the loan to be approved.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">What interest rate does HDB use for a concessionary loan?</h3>
+            <p class="faq-answer">HDB's concessionary loan rate is pegged at 0.1 percentage point above the CPF Ordinary Account interest rate, published at 2.6 percent a year. Check the current published rate on the HDB website before finalising a calculation, since it can change if the CPF Ordinary Account rate changes.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Do all existing debts count toward TDSR?</h3>
+            <p class="faq-answer">Yes. Car loans, credit card minimum payments, personal loans and any other mortgage you hold all count toward the 55 percent TDSR ceiling alongside your new home loan. Clearing or reducing existing debt before applying directly raises the loan amount you can qualify for.</p>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Get your exact MSR and TDSR numbers</h3>
+            <p>Send Winfred your income and existing debts and get your real maximum HDB loan before you start viewing flats.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a licensed financial advisor. Consult a licensed professional (banker, lawyer or accountant) before making any property decision. Rules, rates and figures are subject to change; always verify against the primary source before relying on them.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>HDB, home loan eligibility and interest rate:</strong> <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">www.hdb.gov.sg</a></li>
+                <li><strong>Monetary Authority of Singapore, TDSR and MSR framework:</strong> <a href="https://www.mas.gov.sg" target="_blank" rel="noopener noreferrer">www.mas.gov.sg</a></li>
+                <li><strong>CPF Board, CPF Ordinary Account interest rate:</strong> <a href="https://www.cpf.gov.sg" target="_blank" rel="noopener noreferrer">www.cpf.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "MSR and TDSR Affordability Checklist for HDB Buyers",
+    "description": "Work out your maximum HDB loan using the real MSR 30 percent and TDSR 55 percent limits, with a full worked example and a quick income reference table.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What is the difference between MSR and TDSR for an HDB purchase?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "MSR, the Mortgage Servicing Ratio, caps your monthly HDB or EC loan repayment at 30 percent of gross monthly income. TDSR, the Total Debt Servicing Ratio, caps all your monthly debt repayments together, including the home loan, at 55 percent of gross monthly income. Both limits must be satisfied at the same time for the loan to be approved."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "What interest rate does HDB use for a concessionary loan?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "HDB's concessionary loan rate is pegged at 0.1 percentage point above the CPF Ordinary Account interest rate, published at 2.6 percent a year. Check the current published rate on the HDB website before finalising a calculation, since it can change if the CPF Ordinary Account rate changes."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Do all existing debts count toward TDSR?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Car loans, credit card minimum payments, personal loans and any other mortgage you hold all count toward the 55 percent TDSR ceiling alongside your new home loan. Clearing or reducing existing debt before applying directly raises the loan amount you can qualify for."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>
