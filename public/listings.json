@@ -1,8 +1,8 @@
 {
   "agent": "Winfred Quek (CEA R073319H)",
   "source": "landlord-db",
-  "synced_at": "2026-09-18T00:30:01+08:00",
-  "count": 30,
+  "synced_at": "2026-09-19T00:30:02+08:00",
+  "count": 29,
   "listings": [
     {
       "id": "whole-unit-1-hillcrest-road-ll124",
@@ -15,22 +15,6 @@
       "district": "D11",
       "wa_text": "Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%201%20Hillcrest%20Road.",
       "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Whole%20Unit%20in%201%20Hillcrest%20Road."
-    },
-    {
-      "id": "common-room-blk-113-potong-pasir-avenue-1-ll221",
-      "title": "Common Room, Blk 113 Potong Pasir Avenue 1",
-      "type": "HDB",
-      "transaction": "rent",
-      "price": 1100,
-      "price_label": "From S$1,100 / mo",
-      "address": "Blk 113 Potong Pasir Avenue 1",
-      "district": "D13",
-      "highlights": [
-        "Near MRT",
-        "Available now"
-      ],
-      "wa_text": "Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Potong%20Pasir%20Avenue%201.",
-      "url": "https://wa.me/6581618149?text=Hi%20Winfred%2C%20asking%20about%20Common%20Room%20in%20Blk%20113%20Potong%20Pasir%20Avenue%201."
     },
     {
       "id": "common-room-93-paya-lebar-way-ll136",
