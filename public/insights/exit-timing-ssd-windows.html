@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exit Timing and SSD Windows for Property Sellers</title>
+    <meta name="description" content="How Seller's Stamp Duty windows work for HDB and private property in Singapore, including the current schedule and how MOP already shields most HDB exits.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="Exit Timing and SSD Windows for Property Sellers">
+    <meta property="og:description" content="How Seller's Stamp Duty windows work for HDB and private property in Singapore, including the current schedule and how MOP already shields most HDB exits.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            h2 { font-size: 1.4rem; }
+            .cta-buttons { flex-direction: column; }
+            .cta-btn { width: 100%; }
+        }
+</style>
+</head>
+<body>
+    <article>
+        <h1>Exit Timing and SSD Windows for Property Sellers</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 &middot; <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+
+        <p>
+            Selling a property within a few years of buying it can trigger Seller's Stamp Duty, a percentage of the sale price that falls the longer you hold. In short: for residential property bought on or after 4 July 2025, the current schedule is 16 percent in year one, 12 percent in year two, 8 percent in year three and 4 percent in year four, dropping to zero from year five, so exit timing is worth planning around.
+        </p>
+
+        <h2>Money: The Current SSD Schedule</h2>
+
+        <p>
+            Singapore's Seller's Stamp Duty rules have changed twice in recent years. For residential property bought between 11 March 2017 and 3 July 2025, the schedule runs three years: 12 percent if sold within the first year, 8 percent in the second year, 4 percent in the third year, and zero from the fourth year onward. For residential property bought on or after 4 July 2025, the government extended the holding window to four years and raised every tier: 16 percent in year one, 12 percent in year two, 8 percent in year three, 4 percent in year four, and zero from year five. Which schedule applies to you depends on your purchase date, not your sale date, so check when you bought before assuming a rate.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Check your purchase date first:</strong> the rate that applies is fixed at the date you bought the property, so a flat bought in 2019 still follows the older three year schedule even if you sell it today.
+        </div>
+
+        <h2>Timing: HDB's MOP Already Shields Most Owner Occupiers</h2>
+
+        <p>
+            HDB flats carry a five year Minimum Occupation Period before you are even allowed to sell or rent out the whole unit. Since the current SSD window is only four years, a typical HDB owner who waits out the full MOP before selling will already be past the SSD window entirely, meaning zero SSD applies in the ordinary course of an owner occupied HDB exit. SSD on an HDB flat only becomes relevant in specific approved early exit situations that HDB permits before or shortly after MOP, which are exceptions handled case by case through HDB, not a general planning tool for a normal sale.
+        </p>
+
+        <h2>Money: Private Property Follows the Same Rate Schedule</h2>
+
+        <p>
+            Private residential property follows the same SSD percentages as HDB flats under the current rules, since the 2025 revision applies one schedule across all residential property types. There is no separate, harsher private property rate under the post July 2025 schedule. Investors planning a private property flip inside the four year window should budget for the applicable tier as a real cost, not treat it as avoidable.
+        </p>
+
+        <h2>Timing: Coordinating SSD With ABSD on Your Next Purchase</h2>
+
+        <p>
+            Selling after your SSD window closes avoids that duty, but if you are then buying another residential property while still owning one, or shortly after, Additional Buyer's Stamp Duty on the new purchase can still apply, based on your citizenship and how many residential properties you already own at the point of the new purchase. These two duties are separate and are not netted against each other. A seller planning to sell one property and buy another should model SSD on the sale and ABSD on the purchase as two distinct costs, in that order, rather than assuming avoiding one automatically offsets the other.
+        </p>
+
+        <h2>Safety: This Is Educational, Not Deal Specific Advice</h2>
+
+        <p>
+            None of this is advice on when you personally should sell a specific property, and it is not a promise about future appreciation or price direction. It describes the current published stamp duty rules so you can check your own holding period and purchase date against them, and it should be confirmed with your lawyer and against the current IRAS schedule before you commit to a sale date.
+        </p>
+
+        <h2>Timing: A Multi Property Progression Example</h2>
+
+        <p>
+            Many households follow a progression from HDB flat to private condominium and later to a larger private home. Each step involves a separate sale and a separate purchase, and each should be checked independently against the SSD schedule in force for the property being sold and the ABSD schedule in force for the property being bought. Selling the HDB flat after the five year MOP typically clears SSD entirely, as covered above. Buying the first private condominium then attracts standard Buyer's Stamp Duty and, if the buyer already owns another residential property at that point, ABSD as well. Selling that condominium later, after clearing its own SSD window from its own purchase date, and buying a larger private home repeats the same two step check. Treat every leg of a multi step progression as its own SSD and ABSD calculation rather than assuming the whole sequence nets out to one simple number.
+        </p>
+
+        <h2>Safety: Confirm the Rules Have Not Changed Again</h2>
+
+        <p>
+            Singapore's stamp duty rules have changed more than once in the past decade, including the 2025 revision to the SSD schedule described above. Before acting on any holding period calculation, check the current IRAS stamp duty page for the schedule in force, since a further revision after this article was written would change the numbers without changing the underlying planning approach of checking your purchase date against the correct schedule.
+        </p>
+
+        <h2>Exit Timing Checklist</h2>
+
+        <ul>
+            <li>Confirm your exact purchase date to identify which SSD schedule applies to you</li>
+            <li>Calculate your current holding period and which SSD tier you would fall into if you sold today</li>
+            <li>For an HDB flat, confirm whether you have already passed your five year MOP</li>
+            <li>If buying again, separately check the ABSD rate that would apply to the new purchase</li>
+            <li>Confirm the current SSD schedule directly with IRAS before finalising your sale timing</li>
+        </ul>
+
+        <p>
+            The core planning point is simple: know your purchase date, know the schedule that applies to it, and treat SSD and ABSD as two separate costs to check, not one problem to solve at once.
+        </p>
+
+        <p>
+            Read the full <a href="/insights/how-stamp-duty-stacks-bsd-absd-ssd.html">breakdown of how BSD, ABSD and SSD stack together</a>, check the <a href="/insights/hdb-mop-upgrade-timeline.html">HDB MOP upgrade timeline</a>, review the guide on <a href="/insights/sell-hdb-before-mop.html">selling an HDB flat before MOP</a>, or track your own countdown with the <a href="/tools/hdb-mop-countdown.html">MOP countdown tool</a>.
+        </p>
+
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3 class="faq-question">What are the current SSD rates for residential property in Singapore?</h3>
+            <p class="faq-answer">For residential property bought on or after 4 July 2025, Seller's Stamp Duty is 16 percent if sold within the first year, 12 percent in the second year, 8 percent in the third year, 4 percent in the fourth year, and zero from the fifth year onward. Property bought between 11 March 2017 and 3 July 2025 follows an older three year schedule of 12, 8 and 4 percent.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Does SSD apply to HDB flats after the minimum occupation period?</h3>
+            <p class="faq-answer">In most cases no. HDB's Minimum Occupation Period is five years, which is already longer than the current four year SSD window, so a typical owner occupier who sells only after MOP will already be past the SSD window and owe zero SSD. SSD only becomes relevant for HDB in specific approved early exit situations.</p>
+        </div>
+        <div class="faq-item">
+            <h3 class="faq-question">Can I avoid SSD by holding the property for a certain number of years?</h3>
+            <p class="faq-answer">Yes. Under the current schedule, SSD falls to zero once you have held the residential property for at least five years from your purchase date. The exact rate that applied during your holding period depends on when you bought, so check your purchase date against the correct schedule.</p>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Plan your exit before you list</h3>
+            <p>Share your purchase date and target sale window and Winfred will check your actual SSD exposure before you list.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate salesperson (CEA R073319H) at Crestbrick Pte Ltd, not a licensed financial advisor. Consult a licensed professional (banker, lawyer or accountant) before making any property decision. Rules, rates and figures are subject to change; always verify against the primary source before relying on them.
+        </div>
+
+        <div class="sources">
+            <h3>Sources and References</h3>
+            <ul>
+                <li><strong>IRAS, Seller's Stamp Duty for residential property:</strong> <a href="https://www.iras.gov.sg" target="_blank" rel="noopener noreferrer">www.iras.gov.sg</a></li>
+                <li><strong>HDB, minimum occupation period:</strong> <a href="https://www.hdb.gov.sg" target="_blank" rel="noopener noreferrer">www.hdb.gov.sg</a></li>
+                <li><strong>IRAS, Buyer's Stamp Duty and Additional Buyer's Stamp Duty:</strong> <a href="https://www.iras.gov.sg" target="_blank" rel="noopener noreferrer">www.iras.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Exit Timing and SSD Windows for Property Sellers",
+    "description": "How Seller's Stamp Duty windows work for HDB and private property in Singapore, including the current schedule and how MOP already shields most HDB exits.",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+        {
+            "@type": "Question",
+            "name": "What are the current SSD rates for residential property in Singapore?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "For residential property bought on or after 4 July 2025, Seller's Stamp Duty is 16 percent if sold within the first year, 12 percent in the second year, 8 percent in the third year, 4 percent in the fourth year, and zero from the fifth year onward. Property bought between 11 March 2017 and 3 July 2025 follows an older three year schedule of 12, 8 and 4 percent."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Does SSD apply to HDB flats after the minimum occupation period?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "In most cases no. HDB's Minimum Occupation Period is five years, which is already longer than the current four year SSD window, so a typical owner occupier who sells only after MOP will already be past the SSD window and owe zero SSD. SSD only becomes relevant for HDB in specific approved early exit situations."
+            }
+        },
+        {
+            "@type": "Question",
+            "name": "Can I avoid SSD by holding the property for a certain number of years?",
+            "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Yes. Under the current schedule, SSD falls to zero once you have held the residential property for at least five years from your purchase date. The exact rate that applied during your holding period depends on when you bought, so check your purchase date against the correct schedule."
+            }
+        }
+    ]
+}
+        </script>
+    </article>
+</body>
+</html>

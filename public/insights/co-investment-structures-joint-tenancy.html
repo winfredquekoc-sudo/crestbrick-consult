@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joint Tenancy or Tenancy in Common for Co Investors</title>
+    <meta name="description" content="Buying property with a partner or friend? Joint tenancy and tenancy in common differ on ABSD, succession and exit. Here is how Singapore treats each.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="Joint Tenancy or Tenancy in Common for Co Investors">
+    <meta property="og:description" content="Buying property with a partner or friend? Joint tenancy and tenancy in common differ on ABSD, succession and exit. Here is how Singapore treats each.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Joint Tenancy or Tenancy in Common for Co Investors</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            Joint tenancy gives every co owner equal, undivided ownership and automatic succession to the survivor on death. Tenancy in common lets co owners hold separate, unequal shares that pass through a will or intestacy instead. The choice affects ABSD exposure, estate planning and how cleanly you can exit if a co owner wants out.
+        </p>
+
+        <p>
+            When two or more people buy a Singapore property together, the manner of holding is recorded with the Singapore Land Authority at the point of purchase or transfer. It sounds like paperwork, but it decides who inherits the property, how ABSD is calculated if one buyer is foreign, and how messy a future exit could be.
+        </p>
+
+        <h2>Money: How Each Structure Handles ABSD</h2>
+
+        <p>
+            Under joint tenancy, every co owner is treated as owning the whole property equally, regardless of who put in what capital. If one of the co owners is a foreigner, the Additional Buyer's Stamp Duty rate for a foreign buyer, currently 60 percent under IRAS rules, is assessed with reference to that co owner's standing, and can affect the whole transaction depending on how the purchase is structured.
+        </p>
+
+        <p>
+            Under tenancy in common, each co owner holds a defined, separate share, for example 60 percent and 40 percent, matching actual capital contributed. Because shares are distinct, ABSD exposure tied to a foreign or higher rate co owner is generally assessed against that person's specific share rather than uniformly across the whole property. For mixed citizenship co ownership, this makes tenancy in common the structure worth checking first with your lawyer and IRAS before signing anything.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Get this confirmed early:</strong> ask your conveyancing lawyer to compute ABSD under both structures before you exercise the option.
+        </div>
+
+        <h2>Safety: What Happens When a Co Owner Dies</h2>
+
+        <p>
+            Joint tenancy carries the right of survivorship. When one co owner dies, their interest passes automatically and entirely to the surviving co owner or owners, outside of any will and without probate on that asset. This suits married couples and long term partners who want the property to pass simply to each other, but it also means the deceased owner's own children or other heirs from a different relationship have no claim on that share.
+        </p>
+
+        <p>
+            Tenancy in common has no right of survivorship. Each owner's share becomes part of their personal estate and passes under their will, or under Singapore's Intestate Succession Act if they have no will. This gives an owner control over who inherits their share, which matters for blended families, business partners, or a parent and adult child co owning as an investment rather than a shared home.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Regardless of structure:</strong> CPF used for the property, plus accrued interest, must still be refunded to CPF when the property is sold.
+        </div>
+
+        <h2>Timing: Exit and Dispute Resolution</h2>
+
+        <p>
+            Under joint tenancy, because ownership is equal by law rather than by contribution, a co owner wanting out typically forces a sale of the whole property, with proceeds split equally regardless of who actually paid what. Under tenancy in common, a co owner can usually sell or transfer their specific share, or force a partition that reflects their actual percentage, which tends to produce a cleaner and fairer outcome when contributions were unequal from the start.
+        </p>
+
+        <p>
+            Neither structure removes the need for a proper co ownership agreement. A simple written agreement covering how monthly costs are split, what happens if one party wants to sell early, and how disputes are resolved will save far more money than it costs to draft, whatever manner of holding you choose.
+        </p>
+
+        <h2>Choosing Between the Two</h2>
+
+        <ul>
+            <li>Married couples or long term partners planning to leave everything to each other often prefer joint tenancy for its simplicity.</li>
+            <li>Co owners with unequal capital contributions are usually better served by tenancy in common, so shares match what each person actually put in.</li>
+            <li>Mixed citizenship or mixed ABSD status co ownership should always be checked against both structures before signing.</li>
+            <li>Friends, siblings or business partners pooling capital for an investment property generally prefer tenancy in common for a cleaner exit.</li>
+            <li>Whichever structure you choose, put a written co ownership agreement in place before completion, not after a disagreement.</li>
+        </ul>
+
+        <h2>Money: Financing a Co Owned Purchase</h2>
+
+        <p>
+            When two or more people apply for a mortgage together, the bank generally assesses Total Debt Servicing Ratio using the combined income of all borrowers named on the loan, subject to MAS rules on TDSR for property loans. This is separate from the manner of holding recorded on the title. You can be a co borrower on the loan without being a co owner on the title, and you can be a co owner on the title without being a co borrower on the loan, so the two decisions need to be made deliberately rather than assumed to move together.
+        </p>
+
+        <p>
+            CPF usage also follows the co owner, not the co borrower. Each co owner can use their own Ordinary Account savings toward their own share of the purchase, subject to the usual CPF housing usage limits. If contributions are unequal, tenancy in common lets the CPF usage and the ownership share line up naturally; under joint tenancy, unequal CPF contributions toward an equally owned property can create its own complications if the relationship ends, since CPF made a proportionate contribution but the title says otherwise.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Separate the two decisions:</strong> who is on the loan and who is on the title do not have to be the same people or the same shares.
+        </div>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3 class="faq-question">What is the main difference between joint tenancy and tenancy in common?</h3>
+            <p class="faq-answer">Joint tenancy means all co owners hold the whole property equally, with automatic succession to the survivor when one owner dies. Tenancy in common means each co owner holds a separate, potentially unequal share that passes through their own will or intestacy rather than automatically to the other co owners.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 class="faq-question">Does the ownership structure change how much ABSD I pay?</h3>
+            <p class="faq-answer">It can. Joint tenancy treats all co owners as equal owners of the whole property, which can affect how a foreign or higher rate co owner's ABSD status applies across the purchase. Tenancy in common assigns defined shares, so ABSD exposure tied to one co owner's status is generally assessed against their specific share. Always confirm the exact computation with your lawyer and IRAS before signing.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 class="faq-question">Can I change the manner of holding after I have bought the property?</h3>
+            <p class="faq-answer">Yes, co owners can apply to change the manner of holding, for example from joint tenants to tenants in common, through a statutory declaration lodged with the Singapore Land Authority. This is a legal process that should be handled by a lawyer, and it does not undo any ABSD or CPF obligations already incurred at purchase.</p>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Structuring a Co Ownership Purchase</h3>
+            <p>Every co ownership situation has different ABSD exposure and estate planning needs. Talk through your specific structure before you commit to an option.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed lawyer or financial advisor. Manner of holding, ABSD assessment and estate outcomes depend on your specific facts; consult a property lawyer before deciding how to hold title, and a will writing professional for estate planning.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>Singapore Land Authority, statutory declaration to change manner of holding:</strong> <a href="https://app.sla.gov.sg/starsELS/Help/forms/sdmhF15.html" target="_blank" rel="noopener noreferrer">sla.gov.sg</a></li>
+                <li><strong>IRAS, Additional Buyer's Stamp Duty (ABSD):</strong> <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property/buying-or-acquiring-property/additional-buyer's-stamp-duty-(absd)" target="_blank" rel="noopener noreferrer">iras.gov.sg</a></li>
+                <li><strong>CPF Board, CPF refund when selling or transferring property:</strong> <a href="https://www.cpf.gov.sg/member/home-ownership/using-your-cpf-to-buy-a-home/cpf-refund-when-selling-or-transferring-property" target="_blank" rel="noopener noreferrer">cpf.gov.sg</a></li>
+                <li><strong>Intestate Succession Act 1967, Singapore Statutes Online:</strong> <a href="https://sso.agc.gov.sg/Act/ISA1967" target="_blank" rel="noopener noreferrer">sso.agc.gov.sg</a></li>
+                <li><strong>MoneySense, intestacy and estate planning:</strong> <a href="https://www.moneysense.gov.sg/intestacy-what-if-you-don-t-have-an-estate-plan/" target="_blank" rel="noopener noreferrer">moneysense.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <p>
+            Related reading: <a href="/insights/joint-tenancy-vs-tenancy-in-common-sg.html">joint tenancy vs tenancy in common basics</a>, <a href="/insights/joint-tenancy-mortgage-co-borrower-exit-singapore.html">exiting a joint mortgage</a>, <a href="/insights/absd-singapore-2026.html">current ABSD rates</a> and <a href="/insights/sc-pr-couple-second-property-absd.html">mixed citizenship couples and ABSD</a>.
+        </p>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Joint Tenancy or Tenancy in Common for Co Investors",
+    "description": "Buying property with a partner or friend? Joint tenancy and tenancy in common differ on ABSD, succession and exit. Here is how Singapore treats each.",
+    "image": "https://winfredquek.com/og-co-investment-structures-joint-tenancy.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is the main difference between joint tenancy and tenancy in common?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Joint tenancy means all co owners hold the whole property equally, with automatic succession to the survivor when one owner dies. Tenancy in common means each co owner holds a separate, potentially unequal share that passes through their own will or intestacy rather than automatically to the other co owners."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Does the ownership structure change how much ABSD I pay?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "It can. Joint tenancy treats all co owners as equal owners of the whole property, which can affect how a foreign or higher rate co owner's ABSD status applies across the purchase. Tenancy in common assigns defined shares, so ABSD exposure tied to one co owner's status is generally assessed against their specific share. Always confirm the exact computation with your lawyer and IRAS before signing."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Can I change the manner of holding after I have bought the property?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes, co owners can apply to change the manner of holding, for example from joint tenants to tenants in common, through a statutory declaration lodged with the Singapore Land Authority. This is a legal process that should be handled by a lawyer, and it does not undo any ABSD or CPF obligations already incurred at purchase."
+                }
+            }
+        ]
+}
+        </script>
+    </article>
+</body>
+</html>

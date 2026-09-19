@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio Review: Spotting an Underperforming Property</title>
+    <meta name="description" content="A property yielding under 2 percent with rising repair bills is a drag on your portfolio. Here is a simple framework to review holdings and rebalance.">
+    <meta name="author" content="Winfred Quek">
+    <meta name="date" content="2026-09-08">
+    <meta property="og:title" content="Portfolio Review: Spotting an Underperforming Property">
+    <meta property="og:description" content="A property yielding under 2 percent with rising repair bills is a drag on your portfolio. Here is a simple framework to review holdings and rebalance.">
+    <meta property="og:type" content="article">
+    <meta name="theme-color" content="#001a33">
+    <style>
+        :root {
+            --text-primary: #e8e9eb;
+            --text-secondary: #a8adb5;
+            --bg-primary: #0f1419;
+            --bg-secondary: #1a1f2e;
+            --bg-tertiary: #252d3d;
+            --accent-gold: #d4a574;
+            --accent-light: #4a9eff;
+            --border-color: #2a3447;
+            --success: #4ade80;
+            --warning: #fbbf24;
+            --error: #ef4444;
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-primary: #1a1a1a;
+                --text-secondary: #666666;
+                --bg-primary: #ffffff;
+                --bg-secondary: #f8f8f8;
+                --bg-tertiary: #f0f0f0;
+                --border-color: #e0e0e0;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        article {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 60px 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            line-height: 1.2;
+            color: var(--text-primary);
+        }
+
+        .article-meta {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        h2 {
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            color: var(--accent-gold);
+        }
+
+        h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-top: 28px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        p {
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        strong {
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        em {
+            font-style: italic;
+            color: var(--text-secondary);
+        }
+
+        .callout {
+            background-color: var(--bg-tertiary);
+            border-left: 4px solid var(--accent-gold);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 4px;
+        }
+
+        .callout-warning {
+            border-left-color: var(--warning);
+        }
+
+        .callout-info {
+            border-left-color: var(--accent-light);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 24px 0;
+            font-size: 0.95rem;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--bg-tertiary);
+            font-weight: 600;
+            color: var(--accent-gold);
+        }
+
+        tr:hover {
+            background-color: var(--bg-tertiary);
+        }
+
+        ul, ol {
+            margin-left: 24px;
+            margin-bottom: 16px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .highlight-box {
+            background-color: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 6px;
+        }
+
+        .faq-item {
+            margin-bottom: 24px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 24px;
+        }
+
+        .faq-item:last-child {
+            border-bottom: none;
+        }
+
+        .faq-question {
+            font-weight: 600;
+            font-size: 1.05rem;
+            margin-bottom: 12px;
+            color: var(--accent-gold);
+        }
+
+        .faq-answer {
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .cta-box {
+            background-color: var(--bg-tertiary);
+            border: 2px solid var(--accent-gold);
+            padding: 28px;
+            margin: 40px 0;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .cta-box h3 {
+            margin-top: 0;
+            color: var(--accent-gold);
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .cta-btn {
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: 2px solid;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .cta-btn-primary {
+            background-color: var(--accent-gold);
+            color: var(--bg-primary);
+            border-color: var(--accent-gold);
+        }
+
+        .cta-btn-primary:hover {
+            opacity: 0.9;
+        }
+
+        .cta-btn-secondary {
+            background-color: transparent;
+            color: var(--accent-light);
+            border-color: var(--accent-light);
+        }
+
+        .cta-btn-secondary:hover {
+            background-color: var(--accent-light);
+            color: var(--bg-primary);
+        }
+
+        .disclaimer {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+            line-height: 1.6;
+        }
+
+        .sources {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .sources h3 {
+            color: var(--accent-gold);
+        }
+
+        .sources ul {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .sources li {
+            margin-bottom: 6px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            margin: 24px 0;
+        }
+
+        .comparison-table th {
+            background-color: var(--bg-tertiary);
+        }
+
+        .comparison-table td {
+            padding: 14px;
+        }
+
+        .comparison-table tr:nth-child(even) {
+            background-color: var(--bg-secondary);
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            h2 {
+                font-size: 1.4rem;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .cta-btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <article>
+        <h1>Portfolio Review: Spotting an Underperforming Property</h1>
+        <div class="article-meta">
+            <strong>Published:</strong> 8 September 2026 · <strong>By Winfred Quek, Crestbrick Pte Ltd</strong>
+        </div>
+
+        <p>
+            An underperforming property, sometimes called a zombie asset, is one yielding under 2 percent gross, sitting in a flat market for years, or eating repair bills faster than it earns rent. Investors with more than one property should review the full list annually and decide, property by property, whether to hold, sell or redeploy.
+        </p>
+
+        <p>
+            Owners of a single property rarely need this exercise. Owners of two, three or more properties often do, because the properties that quietly cost the most are the ones nobody looks at closely: paid off, occupied, and easy to assume are doing fine.
+        </p>
+
+        <h2>Money: Mapping What You Actually Hold</h2>
+
+        <p>
+            Start with one table covering every property: purchase date and price, current estimated value, outstanding mortgage, annual rent or imputed rent if owner occupied, and annual costs including tax, maintenance and insurance. From that, calculate gross yield as annual rent divided by current value, and net cash flow as rent minus every cost including mortgage interest.
+        </p>
+
+        <p>
+            Pull current value estimates from recent comparable transactions rather than a rough guess, using URA's own transaction data where the property is private, or recent resale prices where it is an HDB flat. A table built on stale purchase price assumptions will consistently understate how underperforming a long held property has actually become.
+        </p>
+
+        <p>
+            A property yielding under 2 percent gross, with tenant turnover more than once a year, or with recurring major repair bills, is a candidate for exit rather than automatic renewal. A property with strong occupancy and yield above 3 to 4 percent is usually worth holding as is. Everything in between needs a judgement call based on your own goals, not a fixed rule.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Do this once a year:</strong> recalculate yield on current value, not purchase price, so decisions reflect today's market.
+        </div>
+
+        <h2>Safety: The Reasons People Hold On Too Long</h2>
+
+        <p>
+            Four patterns explain why underperforming properties survive years of poor returns. The sunk cost feeling, where a long holding period makes selling feel like admitting a mistake, even though what matters is the return from today forward. The hope that appreciation will eventually arrive, without asking at what rate compared to other options. The comfort of a paid off mortgage, mistaking freedom from repayments for a good return on the capital tied up in the property. And the friction of selling, where Seller's Stamp Duty, agent fees and paperwork feel like reasons to do nothing, even when the maths says otherwise.
+        </p>
+
+        <p>
+            None of these reasons change the numbers. A property review is only useful if you are willing to act on what it shows, including selling something you have owned for a long time.
+        </p>
+
+        <h2>Timing: What a Rebalancing Decision Looks Like</h2>
+
+        <p>
+            When a property clears the bar for exit, the practical choice is usually between two paths: sell and use the proceeds to pay down debt on a stronger performing property in the portfolio, or sell and redeploy the capital into a new purchase with better yield or growth prospects. Selling to reduce debt improves cash flow immediately and lowers risk. Selling to redeploy chases a better return but carries the cost and effort of a fresh purchase, including stamp duty on the new property.
+        </p>
+
+        <p>
+            Either path beats holding an asset purely out of habit. Before acting, check the Seller's Stamp Duty schedule if the property was bought within the holding period it still applies to, and confirm your accountant's view on any tax consequences of the sale.
+        </p>
+
+        <div class="callout callout-warning">
+            <strong>Before you sell:</strong> confirm whether Seller's Stamp Duty still applies based on your holding period and current IRAS rates.
+        </div>
+
+        <h2>Review Triggers to Watch For</h2>
+
+        <ul>
+            <li>A property yields under 2 percent gross for two consecutive years.</li>
+            <li>A property has needed a large, unplanned repair in the past year.</li>
+            <li>A property has had more than one tenant default or early termination in a year.</li>
+            <li>A property's location faces new competing supply or a clear shift away from demand.</li>
+            <li>Your own goals have changed, for example moving from growth to income as you approach retirement.</li>
+        </ul>
+
+        <h2>Money: Comparing a Sell and Pay Down Debt Path</h2>
+
+        <p>
+            One straightforward rebalancing move is selling the weakest property and using the proceeds to pay down the mortgage on a stronger one. This immediately raises net cash flow on the remaining portfolio because interest cost falls, and it lowers overall risk because total debt across the portfolio drops. It gives up whatever future appreciation the sold property might have delivered, which is the real cost of this path, not a hidden one.
+        </p>
+
+        <p>
+            This path suits investors who are approaching retirement or who simply want a calmer, lower leverage portfolio going forward. It tends to be the more conservative of the two main rebalancing choices, since it reduces exposure rather than redeploying capital into a fresh purchase with its own risks and transaction costs.
+        </p>
+
+        <h2>Timing: Comparing a Sell and Redeploy Path</h2>
+
+        <p>
+            The alternative is selling the weakest property and using the proceeds, after tax and transaction costs, to fund a new purchase with a stronger expected yield or better growth outlook. This path aims for a better forward return than either holding the old property or simply paying down debt, but it carries the cost and effort of sourcing, financing and settling a new purchase, plus any Buyer's Stamp Duty and Additional Buyer's Stamp Duty that apply to the replacement property.
+        </p>
+
+        <div class="callout callout-info">
+            <strong>Factor in the full cost:</strong> stamp duty on a replacement purchase can offset a meaningful part of any yield improvement.
+        </div>
+
+        <h2>Frequently Asked Questions</h2>
+
+        <div class="faq-item">
+            <h3 class="faq-question">What counts as an underperforming or zombie property?</h3>
+            <p class="faq-answer">A property yielding under 2 percent gross on current value, with frequent tenant turnover, rising repair costs, or little appreciation over several years. The exact cutoff depends on your goals, but persistent underperformance across more than one of these signs is worth a closer look.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 class="faq-question">How often should I review my property portfolio?</h3>
+            <p class="faq-answer">Once a year is a reasonable rhythm for most investors with two or more properties. Recalculate yield on current value rather than purchase price, and check whether any property has crossed one of the review triggers, such as a large unplanned repair or a run of tenant turnover.</p>
+        </div>
+
+        <div class="faq-item">
+            <h3 class="faq-question">Should I sell an underperforming property or hold and hope it recovers?</h3>
+            <p class="faq-answer">There is no universal answer, but holding purely because of a long ownership history or a paid off mortgage is not a strategy. Compare the forward looking return from holding against the return from selling and redeploying the capital, factoring in Seller's Stamp Duty if it still applies, before deciding.</p>
+        </div>
+
+        <div class="cta-box article-cta">
+            <h3>Get a Second Set of Eyes on Your Portfolio</h3>
+            <p>Bring your holdings and I will help you work through the numbers property by property, no obligation.</p>
+            <div class="cta-buttons">
+                <a href="https://calendly.com/winfredquekoc" class="cta-btn cta-btn-primary" target="_blank" rel="noopener noreferrer">Book a 30 min Call</a>
+                <a href="https://wa.me/6581618149" class="cta-btn cta-btn-secondary" target="_blank" rel="noopener noreferrer">Message on WhatsApp</a>
+            </div>
+        </div>
+
+        <div class="disclaimer">
+            <strong>Disclaimer:</strong> This article is educational only and does not constitute financial, legal, property or investment advice. Winfred Quek is a real estate agent (CEA R073319H), not a licensed financial advisor. Yield and cash flow figures are illustrative only; consult an accountant and financial advisor before making any decision to sell, hold or redeploy capital between properties.
+        </div>
+
+        <div class="sources">
+            <h3>Sources &amp; References</h3>
+            <ul>
+                <li><strong>IRAS, Property Tax Rates and sample calculations:</strong> <a href="https://www.iras.gov.sg/taxes/property-tax/property-owners/property-tax-rates" target="_blank" rel="noopener noreferrer">iras.gov.sg</a></li>
+                <li><strong>IRAS, Stamp Duty for Property (Seller's Stamp Duty included):</strong> <a href="https://www.iras.gov.sg/taxes/stamp-duty/for-property" target="_blank" rel="noopener noreferrer">iras.gov.sg</a></li>
+                <li><strong>URA, Private Residential Property Transactions data:</strong> <a href="https://www.ura.gov.sg/property-market-information/pmiResidentialTransactionSearch" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+                <li><strong>URA, private residential rental and vacancy data:</strong> <a href="https://www.ura.gov.sg/property-data/private-residential-properties/" target="_blank" rel="noopener noreferrer">ura.gov.sg</a></li>
+            </ul>
+        </div>
+
+        <p>
+            Related reading: <a href="/insights/break-even-rental-yield-explained.html">break even rental yield explained</a>, <a href="/insights/second-property-timing-singapore.html">timing a second property purchase</a> and <a href="/insights/how-stamp-duty-stacks-bsd-absd-ssd.html">how BSD, ABSD and SSD stack together</a>.
+        </p>
+
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "Article",
+    "headline": "Portfolio Review: Spotting an Underperforming Property",
+    "description": "A property yielding under 2 percent with rising repair bills is a drag on your portfolio. Here is a simple framework to review holdings and rebalance.",
+    "image": "https://winfredquek.com/og-portfolio-rebalancing-zombie-assets.png",
+    "author": {
+        "@type": "Person",
+        "name": "Winfred Quek",
+        "url": "https://winfredquek.com"
+    },
+    "publisher": {
+        "@type": "Organization",
+        "name": "Crestbrick Pte Ltd",
+        "url": "https://winfredquek.com"
+    },
+    "datePublished": "2026-09-08",
+    "dateModified": "2026-09-08"
+}
+        </script>
+        <script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What counts as an underperforming or zombie property?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "A property yielding under 2 percent gross on current value, with frequent tenant turnover, rising repair costs, or little appreciation over several years. The exact cutoff depends on your goals, but persistent underperformance across more than one of these signs is worth a closer look."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "How often should I review my property portfolio?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Once a year is a reasonable rhythm for most investors with two or more properties. Recalculate yield on current value rather than purchase price, and check whether any property has crossed one of the review triggers, such as a large unplanned repair or a run of tenant turnover."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Should I sell an underperforming property or hold and hope it recovers?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "There is no universal answer, but holding purely because of a long ownership history or a paid off mortgage is not a strategy. Compare the forward looking return from holding against the return from selling and redeploying the capital, factoring in Seller's Stamp Duty if it still applies, before deciding."
+                }
+            }
+        ]
+}
+        </script>
+    </article>
+</body>
+</html>
