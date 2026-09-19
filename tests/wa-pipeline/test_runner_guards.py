@@ -1,5 +1,16 @@
 import sys, os, datetime
-sys.path.insert(0, os.path.expanduser("~/crestbrick-consult/src/wa-pipeline"))
+# resolve relative to THIS file so the suite tests the checkout/worktree it lives in, not
+# whichever copy happens to be at the shared live path (matches test_intake_engine.py).
+_REPO_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+sys.path.insert(0, os.path.join(_REPO_ROOT, "src", "wa-pipeline"))
+
+# Telegram/bridge kill switch (incident, 9 Sep 2026 merge redo -- a sandbox harness run
+# reached Winfred's real phone). Set BEFORE importing any wa-pipeline module: belt and
+# suspenders alongside the per-test mock.patch calls, on top of the physical choke-point
+# checks _tg_send/_send now do on their own. See wa_intake_notify.py's docstring.
+os.environ["WA_INTAKE_NO_TELEGRAM"] = "1"
+os.environ["WA_INTAKE_NO_SEND"] = "1"
+
 import wa_intake_runner as R
 
 P = 0; F = 0
@@ -32,8 +43,12 @@ ok("mixed offset (-04:00) 6 day old row -> still stale", R._real_age_hours(mixed
 
 ok("unparseable ts -> treated as fresh (never drop a live lead)", R._real_age_hours("garbage") == 0)
 
-src = open(os.path.expanduser("~/crestbrick-consult/src/wa-pipeline/wa_intake_runner.py")).read()
+src = open(os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_runner.py")).read()
 send_block = src[src.index("HARD SEND SAFEGUARDS"):src.index("if E.DRY_RUN:")]
+# the daily cap decision itself (bounded-once fields, the ordinary ceiling, the notify
+# text) was split out to wa_intake_send.daily_cap_should_skip, 9 Sep 2026 merge review --
+# the runner's own HARD SEND SAFEGUARDS block just calls it now.
+send_module_src = open(os.path.join(_REPO_ROOT, "src", "wa-pipeline", "wa_intake_send.py")).read()
 ok("freshness guard sits before every real send path", "STALE_SKIP" in send_block and "SEND_MAX_INBOUND_AGE_HOURS" in send_block)
 ok("manual takeover guard sits before every real send path", "TAKEOVER_SKIP" in send_block and "manual_takeover" in send_block)
 ok("co-pilot actions are exempt from the takeover guard only", 'a.get("copilot")' in send_block)
@@ -41,14 +56,104 @@ ok("co-pilot actions are exempt from the takeover guard only", 'a.get("copilot")
 print("== daily cap: max 2 automated touches per client per day (29 Jul 2026) ==")
 ok("cap constant is 2", getattr(R, "DAILY_SEND_CAP", None) == 2)
 ok("cap guard sits before every real send path", "DAILY_CAP_SKIP" in send_block and "DAILY_SEND_CAP" in send_block)
-ok("cap keyed to the SGT day", "8 * 3600" in send_block and "sends_today_date" in send_block)
+ok("cap keyed to the SGT day",
+   "8 * 3600" in send_block and "sends_today_date" in send_module_src)
 ok("viewing confirmations exempt (a YES must never dead-end overnight)",
-   '"CONFIRM_VIEWING"' in send_block
-   and ('a.get("type") != "CONFIRM_VIEWING"' in send_block
-        or 'a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_block))
+   '"CONFIRM_VIEWING"' in send_module_src
+   and ('a.get("type") != "CONFIRM_VIEWING"' in send_module_src
+        or 'a.get("type") in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE")' in send_module_src
+        or ('a.get("type") not in ("CONFIRM_VIEWING", "OFFER_VIEWING", "ASK_ONE",'
+            in send_module_src)))
+# REDIRECT (unit gone / policy excluded / cross sell) and LEASE_NOTE are each a direct,
+# one-shot reply to something the tenant just said -- holding them for the ordinary daily
+# cap dead-ends a prospect who was mid conversation (9 Sep 2026 cycle 3 attack replay fix).
+# Bounded to ONE touch a day via their own date stamp (merge review 9 Sep 2026 -- same
+# mechanism as the VIEWING_TIME_PROPOSED/ASK_TENANT_TIME time reply, never fully exempt;
+# see tests/wa-pipeline/test_time_reply_cap.py for the behavioural coverage).
+ok("daily cap decision delegated to wa_intake_send.daily_cap_should_skip",
+   "daily_cap_should_skip" in send_block)
+ok("REDIRECT and LEASE_NOTE also bounded (one touch a day) from the daily cap",
+   '"REDIRECT"' in send_module_src and '"LEASE_NOTE"' in send_module_src
+   and "redirect_sent_date" in send_module_src
+   and "lease_note_reply_sent_date" in send_module_src)
+# whatever type the ORDINARY cap DOES still hold back must still reach Winfred -- a held
+# reply must never vanish with zero signal. (Not the earlier bounded-once DAILY_CAP_SKIP
+# shared by the time reply / REDIRECT / LEASE_NOTE carve out -- that one intentionally does
+# not notify, same as before this fix.)
+_ordinary_cap_marker = "Daily touch cap reached for "
+ok("a daily cap skip still force notifies Winfred",
+   _ordinary_cap_marker in send_module_src
+   and "notify_winfred_coalesced(" in send_block)
 after_send = src[src.index("count this touch against the per-client daily cap"):]
 ok("counter increments only on a fully delivered send", "sends_today" in after_send[:500]
    and src.index("count this touch") > src.index("_r0.pop(\"partial_sent\", None)"))
+
+print("== A1: PRE-PASS decision never latches on a pasted blank intake form ==")
+_ZWJ = "⁠"
+_bl = lambda label: "•" + _ZWJ + "  " + _ZWJ + label
+_blank_form = ("Hi can help fill in so I can send tenant\n\n"
+               + "\n".join(_bl(x) for x in ("Email address:", "Name:", "Nationality:",
+                                            "Ethnicity:", "Gender:", "Age:")))
+ok("blank form paste (no header, ZWJ, real row 326110 shape) -> FORM_PASTED, not LATCH",
+   R._prelatch_decision(_blank_form) == "FORM_PASTED")
+
+_filled_form = (_bl("Name: chris") + "\n" + _bl("Nationality: malaysia") + "\n"
+                + _bl("Ethnicity: chinese") + "\n" + _bl("Gender:female") + "\n"
+                + _bl("Age:50"))
+ok("FILLED profile forward (real row 327078 shape) -> LATCH (still a human message)",
+   R._prelatch_decision(_filled_form) == "LATCH")
+
+ok("a genuine hand reply ('ok can, see you saturday') -> LATCH",
+   R._prelatch_decision("ok can, see you saturday") == "LATCH")
+
+# the engine's own literal blank template is structurally indistinguishable from a hand
+# paste of it (both are the blank form, verbatim) -- it still resolves to FORM_PASTED here,
+# but the caller's "not _rec.get('form_sent')" guard makes the stamp a no-op once the
+# engine's own send flow has already set form_sent, so nothing double fires in practice.
+ok("the engine's own exact template send also reads as a (harmless, idempotent) FORM_PASTED",
+   R._prelatch_decision(R.E.INTAKE_FORM) == "FORM_PASTED")
+
+ok("pre-pass wires the pure decision helper, not an inline is_engine_outbound branch",
+   "_prelatch_decision(_content)" in src and "FORM_PASTED" in src)
+
+print("== A4: match_listing() prefers OPEN entries over CLOSED ones ==")
+# a stale keyword can survive on a CLOSED row that also matches a live OPEN one (the
+# reviewer found "ang mo kio ave 3" on both). Fixture dict order deliberately puts the
+# CLOSED entry FIRST so a naive first-match-wins scan would return the wrong (closed) one.
+_reqs_amk = {
+    "amk-closed": {"listing_key": "amk-closed", "status": "closed (tenanted)",
+                   "pg_url_keywords": ["ang mo kio ave 3"]},
+    "amk-open": {"listing_key": "amk-open", "status": "open",
+                 "pg_url_keywords": ["ang mo kio ave 3"]},
+}
+ok("closed-first dict order still resolves to the OPEN listing",
+   R.match_listing("still available at ang mo kio ave 3?", _reqs_amk) == "amk-open")
+
+_reqs_amk_open_first = {
+    "amk-open": _reqs_amk["amk-open"], "amk-closed": _reqs_amk["amk-closed"],
+}
+ok("open-first dict order also resolves to the OPEN listing (order never matters)",
+   R.match_listing("still available at ang mo kio ave 3?", _reqs_amk_open_first) == "amk-open")
+
+_reqs_only_closed = {"amk-closed": _reqs_amk["amk-closed"]}
+ok("a CLOSED listing is still returned when nothing OPEN matches (never silently drop it)",
+   R.match_listing("still available at ang mo kio ave 3?", _reqs_only_closed) == "amk-closed")
+
+print("== single sender doctrine: owner loop and category 2 share the SAME send/guard path ==")
+# anti-spam guarantee (i), 9 Sep 2026 merge review: the owner loop must never grow its own
+# sender or its own cooldown guard -- it is handed the runner's own _send/_guard_reserve,
+# the same ones the tenant flow itself calls.
+ok("owner asks use the runner's own _send", "send_fn=_send" in src)
+ok("owner asks use the runner's own _guard_reserve", "guard_reserve_fn=_guard_reserve" in src)
+ok("owner chases use the runner's own _send", "OWNQ.run_owner_chases" in src
+   and "send_fn=_send" in src[src.index("OWNQ.run_owner_chases"):src.index("OWNQ.run_owner_chases") + 200])
+ok("category 2 (REPLIES2) is called from inside the same run() tick, not a separate process",
+   "REPLIES2.augment_action" in src and "def run():" in src
+   and src.index("def run():") < src.index("REPLIES2.augment_action"))
+import wa_intake_owner as OWNQ_mod
+ok("OWNQ never imports its own bridge/requests sender (no second send path)",
+   "requests" not in open(os.path.join(_REPO_ROOT, "src", "wa-pipeline",
+                                       "wa_intake_owner.py")).read())
 
 print(f"\n{P} passed, {F} failed")
 sys.exit(1 if F else 0)

@@ -1,0 +1,9 @@
+# Extends the default gitleaks rules. Listing key slugs in the intake test fixture and
+# tests ("listing_key": "common-room-blk-282-...") trip generic-api-key; they are not secrets.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "listing key slugs are identifiers, not secrets"
+regexTarget = "line"
+regexes = ['''"listing_key":\s*"[a-z0-9_-]+"''']
