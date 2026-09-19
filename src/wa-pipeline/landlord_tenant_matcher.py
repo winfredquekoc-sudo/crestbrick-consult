@@ -17,8 +17,14 @@ from intake_engine import (
     WA_DB, MSG_DB, STATE, LANDLORD_DB
 )
 import sqlite3, functools
+import wa_intake_paths as _P
 
-MATCHING_CONFIG = os.path.expanduser("~/.claude/state/listing-templates/matching-config.json")
+# STEP 0 sandbox seal (merge review, 9 Sep 2026): was a bare os.path.expanduser constant
+# pointing at the real live state dir, unreachable by any env var. Same fix as
+# ninety_nine_co_lister.LISTING_INDEX. It currently has no call sites (nothing in this
+# module reads or writes it), so resolving once at import is enough -- add _P.resolved
+# call-time lookup here the moment a call site appears.
+MATCHING_CONFIG = _P.paths()["matching_config"]
 
 def _load(p, d):
     try: return json.load(open(p))

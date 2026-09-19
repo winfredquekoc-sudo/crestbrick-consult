@@ -47,6 +47,7 @@ _templates/buyer-intake.md
 # These carry real landlord and tenant names, budgets and statuses
 _templates/match-board.json
 _templates/tenant-location-map.json
+_templates/landlord-portal-ids.json
 _local/
 *.bak-*
 .mcp.json.bak*
