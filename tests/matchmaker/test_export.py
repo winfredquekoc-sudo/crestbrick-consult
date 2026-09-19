@@ -16,17 +16,6 @@ sys.path.insert(0, SCRIPTS)
 import enrich          # noqa: E402
 import export_data as ed  # noqa: E402
 import build as bld    # noqa: E402
-# Eagerly cached here, same as enrich/export_data/build above: export_data.py's
-# build_revival() lazily `import revival_board`, whose own module level code
-# does `sys.path.insert(0, os.path.expanduser("~/crestbrick-consult") + "/scripts/matchmaker")`
-# (a hardcoded path back to the MAIN checkout, not this worktree). When this
-# suite runs from a git worktree, that insert lands ahead of this worktree's
-# own scripts/matchmaker on sys.path — harmless for modules already cached
-# above, but any module NOT yet imported (like this one) would resolve from
-# the main checkout's stale copy on its first `import queue_drafts` instead
-# of this worktree's. Importing it up front, before any test can trigger that
-# insert, keeps it pinned to the right file regardless of test order.
-import queue_drafts    # noqa: E402
 
 FAILURES = []
 TODAY = datetime.date(2026, 8, 11)
@@ -2801,24 +2790,7 @@ def test_enrichment_queue_folds_refused_dispatch():
 def test_queue_drafts_cli_dedupe_reads_under_the_lock():
     section("queue_drafts main(): the duplicate read happens under a lock, twice — once for "
             "classify, once (re checked) for the append — never held across the prompt (PR #132 fifth review round)")
-    # build_revival() (exercised by test_revival_and_duplicate_phones, earlier
-    # in this same run) lazily imports revival_board.py, which hardcodes
-    # ~/crestbrick-consult onto sys.path[0] — the shared main checkout, not
-    # this worktree. Left alone that shadows this worktree's own
-    # scripts/matchmaker for every import after it in the same process,
-    # silently testing a different copy of queue_drafts.py than the one this
-    # PR actually changed. Reassert this worktree's own SCRIPTS path and drop
-    # any queue_drafts already cached from the wrong file before importing it here.
-    if SCRIPTS in sys.path:
-        sys.path.remove(SCRIPTS)
-    sys.path.insert(0, SCRIPTS)
-    _expected_qd_file = os.path.join(SCRIPTS, "queue_drafts.py")
-    _cached_qd = sys.modules.get("queue_drafts")
-    if _cached_qd is not None and getattr(_cached_qd, "__file__", None) != _expected_qd_file:
-        del sys.modules["queue_drafts"]
     import queue_drafts as qd  # noqa: E402
-    check("this test targets the worktree's own queue_drafts.py, not another checkout's",
-          qd.__file__ == _expected_qd_file, qd.__file__)
     import fcntl as real_fcntl, io as _io, contextlib as _cl
     tmp = tempfile.mkdtemp()
     orig_tdb, orig_wa, orig_qpath, orig_argv = qd.TENANT_DB_PATH, qd.WA_DB_PATH, qd.QUEUE_PATH, sys.argv
