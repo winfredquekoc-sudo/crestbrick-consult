@@ -79,5 +79,38 @@
   "min": 1,
   "night_muted": true,
   "note": "the deterministic step-5b scan should find at least one candidate on a live inbox"
+ },
+ {
+  "name": "wa-inbound-silence",
+  "type": "wa_inbound_fresh",
+  "path": "~/whatsapp-mcp/whatsapp-bridge/store/messages.db",
+  "max_age_minutes": 45,
+  "active_hours": [8, 23],
+  "night_muted": false,
+  "fix": "bridge process is up but nothing is arriving. Check ~/.claude/bin/whatsapp-bridge.launchd.out.log for 'Client outdated (405)'; if present, update whatsmeow and rebuild (cd ~/whatsapp-mcp/whatsapp-bridge && go get go.mau.fi/whatsmeow@latest && go build) then launchctl kickstart -k gui/$(id -u)/com.crestbrick.whatsapp-bridge. A plain restart does not fix a 405.",
+  "note": "9 Sep 2026: the bridge hit a 405 (whatsmeow below WhatsApp's minimum client version) and never reconnected; the process stayed up and http checks stayed green while messages.db took zero inbound rows for 5 hours. Newest is_from_me=0 row is found by PARSING every candidate timestamp (mixed +08:00/-04:00 offsets; rowid order is not time order), via a read-only uri open on /usr/bin/python3. Escalates only inside 08:00-23:00 SGT and is skipped outside that window. A 30 day check (9 Sep 2026) of inbound gaps at 09:30/21:30 gave a max gap of 22 min with group chats counted, 68 min without them, so the 45 min limit has roughly 2x headroom only because groups are counted -- if the busy groups go quiet, raise this to 60-75."
+ },
+ {
+  "name": "wa-bridge-405",
+  "type": "log_pattern_absent",
+  "path": "~/.claude/bin/whatsapp-bridge.launchd.out.log",
+  "pattern": "Client outdated \\(405\\)",
+  "tail_lines": 4000,
+  "cleared_by": "\\[Client INFO\\] Connected to WhatsApp",
+  "night_muted": false,
+  "fix": "whatsmeow is below WhatsApp's minimum client version. Update and rebuild: cd ~/whatsapp-mcp/whatsapp-bridge && go get go.mau.fi/whatsmeow@latest && go build, then launchctl kickstart -k gui/$(id -u)/com.crestbrick.whatsapp-bridge. Restarting alone does NOT fix this.",
+  "note": "the log is append-only across restarts (~12k lines and growing), so a bare pattern-in-tail check would false-alarm right after a fix lands -- in the 9 Sep incident the successful reconnect landed ~140 lines after the 405 line, both inside the 200-line tail. cleared_by lets a later 'Connected to WhatsApp' clear an earlier 405 in the same window. tail_lines is 4000, not 200: the watchdog runs every 12h (09:30/21:30 SGT) and the log grows ~180 lines/h normally, ~30/h during an outage, so 200 lines covers only ~6.7h -- a 405 starting after the 21:30 run would already be outside a 200-line tail by 09:30. cleared_by still clears a historical 405 even inside the wider 4000-line tail."
+ },
+ {
+  "name": "wa-send-fail-recent",
+  "type": "log_recent_count",
+  "path": "~/.claude/state/listing-templates/dry-run-preview.log",
+  "pattern": "\\| SEND_FAIL \\|",
+  "window_minutes": 720,
+  "max": 0,
+  "active_hours": [8, 23],
+  "night_muted": false,
+  "fix": "intake sends are failing at the bridge. Check wa-inbound-silence and wa-bridge-405; a 405 needs a whatsmeow update and rebuild, not a restart.",
+  "note": "lines look like '2026-09-09 07:00:37 | SEND_FAIL | 6512345678 | SEND_FORM', naive SGT timestamps (machine TZ is SGT +08). window_minutes is 720 (12h), matching the watchdog's own run interval (09:30/21:30 SGT), not 60: the 9 Sep SEND_FAILs landed at 07:00 and a 60 min window checked at 09:30 would have missed them entirely. A real failure may therefore surface as an alert at two consecutive runs (the same SEND_FAIL still inside both 12h windows) -- that double-alert is intended, not a bug."
  }
 ]

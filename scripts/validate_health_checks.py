@@ -24,12 +24,28 @@ When you can't, use a generous window and say so in the note.
 import argparse
 import json
 import os
+import re
 import sys
 
-VALID_TYPES = {"file_fresh", "json_positive", "json_changed"}
+VALID_TYPES = {"file_fresh", "json_positive", "json_changed",
+              "wa_inbound_fresh", "log_pattern_absent", "log_recent_count"}
 REQUIRED = {"name", "type"}
 DEFAULT_CONFIG = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                               "health_watchdog_checks.json")
+
+
+def _is_int(v):
+    return isinstance(v, int) and not isinstance(v, bool)
+
+
+def _re_ok(pattern):
+    if not isinstance(pattern, str) or not pattern:
+        return False
+    try:
+        re.compile(pattern)
+        return True
+    except re.error:
+        return False
 
 
 def validate(checks):
@@ -70,6 +86,53 @@ def validate(checks):
                 errors.append(f"{where}: json_changed needs 'path'")
             if not c.get("field"):
                 errors.append(f"{where}: json_changed needs 'field'")
+        elif t == "wa_inbound_fresh":
+            if not c.get("path"):
+                errors.append(f"{where}: wa_inbound_fresh needs 'path'")
+            age = c.get("max_age_minutes")
+            if not isinstance(age, (int, float)) or isinstance(age, bool) or age <= 0:
+                errors.append(f"{where}: wa_inbound_fresh needs positive 'max_age_minutes'")
+            fix = c.get("fix")
+            if not isinstance(fix, str) or not fix.strip():
+                errors.append(f"{where}: wa_inbound_fresh needs non-empty 'fix'")
+        elif t == "log_pattern_absent":
+            if not c.get("path"):
+                errors.append(f"{where}: log_pattern_absent needs 'path'")
+            if not _re_ok(c.get("pattern")):
+                errors.append(f"{where}: log_pattern_absent needs a compilable 'pattern'")
+            fix = c.get("fix")
+            if not isinstance(fix, str) or not fix.strip():
+                errors.append(f"{where}: log_pattern_absent needs non-empty 'fix'")
+            if "cleared_by" in c and not _re_ok(c.get("cleared_by")):
+                errors.append(f"{where}: log_pattern_absent 'cleared_by' does not compile")
+        elif t == "log_recent_count":
+            if not c.get("path"):
+                errors.append(f"{where}: log_recent_count needs 'path'")
+            if not _re_ok(c.get("pattern")):
+                errors.append(f"{where}: log_recent_count needs a compilable 'pattern'")
+            window = c.get("window_minutes")
+            if not isinstance(window, (int, float)) or isinstance(window, bool) or window <= 0:
+                errors.append(f"{where}: log_recent_count needs positive 'window_minutes'")
+            if "max" in c and (not _is_int(c.get("max")) or c["max"] < 0):
+                errors.append(f"{where}: log_recent_count 'max' must be a non-negative int")
+            fix = c.get("fix")
+            if not isinstance(fix, str) or not fix.strip():
+                errors.append(f"{where}: log_recent_count needs non-empty 'fix'")
+        # common, any type
+        if "tail_lines" in c and (not _is_int(c.get("tail_lines")) or c["tail_lines"] <= 0):
+            errors.append(f"{where}: 'tail_lines' must be a positive int")
+        ah = c.get("active_hours")
+        if ah is not None and (not isinstance(ah, list) or len(ah) != 2
+                                or not all(_is_int(x) for x in ah)
+                                or not (0 <= ah[0] < ah[1] <= 24)):
+            errors.append(f"{where}: 'active_hours' must be [start, end] ints, "
+                          "0 <= start < end <= 24")
+        nm = c.get("night_muted")
+        if nm is not None and not isinstance(nm, bool):
+            errors.append(f"{where}: 'night_muted' must be a bool")
+        fix = c.get("fix")
+        if fix is not None and (not isinstance(fix, str) or not fix.strip()):
+            errors.append(f"{where}: 'fix' must be a non-empty string")
         # advisory: a check with no note is allowed but discouraged
     return errors
 
